@@ -1,0 +1,19 @@
+# Riftbound Card Sorter — Python dependencies
+# Install: pip install -r requirements.txt
+
+# Hardware
+RPi.GPIO>=0.7.1
+adafruit-circuitpython-pca9685>=3.4.7
+adafruit-circuitpython-motor>=3.4.11
+hx711>=1.1.2.3
+picamera2>=0.3.19
+
+# Vision
+Pillow>=10.0.0
+imagehash>=4.3.1
+
+# Web UI
+flask>=3.0.0
+
+# Utilities
+requests>=2.31.0

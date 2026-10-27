@@ -1,0 +1,56 @@
+{
+  "_comment": "Sort rules for Riftbound card sorter. Rules evaluated top-to-bottom, first match wins.",
+  "_bin_count": 8,
+  "_reject_bin": 9,
+
+  "rules": [
+    {
+      "name": "Champions",
+      "match": {"type": "Champion"},
+      "bin": 0,
+      "description": "All champion cards"
+    },
+    {
+      "name": "Spells",
+      "match": {"type": "Spell"},
+      "bin": 1,
+      "description": "All spells"
+    },
+    {
+      "name": "Followers",
+      "match": {"type": "Follower"},
+      "bin": 2,
+      "description": "All followers"
+    },
+    {
+      "name": "Equipment",
+      "match": {"type": "Equipment"},
+      "bin": 3,
+      "description": "All equipment"
+    },
+    {
+      "name": "Legendary/Epic",
+      "match": {"rarity": ["Legendary", "Epic"]},
+      "bin": 4,
+      "description": "High-rarity cards across all types"
+    },
+    {
+      "name": "Rare",
+      "match": {"rarity": "Rare"},
+      "bin": 5,
+      "description": "Rare cards"
+    },
+    {
+      "name": "Common/Basic",
+      "match": {"rarity": ["Common", "Basic"]},
+      "bin": 6,
+      "description": "Commons and basics"
+    },
+    {
+      "name": "Default",
+      "match": {"default": true},
+      "bin": 7,
+      "description": "Anything unmatched"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+[Unit]
+Description=Riftbound Card Sorter
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/riftbound-sorter
+ExecStart=/home/pi/riftbound-sorter/venv/bin/python main.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=riftbound-sorter
+
+# GPIO access
+SupplementaryGroups=gpio i2c video
+
+[Install]
+WantedBy=multi-user.target
+
+# ─────────────────────────────────────────────
+# Install:
+#   sudo cp scripts/riftbound-sorter.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable riftbound-sorter
+#   sudo systemctl start riftbound-sorter
+#
+# Logs:
+#   journalctl -u riftbound-sorter -f
+#
+# Web UI (after start):
+#   http://riftbound-sorter.local:5000
+# ─────────────────────────────────────────────
