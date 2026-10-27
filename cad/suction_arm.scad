@@ -7,7 +7,7 @@
 // =============================================
 
 arm_len     = 130;
-arm_w       = 18;
+arm_w       = 20;   // FIX: was 18mm — servo horn holes (15mm PCD, 3.2mm dia) punched 0.1mm past edge
 arm_thick   = 10;
 
 pivot_dia   = 5.2;    // pivot rod hole

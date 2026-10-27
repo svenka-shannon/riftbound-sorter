@@ -34,7 +34,8 @@ outer_h     = inner_h + wall;           // 108mm
 //
 // Previous value was 3.5mm — that 3.2mm of excess clearance allowed 2–3
 // cards to exit simultaneously before the load cell could detect a double-pick.
-exit_slot_h = 0.65;   // single-card slot (was 3.5 — caused double-picks)
+exit_slot_h = 0.80;   // single-card slot: 0.80mm > card_thick_max (0.35mm), wedge brings effective to 0.40mm
+                      // FIX: was 0.65mm — wedge (sep_wedge_h) was only 0.15mm which is below 0.4mm nozzle min
 exit_slot_w = inner_w + 0.5;
 
 // Separation wedge parameters
@@ -58,7 +59,9 @@ exit_slot_w = inner_w + 0.5;
 // which would leave only 0.07mm clearance — all cards would jam.  The actual angle
 // here is arctan(0.15 / 1.0) ≈ 8.5°, which is the steepest angle that keeps a
 // worst-case 0.35mm card moving freely while still blocking a double-card entry.
-sep_wedge_h     = 0.15;   // lip projection downward into slot at outer face (mm)
+sep_wedge_h     = 0.40;   // lip projection downward into slot at outer face (mm)
+                          // FIX: was 0.15mm — below 0.4mm nozzle dia, slicer drops it entirely
+                          // 0.40mm = 1 extrusion width exactly (printable), effective slot = 0.40mm
 sep_wedge_depth = 1.0;    // wedge length into slot in Y direction (mm); ≥0.5mm for P1S
 
 spring_w    = 25;

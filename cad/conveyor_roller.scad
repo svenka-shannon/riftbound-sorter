@@ -8,7 +8,7 @@
 // =============================================
 
 roller_dia  = 22;
-roller_w    = 75;
+roller_w    = 90;   // FIX: was 75mm — shorter than card height (88mm), cards tip at top 13mm
 shaft_bore  = 8.2;   // clearance for 8mm steel rod
 
 oring_w     = 2.2;   // O-ring cross-section width

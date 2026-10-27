@@ -295,11 +295,47 @@
 <!-- CAD -->
 <section id="cad" class="section">
   <h2>3D Printed Parts</h2>
-  <p class="section-desc">9 OpenSCAD files. All parts fit Bambu P1S (256×256mm bed). Conveyor rails split 2×190mm with alignment pins.</p>
-  <div class="diagram-grid">
-    <div class="diagram-card">
-      <img src="images/card-sorter-3dprint.png" alt="3D Print Specs" onclick="zoom(this)">
-      <div class="caption"><strong>3D Print Specs v0.1</strong> — 28 parts, ~30 hrs total, ~390g PLA (~$8). Hopper exit slot 0.65mm (single-card feed). PETG for suction arm and gate levers.</div>
+  <p class="section-desc">9 OpenSCAD files, validated &amp; rendered with OpenSCAD 2026.10.27. All parts fit Bambu P1S (256×256mm bed). 4 geometry bugs fixed after automated validation pass.</p>
+
+  <!-- Real OpenSCAD renders -->
+  <div style="margin-bottom:20px">
+    <div style="font-size:0.8rem; color:#3fb950; margin-bottom:8px">✓ Rendered from actual SCAD files · 53 checks PASS · 4 bugs fixed</div>
+    <div class="diagram-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:12px">
+      <div class="diagram-card">
+        <img src="images/assembly-iso.png" alt="Assembly — Isometric" onclick="zoom(this)" style="background:#1a1a2a">
+        <div class="caption"><strong>Assembly — Isometric</strong> · hopper (left) → conveyor → output bins (right)</div>
+      </div>
+      <div class="diagram-card">
+        <img src="images/assembly-back-iso.png" alt="Assembly — Rear 3/4" onclick="zoom(this)" style="background:#1a1a2a">
+        <div class="caption"><strong>Assembly — Rear ¾ view</strong> · sort gate levers + output bin grid visible</div>
+      </div>
+    </div>
+
+    <div class="diagram-grid" style="grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:8px">
+      <div class="diagram-card" style="padding:8px">
+        <img src="images/part-hopper.png" alt="Hopper" onclick="zoom(this)" style="background:#1a1a2a">
+        <div class="caption" style="font-size:0.75rem"><strong>Hopper</strong> — exit slot 0.80mm<br><span style="color:#f85149">Fixed: was 0.65 + 0.15mm wedge (unprintable) → 0.80 + 0.40mm</span></div>
+      </div>
+      <div class="diagram-card" style="padding:8px">
+        <img src="images/part-conveyor_roller.png" alt="Roller" onclick="zoom(this)" style="background:#1a1a2a">
+        <div class="caption" style="font-size:0.75rem"><strong>Conveyor Roller</strong> — 90mm wide, 22mm dia<br><span style="color:#f85149">Fixed: was 75mm, shorter than card height (88mm)</span></div>
+      </div>
+      <div class="diagram-card" style="padding:8px">
+        <img src="images/part-suction_arm.png" alt="Suction Arm" onclick="zoom(this)" style="background:#1a1a2a">
+        <div class="caption" style="font-size:0.75rem"><strong>Suction Arm</strong> — 130mm, 20mm wide<br><span style="color:#f85149">Fixed: was 18mm, servo horn holes punched 0.1mm past edge</span></div>
+      </div>
+      <div class="diagram-card" style="padding:8px">
+        <img src="images/part-scanner_hood.png" alt="Scanner Hood" onclick="zoom(this)" style="background:#1a1a2a">
+        <div class="caption" style="font-size:0.75rem"><strong>Scanner Hood</strong> — 95×75×65mm, black PLA</div>
+      </div>
+      <div class="diagram-card" style="padding:8px">
+        <img src="images/part-electronics_tray.png" alt="Electronics Tray" onclick="zoom(this)" style="background:#1a1a2a">
+        <div class="caption" style="font-size:0.75rem"><strong>Electronics Tray</strong> — 185×125mm<br>Fixed: added HX711 + load cell beam mounts</div>
+      </div>
+      <div class="diagram-card" style="padding:8px">
+        <img src="images/part-output_bin.png" alt="Output Bin" onclick="zoom(this)" style="background:#1a1a2a">
+        <div class="caption" style="font-size:0.75rem"><strong>Output Bin</strong> — 82×129mm inner, ×9 (8 sort + 1 reject)</div>
+      </div>
     </div>
   </div>
 
