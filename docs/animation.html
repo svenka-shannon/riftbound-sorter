@@ -288,15 +288,16 @@ scene.add(gridHelper);
 const FLOOR_Y = [4, 72];   // Y base of each floor in tray
 const COL_ZS  = [-97.5, -32.5, 32.5, 97.5];  // Z center of each column
 
+// Riftbound domains (colors): 6 domains + Colorless + Reject = 8 slots
 const CARD_TYPES = [
-  { name: 'Champion',  slot: 0, floor: 0, col: 0, hex: 0xcc2233, css: '#cc2233' },
-  { name: 'Spell',     slot: 1, floor: 0, col: 1, hex: 0x2244cc, css: '#2244cc' },
-  { name: 'Follower',  slot: 2, floor: 0, col: 2, hex: 0x22aa44, css: '#22aa44' },
-  { name: 'Equipment', slot: 3, floor: 0, col: 3, hex: 0xcc8800, css: '#cc8800' },
-  { name: 'Legendary', slot: 4, floor: 1, col: 0, hex: 0x9922cc, css: '#9922cc' },
-  { name: 'Rare',      slot: 5, floor: 1, col: 1, hex: 0x0099cc, css: '#0099cc' },
-  { name: 'Common',    slot: 6, floor: 1, col: 2, hex: 0x888888, css: '#888888' },
-  { name: 'Basic',     slot: 7, floor: 1, col: 3, hex: 0x556677, css: '#556677' },
+  { name: 'Fury',       slot: 0, floor: 0, col: 0, hex: 0xcc2233, css: '#cc2233' }, // red
+  { name: 'Mind',       slot: 1, floor: 0, col: 1, hex: 0x2244cc, css: '#2244cc' }, // blue
+  { name: 'Calm',       slot: 2, floor: 0, col: 2, hex: 0x22aa44, css: '#22aa44' }, // green
+  { name: 'Body',       slot: 3, floor: 0, col: 3, hex: 0xff7700, css: '#ff7700' }, // orange
+  { name: 'Chaos',      slot: 4, floor: 1, col: 0, hex: 0x9922cc, css: '#9922cc' }, // purple
+  { name: 'Order',      slot: 5, floor: 1, col: 1, hex: 0xddcc00, css: '#ddcc00' }, // yellow
+  { name: 'Colorless',  slot: 6, floor: 1, col: 2, hex: 0x888888, css: '#888888' }, // grey
+  { name: 'Reject',     slot: 7, floor: 1, col: 3, hex: 0x334455, css: '#334455' }, // dark
 ];
 // Add computed slotZ and slotFloorY for convenience
 CARD_TYPES.forEach(ct => {
