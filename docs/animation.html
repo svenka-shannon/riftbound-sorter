@@ -233,7 +233,9 @@ scene.fog = new THREE.FogExp2(0x0a0a0f, 0.00035);
 
 const W = window.innerWidth, H = window.innerHeight;
 const camera = new THREE.PerspectiveCamera(45, W/H, 1, 8000);
-camera.position.set(300, 200, 600);
+// Camera positioned to show full machine: X=-270 (hopper) to X=310 (tray), Z=±295 (tray slots)
+// Orbit center at X=20 (mid-machine), Z=0 (centered on tray)
+camera.position.set(200, 280, 800);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(W, H);
@@ -246,7 +248,7 @@ renderer.toneMappingExposure = 1.1;
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 60, 0);
+controls.target.set(20, 40, 0);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
 controls.minDistance = 100;
@@ -415,29 +417,46 @@ scene.add(paddlePivot);
 // --- Sorting tray (right side) ---
 // X from 240 to 450, 9 slots in Z axis
 // Slot Z positions: [-160,-120,-80,-40,0,40,80,120,160]
-const TRAY_X_START = 240;
-const TRAY_X_END   = 450;
+// Tray: 85mm deep in X (was 210mm — caused 680mm total machine width, over 580mm plan)
+// Total machine X: hopper left (-266) to tray back (310) = 576mm ✓
+const TRAY_X_START = 225;
+const TRAY_X_END   = 310;
 const TRAY_Y_BASE  = 0;
-const SLOT_ZS = [-160, -120, -80, -40, 0, 40, 80, 120, 160];
+// 9 slots at 65mm spacing (card 63mm + 2mm clearance, matching sorting_tray.scad)
+// Total tray Z span: 585mm, within 610mm (2ft) footprint ✓
+const SLOT_ZS = [-260, -195, -130, -65, 0, 65, 130, 195, 260];
 
 // Tray frame
-const trayFloor = makeBox(TRAY_X_END - TRAY_X_START, 4, 360, 0xb0b0b8);
+// Tray floor spans full Z range of all 9 slots (585mm = 9×65mm)
+const TRAY_Z_SPAN = 585;
+const trayFloor = makeBox(TRAY_X_END - TRAY_X_START, 4, TRAY_Z_SPAN, 0xb0b0b8);
 trayFloor.position.set((TRAY_X_START + TRAY_X_END)/2, TRAY_Y_BASE + 2, 0);
 scene.add(trayFloor);
 
 // Tray back wall
-const trayBack = makeBox(4, 70, 360, 0xc0c0c8);
+const trayBack = makeBox(4, 70, TRAY_Z_SPAN, 0xc0c0c8);
 trayBack.position.set(TRAY_X_END, 35, 0);
 scene.add(trayBack);
 
-// Dividers between slots
-for(let sz of SLOT_ZS) {
-  const div = makeBox(TRAY_X_END - TRAY_X_START, 50, 3, 0x888898);
-  div.position.set((TRAY_X_START + TRAY_X_END)/2, 27, sz - 20);
+// Outer side walls (front face open for card access)
+const traySideL = makeBox(TRAY_X_END - TRAY_X_START, 70, 3, 0xc0c0c8);
+traySideL.position.set((TRAY_X_START + TRAY_X_END)/2, 35, -TRAY_Z_SPAN/2 - 1.5);
+scene.add(traySideL);
+const traySideR = makeBox(TRAY_X_END - TRAY_X_START, 70, 3, 0xc0c0c8);
+traySideR.position.set((TRAY_X_START + TRAY_X_END)/2, 35, TRAY_Z_SPAN/2 + 1.5);
+scene.add(traySideR);
+
+// Dividers between each slot (65mm spacing, 2mm thick)
+for(let i = 0; i < SLOT_ZS.length - 1; i++) {
+  const divZ = (SLOT_ZS[i] + SLOT_ZS[i+1]) / 2;  // midpoint between slots
+  const div = makeBox(TRAY_X_END - TRAY_X_START, 70, 2, 0x888898);
+  div.position.set((TRAY_X_START + TRAY_X_END)/2, 35, divZ);
   scene.add(div);
-  // Label marker
-  const lw = makeWireBox(10, 8, 10, 0x446666);
-  lw.position.set(TRAY_X_START + 5, 5, sz);
+}
+// Label markers at front of each slot
+for(let i = 0; i < SLOT_ZS.length; i++) {
+  const lw = makeWireBox(8, 6, 12, 0x446688);
+  lw.position.set(TRAY_X_START + 4, 3, SLOT_ZS[i]);
   scene.add(lw);
 }
 
@@ -502,7 +521,10 @@ function addCardToTray(slotIdx, colorHex) {
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;
   const sz = SLOT_ZS[slotIdx];
-  mesh.position.set(TRAY_X_START + 15 + cardIdx * (CARD_T + 3), CARD_H/2 + TRAY_Y_BASE + 4, sz);
+  // Cards stand upright in slot, stacking toward back (X+).
+  // Each card: 2mm thick in X, 88mm tall in Y, 63mm wide in Z (face visible from front).
+  // Start 10mm from front face, stack toward back.
+  mesh.position.set(TRAY_X_START + 10 + cardIdx * (CARD_T + 2), CARD_H/2 + TRAY_Y_BASE + 4, sz);
   scene.add(mesh);
   arr.push(mesh);
 }
@@ -741,10 +763,10 @@ function animate(ts) {
   // Slow orbit camera
   if(!controls.enableRotate || !controls._userInteracted) {
     const angle = ts * 0.00004;
-    camera.position.x = 300 * Math.cos(angle) + 50;
-    camera.position.z = 600 * Math.sin(angle) + 50;
-    camera.position.y = 200 + 40 * Math.sin(ts * 0.00012);
-    camera.lookAt(0, 60, 0);
+    camera.position.x = 200 * Math.cos(angle) + 20;
+    camera.position.z = 800 * Math.sin(angle);
+    camera.position.y = 280 + 40 * Math.sin(ts * 0.00012);
+    camera.lookAt(20, 40, 0);
   }
 
   controls.update();
