@@ -7,17 +7,18 @@ Flow:
   3. Return (riftbound_id, confidence) — confidence = 1.0 - (hamming_dist / 64)
 
 Requires: imagehash, Pillow
-Hash DB stored at /tmp/riftbound-sorter/cache/hash_db.json
+Hash DB stored at data/hash_db.json (project-relative, persistent across reboots)
 """
 
 import io
 import json
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from PIL import Image
 import imagehash
 
-HASH_DB_FILE = Path("/tmp/riftbound-sorter/cache/hash_db.json")
+HASH_DB_FILE = Path(__file__).parent.parent / "data" / "hash_db.json"
 HASH_SIZE    = 16      # pHash size (16×16 = 256-bit hash)
 MIN_CONF     = 0.75    # below this confidence → reject (unknown card)
 
@@ -38,21 +39,35 @@ def build_hash_db(cards: dict[str, dict], force: bool = False):
 
     HASH_DB_FILE.parent.mkdir(parents=True, exist_ok=True)
     print(f"[identify] Building hash DB for {len(cards)} cards...")
-    errors = 0
 
-    for card_id, card in cards.items():
-        img_url = card.get("image_url")
-        if not img_url:
-            continue
-        try:
-            with urllib.request.urlopen(img_url, timeout=8) as resp:
-                img = Image.open(io.BytesIO(resp.read())).convert("RGB")
-            h = imagehash.phash(img, hash_size=HASH_SIZE)
-            _hash_db[card_id] = str(h)
-        except Exception as e:
-            errors += 1
-            if errors <= 5:
-                print(f"[identify] Warning: failed to hash {card_id}: {e}")
+    # Collect only cards that have an image URL
+    work_items = [(card_id, card["image_url"])
+                  for card_id, card in cards.items()
+                  if card.get("image_url")]
+
+    def _download_and_hash(card_id: str, img_url: str):
+        with urllib.request.urlopen(img_url, timeout=8) as resp:
+            img = Image.open(io.BytesIO(resp.read())).convert("RGB")
+        h = imagehash.phash(img, hash_size=HASH_SIZE)
+        return card_id, str(h)
+
+    errors = 0
+    completed = 0
+    with ThreadPoolExecutor(max_workers=20) as pool:
+        futures = {pool.submit(_download_and_hash, cid, url): cid
+                   for cid, url in work_items}
+        for future in as_completed(futures):
+            card_id = futures[future]
+            try:
+                cid, hash_str = future.result()
+                _hash_db[cid] = hash_str
+            except Exception as e:
+                errors += 1
+                if errors <= 5:
+                    print(f"[identify] Warning: failed to hash {card_id}: {e}")
+            completed += 1
+            if completed % 50 == 0:
+                print(f"[identify] Progress: {completed}/{len(work_items)} cards hashed...")
 
     HASH_DB_FILE.write_text(json.dumps(_hash_db, indent=2))
     print(f"[identify] Hash DB built: {len(_hash_db)} cards, {errors} errors")

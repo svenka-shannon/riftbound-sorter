@@ -24,7 +24,7 @@ import argparse
 import signal
 import threading
 
-from hardware import servos, vacuum, loadcell, camera
+from hardware import servos, vacuum, loadcell, camera, conveyor
 from vision.identify import build_hash_db, identify
 from api import riftcodex, inventory
 from sorter.rules_engine import RulesEngine
@@ -35,8 +35,11 @@ PICKUP_RETRY_MAX   = 3
 CONVEYOR_TRAVEL_S  = 1.2   # seconds for card to reach scanner from pickup
 SORT_TRAVEL_S      = 0.8   # seconds from scanner to sort gate
 
-_running = True
-_stats   = {"total": 0, "errors": 0, "double_picks": 0, "unknowns": 0}
+_running       = True
+_stats         = {"total": 0, "errors": 0, "double_picks": 0, "unknowns": 0}
+_status        = {"state": "running", "hopper_empty": False, "cards_remaining_estimate": 0}
+_empty_counter = 0
+_session_start = time.time()
 
 
 def shutdown(sig=None, frame=None):
@@ -44,6 +47,7 @@ def shutdown(sig=None, frame=None):
     print("\n[main] Shutting down...")
     _running = False
     vacuum.pump_off()
+    conveyor.deinit()
     servos.reset_all()
     servos.deinit()
     vacuum.deinit()
@@ -55,6 +59,8 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> bool:
     Full pick-scan-sort cycle for one card.
     Returns True on success, False on error/skip.
     """
+    global _empty_counter
+
     # 1. Lower arm + activate pump
     servos.pickup_arm_down()
     vacuum.pump_on()
@@ -67,7 +73,12 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> bool:
     if result == "empty":
         vacuum.pump_off()
         servos.pickup_arm_up()
-        print("[main] No card detected — hopper empty?")
+        _empty_counter += 1
+        if _empty_counter >= 3 and not _status["hopper_empty"]:
+            print(f"[main] HOPPER EMPTY — {_empty_counter} consecutive empty picks. Please refill.")
+            _status["hopper_empty"] = True
+        else:
+            print("[main] No card detected — hopper empty?")
         return False
 
     if result == "double":
@@ -76,16 +87,34 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> bool:
         time.sleep(0.1)
         vacuum.pulse(0.2)   # brief burst to drop extra card
         servos.pickup_arm_up()
+        # A double pick still means the hopper has cards
+        _empty_counter = 0
+        if _status["hopper_empty"]:
+            print("[main] Card detected — hopper refilled, resuming.")
+            _status["hopper_empty"] = False
         _stats["double_picks"] += 1
         return False
 
+    # Card confirmed present — reset hopper-empty state
+    _empty_counter = 0
+    if _status["hopper_empty"]:
+        print("[main] Card detected — hopper refilled, resuming.")
+        _status["hopper_empty"] = False
+
     # 3. Lift card + transport to scanner
     servos.pickup_arm_up()
-    time.sleep(CONVEYOR_TRAVEL_S)
+    conveyor.transport_card(CONVEYOR_TRAVEL_S)
     vacuum.pump_off()    # release card at scanner station
+
+    # 3a. Pause conveyor briefly so card is stationary during capture
+    conveyor.stop()
+    time.sleep(0.3)
 
     # 4. Capture + identify
     jpeg = camera.capture_card_jpeg()
+
+    # Resume conveyor to carry card toward sort gate
+    conveyor.run()
     card_id, confidence = identify(jpeg)
 
     if card_id is None:
@@ -147,24 +176,27 @@ def main():
     signal.signal(signal.SIGINT,  shutdown)
     signal.signal(signal.SIGTERM, shutdown)
 
-    # Initialize hardware
+    # Pre-load Riftcodex card data (network, no hardware needed)
+    cards = riftcodex.fetch_all_cards()
+
+    if args.build_db:
+        # Build-only: no hardware needed; just ensure data/ dir exists
+        inventory.init()
+        build_hash_db(cards, force=True)
+        sys.exit(0)
+
+    # Initialize hardware (all other modes need it)
     servos.init()
     vacuum.init()
     loadcell.init()
     camera.init()
+    conveyor.init()
     inventory.init()
-
-    # Pre-load Riftcodex card data
-    cards = riftcodex.fetch_all_cards()
 
     if args.calibrate:
         print("Place a single Riftbound card on the load cell and press Enter...")
         input()
         loadcell.calibrate(known_weight_g=1.75)
-        shutdown()
-
-    if args.build_db:
-        build_hash_db(cards, force=True)
         shutdown()
 
     # Load hash DB
@@ -178,7 +210,7 @@ def main():
         daemon=True
     )
     web_thread.start()
-    print("[main] Web UI running at http://raspberrypi.local:5000")
+    print("[main] Web UI running at http://riftbound-sorter.local:5000  (or http://<pi-ip>:5000)")
 
     if args.web_only:
         print("[main] Web-only mode. Ctrl+C to exit.")

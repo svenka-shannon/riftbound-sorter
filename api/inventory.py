@@ -7,16 +7,20 @@ Tables:
 """
 
 import sqlite3
+import threading
 import time
 from pathlib import Path
 
-DB_PATH = Path("/tmp/riftbound-sorter/data/inventory.db")
+DB_PATH = Path(__file__).parent.parent / "data/inventory.db"
+
+_write_lock = threading.Lock()
 
 
 def _conn() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
     return conn
 
 
@@ -46,19 +50,20 @@ def init():
 def record_scan(card_id: str, card_name: str, bin_num: int, confidence: float):
     """Log a single card scan."""
     ts = time.time()
-    with _conn() as db:
-        db.execute(
-            "INSERT INTO scans(card_id, card_name, bin, confidence, ts) VALUES (?,?,?,?,?)",
-            (card_id, card_name, bin_num, confidence, ts)
-        )
-        db.execute("""
-            INSERT INTO inventory(card_id, card_name, count, last_seen)
-            VALUES (?, ?, 1, ?)
-            ON CONFLICT(card_id) DO UPDATE SET
-                count = count + 1,
-                last_seen = excluded.last_seen,
-                card_name = excluded.card_name
-        """, (card_id, card_name, ts))
+    with _write_lock:
+        with _conn() as db:
+            db.execute(
+                "INSERT INTO scans(card_id, card_name, bin, confidence, ts) VALUES (?,?,?,?,?)",
+                (card_id, card_name, bin_num, confidence, ts)
+            )
+            db.execute("""
+                INSERT INTO inventory(card_id, card_name, count, last_seen)
+                VALUES (?, ?, 1, ?)
+                ON CONFLICT(card_id) DO UPDATE SET
+                    count = count + 1,
+                    last_seen = excluded.last_seen,
+                    card_name = excluded.card_name
+            """, (card_id, card_name, ts))
 
 
 def get_inventory(limit: int = 500) -> list[dict]:

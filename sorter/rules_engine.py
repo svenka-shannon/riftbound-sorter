@@ -11,11 +11,14 @@ Usage:
 """
 
 import json
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 class RulesEngine:
-    def __init__(self, rules_path: str | Path = "config/rules.json"):
+    def __init__(self, rules_path: str | Path = Path(__file__).parent.parent / "config/rules.json"):
         self.rules_path = Path(rules_path)
         self.rules: list[dict] = []
         self.bin_count: int = 8
@@ -24,7 +27,12 @@ class RulesEngine:
 
     def load(self):
         """Load (or reload) rules from JSON file."""
-        config = json.loads(self.rules_path.read_text())
+        try:
+            config = json.loads(self.rules_path.read_text())
+        except json.JSONDecodeError as e:
+            logger.error(f"[rules_engine] Malformed JSON in {self.rules_path}: {e}; sending all cards to reject bin")
+            self.rules = []
+            return
         self.rules      = config.get("rules", [])
         self.bin_count  = config.get("_bin_count", 8)
         self.reject_bin = config.get("_reject_bin", 9)

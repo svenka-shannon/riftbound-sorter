@@ -1,0 +1,59 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+*.egg
+
+# ── Data & cache (runtime-generated) ─────────────────────────────────────────
+data/
+cache/
+*.db
+
+# ── Images (downloaded / scanned) ─────────────────────────────────────────────
+# Exclude captured/downloaded card images but keep any in docs/
+*.jpg
+*.jpeg
+*.png
+!docs/*.jpg
+!docs/*.jpeg
+!docs/*.png
+!docs/**/*.jpg
+!docs/**/*.jpeg
+!docs/**/*.png
+
+# ── Machine-specific config ───────────────────────────────────────────────────
+# Camera crop is tuned per physical setup — each Pi gets its own
+config/camera_crop.json
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+secrets.env
+*.key
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# ── Editors ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# ── Misc ─────────────────────────────────────────────────────────────────────
+*.log
+/tmp/

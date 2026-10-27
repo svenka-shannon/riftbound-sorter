@@ -14,8 +14,13 @@ Both motors run the same direction (card moves left→right).
 Speed is controlled by software PWM (pigpio for accurate PWM on Pi Zero).
 """
 
+import os
 import time
-import RPi.GPIO as GPIO
+
+_MOCK = os.environ.get("MOCK_HARDWARE", "0") == "1"
+
+if not _MOCK:
+    import RPi.GPIO as GPIO
 
 # GPIO BCM pin assignments
 MOTOR_A_FWD = 23
@@ -33,6 +38,9 @@ _pwm_b: GPIO.PWM | None = None
 
 def init():
     global _pwm_a, _pwm_b
+    if _MOCK:
+        print("[conveyor] MOCK mode — no hardware")
+        return
     GPIO.setmode(GPIO.BCM)
     for pin in (MOTOR_A_FWD, MOTOR_A_REV, MOTOR_B_FWD, MOTOR_B_REV):
         GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
@@ -47,6 +55,8 @@ def init():
 
 def run(speed: int = DEFAULT_SPEED):
     """Start conveyor moving cards forward."""
+    if _MOCK:
+        return
     speed = max(0, min(100, speed))
     GPIO.output(MOTOR_A_REV, GPIO.LOW)
     GPIO.output(MOTOR_B_REV, GPIO.LOW)
@@ -56,12 +66,16 @@ def run(speed: int = DEFAULT_SPEED):
 
 def stop():
     """Stop conveyor (coast)."""
+    if _MOCK:
+        return
     _pwm_a.ChangeDutyCycle(0)
     _pwm_b.ChangeDutyCycle(0)
 
 
 def brake():
     """Active brake (hold position)."""
+    if _MOCK:
+        return
     _pwm_a.ChangeDutyCycle(0)
     _pwm_b.ChangeDutyCycle(0)
     GPIO.output(MOTOR_A_REV, GPIO.HIGH)
@@ -82,6 +96,8 @@ def transport_card(travel_time_s: float = 1.2, speed: int = DEFAULT_SPEED):
 
 
 def deinit():
+    if _MOCK:
+        return
     stop()
     if _pwm_a:
         _pwm_a.stop()

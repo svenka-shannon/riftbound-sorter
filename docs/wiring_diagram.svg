@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <style>
+      text { font-family: 'Courier New', monospace; }
+      .title { font-size: 18px; font-weight: bold; fill: #e6edf3; }
+      .comp-label { font-size: 12px; font-weight: bold; fill: #e6edf3; }
+      .pin-label { font-size: 9px; fill: #8b949e; }
+      .wire-label { font-size: 8px; fill: #c9d1d9; }
+      .section-label { font-size: 10px; fill: #8b949e; font-style: italic; }
+      .legend-text { font-size: 11px; fill: #c9d1d9; }
+    </style>
+    <!-- Arrow marker -->
+    <marker id="arrow-blue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#58a6ff"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#3fb950"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#f85149"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#bc8cff"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="900" fill="#0d1117"/>
+
+  <!-- Title -->
+  <text x="600" y="32" text-anchor="middle" class="title">Riftbound Card Sorter — Hardware Wiring Diagram</text>
+  <line x1="50" y1="42" x2="1150" y2="42" stroke="#30363d" stroke-width="1"/>
+
+  <!-- ===== RASPBERRY PI ZERO 2W (center) ===== -->
+  <g id="rpi">
+    <rect x="430" y="330" width="200" height="230" rx="5" fill="#161b22" stroke="#388bfd" stroke-width="2"/>
+    <text x="530" y="350" text-anchor="middle" class="comp-label" fill="#388bfd">Raspberry Pi</text>
+    <text x="530" y="363" text-anchor="middle" class="comp-label" fill="#388bfd">Zero 2W</text>
+    <!-- Pin list -->
+    <text x="445" y="383" class="pin-label">GPIO 2  (SDA)</text>
+    <text x="445" y="397" class="pin-label">GPIO 3  (SCL)</text>
+    <text x="445" y="411" class="pin-label">GPIO 5  (HX711 CLK)</text>
+    <text x="445" y="425" class="pin-label">GPIO 6  (HX711 DAT)</text>
+    <text x="445" y="439" class="pin-label">GPIO 17 (Relay IN)</text>
+    <text x="445" y="453" class="pin-label">GPIO 23 (L9110S A-1A)</text>
+    <text x="445" y="467" class="pin-label">GPIO 24 (L9110S A-1B)</text>
+    <text x="445" y="481" class="pin-label">GPIO 25 (L9110S B-1A)</text>
+    <text x="445" y="495" class="pin-label">GPIO 26 (L9110S B-1B)</text>
+    <text x="445" y="509" class="pin-label">5V / 3.3V / GND</text>
+    <text x="445" y="523" class="pin-label">CSI  (Camera)</text>
+    <text x="445" y="537" class="pin-label">I2C → PCA9685</text>
+    <!-- Left connector dots -->
+    <circle cx="430" cy="383" r="4" fill="#58a6ff"/>
+    <circle cx="430" cy="397" r="4" fill="#58a6ff"/>
+    <circle cx="430" cy="411" r="4" fill="#58a6ff"/>
+    <circle cx="430" cy="425" r="4" fill="#58a6ff"/>
+    <circle cx="430" cy="439" r="4" fill="#58a6ff"/>
+    <circle cx="430" cy="453" r="4" fill="#58a6ff"/>
+    <circle cx="430" cy="467" r="4" fill="#58a6ff"/>
+    <circle cx="430" cy="481" r="4" fill="#58a6ff"/>
+    <circle cx="430" cy="495" r="4" fill="#58a6ff"/>
+    <!-- Power dots (top) -->
+    <circle cx="480" cy="330" r="4" fill="#f85149"/>
+    <circle cx="500" cy="330" r="4" fill="#ff9a3c"/>
+    <circle cx="520" cy="330" r="4" fill="#8b949e"/>
+    <!-- I2C dot (right) -->
+    <circle cx="630" cy="390" r="4" fill="#3fb950"/>
+    <!-- Camera dot (bottom) -->
+    <circle cx="530" cy="560" r="4" fill="#c9d1d9"/>
+  </g>
+
+  <!-- ===== PCA9685 (right side) ===== -->
+  <g id="pca9685">
+    <rect x="760" y="180" width="155" height="130" rx="4" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
+    <text x="837" y="200" text-anchor="middle" class="comp-label" fill="#3fb950">PCA9685</text>
+    <text x="837" y="213" text-anchor="middle" class="section-label">16-ch PWM Driver</text>
+    <text x="770" y="232" class="pin-label">SDA ←</text>
+    <text x="770" y="246" class="pin-label">SCL ←</text>
+    <text x="770" y="260" class="pin-label">VCC ← 3.3V</text>
+    <text x="770" y="274" class="pin-label">GND</text>
+    <text x="770" y="288" class="pin-label">CH0 → Servo 0</text>
+    <text x="770" y="302" class="pin-label">CH1 → Servo 1</text>
+    <text x="770" y="296" class="pin-label" x="895">CH2 → Servo 2</text>
+    <!-- SDA/SCL connector dots -->
+    <circle cx="760" cy="232" r="4" fill="#3fb950"/>
+    <circle cx="760" cy="246" r="4" fill="#3fb950"/>
+    <!-- Servo output dots -->
+    <circle cx="915" cy="288" r="4" fill="#bc8cff"/>
+    <circle cx="915" cy="302" r="4" fill="#bc8cff"/>
+    <circle cx="915" cy="296" r="4" fill="#bc8cff"/>
+  </g>
+  <!-- PCA9685 servo channel labels fix -->
+  <text x="775" y="288" class="pin-label" fill="#8b949e">CH0 → Servo 0</text>
+  <text x="775" y="302" class="pin-label" fill="#8b949e">CH1 → Servo 1</text>
+  <text x="775" y="316" class="pin-label" fill="#8b949e">CH2 → Servo 2</text>
+  <circle cx="915" cy="288" r="4" fill="#bc8cff"/>
+  <circle cx="915" cy="302" r="4" fill="#bc8cff"/>
+  <circle cx="915" cy="316" r="4" fill="#bc8cff"/>
+
+  <!-- ===== SERVO 0/1/2 ===== -->
+  <g id="servos">
+    <rect x="960" y="160" width="120" height="40" rx="4" fill="#161b22" stroke="#bc8cff" stroke-width="2"/>
+    <text x="1020" y="177" text-anchor="middle" class="comp-label" fill="#bc8cff">Servo 0</text>
+    <text x="1020" y="192" text-anchor="middle" class="pin-label">CH0 (PWM)</text>
+    <circle cx="960" cy="180" r="4" fill="#bc8cff"/>
+
+    <rect x="960" y="215" width="120" height="40" rx="4" fill="#161b22" stroke="#bc8cff" stroke-width="2"/>
+    <text x="1020" y="232" text-anchor="middle" class="comp-label" fill="#bc8cff">Servo 1</text>
+    <text x="1020" y="247" text-anchor="middle" class="pin-label">CH1 (PWM)</text>
+    <circle cx="960" cy="235" r="4" fill="#bc8cff"/>
+
+    <rect x="960" y="270" width="120" height="40" rx="4" fill="#161b22" stroke="#bc8cff" stroke-width="2"/>
+    <text x="1020" y="287" text-anchor="middle" class="comp-label" fill="#bc8cff">Servo 2</text>
+    <text x="1020" y="302" text-anchor="middle" class="pin-label">CH2 (PWM)</text>
+    <circle cx="960" cy="290" r="4" fill="#bc8cff"/>
+  </g>
+
+  <!-- I2C wires: RPi → PCA9685 -->
+  <line x1="630" y1="383" x2="700" y2="383" stroke="#3fb950" stroke-width="2"/>
+  <line x1="700" y1="383" x2="700" y2="232" stroke="#3fb950" stroke-width="2"/>
+  <line x1="700" y1="232" x2="760" y2="232" stroke="#3fb950" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="705" y="310" class="wire-label" fill="#3fb950">SDA</text>
+
+  <line x1="630" y1="397" x2="710" y2="397" stroke="#3fb950" stroke-width="2" stroke-dasharray="4,2"/>
+  <line x1="710" y1="397" x2="710" y2="246" stroke="#3fb950" stroke-width="2" stroke-dasharray="4,2"/>
+  <line x1="710" y1="246" x2="760" y2="246" stroke="#3fb950" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrow-green)"/>
+  <text x="716" y="320" class="wire-label" fill="#3fb950">SCL</text>
+
+  <!-- PCA9685 → Servo wires (purple PWM) -->
+  <line x1="915" y1="288" x2="960" y2="180" stroke="#bc8cff" stroke-width="2" marker-end="url(#arrow-purple)"/>
+  <line x1="915" y1="302" x2="960" y2="235" stroke="#bc8cff" stroke-width="2" marker-end="url(#arrow-purple)"/>
+  <line x1="915" y1="316" x2="960" y2="290" stroke="#bc8cff" stroke-width="2" marker-end="url(#arrow-purple)"/>
+
+  <!-- ===== HX711 (upper left) ===== -->
+  <g id="hx711">
+    <rect x="80" y="180" width="155" height="110" rx="4" fill="#161b22" stroke="#58a6ff" stroke-width="2"/>
+    <text x="157" y="200" text-anchor="middle" class="comp-label" fill="#58a6ff">HX711</text>
+    <text x="157" y="213" text-anchor="middle" class="section-label">Load Cell Amp</text>
+    <text x="92" y="232" class="pin-label">VCC ← 3.3V</text>
+    <text x="92" y="246" class="pin-label">GND</text>
+    <text x="92" y="260" class="pin-label">CLK ← GPIO 5</text>
+    <text x="92" y="274" class="pin-label">DAT → GPIO 6</text>
+    <text x="92" y="288" class="pin-label">E+/E-/A+/A- ← Load Cell</text>
+    <!-- Connector dots -->
+    <circle cx="235" cy="260" r="4" fill="#58a6ff"/>
+    <circle cx="235" cy="274" r="4" fill="#58a6ff"/>
+    <circle cx="157" cy="290" r="4" fill="#e6c87a"/>
+  </g>
+
+  <!-- Load Cell -->
+  <g id="loadcell">
+    <rect x="80" y="80" width="155" height="55" rx="4" fill="#161b22" stroke="#e6c87a" stroke-width="2"/>
+    <text x="157" y="102" text-anchor="middle" class="comp-label" fill="#e6c87a">Load Cell</text>
+    <text x="157" y="118" text-anchor="middle" class="pin-label">E+  E-  A+  A-</text>
+    <circle cx="157" cy="135" r="4" fill="#e6c87a"/>
+  </g>
+  <!-- Load Cell → HX711 wire -->
+  <line x1="157" y1="135" x2="157" y2="180" stroke="#e6c87a" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="162" y="162" class="wire-label" fill="#e6c87a">Wheatstone</text>
+
+  <!-- HX711 GPIO wires → RPi -->
+  <line x1="235" y1="260" x2="360" y2="260" stroke="#58a6ff" stroke-width="2"/>
+  <line x1="360" y1="260" x2="360" y2="411" stroke="#58a6ff" stroke-width="2"/>
+  <line x1="360" y1="411" x2="430" y2="411" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="365" y="340" class="wire-label" fill="#58a6ff">CLK</text>
+
+  <line x1="235" y1="274" x2="370" y2="274" stroke="#58a6ff" stroke-width="2" stroke-dasharray="4,2"/>
+  <line x1="370" y1="274" x2="370" y2="425" stroke="#58a6ff" stroke-width="2" stroke-dasharray="4,2"/>
+  <line x1="370" y1="425" x2="430" y2="425" stroke="#58a6ff" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrow-blue)"/>
+  <text x="375" y="350" class="wire-label" fill="#58a6ff">DAT</text>
+
+  <!-- ===== 5V RELAY (upper center) ===== -->
+  <g id="relay">
+    <rect x="430" y="90" width="150" height="110" rx="4" fill="#161b22" stroke="#f0883e" stroke-width="2"/>
+    <text x="505" y="110" text-anchor="middle" class="comp-label" fill="#f0883e">5V Relay</text>
+    <text x="505" y="123" text-anchor="middle" class="section-label">SPDT, Active Low</text>
+    <text x="443" y="142" class="pin-label">IN  ← GPIO 17</text>
+    <text x="443" y="156" class="pin-label">VCC ← 5V</text>
+    <text x="443" y="170" class="pin-label">GND</text>
+    <text x="443" y="184" class="pin-label">COM/NO → Vacuum Pump</text>
+    <!-- GPIO 17 dot -->
+    <circle cx="430" cy="142" r="4" fill="#58a6ff"/>
+    <!-- Vacuum pump dot -->
+    <circle cx="505" cy="200" r="4" fill="#f0883e"/>
+  </g>
+
+  <!-- Relay GPIO 17 wire → RPi -->
+  <line x1="430" y1="142" x2="410" y2="142" stroke="#58a6ff" stroke-width="2"/>
+  <line x1="410" y1="142" x2="410" y2="439" stroke="#58a6ff" stroke-width="2"/>
+  <line x1="410" y1="439" x2="430" y2="439" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="415" y="290" class="wire-label" fill="#58a6ff">GPIO 17</text>
+
+  <!-- Vacuum Pump + 12V -->
+  <g id="vacuum">
+    <rect x="420" y="55" width="175" height="50" rx="4" fill="#161b22" stroke="#da3633" stroke-width="2"/>
+    <text x="507" y="75" text-anchor="middle" class="comp-label" fill="#da3633">Vacuum Pump</text>
+    <text x="507" y="91" text-anchor="middle" class="pin-label">12V DC / switched by relay</text>
+    <circle cx="507" cy="105" r="4" fill="#da3633"/>
+  </g>
+  <!-- Vacuum pump → Relay wire -->
+  <line x1="505" y1="105" x2="505" y2="90" stroke="#da3633" stroke-width="2" marker-end="url(#arrow-red)"/>
+
+  <!-- ===== L9110S (left center) ===== -->
+  <g id="l9110s">
+    <rect x="80" y="380" width="170" height="150" rx="4" fill="#161b22" stroke="#58a6ff" stroke-width="2"/>
+    <text x="165" y="400" text-anchor="middle" class="comp-label" fill="#58a6ff">L9110S</text>
+    <text x="165" y="413" text-anchor="middle" class="section-label">Dual Motor Driver</text>
+    <text x="93" y="432" class="pin-label">A-1A ← GPIO 23</text>
+    <text x="93" y="446" class="pin-label">A-1B ← GPIO 24</text>
+    <text x="93" y="460" class="pin-label">B-1A ← GPIO 25</text>
+    <text x="93" y="474" class="pin-label">B-1B ← GPIO 26</text>
+    <text x="93" y="488" class="pin-label">VCC ← 5V</text>
+    <text x="93" y="502" class="pin-label">GND</text>
+    <text x="93" y="516" class="pin-label">OA → Motor A</text>
+    <text x="93" y="525" class="pin-label">OB → Motor B</text>
+    <!-- GPIO input dots -->
+    <circle cx="250" cy="432" r="4" fill="#58a6ff"/>
+    <circle cx="250" cy="446" r="4" fill="#58a6ff"/>
+    <circle cx="250" cy="460" r="4" fill="#58a6ff"/>
+    <circle cx="250" cy="474" r="4" fill="#58a6ff"/>
+    <!-- Motor output dots -->
+    <circle cx="80" cy="516" r="4" fill="#c9d1d9"/>
+    <circle cx="80" cy="525" r="4" fill="#c9d1d9"/>
+  </g>
+
+  <!-- L9110S GPIO wires → RPi -->
+  <line x1="250" y1="432" x2="390" y2="432" stroke="#58a6ff" stroke-width="2"/>
+  <line x1="390" y1="432" x2="430" y2="453" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow-blue)"/>
+
+  <line x1="250" y1="446" x2="395" y2="446" stroke="#58a6ff" stroke-width="2" stroke-dasharray="4,2"/>
+  <line x1="395" y1="446" x2="430" y2="467" stroke="#58a6ff" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrow-blue)"/>
+
+  <line x1="250" y1="460" x2="395" y2="460" stroke="#58a6ff" stroke-width="2"/>
+  <line x1="395" y1="460" x2="430" y2="481" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow-blue)"/>
+
+  <line x1="250" y1="474" x2="395" y2="474" stroke="#58a6ff" stroke-width="2" stroke-dasharray="4,2"/>
+  <line x1="395" y1="474" x2="430" y2="495" stroke="#58a6ff" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrow-blue)"/>
+
+  <!-- N20 Motors -->
+  <g id="motors">
+    <rect x="20" y="590" width="120" height="45" rx="4" fill="#161b22" stroke="#c9d1d9" stroke-width="2"/>
+    <text x="80" y="610" text-anchor="middle" class="comp-label" fill="#c9d1d9">N20 Motor A</text>
+    <text x="80" y="626" text-anchor="middle" class="pin-label">OA (L9110S)</text>
+    <circle cx="80" cy="590" r="4" fill="#c9d1d9"/>
+
+    <rect x="155" y="590" width="120" height="45" rx="4" fill="#161b22" stroke="#c9d1d9" stroke-width="2"/>
+    <text x="215" y="610" text-anchor="middle" class="comp-label" fill="#c9d1d9">N20 Motor B</text>
+    <text x="215" y="626" text-anchor="middle" class="pin-label">OB (L9110S)</text>
+    <circle cx="215" cy="590" r="4" fill="#c9d1d9"/>
+  </g>
+  <!-- L9110S → Motor wires -->
+  <line x1="80" y1="516" x2="80" y2="590" stroke="#c9d1d9" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <line x1="80" y1="525" x2="215" y2="525" stroke="#c9d1d9" stroke-width="2"/>
+  <line x1="215" y1="525" x2="215" y2="590" stroke="#c9d1d9" stroke-width="2" marker-end="url(#arrow-blue)"/>
+
+  <!-- ===== Pi Camera ===== -->
+  <g id="camera">
+    <rect x="430" y="640" width="200" height="60" rx="4" fill="#161b22" stroke="#c9d1d9" stroke-width="2"/>
+    <text x="530" y="662" text-anchor="middle" class="comp-label" fill="#c9d1d9">Pi Camera</text>
+    <text x="530" y="678" text-anchor="middle" class="pin-label">CSI Ribbon ↔ CSI Port</text>
+    <text x="530" y="692" text-anchor="middle" class="pin-label">15-pin FPC connector</text>
+    <circle cx="530" cy="640" r="4" fill="#c9d1d9"/>
+  </g>
+  <!-- CSI ribbon -->
+  <line x1="530" y1="560" x2="530" y2="640" stroke="#c9d1d9" stroke-width="3" stroke-dasharray="6,2" marker-end="url(#arrow-blue)"/>
+  <text x="535" y="605" class="wire-label" fill="#c9d1d9">CSI</text>
+
+  <!-- ===== POWER RAIL ===== -->
+  <g id="power">
+    <rect x="730" y="450" width="340" height="170" rx="4" fill="#161b22" stroke="#da3633" stroke-width="2"/>
+    <text x="900" y="472" text-anchor="middle" class="comp-label" fill="#da3633">Power Distribution</text>
+
+    <!-- 12V input -->
+    <rect x="745" y="485" width="90" height="35" rx="3" fill="#1a1f2e" stroke="#da3633" stroke-width="1.5"/>
+    <text x="790" y="500" text-anchor="middle" class="pin-label" fill="#da3633">12V Input</text>
+    <text x="790" y="514" text-anchor="middle" class="pin-label" fill="#8b949e">DC Barrel Jack</text>
+
+    <!-- LM2596 Buck -->
+    <rect x="860" y="485" width="90" height="35" rx="3" fill="#1a1f2e" stroke="#f0883e" stroke-width="1.5"/>
+    <text x="905" y="500" text-anchor="middle" class="pin-label" fill="#f0883e">LM2596</text>
+    <text x="905" y="514" text-anchor="middle" class="pin-label" fill="#8b949e">Buck Converter</text>
+
+    <!-- 5V rail -->
+    <rect x="975" y="485" width="80" height="35" rx="3" fill="#1a1f2e" stroke="#f85149" stroke-width="1.5"/>
+    <text x="1015" y="500" text-anchor="middle" class="pin-label" fill="#f85149">5V Rail</text>
+    <text x="1015" y="514" text-anchor="middle" class="pin-label" fill="#8b949e">→ RPi, L9110S</text>
+
+    <!-- 12V line to vacuum -->
+    <text x="745" y="545" class="pin-label" fill="#da3633">12V → Vacuum Pump (via Relay)</text>
+    <text x="745" y="559" class="pin-label" fill="#f85149">5V  → RPi 5V pin, L9110S VCC</text>
+    <text x="745" y="573" class="pin-label" fill="#ff9a3c">3.3V → RPi 3.3V → PCA9685 VCC, HX711 VCC</text>
+    <text x="745" y="587" class="pin-label" fill="#8b949e">GND → All components common ground</text>
+    <text x="745" y="601" class="pin-label" fill="#ff9a3c">Note: 3.3V sourced from RPi 3.3V pin</text>
+
+    <!-- Arrows between power components -->
+    <line x1="835" y1="503" x2="860" y2="503" stroke="#f0883e" stroke-width="2" marker-end="url(#arrow-red)"/>
+    <line x1="950" y1="503" x2="975" y2="503" stroke="#f85149" stroke-width="2" marker-end="url(#arrow-red)"/>
+  </g>
+
+  <!-- Power wires to RPi -->
+  <line x1="730" y1="503" x2="630" y2="330" stroke="#f85149" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="675" y="415" class="wire-label" fill="#f85149" transform="rotate(-55,675,415)">5V</text>
+
+  <!-- 3.3V from RPi to PCA9685 -->
+  <line x1="500" y1="330" x2="500" y2="270" stroke="#ff9a3c" stroke-width="2" stroke-dasharray="4,2"/>
+  <line x1="500" y1="270" x2="760" y2="260" stroke="#ff9a3c" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrow-red)"/>
+  <text x="620" y="264" class="wire-label" fill="#ff9a3c">3.3V</text>
+
+  <!-- 3.3V from RPi to HX711 -->
+  <line x1="480" y1="330" x2="480" y2="210" stroke="#ff9a3c" stroke-width="2" stroke-dasharray="4,2"/>
+  <line x1="480" y1="210" x2="235" y2="232" stroke="#ff9a3c" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arrow-red)"/>
+  <text x="350" y="207" class="wire-label" fill="#ff9a3c">3.3V</text>
+
+  <!-- ===== LEGEND ===== -->
+  <g id="legend">
+    <rect x="730" y="650" width="440" height="200" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+    <text x="750" y="672" class="comp-label" fill="#e6edf3">Wire Color Legend</text>
+    <line x1="750" y1="680" x2="1155" y2="680" stroke="#30363d" stroke-width="1"/>
+
+    <!-- Row 1 -->
+    <line x1="760" y1="698" x2="800" y2="698" stroke="#f85149" stroke-width="3"/>
+    <text x="808" y="702" class="legend-text">Red — 5V power</text>
+
+    <line x1="960" y1="698" x2="1000" y2="698" stroke="#ff9a3c" stroke-width="3"/>
+    <text x="1008" y="702" class="legend-text">Orange — 3.3V power</text>
+
+    <!-- Row 2 -->
+    <line x1="760" y1="722" x2="800" y2="722" stroke="#8b949e" stroke-width="3"/>
+    <text x="808" y="726" class="legend-text">Gray — GND</text>
+
+    <line x1="960" y1="722" x2="1000" y2="722" stroke="#da3633" stroke-width="3"/>
+    <text x="1008" y="726" class="legend-text">Dark Red — 12V power</text>
+
+    <!-- Row 3 -->
+    <line x1="760" y1="746" x2="800" y2="746" stroke="#3fb950" stroke-width="3"/>
+    <text x="808" y="750" class="legend-text">Green — I2C (SDA/SCL)</text>
+
+    <line x1="960" y1="746" x2="1000" y2="746" stroke="#58a6ff" stroke-width="3"/>
+    <text x="1008" y="750" class="legend-text">Blue — GPIO signals</text>
+
+    <!-- Row 4 -->
+    <line x1="760" y1="770" x2="800" y2="770" stroke="#bc8cff" stroke-width="3"/>
+    <text x="808" y="774" class="legend-text">Purple — PWM (servo)</text>
+
+    <line x1="960" y1="770" x2="1000" y2="770" stroke="#e6c87a" stroke-width="3"/>
+    <text x="1008" y="774" class="legend-text">Yellow — Analog (load cell)</text>
+
+    <!-- Row 5 -->
+    <line x1="760" y1="794" x2="800" y2="794" stroke="#c9d1d9" stroke-width="3" stroke-dasharray="6,2"/>
+    <text x="808" y="798" class="legend-text">White dashed — CSI ribbon / motor</text>
+
+    <!-- Notes -->
+    <text x="760" y="822" class="pin-label" fill="#8b949e">Dashed lines = data signals  |  Solid lines = power/drive</text>
+    <text x="760" y="836" class="pin-label" fill="#8b949e">All GND connections share common ground rail</text>
+  </g>
+
+  <!-- Border -->
+  <rect x="4" y="4" width="1192" height="892" rx="8" fill="none" stroke="#21262d" stroke-width="2"/>
+</svg>

@@ -15,7 +15,7 @@ import urllib.error
 from pathlib import Path
 
 BASE_URL   = "https://riftcodex.com/api/v1"
-CACHE_FILE = Path("/tmp/riftbound-sorter/cache/cards.json")
+CACHE_FILE = Path(__file__).parent.parent / "data" / "cards.json"
 CACHE_TTL  = 86400  # 24 hours
 
 _card_cache: dict[str, dict] = {}   # riftbound_id → card data

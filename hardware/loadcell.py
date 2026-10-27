@@ -11,8 +11,11 @@ Requires: hx711 (pip install hx711)
 Calibrate SCALE_FACTOR on first run using calibrate() function.
 """
 
+import os
 import time
 import statistics
+
+_MOCK = os.environ.get("MOCK_HARDWARE", "0") == "1"
 
 try:
     from hx711 import HX711
@@ -37,6 +40,9 @@ _hx = None
 
 def init():
     global _hx
+    if _MOCK:
+        print("[loadcell] MOCK mode — read_grams() returns 1.75g always")
+        return
     if HX711 is None:
         raise ImportError("Install hx711: pip install hx711")
     _hx = HX711(dout_pin=DOUT_PIN, pd_sck_pin=SCK_PIN)
@@ -47,6 +53,8 @@ def init():
 
 def read_grams(samples=5) -> float:
     """Return average weight in grams over N samples."""
+    if _MOCK:
+        return 1.75   # simulate a single card
     readings = []
     for _ in range(samples):
         raw = _hx.get_weight_mean(1)

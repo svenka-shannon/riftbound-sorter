@@ -8,11 +8,16 @@ Channels:
 Requires: adafruit-circuitpython-pca9685, adafruit-circuitpython-motor
 """
 
+import os
 import time
-import board
-import busio
-from adafruit_pca9685 import PCA9685
-from adafruit_motor import servo as adafruit_servo
+
+_MOCK = os.environ.get("MOCK_HARDWARE", "0") == "1"
+
+if not _MOCK:
+    import board
+    import busio
+    from adafruit_pca9685 import PCA9685
+    from adafruit_motor import servo as adafruit_servo
 
 # Servo angle presets (degrees)
 PICKUP_ARM_UP    = 90    # resting position
@@ -38,6 +43,9 @@ _servos = {}
 def init():
     """Initialize PCA9685 and attach servo objects."""
     global _pca, _servos
+    if _MOCK:
+        print("[servos] MOCK mode — no hardware")
+        return
     i2c = busio.I2C(board.SCL, board.SDA)
     _pca = PCA9685(i2c, address=0x40)
     _pca.frequency = 50
@@ -49,12 +57,16 @@ def init():
 
 def pickup_arm_down(settle_s=0.4):
     """Lower suction arm to card surface."""
+    if _MOCK:
+        time.sleep(settle_s); return
     _servos[0].angle = PICKUP_ARM_DOWN
     time.sleep(settle_s)
 
 
 def pickup_arm_up(settle_s=0.4):
     """Raise suction arm to resting position."""
+    if _MOCK:
+        time.sleep(settle_s); return
     _servos[0].angle = PICKUP_ARM_UP
     time.sleep(settle_s)
 
@@ -66,6 +78,11 @@ def route_card(bin_number: int, settle_s=0.3):
     """
     if bin_number not in BIN_SELECT_ANGLES:
         raise ValueError(f"Unknown bin: {bin_number}. Valid: {list(BIN_SELECT_ANGLES)}")
+
+    if _MOCK:
+        print(f"[servos] MOCK route_card → bin {bin_number}")
+        time.sleep(settle_s)
+        return
 
     # Gate direction
     if bin_number <= 3:
@@ -82,6 +99,8 @@ def route_card(bin_number: int, settle_s=0.3):
 
 def reset_all():
     """Return all servos to neutral/home positions."""
+    if _MOCK:
+        return
     _servos[0].angle = PICKUP_ARM_UP
     _servos[1].angle = GATE_CENTER
     _servos[2].angle = 90
@@ -90,5 +109,6 @@ def reset_all():
 
 def deinit():
     """Release PCA9685."""
-    if _pca:
-        _pca.deinit()
+    if _MOCK or not _pca:
+        return
+    _pca.deinit()

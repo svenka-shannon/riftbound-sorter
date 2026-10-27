@@ -3,6 +3,8 @@
 
 # Hardware
 RPi.GPIO>=0.7.1
+# adafruit-blinka provides 'board' and 'busio' for CircuitPython libraries on Pi
+adafruit-blinka>=8.0.0
 adafruit-circuitpython-pca9685>=3.4.7
 adafruit-circuitpython-motor>=3.4.11
 hx711>=1.1.2.3
@@ -11,6 +13,8 @@ picamera2>=0.3.19
 # Vision
 Pillow>=10.0.0
 imagehash>=4.3.1
+# numpy is a direct dependency of calibrate_camera.py (and pulled in by picamera2)
+numpy>=1.24.0
 
 # Web UI
 flask>=3.0.0

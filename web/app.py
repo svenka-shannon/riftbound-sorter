@@ -13,6 +13,7 @@ Routes:
 from flask import Flask, render_template_string, jsonify, request, send_file
 from pathlib import Path
 import json
+import time
 
 from api import inventory
 from sorter.rules_engine import RulesEngine
@@ -29,6 +30,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     body { font-family: system-ui, sans-serif; background: #0d1117; color: #e6edf3; margin: 0; padding: 20px; }
     h1 { color: #58a6ff; margin-bottom: 4px; }
     nav a { color: #58a6ff; margin-right: 16px; text-decoration: none; }
+    .banner { background: #da3633; color: white; padding: 12px 20px; border-radius: 8px; margin: 12px 0; font-weight: bold; font-size: 1.05em; display: none; }
     .cards { display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0; }
     .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px 24px; min-width: 140px; }
     .card .num { font-size: 2.5em; font-weight: bold; color: #58a6ff; }
@@ -48,10 +50,12 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     <a href="/rules">Rules</a>
     <a href="/export">Export CSV</a>
   </nav>
+  <div class="banner" id="hopper-banner">⚠️ Hopper empty — please refill</div>
   <div class="cards" id="stats-cards">
     <div class="card"><div class="num" id="total">–</div><div class="lbl">Cards Sorted</div></div>
     <div class="card"><div class="num" id="unique">–</div><div class="lbl">Unique Cards</div></div>
     <div class="card"><div class="num" id="bins">–</div><div class="lbl">Active Bins</div></div>
+    <div class="card"><div class="num" id="cpm">–</div><div class="lbl">Cards / min</div></div>
   </div>
   <h2>Bin Activity</h2>
   <table id="bin-table"><thead><tr><th>Bin</th><th>Cards</th></tr></thead><tbody></tbody></table>
@@ -67,8 +71,19 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         `<tr><td><span class="badge">Bin ${b}</span></td><td>${n}</td></tr>`
       ).join('');
     }
+    async function pollStatus() {
+      try {
+        const r = await fetch('/api/status');
+        const d = await r.json();
+        const banner = document.getElementById('hopper-banner');
+        banner.style.display = d.hopper_empty ? 'block' : 'none';
+        document.getElementById('cpm').textContent = d.cards_per_minute;
+      } catch(e) {}
+    }
     refresh();
     setInterval(refresh, 3000);
+    pollStatus();
+    setInterval(pollStatus, 5000);
   </script>
 </body>
 </html>"""
@@ -84,6 +99,18 @@ def create_app() -> Flask:
     @app.route("/api/stats")
     def api_stats():
         return jsonify(inventory.get_session_stats())
+
+    @app.route("/api/status")
+    def api_status():
+        import main as sorter_main
+        elapsed = time.time() - sorter_main._session_start
+        cpm = round(sorter_main._stats["total"] / elapsed * 60, 1) if elapsed > 0 else 0.0
+        return jsonify({
+            **sorter_main._status,
+            "cards_per_minute": cpm,
+            "session_elapsed_s": round(elapsed),
+            "total_sorted": sorter_main._stats["total"],
+        })
 
     @app.route("/inventory")
     def inv_page():
