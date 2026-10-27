@@ -20,9 +20,19 @@ sudo apt-get install -y \
     avahi-daemon
 
 # Create venv and install Python deps
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+# Use uv if available (faster); fall back to standard pip+venv.
+# On Raspberry Pi OS Lite, uv may not be pre-installed — pip is the reliable default.
+if command -v uv &>/dev/null; then
+    echo "uv found — using uv for faster installs"
+    uv venv venv
+    source venv/bin/activate
+    uv pip install -r requirements.txt
+else
+    echo "uv not found — using pip (install uv via 'pip install uv' for faster future installs)"
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+fi
 
 # Verify I2C
 echo "I2C devices:"
@@ -30,6 +40,9 @@ sudo i2cdetect -y 1
 
 # Create data dirs
 mkdir -p cache data
+
+# Make all scripts executable (including dev runner scripts)
+chmod +x scripts/*.sh
 
 # Set hostname
 sudo hostnamectl set-hostname riftbound-sorter

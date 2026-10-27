@@ -18,11 +18,16 @@ Hardware:
   - 5V relay → 12V vacuum pump (GPIO 17)
 """
 
+import os
 import sys
 import time
 import argparse
 import signal
 import threading
+from collections import deque
+import datetime
+
+MOCK_HARDWARE = os.environ.get("MOCK_HARDWARE", "0") == "1"
 
 from hardware import servos, vacuum, loadcell, camera, conveyor
 from vision.identify import build_hash_db, identify
@@ -35,11 +40,32 @@ PICKUP_RETRY_MAX   = 3
 CONVEYOR_TRAVEL_S  = 1.2   # seconds for card to reach scanner from pickup
 SORT_TRAVEL_S      = 0.8   # seconds from scanner to sort gate
 
-_running       = True
-_stats         = {"total": 0, "errors": 0, "double_picks": 0, "unknowns": 0}
-_status        = {"state": "running", "hopper_empty": False, "cards_remaining_estimate": 0}
-_empty_counter = 0
-_session_start = time.time()
+_running        = True
+_stats          = {"total": 0, "errors": 0, "double_picks": 0, "unknowns": 0, "total_today": 0}
+_status         = {"state": "running", "hopper_empty": False, "cards_remaining_estimate": 0,
+                   "cards_per_minute": 0.0, "total_today": 0}
+_empty_counter  = 0
+_session_start  = time.time()
+_recent_scans   = deque(maxlen=60)   # timestamps of the last 60 successful scans
+_today_midnight = 0.0                # Unix timestamp of today's midnight; set in main()
+
+
+def _midnight_today() -> float:
+    """Return Unix timestamp of today's midnight (local time)."""
+    today = datetime.date.today()
+    return time.mktime(datetime.datetime(today.year, today.month, today.day).timetuple())
+
+
+def _get_cards_per_minute() -> float:
+    """Rolling CPM calculated over the span of the last ≤60 scan timestamps."""
+    n = len(_recent_scans)
+    if n == 0:
+        return 0.0
+    now = time.time()
+    time_span = now - _recent_scans[0]
+    if time_span <= 0:
+        return 0.0
+    return round(n / (time_span / 60.0), 1)
 
 
 def shutdown(sig=None, frame=None):
@@ -106,22 +132,21 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> bool:
     conveyor.transport_card(CONVEYOR_TRAVEL_S)
     vacuum.pump_off()    # release card at scanner station
 
-    # 3a. Pause conveyor briefly so card is stationary during capture
+    # 3a. Pause conveyor so card is stationary during capture + identify
     conveyor.stop()
     time.sleep(0.3)
 
-    # 4. Capture + identify
+    # 4. Capture + identify (card is stationary — gate will be set before conveyor restarts)
     jpeg = camera.capture_card_jpeg()
-
-    # Resume conveyor to carry card toward sort gate
-    conveyor.run()
     card_id, confidence = identify(jpeg)
 
     if card_id is None:
         print(f"[main] Card not identified (confidence {confidence:.2f}) — rejecting")
+        # Pre-position gate BEFORE restarting conveyor so card enters the right bin
         if not dry_run:
             servos.route_card(engine.reject_bin)
         _stats["unknowns"] += 1
+        conveyor.run()
         time.sleep(SORT_TRAVEL_S)
         return True
 
@@ -134,14 +159,31 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> bool:
 
     print(f"[main] {card_name} ({confidence:.0%}) → {bin_label} (bin {bin_num})")
 
-    # 6. Route card
+    # 6. Pre-position gate BEFORE restarting conveyor, then let card travel to it
     if not dry_run:
         servos.route_card(bin_num)
-        time.sleep(SORT_TRAVEL_S)
+    conveyor.run()
+    time.sleep(SORT_TRAVEL_S)
 
     # 7. Log to inventory
     inventory.record_scan(card_id, card_name, bin_num, confidence)
     _stats["total"] += 1
+
+    # Throughput tracking
+    now_ts = time.time()
+    _recent_scans.append(now_ts)
+
+    # Daily counter — reset when a new calendar day starts
+    global _today_midnight
+    if now_ts >= _today_midnight + 86400:
+        _today_midnight = _midnight_today()
+        _stats["total_today"] = 0
+    _stats["total_today"] += 1
+
+    # Keep _status current for the web API
+    _status["cards_per_minute"] = _get_cards_per_minute()
+    _status["total_today"] = _stats["total_today"]
+
     return True
 
 
@@ -176,6 +218,13 @@ def main():
     signal.signal(signal.SIGINT,  shutdown)
     signal.signal(signal.SIGTERM, shutdown)
 
+    if MOCK_HARDWARE:
+        print("=" * 60)
+        print("  DEVELOPMENT MODE (no hardware)")
+        print("  All GPIO / camera / servo calls are stubbed.")
+        print("  Set MOCK_HARDWARE=0 to use real hardware.")
+        print("=" * 60)
+
     # Pre-load Riftcodex card data (network, no hardware needed)
     cards = riftcodex.fetch_all_cards()
 
@@ -186,12 +235,26 @@ def main():
         sys.exit(0)
 
     # Initialize hardware (all other modes need it)
-    servos.init()
-    vacuum.init()
-    loadcell.init()
-    camera.init()
-    conveyor.init()
+    try:
+        servos.init()
+        vacuum.init()
+        loadcell.init()
+        camera.init()
+        conveyor.init()
+    except Exception as exc:
+        if MOCK_HARDWARE:
+            print(f"[main] Hardware init skipped in mock mode ({exc})")
+        else:
+            print(
+                f"[main] ERROR: Hardware init failed: {exc}\n"
+                "       Are you running on a Raspberry Pi with the correct wiring?\n"
+                "       To run without hardware: export MOCK_HARDWARE=1"
+            )
+            sys.exit(1)
     inventory.init()
+
+    global _today_midnight
+    _today_midnight = _midnight_today()
 
     if args.calibrate:
         print("Place a single Riftbound card on the load cell and press Enter...")

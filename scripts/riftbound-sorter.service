@@ -6,8 +6,10 @@ Wants=network.target
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/riftbound-sorter
-ExecStart=/home/pi/riftbound-sorter/venv/bin/python main.py
+# TODO: update these paths to match your actual install directory
+WorkingDirectory=/opt/riftbound-sorter
+ExecStartPre=/bin/sleep 5
+ExecStart=/opt/riftbound-sorter/venv/bin/python main.py
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal

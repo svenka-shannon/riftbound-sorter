@@ -36,9 +36,9 @@ module roller() {
         }
 
         // Motor shaft flat (D-shaft style) — one side
-        translate([shaft_bore / 2 - motor_flat_w + shaft_bore / 2,
-                   -shaft_bore, -0.1])
-            cube([motor_flat_w, shaft_bore * 2, roller_w + 0.2]);
+        // Flat face sits 0.5 mm inside bore surface: y = shaft_bore/2 - 0.5 = 3.6 mm from center
+        translate([-shaft_bore, shaft_bore / 2 - 0.5, -0.1])
+            cube([shaft_bore * 2, shaft_bore, roller_w + 0.2]);
     }
 }
 

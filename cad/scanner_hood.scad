@@ -36,13 +36,13 @@ module scanner_hood() {
         translate([outer_w / 2, outer_d / 2, outer_h - wall - led_ring_dep])
             cylinder(d = led_ring_dia, h = led_ring_dep + 0.1, $fn = 64);
 
-        // Card entry slot (front face)
-        translate([(outer_w - card_w) / 2, 0, wall])
-            cube([card_w, wall + 0.1, card_pass_h]);
+        // Card entry slot (front face) — z=0 so card passes at conveyor height
+        translate([(outer_w - card_w) / 2, -0.1, -0.1])
+            cube([card_w, wall + 0.2, card_pass_h + 0.1]);
 
-        // Card exit slot (back face)
-        translate([(outer_w - card_w) / 2, outer_d - wall, wall])
-            cube([card_w, wall + 0.1, card_pass_h]);
+        // Card exit slot (back face) — z=0 so card passes at conveyor height
+        translate([(outer_w - card_w) / 2, outer_d - wall, -0.1])
+            cube([card_w, wall + 0.2, card_pass_h + 0.1]);
 
         // Camera cable slot (side)
         translate([outer_w - wall, outer_d / 2 - 5, outer_h - 20])

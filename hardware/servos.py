@@ -8,10 +8,14 @@ Channels:
 Requires: adafruit-circuitpython-pca9685, adafruit-circuitpython-motor
 """
 
+import json
 import os
 import time
+from pathlib import Path
 
 _MOCK = os.environ.get("MOCK_HARDWARE", "0") == "1"
+
+_CALIBRATION_FILE = Path(__file__).parent.parent / "config" / "servo_calibration.json"
 
 if not _MOCK:
     import board
@@ -40,9 +44,58 @@ _pca = None
 _servos = {}
 
 
+def _load_calibration() -> None:
+    """Override module-level angle constants from servo_calibration.json if present."""
+    global PICKUP_ARM_UP, PICKUP_ARM_DOWN
+    global GATE_LEFT, GATE_CENTER, GATE_RIGHT
+    global BIN_SELECT_ANGLES
+
+    if not _CALIBRATION_FILE.exists():
+        return
+
+    try:
+        with open(_CALIBRATION_FILE) as f:
+            cal = json.load(f)
+    except Exception as exc:
+        print(f"[servos] Warning: could not read calibration file: {exc}")
+        return
+
+    arm = cal.get("pickup_arm", {})
+    if "ARM_UP" in arm:
+        PICKUP_ARM_UP = arm["ARM_UP"]
+    if "ARM_DOWN" in arm:
+        PICKUP_ARM_DOWN = arm["ARM_DOWN"]
+
+    gate = cal.get("gate", {})
+    if "GATE_LEFT" in gate:
+        GATE_LEFT = gate["GATE_LEFT"]
+    if "GATE_CENTER" in gate:
+        GATE_CENTER = gate["GATE_CENTER"]
+    if "GATE_RIGHT" in gate:
+        GATE_RIGHT = gate["GATE_RIGHT"]
+
+    bin_sel = cal.get("bin_select", {})
+    for raw_key, angle in bin_sel.items():
+        # Keys are stored as "BIN_0" → map to integer 0, "BIN_9_REJECT" → 9
+        label = raw_key  # e.g. "BIN_3" or "BIN_9_REJECT"
+        if label.startswith("BIN_"):
+            suffix = label[4:]
+            try:
+                bin_num = int(suffix.split("_")[0])  # handles "9_REJECT" → 9
+                BIN_SELECT_ANGLES[bin_num] = angle
+            except ValueError:
+                pass
+
+    print(f"[servos] Loaded calibration from {_CALIBRATION_FILE}")
+
+
 def init():
     """Initialize PCA9685 and attach servo objects."""
     global _pca, _servos
+
+    # Apply calibration overrides before any hardware move
+    _load_calibration()
+
     if _MOCK:
         print("[servos] MOCK mode — no hardware")
         return
