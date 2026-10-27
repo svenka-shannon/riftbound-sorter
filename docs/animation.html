@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riftbound Card Sorter — Animation</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; color: #eee; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+  #canvas-container { width: 100vw; height: 100vh; }
+  canvas { display: block; }
+
+  #ui-top {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 16px 20px; pointer-events: none; z-index: 10;
+  }
+  #title-block h1 { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 0.02em; }
+  #title-block p  { font-size: 12px; color: #888; margin-top: 2px; }
+
+  #controls {
+    pointer-events: all;
+    display: flex; gap: 8px; align-items: center;
+  }
+  .btn {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    color: #ccc; padding: 6px 14px; border-radius: 6px; font-size: 12px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+  .btn.active { background: rgba(99,120,255,0.3); border-color: #6378ff; color: #fff; }
+
+  #stats {
+    position: fixed; bottom: 20px; left: 20px;
+    background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 12px 16px;
+    font-size: 12px; line-height: 2;
+    backdrop-filter: blur(8px); min-width: 220px;
+  }
+  #stats-title { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; }
+  #stats-current { font-size: 12px; color: #aaa; margin-top: 4px; }
+  #stats-current span { font-weight: 600; }
+
+  #scan-overlay {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -60%);
+    text-align: center; pointer-events: none; z-index: 20;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  #scan-type {
+    font-size: 28px; font-weight: 800; letter-spacing: 0.04em;
+    text-shadow: 0 0 20px currentColor;
+  }
+  #scan-slot { font-size: 13px; color: #aaa; margin-top: 4px; }
+
+  #hint {
+    position: fixed; bottom: 20px; right: 20px;
+    background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 8px 14px;
+    font-size: 11px; color: #555; line-height: 1.8; text-align: right;
+  }
+</style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+
+<div id="ui-top">
+  <div id="title-block">
+    <h1>Riftbound Card Sorter</h1>
+    <p>Live animation — cards flowing through sort cycle</p>
+  </div>
+  <div id="controls">
+    <button class="btn" id="pause-btn" onclick="togglePause()">Pause</button>
+    <button class="btn" id="speed-btn" onclick="cycleSpeed()">1× Speed</button>
+  </div>
+</div>
+
+<div id="stats">
+  <div id="stats-title">Cards Sorted</div>
+  <div id="stats-count">0</div>
+  <div id="stats-current">Waiting for first card…</div>
+</div>
+
+<div id="scan-overlay">
+  <div id="scan-type">Champion</div>
+  <div id="scan-slot">→ Bin 0</div>
+</div>
+
+<div id="hint">Drag to rotate · Scroll to zoom<br>Right-drag to pan</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── Inline OrbitControls (r128) ──────────────────────────────────────────────
+(function(){
+  THREE.OrbitControls = function(object, domElement){
+    this.object = object;
+    this.domElement = domElement || document;
+    this.enabled = true;
+    this.target = new THREE.Vector3();
+    this.minDistance = 50; this.maxDistance = 4000;
+    this.minPolarAngle = 0; this.maxPolarAngle = Math.PI;
+    this.enableDamping = true; this.dampingFactor = 0.06;
+    this.enableZoom = true; this.zoomSpeed = 1.0;
+    this.enableRotate = true; this.rotateSpeed = 0.6;
+    this.enablePan = true; this.panSpeed = 0.8;
+    this.screenSpacePanning = true;
+
+    var scope = this;
+    var STATE = { NONE: -1, ROTATE: 0, DOLLY: 1, PAN: 2 };
+    var state = STATE.NONE;
+    var EPS = 1e-6;
+    var spherical = new THREE.Spherical();
+    var sphericalDelta = new THREE.Spherical();
+    var scale = 1;
+    var panOffset = new THREE.Vector3();
+    var rotateStart = new THREE.Vector2(), rotateEnd = new THREE.Vector2(), rotateDelta = new THREE.Vector2();
+    var panStart = new THREE.Vector2(), panEnd = new THREE.Vector2(), panDelta = new THREE.Vector2();
+    var dollyStart = new THREE.Vector2(), dollyEnd = new THREE.Vector2(), dollyDelta = new THREE.Vector2();
+
+    function getZoomScale(){ return Math.pow(0.95, scope.zoomSpeed); }
+    function rotateLeft(a){ sphericalDelta.theta -= a; }
+    function rotateUp(a){ sphericalDelta.phi -= a; }
+    var panLeftV = new THREE.Vector3();
+    function panLeft(d, m){ panLeftV.setFromMatrixColumn(m,0); panLeftV.multiplyScalar(-d); panOffset.add(panLeftV); }
+    var panUpV = new THREE.Vector3();
+    function panUp(d, m){
+      if(scope.screenSpacePanning){ panUpV.setFromMatrixColumn(m,1); }
+      else { panUpV.setFromMatrixColumn(m,0); panUpV.crossVectors(scope.object.up, panUpV); }
+      panUpV.multiplyScalar(d); panOffset.add(panUpV);
+    }
+    var panOffset2 = new THREE.Vector3();
+    function pan(dx, dy){
+      var el = scope.domElement;
+      if(scope.object.isPerspectiveCamera){
+        var pos = scope.object.position;
+        panOffset2.copy(pos).sub(scope.target);
+        var tDist = panOffset2.length();
+        tDist *= Math.tan((scope.object.fov/2)*Math.PI/180);
+        panLeft(2*dx*tDist/el.clientHeight, scope.object.matrix);
+        panUp(2*dy*tDist/el.clientHeight, scope.object.matrix);
+      }
+    }
+    function dollyIn(s){ scale /= s; }
+    function dollyOut(s){ scale *= s; }
+
+    this.update = function(){
+      var offset = new THREE.Vector3();
+      var quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0,1,0));
+      var quatInverse = quat.clone().invert();
+      var lastPos = new THREE.Vector3();
+      var lastQuat = new THREE.Quaternion();
+      return function(){
+        var pos = scope.object.position;
+        offset.copy(pos).sub(scope.target);
+        offset.applyQuaternion(quat);
+        spherical.setFromVector3(offset);
+        spherical.theta += sphericalDelta.theta;
+        spherical.phi += sphericalDelta.phi;
+        spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
+        spherical.makeSafe();
+        spherical.radius *= scale;
+        spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
+        scope.target.add(panOffset);
+        offset.setFromSpherical(spherical);
+        offset.applyQuaternion(quatInverse);
+        pos.copy(scope.target).add(offset);
+        scope.object.lookAt(scope.target);
+        if(scope.enableDamping){
+          sphericalDelta.theta *= (1-scope.dampingFactor);
+          sphericalDelta.phi   *= (1-scope.dampingFactor);
+          panOffset.multiplyScalar(1-scope.dampingFactor);
+        } else { sphericalDelta.set(0,0,0); panOffset.set(0,0,0); }
+        scale = 1;
+        if(lastPos.distanceToSquared(scope.object.position)>EPS*EPS || 8*(1-lastQuat.dot(scope.object.quaternion))>EPS*EPS){
+          lastPos.copy(scope.object.position); lastQuat.copy(scope.object.quaternion); return true;
+        }
+        return false;
+      };
+    }();
+
+    function onPointerDown(e){
+      if(!scope.enabled) return;
+      scope.domElement.setPointerCapture(e.pointerId);
+      scope.domElement.addEventListener('pointermove', onPointerMove);
+      scope.domElement.addEventListener('pointerup', onPointerUp);
+      if(e.button===0){ rotateStart.set(e.clientX, e.clientY); state=STATE.ROTATE; }
+      else if(e.button===1){ dollyStart.set(e.clientX, e.clientY); state=STATE.DOLLY; }
+      else if(e.button===2){ panStart.set(e.clientX, e.clientY); state=STATE.PAN; }
+    }
+    function onPointerMove(e){
+      if(!scope.enabled) return;
+      if(state===STATE.ROTATE){
+        rotateEnd.set(e.clientX,e.clientY); rotateDelta.subVectors(rotateEnd,rotateStart).multiplyScalar(scope.rotateSpeed);
+        var el=scope.domElement; rotateLeft(2*Math.PI*rotateDelta.x/el.clientHeight); rotateUp(2*Math.PI*rotateDelta.y/el.clientHeight);
+        rotateStart.copy(rotateEnd);
+      } else if(state===STATE.DOLLY){
+        dollyEnd.set(e.clientX,e.clientY); dollyDelta.subVectors(dollyEnd,dollyStart);
+        if(dollyDelta.y>0) dollyIn(getZoomScale()); else if(dollyDelta.y<0) dollyOut(getZoomScale());
+        dollyStart.copy(dollyEnd);
+      } else if(state===STATE.PAN){
+        panEnd.set(e.clientX,e.clientY); panDelta.subVectors(panEnd,panStart).multiplyScalar(scope.panSpeed);
+        pan(panDelta.x, panDelta.y); panStart.copy(panEnd);
+      }
+    }
+    function onPointerUp(e){
+      scope.domElement.releasePointerCapture(e.pointerId);
+      scope.domElement.removeEventListener('pointermove',onPointerMove);
+      scope.domElement.removeEventListener('pointerup',onPointerUp);
+      state=STATE.NONE;
+    }
+    function onMouseWheel(e){
+      if(!scope.enabled) return;
+      e.preventDefault();
+      if(e.deltaY<0) dollyOut(getZoomScale()); else dollyIn(getZoomScale());
+    }
+    function onContextMenu(e){ e.preventDefault(); }
+    scope.domElement.addEventListener('pointerdown', onPointerDown);
+    scope.domElement.addEventListener('wheel', onMouseWheel, {passive:false});
+    scope.domElement.addEventListener('contextmenu', onContextMenu);
+    this.dispose = function(){
+      scope.domElement.removeEventListener('pointerdown',onPointerDown);
+      scope.domElement.removeEventListener('wheel',onMouseWheel);
+      scope.domElement.removeEventListener('contextmenu',onContextMenu);
+    };
+  };
+})();
+
+// ─── Scene Setup ──────────────────────────────────────────────────────────────
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a0f);
+scene.fog = new THREE.FogExp2(0x0a0a0f, 0.00035);
+
+const W = window.innerWidth, H = window.innerHeight;
+const camera = new THREE.PerspectiveCamera(45, W/H, 1, 8000);
+camera.position.set(300, 200, 600);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(W, H);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 60, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 100;
+controls.maxDistance = 3000;
+controls.update();
+
+// ─── Lights ───────────────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x404060, 0.9));
+
+const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.4);
+keyLight.position.set(400, 600, 400);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(2048, 2048);
+keyLight.shadow.camera.left = -600; keyLight.shadow.camera.right = 600;
+keyLight.shadow.camera.top = 400;   keyLight.shadow.camera.bottom = -200;
+keyLight.shadow.bias = -0.001;
+scene.add(keyLight);
+
+const fillLight = new THREE.DirectionalLight(0xc0d8ff, 0.5);
+fillLight.position.set(-400, 300, 200);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight(0xffeedd, 0.35);
+rimLight.position.set(0, 200, -600);
+scene.add(rimLight);
+
+// ─── Floor Grid ───────────────────────────────────────────────────────────────
+const gridHelper = new THREE.GridHelper(800, 40, 0x1a1a2e, 0x111118);
+gridHelper.position.y = -2;
+scene.add(gridHelper);
+
+// ─── Card Types ───────────────────────────────────────────────────────────────
+const CARD_TYPES = [
+  { name: 'Champion',  slot: 0, slotZ: -160, hex: 0xcc2233, css: '#cc2233' },
+  { name: 'Spell',     slot: 1, slotZ: -120, hex: 0x2244cc, css: '#2244cc' },
+  { name: 'Follower',  slot: 2, slotZ:  -80, hex: 0x22aa44, css: '#22aa44' },
+  { name: 'Equipment', slot: 3, slotZ:  -40, hex: 0xcc8800, css: '#cc8800' },
+  { name: 'Legendary', slot: 4, slotZ:    0, hex: 0x9922cc, css: '#9922cc' },
+  { name: 'Rare',      slot: 5, slotZ:   40, hex: 0x0099cc, css: '#0099cc' },
+  { name: 'Common',    slot: 6, slotZ:   80, hex: 0x888888, css: '#888888' },
+  { name: 'Reject',    slot: 7, slotZ:  120, hex: 0x555555, css: '#555555' },
+];
+
+// ─── Helper: box mesh ─────────────────────────────────────────────────────────
+function makeBox(w, h, d, color, opacity) {
+  opacity = opacity === undefined ? 1 : opacity;
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const mat = new THREE.MeshStandardMaterial({
+    color, roughness: 0.45, metalness: 0.1,
+    transparent: opacity < 1, opacity
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+function makeWireBox(w, h, d, color) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const edges = new THREE.EdgesGeometry(geo);
+  const mat = new THREE.LineBasicMaterial({ color, linewidth: 1 });
+  return new THREE.LineSegments(edges, mat);
+}
+
+// ─── Machine Parts ────────────────────────────────────────────────────────────
+
+// --- Baseplate ---
+const baseMesh = makeBox(700, 6, 420, 0x1a1a2a);
+baseMesh.position.set(110, -3, 0);
+scene.add(baseMesh);
+
+// --- Hopper (left) ---
+// Outer shell: X=-230, 72mm wide, 108mm tall
+// Center x = -230, y from 0..108, z centered 0
+const HOPPER_X = -230;
+const hopperGroup = new THREE.Group();
+// back wall
+const hw = makeBox(6, 108, 80, 0xd0d0d8);
+hw.position.set(-3, 54, 0);
+hopperGroup.add(hw);
+// front wall (open for picking, so translucent)
+const hwf = makeBox(6, 108, 80, 0xd0d0d8, 0.25);
+hwf.position.set(69, 54, 0);
+hopperGroup.add(hwf);
+// left wall
+const hs1 = makeBox(72, 6, 80, 0xd0d0d8);
+hs1.position.set(33, 3, 0);
+hopperGroup.add(hs1);
+// right wall (open, cards exit)
+// floor
+const hfloor = makeBox(72, 4, 80, 0xc0c0c8);
+hfloor.position.set(33, 2, 0);
+hopperGroup.add(hfloor);
+// side walls
+const hside1 = makeBox(72, 108, 4, 0xd0d0d8);
+hside1.position.set(33, 54, 38);
+hopperGroup.add(hside1);
+const hside2 = makeBox(72, 108, 4, 0xd0d0d8);
+hside2.position.set(33, 54, -38);
+hopperGroup.add(hside2);
+
+hopperGroup.position.set(HOPPER_X, 0, 0);
+scene.add(hopperGroup);
+
+// Hopper label edge lines
+const hopperWire = makeWireBox(72, 108, 80, 0x444466);
+hopperWire.position.set(HOPPER_X + 33, 54, 0);
+scene.add(hopperWire);
+
+// --- Conveyor belt ---
+// X from -160 to +220 → length = 380, Y surface at 45, centered Z=0
+const CONV_Y_TOP = 45;
+const conveyorBody = makeBox(380, 12, 80, 0xb0b0b8);
+conveyorBody.position.set(30, CONV_Y_TOP - 6, 0);
+scene.add(conveyorBody);
+// belt surface (slightly different color)
+const beltSurf = makeBox(378, 2, 76, 0x888896);
+beltSurf.position.set(30, CONV_Y_TOP + 1, 0);
+scene.add(beltSurf);
+// legs
+for(let lx of [-140, 20, 200]) {
+  const leg = makeBox(8, CONV_Y_TOP - 12, 8, 0x909098);
+  leg.position.set(lx, (CONV_Y_TOP - 12)/2, 30);
+  scene.add(leg);
+  const leg2 = makeBox(8, CONV_Y_TOP - 12, 8, 0x909098);
+  leg2.position.set(lx, (CONV_Y_TOP - 12)/2, -30);
+  scene.add(leg2);
+}
+
+// --- Scanner hood ---
+// Black box at X≈30, Y from 45 to 110 (height=65), Z -50..+50
+const scannerHood = makeBox(80, 65, 100, 0x111118);
+scannerHood.position.set(30, CONV_Y_TOP + 32.5, 0);
+scene.add(scannerHood);
+// LED strip on scanner
+const scanLED = makeBox(78, 3, 3, 0x00aaff, 0.7);
+scanLED.position.set(30, CONV_Y_TOP + 5, 0);
+scene.add(scanLED);
+// scanner opening slot
+const scanSlot = makeBox(2, 6, 80, 0x222233);
+scanSlot.position.set(-10, CONV_Y_TOP + 2, 0);
+scene.add(scanSlot);
+
+// Flash point light inside scanner (animated)
+const scanFlash = new THREE.PointLight(0xffffff, 0, 60);
+scanFlash.position.set(30, CONV_Y_TOP + 20, 0);
+scene.add(scanFlash);
+
+// --- Sort gate servo + paddle ---
+const GATE_X = 200;
+const gateBase = makeBox(20, 30, 20, 0xc0c0c8);
+gateBase.position.set(GATE_X, CONV_Y_TOP + 15, 0);
+scene.add(gateBase);
+
+// Paddle (animated rotation)
+const paddleGeo = new THREE.BoxGeometry(4, 60, 10);
+const paddleMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e8, roughness: 0.3 });
+const paddleMesh = new THREE.Mesh(paddleGeo, paddleMat);
+paddleMesh.castShadow = true;
+const paddlePivot = new THREE.Group();
+paddlePivot.position.set(GATE_X, CONV_Y_TOP + 15, 0);
+paddlePivot.add(paddleMesh);
+paddleMesh.position.set(0, 0, 0);
+scene.add(paddlePivot);
+
+// --- Sorting tray (right side) ---
+// X from 240 to 450, 9 slots in Z axis
+// Slot Z positions: [-160,-120,-80,-40,0,40,80,120,160]
+const TRAY_X_START = 240;
+const TRAY_X_END   = 450;
+const TRAY_Y_BASE  = 0;
+const SLOT_ZS = [-160, -120, -80, -40, 0, 40, 80, 120, 160];
+
+// Tray frame
+const trayFloor = makeBox(TRAY_X_END - TRAY_X_START, 4, 360, 0xb0b0b8);
+trayFloor.position.set((TRAY_X_START + TRAY_X_END)/2, TRAY_Y_BASE + 2, 0);
+scene.add(trayFloor);
+
+// Tray back wall
+const trayBack = makeBox(4, 70, 360, 0xc0c0c8);
+trayBack.position.set(TRAY_X_END, 35, 0);
+scene.add(trayBack);
+
+// Dividers between slots
+for(let sz of SLOT_ZS) {
+  const div = makeBox(TRAY_X_END - TRAY_X_START, 50, 3, 0x888898);
+  div.position.set((TRAY_X_START + TRAY_X_END)/2, 27, sz - 20);
+  scene.add(div);
+  // Label marker
+  const lw = makeWireBox(10, 8, 10, 0x446666);
+  lw.position.set(TRAY_X_START + 5, 5, sz);
+  scene.add(lw);
+}
+
+// ─── Suction Arm ─────────────────────────────────────────────────────────────
+// Arm: servo at top of hopper (X=-230, Y=108), arm is a rod that swings
+const suctionPivot = new THREE.Group();
+suctionPivot.position.set(HOPPER_X + 36, 108, 0); // top of hopper
+scene.add(suctionPivot);
+
+const armRod = makeBox(4, 80, 4, 0x888898);
+armRod.position.set(0, -40, 0); // hangs down from pivot
+suctionPivot.add(armRod);
+
+const suctionCup = makeBox(10, 4, 14, 0x333344);
+suctionCup.position.set(0, -83, 0);
+suctionPivot.add(suctionCup);
+
+// Servo body at pivot
+const servoBody = makeBox(22, 16, 22, 0x444455);
+servoBody.position.set(0, 0, 0);
+suctionPivot.add(servoBody);
+
+// ─── Active Card Mesh ─────────────────────────────────────────────────────────
+// Card dimensions 63×88mm → scaled for scene: 63 wide, 88 tall, 2 thick
+// When on conveyor, card lies flat: width=63 in X, thickness=2 in Y, height=88 in Z
+const CARD_W = 63, CARD_H = 88, CARD_T = 2;
+const activeCardGeo = new THREE.BoxGeometry(CARD_W, CARD_T, CARD_H);
+const activeCardMat = new THREE.MeshStandardMaterial({
+  color: 0xffffff, roughness: 0.2, metalness: 0.0,
+  emissive: 0xffffff, emissiveIntensity: 0
+});
+const activeCard = new THREE.Mesh(activeCardGeo, activeCardMat);
+activeCard.castShadow = true;
+scene.add(activeCard);
+activeCard.visible = false;
+
+// Card glow light
+const cardGlow = new THREE.PointLight(0xffffff, 0, 80);
+scene.add(cardGlow);
+
+// ─── Tray Card Accumulation ───────────────────────────────────────────────────
+// For each slot (8 types, mapped to 8 of the 9 slots), store array of card meshes
+const trayCards = {}; // slot index -> array of card meshes
+for(let i = 0; i < 9; i++) trayCards[i] = [];
+
+function addCardToTray(slotIdx, colorHex) {
+  const arr = trayCards[slotIdx];
+  if(arr.length >= 4) {
+    // remove oldest
+    const old = arr.shift();
+    scene.remove(old);
+    old.geometry.dispose();
+    old.material.dispose();
+  }
+  const cardIdx = arr.length;
+  // Cards stack in X direction in tray, standing upright (rotated 90° around Z)
+  const geo = new THREE.BoxGeometry(CARD_T, CARD_H, CARD_W);
+  const mat = new THREE.MeshStandardMaterial({
+    color: colorHex, roughness: 0.25, metalness: 0.0,
+    emissive: colorHex, emissiveIntensity: 0.15
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
+  const sz = SLOT_ZS[slotIdx];
+  mesh.position.set(TRAY_X_START + 15 + cardIdx * (CARD_T + 3), CARD_H/2 + TRAY_Y_BASE + 4, sz);
+  scene.add(mesh);
+  arr.push(mesh);
+}
+
+// ─── Animation State ──────────────────────────────────────────────────────────
+let paused = false;
+let speedMult = 1;
+const SPEEDS = [0.5, 1, 2];
+let speedIdx = 1;
+
+let totalSorted = 0;
+let cycleIdx = 0;          // which card type (0..7)
+let cycleT = 0;            // elapsed time within current cycle (0..6s)
+const CYCLE_DUR = 6.0;     // seconds per card
+
+// Phase timings (in seconds):
+const PH = {
+  armDescend:  [0.0, 0.5],
+  armLift:     [0.5, 1.0],
+  armSwing:    [1.0, 1.5],
+  conveyorIn:  [1.5, 2.5],
+  scan:        [2.5, 2.8],
+  conveyorOut: [2.8, 3.5],
+  deflect:     [3.5, 4.5],
+  slotDrop:    [4.5, 5.5],
+  pause:       [5.5, 6.0],
+};
+
+// Easing
+function easeInOut(t) {
+  t = Math.max(0, Math.min(1, t));
+  return t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t;
+}
+
+function phaseT(ph) {
+  const [s, e] = ph;
+  return easeInOut((cycleT - s) / (e - s));
+}
+function inPhase(ph) {
+  return cycleT >= ph[0] && cycleT < ph[1];
+}
+
+// UI helpers
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pause-btn').textContent = paused ? 'Play' : 'Pause';
+  document.getElementById('pause-btn').classList.toggle('active', paused);
+}
+
+function cycleSpeed() {
+  speedIdx = (speedIdx + 1) % SPEEDS.length;
+  speedMult = SPEEDS[speedIdx];
+  document.getElementById('speed-btn').textContent = speedMult + '× Speed';
+}
+
+function updateStatsUI(cardType, scanning) {
+  document.getElementById('stats-count').textContent = totalSorted;
+  if(cardType) {
+    document.getElementById('stats-current').innerHTML =
+      `Current: <span style="color:${cardType.css}">${cardType.name}</span> → Bin ${cardType.slot}`;
+  }
+}
+
+function showScanOverlay(cardType, visible) {
+  const el = document.getElementById('scan-overlay');
+  el.style.opacity = visible ? '1' : '0';
+  if(visible && cardType) {
+    document.getElementById('scan-type').textContent = cardType.name;
+    document.getElementById('scan-type').style.color = cardType.css;
+    document.getElementById('scan-slot').textContent = `→ Bin ${cardType.slot}`;
+  }
+}
+
+// Paddle angle: maps slotZ to angle from center (-160..160 → ~ -π/3 .. π/3)
+function paddleAngleForSlot(slotZ) {
+  // Route up for negative Z, down for positive Z
+  // flat (0°) = center slot 4 (Z=0)
+  return -(slotZ / 160) * (Math.PI / 2.5);
+}
+
+let scanOverlayTimer = 0;
+
+// ─── Hopper stack (static decorative cards) ───────────────────────────────────
+const stackGroup = new THREE.Group();
+for(let i = 0; i < 6; i++) {
+  const sg = new THREE.BoxGeometry(CARD_W, CARD_T, CARD_H);
+  const sm = new THREE.MeshStandardMaterial({ color: 0xddddee, roughness: 0.3 });
+  const sc = new THREE.Mesh(sg, sm);
+  sc.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
+  sc.castShadow = true;
+  stackGroup.add(sc);
+}
+scene.add(stackGroup);
+
+// ─── Render Loop ──────────────────────────────────────────────────────────────
+let lastTime = null;
+let prevCycleIdx = -1;
+
+function animate(ts) {
+  requestAnimationFrame(animate);
+
+  if(lastTime === null) lastTime = ts;
+  let dt = (ts - lastTime) / 1000;
+  lastTime = ts;
+  dt = Math.min(dt, 0.1); // clamp to prevent big jumps on tab focus
+
+  if(!paused) cycleT += dt * speedMult;
+
+  // Advance cycle
+  if(cycleT >= CYCLE_DUR) {
+    cycleT -= CYCLE_DUR;
+    totalSorted++;
+    const ct = CARD_TYPES[cycleIdx];
+    addCardToTray(ct.slot, ct.hex);
+    cycleIdx = (cycleIdx + 1) % CARD_TYPES.length;
+    prevCycleIdx = -1;
+  }
+
+  const ct = CARD_TYPES[cycleIdx];
+
+  // Update stats
+  updateStatsUI(ct);
+
+  // Scan overlay timer
+  if(cycleT >= PH.scan[0] && cycleT < PH.scan[0] + 0.8) {
+    showScanOverlay(ct, true);
+  } else {
+    showScanOverlay(ct, false);
+  }
+
+  // ── Active card color ──
+  activeCardMat.color.setHex(ct.hex);
+  activeCardMat.emissive.setHex(ct.hex);
+  cardGlow.color.setHex(ct.hex);
+
+  // ── Phase 1: Arm descends (0..0.5s) ──
+  if(cycleT < PH.armSwing[1]) {
+    activeCard.visible = false;
+    const pt = phaseT(PH.armDescend);
+    // Arm swings from -20° (up, resting) to +30° (picking position)
+    if(cycleT < PH.armDescend[1]) {
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.35, 0.52, pt);
+    } else if(inPhase(PH.armLift)) {
+      const lt = phaseT(PH.armLift);
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(0.52, -0.80, lt);
+    } else if(inPhase(PH.armSwing)) {
+      const st = phaseT(PH.armSwing);
+      // swing from hopper position to conveyor left end
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.80, -1.57, st);
+    }
+    activeCardMat.emissiveIntensity = 0;
+    cardGlow.intensity = 0;
+    scanFlash.intensity = 0;
+  }
+
+  // ── Phase 2: Card on conveyor (1.5..2.5s) ──
+  else if(inPhase(PH.conveyorIn)) {
+    suctionPivot.rotation.z = -1.57;
+    activeCard.visible = true;
+    activeCard.rotation.set(0, 0, 0);
+    const ct2 = phaseT(PH.conveyorIn);
+    const cx = THREE.MathUtils.lerp(-140, 30, ct2);
+    activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 1, 0);
+    scanFlash.intensity = 0;
+    activeCardMat.emissiveIntensity = 0.2;
+    cardGlow.intensity = 0.5;
+    cardGlow.position.copy(activeCard.position);
+    cardGlow.position.y += 10;
+  }
+
+  // ── Phase 3: Scanner flash (2.5..2.8s) ──
+  else if(inPhase(PH.scan)) {
+    activeCard.visible = true;
+    activeCard.rotation.set(0, 0, 0);
+    activeCard.position.set(30, CONV_Y_TOP + CARD_T/2 + 1, 0);
+    const ft = phaseT(PH.scan);
+    // flash goes up then fades
+    const flashIntensity = ft < 0.5 ? ft * 4 : (1 - ft) * 4;
+    scanFlash.intensity = flashIntensity * 3;
+    scanFlash.position.set(30, CONV_Y_TOP + 10, 0);
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.5;
+    cardGlow.intensity = 1.5 + flashIntensity;
+    cardGlow.position.copy(activeCard.position);
+  }
+
+  // ── Phase 4: Conveyor to gate (2.8..3.5s) ──
+  else if(inPhase(PH.conveyorOut)) {
+    activeCard.visible = true;
+    activeCard.rotation.set(0, 0, 0);
+    const ot = phaseT(PH.conveyorOut);
+    activeCard.position.set(THREE.MathUtils.lerp(30, GATE_X, ot), CONV_Y_TOP + CARD_T/2 + 1, 0);
+    // Paddle rotates to target angle during this phase
+    const targetAngle = paddleAngleForSlot(ct.slotZ);
+    paddlePivot.rotation.z = THREE.MathUtils.lerp(0, targetAngle, ot);
+    scanFlash.intensity = 0;
+    activeCardMat.emissiveIntensity = 0.2;
+    cardGlow.intensity = 0.8;
+    cardGlow.position.copy(activeCard.position);
+  }
+
+  // ── Phase 5: Deflect toward slot (3.5..4.5s) ──
+  else if(inPhase(PH.deflect)) {
+    activeCard.visible = true;
+    const dt2 = phaseT(PH.deflect);
+    const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
+    const cz = THREE.MathUtils.lerp(0, ct.slotZ, dt2);
+    const cy = CONV_Y_TOP + CARD_T/2 + 1;
+    activeCard.position.set(cx, cy, cz);
+    // Card tilts slightly in direction of travel
+    activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.3 * Math.sign(ct.slotZ || 0), dt2);
+    cardGlow.intensity = 0.6;
+    cardGlow.position.copy(activeCard.position);
+  }
+
+  // ── Phase 6: Drop into slot (4.5..5.5s) ──
+  else if(inPhase(PH.slotDrop)) {
+    activeCard.visible = true;
+    const dt3 = phaseT(PH.slotDrop);
+    const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 1, TRAY_Y_BASE + CARD_H/2 + 4, dt3);
+    activeCard.position.set(TRAY_X_START + 20, cy, ct.slotZ);
+    activeCard.rotation.y = 0;
+    // card rotates to stand upright as it drops
+    activeCard.rotation.z = THREE.MathUtils.lerp(0, Math.PI/2, dt3);
+    cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3);
+    cardGlow.position.copy(activeCard.position);
+  }
+
+  // ── Phase 7: Pause (5.5..6.0s) ──
+  else {
+    activeCard.visible = false;
+    suctionPivot.rotation.z = THREE.MathUtils.lerp(suctionPivot.rotation.z, -0.35, 0.08);
+    cardGlow.intensity = 0;
+    scanFlash.intensity = 0;
+  }
+
+  // Slow orbit camera
+  if(!controls.enableRotate || !controls._userInteracted) {
+    const angle = ts * 0.00004;
+    camera.position.x = 300 * Math.cos(angle) + 50;
+    camera.position.z = 600 * Math.sin(angle) + 50;
+    camera.position.y = 200 + 40 * Math.sin(ts * 0.00012);
+    camera.lookAt(0, 60, 0);
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+// Detect user orbit interaction to pause auto-orbit
+controls.domElement.addEventListener('pointerdown', () => { controls._userInteracted = true; });
+
+// ─── Resize ───────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w/h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+});
+
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>

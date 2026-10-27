@@ -7,7 +7,9 @@ use </tmp/riftbound-sorter/cad/conveyor_roller.scad>
 use </tmp/riftbound-sorter/cad/scanner_hood.scad>
 use </tmp/riftbound-sorter/cad/suction_arm.scad>
 use </tmp/riftbound-sorter/cad/sort_gate_lever.scad>
-use </tmp/riftbound-sorter/cad/output_bin.scad>
+// output_bin.scad superseded by sorting_tray.scad (see below)
+// use </tmp/riftbound-sorter/cad/output_bin.scad>
+use </tmp/riftbound-sorter/cad/sorting_tray.scad>
 use </tmp/riftbound-sorter/cad/electronics_tray.scad>
 use </tmp/riftbound-sorter/cad/baseplate_tile.scad>
 
@@ -53,11 +55,20 @@ for (i = [-1, 0, 1])
     translate([195, 80, i * 32]) rotate([90,0,0])
         gate_lever();
 
-// ── Output Bins (2 cols × 4 rows) ───────────────────────────────────────
-for (col = [0:1]) for (row = [0:3])
-    translate([225 + col * 87, 10, row * 133 - 195])
-        output_bin();
+// ── Output Bins — SUPERSEDED by sorting_tray.scad ────────────────────────
+// (9 separate bins replaced by unified sorting tray with 3-slot sections)
+//
+// OLD (commented out):
+// for (col = [0:1]) for (row = [0:3])
+//     translate([225 + col * 87, 10, row * 133 - 195])
+//         output_bin();
+// // Reject bin
+// translate([225 + 2 * 87, 10, 0])
+//     output_bin();
 
-// Reject bin
-translate([225 + 2 * 87, 10, 0])
-    output_bin();
+// ── Sorting Tray (replaces 9 output bins) ────────────────────────────────
+// 3-slot sections × 3 = 9 slots (8 sort + 1 reject)
+// Alignment pins for multi-piece join; all 3 sections printed separately
+for (section = [0:2])
+    translate([225 + section * 90, 10, -130])
+        sorting_tray(section=section);

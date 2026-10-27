@@ -222,6 +222,7 @@
   <a href="#cad">3D Parts</a>
   <a href="#bom">BOM</a>
   <a href="#code">Code</a>
+  <a href="animation.html" target="_blank" style="background:#1f3a1f;border-color:#3fb950;color:#3fb950;font-weight:600;">▶ Animation ↗</a>
   <a href="render3d.html" target="_blank" style="background:#1f6feb22; border-color:#58a6ff; color:#58a6ff; font-weight:600;">🧊 3D Model ↗</a>
   <a href="https://github.com/svenka-shannon/riftbound-sorter" target="_blank">GitHub ↗</a>
 </nav>
@@ -240,11 +241,18 @@
     <div class="stat"><div class="num">free</div><div class="lbl">Card ID (Riftcodex)</div></div>
   </div>
 
-  <div style="margin-top:20px; border:1px solid #30363d; border-radius:12px; overflow:hidden; position:relative; background:#161b22;">
-    <iframe src="render3d.html" style="width:100%; height:480px; border:none; display:block;" title="3D Model Viewer"></iframe>
-    <div style="position:absolute; bottom:10px; right:14px; font-size:11px; color:#8b949e; pointer-events:none;">
-      Drag to rotate · Scroll to zoom · <a href="render3d.html" target="_blank" style="color:#58a6ff;">Open full screen ↗</a>
+  <div style="margin-top:20px; border:1px solid #3fb950; border-radius:12px; overflow:hidden; position:relative; background:#161b22;">
+    <div style="padding:8px 14px; background:#1f3a1f; font-size:0.78rem; color:#3fb950; font-weight:600; border-bottom:1px solid #2d5a2d;">
+      ▶ Card-Flow Animation — full pickup → conveyor → scan → gate → tray sequence
     </div>
+    <iframe src="animation.html" style="width:100%; height:500px; border:none; display:block;" title="Card Flow Animation"></iframe>
+  </div>
+
+  <div style="margin-top:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+    <a href="render3d.html" target="_blank" style="display:inline-flex; align-items:center; gap:8px; background:#1f6feb22; border:1px solid #58a6ff; border-radius:8px; padding:10px 18px; color:#58a6ff; text-decoration:none; font-size:0.9rem; font-weight:600; transition:border-color 0.2s;">
+      🧊 Open 3D Interactive Model ↗
+    </a>
+    <span style="font-size:0.8rem; color:#8b949e;">Drag to rotate · Scroll to zoom · Full Three.js viewer</span>
   </div>
 
   <a class="github-link" href="https://github.com/svenka-shannon/riftbound-sorter" target="_blank">
@@ -295,7 +303,7 @@
 <!-- CAD -->
 <section id="cad" class="section">
   <h2>3D Printed Parts</h2>
-  <p class="section-desc">9 OpenSCAD files, validated &amp; rendered with OpenSCAD 2026.10.27. All parts fit Bambu P1S (256×256mm bed). 4 geometry bugs fixed after automated validation pass.</p>
+  <p class="section-desc">10 OpenSCAD files, validated &amp; rendered with OpenSCAD 2026.10.27. All parts fit Bambu P1S (256×256mm bed). 4 geometry bugs fixed after automated validation pass. The 9 separate output bins are replaced by a unified <strong style="color:#3fb950;">sorting tray</strong> (desk letter-sorter style, 3-slot sections × 3 = 9 slots).</p>
 
   <!-- Real OpenSCAD renders -->
   <div style="margin-bottom:20px">
@@ -332,9 +340,17 @@
         <img src="images/part-electronics_tray.png" alt="Electronics Tray" onclick="zoom(this)" style="background:#1a1a2a">
         <div class="caption" style="font-size:0.75rem"><strong>Electronics Tray</strong> — 185×125mm<br>Fixed: added HX711 + load cell beam mounts</div>
       </div>
-      <div class="diagram-card" style="padding:8px">
-        <img src="images/part-output_bin.png" alt="Output Bin" onclick="zoom(this)" style="background:#1a1a2a">
-        <div class="caption" style="font-size:0.75rem"><strong>Output Bin</strong> — 82×129mm inner, ×9 (8 sort + 1 reject)</div>
+      <div class="diagram-card" style="padding:8px; border-color:#3fb95066;">
+        <img src="images/part-output_bin.png" alt="Output Bin (legacy)" onclick="zoom(this)" style="background:#1a1a2a; opacity:0.5;">
+        <div class="caption" style="font-size:0.75rem"><strong>Output Bin</strong> — 82×129mm inner, ×9 <span style="color:#f85149">(superseded by sorting tray)</span></div>
+      </div>
+      <div class="diagram-card" style="padding:8px; border-color:#3fb950;">
+        <img src="images/part-sorting_tray.png" alt="Sorting Tray" onclick="zoom(this)" style="background:#1a1a2a">
+        <div class="caption" style="font-size:0.75rem"><strong style="color:#3fb950;">Sorting Tray ✨ New</strong> — 3-slot sections × 3, 9 slots total (8 sort + 1 reject), alignment pins for multi-piece join</div>
+      </div>
+      <div class="diagram-card" style="padding:8px; border-color:#3fb950;">
+        <img src="images/part-sorting_tray-top.png" alt="Sorting Tray — Top View" onclick="zoom(this)" style="background:#1a1a2a">
+        <div class="caption" style="font-size:0.75rem"><strong style="color:#3fb950;">Sorting Tray — Top View ✨ New</strong> — open-top slots for easy card access, label rail on front face</div>
       </div>
     </div>
   </div>
@@ -349,7 +365,8 @@
       &nbsp;&nbsp;<span class="file">suction_arm.scad</span> &nbsp;<span class="note" style="color:#8b949e;font-size:0.78rem">— PETG, 130mm arm, 25T servo horn mount</span><br>
       &nbsp;&nbsp;<span class="file">scanner_hood.scad</span> &nbsp;<span class="note" style="color:#8b949e;font-size:0.78rem">— 95×75×65mm, camera mount, LED ring, card slots through side walls</span><br>
       &nbsp;&nbsp;<span class="file">sort_gate_lever.scad</span> &nbsp;<span class="note" style="color:#8b949e;font-size:0.78rem">— PETG, 70mm, 15° deflector paddle</span><br>
-      &nbsp;&nbsp;<span class="file">output_bin.scad</span> &nbsp;<span class="note" style="color:#8b949e;font-size:0.78rem">— 82×129mm per bin, print 9×</span><br>
+      &nbsp;&nbsp;<span class="file" style="text-decoration:line-through;opacity:0.5;">output_bin.scad</span> &nbsp;<span class="note" style="color:#f85149;font-size:0.78rem">— superseded by sorting_tray</span><br>
+      &nbsp;&nbsp;<span class="new">sorting_tray.scad</span> &nbsp;<span class="note" style="color:#8b949e;font-size:0.78rem">— unified 9-slot output tray (3-slot sections × 3), replaces 9 separate bins</span><br>
       &nbsp;&nbsp;<span class="file">electronics_tray.scad</span> &nbsp;<span class="note" style="color:#8b949e;font-size:0.78rem">— Pi + PCA9685 + HX711 + relay standoffs</span><br>
       &nbsp;&nbsp;<span class="file">baseplate_tile.scad</span> &nbsp;<span class="note" style="color:#8b949e;font-size:0.78rem">— 190×180mm tiles, 3×3 grid, M3 mounting grid</span>
     </div>
