@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riftbound Card Sorter — 3D Model Viewer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; color: #eee; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+  #canvas-container { width: 100vw; height: 100vh; }
+  canvas { display: block; }
+
+  #ui {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 16px 20px; pointer-events: none; z-index: 10;
+  }
+  #title-block { pointer-events: none; }
+  #title-block h1 { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 0.02em; }
+  #title-block p  { font-size: 12px; color: #888; margin-top: 2px; }
+
+  #controls {
+    pointer-events: all;
+    display: flex; gap: 8px; align-items: center;
+  }
+  .btn {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    color: #ccc; padding: 6px 14px; border-radius: 6px; font-size: 12px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+  .btn.active { background: rgba(99,120,255,0.3); border-color: #6378ff; color: #fff; }
+
+  #legend {
+    position: fixed; bottom: 20px; left: 20px;
+    background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 12px 16px;
+    font-size: 11px; line-height: 1.9;
+    backdrop-filter: blur(8px);
+  }
+  #legend .entry { display: flex; align-items: center; gap: 8px; }
+  #legend .dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  #hint {
+    position: fixed; bottom: 20px; right: 20px;
+    background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 8px 14px;
+    font-size: 11px; color: #666; line-height: 1.8;
+    text-align: right;
+  }
+
+  #info-label {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.7); color: #fff; padding: 6px 14px;
+    border-radius: 6px; font-size: 13px;
+    pointer-events: none; display: none;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+</style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+
+<div id="ui">
+  <div id="title-block">
+    <h1>Riftbound Card Sorter</h1>
+    <p>580×540×300mm · 9 printed parts · Raspberry Pi Zero 2W</p>
+  </div>
+  <div id="controls">
+    <button class="btn active" onclick="setView('iso')">Isometric</button>
+    <button class="btn" onclick="setView('top')">Top</button>
+    <button class="btn" onclick="setView('front')">Front</button>
+    <button class="btn" onclick="setView('side')">Side</button>
+    <button class="btn" id="explode-btn" onclick="toggleExplode()">Explode</button>
+  </div>
+</div>
+
+<div id="legend">
+  <div class="entry"><div class="dot" style="background:#e8e8ea"></div> Hopper (PLA, white)</div>
+  <div class="entry"><div class="dot" style="background:#d0d0d4"></div> Conveyor (PLA, grey)</div>
+  <div class="entry"><div class="dot" style="background:#222222"></div> Scanner Hood (PLA, black)</div>
+  <div class="entry"><div class="dot" style="background:#c8c8cc"></div> Sort Gate Levers (PETG)</div>
+  <div class="entry"><div class="dot" style="background:#e2e2e6"></div> Output Bins × 9</div>
+  <div class="entry"><div class="dot" style="background:#3a5c3a"></div> Electronics Tray (Pi Zero + PCA9685)</div>
+  <div class="entry"><div class="dot" style="background:#4a3a6a"></div> Baseplate Tiles × 9</div>
+</div>
+
+<div id="hint">
+  Drag to rotate &nbsp;·&nbsp; Scroll to zoom<br>
+  Right-drag to pan &nbsp;·&nbsp; Hover for labels
+</div>
+
+<div id="info-label"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── Inline OrbitControls (r128) ───────────────────────────────────────────
+(function(){
+  THREE.OrbitControls = function(object, domElement){
+    this.object = object;
+    this.domElement = domElement || document;
+    this.enabled = true;
+    this.target = new THREE.Vector3();
+    this.minDistance = 50; this.maxDistance = 4000;
+    this.minPolarAngle = 0; this.maxPolarAngle = Math.PI;
+    this.enableDamping = true; this.dampingFactor = 0.06;
+    this.enableZoom = true; this.zoomSpeed = 1.0;
+    this.enableRotate = true; this.rotateSpeed = 0.6;
+    this.enablePan = true; this.panSpeed = 0.8;
+    this.screenSpacePanning = true;
+
+    var scope = this;
+    var STATE = { NONE: -1, ROTATE: 0, DOLLY: 1, PAN: 2 };
+    var state = STATE.NONE;
+    var EPS = 1e-6;
+    var spherical = new THREE.Spherical();
+    var sphericalDelta = new THREE.Spherical();
+    var scale = 1;
+    var panOffset = new THREE.Vector3();
+    var rotateStart = new THREE.Vector2(), rotateEnd = new THREE.Vector2(), rotateDelta = new THREE.Vector2();
+    var panStart = new THREE.Vector2(), panEnd = new THREE.Vector2(), panDelta = new THREE.Vector2();
+    var dollyStart = new THREE.Vector2(), dollyEnd = new THREE.Vector2(), dollyDelta = new THREE.Vector2();
+
+    function getAutoRotationAngle(){ return 2*Math.PI/60/60 * scope.autoRotateSpeed; }
+    function getZoomScale(){ return Math.pow(0.95, scope.zoomSpeed); }
+    function rotateLeft(a){ sphericalDelta.theta -= a; }
+    function rotateUp(a){ sphericalDelta.phi -= a; }
+
+    var panLeftV = new THREE.Vector3();
+    function panLeft(d, m){ panLeftV.setFromMatrixColumn(m,0); panLeftV.multiplyScalar(-d); panOffset.add(panLeftV); }
+    var panUpV = new THREE.Vector3();
+    function panUp(d, m){
+      if(scope.screenSpacePanning){ panUpV.setFromMatrixColumn(m,1); }
+      else { panUpV.setFromMatrixColumn(m,0); panUpV.crossVectors(scope.object.up, panUpV); }
+      panUpV.multiplyScalar(d); panOffset.add(panUpV);
+    }
+    var panOffset2 = new THREE.Vector3();
+    function pan(dx, dy){
+      var el = scope.domElement;
+      if(scope.object.isPerspectiveCamera){
+        var pos = scope.object.position;
+        panOffset2.copy(pos).sub(scope.target);
+        var tDist = panOffset2.length();
+        tDist *= Math.tan((scope.object.fov/2)*Math.PI/180);
+        panLeft(2*dx*tDist/el.clientHeight, scope.object.matrix);
+        panUp(2*dy*tDist/el.clientHeight, scope.object.matrix);
+      }
+    }
+    function dollyIn(s){ scale /= s; }
+    function dollyOut(s){ scale *= s; }
+
+    this.update = function(){
+      var offset = new THREE.Vector3();
+      var quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0,1,0));
+      var quatInverse = quat.clone().invert();
+      var lastPos = new THREE.Vector3();
+      var lastQuat = new THREE.Quaternion();
+
+      return function(){
+        var pos = scope.object.position;
+        offset.copy(pos).sub(scope.target);
+        offset.applyQuaternion(quat);
+        spherical.setFromVector3(offset);
+        spherical.theta += sphericalDelta.theta;
+        spherical.phi += sphericalDelta.phi;
+        spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
+        spherical.makeSafe();
+        spherical.radius *= scale;
+        spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
+        scope.target.add(panOffset);
+        offset.setFromSpherical(spherical);
+        offset.applyQuaternion(quatInverse);
+        pos.copy(scope.target).add(offset);
+        scope.object.lookAt(scope.target);
+        if(scope.enableDamping){
+          sphericalDelta.theta *= (1-scope.dampingFactor);
+          sphericalDelta.phi *= (1-scope.dampingFactor);
+          panOffset.multiplyScalar(1-scope.dampingFactor);
+        } else { sphericalDelta.set(0,0,0); panOffset.set(0,0,0); }
+        scale = 1;
+        if(lastPos.distanceToSquared(scope.object.position)>EPS*EPS || 8*(1-lastQuat.dot(scope.object.quaternion))>EPS*EPS){
+          lastPos.copy(scope.object.position); lastQuat.copy(scope.object.quaternion);
+          return true;
+        }
+        return false;
+      };
+    }();
+
+    function onPointerDown(e){
+      if(!scope.enabled) return;
+      if(e.pointerType==='touch'){ onTouchStart(e); return; }
+      scope.domElement.setPointerCapture(e.pointerId);
+      scope.domElement.addEventListener('pointermove', onPointerMove);
+      scope.domElement.addEventListener('pointerup', onPointerUp);
+      if(e.button===0){ if(!scope.enableRotate) return; rotateStart.set(e.clientX, e.clientY); state=STATE.ROTATE; }
+      else if(e.button===1){ if(!scope.enableZoom) return; dollyStart.set(e.clientX, e.clientY); state=STATE.DOLLY; }
+      else if(e.button===2){ if(!scope.enablePan) return; panStart.set(e.clientX, e.clientY); state=STATE.PAN; }
+    }
+    function onPointerMove(e){
+      if(!scope.enabled) return;
+      if(e.pointerType==='touch'){ onTouchMove(e); return; }
+      if(state===STATE.ROTATE){ if(!scope.enableRotate) return;
+        rotateEnd.set(e.clientX,e.clientY); rotateDelta.subVectors(rotateEnd,rotateStart).multiplyScalar(scope.rotateSpeed);
+        var el=scope.domElement; rotateLeft(2*Math.PI*rotateDelta.x/el.clientHeight); rotateUp(2*Math.PI*rotateDelta.y/el.clientHeight);
+        rotateStart.copy(rotateEnd);
+      } else if(state===STATE.DOLLY){ dollyEnd.set(e.clientX,e.clientY); dollyDelta.subVectors(dollyEnd,dollyStart);
+        if(dollyDelta.y>0) dollyIn(getZoomScale()); else if(dollyDelta.y<0) dollyOut(getZoomScale());
+        dollyStart.copy(dollyEnd);
+      } else if(state===STATE.PAN){ panEnd.set(e.clientX,e.clientY); panDelta.subVectors(panEnd,panStart).multiplyScalar(scope.panSpeed);
+        pan(panDelta.x, panDelta.y); panStart.copy(panEnd);
+      }
+    }
+    function onPointerUp(e){
+      scope.domElement.releasePointerCapture(e.pointerId);
+      scope.domElement.removeEventListener('pointermove',onPointerMove);
+      scope.domElement.removeEventListener('pointerup',onPointerUp);
+      state=STATE.NONE;
+    }
+    function onMouseWheel(e){
+      if(!scope.enabled||!scope.enableZoom) return;
+      e.preventDefault();
+      if(e.deltaY<0) dollyOut(getZoomScale()); else if(e.deltaY>0) dollyIn(getZoomScale());
+    }
+    function onContextMenu(e){ e.preventDefault(); }
+    function onTouchStart(e){}
+    function onTouchMove(e){}
+
+    scope.domElement.addEventListener('pointerdown', onPointerDown);
+    scope.domElement.addEventListener('wheel', onMouseWheel, {passive:false});
+    scope.domElement.addEventListener('contextmenu', onContextMenu);
+
+    this.dispose = function(){
+      scope.domElement.removeEventListener('pointerdown', onPointerDown);
+      scope.domElement.removeEventListener('wheel', onMouseWheel);
+      scope.domElement.removeEventListener('contextmenu', onContextMenu);
+    };
+  };
+})();
+
+// ─── Scene Setup ───────────────────────────────────────────────────────────
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a0f);
+scene.fog = new THREE.FogExp2(0x0a0a0f, 0.00045);
+
+const W = window.innerWidth, H = window.innerHeight;
+const camera = new THREE.PerspectiveCamera(45, W/H, 1, 8000);
+camera.position.set(500, 420, 700);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(W, H);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 60, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 100;
+controls.maxDistance = 3000;
+controls.update();
+
+// ─── Lights ────────────────────────────────────────────────────────────────
+
+// Ambient
+scene.add(new THREE.AmbientLight(0x404060, 0.8));
+
+// Key light (top-right-front)
+const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.5);
+keyLight.position.set(400, 600, 400);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(2048, 2048);
+keyLight.shadow.camera.near = 10;
+keyLight.shadow.camera.far = 2000;
+keyLight.shadow.camera.left = -500;
+keyLight.shadow.camera.right = 500;
+keyLight.shadow.camera.top = 500;
+keyLight.shadow.camera.bottom = -500;
+keyLight.shadow.bias = -0.001;
+scene.add(keyLight);
+
+// Fill light (left)
+const fillLight = new THREE.DirectionalLight(0xc0d8ff, 0.6);
+fillLight.position.set(-400, 300, 200);
+scene.add(fillLight);
+
+// Rim light (back)
+const rimLight = new THREE.DirectionalLight(0xffeedd, 0.4);
+rimLight.position.set(0, 200, -600);
+scene.add(rimLight);
+
+// ─── Floor grid ────────────────────────────────────────────────────────────
+
+const gridHelper = new THREE.GridHelper(1200, 24, 0x1a1a2e, 0x1a1a2e);
+gridHelper.position.y = -1;
+scene.add(gridHelper);
+
+// Shadow catcher
+const shadowPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(1200, 1200),
+  new THREE.ShadowMaterial({ opacity: 0.35 })
+);
+shadowPlane.rotation.x = -Math.PI/2;
+shadowPlane.position.y = -1;
+shadowPlane.receiveShadow = true;
+scene.add(shadowPlane);
+
+// ─── Materials ─────────────────────────────────────────────────────────────
+
+function mat(hex, rough=0.6, metal=0.0, opacity=1) {
+  const m = new THREE.MeshStandardMaterial({
+    color: hex, roughness: rough, metalness: metal,
+    transparent: opacity < 1, opacity
+  });
+  return m;
+}
+
+const M = {
+  white:    mat(0xe8e8ea, 0.55),
+  grey:     mat(0xd0d0d4, 0.60),
+  lightGrey:mat(0xc8c8cc, 0.58),
+  darkGrey: mat(0x3a3a3f, 0.70),
+  black:    mat(0x1a1a1f, 0.80),
+  green:    mat(0x2d6e2d, 0.50),         // PCB green
+  darkGreen:mat(0x1a4a1a, 0.60),
+  purple:   mat(0x4a3a6a, 0.65),         // baseplate
+  rubber:   mat(0x181818, 0.92),         // o-ring rubber
+  copper:   mat(0xb87333, 0.40, 0.8),   // copper traces accent
+  red:      mat(0xcc2222, 0.55),
+  blue:     mat(0x2244cc, 0.55),
+  yellow:   mat(0xddaa22, 0.55),
+  orange:   mat(0xcc6622, 0.55),
+  teal:     mat(0x226677, 0.55),
+  pink:     mat(0xcc3366, 0.55),
+  glass:    mat(0x8899bb, 0.1, 0.0, 0.25),
+};
+
+// ─── Helper: labelled box part ─────────────────────────────────────────────
+
+const parts = []; // [{mesh, label, basePos, explodeDir}]
+
+function addPart(geo, material, pos, label, explodeDir=[0,0,0]) {
+  const mesh = new THREE.Mesh(geo, material);
+  mesh.position.set(...pos);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.userData = { label, basePos: [...pos], explodeDir };
+  scene.add(mesh);
+  parts.push(mesh);
+  return mesh;
+}
+
+function box(w, h, d) { return new THREE.BoxGeometry(w, h, d); }
+function cyl(r, h, seg=32) { return new THREE.CylinderGeometry(r, r, h, seg); }
+
+// ─── Machine layout (all mm, Y=up) ─────────────────────────────────────────
+//
+// Machine is centered at (0, 0, 0).
+// Conveyor runs along X axis, left (hopper) → right (sort gate).
+// Card travel: left to right.
+// Bins are on the right side.
+//
+//  X: -290 (left/hopper)  …  +300 (right/bins)
+//  Z: -50 (back) … +50 (front)
+//  Y: 0 (floor)  …  +300 (top)
+
+const FLOOR_Y = 0;
+const CONVEYOR_Y = 35;   // top surface of conveyor deck
+const CONV_Z = 0;        // conveyor centerline in Z
+
+// ── 1. Baseplate tiles (9× 190×180mm, 10mm thick) ─────────────────────────
+// 3 rows × 3 columns covering ~570×540mm
+const BP_W=190, BP_D=180, BP_H=10;
+const tileColors = [M.purple, M.purple, M.purple];
+for(let col=0; col<3; col++) {
+  for(let row=0; row<3; row++) {
+    const x = (col-1)*BP_W;
+    const z = (row-1)*BP_D;
+    addPart(
+      box(BP_W-2, BP_H, BP_D-2),
+      M.purple,
+      [x, FLOOR_Y + BP_H/2, z],
+      `Baseplate Tile [${col},${row}]`,
+      [col-1, -0.3, row-1]
+    );
+  }
+}
+
+// ── 2. Input Hopper (72×97×108mm outer) ────────────────────────────────────
+// Positioned on left side. Card exit at right face (X+).
+const HOP = { x:-225, y:FLOOR_Y+BP_H, z:0, w:72, h:108, d:97 };
+
+// Outer shell (hollow is faked with 3mm walls, show as solid at scale)
+addPart(
+  box(HOP.w, HOP.h, HOP.d),
+  M.white,
+  [HOP.x + HOP.w/2, HOP.y + HOP.h/2, HOP.z],
+  'Input Hopper (300-card capacity)',
+  [-2.0, 0, 0]
+);
+
+// Card stack inside hopper (light blue tinted)
+addPart(
+  box(63, 60, 90),
+  mat(0xaabbdd, 0.7),
+  [HOP.x + HOP.w/2, HOP.y + 35, HOP.z],
+  'Card Stack (~200 cards)',
+  [-2.0, 0.5, 0]
+);
+
+// ── 3. Gravity sled (25×8×20mm, sits on card stack) ────────────────────────
+addPart(
+  box(22, 20, 7),
+  M.lightGrey,
+  [HOP.x + HOP.w/2, HOP.y + 67, HOP.z],
+  'Gravity Feed Sled',
+  [-2.5, 0.8, 0]
+);
+
+// ── 4. Suction cup arm (130mm, servo horn at top) ──────────────────────────
+// Servo body at top of hopper
+addPart(
+  box(23, 12, 32),
+  M.darkGrey,
+  [HOP.x + HOP.w/2, HOP.y + HOP.h + 8, HOP.z],
+  'MG996R Servo (suction arm)',
+  [-1.5, 1.5, 0]
+);
+// Arm
+addPart(
+  box(8, 130, 6),
+  mat(0xcc8833, 0.5),  // PETG orange
+  [HOP.x + HOP.w/2, HOP.y + HOP.h + 8 - 50, HOP.z],
+  'Suction Arm (PETG, 130mm)',
+  [-1.5, 0.8, 0]
+);
+// Suction cup
+addPart(
+  cyl(8, 10),
+  mat(0x111111, 0.9),
+  [HOP.x + HOP.w/2, HOP.y + HOP.h + 8 - 118, HOP.z],
+  'Silicone Suction Cup (vacuum pickup)',
+  [-1.5, 0.5, 0]
+);
+
+// ── 5. Conveyor Rails (2× 380×3×35mm, split into 2×190) ───────────────────
+const RAIL_X = -160;  // left end of conveyor
+const RAIL_LEN = 380;
+const RAIL_H = 35;
+const RAIL_W = 3;
+const RAIL_HALF_GAP = 5;  // small gap at split point
+
+// Back rail (Z=-50)
+addPart(
+  box(RAIL_LEN, RAIL_H, RAIL_W),
+  M.grey,
+  [RAIL_X + RAIL_LEN/2, FLOOR_Y + BP_H + RAIL_H/2, -50],
+  'Conveyor Side Rail (380mm, split 2×190)',
+  [0, 0.3, -0.8]
+);
+// Front rail
+addPart(
+  box(RAIL_LEN, RAIL_H, RAIL_W),
+  M.grey,
+  [RAIL_X + RAIL_LEN/2, FLOOR_Y + BP_H + RAIL_H/2, +50],
+  'Conveyor Side Rail (front)',
+  [0, 0.3, +0.8]
+);
+
+// ── 6. Conveyor deck surface (implicit, shown as thin panel) ───────────────
+addPart(
+  box(RAIL_LEN, 3, 97),
+  mat(0xc8c8cc, 0.7),
+  [RAIL_X + RAIL_LEN/2, FLOOR_Y + BP_H + RAIL_H - 2, 0],
+  'Conveyor Deck',
+  [0, 0.4, 0]
+);
+
+// ── 7. Conveyor rollers (22mm dia, 100mm wide, at each end) ────────────────
+for(const rx of [RAIL_X + 30, RAIL_X + RAIL_LEN - 30]) {
+  // Main roller
+  const roller = new THREE.Mesh(
+    new THREE.CylinderGeometry(11, 11, 100, 32),
+    M.rubber
+  );
+  roller.rotation.x = Math.PI/2;
+  roller.position.set(rx, FLOOR_Y + BP_H + 15, 0);
+  roller.castShadow = true;
+  roller.userData = { label: 'Conveyor Roller (22mm, 4× O-ring grooves)', basePos:[rx, FLOOR_Y+BP_H+15, 0], explodeDir:[0,0,0] };
+  scene.add(roller);
+  parts.push(roller);
+
+  // 4 O-ring grooves (dark bands)
+  for(const oz of [-35,-12,12,35]) {
+    const oring = new THREE.Mesh(
+      new THREE.TorusGeometry(11, 2, 8, 32),
+      mat(0x050505, 0.95)
+    );
+    oring.rotation.y = Math.PI/2;
+    oring.position.set(rx, FLOOR_Y + BP_H + 15, oz);
+    scene.add(oring);
+  }
+
+  // Shaft (8mm rod, extends through rails)
+  addPart(
+    cyl(4, 110, 16),
+    mat(0x888899, 0.3, 0.9),
+    [rx, FLOOR_Y + BP_H + 15, 0],
+    '8mm Steel Shaft',
+    [0, 0, 0]
+  );
+}
+
+// Motor (L9110S dual motor driver + motor, right roller side)
+addPart(
+  box(28, 20, 20),
+  mat(0x3333aa, 0.7),
+  [RAIL_X + RAIL_LEN - 30, FLOOR_Y + BP_H + 15, 62],
+  'TT Gear Motor (L9110S driver)',
+  [0.3, 0, 1.2]
+);
+
+// ── 8. Scanner Hood (95×65×75mm, black PLA) ───────────────────────────────
+// Sits on top of conveyor, centered at X≈RAIL_X+190=30
+const HOOD_X = RAIL_X + 185;
+const HOOD_Y = FLOOR_Y + BP_H + RAIL_H;
+addPart(
+  box(95, 65, 75),
+  M.black,
+  [HOOD_X, HOOD_Y + 32, 0],
+  'Scanner Hood (black PLA, ambient-blocking)',
+  [0.2, 1.2, 0]
+);
+
+// Camera module inside hood (small green PCB + lens)
+addPart(
+  box(25, 4, 25),
+  M.green,
+  [HOOD_X, HOOD_Y + 61, 0],
+  'Pi Camera Module 3 (8MP, autofocus)',
+  [0.2, 1.6, 0]
+);
+// Camera lens
+addPart(
+  cyl(5, 3, 16),
+  mat(0x222244, 0.1, 0.3),
+  [HOOD_X, HOOD_Y + 65, 0],
+  'Camera Lens',
+  [0.2, 1.7, 0]
+);
+
+// LED ring (inside hood)
+const ledRing = new THREE.Mesh(
+  new THREE.TorusGeometry(26, 3, 8, 32),
+  mat(0xffee88, 0.3, 0.5)
+);
+ledRing.position.set(HOOD_X, HOOD_Y + 58, 0);
+ledRing.userData = { label: 'LED Ring Light (52mm, 5V)', basePos:[HOOD_X, HOOD_Y+58, 0], explodeDir:[0.2, 1.4, 0] };
+scene.add(ledRing);
+parts.push(ledRing);
+
+// ── 9. Sort Gate Levers (3× servo + paddle at end of conveyor) ─────────────
+const GATE_X = RAIL_X + RAIL_LEN - 10;
+for(let i=0; i<3; i++) {
+  const gz = (i-1) * 32;
+  // Servo
+  addPart(
+    box(23, 12, 32),
+    M.darkGrey,
+    [GATE_X, FLOOR_Y + BP_H + RAIL_H + 20, gz],
+    `Sort Gate Servo ${i+1}`,
+    [0.8, 0.5, i-1]
+  );
+  // Paddle (PETG, 70mm)
+  addPart(
+    box(6, 60, 15),
+    mat(0xcc7733, 0.55),
+    [GATE_X, FLOOR_Y + BP_H + RAIL_H - 20, gz],
+    `Sort Gate Lever (PETG, 70mm, 15° paddle)`,
+    [1.0, 0.3, i-1]
+  );
+}
+
+// ── 10. HX711 Load Cell (under hopper exit) ─────────────────────────────────
+addPart(
+  box(80, 5, 20),
+  mat(0x2244aa, 0.5),
+  [HOP.x + HOP.w + 20, FLOOR_Y + BP_H + 3, 0],
+  'HX711 Load Cell (0-50g, double-pick detection)',
+  [-1.0, -0.2, 0]
+);
+// HX711 module
+addPart(
+  box(20, 4, 15),
+  M.green,
+  [HOP.x + HOP.w + 20, FLOOR_Y + BP_H + 7, 25],
+  'HX711 Amplifier Module',
+  [-0.8, -0.2, 0.4]
+);
+
+// ── 11. Electronics Tray (185×125×45mm) ─────────────────────────────────────
+const TRAY_X = -90;
+const TRAY_Z = 0;
+addPart(
+  box(185, 45, 125),
+  mat(0x2a3a2a, 0.7),
+  [TRAY_X + 92, FLOOR_Y + BP_H + 1, TRAY_Z],
+  'Electronics Tray (PLA, 185×125×45mm)',
+  [0, -0.8, 0]
+);
+
+// Pi Zero 2W (65×30mm green PCB)
+addPart(
+  box(65, 3, 30),
+  M.green,
+  [TRAY_X + 35, FLOOR_Y + BP_H + 12, TRAY_Z - 20],
+  'Raspberry Pi Zero 2W (Quad-core 1GHz, 512MB RAM)',
+  [0, -1.2, 0]
+);
+
+// PCA9685 (63×25mm)
+addPart(
+  box(63, 3, 25),
+  M.green,
+  [TRAY_X + 105, FLOOR_Y + BP_H + 12, TRAY_Z - 15],
+  'PCA9685 16-ch PWM Servo Driver (I²C 0x40)',
+  [0, -1.2, 0]
+);
+
+// 5V relay module
+addPart(
+  box(38, 18, 28),
+  M.green,
+  [TRAY_X + 148, FLOOR_Y + BP_H + 16, TRAY_Z + 35],
+  '5V Relay Module (GPIO 17, vacuum pump)',
+  [0.4, -1.0, 0.4]
+);
+
+// Vacuum pump (small, behind hopper)
+addPart(
+  box(50, 40, 35),
+  mat(0x444455, 0.7),
+  [HOP.x - 15, FLOOR_Y + BP_H + 22, HOP.z + 60],
+  '12V Vacuum Pump (400mL/min)',
+  [-1.5, 0.2, 0.8]
+);
+
+// ── 12. Output Bins (9× total: 82×129×66mm each) ────────────────────────────
+// Arranged as 2 columns × 4 rows (+ 1 reject at end)
+// Right side of machine, X from 230 onwards
+const BIN_W=82, BIN_D=129, BIN_H=66;
+const BIN_COL_X = [240, 335];  // 2 columns
+const BIN_ROW_Z = [-195, -65, 65, 195];  // 4 rows (spaced 130mm)
+
+const binColors = [
+  mat(0xcc2233, 0.6),  // Champions → red
+  mat(0x2244cc, 0.6),  // Spells → blue
+  mat(0x22aa44, 0.6),  // Followers → green
+  mat(0xcc8800, 0.6),  // Equipment → gold
+  mat(0x9922cc, 0.6),  // Legendary/Epic → purple
+  mat(0x0099cc, 0.6),  // Rare → teal
+  mat(0x888888, 0.6),  // Common → grey
+  mat(0x556677, 0.6),  // Basic → dark blue-grey
+];
+const binLabels = [
+  'Bin 0: Champions',
+  'Bin 1: Spells',
+  'Bin 2: Followers',
+  'Bin 3: Equipment',
+  'Bin 4: Legendary/Epic',
+  'Bin 5: Rare',
+  'Bin 6: Common/Basic',
+  'Bin 7: Default',
+];
+const binRuleColors = ['Champions', 'Spells', 'Followers', 'Equipment', 'Legendary/Epic', 'Rare', 'Common/Basic', 'Default'];
+
+let binIdx = 0;
+for(let col=0; col<2; col++) {
+  for(let row=0; row<4; row++) {
+    if(binIdx >= 8) break;
+    const bx = BIN_COL_X[col];
+    const bz = BIN_ROW_Z[row];
+    const by = FLOOR_Y + BP_H + BIN_H/2;
+
+    // Bin body
+    const binMesh = addPart(
+      box(BIN_W, BIN_H, BIN_D),
+      binColors[binIdx],
+      [bx + BIN_W/2, by, bz],
+      binLabels[binIdx],
+      [1.5 + col*0.5, -0.2, row-1.5]
+    );
+
+    // Label slot (lighter front face indicator)
+    addPart(
+      box(BIN_W-4, 15, 2),
+      mat(0xffffff, 0.3),
+      [bx + BIN_W/2, FLOOR_Y + BP_H + 8, bz - BIN_D/2 - 1],
+      `Label: ${binRuleColors[binIdx]}`,
+      [1.5 + col*0.5, -0.2, row-1.5]
+    );
+    binIdx++;
+  }
+}
+
+// Reject bin (bin 8, at front/accessible position)
+addPart(
+  box(BIN_W, BIN_H, BIN_D),
+  mat(0x333333, 0.7),
+  [BIN_COL_X[1] + BIN_W/2 + 95, FLOOR_Y + BP_H + BIN_H/2, 0],
+  'Bin 8: Reject (unidentified cards)',
+  [2.2, -0.2, 0]
+);
+
+// ── 13. Wiring harness (Dupont cables, colorful bundles) ───────────────────
+
+function addWire(x1,y1,z1, x2,y2,z2, color) {
+  const pts = [new THREE.Vector3(x1,y1,z1), new THREE.Vector3((x1+x2)/2, Math.max(y1,y2)+20, (z1+z2)/2), new THREE.Vector3(x2,y2,z2)];
+  const curve = new THREE.QuadraticBezierCurve3(pts[0], pts[1], pts[2]);
+  const geom = new THREE.TubeGeometry(curve, 12, 1.5, 6, false);
+  const mesh = new THREE.Mesh(geom, mat(color, 0.7));
+  mesh.castShadow = true;
+  scene.add(mesh);
+}
+
+// Power wires (thick, red/black)
+addWire(-90, 20, 0, HOP.x+20, 25, 0, 0xcc2222);
+addWire(-90, 20, 0, HOP.x+20, 25, 0, 0x111111);
+
+// I2C to PCA9685 (yellow/orange)
+addWire(TRAY_X+35, 18, TRAY_Z-5, TRAY_X+105, 18, TRAY_Z-5, 0xffaa00);
+
+// Servo wires (white bundles to servo positions)
+addWire(TRAY_X+105, 20, TRAY_Z, GATE_X, 35, 0, 0xffffff);
+addWire(TRAY_X+105, 20, TRAY_Z, HOP.x+36, 120, 0, 0xffff88);
+
+// Camera ribbon (light blue)
+addWire(HOOD_X, HOOD_Y+60, 0, TRAY_X+35, 18, TRAY_Z-10, 0xaaddff);
+
+// ─── Raycaster for hover labels ─────────────────────────────────────────────
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+const infoLabel = document.getElementById('info-label');
+let hoveredMesh = null;
+
+renderer.domElement.addEventListener('mousemove', (e) => {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+
+// ─── Explode animation ─────────────────────────────────────────────────────
+
+let exploded = false;
+let explodeT = 0; // 0=assembled, 1=exploded
+
+function toggleExplode() {
+  exploded = !exploded;
+  document.getElementById('explode-btn').classList.toggle('active', exploded);
+}
+
+// ─── Camera views ─────────────────────────────────────────────────────────
+
+function setView(v) {
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const target = new THREE.Vector3(0, 80, 0);
+  controls.target.copy(target);
+  const DIST = 900;
+  switch(v) {
+    case 'iso':
+      camera.position.set(500, 420, 700);
+      break;
+    case 'top':
+      camera.position.set(0, DIST + 200, 0.1);
+      break;
+    case 'front':
+      camera.position.set(0, 100, DIST);
+      break;
+    case 'side':
+      camera.position.set(DIST, 100, 0);
+      break;
+  }
+  controls.update();
+}
+
+// ─── Render loop ──────────────────────────────────────────────────────────
+
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+
+  // Explode
+  const targetT = exploded ? 1 : 0;
+  explodeT += (targetT - explodeT) * Math.min(dt * 3, 1);
+
+  for(const m of parts) {
+    const { basePos, explodeDir } = m.userData;
+    if(!basePos || !explodeDir) continue;
+    const EXPLODE_SCALE = 150;
+    m.position.set(
+      basePos[0] + explodeDir[0] * explodeT * EXPLODE_SCALE,
+      basePos[1] + explodeDir[1] * explodeT * EXPLODE_SCALE,
+      basePos[2] + explodeDir[2] * explodeT * EXPLODE_SCALE
+    );
+  }
+
+  // Hover
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(parts.filter(m => m.userData.label));
+  if(hits.length > 0) {
+    const h = hits[0].object;
+    if(h !== hoveredMesh) {
+      if(hoveredMesh) hoveredMesh.material.emissive && hoveredMesh.material.emissive.set(0x000000);
+      hoveredMesh = h;
+      h.material.emissive && h.material.emissive.set(0x334455);
+      infoLabel.textContent = h.userData.label;
+      infoLabel.style.display = 'block';
+    }
+  } else {
+    if(hoveredMesh) {
+      hoveredMesh.material.emissive && hoveredMesh.material.emissive.set(0x000000);
+      hoveredMesh = null;
+    }
+    infoLabel.style.display = 'none';
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+animate();
+
+// Resize
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
