@@ -1263,6 +1263,34 @@ const routeTargetMat = new THREE.MeshStandardMaterial({
 const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(4, 10, 10), routeTargetMat);
 scene.add(routeTarget);
 
+// ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
+// Creates a motion-blur wake effect; opacity decreases with distance behind active card
+const GHOST_COUNT = 3;
+const ghostCards = [];
+for (let _gi = 0; _gi < GHOST_COUNT; _gi++) {
+  const _gMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.4,
+    transparent: true, opacity: 0,
+    roughness: 0.6, metalness: 0.0, depthWrite: false,
+  });
+  const _gMesh = new THREE.Mesh(new THREE.BoxGeometry(CARD_W, CARD_T, CARD_H), _gMat);
+  _gMesh.visible = false;
+  scene.add(_gMesh);
+  ghostCards.push({ mesh: _gMesh, mat: _gMat });
+}
+
+// ─── Slot landing impact ring: expands + fades on floor-0 card drop ──────────
+const impactRingMat = new THREE.MeshBasicMaterial({
+  color: 0xffffff, transparent: true, opacity: 0,
+});
+const impactRing = new THREE.Mesh(
+  new THREE.TorusGeometry(18, 2.2, 6, 24),
+  impactRingMat
+);
+impactRing.visible = false;
+scene.add(impactRing);
+let _impactRingT = -1; // -1 = idle, 0..1 = animation progress
+
 // ─── Tray Card Accumulation ───────────────────────────────────────────────────
 const trayCards = {};
 const trayArrivals = []; // {mesh, startY, targetY, t} — animates card settling into slot
@@ -1461,6 +1489,7 @@ let cycleT = 0;     // elapsed time within current cycle
 // Per-cycle event flags — reset on cycle rollover
 let _scanFlashFired = false;   // true once camera-flash triggered this scan phase
 let _grabPulseFired = false;   // true once suction grab light burst fired this armLift
+let _impactFired = false;      // true once slot landing impact ring fired this slotDrop
 
 // Domain atmosphere: slowly tint background/fog toward current domain color
 let _fogTint = new THREE.Color(0x0a0a0f);
@@ -1684,6 +1713,7 @@ function animate(ts) {
     // Reset per-cycle event flags
     _scanFlashFired = false;
     _grabPulseFired = false;
+    _impactFired = false;
 
     // Reset paddle to neutral at cycle start; dim gate glow + restore orange color
     paddlePivot.rotation.z = 0;
@@ -2134,6 +2164,16 @@ function animate(ts) {
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3);
+    // Fire impact shockwave ring once when floor-0 card hits the tray floor
+    if (ct.floor === 0 && !_impactFired && dt3 >= 0.86) {
+      _impactFired = true;
+      _impactRingT = 0;
+      impactRing.position.set(TRAY_X_START + 20, ct.slotFloorY + 2, ct.slotZ);
+      impactRing.rotation.x = -Math.PI / 2; // ring lies flat on floor plane
+      impactRingMat.color.setHex(ct.hex);
+      impactRing.scale.setScalar(1);
+      impactRing.visible = true;
+    }
     cardGlow.position.copy(activeCard.position);
     beltTex.offset.x -= dt * speedMult * 0.04;
     // Route confirmation overlay — pulse once at start of drop
@@ -2286,6 +2326,44 @@ function animate(ts) {
     controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.018;
     controls.target.set(controls._camTgt.x, controls._camTgt.y, 0);
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, 0);
+  }
+
+  // ── Ghost trail: transparent card copies during belt travel ──────────────────
+  {
+    const beltTrail = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
+    const ghostOpacities = [0.28, 0.14, 0.06];
+    ghostCards.forEach(({ mesh, mat }, gi) => {
+      if (beltTrail && activeCard.visible) {
+        const lag = (gi + 1) * 9; // 9 units of trailing distance per ghost
+        mesh.visible = true;
+        mesh.position.copy(activeCard.position);
+        mesh.position.x -= lag;
+        mesh.rotation.copy(activeCard.rotation);
+        mat.color.setHex(ct.hex);
+        mat.emissive.setHex(ct.hex);
+        const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
+        mat.opacity += (targetOp - mat.opacity) * 0.35;
+      } else {
+        mat.opacity *= 0.72; // decay toward 0
+        if (mat.opacity < 0.005) {
+          mat.opacity = 0;
+          mesh.visible = false;
+        }
+      }
+    });
+  }
+
+  // ── Impact ring: expansion animation ─────────────────────────────────────────
+  if (_impactRingT >= 0) {
+    _impactRingT = Math.min(1, _impactRingT + dt * 2.5); // ~0.4s full animation
+    const irs = 1 + _impactRingT * 3.5; // expand from 1× to 4.5×
+    impactRing.scale.setScalar(irs);
+    impactRingMat.opacity = (1 - _impactRingT) * 0.88;
+    if (_impactRingT >= 1) {
+      _impactRingT = -1;
+      impactRing.visible = false;
+      impactRingMat.opacity = 0;
+    }
   }
 
   // ── Domain atmosphere: subtle fog/background color tint ────────────────────
