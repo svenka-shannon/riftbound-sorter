@@ -3018,17 +3018,17 @@ function animate(ts) {
       scanLEDMat.color.setHex(0x00aaff);
       scanLEDMat.emissive.setHex(0x0055cc);
     }
-    // Pass 74: scanner hood deep pulse — domain color tint at scan peak
-    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 2 + flashIntensity * 0.8));
-    // Pass 123: hood reveal strobe — advance and apply rapid 3-pulse flash at identity confirm
+    // Pass 74/438: scanner hood deep pulse — Pass 438: domain lerp dt*2→dt*3, flashIntensity 0.8→1.2
+    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 3 + flashIntensity * 1.2));
+    // Pass 123: hood reveal strobe — Pass 437: duration dt*5.5→dt*3.8 (longer visible strobe)
     if (_hoodRevealFlash > 0) {
-      _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 5.5); // ~0.18s full duration
+      _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 3.8);
       // Pass 373: strobe intensity boost 1.4→2.0; Pass 374: 3 pulses → 4.5 for faster strobe
       const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 2.0;
-      hoodMat.emissiveIntensity = 0.28 + flashIntensity * 0.85 + _revStrobe;
+      hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.10 + _revStrobe; // Pass 436: boost
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
-      hoodMat.emissiveIntensity = 0.28 + flashIntensity * 0.85;
+      hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.10; // Pass 436: 0.28+0.85 → 0.35+1.10
     }
     // Pass 197: scanner hood micro-sway — very subtle Z oscillation (±0.5 units, 2.8Hz)
     // simulates vibration from scanner emitter/receiver pair resonance during active scan.
