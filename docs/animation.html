@@ -1858,6 +1858,7 @@ let _slotStreakFired = false;   // pass 142: true once slot entry vertical strea
 let _slotGateFlashFired = false; // pass 195: true once slot entrance gate-burst flash fires
 let _armReturnThunkFired = false; // pass 196: true once arm end-stop micro-shake fires
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
+let _paddleJitterAmt = 0;       // pass 216: solenoid Z-vibration decay amplitude
 let _hoodRevealFlash = 0;       // pass 123: hood strobe at identity reveal (0=idle, t=0..1)
 let _cardRevealBurst = 0;       // pass 125: card face emissive burst at identity reveal
 let _domainFillBoost = 0;      // pass 99: temporary intensity boost at identity reveal
@@ -2248,6 +2249,7 @@ function animate(ts) {
     _armReturnThunkFired = false; // pass 196
     _slotStreakFired = false;   // pass 142
     _paddleRecoil = 0;          // pass 109
+    _paddleJitterAmt = 0;       // pass 216
     _hoodRevealFlash = 0;       // pass 123
     _cardRevealBurst = 0;       // pass 125
     _domainFillBoost = 0;       // pass 99
@@ -3008,7 +3010,10 @@ function animate(ts) {
             activeCard.position.z + SCAN_DOT_OFFSETS[di].z
           );
           mat.color.setHex(dotColor);
-          mat.opacity = dotOp;
+          // Pass 215: beam-proximity brightening — each dot brightens as the Z-sweep beam
+          // crosses its Z position, creating a sweep highlight that travels with the beam.
+          const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 11);
+          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 0.60));
         } else {
           mesh.visible = false;
           mat.opacity = 0;
@@ -3408,6 +3413,8 @@ function animate(ts) {
       paddleMat.emissiveIntensity = 5.5;
       // Pass 109: recoil kick — paddle pushed further in deflect direction by card impact
       _paddleRecoil = 0.26 * Math.sign(ct.slotZ);
+      // Pass 216: solenoid Z-vibration — brief lateral jitter at gate contact (solenoid resonance)
+      _paddleJitterAmt = 0.85;
       // Pass 92: gate impact sparks — micro-burst from paddle contact point
       {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
@@ -3474,6 +3481,13 @@ function animate(ts) {
     if (Math.abs(_paddleRecoil) > 0.001) {
       _paddleRecoil *= Math.max(0, 1 - dt * 9);
       paddlePivot.rotation.z += _paddleRecoil;
+    }
+    // Pass 216: solenoid Z-vibration decay — paddle vibrates laterally at ~42Hz, fading ~0.2s
+    if (_paddleJitterAmt > 0.005) {
+      _paddleJitterAmt *= Math.max(0, 1 - dt * 14);
+      paddlePivot.position.z = _paddleJitterAmt * Math.sin(ts * 42 * Math.PI * 2);
+    } else {
+      paddlePivot.position.z += (0 - paddlePivot.position.z) * Math.min(1, dt * 10);
     }
     // Pass 60: light up the destination column LED, dim others
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
@@ -3651,6 +3665,34 @@ function animate(ts) {
       _cameraShake = Math.max(_cameraShake, 1.4);
       // Pass 69: flash this slot's entry strip bright on landing
       if (ct.stripMat) ct.stripMat.emissiveIntensity = 4.0;
+      // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
+      // like a card slapping down onto a dusty tray floor.
+      {
+        const _rr2 = (ct.hex >> 16) & 0xff, _gg2 = (ct.hex >> 8) & 0xff, _bb2 = ct.hex & 0xff;
+        let _landScattered = 0;
+        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 5; _li++) {
+          const _lp = GRAB_PARTICLES[_li];
+          if (_lp.active) continue;
+          _lp.active = true; _lp.age = 0; _lp.life = 0.28 + Math.random() * 0.16;
+          _lp.mesh.position.set(
+            TRAY_X_START + 20 + (Math.random() - 0.5) * 10,
+            ct.slotFloorY + 2,
+            ct.slotZ + (Math.random() - 0.5) * 18
+          );
+          _lp.mesh.visible = true;
+          const _ang = Math.random() * Math.PI * 2;
+          const _spd = 22 + Math.random() * 32;
+          _lp.vx = Math.cos(_ang) * _spd * 0.45;
+          _lp.vy = 6 + Math.random() * 16; // modest upward drift — floor dust, not sparks
+          _lp.vz = Math.sin(_ang) * _spd;
+          _lp.mat.color.setRGB(
+            Math.min(1, _rr2 / 255 * 0.55 + 0.45),
+            Math.min(1, _gg2 / 255 * 0.55 + 0.45),
+            Math.min(1, _bb2 / 255 * 0.55 + 0.45)
+          );
+          _landScattered++;
+        }
+      }
     }
     // Pass 43: upper floor guided-arrival ring — gentle vertical pulse (no shake)
     // Upper floor cards glide in softly; a smaller vertical ring (facing camera)
