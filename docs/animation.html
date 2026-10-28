@@ -1339,6 +1339,33 @@ function addCardToTray(ct) {
   showSlotPlusOne(slotWorldPos, ct.css, ct.name);
 }
 
+// ─── Slot indicator LEDs ─────────────────────────────────────────────────────
+// Small emissive spheres at the front-bottom edge of each tray slot.
+// They pulse domain color when a card is being routed to that slot.
+const slotLEDs = [];
+CARD_TYPES.forEach(ct => {
+  const geo = new THREE.SphereGeometry(3, 8, 8);
+  const mat = new THREE.MeshStandardMaterial({
+    color: ct.hex, emissive: ct.hex, emissiveIntensity: 0.9,
+    roughness: 0.2, metalness: 0.0
+  });
+  const led = new THREE.Mesh(geo, mat);
+  led.position.set(TRAY_X_START - 2, ct.slotFloorY + 5, ct.slotZ);
+  led.castShadow = false;
+  scene.add(led);
+  slotLEDs.push({ led, mat, ct });
+});
+
+// ─── Card halo ring: spinning domain-colored torus around active card ─────────
+// Visible during belt travel; makes domain color unmistakably obvious
+const cardHaloGeo = new THREE.TorusGeometry(42, 1.8, 8, 28);
+const cardHaloMat = new THREE.MeshStandardMaterial({
+  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 2.0,
+  transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
+});
+const cardHalo = new THREE.Mesh(cardHaloGeo, cardHaloMat);
+scene.add(cardHalo);
+
 // ─── Fill Bars ─────────────────────────────────────────────────────────────────
 // One thin vertical bar per domain slot, inside the tray at the front face.
 // scale.y maps card count → fill level (0.01 empty → 1.0 at 6 cards).
@@ -1659,6 +1686,34 @@ function animate(ts) {
       }
     }
   });
+
+  // ── Slot LED pulse ──
+  // Active slot glows bright during scan+deflect+slotDrop; all others dim
+  slotLEDs.forEach(({ mat, ct: slotCt }) => {
+    const isTarget = slotCt.slot === ct.slot;
+    const inSortPhase = inPhase(PH.scan) || inPhase(PH.deflect) || inPhase(PH.slotDrop);
+    if (isTarget && inSortPhase) {
+      // Pulse the target LED
+      const pulse = 0.8 + 0.7 * Math.sin(cycleT * 18);
+      mat.emissiveIntensity = 2.5 + pulse;
+    } else {
+      mat.emissiveIntensity += (0.9 - mat.emissiveIntensity) * 0.12;
+    }
+  });
+
+  // ── Card halo ring ──
+  // Visible during belt phases; spins in the horizontal plane around the card
+  const beltActive = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
+  const haloTargetOpacity = beltActive ? 0.35 : 0;
+  cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.15;
+  if (cardHaloMat.opacity > 0.01) {
+    cardHalo.position.copy(activeCard.position);
+    // Halo lies flat (horizontal) — rotate to match card orientation, then spin
+    cardHalo.rotation.x = activeCard.rotation.x - Math.PI / 2;
+    cardHalo.rotation.z = activeCard.rotation.z + ts * 0.0012; // slow spin
+    cardHaloMat.color.setHex(ct.hex);
+    cardHaloMat.emissive.setHex(ct.hex);
+  }
 
   // ── Update UI ──
   updateStatsUI(ct);
