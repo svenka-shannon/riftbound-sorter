@@ -799,6 +799,33 @@ const scanTargetLight = new THREE.PointLight(0xffffff, 0, 90);
 scanTargetLight.decay = 2;
 scene.add(scanTargetLight);
 
+// ─── Scanner beam cone ────────────────────────────────────────────────────────
+// Transparent cone from scanner hood bottom → card surface; domain colored.
+// Gives the "vision system firing" look — wide diffuse glow plus narrow column.
+// Wide cone: broad area illumination (40 unit radius at base, 65 units tall)
+const scanConeMat = new THREE.MeshBasicMaterial({
+  color: 0x00aaff, transparent: true, opacity: 0,
+  side: THREE.DoubleSide, depthWrite: false
+});
+const scanCone = new THREE.Mesh(
+  new THREE.ConeGeometry(36, 60, 18, 1, true),
+  scanConeMat
+);
+// Tip at scanner lens; open base toward card — rotate 180° so tip is up, base down
+scanCone.rotation.z = Math.PI;
+scanCone.position.set(-40, CONV_Y_TOP + 10, 0);
+scene.add(scanCone);
+// Narrow column: thin bright core (laser-like center beam)
+const scanBeamMat = new THREE.MeshBasicMaterial({
+  color: 0x00ff88, transparent: true, opacity: 0, depthWrite: false
+});
+const scanBeam = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.5, 1.5, 55, 8),
+  scanBeamMat
+);
+scanBeam.position.set(-40, CONV_Y_TOP + 10, 0);
+scene.add(scanBeam);
+
 // Scan crosshair: two perpendicular laser bars sweep across the card during scan
 // Primary bar (spans X=73, sweeps in Z) — green/cyan
 const scanLineMat = new THREE.MeshStandardMaterial({
@@ -1870,6 +1897,8 @@ function animate(ts) {
     scanBloom.intensity = 0;
     scanTargetLight.intensity = 0;
     scanLine.visible = false; scanLine2.visible = false;
+    scanConeMat.opacity = 0;
+    scanBeamMat.opacity = 0;
     routeArcMat.opacity = 0;
     routeTargetMat.opacity = 0;
     routeTargetMat.emissiveIntensity = 0;
@@ -1897,6 +1926,8 @@ function animate(ts) {
     // Scroll belt texture to imply motion
     beltTex.offset.x -= dt * speedMult * 0.08;
     scanLine.visible = false; scanLine2.visible = false;
+    scanConeMat.opacity = 0;
+    scanBeamMat.opacity = 0;
   }
 
   // ── Phase 3: Scanner flash (2.5..3.1s) ──
@@ -1960,6 +1991,11 @@ function animate(ts) {
     if(fillBars[ct.slot]) {
       fillBars[ct.slot].material.emissiveIntensity = 0.4 + flashIntensity * 1.2;
     }
+    // ── Scanner beam cone + core column ──
+    scanConeMat.color.setHex(ct.hex);
+    scanConeMat.opacity = flashIntensity * 0.09; // subtle wide cone
+    scanBeamMat.color.setHex(ct.hex === 0x888888 ? 0xbbbbbb : ct.hex); // brighten colorless
+    scanBeamMat.opacity = flashIntensity * 0.55; // brighter core
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
@@ -2034,6 +2070,8 @@ function animate(ts) {
     scanBloom.intensity = 0;
     scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
     scanLine.visible = false; scanLine2.visible = false;
+    scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 4);
+    scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
     activeCardMat.emissiveIntensity = 0.55;
     cardGlow.intensity = 1.2;
     cardGlow.position.copy(activeCard.position);
@@ -2127,6 +2165,8 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false; scanLine2.visible = false;
+    scanConeMat.opacity = 0;
+    scanBeamMat.opacity = 0;
     routeArcMat.opacity = 0;
     routeTargetMat.opacity = 0;
     routeTargetMat.emissiveIntensity = 0;
@@ -2142,6 +2182,8 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false; scanLine2.visible = false;
+    scanConeMat.opacity = 0;
+    scanBeamMat.opacity = 0;
     routeArcMat.opacity = 0;
     routeTargetMat.opacity = 0;
     routeTargetMat.emissiveIntensity = 0;
