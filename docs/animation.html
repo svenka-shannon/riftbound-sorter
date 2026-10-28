@@ -2725,6 +2725,9 @@ function animate(ts) {
         // Pass 154: trail Z follows the pivot arc for realistic 3D sweep
         tp.mesh.position.set(_aCupX + (Math.random() - 0.5) * 4, _aCupY + (Math.random() - 0.5) * 4, suctionPivot.position.z + (Math.random() - 0.5) * 6);
         tp.mat.color.setHex(ct.hex);
+        // Pass 236: arm trail domain-hold — tag arm-swing particles so the update loop
+        // holds their domain color for the first 40% of life before bleaching.
+        tp._birthHex = ct.hex;
         tp.mat.opacity = 0.55;
         tp.age = 0;
         tp.life = 0.45 + Math.random() * 0.15;
@@ -2928,7 +2931,10 @@ function animate(ts) {
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades
     const _revOsc = _cardRevealBurst * (0.55 + 0.45 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)));
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6 + _scanStrobe + _revOsc;
-    cardGlow.intensity = 1.5 + flashIntensity;
+    // Pass 237: post-reveal card glow surge — at identity confirm, cardGlow pulses to 4.0
+    // then decays back to normal over 0.40s of scan time, emphasizing the domain reveal.
+    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 2.5 : 0;
+    cardGlow.intensity = 1.5 + flashIntensity + _revealGlowSurge;
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Scanner LED pulses brightly during scan
@@ -3107,6 +3113,26 @@ function animate(ts) {
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm,
         // then decays back to scan-blue over 0.35s.
         _scanLEDRevealT = 0;
+        // Pass 235: scanner confirmation particle burst — 6 domain-colored particles burst
+        // outward from the scanner center at identity confirm, adding physical "pop" to the reveal.
+        {
+          const _bx = activeCard.position.x, _by = CONV_Y_TOP + CARD_T/2 + 2, _bz = activeCard.position.z;
+          let _burstSpawned = 0;
+          for (let _bi = 0; _bi < GRAB_PARTICLES.length && _burstSpawned < 6; _bi++) {
+            const _bp = GRAB_PARTICLES[_bi];
+            if (_bp.active) continue;
+            _bp.active = true; _bp.age = 0; _bp.life = 0.32 + Math.random() * 0.20;
+            _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
+            _bp.mesh.visible = true;
+            const _ang = (_burstSpawned / 6) * Math.PI * 2 + Math.random() * 0.8;
+            const _spd = 38 + Math.random() * 42;
+            _bp.vx = Math.cos(_ang) * _spd * 0.55;
+            _bp.vy = 20 + Math.random() * 35; // strong upward component
+            _bp.vz = Math.sin(_ang) * _spd * 0.55;
+            _bp.mat.color.setHex(ct.hex);
+            _burstSpawned++;
+          }
+        }
       }
       // Pass 113: scan bar color blends white→domain over 0.65→0.85 for gradual reveal
       // Below 0.65: pure white; 0.65-0.85: interpolate; above 0.85: full domain
@@ -4502,9 +4528,16 @@ function animate(ts) {
     tp.mesh.position.y += dt * 4; // gentle upward drift, like heat shimmer
     tp.mat.opacity = (1 - _tt) * 0.65;
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
-    tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 1.8);
-    tp.mat.color.g += (1.0 - tp.mat.color.g) * Math.min(1, dt * 1.8);
-    tp.mat.color.b = Math.min(1, tp.mat.color.b + dt * 2.4); // blue channel rises fastest → cool white
+    // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
+    // then bleach normally — so the arc trail stays vivid near the arm and fades away.
+    if (tp._birthHex && _tt < 0.40) {
+      tp.mat.color.setHex(tp._birthHex); // hold domain color fresh near the arm
+    } else {
+      tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 1.8);
+      tp.mat.color.g += (1.0 - tp.mat.color.g) * Math.min(1, dt * 1.8);
+      tp.mat.color.b = Math.min(1, tp.mat.color.b + dt * 2.4); // blue channel rises fastest → cool white
+      if (tp._birthHex) tp._birthHex = undefined; // allow normal bleach in second half
+    }
   });
 
   // ── Pass 34: Grab particle physics ──────────────────────────────────────────
