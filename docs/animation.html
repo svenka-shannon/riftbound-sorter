@@ -3704,6 +3704,11 @@ function animate(ts) {
       activeCard.rotation.x = 0;
     }
     activeCard.rotation.z = 0;
+    // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
+    if (ct.stripMat && dt3 < 0.80) {
+      const _wallOsc = Math.abs(Math.sin(dt3 * Math.PI * 4)) * Math.max(0, 1 - dt3 * 1.4);
+      if (_wallOsc > 0.72) ct.stripMat.emissiveIntensity = Math.max(ct.stripMat.emissiveIntensity, 0.15 + (_wallOsc - 0.72) / 0.28 * 0.90);
+    }
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
     // Pass 252: slotDrop bounce face flash — card face briefly flares on floor-0 bounce impact
@@ -3719,9 +3724,9 @@ function animate(ts) {
       const _sweepX = THREE.MathUtils.lerp(TRAY_X_START + 5, TRAY_X_END - 5, easeInOut(dt3));
       slotSweepLight.color.setHex(ct.hex);
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ);
-      // Envelope: rises quickly, holds, fades as card settles
-      slotSweepLight.intensity = dt3 < 0.75 ? THREE.MathUtils.lerp(0, 2.5, dt3 / 0.75)
-                                             : THREE.MathUtils.lerp(2.5, 0, (dt3 - 0.75) / 0.25);
+      // Pass 266: sweep light entry punch — fast ramp to 4.0 by 35%, slow fade out from there
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 4.0, dt3 / 0.35)
+                                             : THREE.MathUtils.lerp(4.0, 0, (dt3 - 0.35) / 0.65);
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
@@ -3955,6 +3960,9 @@ function animate(ts) {
       if (!_armReturnThunkFired) {
         _armReturnThunkFired = true;
         _cameraShake = Math.max(_cameraShake, 0.28);
+        // Pass 267: cup end-stop emissive spike — brief white flash at hard stop to sell impact
+        suctionCupMat.emissive.set(1, 1, 1);
+        suctionCupMat.emissiveIntensity = 2.8;
         // Pass 260: cup arrival dust puff — 3 pale particles burst from cup as arm hits stopper
         const _arRot = suctionPivot.rotation.z;
         const _arCupX = PIV_X + 83 * Math.sin(_arRot);
