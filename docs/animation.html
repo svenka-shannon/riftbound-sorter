@@ -3243,6 +3243,13 @@ function animate(ts) {
         _puffSpawned++;
       }
     }
+    // Pass 127: slot entry strip build-up — strip glows brighter as card descends into slot
+    if (ct.stripMat && dt3 < 0.86) {
+      const _stripApproach = Math.max(0.15, 0.15 + 1.65 * (dt3 / 0.86));
+      if (ct.stripMat.emissiveIntensity < _stripApproach) {
+        ct.stripMat.emissiveIntensity += (_stripApproach - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 5);
+      }
+    }
     // Fire impact shockwave ring once when floor-0 card hits the tray floor
     if (ct.floor === 0 && !_impactFired && dt3 >= 0.86) {
       _impactFired = true;
