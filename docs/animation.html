@@ -2368,14 +2368,27 @@ function animate(ts) {
         // Cup starts at armDescend end position (rot ≈ -0.036 from vertical)
         const _bx = PIV_X + 83 * Math.sin(-0.036);
         const _by = PIV_Y - 83 * Math.cos(-0.036);
-        GRAB_PARTICLES.forEach(p => {
+        GRAB_PARTICLES.forEach((p, _gi) => {
           const angle = Math.random() * Math.PI * 2;
           const spd = 18 + Math.random() * 28;
+          // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
+          const _goDown = Math.random() < 0.15;
           p.vx = Math.cos(angle) * spd * 0.55;
-          p.vy = spd * (0.55 + Math.random() * 0.45);
+          p.vy = _goDown ? -spd * (0.3 + Math.random() * 0.4) : spd * (0.55 + Math.random() * 0.45);
           p.vz = Math.sin(angle) * spd * 0.5;
           p.mesh.position.set(_bx, _by, (Math.random() - 0.5) * 8);
-          p.mat.color.setHex(ct.hex);
+          // Pass 85: color variety — highlight (25%), domain (50%), shadow (25%)
+          const _cr = Math.random();
+          const _r = (ct.hex >> 16) & 0xff, _g = (ct.hex >> 8) & 0xff, _b = ct.hex & 0xff;
+          let _pc;
+          if (_cr < 0.25) { // highlight: domain mixed toward white
+            _pc = (Math.min(255, _r + 80) << 16) | (Math.min(255, _g + 80) << 8) | Math.min(255, _b + 80);
+          } else if (_cr < 0.75) { // domain
+            _pc = ct.hex;
+          } else { // shadow: domain toward black
+            _pc = (Math.max(0, _r - 60) << 16) | (Math.max(0, _g - 60) << 8) | Math.max(0, _b - 60);
+          }
+          p.mat.color.setHex(_pc);
           p.mat.opacity = 0.6 + Math.random() * 0.35;
           p.age = 0;
           p.life = 0.36 + Math.random() * 0.28;
