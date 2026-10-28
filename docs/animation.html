@@ -3302,7 +3302,9 @@ function animate(ts) {
           p.mat.color.setHex(ft < 0.85 ? 0xaaddff : ct.hex);
           // Pass 135: non-linear doppler fade — ring dissipates faster as it expands
           const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
-          const _pingBoost = ft >= 0.85 ? 1.35 : 1.0; // brighter after identity confirmed
+          // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
+          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 0.85 : 0;
+          const _pingBoost = ft >= 0.85 ? 1.35 + _pingRevealSpike337 : 1.0;
           p.mat.opacity = _pingFade * flashIntensity * 0.56 * _pingBoost;
         } else {
           p.mesh.visible = false;
@@ -3412,13 +3414,15 @@ function animate(ts) {
       // settles to steady (no more scanning needed), pre-reveal it shows scan progress.
       const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
       // Pass 289: route arc reveal spike — brief opacity surge at identity lock-on
-      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.45 : 0;
+      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.65 : 0; // Pass 338: spike boost 0.45→0.65
       routeArcMat.opacity = flashIntensity * (0.75 + (_identityRevealed ? 0.22 : 0)) + _arcStrobeMod + _arcRevealSpike;
       // Target sphere pulses at destination
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
       routeTargetMat.emissive.copy(_arcColor);
-      routeTargetMat.emissiveIntensity = flashIntensity * (2.0 + (_identityRevealed ? 1.2 : 0));
+      // Pass 339: target emissive reveal spike — destination sphere flares on lock-on
+      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 2.5 : 0;
+      routeTargetMat.emissiveIntensity = flashIntensity * (2.0 + (_identityRevealed ? 1.2 : 0)) + _tgtRevealSpike339;
       routeTargetMat.opacity = flashIntensity * 0.9;
       // Pass 304: destination sphere scale pulse — sphere breathes to draw eye to target slot
       const _tgtScale304 = 1.0 + flashIntensity * 0.55 * Math.sin(ts * 4 * Math.PI * 2);
