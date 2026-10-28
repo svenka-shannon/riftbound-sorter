@@ -1858,6 +1858,7 @@ let _slotStreakFired = false;   // pass 142: true once slot entry vertical strea
 let _slotGateFlashFired = false; // pass 195: true once slot entrance gate-burst flash fires
 let _armReturnThunkFired = false; // pass 196: true once arm end-stop micro-shake fires
 let _arcPeakFlashFired = false;  // pass 454: true once deflect arc-peak domain flash fires
+let _beamReversalFlashFired = false; // pass 611: true once scan beam reversal midpoint flash fires
 let _rejectBurst2Fired = false;  // pass 457: true once second reject burst fires at dt3=0.55
 let _swingPeakFlashFired = false; // pass 467: true once arm-swing arc-peak flash fires
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
@@ -1952,9 +1953,10 @@ function fireCelebration() {
     p.age = 0;
     p.life = 1.1 + Math.random() * 0.9; // longer life
     // Pass 84: random angular velocity for tumbling confetti effect
-    p.rx = (Math.random() - 0.5) * 18;
-    p.ry = (Math.random() - 0.5) * 22;
-    p.rz = (Math.random() - 0.5) * 28;
+    // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 for wilder confetti spin
+    p.rx = (Math.random() - 0.5) * 26;
+    p.ry = (Math.random() - 0.5) * 32;
+    p.rz = (Math.random() - 0.5) * 42;
     p.active = true;
     p.mesh.visible = true;
   });
@@ -2276,6 +2278,7 @@ function animate(ts) {
     _arcPeakFlashFired = false;  // pass 454
     _rejectBurst2Fired = false;  // pass 457
     _swingPeakFlashFired = false; // pass 467
+    _beamReversalFlashFired = false; // pass 611
     _paddleRecoil = 0;          // pass 109
     _paddleJitterAmt = 0;       // pass 216
     _gateZKick = 0;             // pass 223
@@ -2860,7 +2863,11 @@ function animate(ts) {
       _swingDragX = 0.07 * Math.sin(_sw * Math.PI);
     } else if (inPhase(PH.armLift)) {
       const _lt3 = phaseRaw(PH.armLift);
-      if (_lt3 < 0.30) _liftHoverX = 0.06 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) * Math.exp(-_lt3 * 6);
+      // Pass 605: liftHoverX boost 0.06→0.10 + secondary 3.8Hz harmonic for organic card separation chatter
+      if (_lt3 < 0.30) {
+        const _env605 = Math.exp(-_lt3 * 6);
+        _liftHoverX = (0.10 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.032 * Math.sin(_lt3 / 0.30 * Math.PI * 3.8 + 0.9)) * _env605;
+      }
     }
     activeCard.rotation.set(_swingDragX + _liftHoverX, 0, armRot - Math.PI / 2 + _swingWobble);
     activeCardMat.opacity = 1.0;
@@ -3107,12 +3114,12 @@ function animate(ts) {
       // Pass 500: scanner hood scan intensity boost 0.35+1.10 → 0.40+1.40 for stronger hood presence
       hoodMat.emissiveIntensity = 0.40 + flashIntensity * 1.40; // Pass 500: milestone boost
     }
-    // Pass 197: scanner hood micro-sway — very subtle Z oscillation (±0.5 units, 2.8Hz)
-    // simulates vibration from scanner emitter/receiver pair resonance during active scan.
+    // Pass 197: scanner hood micro-sway — Z oscillation simulates emitter/receiver resonance.
+    // Pass 607: amplitude 0.5→0.85 + secondary 4.1Hz harmonic for richer mechanical resonance feel.
     // Damps out near identity reveal (post 85%) as the machine "locks on".
     {
       const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.10) : 1.0;
-      scannerHood.position.z = 0.5 * Math.sin(ts * 2.8 * Math.PI * 2) * _swayDamp;
+      scannerHood.position.z = (0.85 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.28 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp;
     }
     // Pass 80: lens iris opens during scan — scale XZ pulses 0.75→1.15 with flash
     const _irisScale = 0.75 + flashIntensity * 0.40;
@@ -3151,7 +3158,8 @@ function animate(ts) {
       CONV_Y_TOP + CARD_T/2 + 3,
       0
     );
-    scanLine2.material.opacity = flashIntensity * 0.65;
+    // Pass 606: secondary scan line opacity 0.65→0.90 for more visible X-sweep crossing line
+    scanLine2.material.opacity = flashIntensity * 0.90;
     // Pass 183: scan beams stay neutral cyan before identity reveal, snap to domain at 85%
     // (cohesive with pass 176 card tint + pass 180 ghost trail reveal sequence)
     const _beamHex = _identityRevealed ? ct.hex : 0x00ccff;
@@ -3176,6 +3184,16 @@ function animate(ts) {
     // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: 3.5→5.5 for more dramatic pivot
     const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 5.5;
     scanLineMat.emissiveIntensity += _revFlare;
+    // Pass 611: beam reversal point light — at ft≈0.5 scan midpoint, brief white point light fires
+    // at the scanner to mark the beam direction flip moment with a physical light burst.
+    if (!_beamReversalFlashFired && ft >= 0.50 && !_identityRevealed) {
+      _beamReversalFlashFired = true;
+      const _brfl = new THREE.PointLight(0xaaddff, 5.5, 80);
+      _brfl.position.set(-40, CONV_Y_TOP + 20, 0);
+      scene.add(_brfl);
+      if (!window._flashLights) window._flashLights = [];
+      window._flashLights.push({ light: _brfl, age: 0, peak: _brfl.intensity });
+    }
     // Scan grid dots: 3×3 points appear staggered across card face with flash
     {
       // Pass 148 + 171: dots cascade to domain color one by one starting at ft=0.85 reveal
@@ -3243,9 +3261,10 @@ function animate(ts) {
       const _cursorColor = _identityRevealed ? ct.hex : 0xffffff;
       scanBarCursorMat.color.setHex(_cursorColor);
       // Pass 227: cursor flicker slows post-reveal — frantic 18Hz uncertainty → calm 3Hz domain pulse
+      // Pass 608: boost pre-reveal flicker amplitude 0.10→0.22; post-reveal breath 0.20→0.30 for more visible cursor
       scanBarCursorMat.opacity = _identityRevealed
-        ? 0.80 + 0.20 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // slow domain breath
-        : 0.90 + 0.10 * Math.sin(ts * 18 * Math.PI * 2);           // rapid pre-reveal flicker
+        ? 0.72 + 0.30 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // slow domain breath (bigger swing)
+        : 0.78 + 0.22 * Math.abs(Math.sin(ts * 18 * Math.PI * 2)); // rapid pre-reveal flicker (higher amplitude)
       // Pass 290: cursor scale punch at reveal — cursor briefly swells 2× at lock-on moment
       // Pass 300: cursor pre-reveal scale search pulse — slow 3Hz breathing scale while scanning
       const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.10 * Math.sin(ts * 3 * Math.PI * 2) : 1.0;
@@ -3473,7 +3492,8 @@ function animate(ts) {
     // Gives the impression the machine is already routing before the card exits.
     if (_identityRevealed) {
       const _preAimT = Math.min(1, (ft - 0.85) / 0.15); // 0→1 in window after reveal
-      const _preAimAngle = paddleAngleForSlot(ct.slotZ) * 0.15 * _preAimT;
+      // Pass 609: paddle pre-aim coefficient 0.15→0.28 — machine visibly commits to lane post-reveal
+      const _preAimAngle = paddleAngleForSlot(ct.slotZ) * 0.28 * _preAimT;
       paddlePivot.rotation.z += (_preAimAngle - paddlePivot.rotation.z) * Math.min(1, dt * 2);
     }
     // ── Scanner beam cone + core column ──
@@ -3660,7 +3680,8 @@ function animate(ts) {
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
       const _oWobbleZ = 1.2 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut;
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
-      const _z268drift = ct.slotZ * 0.08 * easeInOut(Math.min(1, ot / 0.85));
+      // Pass 610: Z-drift column bias 0.08→0.16 for more pronounced lane-change preview on exit
+      const _z268drift = ct.slotZ * 0.16 * easeInOut(Math.min(1, ot / 0.85));
       activeCard.position.set(
         THREE.MathUtils.lerp(-40, GATE_X, ot),
         CONV_Y_TOP + CARD_T/2 + 2, _oWobbleZ + _z268drift
@@ -3825,7 +3846,9 @@ function animate(ts) {
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor amplitude boost 3.2→4.8; add secondary Y micro-tremor for 3D turbulence
-    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 4.8;
+    // Pass 612: add tertiary Z tremor at 7.2Hz — three-frequency Z turbulence for richer buffet
+    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 4.8
+      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 1.6;
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 1.8;
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
@@ -3845,7 +3868,8 @@ function animate(ts) {
     const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
     // Pass 353: flutter amplitude boost at arc peak (0.020 → 0.030)
-    const _flutter = Math.sin(ts * 23 * Math.PI * 2) * 0.030 * Math.sin(dt2 * Math.PI);
+    // Pass 613: add 17Hz secondary flutter harmonic for more organic card spin during deflect arc
+    const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 0.030 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 0.014) * Math.sin(dt2 * Math.PI);
     // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
     if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 11);
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
