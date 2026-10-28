@@ -1731,14 +1731,16 @@ function animate(ts) {
     }
   }
 
-  // ── "Picking…" hint near hopper during armLift phase ──
+  // ── "Picking: [Domain]" hint near hopper during arm phases ──
   {
     const pickEl = document.getElementById('picking-hint');
     if(pickEl) {
-      const showPick = inPhase(PH.armLift);
+      const showPick = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing);
       pickEl.style.opacity = showPick ? '1' : '0';
       if(showPick) {
-        const _pp = new THREE.Vector3(HOPPER_X + 33, 110, 0).project(camera);
+        // Update label to show domain name in domain color
+        pickEl.innerHTML = `<span style="color:${ct.css}">▼ ${ct.name}</span>`;
+        const _pp = new THREE.Vector3(HOPPER_X + 33, 115, 0).project(camera);
         const _px = (_pp.x * 0.5 + 0.5) * _lW;
         const _py = (-_pp.y * 0.5 + 0.5) * _lH;
         pickEl.style.left = _px + 'px';
