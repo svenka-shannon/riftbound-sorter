@@ -1855,6 +1855,7 @@ let _rejectAlarmFired = false;  // pass 48: once reject-alarm vignette fires at 
 let _identityRevealed = false;  // pass 93: set when scan reaches 85% confirm threshold
 let _slotPuffFired = false;     // pass 107: true once slot entry air puff fires this slotDrop
 let _slotStreakFired = false;   // pass 142: true once slot entry vertical streak fires
+let _slotGateFlashFired = false; // pass 195: true once slot entrance gate-burst flash fires
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
 let _hoodRevealFlash = 0;       // pass 123: hood strobe at identity reveal (0=idle, t=0..1)
 let _cardRevealBurst = 0;       // pass 125: card face emissive burst at identity reveal
@@ -2242,6 +2243,7 @@ function animate(ts) {
     _rejectAlarmFired = false;  // pass 48
     _identityRevealed = false;  // pass 93
     _slotPuffFired = false;     // pass 107
+    _slotGateFlashFired = false; // pass 195
     _slotStreakFired = false;   // pass 142
     _paddleRecoil = 0;          // pass 109
     _hoodRevealFlash = 0;       // pass 123
@@ -2532,6 +2534,9 @@ function animate(ts) {
         Math.sin(ts * 13 * Math.PI * 2) * 0.3
       );
       suctionPivot.position.y = 108 + jitter;
+      // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
+      // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
+      suctionPivot.position.z = 2.0 * Math.sin(pt * Math.PI) * (1 - pt * 0.7);
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
@@ -3472,6 +3477,17 @@ function animate(ts) {
       const _target = gi === ct.col ? THREE.MathUtils.lerp(3.5, 0.15, dt3) : 0.15;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
     });
+    // Pass 195: slot entrance gate-burst — brief bright point light at slot threshold when
+    // card first crosses TRAY_X_START. Separate from the slow-ramping sweep light;
+    // this is an instant photogate flash that fires and dies in ~0.15s.
+    if (!_slotGateFlashFired && dt3 >= 0.06) {
+      _slotGateFlashFired = true;
+      const _gfl = new THREE.PointLight(ct.hex, 5.5, 55);
+      _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
+      scene.add(_gfl);
+      if (!window._flashLights) window._flashLights = [];
+      window._flashLights.push({ light: _gfl, age: 0 });
+    }
     // Pass 142: slot-entry vertical streak — thin downward light lance as card enters slot
     if (!_slotStreakFired && dt3 >= 0.12) {
       _slotStreakFired = true;
@@ -3896,7 +3912,9 @@ function animate(ts) {
       : inPhase(PH.conveyorIn)
       ? { x: cardX - 10, y: 50 }  // follow card along belt during entry
       : inPhase(PH.scan)
-      ? { x: -40, y: 60 }
+      // Pass 194: scan camera lean — lookAt dips toward belt at scan midpoint for drama.
+      // y goes 60 → 42 (peak at ft=0.5) → 60, making camera appear to "peer in" at the scan.
+      ? { x: -40, y: 60 - 18 * Math.sin(phaseRaw(PH.scan) * Math.PI) }
       : inPhase(PH.conveyorOut)
       ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
       : inPhase(PH.slotDrop) || inPhase(PH.deflect)
