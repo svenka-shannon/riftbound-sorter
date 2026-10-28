@@ -3051,8 +3051,9 @@ function animate(ts) {
     const ft = phaseRaw(PH.scan);
     const _levitate = 0.30 * Math.sin(ts * 0.8 * Math.PI * 2) * Math.sin(ft * Math.PI);
     // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
-    // confirmed (ft 0.85→1.0: 0→3 units), giving a subtle "recognition" gesture.
-    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 3.0 : 0;
+    // confirmed (ft 0.85→1.0), giving a subtle "recognition" gesture.
+    // Pass 655: reveal lift 3.0→5.5 units for more prominent "recognized!" rise
+    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 5.5 : 0;
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's -0.18 belt lean into the reveal bell curve over first 10%
@@ -3064,11 +3065,13 @@ function animate(ts) {
     const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 0.8;
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015) * _scanVibScale;
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
+    // Pass 656: tilt 0.14→0.22 for more dramatic card-edge flash at identity confirm
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
-    const _yTilt = _identityRevealed ? 0.14 * Math.sin(_yTiltT * Math.PI) : 0;
+    const _yTilt = _identityRevealed ? 0.22 * Math.sin(_yTiltT * Math.PI) : 0;
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
+    // Pass 657: Z shake 0.022→0.038 for more visible scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
-      ? 0.022 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0;
+      ? 0.038 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0;
     activeCard.rotation.set(_revealTilt, _yTilt, _scanVib + _revealZShake);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
@@ -5053,8 +5056,8 @@ function animate(ts) {
       _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 6, activeCard.position.z);
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
-      // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 for stronger domain spotlight on belt exit
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 4.8 : 2.8;
+      // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 for brighter domain exit beam
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 6.5 : 2.8;
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
     } else {
       // Fade card-tracking mode out
