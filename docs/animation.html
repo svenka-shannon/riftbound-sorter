@@ -3303,7 +3303,9 @@ function animate(ts) {
     // then snaps to domain color on correct column at identity confirm
     {
       if (!_identityRevealed) {
-        const _chaseIdx = Math.floor(ts * 7) % 4;
+        // Pass 319: gate LED chase speed ramp — chase accelerates as scan fills (machine grows impatient)
+        const _chaseHz = 7 + barFill * 5; // 7 Hz at 0% → 12 Hz at 100%
+        const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           const _cTarget = gi === _chaseIdx ? 1.8 : 0.1;
           gm.color.setHex(0x0088cc);
@@ -3312,10 +3314,17 @@ function animate(ts) {
         });
       } else {
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-          const _cTarget = gi === ct.col ? 3.2 : 0.1;
+          // Pass 320: non-target LEDs fade to 0 post-reveal — spotlight narrows to destination
+          const _nonTargetDim = Math.max(0, 0.10 - Math.min(1, (ft - 0.85) / 0.05) * 0.10);
+          const _cTarget = gi === ct.col ? 3.2 : _nonTargetDim;
           gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
           gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 20);
+        });
+        // Pass 321: target gate LED scale pop at reveal — LED sphere briefly balloons at lock-on
+        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 0.85 : 1.0;
+        GATE_COL_LEDS.forEach(({ mesh: gMesh }, gi) => {
+          gMesh.scale.setScalar(gi === ct.col ? _ledRevealScale : 1.0);
         });
       }
     }
