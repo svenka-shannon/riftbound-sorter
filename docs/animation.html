@@ -3039,7 +3039,11 @@ function animate(ts) {
     // Card banks in Z direction during exit — previews which column it's heading to
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign, ot);
-    activeCard.rotation.set(-0.18, 0, zBank); // forward lean + destination bank
+    // Pass 140: blend lean from 0 (scan end) to -0.18 over first 12% of phase
+    // (symmetric to pass 139 which handles conveyorIn/scan boundary)
+    const _exitBlendT = Math.min(1, ot / 0.12);
+    const _exitLean = THREE.MathUtils.lerp(0, -0.18, easeOut(_exitBlendT));
+    activeCard.rotation.set(_exitLean, 0, zBank); // forward lean + destination bank
     activeCard.position.set(
       THREE.MathUtils.lerp(-40, GATE_X, ot),
       CONV_Y_TOP + CARD_T/2 + 2, 0
