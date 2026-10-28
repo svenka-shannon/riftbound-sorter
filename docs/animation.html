@@ -2729,8 +2729,11 @@ function animate(ts) {
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2, 0);
     const ft = phaseRaw(PH.scan);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
-    // Bell curve (sin(ft*π)) peaks at ft=0.5 with 0.40 rad (~23°) tilt; flat at start & end.
-    const _revealTilt = -0.40 * Math.sin(ft * Math.PI);
+    // Pass 139: blend from conveyorIn's -0.18 belt lean into the reveal bell curve over first 10%
+    // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
+    const _bellTilt = -0.40 * Math.sin(ft * Math.PI);
+    const _blendInT = Math.min(1, ft / 0.10); // 0→1 over first 10% of scan phase
+    const _revealTilt = THREE.MathUtils.lerp(-0.18, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
     const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 0.8;
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015) * _scanVibScale;
