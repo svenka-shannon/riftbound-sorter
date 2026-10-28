@@ -1527,6 +1527,8 @@ let _scanFlashFired = false;   // true once camera-flash triggered this scan pha
 let _grabPulseFired = false;   // true once suction grab light burst fired this armLift
 let _impactFired = false;      // true once slot landing impact ring fired this slotDrop
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
+const _beltDomainRGB  = new THREE.Color(0x8888a0); // reused for belt domain tint
+const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 
 // Domain atmosphere: slowly tint background/fog toward current domain color
 let _fogTint = new THREE.Color(0x0a0a0f);
@@ -2013,9 +2015,12 @@ function animate(ts) {
     }
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
-    activeCard.rotation.set(0, 0, 0);
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2, 0);
     const ft = phaseRaw(PH.scan);
+    // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
+    // Bell curve (sin(ft*π)) peaks at ft=0.5 with 0.40 rad (~23°) tilt; flat at start & end.
+    const _revealTilt = -0.40 * Math.sin(ft * Math.PI);
+    activeCard.rotation.set(_revealTilt, 0, 0);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
     scanFlash.intensity = flashIntensity * 5; // brighter scan flash
@@ -2292,6 +2297,16 @@ function animate(ts) {
   // Belt emissive flicker implies motion throughout the cycle (base scales with speed)
   const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.05;
   beltSurfMat.emissiveIntensity = beltBase + 0.03 * Math.sin(cycleT * 10);
+  // Belt surface tints subtly toward domain color when active card rides on it
+  {
+    const onBelt = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
+    if (onBelt) {
+      _beltDomainRGB.setHex(ct.hex);
+      beltSurfMat.emissive.lerp(_beltDomainRGB, Math.min(1, dt * 1.8));
+    } else {
+      beltSurfMat.emissive.lerp(_beltBaseRGB, Math.min(1, dt * 0.9));
+    }
+  }
   // Scanner hood: resting dim blue glow (resets on non-scan frames)
   if (!inPhase(PH.scan)) {
     hoodMat.emissiveIntensity = 0.3;
