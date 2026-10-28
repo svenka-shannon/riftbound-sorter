@@ -1503,6 +1503,8 @@ function addCardToTray(ct) {
 
   // Pass 45: pulse ALL existing cards in this slot — "stack reacts to new member" ripple
   arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 0.85; });
+  // Pass 52: slot LED afterglow — keep LED bright for 1.8s after arrival
+  _ledCooloff[ct.slot] = 1.8;
 
   // Flash point light burst at slot position on card arrival
   const flashLight = new THREE.PointLight(ct.hex, 3.0, 80);
@@ -1621,6 +1623,7 @@ let _convOutFlashFired = false; // pass 46: once scanner-exit flash fires at con
 let _rejectAlarmFired = false;  // pass 48: once reject-alarm vignette fires at Reject card landing
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
 let _beltIdlePhase = 0;        // pass 44: 0..1 drives idle shimmer sweep along belt
+const _ledCooloff = new Float32Array(8); // pass 52: per-slot LED afterglow timer (seconds)
 let _scanExhaustAcc = 0;       // pass 50: time accumulator for scanner heat exhaust particles
 const _beltDomainRGB  = new THREE.Color(0x8888a0); // reused for belt domain tint
 const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
@@ -2003,11 +2006,13 @@ function animate(ts) {
   // Active slot glows bright during scan+deflect+slotDrop;
   // near-full slots (≥5 cards) flash amber as a capacity warning;
   // all others dim to resting domain color
-  slotLEDs.forEach(({ mat, ct: slotCt }) => {
+  slotLEDs.forEach(({ mat, ct: slotCt }, _li) => {
     const isTarget = slotCt.slot === ct.slot;
     const inSortPhase = inPhase(PH.scan) || inPhase(PH.deflect) || inPhase(PH.slotDrop);
     const _slotKey = `${slotCt.floor}_${slotCt.col}`;
     const _cardCount = trayCards[_slotKey] ? trayCards[_slotKey].length : 0;
+    // Pass 52: decay per-slot arrival afterglow timer
+    if (_ledCooloff[_li] > 0) _ledCooloff[_li] = Math.max(0, _ledCooloff[_li] - dt);
     if (_cardCount >= 5) {
       // Capacity warning: flash amber — slot is nearly full
       const _warnPulse = 0.6 + 0.4 * Math.sin(ts * 0.008);
@@ -2020,6 +2025,12 @@ function animate(ts) {
       mat.emissive.setHex(slotCt.hex);
       const pulse = 0.8 + 0.7 * Math.sin(cycleT * 18);
       mat.emissiveIntensity = 2.5 + pulse;
+    } else if (_ledCooloff[_li] > 0) {
+      // Pass 52: afterglow — LED stays bright for 1.8s after card arrival, then decays
+      const afterT = _ledCooloff[_li] / 1.8; // 1.0→0.0 as cooloff expires
+      mat.color.setHex(slotCt.hex);
+      mat.emissive.setHex(slotCt.hex);
+      mat.emissiveIntensity = 0.9 + afterT * 1.6; // peaks at 2.5 right after arrival
     } else {
       // Idle: resting domain color, low glow
       mat.color.setHex(slotCt.hex);
