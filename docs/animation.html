@@ -47,9 +47,11 @@
     text-align: center; pointer-events: none; z-index: 20;
     opacity: 0; transition: opacity 0.15s;
   }
+  @keyframes scanPulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
   #scan-type {
-    font-size: 28px; font-weight: 800; letter-spacing: 0.04em;
-    text-shadow: 0 0 20px currentColor;
+    font-size: 36px; font-weight: 800; letter-spacing: 0.04em;
+    text-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
+    animation: scanPulse 0.8s ease-in-out infinite;
   }
   #scan-slot { font-size: 13px; color: #aaa; margin-top: 4px; }
 
@@ -112,6 +114,8 @@
 <div class="machine-label" id="lbl-scanner"><span>Scanner</span></div>
 <div class="machine-label" id="lbl-gate"><span>Sort Gate</span></div>
 <div class="machine-label" id="lbl-tray"><span>Domain Tray</span></div>
+
+<div id="vignette" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,0.4) 100%);"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -302,7 +306,7 @@ rimLight.position.set(0, 200, -600);
 scene.add(rimLight);
 
 // ─── Floor Grid ───────────────────────────────────────────────────────────────
-const gridHelper = new THREE.GridHelper(800, 40, 0x1a1a2e, 0x111118);
+const gridHelper = new THREE.GridHelper(1000, 50, 0x141428, 0x0d0d1a);
 gridHelper.position.y = -2;
 scene.add(gridHelper);
 
@@ -380,23 +384,36 @@ scene.add(baseMesh);
 
 // --- Hopper (left) ---
 const HOPPER_X = -230;
+
+function makeHopperBox(w, h, d, opacity) {
+  opacity = opacity === undefined ? 1 : opacity;
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0xd0d0d8, roughness: 0.6, metalness: 0.05,
+    transparent: opacity < 1, opacity
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  return mesh;
+}
+
 const hopperGroup = new THREE.Group();
-const hw = makeBox(6, 108, 80, 0xd0d0d8);
+const hw = makeHopperBox(6, 108, 80);
 hw.position.set(-3, 54, 0);
 hopperGroup.add(hw);
-const hwf = makeBox(6, 108, 80, 0xd0d0d8, 0.25);
+const hwf = makeHopperBox(6, 108, 80, 0.25);
 hwf.position.set(69, 54, 0);
 hopperGroup.add(hwf);
-const hs1 = makeBox(72, 6, 80, 0xd0d0d8);
+const hs1 = makeHopperBox(72, 6, 80);
 hs1.position.set(33, 3, 0);
 hopperGroup.add(hs1);
-const hfloor = makeBox(72, 4, 80, 0xc0c0c8);
+const hfloor = makeHopperBox(72, 4, 80);
 hfloor.position.set(33, 2, 0);
 hopperGroup.add(hfloor);
-const hside1 = makeBox(72, 108, 4, 0xd0d0d8);
+const hside1 = makeHopperBox(72, 108, 4);
 hside1.position.set(33, 54, 48);
 hopperGroup.add(hside1);
-const hside2 = makeBox(72, 108, 4, 0xd0d0d8);
+const hside2 = makeHopperBox(72, 108, 4);
 hside2.position.set(33, 54, -48);
 hopperGroup.add(hside2);
 hopperGroup.position.set(HOPPER_X, 0, 0);
@@ -418,7 +435,11 @@ scene.add(hopperWire);
 
 // --- Conveyor belt ---
 const CONV_Y_TOP = 45;
-const conveyorBody = makeBox(250, 12, 80, 0xb0b0b8);
+const convBodyGeo = new THREE.BoxGeometry(250, 12, 80);
+const convBodyMat = new THREE.MeshStandardMaterial({ color: 0x3a3a4a, roughness: 0.7, metalness: 0.2 });
+const conveyorBody = new THREE.Mesh(convBodyGeo, convBodyMat);
+conveyorBody.castShadow = true;
+conveyorBody.receiveShadow = true;
 conveyorBody.position.set(-40, CONV_Y_TOP - 6, 0);
 scene.add(conveyorBody);
 
@@ -467,7 +488,10 @@ for (const rx of [-140, 60]) {
 }
 
 // --- Scanner hood --- dedicated matte-black material
-const hoodMat = new THREE.MeshStandardMaterial({ color: 0x111118, roughness: 0.85, metalness: 0.15 });
+const hoodMat = new THREE.MeshStandardMaterial({
+  color: 0x111118, roughness: 0.85, metalness: 0.15,
+  emissive: new THREE.Color(0x001122), emissiveIntensity: 0.3
+});
 const scannerHood = new THREE.Mesh(new THREE.BoxGeometry(80, 65, 100), hoodMat);
 scannerHood.castShadow = true;
 scannerHood.receiveShadow = true;
@@ -523,12 +547,12 @@ scene.add(scanBloom);
 
 // Thin cyan scan line that sweeps across the card during scan phase
 const scanLineMat = new THREE.MeshStandardMaterial({
-  color: 0x00ffff,
-  emissive: new THREE.Color(0x00ffff),
-  emissiveIntensity: 4.0,
+  color: 0x00ff88,
+  emissive: new THREE.Color(0x00ff88),
+  emissiveIntensity: 3.0,
   transparent: true, opacity: 0.8
 });
-const scanLine = new THREE.Mesh(new THREE.BoxGeometry(63, 2, 2), scanLineMat);
+const scanLine = new THREE.Mesh(new THREE.BoxGeometry(73, 3, 2), scanLineMat);
 scanLine.visible = false;
 scene.add(scanLine);
 
@@ -539,7 +563,10 @@ gateBase.position.set(GATE_X, CONV_Y_TOP + 15, 0);
 scene.add(gateBase);
 
 const paddleGeo = new THREE.BoxGeometry(4, 55, 18);
-const paddleMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e8, roughness: 0.3 });
+const paddleMat = new THREE.MeshStandardMaterial({
+  color: 0xff6600, roughness: 0.3,
+  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.5
+});
 const paddleMesh = new THREE.Mesh(paddleGeo, paddleMat);
 paddleMesh.castShadow = true;
 const paddlePivot = new THREE.Group();
@@ -574,32 +601,33 @@ const TX_MID = (TRAY_X_START + TRAY_X_END) / 2;
 const TX_DEP = TRAY_X_END - TRAY_X_START;
 
 function makeTrayFloor(yBase, colorHex) {
-  const fl = makeBox(TX_DEP, 3, TRAY_Z_HALF * 2, colorHex);
-  fl.position.set(TX_MID, yBase + 1.5, 0);
-  scene.add(fl);
-  const bw = makeBox(3, TRAY_FLOOR_H, TRAY_Z_HALF * 2, colorHex);
-  bw.position.set(TRAY_X_END - 1.5, yBase + TRAY_FLOOR_H/2, 0);
-  scene.add(bw);
-  const lw = makeBox(TX_DEP, TRAY_FLOOR_H, 2.5, colorHex);
-  lw.position.set(TX_MID, yBase + TRAY_FLOOR_H/2, -TRAY_Z_HALF - 1.25);
-  scene.add(lw);
-  const rw = makeBox(TX_DEP, TRAY_FLOOR_H, 2.5, colorHex);
-  rw.position.set(TX_MID, yBase + TRAY_FLOOR_H/2, TRAY_Z_HALF + 1.25);
-  scene.add(rw);
+  const trayMat = new THREE.MeshStandardMaterial({ color: 0x2a3040, roughness: 0.55, metalness: 0.15 });
+  function makeTrayBox(w, h, d) {
+    const geo = new THREE.BoxGeometry(w, h, d);
+    const mesh = new THREE.Mesh(geo, trayMat);
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    return mesh;
+  }
+  const fl = makeTrayBox(TX_DEP, 3, TRAY_Z_HALF * 2);
+  fl.position.set(TX_MID, yBase + 1.5, 0); scene.add(fl);
+  const bw = makeTrayBox(3, TRAY_FLOOR_H, TRAY_Z_HALF * 2);
+  bw.position.set(TRAY_X_END - 1.5, yBase + TRAY_FLOOR_H/2, 0); scene.add(bw);
+  const lw = makeTrayBox(TX_DEP, TRAY_FLOOR_H, 2.5);
+  lw.position.set(TX_MID, yBase + TRAY_FLOOR_H/2, -TRAY_Z_HALF - 1.25); scene.add(lw);
+  const rw = makeTrayBox(TX_DEP, TRAY_FLOOR_H, 2.5);
+  rw.position.set(TX_MID, yBase + TRAY_FLOOR_H/2, TRAY_Z_HALF + 1.25); scene.add(rw);
   for(let i = 1; i < 4; i++) {
     const dz = -TRAY_Z_HALF + i * 65;
-    const dv = makeBox(TX_DEP, TRAY_FLOOR_H, 2, colorHex);
-    dv.position.set(TX_MID, yBase + TRAY_FLOOR_H/2, dz);
-    scene.add(dv);
+    const dv = makeTrayBox(TX_DEP, TRAY_FLOOR_H, 2);
+    dv.position.set(TX_MID, yBase + TRAY_FLOOR_H/2, dz); scene.add(dv);
   }
-  // Label markers colored by domain so viewer can identify each bin
+  // Domain label wire-boxes (unchanged)
   const floorIdx = (yBase === FLOOR_Y[0] - 4) ? 0 : 1;
   for(let i = 0; i < 4; i++) {
     const domainEntry = CARD_TYPES.find(t => t.floor === floorIdx && t.col === i);
     const labelColor = domainEntry ? domainEntry.hex : 0x446688;
     const lm = makeWireBox(6, 5, 10, labelColor);
-    lm.position.set(TRAY_X_START + 3, yBase + 3, COL_ZS[i]);
-    scene.add(lm);
+    lm.position.set(TRAY_X_START + 3, yBase + 3, COL_ZS[i]); scene.add(lm);
   }
 }
 
@@ -815,7 +843,7 @@ function addCardToTray(ct) {
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 30; // start above, animate down
   const zJitter    = (Math.random() - 0.5) * 2;     // ±1 unit Z fan
-  const yRotJitter = (Math.random() - 0.5) * 0.10;  // ±0.05 rad tilt
+  const yRotJitter = (Math.random() - 0.5) * 0.12;  // ±0.06 rad tilt
   mesh.position.set(
     TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
     startY,
@@ -843,11 +871,12 @@ function addCardToTray(ct) {
 }
 
 // ─── Fill Bars ─────────────────────────────────────────────────────────────────
-// One thin bar per domain slot; scale.z maps card count → fill level.
+// One thin vertical bar per domain slot, inside the tray at the front face.
+// scale.y maps card count → fill level (0.01 empty → 1.0 at 6 cards).
 // Index matches ct.slot (0–7) so fillBars[ct.slot] is always the right bar.
 const fillBars = [];
 CARD_TYPES.forEach(ct => {
-  const geo = new THREE.BoxGeometry(2, 1, 60);
+  const geo = new THREE.BoxGeometry(4, 60, 2);
   const mat = new THREE.MeshStandardMaterial({
     color:             ct.hex,
     emissive:          ct.hex,
@@ -856,13 +885,14 @@ CARD_TYPES.forEach(ct => {
     metalness:         0.0,
   });
   const bar = new THREE.Mesh(geo, mat);
-  // Position: left of tray entry, above tray wall top.
+  // Position: inside tray at front entrance, anchored at floor level.
+  // Y=floor+33 is the bar's center when fully scaled (height=60, half=30, +3 floor gap).
   bar.position.set(
-    TRAY_X_START - 8,
-    FLOOR_Y[ct.floor] + 66,
+    TRAY_X_START + 6,
+    FLOOR_Y[ct.floor] + 33,
     ct.slotZ
   );
-  bar.scale.z = 0.01;   // near-zero at start; grows as cards arrive
+  bar.scale.y = 0.01;   // near-zero at start; grows upward as cards arrive
   scene.add(bar);
   fillBars.push(bar);   // fillBars[0]=Fury … fillBars[7]=Reject
 });
@@ -996,11 +1026,37 @@ function paddleAngleForSlot(slotZ) {
 }
 
 // ─── Hopper stack (dynamic — shrinks each cycle, refills after 6 cards) ───────
+function makeCardBack() {
+  const c = document.createElement('canvas');
+  c.width = 126; c.height = 176;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#1a2a4a';
+  ctx.fillRect(0, 0, 126, 176);
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.lineWidth = 1;
+  for(let x = -176; x < 126 + 176; x += 12) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 176, 176); ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(10, 10, 106, 156);
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(3, 3, 120, 170);
+  ctx.strokeStyle = 'rgba(100,160,255,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(63, 20); ctx.lineTo(106, 88); ctx.lineTo(63, 156); ctx.lineTo(20, 88); ctx.closePath();
+  ctx.stroke();
+  return new THREE.CanvasTexture(c);
+}
+const cardBackTex = makeCardBack();
+
 const stackGroup = new THREE.Group();
 const stackCards = [];
 for(let i = 0; i < 6; i++) {
   const sg = new THREE.BoxGeometry(CARD_W, CARD_T, CARD_H);
-  const sm = new THREE.MeshStandardMaterial({ color: 0xddddee, roughness: 0.3 });
+  const sm = new THREE.MeshStandardMaterial({ map: cardBackTex, roughness: 0.35, metalness: 0.05 });
   const sc = new THREE.Mesh(sg, sm);
   sc.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
   sc.castShadow = true;
@@ -1076,10 +1132,10 @@ function animate(ts) {
     const bar = fillBars[idx];
     if(!bar) return;
     const count = domainCounts[ct.name] || 0;
-    // scale.z: 0.01 at 0 cards → 1.0 at 20 cards; clamp to [0.01, 1.0]
-    const targetScaleZ = Math.max(0.01, Math.min(1.0, count / 20));
+    // scale.y: 0.01 at 0 cards → 1.0 at 6 cards; clamp to [0.01, 1.0]
+    const targetScaleY = Math.max(0.01, Math.min(1.0, count / 6));
     // Smooth exponential approach so bar grows visibly over ~1 s
-    bar.scale.z += (targetScaleZ - bar.scale.z) * 0.08;
+    bar.scale.y += (targetScaleY - bar.scale.y) * 0.08;
     // Decay emissive flash back to resting level 0.4
     if(bar.material.emissiveIntensity > 0.4) {
       bar.material.emissiveIntensity *= 0.90;  // ~10 frames to reach resting
@@ -1182,21 +1238,23 @@ function animate(ts) {
     const flashIntensity = Math.sin(ft * Math.PI);
     scanFlash.intensity = flashIntensity * 3;
     scanFlash.position.set(-40, CONV_Y_TOP + 10, 0);
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.5;
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6;
     cardGlow.intensity = 1.5 + flashIntensity;
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Scanner LED pulses brightly during scan
-    scanLEDMat.emissiveIntensity = 1.2 + flashIntensity * 3.0;
+    scanLEDMat.emissiveIntensity = 2.0 + flashIntensity * 3.0;
     // Wide bloom soft halo around scanner
     scanBloom.intensity = flashIntensity * 0.8;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, 0);
     // Scan line sweeps across the card in Z direction
     scanLine.visible = true;
+    // Double-sweep: forward on first half of scan, backward on second half
+    const sweepT = ft < 0.5 ? ft * 2 : (1 - ft) * 2;
     scanLine.position.set(
       -40,
       CONV_Y_TOP + CARD_T/2 + 3,
-      THREE.MathUtils.lerp(-CARD_H/2, CARD_H/2, ft)
+      THREE.MathUtils.lerp(-CARD_H/2, CARD_H/2, sweepT)
     );
     // Belt scrolls while card sits under scanner
     beltTex.offset.x -= dt * speedMult * 0.02;
@@ -1333,7 +1391,7 @@ function animate(ts) {
     const orbitR = 750;
     camera.position.x = orbitR * 0.45 * Math.cos(orbitAngle) - 30;
     camera.position.z = orbitR * Math.sin(orbitAngle);
-    camera.position.y = 350 + 50 * Math.sin(ts * 0.00008);
+    camera.position.y = 320 + 20 * Math.sin(ts * 0.00008);
     controls.target.set(-30, 30, 0);
     camera.lookAt(-30, 30, 0);
   }
