@@ -509,7 +509,8 @@ controls.update();
 
 // ─── Lights ───────────────────────────────────────────────────────────────────
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
-scene.add(new THREE.AmbientLight(0x202030, 0.45));
+const ambientLight = new THREE.AmbientLight(0x202030, 0.45);
+scene.add(ambientLight);
 scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.35));
 
 // Increase key light slightly to compensate for lower ambient
@@ -2797,6 +2798,22 @@ function animate(ts) {
       beltSurfMat.emissive.lerp(_beltDomainRGB, Math.min(1, dt * 1.8));
     } else {
       beltSurfMat.emissive.lerp(_beltBaseRGB, Math.min(1, dt * 0.9));
+    }
+  }
+  // Pass 61: Ambient light intensity responds to machine phase for dramatic contrast
+  {
+    // Scan phase: flash ambient up with the domain color
+    // Celebration (impactRing or camera shake): spike ambient white briefly
+    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.30 : 0;
+    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.12 : 0;
+    const _shakeBoost   = _cameraShake > 2 ? Math.min(0.25, _cameraShake * 0.04) : 0;
+    const _ambTarget = 0.45 + _scanAmbBoost + _grabBoost + _shakeBoost;
+    ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
+    // Tint ambient slightly toward domain color during scan
+    if (_scanAmbBoost > 0.02) {
+      ambientLight.color.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 2));
+    } else {
+      ambientLight.color.lerp(new THREE.Color(0x202030), Math.min(1, dt * 1.5));
     }
   }
   // Pass 56: Conveyor body sides pulse faintly with domain color while card rides belt
