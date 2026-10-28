@@ -3215,7 +3215,10 @@ function animate(ts) {
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 3.0;
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
-        _cameraShake = Math.max(_cameraShake, 0.45);
+        // Pass 367: shake boost 0.45 → 1.5 for more prominent scanner lock-on feel
+        _cameraShake = Math.max(_cameraShake, 1.5);
+        // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° at identity lock-on
+        _fovBump = Math.max(_fovBump, 3.5);
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm,
         // then decays back to scan-blue over 0.35s.
         // Pass 271: LED intensity spike at reveal — hard flash at lock-on moment
@@ -3637,6 +3640,8 @@ function animate(ts) {
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 2.2);
       // Pass 298: gate-contact camera micro-shake — physical impact reverberates into camera
       _cameraShake = 1.8;
+      // Pass 369: gate-contact FOV micro-punch — brief 1.8° zoom at paddle impact
+      _fovBump = Math.max(_fovBump, 1.8);
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
       // Pass 109: recoil kick — paddle pushed further in deflect direction by card impact
