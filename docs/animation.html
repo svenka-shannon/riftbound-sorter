@@ -1740,7 +1740,7 @@ function addCardToTray(ct) {
   flashLight.position.copy(mesh.position);
   scene.add(flashLight);
   if(!window._flashLights) window._flashLights = [];
-  window._flashLights.push({ light: flashLight, age: 0 });
+  window._flashLights.push({ light: flashLight, age: 0, peak: flashLight.intensity });
 
   // Pulse fill bar brightness on arrival — Pass 398: boost 1.5 → 2.8
   if(fillBars[ct.slot]) {
@@ -1992,13 +1992,13 @@ function fireCelebration() {
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
-  window._flashLights.push({ light: _cfl, age: 0 });
+  window._flashLights.push({ light: _cfl, age: 0, peak: _cfl.intensity });
   // Pass 150: rainbow tray burst — Pass 423: per-slot 5.5→8.0, dist 95→130
   CARD_TYPES.forEach(dct => {
     const _dfl = new THREE.PointLight(dct.hex, 8.0, 130);
     _dfl.position.set(TX_MID, dct.slotFloorY + 55, dct.slotZ);
     scene.add(_dfl);
-    window._flashLights.push({ light: _dfl, age: 0 });
+    window._flashLights.push({ light: _dfl, age: 0, peak: _dfl.intensity });
   });
   // Pass 68: round-complete banner
   _roundCount++;
@@ -2311,7 +2311,7 @@ function animate(ts) {
         _rfl.position.set(HOPPER_X + 33, 160, 0);
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
-        window._flashLights.push({ light: _rfl, age: 0 });
+        window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
         // Spike the hopper light for visual emphasis
         hopperLight.intensity = 2.5;
         hopperLight.color.set(0xfff0cc);
@@ -2401,10 +2401,12 @@ function animate(ts) {
   }
 
   // ── Decay arrival flash lights ──
+  // Pass 567: flash lights now decay from their spawned peak intensity (was clamped to 3.0 peak)
   if(window._flashLights) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
-      f.light.intensity = Math.max(0, 3.0 * (1 - f.age / 0.5));
+      const _fPeak = f.peak || 3.0; // use stored creation intensity; fallback 3.0
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 0.5));
       if(f.age > 0.5) { scene.remove(f.light); return false; }
       return true;
     });
@@ -2630,7 +2632,7 @@ function animate(ts) {
           _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
-          window._flashLights.push({ light: _cfL, age: 0 });
+          window._flashLights.push({ light: _cfL, age: 0, peak: _cfL.intensity });
           // Pass 203: cup contact dust puff — tiny displaced air burst upward from card surface.
           // 4 particles shoot upward and sideways, simulating air compressed under the cup.
           {
@@ -2744,7 +2746,7 @@ function animate(ts) {
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
         if (!window._flashLights) window._flashLights = [];
-        window._flashLights.push({ light: grabLight, age: 0 });
+        window._flashLights.push({ light: grabLight, age: 0, peak: grabLight.intensity });
       }
       // Pass 34/49: scatter domain particles from grab point; pass 49 adds grab micro-shake
       if (!_grabBurstFired && lt < 0.12) {
@@ -2880,7 +2882,7 @@ function animate(ts) {
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
-        window._flashLights.push({ light: _spfl, age: 0 });
+        window._flashLights.push({ light: _spfl, age: 0, peak: _spfl.intensity });
       }
     }
     // Pass 299: armSwing Z-apex glow boost — cardGlow peaks as arm swings closest to viewer at Z apex
@@ -2919,7 +2921,7 @@ function animate(ts) {
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
-      window._flashLights.push({ light: _dfl, age: 0 });
+      window._flashLights.push({ light: _dfl, age: 0, peak: _dfl.intensity });
       // Pass 95: belt entry dust puff — air blast from card slapping onto belt
       {
         const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
@@ -3598,7 +3600,7 @@ function animate(ts) {
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
-      window._flashLights.push({ light: _cofl, age: 0 });
+      window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
       // Pass 428: card blaze at scan confirm 1.8 → 3.0 — Pass 553: 3.0→5.0 (hotter identity flash)
       activeCardMat.emissiveIntensity = 5.0;
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
@@ -3755,7 +3757,7 @@ function animate(ts) {
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
-      window._flashLights.push({ light: _gfl, age: 0 });
+      window._flashLights.push({ light: _gfl, age: 0, peak: _gfl.intensity });
       // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 (synced with flash light)
       paddleMat.emissiveIntensity = 8.0;
       // Pass 269: gate-contact card face flash — Pass 411: boost 2.2 → 3.5 (hotter impact blaze)
@@ -3807,7 +3809,7 @@ function animate(ts) {
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
-      window._flashLights.push({ light: _apfl, age: 0 });
+      window._flashLights.push({ light: _apfl, age: 0, peak: _apfl.intensity });
     }
     const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
     const cz = THREE.MathUtils.lerp(0, ct.slotZ, dt2);
@@ -4043,7 +4045,7 @@ function animate(ts) {
       _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
-      window._flashLights.push({ light: _gfl, age: 0 });
+      window._flashLights.push({ light: _gfl, age: 0, peak: _gfl.intensity });
     }
     // Pass 142: slot-entry vertical streak — thin downward light lance as card enters slot
     if (!_slotStreakFired && dt3 >= 0.12) {
@@ -4208,7 +4210,7 @@ function animate(ts) {
         _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 8 : -8));
         scene.add(_wl);
         if (!window._flashLights) window._flashLights = [];
-        window._flashLights.push({ light: _wl, age: 0 });
+        window._flashLights.push({ light: _wl, age: 0, peak: _wl.intensity });
       });
       // Extra camera shake for "rejected" — Pass 452: boost 2.2 → 3.5 (harder rejection)
       _cameraShake = Math.max(_cameraShake, 3.5);
@@ -4253,7 +4255,7 @@ function animate(ts) {
       _ral2.position.set(TRAY_X_START + 20, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_ral2);
       if (!window._flashLights) window._flashLights = [];
-      window._flashLights.push({ light: _ral2, age: 0 });
+      window._flashLights.push({ light: _ral2, age: 0, peak: _ral2.intensity });
     }
     cardGlow.position.copy(activeCard.position);
     _beltScrollSpeed = 0.04; // belt coasts slowly during slot drop
