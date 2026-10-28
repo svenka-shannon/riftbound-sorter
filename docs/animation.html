@@ -3390,7 +3390,9 @@ function animate(ts) {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
       cy = THREE.MathUtils.lerp(startY, targetY, easeInOut(dt3));
     }
-    activeCard.position.set(TRAY_X_START + 20, cy, ct.slotZ);
+    // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
+    const _slotWallZ = ct.slotZ + 1.4 * Math.sin(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 1.4);
+    activeCard.position.set(TRAY_X_START + 20, cy, _slotWallZ);
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
     const _bankSign = Math.sign(ct.slotZ || 0);
@@ -3976,8 +3978,11 @@ function animate(ts) {
         mesh.position.copy(activeCard.position);
         mesh.position.x -= lag;
         mesh.rotation.copy(activeCard.rotation);
-        mat.color.setHex(ct.hex);
-        mat.emissive.setHex(ct.hex);
+        // Pass 180: ghost trails are scan-blue in conveyorIn (pre-reveal) and domain in conveyorOut
+        // (post-reveal) — cohesive with pass 176's card emissive tint timing
+        const _ghostHex = inPhase(PH.conveyorOut) ? ct.hex : 0x3388ff;
+        mat.color.setHex(_ghostHex);
+        mat.emissive.setHex(_ghostHex);
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
         mat.opacity += (targetOp - mat.opacity) * 0.35;
       } else {
