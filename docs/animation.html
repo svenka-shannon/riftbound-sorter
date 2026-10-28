@@ -149,16 +149,32 @@
   }
 
   @keyframes fadeUp {
-    0%   { transform: translateY(0);   opacity: 1; }
-    100% { transform: translateY(-30px); opacity: 0; }
+    0%   { transform: translateY(0) scale(1);   opacity: 1; }
+    30%  { transform: translateY(-10px) scale(1.2); opacity: 1; }
+    100% { transform: translateY(-45px) scale(0.8); opacity: 0; }
   }
   .slot-plusone {
     position: fixed;
     pointer-events: none;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 800;
     z-index: 30;
-    animation: fadeUp 0.8s ease-out forwards;
+    letter-spacing: 0.04em;
+    animation: fadeUp 1.0s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+  }
+
+  @keyframes rippleOut {
+    0%   { transform: translateX(-50%) translateY(-50%) scale(0); opacity: 0.7; }
+    100% { transform: translateX(-50%) translateY(-50%) scale(3.5); opacity: 0; }
+  }
+  .slot-ripple {
+    position: fixed;
+    pointer-events: none;
+    z-index: 28;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 2px solid;
+    animation: rippleOut 0.7s ease-out forwards;
   }
 
   #hopper-count {
@@ -1154,19 +1170,28 @@ scene.add(cardGlow);
 const trayCards = {};
 const trayArrivals = []; // {mesh, startY, targetY, t} — animates card settling into slot
 
-function showSlotPlusOne(worldPos, color) {
+function showSlotPlusOne(worldPos, color, label) {
   const vec = worldPos.clone().project(camera);
   const sx = ( vec.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
   const sy = (-vec.y * 0.5 + 0.5) * renderer.domElement.clientHeight;
+  // +1 floating text
   const div = document.createElement('div');
   div.className = 'slot-plusone';
-  div.textContent = '+1';
+  div.textContent = label ? '+1 ' + label : '+1';
   div.style.color = color;
   div.style.left   = sx + 'px';
   div.style.top    = sy + 'px';
-  div.style.textShadow = `0 0 8px ${color}`;
+  div.style.textShadow = `0 0 10px ${color}, 0 0 20px ${color}`;
   document.body.appendChild(div);
   div.addEventListener('animationend', () => div.remove());
+  // Ripple ring
+  const ring = document.createElement('div');
+  ring.className = 'slot-ripple';
+  ring.style.borderColor = color;
+  ring.style.left = sx + 'px';
+  ring.style.top  = sy + 'px';
+  document.body.appendChild(ring);
+  ring.addEventListener('animationend', () => ring.remove());
 }
 
 function updateTrayLegend() {
@@ -1266,7 +1291,7 @@ function addCardToTray(ct) {
     ct.slotFloorY + 58,
     ct.slotZ
   );
-  showSlotPlusOne(slotWorldPos, ct.css);
+  showSlotPlusOne(slotWorldPos, ct.css, ct.name);
 }
 
 // ─── Fill Bars ─────────────────────────────────────────────────────────────────
