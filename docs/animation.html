@@ -3005,8 +3005,8 @@ function animate(ts) {
     cardGlow.intensity = 1.5 + flashIntensity + _revealGlowSurge;
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
-    // Scanner LED pulses brightly during scan
-    scanLEDMat.emissiveIntensity = 2.0 + flashIntensity * 3.0;
+    // Pass 372: scanner LED base brightness boost — 2.0 → 2.5 for brighter baseline scan glow
+    scanLEDMat.emissiveIntensity = 2.5 + flashIntensity * 3.0;
     // Pass 222: scanner LED domain flash — at identity reveal, LED color switches to domain
     // Pass 270: hold domain color 0.12s before fading (was immediate fade) — more visual lock-on impact
     if (_scanLEDRevealT >= 0) {
@@ -3040,11 +3040,13 @@ function animate(ts) {
     const _irisScale = 0.75 + flashIntensity * 0.40;
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.07 ? easeOut(ft / 0.07) : 1.0;
-    // Pass 255: iris lock-on expand at identity reveal — brief pupil-dilation flash at ft=0.85
-    const _irisRevealPulse = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.30 : 0;
+    // Pass 255: iris lock-on expand at identity reveal — Pass 371: exp decay for organic feel
+    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 0.40 : 0;
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
-    lensMat.emissiveIntensity = 0.4 + flashIntensity * 2.8;
+    // Pass 370: lens reveal spike — exp flash when identity locks on
+    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 2.5 : 0;
+    lensMat.emissiveIntensity = 0.4 + flashIntensity * 2.8 + _lensReveal370;
     // Wide bloom soft halo around scanner
     // Pass 239: scanBloom post-reveal domain burst — bloom light spikes in domain color
     // Pass 346: scan bloom reveal surge — exp decay replaces linear (sharper spike at lock-on)
