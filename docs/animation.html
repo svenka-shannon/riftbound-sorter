@@ -3818,28 +3818,28 @@ function animate(ts) {
   else if(inPhase(PH.deflect)) {
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
-    // Pass 34: gate contact flash — Pass 409: intensity 5.5→8.0, dist 75→100 (bigger burst)
+    // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 for bigger paddle hit burst
     if (!_gateFlashFired) {
       _gateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 8.0, 100);
+      const _gfl = new THREE.PointLight(ct.hex, 13.0, 100);
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _gfl, age: 0, peak: _gfl.intensity });
       // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 (synced with flash light)
       paddleMat.emissiveIntensity = 8.0;
-      // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 hotter blaze
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 7.0);
+      // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 — Pass 781: →10.0 hotter blaze
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 10.0);
       // Pass 298: gate-contact camera shake — Pass 588: 1.8→3.0 for more physical paddle impact
       _cameraShake = 3.0;
-      // Pass 369: gate-contact FOV punch — Pass 589: 1.8°→3.2° — Pass 682: camera shake 3.0→4.2
-      _cameraShake = Math.max(_cameraShake, 4.2);
-      // Pass 369: gate-contact FOV punch
-      _fovBump = Math.max(_fovBump, 3.2);
+      // Pass 369: gate-contact FOV punch — Pass 589: 1.8°→3.2° — Pass 682: camera shake 3.0→4.2 — Pass 782: →6.5
+      _cameraShake = Math.max(_cameraShake, 6.5);
+      // Pass 369: gate-contact FOV punch — Pass 783: 3.2°→5.0° for bigger gate hit feel
+      _fovBump = Math.max(_fovBump, 5.0);
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
-      // Pass 109: recoil kick — Pass 590: 0.26→0.42 for harder paddle whack feel
-      _paddleRecoil = 0.42 * Math.sign(ct.slotZ);
+      // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 for harder paddle whack feel
+      _paddleRecoil = 0.62 * Math.sign(ct.slotZ);
       // Pass 216: solenoid jitter — Pass 591: 0.85→1.30 for stronger lateral vibration
       _paddleJitterAmt = 1.30;
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
@@ -3849,17 +3849,17 @@ function animate(ts) {
       {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
         let _spawned = 0;
-        // Pass 592: gate sparks 12→18 — Pass 593: speed 50+60→70+80, vy 40+50→55+65
-        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 18; _si++) { // Pass 592: →18 sparks
+        // Pass 592: gate sparks 12→18 — Pass 593: speed 50+60→70+80 — Pass 785/786: sparks 18→16 cap but faster 70+80→95+110
+        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 16; _si++) {
           const _sp = GRAB_PARTICLES[_si];
           if (_sp.active) continue;
           _sp.active = true; _sp.age = 0; _sp.life = 0.28 + Math.random() * 0.22;
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 70 + Math.random() * 80; // Pass 593: 50+60 → 70+80
+          const _spd = 95 + Math.random() * 110; // Pass 786: 70+80 → 95+110 for faster sparks
           _sp.vx = Math.cos(_ang) * _spd * 0.7;
-          _sp.vy = 55 + Math.random() * 65;  // strong upward bias — sparks fly upward
+          _sp.vy = 65 + Math.random() * 70;  // strong upward bias — sparks fly upward
           _sp.vz = Math.sin(_ang) * _spd * 0.5 + Math.sign(ct.slotZ || 1) * 15;
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
@@ -3873,10 +3873,10 @@ function animate(ts) {
     const dt2 = phaseT(PH.deflect);
     // Pass 454: arc-peak domain flash — at arc midpoint (dt2≈0.46) spawn a brief domain
     // point light at card position; the card is at its highest, most visible trajectory point.
-    // Pass 526: arc-peak flash intensity 6.5→9.0 — Pass 636: →12.5, dist 120→150 for bigger arc apex pop
+    // Pass 526: 6.5→9.0 — Pass 636: →12.5 — Pass 784: →18.0 for bigger arc apex pop
     if (!_arcPeakFlashFired && dt2 >= 0.46) {
       _arcPeakFlashFired = true;
-      const _apfl = new THREE.PointLight(ct.hex, 12.5, 150); // Pass 636: 9.0→12.5, dist 120→150
+      const _apfl = new THREE.PointLight(ct.hex, 18.0, 150); // Pass 784: 12.5→18.0
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
