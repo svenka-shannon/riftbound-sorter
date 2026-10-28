@@ -3034,7 +3034,8 @@ function animate(ts) {
     // Camera-flash: brief colored screen overlay fires once per scan
     if (!_scanFlashFired) {
       _scanFlashFired = true;
-      _cameraShake = 5.0; // Pass 418: scan start shake boost 3.5 → 5.0
+      // Pass 418: scan start shake 3.5→5.0 — Pass 740: →7.2 for bigger scan-start jolt
+      _cameraShake = 7.2;
       const flashEl = document.getElementById('scan-flash-overlay');
       if (flashEl) {
         flashEl.style.background = ct.css;
@@ -3069,22 +3070,24 @@ function animate(ts) {
     const _blendInT = Math.min(1, ft / 0.10); // 0→1 over first 10% of scan phase
     const _revealTilt = THREE.MathUtils.lerp(-0.18, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
-    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 0.8;
+    // Pass 746: pre-reveal vibration scale 0.8→1.3 for more visible scanner tremor buildup
+    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 1.3;
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015) * _scanVibScale;
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
     // Pass 656: tilt 0.14→0.22 for more dramatic card-edge flash at identity confirm
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
     const _yTilt = _identityRevealed ? 0.22 * Math.sin(_yTiltT * Math.PI) : 0;
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
-    // Pass 657: Z shake 0.022→0.038 for more visible scanner lock-on recoil
+    // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 for sharper scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
-      ? 0.038 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0;
+      ? 0.058 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0;
     activeCard.rotation.set(_revealTilt, _yTilt, _scanVib + _revealZShake);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
-    // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8 for bigger scan flash
-    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 6.0 : 0;
-    scanFlash.intensity = flashIntensity * 8 + _flashRevealSpike350;
+    // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
+    // Pass 741: base 8→11 for brighter scan flash — Pass 742: spike 6.0→8.5 for bigger lock-on pop
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 8.5 : 0;
+    scanFlash.intensity = flashIntensity * 11 + _flashRevealSpike350;
     // Pass 351: scanFlash Z drift toward destination after reveal
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.25 : 0;
     scanFlash.position.set(-40, CONV_Y_TOP + 10, _flashZ351);
@@ -3099,15 +3102,15 @@ function animate(ts) {
     // Pass 105/448: scan strobe — Pass 604: amplitude 0.18→0.28 — Pass 621: add 7Hz secondary beat
     // Two-frequency scan strobe: primary 12Hz + secondary 7Hz creates interference pattern
     const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 0.28 + Math.sin(ts * 7 * Math.PI * 2) * 0.10) * flashIntensity;
-    // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 (longer oscillation)
-    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 5.5);
+    // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 (longer burst visibility)
+    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 3.8);
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades
     const _revOsc = _cardRevealBurst * (0.55 + 0.45 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)));
-    // Pass 604: card emissive scan base flashIntensity 0.6→1.0 for brighter card during scan
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 1.0 + _scanStrobe + _revOsc;
-    // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 and base 1.5+1→2.0+1.8 for bigger glow
-    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 5.5 : 0;
-    cardGlow.intensity = 2.0 + flashIntensity * 1.8 + _revealGlowSurge;
+    // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 for even brighter card glow during scan
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 1.35 + _scanStrobe + _revOsc;
+    // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 for stronger post-reveal card glow
+    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 7.8 : 0;
+    cardGlow.intensity = 2.5 + flashIntensity * 1.8 + _revealGlowSurge;
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Pass 372: scanner LED boost 2.0→2.5 — Pass 603: 2.5→3.5 + flashIntensity 3.0→4.5
