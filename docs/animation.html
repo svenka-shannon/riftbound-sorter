@@ -905,6 +905,11 @@ const scanTargetLight = new THREE.PointLight(0xffffff, 0, 90);
 scanTargetLight.decay = 2;
 scene.add(scanTargetLight);
 
+// Pass 81: slot sweep light — travels through tray slot during slotDrop
+const slotSweepLight = new THREE.PointLight(0xffffff, 0, 55);
+slotSweepLight.decay = 2;
+scene.add(slotSweepLight);
+
 // ─── Scanner beam cone ────────────────────────────────────────────────────────
 // Transparent cone from scanner hood bottom → card surface; domain colored.
 // Gives the "vision system firing" look — wide diffuse glow plus narrow column.
@@ -2734,6 +2739,7 @@ function animate(ts) {
     paddleMat.emissiveIntensity += (_gateChargeTarget - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
+    slotSweepLight.intensity = 0; // pass 81: off during conveyor
     scanBloom.intensity = 0;
     scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
@@ -2849,6 +2855,15 @@ function animate(ts) {
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3);
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     scanTargetLight.intensity = THREE.MathUtils.lerp(1.8, 0, easeInOut(dt3));
+    // Pass 81: slot sweep light travels from entrance to back wall as card inserts
+    {
+      const _sweepX = THREE.MathUtils.lerp(TRAY_X_START + 5, TRAY_X_END - 5, easeInOut(dt3));
+      slotSweepLight.color.setHex(ct.hex);
+      slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ);
+      // Envelope: rises quickly, holds, fades as card settles
+      slotSweepLight.intensity = dt3 < 0.75 ? THREE.MathUtils.lerp(0, 2.5, dt3 / 0.75)
+                                             : THREE.MathUtils.lerp(2.5, 0, (dt3 - 0.75) / 0.25);
+    }
     // Pass 60: gate column LED holds then fades as card lands
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _target = gi === ct.col ? THREE.MathUtils.lerp(3.5, 0.15, dt3) : 0.15;
