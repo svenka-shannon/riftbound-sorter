@@ -1988,10 +1988,10 @@ function fireCelebration() {
     void flashEl.offsetWidth;
     flashEl.classList.add('scan-flash-on');
   }
-  // Camera shake: Pass 421: 5.5→7.5 — Pass 724: →10.5 for bigger celebratory jolt
-  _cameraShake = Math.max(_cameraShake, 10.5);
-  // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° for even bigger celebration
-  _fovBump = 14;
+  // Camera shake: Pass 421: 5.5→7.5 — Pass 724: →10.5 — Pass 818: →15.0 for bigger celebratory jolt
+  _cameraShake = Math.max(_cameraShake, 15.0);
+  // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° for even bigger celebration
+  _fovBump = 19;
   // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0, dist 220→280
   const _cfl = new THREE.PointLight(0xffffff, 14.0, 280);
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
@@ -3346,11 +3346,10 @@ function animate(ts) {
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 4.8;
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
-        // Pass 367: shake boost 0.45 → 1.5 for more prominent scanner lock-on feel
-        _cameraShake = Math.max(_cameraShake, 1.5);
-        // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° at identity lock-on
-        // Pass 538: FOV reveal zoom-punch 3.5°→5.5° for bigger camera snap at lock-on
-        _fovBump = Math.max(_fovBump, 5.5);
+        // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 for more prominent scanner lock-on feel
+        _cameraShake = Math.max(_cameraShake, 3.5);
+        // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° — Pass 538: →5.5° — Pass 812: →8.5° for bigger snap
+        _fovBump = Math.max(_fovBump, 8.5);
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm,
         // then decays back to scan-blue over 0.35s.
         // Pass 271: LED intensity spike at reveal — hard flash at lock-on moment
@@ -3619,18 +3618,19 @@ function animate(ts) {
       // Mirror card tilt so shimmer stays flush with card surface (pass 90 + 164)
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
-      // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 for wider shimmer flash
-      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 1.65 : 1.0;
+      // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 for wider flash
+      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 2.6 : 1.0;
       cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
       cardShimmerMat.color.copy(_shimColor);
-      // Opacity: standard bell curve + extra brightness after reveal — Pass 403: boost 0.18 → 0.28
-      const _shimBoost = _identityRevealed ? 0.28 : 0;
-      // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75, base bell 0.52→0.62
-      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 0.75 : 0;
-      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.62 + _shimBoost) + _shimRevealSpike349;
+      // Opacity: standard bell + extra brightness after reveal — Pass 403: 0.18→0.28 — Pass 816: →0.42
+      const _shimBoost = _identityRevealed ? 0.42 : 0;
+      // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75 — Pass 815: →1.0
+      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 1.0 : 0;
+      // Pass 626: base bell 0.52→0.62 — Pass 816: →0.75 for brighter shimmer throughout scan
+      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.75 + _shimBoost) + _shimRevealSpike349;
     }
     // World-to-screen projection for scan overlay (clamped to visible area)
     const _sv = activeCard.position.clone().project(camera);
@@ -3644,8 +3644,8 @@ function animate(ts) {
     _ov.style.left = _sx + 'px';
     _ov.style.top  = (_sy - 90) + 'px';
     // Pass 103: HUD breathes with scan flash intensity — slight scale pulse
-    // Pass 219: completion bounce — Pass 566: boost 0.12→0.22 — Pass 619: →0.32, breathe 0.07→0.10
-    const _ovBounce = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 0.32 : 0;
+    // Pass 219: completion bounce — Pass 566: 0.12→0.22 — Pass 619: →0.32 — Pass 817: →0.48
+    const _ovBounce = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 0.48 : 0;
     _ov.style.transform = `translateX(-50%) scale(${(1.0 + flashIntensity * 0.10 + _ovBounce).toFixed(4)})`;
   }
 
