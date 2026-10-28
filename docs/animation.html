@@ -3589,16 +3589,16 @@ function animate(ts) {
     // Pass 46: scanner-exit "identity confirmed" flash — fires once at phase start
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
-      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0, dist 90→120
-      const _cofl = new THREE.PointLight(ct.hex, 9.0, 120);
+      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: 9.0→13.0, dist 120→150
+      const _cofl = new THREE.PointLight(ct.hex, 13.0, 150);
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0 });
-      // Pass 428: card blaze at scan confirm 1.8 → 3.0 (hotter identity flash)
-      activeCardMat.emissiveIntensity = 3.0;
-      // Pass 261/429: lens domain persistence spike 3.5 → 5.5
-      lensMat.emissiveIntensity = 5.5;
+      // Pass 428: card blaze at scan confirm 1.8 → 3.0 — Pass 553: 3.0→5.0 (hotter identity flash)
+      activeCardMat.emissiveIntensity = 5.0;
+      // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
+      lensMat.emissiveIntensity = 9.0;
       lensMat.emissive.setHex(ct.hex);
       // Pass 478: scan-confirm LED flashbang — scanner LED briefly goes white-hot at scan complete
       scanLEDMat.emissiveIntensity = 8.0;
@@ -3609,8 +3609,9 @@ function animate(ts) {
     // Pass 60: gate column LEDs light up as card exits scanner (preview destination)
     // Pass 455: urgency pulse frequency ramp — target column beats faster as card approaches.
     // Hz climbs 6→22 as ot goes 0→1; non-target columns are steady.
+    // Pass 551: urgency pulse amplitude 0.35+0.35 → 0.45+0.45 for stronger gate approach beat
     const _ledUrgencyHz = 6 + ot * 16;
-    const _ledUrgencyPulse = 0.35 + 0.35 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2));
+    const _ledUrgencyPulse = 0.45 + 0.45 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2));
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       const _target = _isTarget ? (2.5 * ot) * _ledUrgencyPulse : 0.1;
@@ -3668,7 +3669,8 @@ function animate(ts) {
     // Pass 72: smooth charge-up ramp as card approaches (ot 0→1 = charge 0.18→3.8)
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 5.0, easeInOut(ot)); // Pass 413: max charge 3.8→5.0
+    // Pass 555: gate charge max emissive 5.0→7.0 for brighter pre-gate glow as card approaches
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 7.0, easeInOut(ot)); // Pass 555: max charge 5.0→7.0
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: flicker amp 0.35→0.55
     const _gateFlicker = ot > 0.70 ? 0.55 * Math.sin(ts * 6 * Math.PI * 2) * ((ot - 0.70) / 0.30) : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
@@ -4282,7 +4284,8 @@ function animate(ts) {
       // Fires once at art=0.82 (first frame of overshoot), very small so it's felt not seen.
       if (!_armReturnThunkFired) {
         _armReturnThunkFired = true;
-        _cameraShake = Math.max(_cameraShake, 0.28);
+        // Pass 556: arm end-stop camera shake 0.28→0.55 for more satisfying mechanical clunk
+        _cameraShake = Math.max(_cameraShake, 0.55);
         // Pass 267: cup end-stop emissive spike — brief white flash at hard stop to sell impact
         suctionCupMat.emissive.set(1, 1, 1);
         suctionCupMat.emissiveIntensity = 2.8;
@@ -4337,8 +4340,9 @@ function animate(ts) {
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
+    // Pass 557: armReturn trail spawn interval 0.07→0.05s for denser return sweep trail
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.07) {
+    if (_trailSpawnAcc >= 0.05) {
       _trailSpawnAcc = 0;
       const _aRot = suctionPivot.rotation.z;
       const _aCupX = PIV_X + 83 * Math.sin(_aRot);
@@ -4347,14 +4351,15 @@ function animate(ts) {
       _trailHead++;
       tp.mesh.position.set(_aCupX + (Math.random()-0.5)*3, _aCupY + (Math.random()-0.5)*3, suctionPivot.position.z + (Math.random()-0.5)*6);
       // Pass 245: armReturn domain wisps — first 30% of return trail carries domain color
-      // Pass 508: domain wisp opacity boost 0.20+0.10 → 0.30+0.15 for more vivid domain memory
+      // Pass 508: domain wisp opacity boost 0.20+0.10 → 0.30+0.15
+      // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 for more vivid domain memory on return
       const _arT245 = phaseRaw(PH.armReturn);
       if (_arT245 < 0.30) {
         tp.mat.color.setHex(ct.hex);
-        tp.mat.opacity = 0.30 + Math.random() * 0.15;
+        tp.mat.opacity = 0.48 + Math.random() * 0.22;
       } else {
         tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
-        tp.mat.opacity = 0.30 + Math.random() * 0.15;
+        tp.mat.opacity = 0.35 + Math.random() * 0.15;
       }
       tp.age = 0; tp.life = 0.32 + Math.random() * 0.12;
       tp.active = true; tp.mesh.visible = true;
