@@ -2835,7 +2835,9 @@ function animate(ts) {
           scanBarMat.color.copy(_blendC);
           scanBarMat.emissive.copy(_blendC);
           const _baseI = barFill >= 0.85 ? 2.2 + flashIntensity * 2.5 : 1.2 + flashIntensity * 1.8;
-          scanBarMat.emissiveIntensity = _baseI;
+          // Pass 130: post-reveal breathing pulse on scan bar at 3Hz
+          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 0.30 : 0;
+          scanBarMat.emissiveIntensity = _baseI + _barBreath;
         }
       }
       scanBarMat.opacity = 0.75 + flashIntensity * 0.25;
