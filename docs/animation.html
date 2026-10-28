@@ -2555,7 +2555,13 @@ function animate(ts) {
     const cupY = PIV_Y - 83 * Math.cos(armRot);
     activeCard.visible = true;
     activeCard.position.set(cupX, cupY, 0);
-    activeCard.rotation.set(0, 0, armRot - Math.PI / 2);
+    // Pass 112: arm swing momentum — card wobbles like a pendulum as arm decelerates
+    let _swingWobble = 0;
+    if (inPhase(PH.armSwing)) {
+      const _sw = phaseT(PH.armSwing);
+      _swingWobble = Math.sin(_sw * 19) * Math.exp(-_sw * 3.2) * 0.065;
+    }
+    activeCard.rotation.set(0, 0, armRot - Math.PI / 2 + _swingWobble);
     activeCardMat.opacity = 1.0;
     // During armLift: card glows slightly as "suction grabs" it
     const _isLift = inPhase(PH.armLift) || inPhase(PH.armSwing);
