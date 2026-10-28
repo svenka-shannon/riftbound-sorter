@@ -1814,6 +1814,7 @@ let _identityRevealed = false;  // pass 93: set when scan reaches 85% confirm th
 let _slotPuffFired = false;     // pass 107: true once slot entry air puff fires this slotDrop
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
 let _hoodRevealFlash = 0;       // pass 123: hood strobe at identity reveal (0=idle, t=0..1)
+let _cardRevealBurst = 0;       // pass 125: card face emissive burst at identity reveal
 let _domainFillBoost = 0;      // pass 99: temporary intensity boost at identity reveal
 let _fovBump = 0;              // pass 106: FOV zoom-in amount at celebration (8 = zoom in 8°)
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
@@ -2191,6 +2192,7 @@ function animate(ts) {
     _slotPuffFired = false;     // pass 107
     _paddleRecoil = 0;          // pass 109
     _hoodRevealFlash = 0;       // pass 123
+    _cardRevealBurst = 0;       // pass 125
     _domainFillBoost = 0;       // pass 99
     _confirmRingT = -1;         // pass 100
     confirmRing.visible = false; confirmRingMat.opacity = 0;
@@ -2709,7 +2711,9 @@ function animate(ts) {
     scanFlash.position.set(-40, CONV_Y_TOP + 10, 0);
     // Pass 105: 12Hz scan strobe on card face — stroboscopic effect of fast scanner sweep
     const _scanStrobe = Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6 + _scanStrobe;
+    // Pass 125: card face emissive burst — decays from reveal spike back to normal
+    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 9);
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6 + _scanStrobe + _cardRevealBurst;
     cardGlow.intensity = 1.5 + flashIntensity;
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
@@ -2813,6 +2817,8 @@ function animate(ts) {
         }
         // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
         _hoodRevealFlash = 0.001; // just above 0 to activate
+        // Pass 125: card face emissive burst at identity reveal — card "powers up"
+        _cardRevealBurst = 3.5;
       }
       // Pass 113: scan bar color blends white→domain over 0.65→0.85 for gradual reveal
       // Below 0.65: pure white; 0.65-0.85: interpolate; above 0.85: full domain
