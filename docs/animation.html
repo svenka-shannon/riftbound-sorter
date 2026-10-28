@@ -2690,7 +2690,8 @@ function animate(ts) {
         // Pass 110: grab contact ring expands from card surface at suction contact
         _grabRingT = 0;
         grabRing.position.set(_bx, CONV_Y_TOP + CARD_T + 1.5, 0);
-        grabRingMat.color.setHex(0xddeeff);
+        // Pass 283: grab ring domain color — ring expands in card's domain color at suction contact
+        grabRingMat.color.setHex(ct.hex);
         grabRing.scale.setScalar(1.0);
         grabRing.visible = true;
         GRAB_PARTICLES.forEach((p, _gi) => {
@@ -3315,7 +3316,9 @@ function animate(ts) {
       scanConeMat.color.setHex(_coneHex);
       scanBeamMat.color.setHex(_beamHex2);
     }
-    scanConeMat.opacity = flashIntensity * 0.09 + _strobe * 0.5; // subtle wide cone
+    // Pass 285: cone reveal flash — scan cone briefly blazes at identity lock-on
+    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 0.22 : 0;
+    scanConeMat.opacity = flashIntensity * 0.09 + _strobe * 0.5 + _coneRevealBoost;
     scanBeamMat.opacity = flashIntensity * 0.55 + _strobe;        // brighter core
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
@@ -4504,7 +4507,9 @@ function animate(ts) {
   if (_impactRingT >= 0) {
     _impactRingT = Math.min(1, _impactRingT + dt * 2.5); // ~0.4s full animation
     // scale0: floor-0 starts at 1.0 (big bang), floor-1 starts at 0.55 (gentle glide)
-    const irs = _impactRingScale0 + _impactRingT * (4.5 - _impactRingScale0);
+    // Pass 284: easeOut expansion + floor-0 scale boost — ring punches out hard then decelerates
+    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 6.0 : 4.5; // floor-0: 6.0 (was 4.5), floor-1: 4.5
+    const irs = _impactRingScale0 + easeOut(_impactRingT) * (_impactMaxScale - _impactRingScale0);
     impactRing.scale.setScalar(irs);
     const peakOpacity = _impactRingScale0 < 0.8 ? 0.55 : 0.88; // softer for upper floor
     impactRingMat.opacity = (1 - _impactRingT) * peakOpacity;
