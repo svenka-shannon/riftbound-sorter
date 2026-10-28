@@ -788,7 +788,8 @@ const scanTargetLight = new THREE.PointLight(0xffffff, 0, 90);
 scanTargetLight.decay = 2;
 scene.add(scanTargetLight);
 
-// Thin cyan scan line that sweeps across the card during scan phase
+// Scan crosshair: two perpendicular laser bars sweep across the card during scan
+// Primary bar (spans X=73, sweeps in Z) — green/cyan
 const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
   emissive: new THREE.Color(0x00ff88),
@@ -798,6 +799,16 @@ const scanLineMat = new THREE.MeshStandardMaterial({
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(73, 3, 2), scanLineMat);
 scanLine.visible = false;
 scene.add(scanLine);
+// Secondary bar (spans Z=88, sweeps in X) — slightly warmer teal to differentiate
+const scanLineMat2 = new THREE.MeshStandardMaterial({
+  color: 0x00ddff,
+  emissive: new THREE.Color(0x00ddff),
+  emissiveIntensity: 2.5,
+  transparent: true, opacity: 0.65
+});
+const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 90), scanLineMat2);
+scanLine2.visible = false;
+scene.add(scanLine2);
 
 // --- Sort gate servo + paddle ---
 const GATE_X = 60;
@@ -973,9 +984,12 @@ const flange = new THREE.Mesh(
 flange.position.set(0, 0, 0);
 suctionPivot.add(flange);
 
-// Suction cup — round disc (more realistic than box)
+// Suction cup — round disc with emissive capability for domain color glow
 const suctionCupGeo = new THREE.CylinderGeometry(7, 5, 4, 12);
-const suctionCupMat = new THREE.MeshStandardMaterial({ color: 0x222233, roughness: 0.8 });
+const suctionCupMat = new THREE.MeshStandardMaterial({
+  color: 0x222233, roughness: 0.8,
+  emissive: new THREE.Color(0x000000), emissiveIntensity: 0
+});
 const suctionCup = new THREE.Mesh(suctionCupGeo, suctionCupMat);
 suctionCup.castShadow = true;
 suctionCup.position.set(0, -83, 0);
@@ -1838,7 +1852,7 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanTargetLight.intensity = 0;
-    scanLine.visible = false;
+    scanLine.visible = false; scanLine2.visible = false;
     routeArcMat.opacity = 0;
     routeTargetMat.opacity = 0;
     routeTargetMat.emissiveIntensity = 0;
@@ -1865,7 +1879,7 @@ function animate(ts) {
     cardGlow.position.y += 12;
     // Scroll belt texture to imply motion
     beltTex.offset.x -= dt * speedMult * 0.08;
-    scanLine.visible = false;
+    scanLine.visible = false; scanLine2.visible = false;
   }
 
   // ── Phase 3: Scanner flash (2.5..3.1s) ──
@@ -1901,15 +1915,24 @@ function animate(ts) {
     // Wide bloom soft halo around scanner
     scanBloom.intensity = flashIntensity * 0.8;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, 0);
-    // Scan line sweeps across the card in Z direction
+    // Crosshair scan lines sweep across the card
     scanLine.visible = true;
-    // Double-sweep: forward on first half of scan, backward on second half
+    scanLine2.visible = true;
+    // Primary (Z-sweep): forward on first half, backward on second half
     const sweepT = ft < 0.5 ? ft * 2 : (1 - ft) * 2;
     scanLine.position.set(
       -40,
       CONV_Y_TOP + CARD_T/2 + 3,
       THREE.MathUtils.lerp(-CARD_H/2, CARD_H/2, sweepT)
     );
+    // Secondary (X-sweep): same timing but sweeps along X; half-phase offset so they don't fully overlap
+    const sweepT2 = ft < 0.5 ? (1 - ft * 2) : (ft * 2 - 1);
+    scanLine2.position.set(
+      THREE.MathUtils.lerp(-CARD_W/2 - 5, CARD_W/2 + 5, sweepT2) - 40,
+      CONV_Y_TOP + CARD_T/2 + 3,
+      0
+    );
+    scanLine2.material.opacity = flashIntensity * 0.65;
     // Belt scrolls while card sits under scanner
     beltTex.offset.x -= dt * speedMult * 0.02;
     // Target slot spotlight — illuminates destination tray slot during scan
@@ -1993,7 +2016,7 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
-    scanLine.visible = false;
+    scanLine.visible = false; scanLine2.visible = false;
     activeCardMat.emissiveIntensity = 0.55;
     cardGlow.intensity = 1.2;
     cardGlow.position.copy(activeCard.position);
@@ -2086,7 +2109,7 @@ function animate(ts) {
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
-    scanLine.visible = false;
+    scanLine.visible = false; scanLine2.visible = false;
     routeArcMat.opacity = 0;
     routeTargetMat.opacity = 0;
     routeTargetMat.emissiveIntensity = 0;
@@ -2101,7 +2124,7 @@ function animate(ts) {
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
-    scanLine.visible = false;
+    scanLine.visible = false; scanLine2.visible = false;
     routeArcMat.opacity = 0;
     routeTargetMat.opacity = 0;
     routeTargetMat.emissiveIntensity = 0;
@@ -2145,6 +2168,18 @@ function animate(ts) {
 
   // ── Arm rod emissive highlight during armLift ──
   armRod.material.emissiveIntensity = inPhase(PH.armLift) ? 0.15 : 0.0;
+
+  // ── Suction cup domain glow ──
+  // Cup glows in next card's domain color when descending/lifting (shows which domain it's fetching)
+  const cupPickActive = cycleT < PH.armSwing[1]; // during descend + lift + swing
+  if (cupPickActive) {
+    const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
+                     inPhase(PH.armLift)    ? 1.0 : 0.5;
+    suctionCupMat.emissive.setHex(ct.hex);
+    suctionCupMat.emissiveIntensity = cupGlowT * 1.2;
+  } else {
+    suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.15; // decay
+  }
 
   // Auto-orbit recovery: re-enable after 12 s of pointer inactivity
   if(controls._userInteracted && controls._lastPointerMs > 0) {
