@@ -3497,16 +3497,16 @@ function animate(ts) {
     // Pass 46: scanner-exit "identity confirmed" flash — fires once at phase start
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
-      // Bright domain-colored burst at scanner exit hood position
-      const _cofl = new THREE.PointLight(ct.hex, 6.0, 90);
+      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0, dist 90→120
+      const _cofl = new THREE.PointLight(ct.hex, 9.0, 120);
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0 });
-      // Card blazes bright at scan-confirm moment (overrides the 0.55 set each frame)
-      activeCardMat.emissiveIntensity = 1.8;
-      // Pass 261: lens domain persistence — scanner lens briefly spikes domain color at scan→conveyorOut
-      lensMat.emissiveIntensity = 3.5;
+      // Pass 428: card blaze at scan confirm 1.8 → 3.0 (hotter identity flash)
+      activeCardMat.emissiveIntensity = 3.0;
+      // Pass 261/429: lens domain persistence spike 3.5 → 5.5
+      lensMat.emissiveIntensity = 5.5;
       lensMat.emissive.setHex(ct.hex);
     }
     scanTargetLight.intensity = 0;
