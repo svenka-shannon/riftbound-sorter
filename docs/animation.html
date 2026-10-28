@@ -1291,6 +1291,18 @@ impactRing.visible = false;
 scene.add(impactRing);
 let _impactRingT = -1; // -1 = idle, 0..1 = animation progress
 
+// ─── Floor halo disc: soft domain-colored glow on grid floor under active card ──
+// Creates a colored "spotlight from below" that tracks the card through the cycle.
+// radius=35, very transparent (max 18%), only visible when card is visible.
+const floorDiscMat = new THREE.MeshBasicMaterial({
+  color: 0xffffff, transparent: true, opacity: 0,
+  depthWrite: false, side: THREE.DoubleSide,
+});
+const floorDisc = new THREE.Mesh(new THREE.CircleGeometry(35, 32), floorDiscMat);
+floorDisc.rotation.x = -Math.PI / 2; // lay flat on grid floor
+floorDisc.position.y = 1.5;          // just above grid floor (avoids z-fighting)
+scene.add(floorDisc);
+
 // ─── Tray Card Accumulation ───────────────────────────────────────────────────
 const trayCards = {};
 const trayArrivals = []; // {mesh, startY, targetY, t} — animates card settling into slot
@@ -2326,6 +2338,38 @@ function animate(ts) {
     controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.018;
     controls.target.set(controls._camTgt.x, controls._camTgt.y, 0);
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, 0);
+  }
+
+  // ── Floor halo disc: domain-colored glow circle on floor below active card ───
+  {
+    if (activeCard.visible) {
+      floorDisc.position.x = activeCard.position.x;
+      floorDisc.position.z = activeCard.position.z;
+      floorDiscMat.color.setHex(ct.hex);
+      const fdTarget = 0.18;
+      floorDiscMat.opacity += (fdTarget - floorDiscMat.opacity) * 0.12;
+    } else {
+      floorDiscMat.opacity *= 0.82; // smooth fade-out when card hidden
+      if (floorDiscMat.opacity < 0.005) floorDiscMat.opacity = 0;
+    }
+  }
+
+  // ── Hopper top card domain preview ──────────────────────────────────────────
+  // During arm pick phases, tint the top stack card in current domain color
+  // so the viewer can anticipate which domain is next before card hits the belt
+  {
+    const topCard = stackCards[stackTopIdx];
+    if (topCard) {
+      const pickPhase = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing);
+      if (pickPhase) {
+        topCard.material.emissive = topCard.material.emissive || new THREE.Color();
+        topCard.material.emissive.setHex(ct.hex);
+        const glowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) : 1.0;
+        topCard.material.emissiveIntensity = glowT * 0.7;
+      } else {
+        topCard.material.emissiveIntensity *= 0.85; // decay when not in pick phase
+      }
+    }
   }
 
   // ── Ghost trail: transparent card copies during belt travel ──────────────────
