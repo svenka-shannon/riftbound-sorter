@@ -2637,7 +2637,9 @@ function animate(ts) {
     const flashIntensity = Math.sin(ft * Math.PI);
     scanFlash.intensity = flashIntensity * 5; // brighter scan flash
     scanFlash.position.set(-40, CONV_Y_TOP + 10, 0);
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6;
+    // Pass 105: 12Hz scan strobe on card face — stroboscopic effect of fast scanner sweep
+    const _scanStrobe = Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6 + _scanStrobe;
     cardGlow.intensity = 1.5 + flashIntensity;
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
