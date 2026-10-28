@@ -3653,14 +3653,14 @@ function animate(ts) {
     // Pass 46: scanner-exit "identity confirmed" flash — fires once at phase start
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
-      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: 9.0→13.0 — Pass 687: →17.0
-      const _cofl = new THREE.PointLight(ct.hex, 17.0, 160);
+      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0
+      const _cofl = new THREE.PointLight(ct.hex, 23.0, 160);
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
-      // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: 3.0→5.0 — Pass 688: →7.5 hotter blaze
-      activeCardMat.emissiveIntensity = 7.5;
+      // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 hotter blaze
+      activeCardMat.emissiveIntensity = 10.0;
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
       lensMat.emissiveIntensity = 9.0;
       lensMat.emissive.setHex(ct.hex);
@@ -3672,10 +3672,10 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     // Pass 60: gate column LEDs light up as card exits scanner (preview destination)
     // Pass 455: urgency pulse frequency ramp — target column beats faster as card approaches.
-    // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16 → 8+22; amp 0.45+0.45 → 0.30+0.70
-    // Higher ceiling (30Hz) and deeper trough (0.30 base) = more dramatic pulsing climax
-    const _ledUrgencyHz = 8 + ot * 22; // Pass 650: 6+16 → 8+22 (8→30Hz)
-    const _ledUrgencyPulse = 0.30 + 0.70 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 650: deeper throb
+    // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
+    // Pass 779: base 0.30→0.18, amp 0.70→0.88 for even deeper LED throb
+    const _ledUrgencyHz = 8 + ot * 22; // 8→30Hz
+    const _ledUrgencyPulse = 0.18 + 0.88 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 779: deeper throb
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 for brighter gate approach signal
@@ -3685,10 +3685,10 @@ function animate(ts) {
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
     });
     // Pass 141: gate column tracking light — colored pool on tray at active LED column
-    // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 for stronger domain pool
+    // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (5.5 * ot - gateColLight.intensity) * Math.min(1, dt * 7);
+    gateColLight.intensity += (8.0 * ot - gateColLight.intensity) * Math.min(1, dt * 7);
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -3699,7 +3699,8 @@ function animate(ts) {
     // Card banks in Z direction during exit — previews which column it's heading to
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     // Pass 312: conveyorOut Z bank amplifier — outer columns lean harder to reinforce routing
-    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 0.40;
+    // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit
+    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 0.65;
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
     // Pass 140: blend lean from 0 (scan end) to -0.18 over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
@@ -3707,19 +3708,19 @@ function animate(ts) {
     const _exitLean = THREE.MathUtils.lerp(0, -0.18, easeOut(_exitBlendT));
     // Pass 232: belt acceleration pitch kick — belt surges from scan crawl (0.02) to full
     // speed at conveyorOut start, briefly pitching card nose-up by inertia.
-    // Pass 640: belt launch pitch kick 0.06→0.10 for stronger card-lurch at scan exit
-    const _beltKickPitch = Math.exp(-ot * 22) * 0.10;
+    // Pass 640: belt launch pitch kick 0.06→0.10 — Pass 776: 0.10→0.16 for stronger card-lurch at scan exit
+    const _beltKickPitch = Math.exp(-ot * 22) * 0.16;
     activeCard.rotation.set(_exitLean + _beltKickPitch, 0, zBank); // forward lean + kick + bank
     // Pass 174: continue belt Z-wobble during conveyorOut — fades in over first 5% and out
     // over last 30% so card arrives stable at gate (no Z snap at scan→out or out→deflect)
     {
       const _oFadeIn  = Math.min(1, ot / 0.05);
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
-      // Pass 714: conveyorOut Z wobble 1.2→1.8 for more lateral belt weave on exit
-      const _oWobbleZ = 1.8 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut;
+      // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 for more lateral belt weave on exit
+      const _oWobbleZ = 2.5 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut;
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
-      // Pass 610: Z-drift bias 0.08→0.16 — Pass 715: →0.24 for more pronounced lane-change preview
-      const _z268drift = ct.slotZ * 0.24 * easeInOut(Math.min(1, ot / 0.85));
+      // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 for even stronger lane-change preview
+      const _z268drift = ct.slotZ * 0.34 * easeInOut(Math.min(1, ot / 0.85));
       activeCard.position.set(
         THREE.MathUtils.lerp(-40, GATE_X, ot),
         CONV_Y_TOP + CARD_T/2 + 2, _oWobbleZ + _z268drift
