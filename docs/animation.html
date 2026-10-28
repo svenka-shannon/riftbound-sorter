@@ -2508,6 +2508,11 @@ function animate(ts) {
     // Pass 74: scanner hood deep pulse — domain color tint at scan peak
     hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 2 + flashIntensity * 0.8));
     hoodMat.emissiveIntensity = 0.28 + flashIntensity * 0.85;
+    // Pass 80: lens iris opens during scan — scale XZ pulses 0.75→1.15 with flash
+    const _irisScale = 0.75 + flashIntensity * 0.40;
+    lens.scale.x = _irisScale; lens.scale.z = _irisScale;
+    lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
+    lensMat.emissiveIntensity = 0.4 + flashIntensity * 2.8;
     // Wide bloom soft halo around scanner
     scanBloom.intensity = flashIntensity * 0.8;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, 0);
@@ -3035,10 +3040,15 @@ function animate(ts) {
       convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
     }
   }
-  // Pass 74: scanner hood — smooth decay to resting cyan-blue after scan ends
+  // Pass 74/80: scanner hood + lens decay to resting after scan ends
   if (!inPhase(PH.scan)) {
     hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
     hoodMat.emissiveIntensity += (0.28 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5);
+    // Pass 80: lens iris closes back to resting size
+    lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 4);
+    lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 4);
+    lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 3));
+    lensMat.emissiveIntensity += (0.4 - lensMat.emissiveIntensity) * Math.min(1, dt * 3);
   }
 
   // Pass 56: Spin rollers proportional to belt scroll speed (synced to smooth ramp from pass 53)
