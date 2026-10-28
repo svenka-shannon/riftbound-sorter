@@ -910,73 +910,179 @@ servoBody.position.set(0, 0, 0);
 suctionPivot.add(servoBody);
 
 // ─── Card Textures ────────────────────────────────────────────────────────────
-// Per-type canvas textures with border frame, color panel, art strip
+// Per-type canvas textures — proper TCG card layout
 function makeCardTexture(hexColor, domainName) {
+  const W = 252, H = 352;
   const c = document.createElement('canvas');
-  c.width = 126; c.height = 176;
+  c.width = W; c.height = H;
   const ctx = c.getContext('2d');
-  ctx.fillStyle = '#f0f0f0';
-  ctx.fillRect(0, 0, 126, 176);
   const r = (hexColor >> 16) & 0xff, g = (hexColor >> 8) & 0xff, b = hexColor & 0xff;
-  // Gradient fill — lighter at top, darker at bottom
-  const grad = ctx.createLinearGradient(10, 10, 10, 166);
-  grad.addColorStop(0, `rgba(${Math.min(255,r+60)},${Math.min(255,g+60)},${Math.min(255,b+60)},1)`);
-  grad.addColorStop(0.5, `rgb(${r},${g},${b})`);
-  grad.addColorStop(1, `rgba(${Math.max(0,r-40)},${Math.max(0,g-40)},${Math.max(0,b-40)},1)`);
-  ctx.fillStyle = grad;
-  ctx.fillRect(10, 10, 106, 156);
-  // Art strip highlight
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.fillRect(10, 10, 106, 40);
-  // Domain symbol in art area
-  ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.lineWidth = 3;
-  ctx.lineCap = 'round';
+  const css = `rgb(${r},${g},${b})`;
+  const lo  = `rgb(${Math.max(0,r-50)},${Math.max(0,g-50)},${Math.max(0,b-50)})`;
+  const hi  = `rgb(${Math.min(255,r+70)},${Math.min(255,g+70)},${Math.min(255,b+70)})`;
+
+  // ── Card background (dark, domain-tinted) ───────────────────────────────
+  ctx.fillStyle = `rgb(${Math.round(r*0.12)+8},${Math.round(g*0.12)+8},${Math.round(b*0.12)+15})`;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Outer border (gold-ish) ──────────────────────────────────────────────
+  const brd = ctx.createLinearGradient(0,0,W,H);
+  brd.addColorStop(0, '#d4a830'); brd.addColorStop(0.5, '#f0d060'); brd.addColorStop(1, '#b08820');
+  ctx.strokeStyle = brd; ctx.lineWidth = 10;
+  ctx.strokeRect(5, 5, W-10, H-10);
+
+  // ── Name plate ──────────────────────────────────────────────────────────
+  const namePlate = ctx.createLinearGradient(14, 14, W-14, 44);
+  namePlate.addColorStop(0, lo); namePlate.addColorStop(1, css);
+  ctx.fillStyle = namePlate;
+  roundRect(ctx, 14, 14, W-28, 30, 4); ctx.fill();
+  // Domain name text (white, bold)
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 18px "Arial", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 4;
+  ctx.fillText(domainName.toUpperCase(), W/2, 36);
+  ctx.shadowBlur = 0;
+
+  // ── Art box ─────────────────────────────────────────────────────────────
+  const AY = 48, AH = 168, AX = 14, AW = W-28;
+  const artGrad = ctx.createRadialGradient(W/2, AY+AH*0.45, 12, W/2, AY+AH*0.45, AH*0.7);
+  artGrad.addColorStop(0, hi); artGrad.addColorStop(0.55, css); artGrad.addColorStop(1, lo);
+  ctx.fillStyle = artGrad;
+  roundRect(ctx, AX, AY, AW, AH, 2); ctx.fill();
+
+  // Domain art in art box (centered)
+  drawDomainArt(ctx, domainName, W/2, AY + AH/2, r, g, b);
+
+  // Art box inner highlight (top sheen)
+  const sheen = ctx.createLinearGradient(AX, AY, AX, AY+40);
+  sheen.addColorStop(0, 'rgba(255,255,255,0.25)'); sheen.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = sheen;
+  roundRect(ctx, AX, AY, AW, 40, 2); ctx.fill();
+
+  // Art box border (gold)
+  ctx.strokeStyle = '#c8a040'; ctx.lineWidth = 2;
+  roundRect(ctx, AX, AY, AW, AH, 2); ctx.stroke();
+
+  // ── Type strip ──────────────────────────────────────────────────────────
+  const TY = AY + AH + 4;
+  ctx.fillStyle = `rgba(${r},${g},${b},0.45)`;
+  roundRect(ctx, 14, TY, W-28, 22, 3); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = '11px Arial'; ctx.textAlign = 'left';
+  ctx.fillText('Domain — ' + domainName, 20, TY + 15);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillText('Riftbound', W-20, TY + 15);
+
+  // ── Text area ───────────────────────────────────────────────────────────
+  const TX = 14, TXYW = W-28, TXBG = 'rgba(0,0,0,0.35)';
+  const TXY = TY + 26;
+  roundRect(ctx, TX, TXY, TXYW, H - TXY - 14, 3);
+  ctx.fillStyle = TXBG; ctx.fill();
+  ctx.strokeStyle = 'rgba(200,180,80,0.3)'; ctx.lineWidth = 1; ctx.stroke();
+  // Flavor text lines
+  ctx.fillStyle = 'rgba(220,220,240,0.7)';
+  ctx.font = 'italic 10px Georgia, serif'; ctx.textAlign = 'center';
+  const flavor = {
+    Fury: '"Strike before they react."', Mind: '"Knowledge cuts deeper."',
+    Calm: '"Still water hides the depths."', Body: '"Endure, outlast, overcome."',
+    Chaos: '"Nothing holds, everything shifts."', Order: '"Every move was predicted."',
+    Colorless: '"Neither aligned nor bound."', Reject: '"Not this cycle."'
+  }[domainName] || '';
+  wrapText(ctx, flavor, W/2, TXY + 18, TXYW - 16, 13);
+
+  // ── Bottom stat bar ─────────────────────────────────────────────────────
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left';
+  ctx.fillText('PWR  —', 22, H-20);
+  ctx.textAlign = 'right';
+  ctx.fillText('TGH  —', W-22, H-20);
+
+  return new THREE.CanvasTexture(c);
+}
+
+// Helper: rounded rect path
+function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
-  switch(domainName) {
+  ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y);
+  ctx.arcTo(x+w, y, x+w, y+r, r); ctx.lineTo(x+w, y+h-r);
+  ctx.arcTo(x+w, y+h, x+w-r, y+h, r); ctx.lineTo(x+r, y+h);
+  ctx.arcTo(x, y+h, x, y+h-r, r); ctx.lineTo(x, y+r);
+  ctx.arcTo(x, y, x+r, y, r); ctx.closePath();
+}
+
+// Helper: wrap text within maxWidth
+function wrapText(ctx, text, cx, startY, maxW, lineH) {
+  const words = text.split(' ');
+  let line = '', y = startY;
+  for(const word of words) {
+    const test = line ? line + ' ' + word : word;
+    if(ctx.measureText(test).width > maxW && line) {
+      ctx.fillText(line, cx, y); line = word; y += lineH;
+    } else { line = test; }
+  }
+  if(line) ctx.fillText(line, cx, y);
+}
+
+// Domain art symbols (larger, more polished for new art box)
+function drawDomainArt(ctx, name, cx, cy, r, g, b) {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.75)';
+  ctx.fillStyle   = 'rgba(255,255,255,0.75)';
+  ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath();
+  switch(name) {
     case 'Fury':
-      ctx.moveTo(63, 30); ctx.lineTo(45, 70); ctx.lineTo(81, 70); ctx.closePath(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(63, 38); ctx.lineTo(52, 62); ctx.lineTo(74, 62); ctx.closePath(); ctx.fill();
+      // Flame / lightning bolt
+      ctx.moveTo(cx, cy-38); ctx.lineTo(cx-22, cy+8); ctx.lineTo(cx-4, cy+8);
+      ctx.lineTo(cx, cy+38); ctx.lineTo(cx+22, cy-8); ctx.lineTo(cx+4, cy-8); ctx.closePath();
+      ctx.fill();
       break;
     case 'Mind':
-      ctx.ellipse(63, 52, 22, 12, 0, 0, Math.PI*2); ctx.stroke();
-      ctx.beginPath(); ctx.arc(63, 52, 6, 0, Math.PI*2); ctx.fill();
+      // Eye / third-eye concentric
+      ctx.ellipse(cx, cy, 28, 16, 0, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fill();
       break;
     case 'Calm':
-      for(let x=35;x<=90;x++){const y=52+Math.sin((x-35)*0.18)*12; x===35?ctx.moveTo(x,y):ctx.lineTo(x,y);} ctx.stroke();
+      // Triple wave
+      for(let n=-1;n<=1;n++){
+        ctx.beginPath();
+        for(let x=cx-36;x<=cx+36;x++){ctx.lineTo(x, cy+n*12+Math.sin((x-cx)*0.13)*10);}
+        ctx.stroke();
+      }
       break;
     case 'Body':
-      ctx.arc(63, 52, 18, 0, Math.PI*2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(63, 34); ctx.lineTo(63, 48); ctx.moveTo(53, 40); ctx.lineTo(63, 52); ctx.lineTo(73, 40); ctx.stroke();
+      // Shield/armor shape
+      ctx.moveTo(cx, cy-34); ctx.lineTo(cx+26, cy-16); ctx.lineTo(cx+26, cy+8); ctx.lineTo(cx, cy+34); ctx.lineTo(cx-26, cy+8); ctx.lineTo(cx-26, cy-16); ctx.closePath();
+      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx,cy-20); ctx.lineTo(cx,cy+20); ctx.moveTo(cx-14,cy-4); ctx.lineTo(cx+14,cy-4); ctx.stroke();
       break;
     case 'Chaos':
-      for(let a=0;a<Math.PI*3;a+=0.05){const rad=a*3.5; a<0.05?ctx.moveTo(63+Math.cos(a)*rad,52+Math.sin(a)*rad):ctx.lineTo(63+Math.cos(a)*rad,52+Math.sin(a)*rad);} ctx.stroke();
+      // Spiral + jagged rays
+      for(let a=0;a<Math.PI*4;a+=0.08){const rd=a*5; ctx.lineTo(cx+Math.cos(a)*rd, cy+Math.sin(a)*rd);}
+      ctx.stroke();
       break;
     case 'Order':
-      for(let i=0;i<12;i++){const angle=(i*Math.PI/6)-Math.PI/2; const rad=i%2===0?20:9; i===0?ctx.moveTo(63+rad*Math.cos(angle),52+rad*Math.sin(angle)):ctx.lineTo(63+rad*Math.cos(angle),52+rad*Math.sin(angle));}
-      ctx.closePath(); ctx.fill();
+      // 12-pointed star
+      for(let i=0;i<=12;i++){
+        const ang=(i*Math.PI/6)-Math.PI/2; const rd=i%2===0?32:14;
+        i===0?ctx.moveTo(cx+rd*Math.cos(ang),cy+rd*Math.sin(ang)):ctx.lineTo(cx+rd*Math.cos(ang),cy+rd*Math.sin(ang));
+      } ctx.closePath(); ctx.fill();
       break;
     case 'Colorless':
-      ctx.moveTo(63,30); ctx.lineTo(85,52); ctx.lineTo(63,74); ctx.lineTo(41,52); ctx.closePath(); ctx.stroke();
+      // Diamond with inner diamond
+      ctx.moveTo(cx,cy-34); ctx.lineTo(cx+28,cy); ctx.lineTo(cx,cy+34); ctx.lineTo(cx-28,cy); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx,cy-16); ctx.lineTo(cx+12,cy); ctx.lineTo(cx,cy+16); ctx.lineTo(cx-12,cy); ctx.closePath(); ctx.fill();
       break;
     case 'Reject':
-      ctx.moveTo(44, 34); ctx.lineTo(82, 70); ctx.moveTo(82, 34); ctx.lineTo(44, 70); ctx.stroke();
+      // Big X with circle
+      ctx.arc(cx, cy, 26, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-16,cy-16); ctx.lineTo(cx+16,cy+16); ctx.moveTo(cx+16,cy-16); ctx.lineTo(cx-16,cy+16); ctx.stroke();
       break;
   }
-  // Card name at bottom of face
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.font = 'bold 14px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(domainName ? domainName.toUpperCase() : '', 63, 162);
-  // Outer border and inner frame
-  ctx.strokeStyle = '#333';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(3, 3, 120, 170);
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(10, 10, 106, 156);
-  return new THREE.CanvasTexture(c);
+  ctx.restore();
 }
 const cardTextures = {};
 CARD_TYPES.forEach(t => { cardTextures[t.slot] = makeCardTexture(t.hex, t.name); });
