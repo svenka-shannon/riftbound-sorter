@@ -2662,7 +2662,8 @@ function animate(ts) {
           p.mesh.visible = true;
           const s = 1 + localFt * 5.5; // scale from 1 → 6.5
           p.mesh.scale.setScalar(s);
-          p.mat.color.setHex(ct.hex);
+          // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
+          p.mat.color.setHex(ft < 0.85 ? 0xaaddff : ct.hex);
           p.mat.opacity = (1 - localFt / 0.85) * flashIntensity * 0.5;
         } else {
           p.mesh.visible = false;
