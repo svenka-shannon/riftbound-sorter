@@ -2490,6 +2490,29 @@ function animate(ts) {
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _dfl, age: 0 });
+      // Pass 95: belt entry dust puff — air blast from card slapping onto belt
+      {
+        const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
+        let _dpSpawned = 0;
+        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 5; _di++) {
+          const _dp = GRAB_PARTICLES[_di];
+          if (_dp.active) continue;
+          _dp.active = true; _dp.age = 0; _dp.life = 0.22 + Math.random() * 0.12;
+          _dp.mesh.position.set(-111 + (Math.random()-0.5)*8, CONV_Y_TOP + 4, (Math.random()-0.5)*7);
+          _dp.mesh.visible = true;
+          const _side = Math.random() < 0.5 ? 1 : -1;
+          _dp.vx = _side * (18 + Math.random() * 22);
+          _dp.vy = 12 + Math.random() * 18;
+          _dp.vz = (Math.random() - 0.5) * 16;
+          // Pale domain-tinted dust: 35% domain + 65% white
+          _dp.mat.color.setRGB(
+            Math.min(1, _rr / 255 * 0.35 + 0.65),
+            Math.min(1, _gg / 255 * 0.35 + 0.65),
+            Math.min(1, _bb / 255 * 0.35 + 0.65)
+          );
+          _dpSpawned++;
+        }
+      }
     }
     activeCard.visible = true;
     activeCard.rotation.set(0, 0, 0); // card lies flat
