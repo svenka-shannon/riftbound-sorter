@@ -4007,9 +4007,9 @@ function animate(ts) {
         const g = dt3 / 0.88;
         cy = THREE.MathUtils.lerp(startY, targetY, g * g);
       } else {
-        // Small bounce at landing — Pass 496: bounce height 6→9 for more satisfying floor impact
+        // Small bounce at landing — Pass 496: bounce height 6→9 — Pass 668: →12, damping 0.5→0.38
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 9 * Math.sin(bT * Math.PI) * (1 - bT * 0.5);
+        cy = targetY + 12 * Math.sin(bT * Math.PI) * (1 - bT * 0.38);
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4048,22 +4048,24 @@ function animate(ts) {
     }
     // Pass 456: pre-impact micro-shake ramp — for floor-0, subtle increasing camera tremor
     // from dt3=0.72→0.88 builds tension before the big landing shake at 0.88.
+    // Pass 669: pre-impact shake ramp 0.4+1.0→0.55+1.6 for more dramatic approach tension
     if (ct.floor === 0 && dt3 >= 0.72 && dt3 < 0.88) {
       const _preImpactT = (dt3 - 0.72) / 0.16; // 0→1 in approach window
-      _cameraShake = Math.max(_cameraShake, 0.4 + _preImpactT * 1.0);
+      _cameraShake = Math.max(_cameraShake, 0.55 + _preImpactT * 1.6);
     }
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
+    // Pass 670: fall emissive ramp 0.55+(dt3/0.88)*0.45 → 0.45+(dt3/0.88)*0.62 for brighter glow at impact
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.55 + (dt3 / 0.88) * 0.45; // Pass 357: emissive ramp boost 0.30 → 0.45 (peaks at 1.0)
+      const _fallRamp = 0.45 + (dt3 / 0.88) * 0.62; // Pass 670: peaks at ~1.07 just before bounce flash
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
     // Pass 252: slotDrop bounce face flash — Pass 391: boost 1.6 → 2.2, decay 14 → 12 (brighter, slightly longer)
-    // Pass 528: bounce flash peak 2.2→3.0, decay 12→10 for bigger landing pop
+    // Pass 528: bounce flash peak 2.2→3.0, decay 12→10 — Pass 671: peak 3.0→3.8, decay 10→8.5 bigger pop
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 3.0 * Math.exp(-_bFlashT * 10));
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 3.8 * Math.exp(-_bFlashT * 8.5));
     }
     // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: boost 1.2 → 1.8, decay 30 → 25
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
@@ -4173,8 +4175,8 @@ function animate(ts) {
       impactRingMat.color.setHex(ct.hex);
       impactRing.scale.setScalar(1.0);
       impactRing.visible = true;
-      // Pass 38: floor landing thud — Pass 419: boost 2.2 → 3.2 — Pass 580: 3.2→4.5 (harder thud)
-      _cameraShake = Math.max(_cameraShake, 4.5);
+      // Pass 38: floor landing thud — Pass 419: boost 2.2 → 3.2 — Pass 580: 3.2→4.5 — Pass 675: →5.8
+      _cameraShake = Math.max(_cameraShake, 5.8);
       // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: 5.5→8.0 for vivid landing strip pop
       if (ct.stripMat) ct.stripMat.emissiveIntensity = 8.0;
       // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 for more dramatic "card counted"
@@ -4346,7 +4348,8 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(1.57, -0.35, art / 0.82);
     } else {
       const _osT = (art - 0.82) / 0.18;
-      suctionPivot.rotation.z = -0.35 - 0.06 * Math.sin(_osT * Math.PI);
+      // Pass 673: arm overshoot spring 0.06→0.10 for more dramatic end-stop rebound
+      suctionPivot.rotation.z = -0.35 - 0.10 * Math.sin(_osT * Math.PI);
       // Pass 196: arm end-stop mechanical clunk — tiny camera shake when arm hits its rest stop.
       // Fires once at art=0.82 (first frame of overshoot), very small so it's felt not seen.
       if (!_armReturnThunkFired) {
@@ -4407,9 +4410,9 @@ function animate(ts) {
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
-    // Pass 557: armReturn trail spawn interval 0.07→0.05s for denser return sweep trail
+    // Pass 557: armReturn trail spawn interval 0.07→0.05s — Pass 672: →0.038s for even denser trail
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.05) {
+    if (_trailSpawnAcc >= 0.038) {
       _trailSpawnAcc = 0;
       const _aRot = suctionPivot.rotation.z;
       const _aCupX = PIV_X + 83 * Math.sin(_aRot);
@@ -4424,8 +4427,9 @@ function animate(ts) {
         tp.mat.color.setHex(ct.hex);
         tp.mat.opacity = 0.62 + Math.random() * 0.28; // Pass 643: 0.48+0.22→0.62+0.28
       } else {
+        // Pass 674: mechanical return trail opacity 0.35+0.15→0.44+0.18 for more visible sweep
         tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
-        tp.mat.opacity = 0.35 + Math.random() * 0.15;
+        tp.mat.opacity = 0.44 + Math.random() * 0.18;
       }
       tp.age = 0; tp.life = 0.32 + Math.random() * 0.12;
       tp.active = true; tp.mesh.visible = true;
