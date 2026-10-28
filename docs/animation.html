@@ -2426,9 +2426,11 @@ function animate(ts) {
       mat.emissiveIntensity = 1.8 + _warnPulse * 1.5;
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
+      // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
+      const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 18;
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      const pulse = 0.8 + 0.7 * Math.sin(cycleT * 18);
+      const pulse = 0.8 + 0.7 * Math.sin(ts * _slotPulseFreq);
       mat.emissiveIntensity = 2.5 + pulse;
     } else if (_ledCooloff[_li] > 0) {
       // Pass 52: afterglow — LED stays bright for 1.8s after card arrival, then decays
@@ -3084,8 +3086,10 @@ function animate(ts) {
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
           const _dotFloat = _identityRevealed ? 0 : 0.5 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
+          // Pass 292: lock-in X jitter at reveal — dots vibrate X axis briefly as scanner locks on
+          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 0.38 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
           mesh.position.set(
-            activeCard.position.x + SCAN_DOT_OFFSETS[di].x,
+            activeCard.position.x + SCAN_DOT_OFFSETS[di].x + _dotLockJitter,
             CONV_Y_TOP + CARD_T + 3.5 + _dotFloat,
             activeCard.position.z + SCAN_DOT_OFFSETS[di].z
           );
@@ -3094,6 +3098,10 @@ function animate(ts) {
           // crosses its Z position, creating a sweep highlight that travels with the beam.
           const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 11);
           mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 0.60));
+          // Pass 294: dot scale pop cascade — each dot briefly 1.6× at its own reveal threshold
+          const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
+            ? 1.0 + 0.60 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0;
+          mesh.scale.setScalar(_dotRevealScale);
         } else {
           mesh.visible = false;
           mat.opacity = 0;
