@@ -3784,7 +3784,8 @@ function animate(ts) {
       // Aerodynamic drag: nose-down lean proportional to fall velocity (bell curve)
       activeCard.rotation.x = -0.07 * Math.sin(dt3 / 0.88 * Math.PI);
     } else {
-      activeCard.rotation.x = 0;
+      // Pass 314: floor-1 guided insert lean — card tips slightly forward during slot insertion
+      activeCard.rotation.x = -0.04 * Math.sin(dt3 * Math.PI);
     }
     // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
     const _wallLean = 0.032 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0);
@@ -3806,14 +3807,19 @@ function animate(ts) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 1.6 * Math.exp(-_bFlashT * 14));
     }
-    cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3);
+    // Pass 313: floor-0 slot impact cardGlow spike — glow briefly flares at bounce contact
+    const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
+      ? Math.exp(-(dt3 - 0.88) * 30) * 1.2 : 0;
+    cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     scanTargetLight.intensity = THREE.MathUtils.lerp(1.8, 0, easeInOut(dt3));
     // Pass 81: slot sweep light travels from entrance to back wall as card inserts
     {
       const _sweepX = THREE.MathUtils.lerp(TRAY_X_START + 5, TRAY_X_END - 5, easeInOut(dt3));
       slotSweepLight.color.setHex(ct.hex);
-      slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ);
+      // Pass 315: sweep light Z oscillation — light sways laterally as it travels into the slot
+      const _sweepZOsc315 = 5 * Math.sin(dt3 * Math.PI * 3) * Math.max(0, 1 - dt3 * 1.5);
+      slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
       // Pass 266: sweep light entry punch — fast ramp to 4.0 by 35%, slow fade out from there
       slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 4.0, dt3 / 0.35)
                                              : THREE.MathUtils.lerp(4.0, 0, (dt3 - 0.35) / 0.65);
