@@ -916,7 +916,7 @@ scene.add(scanBloom);
 // Fills left→right as scan progresses; flashes domain color on completion
 const SCAN_BAR_MAX_W = 72; // matches hood width minus margins
 const scanBarMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 1.5,
+  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 2.5, // Pass 441: 1.5→2.5
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
@@ -3176,7 +3176,7 @@ function animate(ts) {
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
       if (barFill >= 0.85 && !_identityRevealed) {
         _identityRevealed = true;
-        _domainFillBoost = 0.55; // pass 99: spike domain fill light at identity reveal
+        _domainFillBoost = 0.85; // Pass 439: reveal domain fill boost 0.55→0.85
         // Pass 100: launch confirm ring expansion from scanner center
         _confirmRingT = 0;
         confirmRing.position.set(-40, CONV_Y_TOP + CARD_T + 1, 0);
@@ -4877,7 +4877,7 @@ function animate(ts) {
   // Pass 99: decay boost (set at 85% identity reveal), adds scene-wide domain color wash
   if (_domainFillBoost > 0.005) {
     _domainFillBoost = Math.max(0, _domainFillBoost - dt * 2.2); // ~0.25s decay
-    _domainFillLight.intensity = Math.min(0.70, (_fillTgt + _domainFillBoost));
+    _domainFillLight.intensity = Math.min(0.90, (_fillTgt + _domainFillBoost)); // Pass 440: max 0.70→0.90
   } else {
     _domainFillLight.intensity += (_fillTgt - _domainFillLight.intensity) * dt * 1.8;
   }
