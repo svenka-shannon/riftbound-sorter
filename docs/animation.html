@@ -2807,13 +2807,14 @@ function animate(ts) {
       const st = phaseT(PH.armSwing);
       suctionPivot.rotation.z = THREE.MathUtils.lerp(0.80, 1.57, st);
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
-      // Pass 676: Z-depth arc 14→17 for more dramatic 3D depth sweep during card swing
-      suctionPivot.position.z = Math.sin(st * Math.PI) * 17;
+      // Pass 676: Z-depth arc 14→17 — Pass 764: →23 for even more dramatic 3D depth sweep
+      suctionPivot.position.z = Math.sin(st * Math.PI) * 23;
       // Pass 234: arm pivot Y sag — pivot slightly droops under card weight at swing midpoint
       // Pass 282: end-of-swing Y bounce — brief upward over-correction as arm decelerates at deposit
-      // Pass 677: deposit bounce 0.55→0.85 for more spring at belt handoff
-      const _swingEndBounce = st > 0.88 ? 0.85 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0;
-      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 2.2 + _swingEndBounce;
+      // Pass 677: deposit bounce 0.55→0.85 — Pass 765: →1.25 for stronger spring at belt handoff
+      // Pass 770: pivot Y sag 2.2→3.2 for more weight feel during swing
+      const _swingEndBounce = st > 0.88 ? 1.25 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0;
+      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 3.2 + _swingEndBounce;
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 4);
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
@@ -2835,11 +2836,12 @@ function animate(ts) {
         // holds their domain color for the first 40% of life before bleaching.
         tp._birthHex = ct.hex;
         // Pass 482: Z-apex trail opacity boost — brightest at arc midpoint (closest to viewer)
-        // Pass 641: trail opacity base 0.55→0.72; apex boost 0.30→0.45 for more visible arc trail
+        // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: base 0.72→0.85, apex 0.45→0.62
         const _swT482 = phaseRaw(PH.armSwing);
-        tp.mat.opacity = 0.72 + 0.45 * Math.sin(_swT482 * Math.PI);
+        tp.mat.opacity = 0.85 + 0.62 * Math.sin(_swT482 * Math.PI);
         tp.age = 0;
-        tp.life = 0.45 + Math.random() * 0.15;
+        // Pass 771: trail life 0.45+0.15 → 0.52+0.22 for longer arc trail
+        tp.life = 0.52 + Math.random() * 0.22;
         tp.active = true;
         tp.mesh.visible = true;
       }
@@ -2868,16 +2870,16 @@ function animate(ts) {
     let _liftHoverX = 0;
     if (inPhase(PH.armSwing)) {
       const _sw = phaseT(PH.armSwing);
-      // Pass 615: swing wobble amplitude 0.065→0.090 + secondary 29Hz harmonic for more card flutter during arc
-      _swingWobble = (Math.sin(_sw * 19) * 0.090 + Math.sin(_sw * 29 + 0.6) * 0.022) * Math.exp(-_sw * 3.2);
-      // Pass 616: swing drag lean 0.07→0.10 for stronger inertia tilt at arc peak
-      _swingDragX = 0.10 * Math.sin(_sw * Math.PI);
+      // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: primary 0.090→0.118, secondary 0.022→0.034
+      _swingWobble = (Math.sin(_sw * 19) * 0.118 + Math.sin(_sw * 29 + 0.6) * 0.034) * Math.exp(-_sw * 3.2);
+      // Pass 616: swing drag lean 0.07→0.10 — Pass 767: 0.10→0.15 for stronger inertia tilt at arc peak
+      _swingDragX = 0.15 * Math.sin(_sw * Math.PI);
     } else if (inPhase(PH.armLift)) {
       const _lt3 = phaseRaw(PH.armLift);
-      // Pass 605: liftHoverX boost 0.06→0.10 + secondary 3.8Hz harmonic for organic card separation chatter
+      // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter
       if (_lt3 < 0.30) {
         const _env605 = Math.exp(-_lt3 * 6);
-        _liftHoverX = (0.10 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.032 * Math.sin(_lt3 / 0.30 * Math.PI * 3.8 + 0.9)) * _env605;
+        _liftHoverX = (0.15 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.032 * Math.sin(_lt3 / 0.30 * Math.PI * 3.8 + 0.9)) * _env605;
       }
     }
     activeCard.rotation.set(_swingDragX + _liftHoverX, 0, armRot - Math.PI / 2 + _swingWobble);
