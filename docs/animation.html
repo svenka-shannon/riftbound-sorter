@@ -2466,6 +2466,15 @@ function animate(ts) {
     const _haloHex = (_identityRevealed || !inPhase(PH.conveyorIn)) ? ct.hex : 0x3388ff;
     cardHaloMat.color.setHex(_haloHex);
     cardHaloMat.emissive.setHex(_haloHex);
+    // Pass 331: halo emissive boost post-reveal — ring blazes brighter after identity confirmed
+    const _haloEmissive331 = (_identityRevealed && (beltActive || airActive))
+      ? 1.2 + 0.50 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60;
+    cardHaloMat.emissiveIntensity = _haloEmissive331;
+    // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases
+    const _haloScale332 = beltActive ? 1.0 + 0.04 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0;
+    // Pass 333: gate-contact halo scale burst — ring briefly expands at deflect gate impact
+    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 0.55 : 0;
+    cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
   }
 
   // ── Update UI ──
