@@ -2792,6 +2792,10 @@ function animate(ts) {
           void _cfEl.offsetWidth; // force CSS reflow
           _cfEl.classList.add('confirm-pop');
         }
+        // Pass 121: destination fill bar spikes at identity reveal — pre-announces incoming card
+        if (fillBars[ct.slot] && fillBars[ct.slot].material) {
+          fillBars[ct.slot].material.emissiveIntensity = 2.2;
+        }
       }
       // Pass 113: scan bar color blends white→domain over 0.65→0.85 for gradual reveal
       // Below 0.65: pure white; 0.65-0.85: interpolate; above 0.85: full domain
