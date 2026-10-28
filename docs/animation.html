@@ -3054,7 +3054,10 @@ function animate(ts) {
       scanBarCursor.position.z = -51;
       const _cursorColor = _identityRevealed ? ct.hex : 0xffffff;
       scanBarCursorMat.color.setHex(_cursorColor);
-      scanBarCursorMat.opacity = 0.9 + 0.1 * Math.sin(ts * 18 * Math.PI * 2); // fast flicker
+      // Pass 227: cursor flicker slows post-reveal — frantic 18Hz uncertainty → calm 3Hz domain pulse
+      scanBarCursorMat.opacity = _identityRevealed
+        ? 0.80 + 0.20 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // slow domain breath
+        : 0.90 + 0.10 * Math.sin(ts * 18 * Math.PI * 2);           // rapid pre-reveal flicker
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
       if (barFill >= 0.85 && !_identityRevealed) {
         _identityRevealed = true;
@@ -3494,7 +3497,10 @@ function animate(ts) {
     // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
     if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 11);
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
-    cardGlow.intensity = 0.6;
+    // Pass 226: tumble-correlated glow — card glow dims when edge-on (face invisible) and
+    // brightens when face-on, simulating the card's domain energy facing the camera.
+    // cos(2θ) maps: face-on (θ=0) → 1.0, edge-on (θ≈π/4) → 0 (dims by 30%).
+    cardGlow.intensity = 0.6 * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
     cardGlow.position.copy(activeCard.position);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
     // Pass 126: color warms from neutral white to domain color as card approaches
@@ -4085,6 +4091,17 @@ function animate(ts) {
                      inPhase(PH.armLift)    ? 1.0 : 0.5;
     suctionCupMat.emissive.setHex(ct.hex);
     suctionCupMat.emissiveIntensity = cupGlowT * 1.2;
+  } else if (inPhase(PH.armReturn)) {
+    // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
+    // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
+    const _arMemT = phaseRaw(PH.armReturn);
+    const _memFade = Math.max(0, 1 - _arMemT / 0.30); // 1→0 in first 30%
+    if (_memFade > 0.01) {
+      suctionCupMat.emissive.setHex(ct.hex);
+      suctionCupMat.emissiveIntensity += (_memFade * 0.22 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8);
+    } else {
+      suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.15;
+    }
   } else {
     suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.15; // decay
   }
