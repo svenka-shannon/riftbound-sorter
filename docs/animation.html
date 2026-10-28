@@ -1858,6 +1858,7 @@ let _slotStreakFired = false;   // pass 142: true once slot entry vertical strea
 let _slotGateFlashFired = false; // pass 195: true once slot entrance gate-burst flash fires
 let _armReturnThunkFired = false; // pass 196: true once arm end-stop micro-shake fires
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
+let _gateZKick = 0;             // pass 223: lateral Z rotation impulse applied to card at gate hit
 let _paddleJitterAmt = 0;       // pass 216: solenoid Z-vibration decay amplitude
 let _scanLEDRevealT = -1;       // pass 222: elapsed time since scanner LED domain flash (-1 = inactive)
 let _hoodRevealFlash = 0;       // pass 123: hood strobe at identity reveal (0=idle, t=0..1)
@@ -2251,6 +2252,7 @@ function animate(ts) {
     _slotStreakFired = false;   // pass 142
     _paddleRecoil = 0;          // pass 109
     _paddleJitterAmt = 0;       // pass 216
+    _gateZKick = 0;             // pass 223
     _scanLEDRevealT = -1;       // pass 222
     _hoodRevealFlash = 0;       // pass 123
     _cardRevealBurst = 0;       // pass 125
@@ -3436,6 +3438,9 @@ function animate(ts) {
       _paddleRecoil = 0.26 * Math.sign(ct.slotZ);
       // Pass 216: solenoid Z-vibration — brief lateral jitter at gate contact (solenoid resonance)
       _paddleJitterAmt = 0.85;
+      // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
+      // decays into the normal tumble over ~0.12s, simulating the paddle "whacking" the card sideways.
+      _gateZKick = bankSign * 0.38;
       // Pass 92: gate impact sparks — micro-burst from paddle contact point
       {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
@@ -3486,7 +3491,9 @@ function animate(ts) {
     const _tumblePeak = bankSign * 0.65; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
     const _flutter = Math.sin(ts * 23 * Math.PI * 2) * 0.020 * Math.sin(dt2 * Math.PI);
-    activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter;
+    // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
+    if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 11);
+    activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     cardGlow.intensity = 0.6;
     cardGlow.position.copy(activeCard.position);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
@@ -3733,6 +3740,34 @@ function animate(ts) {
       // No camera shake — card glides in smoothly
       // Pass 69: flash this slot's entry strip bright on upper-floor landing
       if (ct.stripMat) ct.stripMat.emissiveIntensity = 3.2;
+      // Pass 218: fill bar landing spark for upper floor too
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 3.2;
+      // Pass 224: upper floor arrival glow particles — 3 gentle domain-tinted motes that
+      // drift upward softly (upper floor is a guided arrival, no hard impact scatter).
+      {
+        const _rr3 = (ct.hex >> 16) & 0xff, _gg3 = (ct.hex >> 8) & 0xff, _bb3 = ct.hex & 0xff;
+        let _upMotes = 0;
+        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 3; _mi++) {
+          const _mp = GRAB_PARTICLES[_mi];
+          if (_mp.active) continue;
+          _mp.active = true; _mp.age = 0; _mp.life = 0.35 + Math.random() * 0.18;
+          _mp.mesh.position.set(
+            TRAY_X_START + 20 + (Math.random() - 0.5) * 8,
+            ct.slotFloorY + 30 + Math.random() * 6,
+            ct.slotZ + (Math.random() - 0.5) * 12
+          );
+          _mp.mesh.visible = true;
+          _mp.vx = (Math.random() - 0.5) * 10;
+          _mp.vy = 5 + Math.random() * 10; // gentle upward drift
+          _mp.vz = (Math.random() - 0.5) * 12;
+          _mp.mat.color.setRGB(
+            Math.min(1, _rr3 / 255 * 0.50 + 0.50),
+            Math.min(1, _gg3 / 255 * 0.50 + 0.50),
+            Math.min(1, _bb3 / 255 * 0.50 + 0.50)
+          );
+          _upMotes++;
+        }
+      }
     }
     // Pass 48: Reject slot alarm — double-pulse red vignette + amber warning lights
     if (ct.slot === 7 && !_rejectAlarmFired && dt3 >= 0.30) {
@@ -4035,7 +4070,9 @@ function animate(ts) {
     const _armLiftT = inPhase(PH.armLift) ? 1.0 : 0;
     const _armSwingT = inPhase(PH.armSwing) ? 1.0 : 0;
     const _convInT  = inPhase(PH.conveyorIn) ? Math.max(0, 1 - phaseRaw(PH.conveyorIn) * 5) : 0;
-    const _rodGlow = Math.max(_armDescT * 0.18, _armLiftT * 0.42, _armSwingT * 0.55, _convInT * 0.25);
+    // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
+    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 0.85 : 0;
+    const _rodGlow = Math.max(_armDescT * 0.18, _armLiftT * 0.42 + _liftPickSpike, _armSwingT * 0.55, _convInT * 0.25);
     armRod.material.emissive.setHex(ct.hex);
     armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 6);
   }
