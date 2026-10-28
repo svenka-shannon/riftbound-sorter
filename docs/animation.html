@@ -3278,6 +3278,9 @@ function animate(ts) {
         const localFt = ((ft * 0.6 + staggerOffset) % pingPeriod) / pingPeriod; // 0..1 within period
         if (localFt < 0.85) {
           p.mesh.visible = true;
+          // Pass 311: scan ping Z drift post-reveal — pings drift toward destination column on confirm
+          const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.38 : 0;
+          p.mesh.position.z = _pingZ311;
           // Pass 274: post-reveal ping scale boost — rings expand wider after identity confirm
           const _pingMaxScale = _identityRevealed ? 8.5 : 5.5;
           const s = 1 + localFt * _pingMaxScale;
@@ -3412,6 +3415,9 @@ function animate(ts) {
       // Mirror card tilt so shimmer stays flush with card surface (pass 90 + 164)
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
+      // Pass 310: shimmer bloom at reveal — shimmer band briefly widens at lock-on moment
+      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 0.85 : 1.0;
+      cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
@@ -3475,7 +3481,9 @@ function animate(ts) {
     const ot = phaseRaw(PH.conveyorOut); // LINEAR for card position (belt speed)
     // Card banks in Z direction during exit — previews which column it's heading to
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
-    const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign, ot);
+    // Pass 312: conveyorOut Z bank amplifier — outer columns lean harder to reinforce routing
+    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 0.40;
+    const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
     // Pass 140: blend lean from 0 (scan end) to -0.18 over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
     const _exitBlendT = Math.min(1, ot / 0.12);
