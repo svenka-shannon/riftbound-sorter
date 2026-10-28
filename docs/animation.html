@@ -2728,7 +2728,8 @@ function animate(ts) {
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 291: armLift peel-off Z drift — brief forward Z sway as suction cup tears card off stack
-      const _peelZ291 = lt < 0.28 ? 1.8 * Math.sin(lt / 0.28 * Math.PI) : 0;
+      // Pass 646: peel-off Z amplitude 1.8→2.8 for more dramatic card-stack separation sway
+      const _peelZ291 = lt < 0.28 ? 2.8 * Math.sin(lt / 0.28 * Math.PI) : 0;
       suctionPivot.position.z = _peelZ291;
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
@@ -3459,10 +3460,12 @@ function animate(ts) {
     {
       if (!_identityRevealed) {
         // Pass 319: gate LED chase speed ramp — chase accelerates as scan fills (machine grows impatient)
-        const _chaseHz = 7 + barFill * 5; // 7 Hz at 0% → 12 Hz at 100%
+        // Pass 648: chase range 7→12Hz → 9→18Hz for faster more frantic pre-reveal LED cycling
+        const _chaseHz = 9 + barFill * 9; // Pass 648: 7+5 → 9+9 (9→18Hz)
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-          const _cTarget = gi === _chaseIdx ? 1.8 : 0.1;
+          // Pass 648: chase peak emissive 1.8→2.8 for brighter LED column during chase
+          const _cTarget = gi === _chaseIdx ? 2.8 : 0.1;
           gm.color.setHex(0x0088cc);
           gm.emissive.setHex(0x003366);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 22);
@@ -3568,9 +3571,10 @@ function animate(ts) {
       // making it "flicker" in sync with the scan strobe (pass 105). Post-reveal the arc
       // settles to steady (no more scanning needed), pre-reveal it shows scan progress.
       const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
-      // Pass 289: route arc reveal spike — brief opacity surge at identity lock-on
-      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.65 : 0; // Pass 338: spike boost 0.45→0.65
-      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 0.35 : 0)) + _arcStrobeMod + _arcRevealSpike; // Pass 449: 0.75→0.90; Pass 450: reveal boost 0.22→0.35
+      // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 for bolder arc flash at lock-on
+      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.90 : 0;
+      // Pass 644: post-reveal arc opacity 0.35→0.50 for more solid confirmed-route arc
+      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 0.50 : 0)) + _arcStrobeMod + _arcRevealSpike;
       // Target sphere pulses at destination
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
@@ -4003,8 +4007,8 @@ function animate(ts) {
       cy = THREE.MathUtils.lerp(startY, targetY, easeInOut(dt3));
     }
     // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
-    // Pass 355: wall bounce amplitude boost — 1.4 → 2.2 — Pass 511: →3.0 for stronger slot guide feel
-    const _slotWallZ = ct.slotZ + 3.0 * Math.sin(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 1.4);
+    // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
+    const _slotWallZ = ct.slotZ + (4.0 * Math.sin(dt3 * Math.PI * 4) + 1.0 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4);
     activeCard.position.set(TRAY_X_START + 20, cy, _slotWallZ);
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
@@ -4025,7 +4029,8 @@ function animate(ts) {
       activeCard.rotation.x = -0.04 * Math.sin(dt3 * Math.PI);
     }
     // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
-    const _wallLean = 0.032 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0);
+    // Pass 647: wall lean 0.032→0.055 for more physical lateral tilt at each wall contact
+    const _wallLean = 0.055 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0);
     activeCard.rotation.z = _wallLean;
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
@@ -4403,12 +4408,11 @@ function animate(ts) {
       _trailHead++;
       tp.mesh.position.set(_aCupX + (Math.random()-0.5)*3, _aCupY + (Math.random()-0.5)*3, suctionPivot.position.z + (Math.random()-0.5)*6);
       // Pass 245: armReturn domain wisps — first 30% of return trail carries domain color
-      // Pass 508: domain wisp opacity boost 0.20+0.10 → 0.30+0.15
-      // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 for more vivid domain memory on return
+      // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 — Pass 643: extend wisp to 45%; boost 0.48+0.22→0.62+0.28
       const _arT245 = phaseRaw(PH.armReturn);
-      if (_arT245 < 0.30) {
+      if (_arT245 < 0.45) { // Pass 643: 0.30→0.45 (longer domain memory on return)
         tp.mat.color.setHex(ct.hex);
-        tp.mat.opacity = 0.48 + Math.random() * 0.22;
+        tp.mat.opacity = 0.62 + Math.random() * 0.28; // Pass 643: 0.48+0.22→0.62+0.28
       } else {
         tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
         tp.mat.opacity = 0.35 + Math.random() * 0.15;
