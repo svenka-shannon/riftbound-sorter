@@ -3056,7 +3056,9 @@ function animate(ts) {
     // Floor 0 lofts 20u above belt so the gravity drop has visual drama
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
-    activeCard.position.set(cx, cy, cz);
+    // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
+    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 3.2;
+    activeCard.position.set(cx, cy, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
     const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
     activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.5 * bankSign, dt2);
