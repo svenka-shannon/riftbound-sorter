@@ -2765,6 +2765,21 @@ function animate(ts) {
       });
       // Extra camera shake for "rejected" emphasis
       _cameraShake = Math.max(_cameraShake, 2.2);
+      // Pass 65: reject spark fountain — upward burst of red/orange trail particles
+      for (let _ri = 0; _ri < 14; _ri++) {
+        const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
+        _trailHead++;
+        tp.mesh.position.set(
+          TRAY_X_START + 15 + (Math.random() - 0.5) * 12,
+          ct.slotFloorY + 30 + Math.random() * 15,
+          ct.slotZ + (Math.random() - 0.5) * 18
+        );
+        const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
+        tp.mat.color.setHex(_rc);
+        tp.mat.opacity = 0.7 + Math.random() * 0.25;
+        tp.age = 0; tp.life = 0.45 + Math.random() * 0.3;
+        tp.active = true; tp.mesh.visible = true;
+      }
     }
     cardGlow.position.copy(activeCard.position);
     _beltScrollSpeed = 0.04; // belt coasts slowly during slot drop
