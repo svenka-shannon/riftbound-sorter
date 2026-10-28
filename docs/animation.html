@@ -3260,15 +3260,23 @@ function animate(ts) {
   // ── Hopper top card domain preview ──────────────────────────────────────────
   // During arm pick phases, tint the top stack card in current domain color
   // so the viewer can anticipate which domain is next before card hits the belt
+  // Pass 86: during armReturn/pause, show dim NEXT-domain preview on top card
   {
     const topCard = stackCards[stackTopIdx];
     if (topCard) {
       const pickPhase = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing);
+      const previewPhase = inPhase(PH.armReturn) || inPhase(PH.pause);
+      topCard.material.emissive = topCard.material.emissive || new THREE.Color();
       if (pickPhase) {
-        topCard.material.emissive = topCard.material.emissive || new THREE.Color();
         topCard.material.emissive.setHex(ct.hex);
         const glowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) : 1.0;
         topCard.material.emissiveIntensity = glowT * 0.7;
+      } else if (previewPhase) {
+        // Dim preview: next card's domain glows subtly on the top hopper card
+        const nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
+        topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 1.5));
+        const _prevT = inPhase(PH.pause) ? phaseRaw(PH.pause) : phaseRaw(PH.armReturn);
+        topCard.material.emissiveIntensity += (0.25 * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 2);
       } else {
         topCard.material.emissiveIntensity *= 0.85; // decay when not in pick phase
       }
