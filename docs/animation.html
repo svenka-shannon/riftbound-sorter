@@ -2554,6 +2554,22 @@ function animate(ts) {
     routeArcMat.opacity = 0;
     routeTargetMat.opacity = 0;
     routeTargetMat.emissiveIntensity = 0;
+    // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
+    // (armReturn and deflect/armSwing never overlap, so pool is free here)
+    _trailSpawnAcc += dt;
+    if (_trailSpawnAcc >= 0.07) {
+      _trailSpawnAcc = 0;
+      const _aRot = suctionPivot.rotation.z;
+      const _aCupX = PIV_X + 83 * Math.sin(_aRot);
+      const _aCupY = PIV_Y - 83 * Math.cos(_aRot);
+      const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
+      _trailHead++;
+      tp.mesh.position.set(_aCupX + (Math.random()-0.5)*3, _aCupY + (Math.random()-0.5)*3, (Math.random()-0.5)*5);
+      tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
+      tp.mat.opacity = 0.30 + Math.random() * 0.15;
+      tp.age = 0; tp.life = 0.32 + Math.random() * 0.12;
+      tp.active = true; tp.mesh.visible = true;
+    }
   }
 
   // ── Phase 8: Pause (6.3..6.8s) ──
@@ -2817,9 +2833,9 @@ function animate(ts) {
     }
   }
 
-  // ── Pass 35: Deflect contrail particle update ────────────────────────────────
-  // Reset spawn timer when not in deflect OR armSwing so trail starts fresh each phase.
-  if (!inPhase(PH.deflect) && !inPhase(PH.armSwing)) _trailSpawnAcc = 0;
+  // ── Pass 35/47: Contrail particle update ─────────────────────────────────────
+  // Reset spawn timer when not in any phase that spawns contrail particles.
+  if (!inPhase(PH.deflect) && !inPhase(PH.armSwing) && !inPhase(PH.armReturn)) _trailSpawnAcc = 0;
   TRAIL_PARTICLES.forEach(tp => {
     if (!tp.active) return;
     tp.age += dt;
