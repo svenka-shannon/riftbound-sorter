@@ -3879,9 +3879,11 @@ function animate(ts) {
   }
 
   // ── Ghost trail: transparent card copies during belt travel ──────────────────
+  // Pass 160: opacity now scales with belt speed (fast = vivid trails; scanner crawl = none)
   {
     const beltTrail = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
-    const ghostOpacities = [0.28, 0.14, 0.06];
+    const _speedFactor = Math.min(1, _beltScrollSpeed / 0.08); // 0 idle → 1 at full speed
+    const ghostOpacities = [0.30 * _speedFactor, 0.15 * _speedFactor, 0.07 * _speedFactor];
     ghostCards.forEach(({ mesh, mat }, gi) => {
       if (beltTrail && activeCard.visible) {
         const lag = (gi + 1) * 9; // 9 units of trailing distance per ghost
