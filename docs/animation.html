@@ -1412,6 +1412,18 @@ scene.add(impactRing);
 let _impactRingT = -1;        // -1 = idle, 0..1 = animation progress
 let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.6 = floor-1 glide)
 
+// Pass 66: Vacuum suction ring — contracts inward as arm approaches card (armDescend)
+const vacuumRingMat = new THREE.MeshBasicMaterial({
+  color: 0xaaccff, transparent: true, opacity: 0, side: THREE.DoubleSide,
+});
+const vacuumRing = new THREE.Mesh(
+  new THREE.TorusGeometry(12, 1.5, 6, 24),
+  vacuumRingMat
+);
+vacuumRing.rotation.x = -Math.PI / 2; // flat (XZ plane)
+vacuumRing.visible = false;
+scene.add(vacuumRing);
+
 // Pass 63: Scanner sonar ping rings — 3 concentric rings that expand from scanner during scan
 const SCAN_PING_COUNT = 3;
 const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
@@ -2221,7 +2233,22 @@ function animate(ts) {
       // Amplitude shrinks from 2 → 0 as arm settles onto stack
       const jitter = 2.0 * (1 - pt) * Math.sin(ts * 0.055);
       suctionPivot.position.y = 108 + jitter;
+      // Pass 66: vacuum ring contracts as cup approaches card (last 40% of descend)
+      if (pt > 0.60) {
+        const _vt = (pt - 0.60) / 0.40; // 0..1 within approach window
+        const _cupRot = suctionPivot.rotation.z;
+        const _cupX = PIV_X + 83 * Math.sin(_cupRot);
+        const _cupY = PIV_Y - 83 * Math.cos(_cupRot);
+        vacuumRing.visible = true;
+        vacuumRing.position.set(_cupX, _cupY + 1, 0);
+        vacuumRing.scale.setScalar(THREE.MathUtils.lerp(1.5, 0.25, _vt));
+        vacuumRingMat.color.setHex(ct.hex);
+        vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.55;
+      } else {
+        vacuumRing.visible = false; vacuumRingMat.opacity = 0;
+      }
     } else if(inPhase(PH.armLift)) {
+      vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt);
