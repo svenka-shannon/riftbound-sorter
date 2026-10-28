@@ -2625,7 +2625,8 @@ function animate(ts) {
         if (!_contactFlashFired) {
           _contactFlashFired = true;
           const _cfRot = suctionPivot.rotation.z;
-          const _cfL = new THREE.PointLight(0xffffff, 3.5, 45);
+          // Pass 509: contact flash intensity boost 3.5→6.0 and range 45→65 for more visible pick flash
+          const _cfL = new THREE.PointLight(0xffffff, 6.0, 65);
           _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
@@ -2633,8 +2634,9 @@ function animate(ts) {
           // Pass 203: cup contact dust puff — tiny displaced air burst upward from card surface.
           // 4 particles shoot upward and sideways, simulating air compressed under the cup.
           {
-            let _cpSpawned = 0;
-            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 4; _ci++) {
+            // Pass 509: boost contact dust puff count 4→6 for more visible air compression burst
+          let _cpSpawned = 0;
+            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 6; _ci++) {
               const _cp = GRAB_PARTICLES[_ci];
               if (_cp.active) continue;
               _cp.active = true; _cp.age = 0; _cp.life = 0.20 + Math.random() * 0.10;
@@ -3393,7 +3395,8 @@ function animate(ts) {
           const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
           const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 0.85 : 0;
-          const _pingBoost = ft >= 0.85 ? 1.35 + _pingRevealSpike337 : 1.0;
+          // Pass 510: post-reveal ping boost 1.35→1.65 for more dramatic confirm rings
+          const _pingBoost = ft >= 0.85 ? 1.65 + _pingRevealSpike337 : 1.0;
           p.mat.opacity = _pingFade * flashIntensity * 0.56 * _pingBoost;
         } else {
           p.mesh.visible = false;
@@ -3929,8 +3932,8 @@ function animate(ts) {
       cy = THREE.MathUtils.lerp(startY, targetY, easeInOut(dt3));
     }
     // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
-    // Pass 355: wall bounce amplitude boost — 1.4 → 2.2 for more visible settling
-    const _slotWallZ = ct.slotZ + 2.2 * Math.sin(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 1.4);
+    // Pass 355: wall bounce amplitude boost — 1.4 → 2.2 — Pass 511: →3.0 for stronger slot guide feel
+    const _slotWallZ = ct.slotZ + 3.0 * Math.sin(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 1.4);
     activeCard.position.set(TRAY_X_START + 20, cy, _slotWallZ);
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
@@ -4722,7 +4725,9 @@ function animate(ts) {
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
       const _altFrac = Math.min(1, _altitude / 50); // 0 at belt, 1 at 50 units up
       const _fdScale = 1.0 + _altFrac * 1.4;  // 1.0 on belt → 2.4 at peak
-      const _fdOpacity = THREE.MathUtils.lerp(0.18, 0.055, _altFrac);
+      // Pass 514: floor disc breathing pulse — 1.5Hz subtle opacity pulse when card is close to belt
+      const _fdPulse514 = (1 - _altFrac) * 0.025 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2));
+      const _fdOpacity = THREE.MathUtils.lerp(0.18, 0.055, _altFrac) + _fdPulse514;
       floorDisc.scale.setScalar(_fdScale);
       floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.15;
     } else {
@@ -4860,8 +4865,9 @@ function animate(ts) {
   }
 
   // Pass 110: grab contact ring — fast expanding ring at suction cup contact moment
+  // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
-    _grabRingT = Math.min(1, _grabRingT + dt * 3.5); // ~0.28s expansion (fast mechanical snap)
+    _grabRingT = Math.min(1, _grabRingT + dt * 5.0); // Pass 513: ~0.20s expansion (snappier snap)
     const _grs = 1.0 + easeOut(_grabRingT) * 5.0; // Pass 335: easeOut scale 1 → 6.0 (was linear *3.5)
     grabRing.scale.setScalar(_grs);
     grabRingMat.opacity = (1 - _grabRingT) * 0.6;
@@ -5110,7 +5116,8 @@ function animate(ts) {
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     // Pass 477: deflect arc edge boost — outline more visible as card arcs through air (0.45→0.65)
-    const edgeTarget = edgeFull ? 0.85 : inPhase(PH.deflect) ? 0.65 : 0.45;
+    // Pass 512: armSwing edge boost 0.45→0.58 — card is closest to viewer at arc midpoint
+    const edgeTarget = edgeFull ? 0.85 : inPhase(PH.deflect) ? 0.65 : inPhase(PH.armSwing) ? 0.58 : 0.45;
     activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
