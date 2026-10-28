@@ -2654,8 +2654,9 @@ function animate(ts) {
         const _vacBaseScale = THREE.MathUtils.lerp(1.5, 0.25, _vt);
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
-        const _vacSurge = pt > 0.85 ? 0.28 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
-        vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.55 + _vacSurge;
+        // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 for more dramatic approach
+        const _vacSurge = pt > 0.85 ? 0.45 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
+        vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.75 + _vacSurge; // Pass 379: opacity boost 0.55→0.75
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
         vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 0.55), _vacBaseScale);
       } else {
@@ -2817,7 +2818,8 @@ function animate(ts) {
     // armDescend uses 0 so the card doesn't glow before the suction picks it up.
     let _armCardEmissive = 0;
     if (inPhase(PH.armLift)) _armCardEmissive = 0.22 + 0.08 * phaseRaw(PH.armLift);
-    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 0.35 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
+    // Pass 381: armSwing emissive peak boost 0.35 → 0.50 for brighter card at arc apex
+    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 0.50 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
     activeCardMat.emissiveIntensity = _armCardEmissive;
     // Pass 299: armSwing Z-apex glow boost — cardGlow peaks as arm swings closest to viewer at Z apex
     if (inPhase(PH.armSwing)) {
