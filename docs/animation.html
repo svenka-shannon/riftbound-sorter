@@ -2743,12 +2743,18 @@ function animate(ts) {
     // Pass 199: aerodynamic drag lean — card hangs slightly back on arm during swing arc.
     // As arm sweeps 0.80→1.57 rad, inertia tilts card face ~4° (peaks at midpoint st=0.5).
     let _swingDragX = 0;
+    // Pass 213: armLift card separation chatter — brief X-axis oscillation as card breaks
+    // free of the hopper stack. Decays over 0.30s with 2.5 oscillations.
+    let _liftHoverX = 0;
     if (inPhase(PH.armSwing)) {
       const _sw = phaseT(PH.armSwing);
       _swingWobble = Math.sin(_sw * 19) * Math.exp(-_sw * 3.2) * 0.065;
       _swingDragX = 0.07 * Math.sin(_sw * Math.PI);
+    } else if (inPhase(PH.armLift)) {
+      const _lt3 = phaseRaw(PH.armLift);
+      if (_lt3 < 0.30) _liftHoverX = 0.06 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) * Math.exp(-_lt3 * 6);
     }
-    activeCard.rotation.set(_swingDragX, 0, armRot - Math.PI / 2 + _swingWobble);
+    activeCard.rotation.set(_swingDragX + _liftHoverX, 0, armRot - Math.PI / 2 + _swingWobble);
     activeCardMat.opacity = 1.0;
     // During armLift: card glows slightly as "suction grabs" it
     const _isLift = inPhase(PH.armLift) || inPhase(PH.armSwing);
@@ -2992,9 +2998,13 @@ function animate(ts) {
         const dotOp = Math.sin(Math.min(1, dotFt) * Math.PI) * flashIntensity * (0.95 + _dotRevealBurst * 0.5);
         if (dotOp > 0.01) {
           mesh.visible = true;
+          // Pass 211: scan grid dots float — pre-reveal dots oscillate in Y at 3Hz with
+          // per-dot stagger (phase = di*0.7), creating a floating hover effect.
+          // Post-reveal they snap to still (locked on).
+          const _dotFloat = _identityRevealed ? 0 : 0.5 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
           mesh.position.set(
             activeCard.position.x + SCAN_DOT_OFFSETS[di].x,
-            CONV_Y_TOP + CARD_T + 3.5,
+            CONV_Y_TOP + CARD_T + 3.5 + _dotFloat,
             activeCard.position.z + SCAN_DOT_OFFSETS[di].z
           );
           mat.color.setHex(dotColor);
@@ -3363,6 +3373,23 @@ function animate(ts) {
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
     _beltScrollSpeed = 0.08;
+    // Pass 212: conveyorOut domain exhaust trail — card leaves a brief domain-colored contrail
+    // as it accelerates toward the gate. Spawns every ~70ms, short life.
+    _trailSpawnAcc += dt;
+    if (_trailSpawnAcc >= 0.07) {
+      _trailSpawnAcc = 0;
+      const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
+      _trailHead++;
+      tp.mesh.position.set(
+        activeCard.position.x - 4 + (Math.random()-0.5)*3,
+        activeCard.position.y + (Math.random()-0.5)*2,
+        activeCard.position.z + (Math.random()-0.5)*4
+      );
+      tp.mat.color.setHex(ct.hex);
+      tp.mat.opacity = 0.28 + Math.random() * 0.12;
+      tp.age = 0; tp.life = 0.22 + Math.random() * 0.10;
+      tp.active = true; tp.mesh.visible = true;
+    }
   }
 
   // ── Phase 5: Deflect toward slot (3.8..4.8s) ──
@@ -4307,7 +4334,8 @@ function animate(ts) {
 
   // ── Pass 35/47/50: Contrail particle update ──────────────────────────────────
   // Reset spawn timer when not in any phase that spawns contrail particles.
-  if (!inPhase(PH.deflect) && !inPhase(PH.armSwing) && !inPhase(PH.armReturn) && !inPhase(PH.armDescend)) _trailSpawnAcc = 0;
+  // Pass 212: also exclude conveyorOut so domain exhaust trail can accumulate there
+  if (!inPhase(PH.deflect) && !inPhase(PH.armSwing) && !inPhase(PH.armReturn) && !inPhase(PH.armDescend) && !inPhase(PH.conveyorOut)) _trailSpawnAcc = 0;
   // Reset scanner exhaust accumulator when not scanning
   if (!inPhase(PH.scan)) _scanExhaustAcc = 0;
   TRAIL_PARTICLES.forEach(tp => {
