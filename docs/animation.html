@@ -1742,9 +1742,9 @@ function addCardToTray(ct) {
   if(!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: flashLight, age: 0 });
 
-  // Pulse fill bar brightness on arrival
+  // Pulse fill bar brightness on arrival — Pass 398: boost 1.5 → 2.8
   if(fillBars[ct.slot]) {
-    fillBars[ct.slot].material.emissiveIntensity = 1.5;
+    fillBars[ct.slot].material.emissiveIntensity = 2.8;
   }
 
   // Track per-domain sort count
@@ -2348,7 +2348,7 @@ function animate(ts) {
     if (a.glowAge < 1.2) {
       a.glowAge += dt;
       if (a.mesh.material) {
-        a.mesh.material.emissiveIntensity = 0.15 + 3.05 * Math.exp(-a.glowAge * 6.5);
+        a.mesh.material.emissiveIntensity = 0.15 + 4.0 * Math.exp(-a.glowAge * 5.0); // Pass 397: boost 3.05→4.0, decay 6.5→5.0
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2365,7 +2365,7 @@ function animate(ts) {
         if (!inFlight && mesh.material) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 1.23;
-          mesh.material.emissiveIntensity = 0.12 + 0.09 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
+          mesh.material.emissiveIntensity = 0.12 + 0.14 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 399: breathing amp 0.09 → 0.14
           // Pass 134: micro Z-axis sway — cards rock very gently in their slots
           const _swayPhase = _globalCardIdx * 1.83;
           mesh.rotation.z = 0.007 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
