@@ -3327,8 +3327,14 @@ function animate(ts) {
     const _bankStart = -0.5 * _bankSign;
     const _ySettleT = Math.min(1, dt3 / 0.5); // 0→1 over first half of slotDrop
     activeCard.rotation.y = THREE.MathUtils.lerp(_bankStart, 0, easeOut(_ySettleT));
-    // Card stays upright (no somersault) — face visible as it drops in
-    activeCard.rotation.x = 0;
+    // Pass 161: landing pitch — card tips forward at bounce impact, springs back
+    // Only fires for lower floor (which has the gravity bounce); upper floor glides in upright
+    if (ct.floor === 0 && dt3 >= 0.88) {
+      const _bT = (dt3 - 0.88) / 0.12;
+      activeCard.rotation.x = 0.14 * Math.sin(_bT * Math.PI); // 0→peak→0 with bounce
+    } else {
+      activeCard.rotation.x = 0;
+    }
     activeCard.rotation.z = 0;
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
