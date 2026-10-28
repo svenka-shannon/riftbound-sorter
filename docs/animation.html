@@ -2397,7 +2397,9 @@ function animate(ts) {
     if (_ledCooloff[_li] > 0) _ledCooloff[_li] = Math.max(0, _ledCooloff[_li] - dt);
     if (_cardCount >= 5) {
       // Capacity warning: flash amber — slot is nearly full
-      const _warnPulse = 0.6 + 0.4 * Math.sin(ts * 0.008);
+      // Pass 187: fix capacity warning pulse — was ts*0.008 (~785s period = never visible).
+      // Fixed to 0.8Hz: slots flash urgently when nearly full.
+      const _warnPulse = 0.6 + 0.4 * Math.sin(ts * 0.8 * Math.PI * 2);
       mat.color.setHex(0xffaa00);
       mat.emissive.setHex(0xffaa00);
       mat.emissiveIntensity = 1.8 + _warnPulse * 1.5;
@@ -3819,7 +3821,9 @@ function animate(ts) {
     const pos = dustGeo.attributes.position;
     for (let i = 0; i < DUST_COUNT; i++) {
       pos.array[i*3+1] += dustSpeeds[i] * dt * speedMult;       // float upward
-      pos.array[i*3+0] += Math.sin(ts * 0.0003 + dustPhases[i]) * 0.04; // gentle X sway
+      // Pass 187: fix dust X sway — was ts*0.0003 (~5.8h period = completely stationary).
+      // Fixed to ts*0.08 (~78s period): slow gentle waft visible over minutes of viewing.
+      pos.array[i*3+0] += Math.sin(ts * 0.08 + dustPhases[i]) * 0.04; // gentle X sway
       if (pos.array[i*3+1] > 200) {
         // reset to bottom with new random X/Z
         pos.array[i*3+0] = THREE.MathUtils.randFloat(-300, 200);
@@ -3877,7 +3881,9 @@ function animate(ts) {
     const yTarget = inPhase(PH.scan) ? 260 : 320;
     if(!controls._camY) controls._camY = yTarget;
     controls._camY += (yTarget - controls._camY) * 0.02;
-    camera.position.y = controls._camY + 18 * Math.sin(ts * 0.00008);
+    // Pass 185: fix camera Y bob — was ts*0.00008 (~21h period = invisible).
+    // Fixed to ts*0.05 (~126s = 2-minute slow breathing bob, cinematic and gentle).
+    camera.position.y = controls._camY + 18 * Math.sin(ts * 0.05);
 
     // Phase-aware lookAt: gently drift target toward the active machine area
     // Belt phases track card X position for smooth card-following
@@ -4139,7 +4145,8 @@ function animate(ts) {
     const onBelt = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
     if (onBelt && activeCard.visible) {
       _beltTrackLight.color.setHex(ct.hex);
-      _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 6, 0);
+      // Pass 186: Z now follows card's Z-wobble (passes 173-174) instead of hardcoded 0
+      _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 6, activeCard.position.z);
       _beltTrackLight.intensity += (2.2 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
     } else {
       // Fade card-tracking mode out
