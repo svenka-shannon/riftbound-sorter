@@ -212,6 +212,26 @@
     animation: scanFlashFade 0.6s ease-out forwards;
   }
 
+  /* ── Round-complete banner (pass 68) ───────────────────────────────────── */
+  #round-banner {
+    position: fixed; top: 38%; left: 50%; transform: translateX(-50%) scale(0.6);
+    pointer-events: none; z-index: 60;
+    font-family: 'Courier New', monospace; font-size: 44px; font-weight: 900;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: #ffffff; text-shadow: 0 0 18px #fff, 0 0 40px currentColor;
+    opacity: 0; white-space: nowrap;
+  }
+  @keyframes roundBannerIn {
+    0%   { transform: translateX(-50%) scale(0.55); opacity: 0; letter-spacing: 0.35em; }
+    18%  { transform: translateX(-50%) scale(1.08); opacity: 1.0; letter-spacing: 0.14em; }
+    35%  { transform: translateX(-50%) scale(0.97); opacity: 1.0; letter-spacing: 0.18em; }
+    65%  { transform: translateX(-50%) scale(1.0);  opacity: 0.95; }
+    100% { transform: translateX(-50%) scale(1.0);  opacity: 0; }
+  }
+  #round-banner.round-bang {
+    animation: roundBannerIn 1.8s ease-out forwards;
+  }
+
   /* ── Reject slot alarm vignette ─────────────────────────────────────────── */
   #reject-alarm-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -350,6 +370,7 @@ Space=pause · 1–4=speed · R=reset view &amp; auto-orbit<br>
 <div id="vignette" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,0.4) 100%);"></div>
 <div id="scan-flash-overlay"></div>
 <div id="reject-alarm-overlay"></div>
+<div id="round-banner">ROUND 1</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -1694,6 +1715,7 @@ const SPEEDS = [0.5, 1, 2, 4];
 let speedIdx = 1;
 
 let totalSorted = 0;
+let _roundCount = 0;   // pass 68: increments each full 8-card round
 let cycleIdx = 0;   // which card type (0..7)
 let cycleT = 0;     // elapsed time within current cycle
 
@@ -1802,6 +1824,19 @@ function fireCelebration() {
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: _cfl, age: 0 });
+  // Pass 68: round-complete banner
+  _roundCount++;
+  const _bannerEl = document.getElementById('round-banner');
+  if (_bannerEl) {
+    _bannerEl.textContent = 'ROUND ' + _roundCount + ' COMPLETE';
+    // Tint banner text toward the last domain color (the "Reject" type = slot 7)
+    const _lastHex = '#' + CARD_TYPES[7].hex.toString(16).padStart(6, '0');
+    _bannerEl.style.color = '#ffffff';
+    _bannerEl.style.textShadow = '0 0 18px #fff, 0 0 45px ' + _lastHex + ', 0 0 80px ' + _lastHex;
+    _bannerEl.classList.remove('round-bang');
+    void _bannerEl.offsetWidth;
+    _bannerEl.classList.add('round-bang');
+  }
 }
 
 // Domain atmosphere: slowly tint background/fog toward current domain color
