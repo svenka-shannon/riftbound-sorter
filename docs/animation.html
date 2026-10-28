@@ -3390,24 +3390,23 @@ function animate(ts) {
         if (barFill < 0.65) {
           scanBarMat.color.set(0xffffff);
           scanBarMat.emissive.set(0xaaddff);
-          // Pass 326: pre-reveal urgency breath — emissive pulses faster as bar fills toward 65%
-          const _preBreath326 = barFill * 0.35 * Math.abs(Math.sin(ts * 5 * Math.PI * 2));
+          // Pass 326: pre-reveal urgency breath — Pass 836: 0.35→0.58 for more vivid scan bar pulse
+          const _preBreath326 = barFill * 0.58 * Math.abs(Math.sin(ts * 5 * Math.PI * 2));
           scanBarMat.emissiveIntensity = 1.2 + flashIntensity * 1.8 + _preBreath326;
         } else {
           scanBarMat.color.copy(_blendC);
           scanBarMat.emissive.copy(_blendC);
-          // Pass 497: scan bar 65-85% pre-reveal tension boost — 1.2→1.5 base, 1.8→2.3 peak (builds urgency)
-          const _baseI = barFill >= 0.85 ? 2.2 + flashIntensity * 2.5 : 1.5 + flashIntensity * 2.3;
-          // Pass 130: post-reveal breathing pulse on scan bar at 3Hz — Pass 518: amplitude 0.30→0.48
-          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 0.48 : 0;
-          // Pass 207: scan bar completion superflash — bar spikes to max emissive in the final 2%
-          // of scan (barFill 0.98→1.0), giving a "scan complete" visual climax as conveyorOut begins.
-          // Pass 533: completion superflash 3.5→5.5 for bigger scan-done climax
-          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 5.5 : 0;
+          // Pass 497: scan bar 65-85% tension base 1.5→1.8 — Pass 838: post-reveal base 2.2→3.0, peak 2.5→3.5
+          const _baseI = barFill >= 0.85 ? 3.0 + flashIntensity * 3.5 : 1.8 + flashIntensity * 2.8;
+          // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75
+          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 0.75 : 0;
+          // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 for bigger climax
+          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 9.0 : 0;
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
         }
       }
-      scanBarMat.opacity = 0.75 + flashIntensity * 0.25;
+      // Pass 841: scan bar opacity base 0.75→0.90, flash contribution 0.25→0.40 for more vivid bar
+      scanBarMat.opacity = Math.min(1, 0.90 + flashIntensity * 0.40);
       // Pass 469: apply init flash OVER normal bar (brief white overbloom in first 4%)
       if (_barInitFlash469 > 0.1) {
         scanBarMat.color.set(0xffffff); scanBarMat.emissive.set(0xffffff);
@@ -3417,10 +3416,9 @@ function animate(ts) {
     }
     // Pass 50: scanner heat exhaust — dim rising wisps from hood top during scan
     // Reuses TRAIL_PARTICLES (idle during scan since no arm-swing/deflect overlap).
-    // Pass 535: scan exhaust spawn interval 0.14→0.10s for denser heat wisps
-    // Pass 722: scan exhaust spawn interval 0.10→0.07s for denser scanner exhaust plume
+    // Pass 535: 0.14→0.10s — Pass 722: →0.07s — Pass 842: →0.048s for denser exhaust
     _scanExhaustAcc += dt;
-    if (_scanExhaustAcc >= 0.07 && flashIntensity > 0.15) {
+    if (_scanExhaustAcc >= 0.048 && flashIntensity > 0.15) {
       _scanExhaustAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -3433,8 +3431,8 @@ function animate(ts) {
       // Pass 89: exhaust color reveals domain at 85% scan (matches beam reveal timing)
       const _exColor = ft < 0.85 ? 0xccddff : ct.hex;
       tp.mat.color.setHex(_exColor); // pre-confirm: cool blue-white; post-confirm: domain
-      // Pass 723: exhaust opacity 0.18+0.15→0.26+0.20 for more visible scanner heat exhaust
-      tp.mat.opacity = 0.26 + Math.random() * 0.20;
+      // Pass 723: exhaust opacity 0.18+0.15→0.26+0.20 — Pass 843: →0.40+0.32 for vivid scanner exhaust
+      tp.mat.opacity = 0.40 + Math.random() * 0.32;
       tp.age = 0; tp.life = 0.55 + Math.random() * 0.4;
       tp.active = true; tp.mesh.visible = true;
     }
