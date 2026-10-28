@@ -3134,7 +3134,12 @@ function animate(ts) {
       cy = THREE.MathUtils.lerp(startY, targetY, easeInOut(dt3));
     }
     activeCard.position.set(TRAY_X_START + 20, cy, ct.slotZ);
-    activeCard.rotation.y = 0;
+    // Pass 119: smooth Y-rotation settle from deflect bank back to upright
+    // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
+    const _bankSign = Math.sign(ct.slotZ || 0);
+    const _bankStart = -0.5 * _bankSign;
+    const _ySettleT = Math.min(1, dt3 / 0.5); // 0→1 over first half of slotDrop
+    activeCard.rotation.y = THREE.MathUtils.lerp(_bankStart, 0, easeOut(_ySettleT));
     // Card stays upright (no somersault) — face visible as it drops in
     activeCard.rotation.x = 0;
     activeCard.rotation.z = 0;
