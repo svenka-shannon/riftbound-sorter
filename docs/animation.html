@@ -3119,7 +3119,8 @@ function animate(ts) {
     cardGlow.intensity = 0.6;
     cardGlow.position.copy(activeCard.position);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
-    scanTargetLight.color.setHex(ct.hex);
+    // Pass 126: color warms from neutral white to domain color as card approaches
+    scanTargetLight.color.set(0xffeecc).lerp(new THREE.Color(ct.hex), easeOut(dt2));
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
     scanTargetLight.intensity = THREE.MathUtils.lerp(0, 1.8, dt2);
     // Keep gate paddle domain-colored while card is deflecting
