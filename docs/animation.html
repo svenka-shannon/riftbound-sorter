@@ -38,7 +38,7 @@
     backdrop-filter: blur(8px); min-width: 240px;
   }
   #stats-title { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
-  #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; }
+  #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; transition: color 0.3s; }
   #stats-current { font-size: 12px; color: #aaa; margin-top: 4px; }
   #stats-current span { font-weight: 600; }
 
@@ -1248,6 +1248,13 @@ function addCardToTray(ct) {
     setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 600);
   }
 
+  // Flash stats counter in domain color on each card sorted
+  const statsCount = document.getElementById('stats-count');
+  if(statsCount) {
+    statsCount.style.color = ct.css;
+    setTimeout(() => { statsCount.style.color = '#fff'; }, 400);
+  }
+
   // Floating +1 indicator at slot screen position
   const slotWorldPos = new THREE.Vector3(
     TRAY_X_START + 4 + Math.min(arr.length - 1, 5) * (CARD_T + 1),
@@ -1930,26 +1937,40 @@ function animate(ts) {
     }
   }
 
-  // Camera auto-orbit: ellipse + phase-aware target drift
+  // Camera auto-orbit: ellipse + phase-aware target drift + card tracking
   if(!controls.enableRotate || !controls._userInteracted) {
     const orbitAngle = ts * 0.00006 + Math.PI * 0.3; // phase offset for 3/4 front view
-    const orbitR = 750;
+    // Orbit radius tightens slightly during scan for closer scanner view
+    const orbitRBase = inPhase(PH.scan) ? 600 : 750;
+    if(!controls._orbitR) controls._orbitR = orbitRBase;
+    controls._orbitR += (orbitRBase - controls._orbitR) * 0.02; // smooth zoom
+    const orbitR = controls._orbitR;
     camera.position.x = orbitR * 0.45 * Math.cos(orbitAngle) - 30;
     camera.position.z = orbitR * Math.sin(orbitAngle);
-    camera.position.y = 320 + 20 * Math.sin(ts * 0.00008);
+    // Slight vertical bob for cinematic feel; lower elevation during scan to see belt better
+    const yTarget = inPhase(PH.scan) ? 260 : 320;
+    if(!controls._camY) controls._camY = yTarget;
+    controls._camY += (yTarget - controls._camY) * 0.02;
+    camera.position.y = controls._camY + 18 * Math.sin(ts * 0.00008);
 
     // Phase-aware lookAt: gently drift target toward the active machine area
+    // Belt phases track card X position for smooth card-following
+    const cardX = activeCard.visible ? activeCard.position.x : -30;
     const _tgt = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing)
       ? { x: HOPPER_X + 80, y: 60 }
+      : inPhase(PH.conveyorIn)
+      ? { x: cardX - 10, y: 50 }  // follow card along belt during entry
       : inPhase(PH.scan)
-      ? { x: -40, y: 55 }
+      ? { x: -40, y: 60 }
+      : inPhase(PH.conveyorOut)
+      ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
       : inPhase(PH.slotDrop) || inPhase(PH.deflect)
       ? { x: TX_MID, y: 60 }
       : { x: -30, y: 30 }; // default: machine center
 
     if(!controls._camTgt) controls._camTgt = { x: -30, y: 30 };
-    controls._camTgt.x += (_tgt.x - controls._camTgt.x) * 0.015; // slow ease
-    controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.015;
+    controls._camTgt.x += (_tgt.x - controls._camTgt.x) * 0.018; // slightly faster drift
+    controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.018;
     controls.target.set(controls._camTgt.x, controls._camTgt.y, 0);
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, 0);
   }
