@@ -2914,7 +2914,8 @@ function animate(ts) {
     // Pass 39: belt deposit flash — domain burst when card first touches the belt
     if (!_depositFired) {
       _depositFired = true;
-      const _dfl = new THREE.PointLight(ct.hex, 4.5, 70);
+      // Pass 559: belt deposit flash intensity 4.5→8.0, dist 70→90 for bigger card-on-belt impact
+      const _dfl = new THREE.PointLight(ct.hex, 8.0, 90);
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
@@ -2980,13 +2981,15 @@ function animate(ts) {
     // Pass 487: extend frequency ceiling 20→28Hz for more frantic near-scanner urgency
     const _approachFreq272 = 8 + _approachT * 20;
     activeCardMat.emissiveIntensity = 0.55 + _approachT * 0.65 + _approachT * 0.3 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) + _entryBoost;
-    cardGlow.intensity = 1.4 + _approachT * 1.8; // Pass 407: approach glow ramp 1.2 → 1.8
+    // Pass 560: approach glow ramp peak boost 1.8→2.8 for stronger pre-scanner tension glow
+    cardGlow.intensity = 1.4 + _approachT * 2.8; // Pass 560: 1.8 → 2.8
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     // Pass 468: early detection ripple — at ct2=0.60-0.80, LED flickers at 10Hz (card entering field)
     const _warmupT = Math.max(0, (ct2 - 0.80) / 0.20); // 0→1 in last 20%
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
       ? (ct2 - 0.60) / 0.20 * 0.5 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0;
-    const _ledWarmTarget = 0.3 + _warmupT * 2.5 + _earlyDetect; // Pass 408: boost; Pass 468: detect ripple
+    // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 for more vivid warmup before scan
+    const _ledWarmTarget = 0.3 + _warmupT * 3.5 + _earlyDetect; // Pass 561: 2.5→3.5
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
@@ -3278,8 +3281,9 @@ function animate(ts) {
           _cfEl.classList.add('confirm-pop');
         }
         // Pass 121: destination fill bar spikes at identity reveal — pre-announces incoming card
+        // Pass 565: fill bar reveal spike 2.2→4.0 for more dramatic destination announcement
         if (fillBars[ct.slot] && fillBars[ct.slot].material) {
-          fillBars[ct.slot].material.emissiveIntensity = 2.2;
+          fillBars[ct.slot].material.emissiveIntensity = 4.0;
         }
         // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
         _hoodRevealFlash = 0.001; // just above 0 to activate
@@ -3533,8 +3537,8 @@ function animate(ts) {
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
       routeTargetMat.emissive.copy(_arcColor);
-      // Pass 339: target emissive reveal spike — destination sphere flares on lock-on
-      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 2.5 : 0;
+      // Pass 339: target emissive reveal spike — Pass 564: boost 2.5→4.0 for bigger sphere flare at lock-on
+      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 4.0 : 0;
       routeTargetMat.emissiveIntensity = flashIntensity * (2.0 + (_identityRevealed ? 1.2 : 0)) + _tgtRevealSpike339;
       routeTargetMat.opacity = flashIntensity * 0.9;
       // Pass 304: destination sphere scale pulse — sphere breathes to draw eye to target slot
@@ -3554,8 +3558,8 @@ function animate(ts) {
       // Mirror card tilt so shimmer stays flush with card surface (pass 90 + 164)
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
-      // Pass 310: shimmer bloom at reveal — shimmer band briefly widens at lock-on moment
-      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 0.85 : 1.0;
+      // Pass 310: shimmer bloom at reveal — Pass 562: bloom coefficient 0.85→1.30 for wider shimmer flash
+      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 1.30 : 1.0;
       cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
@@ -3563,8 +3567,8 @@ function animate(ts) {
       cardShimmerMat.color.copy(_shimColor);
       // Opacity: standard bell curve + extra brightness after reveal — Pass 403: boost 0.18 → 0.28
       const _shimBoost = _identityRevealed ? 0.28 : 0;
-      // Pass 349: shimmer opacity reveal spike — brief flash at identity lock-on
-      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 0.30 : 0;
+      // Pass 349: shimmer opacity reveal spike — Pass 563: boost 0.30→0.55 for bigger shimmer pop
+      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 0.55 : 0;
       cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.52 + _shimBoost) + _shimRevealSpike349;
     }
     // World-to-screen projection for scan overlay (clamped to visible area)
@@ -3579,8 +3583,8 @@ function animate(ts) {
     _ov.style.left = _sx + 'px';
     _ov.style.top  = (_sy - 90) + 'px';
     // Pass 103: HUD breathes with scan flash intensity — slight scale pulse
-    // Pass 219: completion bounce — overlay jumps ~12% at the final 2% of scan (superflash moment)
-    const _ovBounce = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 0.12 : 0;
+    // Pass 219: completion bounce — Pass 566: boost 0.12→0.22 for bigger HUD jump at scan done
+    const _ovBounce = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 0.22 : 0;
     _ov.style.transform = `translateX(-50%) scale(${(1.0 + flashIntensity * 0.07 + _ovBounce).toFixed(4)})`;
   }
 
