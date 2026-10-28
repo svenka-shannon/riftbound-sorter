@@ -830,10 +830,15 @@ for(let lx of [-140, -40, 60]) {
 
 // Conveyor end rollers at belt ends
 const rollerGeo = new THREE.CylinderGeometry(8, 8, 76, 16);
-const rollerMat = new THREE.MeshStandardMaterial({ color: 0x606068, roughness: 0.3, metalness: 0.6 });
+// Pass 101: per-roller materials so each can glow independently when card passes over
+const rollerMats = [-140, 60].map(() => new THREE.MeshStandardMaterial({
+  color: 0x606068, roughness: 0.3, metalness: 0.6,
+  emissive: new THREE.Color(0x000000), emissiveIntensity: 0,
+}));
 const rollerMeshes = [];
-for (const rx of [-140, 60]) {
-  const roller = new THREE.Mesh(rollerGeo, rollerMat);
+for (let _ri = 0; _ri < 2; _ri++) {
+  const rx = [-140, 60][_ri];
+  const roller = new THREE.Mesh(rollerGeo, rollerMats[_ri]);
   roller.rotation.x = Math.PI / 2;
   roller.position.set(rx, CONV_Y_TOP - 6, 0);
   roller.castShadow = true;
@@ -3269,6 +3274,19 @@ function animate(ts) {
       // rotation.z drives belt-axis spin (rollers lie along Z after initial rotation.x=PI/2)
       // negative = counterclockwise from +Z = top surface moves right (+X = card travel direction)
       r.rotation.z -= dt * rollerRate;
+    });
+  }
+
+  // Pass 101: roller proximity glow — each roller brightens in domain color when card passes over
+  {
+    const _rollerXs = [-140, 60];
+    const _cardX = activeCard.visible ? activeCard.position.x : 9999;
+    rollerMats.forEach((rm, ri) => {
+      const _dist = Math.abs(_cardX - _rollerXs[ri]);
+      const _prox = Math.max(0, 1 - _dist / 25); // max glow within 25 units
+      const _targetI = _prox * 0.9;
+      rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 5));
+      rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 6);
     });
   }
 
