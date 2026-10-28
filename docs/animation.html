@@ -2626,7 +2626,9 @@ function animate(ts) {
         vacuumRing.position.set(_cupX, _cupY + 1, 0);
         vacuumRing.scale.setScalar(THREE.MathUtils.lerp(1.5, 0.25, _vt));
         vacuumRingMat.color.setHex(ct.hex);
-        vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.55;
+        // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
+        const _vacSurge = pt > 0.85 ? 0.28 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
+        vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.55 + _vacSurge;
       } else {
         vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       }
@@ -2846,7 +2848,9 @@ function animate(ts) {
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
     const _beltWobbleZ = 1.2 * Math.sin(ts * 4.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
-    activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY, _beltWobbleZ);
+    // Pass 254: belt Y micro-bump — ±0.15 unit high-freq vertical bounce from belt surface texture
+    const _beltYBump = 0.15 * Math.sin(ts * 14 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
+    activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
     const _beltLean = THREE.MathUtils.lerp(0, -0.18, easeOut(_leanT));
@@ -2980,7 +2984,9 @@ function animate(ts) {
     const _irisScale = 0.75 + flashIntensity * 0.40;
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.07 ? easeOut(ft / 0.07) : 1.0;
-    lens.scale.x = _irisScale * _irisOpen; lens.scale.z = _irisScale * _irisOpen;
+    // Pass 255: iris lock-on expand at identity reveal — brief pupil-dilation flash at ft=0.85
+    const _irisRevealPulse = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.30 : 0;
+    lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 2.8;
     // Wide bloom soft halo around scanner
