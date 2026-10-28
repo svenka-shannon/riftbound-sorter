@@ -329,8 +329,8 @@ function makeWireBox(w, h, d, color) {
 // ─── Machine Parts ────────────────────────────────────────────────────────────
 
 // --- Baseplate ---
-const baseMesh = makeBox(700, 6, 420, 0x1a1a2a);
-baseMesh.position.set(110, -3, 0);
+const baseMesh = makeBox(570, 6, 420, 0x1a1a2a);
+baseMesh.position.set(10, -3, 0);
 scene.add(baseMesh);
 
 // --- Hopper (left) ---
@@ -372,17 +372,17 @@ hopperWire.position.set(HOPPER_X + 33, 54, 0);
 scene.add(hopperWire);
 
 // --- Conveyor belt ---
-// X from -160 to +220 → length = 380, Y surface at 45, centered Z=0
+// X from -95 to +155 → length = 250, Y surface at 45, centered Z=0
 const CONV_Y_TOP = 45;
-const conveyorBody = makeBox(380, 12, 80, 0xb0b0b8);
+const conveyorBody = makeBox(250, 12, 80, 0xb0b0b8);
 conveyorBody.position.set(30, CONV_Y_TOP - 6, 0);
 scene.add(conveyorBody);
 // belt surface (slightly different color)
-const beltSurf = makeBox(378, 2, 76, 0x888896);
+const beltSurf = makeBox(248, 2, 76, 0x888896);
 beltSurf.position.set(30, CONV_Y_TOP + 1, 0);
 scene.add(beltSurf);
-// legs
-for(let lx of [-140, 20, 200]) {
+// legs (at -70, 30, 130 — evenly spaced along 250mm belt)
+for(let lx of [-70, 30, 130]) {
   const leg = makeBox(8, CONV_Y_TOP - 12, 8, 0x909098);
   leg.position.set(lx, (CONV_Y_TOP - 12)/2, 30);
   scene.add(leg);
@@ -411,7 +411,7 @@ scanFlash.position.set(30, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // --- Sort gate servo + paddle ---
-const GATE_X = 200;
+const GATE_X = 130;
 const gateBase = makeBox(20, 30, 20, 0xc0c0c8);
 gateBase.position.set(GATE_X, CONV_Y_TOP + 15, 0);
 scene.add(gateBase);
@@ -433,8 +433,8 @@ scene.add(paddlePivot);
 // 2-FLOOR TRAY — compact redesign
 // X: 85mm deep (225→310), Z: 271mm wide (4 cols × 65mm), H: 133mm (2×65 + 3mm shelf)
 // Total machine: ~540mm X × ~300mm Z — well under original 2ft×2ft target ✓
-const TRAY_X_START = 225;
-const TRAY_X_END   = 310;
+const TRAY_X_START = 160;
+const TRAY_X_END   = 245;
 const TRAY_Y_BASE  = 0;
 const TRAY_FLOOR_H = 65;   // height per floor
 const TRAY_SHELF_H = 3;    // shelf between floors
@@ -713,7 +713,7 @@ function animate(ts) {
     activeCard.visible = true;
     activeCard.rotation.set(0, 0, 0);
     const ct2 = phaseT(PH.conveyorIn);
-    const cx = THREE.MathUtils.lerp(-140, 30, ct2);
+    const cx = THREE.MathUtils.lerp(-90, 30, ct2);
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 1, 0);
     scanFlash.intensity = 0;
     activeCardMat.emissiveIntensity = 0.2;

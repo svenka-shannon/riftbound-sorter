@@ -2,13 +2,13 @@
 // Riftbound Card Sorter — Conveyor Side Rail
 // =============================================
 // Print 2× (mirror for left/right)
-// 380mm total → split into 2×190mm for P1S
+// 250mm total → split into 2×125mm for P1S
 // Each piece has alignment pins/holes for joining
 // Material: PLA, 0.2mm layers, 40% infill
 // =============================================
 
 // Parameters
-rail_len    = 190;    // half-length (split for P1S bed)
+rail_len    = 125;    // half-length (split for P1S bed); total = 250mm
 rail_h      = 35;
 wall        = 3.0;
 card_h      = 88;     // Riftbound card height
@@ -20,8 +20,8 @@ groove_w     = 1.5;   // just enough to keep card upright
 // Roller shaft holes
 shaft_dia    = 8.2;   // 8mm rod + clearance
 shaft_y      = 15;    // height from base
-shaft_x1     = 30;    // near end
-shaft_x2     = 160;   // far end (only in second half piece)
+shaft_x1     = 25;    // near end
+shaft_x2     = 100;   // far end (only in second half piece)
 
 // Alignment pin (M3 pin = 3mm dia)
 pin_dia  = 3.2;
