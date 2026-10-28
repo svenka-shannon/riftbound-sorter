@@ -1291,6 +1291,30 @@ impactRing.visible = false;
 scene.add(impactRing);
 let _impactRingT = -1; // -1 = idle, 0..1 = animation progress
 
+// ─── Scan grid dots: 3×3 array of bright points on card surface during scan ────
+// Gives the scanner a "barcode reader" targeting feel — dots fade in staggered
+// across the card face with the flash intensity, coloured to the domain.
+const SCAN_GRID_DOTS = [];
+for (let _gdi = 0; _gdi < 9; _gdi++) {
+  const _gdMat = new THREE.MeshBasicMaterial({
+    color: 0x00ffcc, transparent: true, opacity: 0,
+  });
+  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(1.4, 6, 6), _gdMat);
+  _gdMesh.visible = false;
+  scene.add(_gdMesh);
+  SCAN_GRID_DOTS.push({ mesh: _gdMesh, mat: _gdMat });
+}
+// Precompute 3×3 grid offsets on card face (X/Z plane, Y just above card top)
+const SCAN_DOT_OFFSETS = [];
+for (let _dr = 0; _dr < 3; _dr++) {
+  for (let _dc = 0; _dc < 3; _dc++) {
+    SCAN_DOT_OFFSETS.push({
+      x: THREE.MathUtils.lerp(-CARD_W * 0.32, CARD_W * 0.32, _dc / 2),
+      z: THREE.MathUtils.lerp(-CARD_H * 0.3, CARD_H * 0.3, _dr / 2),
+    });
+  }
+}
+
 // ─── Floor halo disc: soft domain-colored glow on grid floor under active card ──
 // Creates a colored "spotlight from below" that tracks the card through the cycle.
 // radius=35, very transparent (max 18%), only visible when card is visible.
@@ -1502,6 +1526,7 @@ let cycleT = 0;     // elapsed time within current cycle
 let _scanFlashFired = false;   // true once camera-flash triggered this scan phase
 let _grabPulseFired = false;   // true once suction grab light burst fired this armLift
 let _impactFired = false;      // true once slot landing impact ring fired this slotDrop
+let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
 
 // Domain atmosphere: slowly tint background/fog toward current domain color
 let _fogTint = new THREE.Color(0x0a0a0f);
@@ -1977,6 +2002,7 @@ function animate(ts) {
     // Camera-flash: brief colored screen overlay fires once per scan
     if (!_scanFlashFired) {
       _scanFlashFired = true;
+      _cameraShake = 3.5; // trigger micro-shake on scan strobe
       const flashEl = document.getElementById('scan-flash-overlay');
       if (flashEl) {
         flashEl.style.background = ct.css;
@@ -2023,6 +2049,28 @@ function animate(ts) {
       0
     );
     scanLine2.material.opacity = flashIntensity * 0.65;
+    // Scan grid dots: 3×3 points appear staggered across card face with flash
+    {
+      const dotColor = ct.hex;
+      SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
+        const stagger = di * 0.06; // 60ms stagger per dot (0..0.48s)
+        const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
+        const dotOp = Math.sin(Math.min(1, dotFt) * Math.PI) * flashIntensity * 0.95;
+        if (dotOp > 0.01) {
+          mesh.visible = true;
+          mesh.position.set(
+            activeCard.position.x + SCAN_DOT_OFFSETS[di].x,
+            CONV_Y_TOP + CARD_T + 3.5,
+            activeCard.position.z + SCAN_DOT_OFFSETS[di].z
+          );
+          mat.color.setHex(dotColor);
+          mat.opacity = dotOp;
+        } else {
+          mesh.visible = false;
+          mat.opacity = 0;
+        }
+      });
+    }
     // Belt scrolls while card sits under scanner
     beltTex.offset.x -= dt * speedMult * 0.02;
     // Target slot spotlight — illuminates destination tray slot during scan
@@ -2338,6 +2386,23 @@ function animate(ts) {
     controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.018;
     controls.target.set(controls._camTgt.x, controls._camTgt.y, 0);
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, 0);
+  }
+
+  // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
+  if (!inPhase(PH.scan)) {
+    SCAN_GRID_DOTS.forEach(({ mesh, mat }) => {
+      mat.opacity *= 0.6; // fast decay out of scan phase
+      if (mat.opacity < 0.01) { mat.opacity = 0; mesh.visible = false; }
+    });
+  }
+
+  // ── Camera micro-shake: apply after orbit, before render ─────────────────────
+  if (_cameraShake > 0.05) {
+    camera.position.x += (Math.random() - 0.5) * 2 * _cameraShake;
+    camera.position.y += (Math.random() - 0.5) * 2 * _cameraShake;
+    _cameraShake *= 0.78; // decay: 3.5 → ~0 in about 12 frames (0.2s at 60fps)
+  } else {
+    _cameraShake = 0;
   }
 
   // ── Floor halo disc: domain-colored glow circle on floor below active card ───
