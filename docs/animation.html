@@ -4607,10 +4607,11 @@ function animate(ts) {
   {
     const beltTrail = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
     const _speedFactor = Math.min(1, _beltScrollSpeed / 0.08); // 0 idle → 1 at full speed
-    const ghostOpacities = [0.30 * _speedFactor, 0.15 * _speedFactor, 0.07 * _speedFactor];
+    // Pass 376: ghost opacity boost — more visible trail effect
+    const ghostOpacities = [0.42 * _speedFactor, 0.22 * _speedFactor, 0.10 * _speedFactor];
     ghostCards.forEach(({ mesh, mat }, gi) => {
       if (beltTrail && activeCard.visible) {
-        const lag = (gi + 1) * 9; // 9 units of trailing distance per ghost
+        const lag = (gi + 1) * 12; // Pass 377: lag spacing 9 → 12 units for more spread trail
         mesh.visible = true;
         mesh.position.copy(activeCard.position);
         mesh.position.x -= lag;
@@ -4623,7 +4624,9 @@ function animate(ts) {
         mat.color.setHex(_ghostHex);
         mat.emissive.setHex(_ghostHex);
         // Pass 286: ghost emissive intensity speed sync — trail glows brighter at full belt speed
-        mat.emissiveIntensity = (0.28 - gi * 0.08) * _speedFactor;
+        // Pass 378: post-reveal emissive boost — trail blazes in domain color on conveyorOut
+        const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 0.30 : 0;
+        mat.emissiveIntensity = ((0.28 - gi * 0.08) + _ghostRevealBoost378) * _speedFactor;
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
         mat.opacity += (targetOp - mat.opacity) * 0.35;
       } else {
