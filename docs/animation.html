@@ -3898,7 +3898,7 @@ function animate(ts) {
     // this is an instant photogate flash that fires and dies in ~0.15s.
     if (!_slotGateFlashFired && dt3 >= 0.06) {
       _slotGateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 5.5, 55);
+      const _gfl = new THREE.PointLight(ct.hex, 8.0, 80); // Pass 433: 5.5→8.0, dist 55→80
       _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3910,12 +3910,12 @@ function animate(ts) {
       const _stX = TRAY_X_START + 8;
       const _stTopY = ct.slotFloorY + 60;
       const _stZ = ct.slotZ;
-      for (let _si = 0; _si < 7; _si++) {
+      for (let _si = 0; _si < 10; _si++) { // Pass 435: streak length 7→10 (longer lance)
         const _tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         _tp.mesh.position.set(_stX + (Math.random() - 0.5) * 4, _stTopY - _si * 7, _stZ + (Math.random() - 0.5) * 3);
         _tp.mat.color.setHex(ct.hex);
-        _tp.mat.opacity = 0.65 - _si * 0.07;
+        _tp.mat.opacity = 0.80 - _si * 0.07; // Pass 434: opacity 0.65→0.80
         _tp.age = 0; _tp.life = 0.18 + _si * 0.02;
         _tp.mesh.scale.setScalar(0.45 + Math.random() * 0.3);
         _tp.mesh.visible = true;
