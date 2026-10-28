@@ -1336,7 +1336,8 @@ const impactRing = new THREE.Mesh(
 );
 impactRing.visible = false;
 scene.add(impactRing);
-let _impactRingT = -1; // -1 = idle, 0..1 = animation progress
+let _impactRingT = -1;        // -1 = idle, 0..1 = animation progress
+let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.6 = floor-1 glide)
 
 // ─── Scan grid dots: 3×3 array of bright points on card surface during scan ────
 // Gives the scanner a "barcode reader" targeting feel — dots fade in staggered
@@ -2475,14 +2476,28 @@ function animate(ts) {
     // Fire impact shockwave ring once when floor-0 card hits the tray floor
     if (ct.floor === 0 && !_impactFired && dt3 >= 0.86) {
       _impactFired = true;
-      _impactRingT = 0;
+      _impactRingT = 0; _impactRingScale0 = 1.0;
       impactRing.position.set(TRAY_X_START + 20, ct.slotFloorY + 2, ct.slotZ);
       impactRing.rotation.x = -Math.PI / 2; // ring lies flat on floor plane
       impactRingMat.color.setHex(ct.hex);
-      impactRing.scale.setScalar(1);
+      impactRing.scale.setScalar(1.0);
       impactRing.visible = true;
       // Pass 38: brief camera "thud" shake on hard floor landing
       _cameraShake = Math.max(_cameraShake, 1.4);
+    }
+    // Pass 43: upper floor guided-arrival ring — gentle vertical pulse (no shake)
+    // Upper floor cards glide in softly; a smaller vertical ring (facing camera)
+    // expands from the slot face to signal arrival without drama.
+    if (ct.floor === 1 && !_impactFired && dt3 >= 0.88) {
+      _impactFired = true;
+      _impactRingT = 0; _impactRingScale0 = 0.55;
+      // Stand ring upright (XZ plane, facing the camera) at slot entrance
+      impactRing.position.set(TRAY_X_START + 20, ct.slotFloorY + 29, ct.slotZ);
+      impactRing.rotation.x = 0; // vertical ring
+      impactRingMat.color.setHex(ct.hex);
+      impactRing.scale.setScalar(0.55);
+      impactRing.visible = true;
+      // No camera shake — card glides in smoothly
     }
     cardGlow.position.copy(activeCard.position);
     beltTex.offset.x -= dt * speedMult * 0.04;
@@ -2726,9 +2741,11 @@ function animate(ts) {
   // ── Impact ring: expansion animation ─────────────────────────────────────────
   if (_impactRingT >= 0) {
     _impactRingT = Math.min(1, _impactRingT + dt * 2.5); // ~0.4s full animation
-    const irs = 1 + _impactRingT * 3.5; // expand from 1× to 4.5×
+    // scale0: floor-0 starts at 1.0 (big bang), floor-1 starts at 0.55 (gentle glide)
+    const irs = _impactRingScale0 + _impactRingT * (4.5 - _impactRingScale0);
     impactRing.scale.setScalar(irs);
-    impactRingMat.opacity = (1 - _impactRingT) * 0.88;
+    const peakOpacity = _impactRingScale0 < 0.8 ? 0.55 : 0.88; // softer for upper floor
+    impactRingMat.opacity = (1 - _impactRingT) * peakOpacity;
     if (_impactRingT >= 1) {
       _impactRingT = -1;
       impactRing.visible = false;
