@@ -2965,6 +2965,26 @@ function animate(ts) {
     }
     // Belt crawls slowly while card sits under scanner
     _beltScrollSpeed = 0.02;
+    // Pass 156: gate LED chase — cycles scan-blue through columns pre-reveal (machine "deciding")
+    // then snaps to domain color on correct column at identity confirm
+    {
+      if (!_identityRevealed) {
+        const _chaseIdx = Math.floor(ts * 7) % 4;
+        GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
+          const _cTarget = gi === _chaseIdx ? 1.8 : 0.1;
+          gm.color.setHex(0x0088cc);
+          gm.emissive.setHex(0x003366);
+          gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 22);
+        });
+      } else {
+        GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
+          const _cTarget = gi === ct.col ? 3.2 : 0.1;
+          gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
+          gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
+          gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 20);
+        });
+      }
+    }
     // Target slot spotlight — illuminates destination tray slot during scan
     scanTargetLight.color.setHex(ct.hex);
     scanTargetLight.intensity = flashIntensity * 2.5;
