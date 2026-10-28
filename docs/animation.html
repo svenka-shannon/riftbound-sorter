@@ -3567,9 +3567,9 @@ function animate(ts) {
     // Pass 72: smooth charge-up ramp as card approaches (ot 0→1 = charge 0.18→3.8)
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 3.8, easeInOut(ot));
-    // Pass 259: gate pre-charge electromagnetic flicker — 6Hz solenoid shudder in last 30%
-    const _gateFlicker = ot > 0.70 ? 0.35 * Math.sin(ts * 6 * Math.PI * 2) * ((ot - 0.70) / 0.30) : 0;
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 5.0, easeInOut(ot)); // Pass 413: max charge 3.8→5.0
+    // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: flicker amp 0.35→0.55
+    const _gateFlicker = ot > 0.70 ? 0.55 * Math.sin(ts * 6 * Math.PI * 2) * ((ot - 0.70) / 0.30) : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
     if (ot > 0.45) {
@@ -3642,8 +3642,8 @@ function animate(ts) {
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _gfl, age: 0 });
-      // Pass 72: peak spike on gate contact — discharges charge-up energy
-      paddleMat.emissiveIntensity = 5.5;
+      // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 (synced with flash light)
+      paddleMat.emissiveIntensity = 8.0;
       // Pass 269: gate-contact card face flash — Pass 411: boost 2.2 → 3.5 (hotter impact blaze)
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 3.5);
       // Pass 298: gate-contact camera micro-shake — physical impact reverberates into camera
