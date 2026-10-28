@@ -1824,6 +1824,7 @@ let cycleT = 0;     // elapsed time within current cycle
 // Per-cycle event flags — reset on cycle rollover
 let _scanFlashFired = false;   // true once camera-flash triggered this scan phase
 let _grabPulseFired = false;   // true once suction grab light burst fired this armLift
+let _contactFlashFired = false; // pass 167: true once suction contact flash fires at armDescend ~80%
 let _impactFired = false;      // true once slot landing impact ring fired this slotDrop
 let _grabBurstFired = false;   // true once particle burst fired on card grab (pass 34)
 let _gateFlashFired = false;   // true once gate contact flash fired in deflect (pass 34)
@@ -2211,6 +2212,7 @@ function animate(ts) {
     // Reset per-cycle event flags
     _scanFlashFired = false;
     _grabPulseFired = false;
+    _contactFlashFired = false; // pass 167
     _impactFired = false;
     _grabBurstFired = false;  // pass 34
     _gateFlashFired = false;  // pass 34
@@ -2491,6 +2493,16 @@ function animate(ts) {
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
         suctionCup.scale.y = THREE.MathUtils.lerp(1.0, 0.35, _sq);
+        // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
+        if (!_contactFlashFired) {
+          _contactFlashFired = true;
+          const _cfRot = suctionPivot.rotation.z;
+          const _cfL = new THREE.PointLight(0xffffff, 3.5, 45);
+          _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
+          scene.add(_cfL);
+          if (!window._flashLights) window._flashLights = [];
+          window._flashLights.push({ light: _cfL, age: 0 });
+        }
       } else {
         suctionCup.scale.y = 1.0;
       }
