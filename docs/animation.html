@@ -2797,8 +2797,16 @@ function animate(ts) {
     pos.needsUpdate = true;
   }
 
-  // ── Arm rod emissive highlight during armLift ──
-  armRod.material.emissiveIntensity = inPhase(PH.armLift) ? 0.15 : 0.0;
+  // Pass 58: Arm rod domain glow tracks card pick-and-carry sequence
+  {
+    const _armDescT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) : 0;
+    const _armLiftT = inPhase(PH.armLift) ? 1.0 : 0;
+    const _armSwingT = inPhase(PH.armSwing) ? 1.0 : 0;
+    const _convInT  = inPhase(PH.conveyorIn) ? Math.max(0, 1 - phaseRaw(PH.conveyorIn) * 5) : 0;
+    const _rodGlow = Math.max(_armDescT * 0.18, _armLiftT * 0.42, _armSwingT * 0.55, _convInT * 0.25);
+    armRod.material.emissive.setHex(ct.hex);
+    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 6);
+  }
 
   // ── Suction cup domain glow ──
   // Cup glows in next card's domain color when descending/lifting (shows which domain it's fetching)
