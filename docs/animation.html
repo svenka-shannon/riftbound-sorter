@@ -2471,8 +2471,9 @@ function animate(ts) {
     cardGlow.position.y += 10; // above card for top-face highlight
     // Scanner LED pulses brightly during scan
     scanLEDMat.emissiveIntensity = 2.0 + flashIntensity * 3.0;
-    // Scanner hood glows cyan-blue during scan
-    hoodMat.emissiveIntensity = 0.3 + flashIntensity * 0.45;
+    // Pass 74: scanner hood deep pulse — domain color tint at scan peak
+    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 2 + flashIntensity * 0.8));
+    hoodMat.emissiveIntensity = 0.28 + flashIntensity * 0.85;
     // Wide bloom soft halo around scanner
     scanBloom.intensity = flashIntensity * 0.8;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, 0);
@@ -2992,9 +2993,10 @@ function animate(ts) {
       convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
     }
   }
-  // Scanner hood: resting dim blue glow (resets on non-scan frames)
+  // Pass 74: scanner hood — smooth decay to resting cyan-blue after scan ends
   if (!inPhase(PH.scan)) {
-    hoodMat.emissiveIntensity = 0.3;
+    hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
+    hoodMat.emissiveIntensity += (0.28 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5);
   }
 
   // Pass 56: Spin rollers proportional to belt scroll speed (synced to smooth ramp from pass 53)
