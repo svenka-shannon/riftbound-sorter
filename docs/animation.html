@@ -4042,11 +4042,23 @@ function animate(ts) {
   }
 
   // ── Pass 69: Entry strip decay — flash on landing, fade back to resting glow ──
-  CARD_TYPES.forEach(t => {
-    if (t.stripMat && t.stripMat.emissiveIntensity > 0.15) {
-      t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 5.5);
-    }
-  });
+  // Pass 137: rival strips dim during slotDrop (spotlight effect — active slot owns the scene)
+  {
+    const _inSlotDrop = inPhase(PH.slotDrop);
+    CARD_TYPES.forEach(t => {
+      if (!t.stripMat) return;
+      if (_inSlotDrop && t !== ct) {
+        // Non-active strip fades to 0.05 (spotlight yields)
+        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 3.5);
+      } else if (!_inSlotDrop && t.stripMat.emissiveIntensity < 0.15) {
+        // Recovery to normal idle after spotlight
+        t.stripMat.emissiveIntensity = Math.min(0.15, t.stripMat.emissiveIntensity + dt * 2.0);
+      } else if (t.stripMat.emissiveIntensity > 0.15) {
+        // Pass 69: decay from flash
+        t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 5.5);
+      }
+    });
+  }
 
   // ── Pass 45+64: Tray card emissive — arrival pulse decays then breathes gently ──
   // Pass 64: idle baseline is a slow per-slot breathing pulse (0.20..0.32) rather than fixed 0.25
