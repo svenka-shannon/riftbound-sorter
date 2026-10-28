@@ -1610,6 +1610,38 @@ for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
 let _trailHead = 0;        // ring-buffer head for trail particles
 let _trailSpawnAcc = 0;    // time accumulator for spawn rate
 
+// ─── Pass 36: Round completion celebration particle pool ─────────────────────
+// 32 spheres in all 8 domain colors fire upward from above the tray when
+// a complete sort round (all 8 domains) finishes. Each domain gets 4 particles.
+const CELEB_PARTICLES = [];
+const CELEB_COUNT = 32;
+for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
+  const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
+  const _cpMesh = new THREE.Mesh(new THREE.SphereGeometry(3.0, 5, 5), _cpMat);
+  _cpMesh.visible = false;
+  scene.add(_cpMesh);
+  CELEB_PARTICLES.push({ mesh: _cpMesh, mat: _cpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 1.2, active: false });
+}
+
+function fireCelebration() {
+  CELEB_PARTICLES.forEach((p, pi) => {
+    const domCt = CARD_TYPES[pi % CARD_TYPES.length];
+    const angle = (pi / CELEB_COUNT) * Math.PI * 2;
+    const spd = 28 + Math.random() * 40;
+    const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
+    p.vx = Math.cos(angle) * spd * 0.75;
+    p.vy = spd * (0.5 + Math.random() * 0.5);
+    p.vz = Math.sin(angle) * spd * 0.65;
+    p.mesh.position.set(TX_MID, floorY, domCt.slotZ * 0.4);
+    p.mat.color.setHex(domCt.hex);
+    p.mat.opacity = 0.9;
+    p.age = 0;
+    p.life = 0.9 + Math.random() * 0.7;
+    p.active = true;
+    p.mesh.visible = true;
+  });
+}
+
 // Domain atmosphere: slowly tint background/fog toward current domain color
 let _fogTint = new THREE.Color(0x0a0a0f);
 
@@ -1827,6 +1859,8 @@ function animate(ts) {
     totalSorted++;
     const completedCt = CARD_TYPES[cycleIdx];
     addCardToTray(completedCt);
+    // Pass 36: fire celebration burst at the end of every complete round (after last domain)
+    if (completedCt.slot === CARD_TYPES.length - 1) fireCelebration();
     cycleIdx = (cycleIdx + 1) % CARD_TYPES.length;
 
     // Reset per-cycle event flags
@@ -2670,6 +2704,21 @@ function animate(ts) {
   _domainFillLight.color.lerp(_domFillClr, dt * 0.45);
   const _fillTgt = activeCard.visible ? 0.15 : 0.05;
   _domainFillLight.intensity += (_fillTgt - _domainFillLight.intensity) * dt * 1.8;
+
+  // ── Pass 36: Round completion celebration particle physics ──────────────────
+  CELEB_PARTICLES.forEach(p => {
+    if (!p.active) return;
+    p.age += dt;
+    const _ct2 = p.age / p.life;
+    if (_ct2 >= 1) { p.active = false; p.mesh.visible = false; p.mat.opacity = 0; return; }
+    p.mesh.position.x += p.vx * dt;
+    p.mesh.position.y += p.vy * dt;
+    p.mesh.position.z += p.vz * dt;
+    p.vy -= 28 * dt; // gentle gravity arc
+    p.vx *= 1 - dt * 1.2;
+    p.vz *= 1 - dt * 1.2;
+    p.mat.opacity = (1 - _ct2 * _ct2) * 0.88;
+  });
 
   // ── Domain atmosphere: subtle fog/background color tint ────────────────────
   // Slowly tints the dark background 4% toward the current domain color;
