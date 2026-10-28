@@ -1131,6 +1131,7 @@ CARD_TYPES.forEach(ct => {
   const stripMesh = new THREE.Mesh(stripGeo, stripMat);
   stripMesh.position.set(TRAY_X_START, ct.slotFloorY + 1, ct.slotZ);
   scene.add(stripMesh);
+  ct.stripMat = stripMat; // pass 69: reference for arrival flash
 });
 
 // Machine label 3D anchor points (projected to screen each frame in animate)
@@ -2796,6 +2797,8 @@ function animate(ts) {
       impactRing.visible = true;
       // Pass 38: brief camera "thud" shake on hard floor landing
       _cameraShake = Math.max(_cameraShake, 1.4);
+      // Pass 69: flash this slot's entry strip bright on landing
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 4.0;
     }
     // Pass 43: upper floor guided-arrival ring — gentle vertical pulse (no shake)
     // Upper floor cards glide in softly; a smaller vertical ring (facing camera)
@@ -2810,6 +2813,8 @@ function animate(ts) {
       impactRing.scale.setScalar(0.55);
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
+      // Pass 69: flash this slot's entry strip bright on upper-floor landing
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 3.2;
     }
     // Pass 48: Reject slot alarm — double-pulse red vignette + amber warning lights
     if (ct.slot === 7 && !_rejectAlarmFired && dt3 >= 0.30) {
@@ -3365,6 +3370,13 @@ function animate(ts) {
     _beltScrollSpeed += (_beltTarget - _beltScrollSpeed) * Math.min(1, dt * 7);
     beltTex.offset.x -= _beltScrollSpeed * dt * speedMult;
   }
+
+  // ── Pass 69: Entry strip decay — flash on landing, fade back to resting glow ──
+  CARD_TYPES.forEach(t => {
+    if (t.stripMat && t.stripMat.emissiveIntensity > 0.15) {
+      t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 5.5);
+    }
+  });
 
   // ── Pass 45+64: Tray card emissive — arrival pulse decays then breathes gently ──
   // Pass 64: idle baseline is a slow per-slot breathing pulse (0.20..0.32) rather than fixed 0.25
