@@ -1859,6 +1859,7 @@ let _slotGateFlashFired = false; // pass 195: true once slot entrance gate-burst
 let _armReturnThunkFired = false; // pass 196: true once arm end-stop micro-shake fires
 let _arcPeakFlashFired = false;  // pass 454: true once deflect arc-peak domain flash fires
 let _rejectBurst2Fired = false;  // pass 457: true once second reject burst fires at dt3=0.55
+let _swingPeakFlashFired = false; // pass 467: true once arm-swing arc-peak flash fires
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
 let _gateZKick = 0;             // pass 223: lateral Z rotation impulse applied to card at gate hit
 let _paddleJitterAmt = 0;       // pass 216: solenoid Z-vibration decay amplitude
@@ -2271,6 +2272,7 @@ function animate(ts) {
     _slotStreakFired = false;   // pass 142
     _arcPeakFlashFired = false;  // pass 454
     _rejectBurst2Fired = false;  // pass 457
+    _swingPeakFlashFired = false; // pass 467
     _paddleRecoil = 0;          // pass 109
     _paddleJitterAmt = 0;       // pass 216
     _gateZKick = 0;             // pass 223
@@ -2847,8 +2849,22 @@ function animate(ts) {
     let _armCardEmissive = 0;
     if (inPhase(PH.armLift)) _armCardEmissive = 0.22 + 0.08 * phaseRaw(PH.armLift);
     // Pass 381: armSwing emissive peak boost 0.35 → 0.50 for brighter card at arc apex
-    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 0.50 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
+    // Pass 466: armSwing emissive peak boost 0.50 → 0.65 — brighter glow at arm's fastest arc point
+    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 0.65 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
     activeCardMat.emissiveIntensity = _armCardEmissive;
+    // Pass 467: arm-swing arc-peak domain flash — at arm's fastest midpoint, spawn a brief domain
+    // point light at card position, syncing with the emissive peak (pass 466).
+    if (inPhase(PH.armSwing)) {
+      const _stPeak = phaseRaw(PH.armSwing);
+      if (!_swingPeakFlashFired && _stPeak >= 0.46) {
+        _swingPeakFlashFired = true;
+        const _spfl = new THREE.PointLight(ct.hex, 5.5, 85);
+        _spfl.position.copy(activeCard.position);
+        scene.add(_spfl);
+        if (!window._flashLights) window._flashLights = [];
+        window._flashLights.push({ light: _spfl, age: 0 });
+      }
+    }
     // Pass 299: armSwing Z-apex glow boost — cardGlow peaks as arm swings closest to viewer at Z apex
     if (inPhase(PH.armSwing)) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
@@ -2945,8 +2961,11 @@ function animate(ts) {
     activeCardMat.emissiveIntensity = 0.55 + _approachT * 0.65 + _approachT * 0.3 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) + _entryBoost;
     cardGlow.intensity = 1.4 + _approachT * 1.8; // Pass 407: approach glow ramp 1.2 → 1.8
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
+    // Pass 468: early detection ripple — at ct2=0.60-0.80, LED flickers at 10Hz (card entering field)
     const _warmupT = Math.max(0, (ct2 - 0.80) / 0.20); // 0→1 in last 20%
-    const _ledWarmTarget = 0.3 + _warmupT * 2.5; // Pass 408: LED warmup boost 1.7→2.5 (peaks at 2.8)
+    const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
+      ? (ct2 - 0.60) / 0.20 * 0.5 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0;
+    const _ledWarmTarget = 0.3 + _warmupT * 2.5 + _earlyDetect; // Pass 408: boost; Pass 468: detect ripple
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
@@ -3172,6 +3191,8 @@ function animate(ts) {
       });
     }
     // Pass 55: scan progress LED bar — fills left-to-right as ft 0→1
+    // Pass 469: scan bar init pulse — brief white emissive spike in first 4% (scanner power-on test)
+    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 3.5 : 0;
     {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
@@ -3303,6 +3324,12 @@ function animate(ts) {
         }
       }
       scanBarMat.opacity = 0.75 + flashIntensity * 0.25;
+      // Pass 469: apply init flash OVER normal bar (brief white overbloom in first 4%)
+      if (_barInitFlash469 > 0.1) {
+        scanBarMat.color.set(0xffffff); scanBarMat.emissive.set(0xffffff);
+        scanBarMat.emissiveIntensity = Math.max(scanBarMat.emissiveIntensity, _barInitFlash469);
+        scanBarMat.opacity = Math.max(scanBarMat.opacity, _barInitFlash469 / 3.5);
+      }
     }
     // Pass 50: scanner heat exhaust — dim rising wisps from hood top during scan
     // Reuses TRAIL_PARTICLES (idle during scan since no arm-swing/deflect overlap).
@@ -3942,10 +3969,12 @@ function animate(ts) {
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
     // Pass 278: sympathetic flicker — all columns briefly flash at slot entry crossing
+    // Pass 470: target LED hold-then-snap — holds at 3.5 for first 22%, then snaps to 0.15 quickly
     const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 0.55 : 0;
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 1.8 : _sympFlash278;
-      const _target = gi === ct.col ? THREE.MathUtils.lerp(3.5, 0.15, dt3) + _ledSpike : 0.15 + _sympFlash278;
+      const _ledDrop = dt3 < 0.22 ? 3.5 : THREE.MathUtils.lerp(3.5, 0.15, (dt3 - 0.22) / 0.78); // Pass 470
+      const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.15 + _sympFlash278;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
     });
     // Pass 195: slot entrance gate-burst — brief bright point light at slot threshold when
@@ -4026,9 +4055,9 @@ function animate(ts) {
       _cameraShake = Math.max(_cameraShake, 3.2);
       // Pass 69: flash this slot's entry strip — Pass 420: boost 4.0 → 5.5 (brighter landing)
       if (ct.stripMat) ct.stripMat.emissiveIntensity = 5.5;
-      // Pass 218: fill bar landing spark — domain fill bar flares bright when card arrives,
-      // then decays back to resting via the existing emissive decay loop.
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 3.2;
+      // Pass 218: fill bar landing spark — domain fill bar flares bright when card arrives.
+      // Pass 471: boost landing flash 3.2 → 4.5 for more visible "card counted" moment.
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 4.5;
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
@@ -4073,8 +4102,8 @@ function animate(ts) {
       // No camera shake — card glides in smoothly
       // Pass 69: flash this slot's entry strip bright on upper-floor landing
       if (ct.stripMat) ct.stripMat.emissiveIntensity = 3.2;
-      // Pass 218: fill bar landing spark for upper floor too
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 3.2;
+      // Pass 218/471: fill bar landing spark for upper floor — boost 3.2 → 4.0
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 4.0;
       // Pass 224: upper floor arrival glow particles — 3 gentle domain-tinted motes that
       // drift upward softly (upper floor is a guided arrival, no hard impact scatter).
       {
