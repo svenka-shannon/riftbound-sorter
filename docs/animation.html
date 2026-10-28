@@ -2768,15 +2768,23 @@ function animate(ts) {
           _cfEl.classList.add('confirm-pop');
         }
       }
-      // Color: white until 85% done, then snap to domain color (ID confirmed)
-      if (barFill < 0.85) {
-        scanBarMat.color.set(0xffffff);
-        scanBarMat.emissive.set(0xaaddff);
-        scanBarMat.emissiveIntensity = 1.2 + flashIntensity * 1.8;
-      } else {
-        scanBarMat.color.setHex(ct.hex);
-        scanBarMat.emissive.setHex(ct.hex);
-        scanBarMat.emissiveIntensity = 2.2 + flashIntensity * 2.5; // bright on confirm
+      // Pass 113: scan bar color blends white→domain over 0.65→0.85 for gradual reveal
+      // Below 0.65: pure white; 0.65-0.85: interpolate; above 0.85: full domain
+      {
+        const _blendT = Math.max(0, Math.min(1, (barFill - 0.65) / 0.20));
+        const _cWhite = new THREE.Color(0xaaddff);
+        const _cDomain = new THREE.Color(ct.hex);
+        const _blendC = _cWhite.lerp(_cDomain, _blendT);
+        if (barFill < 0.65) {
+          scanBarMat.color.set(0xffffff);
+          scanBarMat.emissive.set(0xaaddff);
+          scanBarMat.emissiveIntensity = 1.2 + flashIntensity * 1.8;
+        } else {
+          scanBarMat.color.copy(_blendC);
+          scanBarMat.emissive.copy(_blendC);
+          const _baseI = barFill >= 0.85 ? 2.2 + flashIntensity * 2.5 : 1.2 + flashIntensity * 1.8;
+          scanBarMat.emissiveIntensity = _baseI;
+        }
       }
       scanBarMat.opacity = 0.75 + flashIntensity * 0.25;
     }
