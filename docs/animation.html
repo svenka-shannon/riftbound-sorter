@@ -35,7 +35,7 @@
     background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 10px; padding: 12px 16px;
     font-size: 12px; line-height: 2;
-    backdrop-filter: blur(8px); min-width: 220px;
+    backdrop-filter: blur(8px); min-width: 240px;
   }
   #stats-title { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
   #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; }
@@ -53,7 +53,16 @@
     text-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
     animation: scanPulse 0.8s ease-in-out infinite;
   }
-  #scan-slot { font-size: 13px; color: #aaa; margin-top: 4px; }
+  #scan-slot {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+  #scan-slot .floor-arrow {
+    /* color set dynamically in JS */
+    text-shadow: 0 0 12px currentColor;
+  }
 
   #hint {
     position: fixed; bottom: 20px; right: 20px;
@@ -95,6 +104,48 @@
   }
   .legend-dot { display: inline-block; width: 8px; height: 8px;
     border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+
+  .domain-bar-wrap {
+    display: inline-block;
+    width: 80px; height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    margin-left: 6px;
+    vertical-align: middle;
+    overflow: hidden;
+  }
+  .domain-bar-fill {
+    height: 4px;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  @keyframes fadeUp {
+    0%   { transform: translateY(0);   opacity: 1; }
+    100% { transform: translateY(-30px); opacity: 0; }
+  }
+  .slot-plusone {
+    position: fixed;
+    pointer-events: none;
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 30;
+    animation: fadeUp 0.8s ease-out forwards;
+  }
+
+  #hopper-count {
+    position: fixed; pointer-events: none; z-index: 15;
+    background: rgba(0,0,0,0.65); border: 1px solid rgba(120,160,255,0.25);
+    border-radius: 5px; padding: 2px 8px;
+    font-size: 11px; color: #aac4ff; letter-spacing: 0.05em;
+    transform: translateX(-50%);
+  }
+  #picking-hint {
+    position: fixed; pointer-events: none; z-index: 15;
+    font-size: 12px; color: #ffe066; letter-spacing: 0.08em;
+    font-weight: 600; transform: translateX(-50%);
+    opacity: 0; transition: opacity 0.12s;
+  }
 </style>
 </head>
 <body>
@@ -125,7 +176,9 @@
   <div id="scan-slot"></div>
 </div>
 
-<div id="hint">Drag to rotate · Scroll to zoom · Right-drag to pan<br>Space=pause · 1–4=speed · R=reset view &amp; auto-orbit</div>
+<div id="hint">Drag to rotate · Scroll to zoom · Right-drag to pan<br>
+Space=pause · 1–4=speed · R=reset view &amp; auto-orbit<br>
+<span style="color:#777">Click ↺ Auto to resume orbit after dragging</span></div>
 
 <div id="tray-legend">
   <div class="legend-title">Sorting Tray Layout</div>
@@ -146,6 +199,9 @@
 <div class="machine-label" id="lbl-scanner"><span>Scanner</span></div>
 <div class="machine-label" id="lbl-gate"><span>Sort Gate</span></div>
 <div class="machine-label" id="lbl-tray"><span>Domain Tray</span></div>
+
+<div id="hopper-count">6 cards remaining</div>
+<div id="picking-hint">Picking…</div>
 
 <div id="vignette" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,0.4) 100%);"></div>
 
@@ -289,7 +345,7 @@
 // ─── Scene Setup ──────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0f);
-scene.fog = new THREE.FogExp2(0x0a0a0f, 0.00065);
+scene.fog = new THREE.FogExp2(0x0a0a0f, 0.00055);
 
 const W = window.innerWidth, H = window.innerHeight;
 const camera = new THREE.PerspectiveCamera(55, W/H, 1, 8000);
@@ -334,7 +390,7 @@ fillLight.position.set(-400, 300, 200);
 scene.add(fillLight);
 
 const rimLight = new THREE.DirectionalLight(0xffeedd, 0.35);
-rimLight.position.set(0, 200, -600);
+rimLight.position.set(200, 100, -400);
 scene.add(rimLight);
 
 // ─── Floor Grid ───────────────────────────────────────────────────────────────
@@ -409,13 +465,44 @@ function makeWireBox(w, h, d, color) {
 
 // ─── Machine Parts ────────────────────────────────────────────────────────────
 
+// --- Baseplate texture ---
+function makeBaseplateTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512; canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#1a1a28';
+  ctx.fillRect(0, 0, 512, 512);
+  // Minor grid lines every 32px
+  ctx.strokeStyle = '#252535';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 512; i += 32) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
+  }
+  // Major grid lines every 128px
+  ctx.strokeStyle = '#303048';
+  ctx.lineWidth = 2;
+  for (let i = 0; i <= 512; i += 128) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
+  }
+  return new THREE.CanvasTexture(canvas);
+}
+
 // --- Baseplate --- lighter color so it reads against dark background
 const baseMesh = makeBox(570, 6, 420, 0x2a2a3a);
 baseMesh.position.set(-30, -3, 0);
+baseMesh.material.map = makeBaseplateTexture();
+baseMesh.material.needsUpdate = true;
 scene.add(baseMesh);
 
 // --- Hopper (left) ---
 const HOPPER_X = -230;
+
+// Point light above hopper to spotlight the pick-up action
+const hopperLight = new THREE.PointLight(0xffeedd, 0.5, 200);
+hopperLight.position.set(HOPPER_X + 33, 200, 0);
+scene.add(hopperLight);
 
 function makeHopperBox(w, h, d, opacity) {
   opacity = opacity === undefined ? 1 : opacity;
@@ -498,10 +585,10 @@ scene.add(beltSurf);
 
 // Belt legs
 for(let lx of [-140, -40, 60]) {
-  const leg = makeBox(8, CONV_Y_TOP - 12, 8, 0x909098);
+  const leg = makeBox(8, CONV_Y_TOP - 12, 8, 0x606068);
   leg.position.set(lx, (CONV_Y_TOP - 12)/2, 30);
   scene.add(leg);
-  const leg2 = makeBox(8, CONV_Y_TOP - 12, 8, 0x909098);
+  const leg2 = makeBox(8, CONV_Y_TOP - 12, 8, 0x606068);
   leg2.position.set(lx, (CONV_Y_TOP - 12)/2, -30);
   scene.add(leg2);
 }
@@ -652,6 +739,24 @@ function makeTrayFloor(yBase, colorHex) {
     const dz = -TRAY_Z_HALF + i * 65;
     const dv = makeTrayBox(TX_DEP, TRAY_FLOOR_H, 2);
     dv.position.set(TX_MID, yBase + TRAY_FLOOR_H/2, dz); scene.add(dv);
+  }
+  // Glowing top caps on each divider — colored by the left-adjacent domain
+  const floorIdxCap = (yBase === FLOOR_Y[0] - 4) ? 0 : 1;
+  for (let i = 1; i < 4; i++) {
+    const dz = -TRAY_Z_HALF + i * 65;
+    const adjDomain = CARD_TYPES.find(t => t.floor === floorIdxCap && t.col === (i - 1));
+    const capColor = adjDomain ? adjDomain.hex : 0x446688;
+    const capGeo = new THREE.BoxGeometry(TX_DEP, 2, 2);
+    const capMat = new THREE.MeshStandardMaterial({
+      color: capColor,
+      emissive: new THREE.Color(capColor),
+      emissiveIntensity: 0.8,
+      roughness: 0.3,
+      metalness: 0.2
+    });
+    const capMesh = new THREE.Mesh(capGeo, capMat);
+    capMesh.position.set(TX_MID, yBase + TRAY_FLOOR_H + 1, dz);
+    scene.add(capMesh);
   }
   // Domain label wire-boxes (unchanged)
   const floorIdx = (yBase === FLOOR_Y[0] - 4) ? 0 : 1;
@@ -851,6 +956,21 @@ scene.add(cardGlow);
 const trayCards = {};
 const trayArrivals = []; // {mesh, startY, targetY, t} — animates card settling into slot
 
+function showSlotPlusOne(worldPos, color) {
+  const vec = worldPos.clone().project(camera);
+  const sx = ( vec.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
+  const sy = (-vec.y * 0.5 + 0.5) * renderer.domElement.clientHeight;
+  const div = document.createElement('div');
+  div.className = 'slot-plusone';
+  div.textContent = '+1';
+  div.style.color = color;
+  div.style.left   = sx + 'px';
+  div.style.top    = sy + 'px';
+  div.style.textShadow = `0 0 8px ${color}`;
+  document.body.appendChild(div);
+  div.addEventListener('animationend', () => div.remove());
+}
+
 function addCardToTray(ct) {
   const key = `${ct.floor}_${ct.col}`;
   if(!trayCards[key]) trayCards[key] = [];
@@ -900,6 +1020,14 @@ function addCardToTray(ct) {
 
   // Track per-domain sort count
   domainCounts[ct.name] = (domainCounts[ct.name] || 0) + 1;
+
+  // Floating +1 indicator at slot screen position
+  const slotWorldPos = new THREE.Vector3(
+    TRAY_X_START + 4 + Math.min(arr.length - 1, 5) * (CARD_T + 1),
+    ct.slotFloorY + 58,
+    ct.slotZ
+  );
+  showSlotPlusOne(slotWorldPos, ct.css);
 }
 
 // ─── Fill Bars ─────────────────────────────────────────────────────────────────
@@ -990,11 +1118,16 @@ function togglePause() {
   document.getElementById('pause-btn').classList.toggle('active', paused);
 }
 
-function cycleSpeed() {
-  speedIdx = (speedIdx + 1) % SPEEDS.length;
-  speedMult = SPEEDS[speedIdx];
+function applySpeed(idx) {
+  speedIdx  = idx;
+  speedMult = SPEEDS[idx];
   document.getElementById('speed-btn').textContent = speedMult + '× Speed';
+  // Baseline belt glow scales with speed
+  beltSurfMat._glowBase = speedMult >= 4 ? 0.30
+                        : speedMult >= 2 ? 0.15
+                        : 0.05;
 }
+function cycleSpeed() { applySpeed((speedIdx + 1) % SPEEDS.length); }
 
 function toggleAutoOrbit() {
   const btn = document.getElementById('auto-btn');
@@ -1022,12 +1155,21 @@ function updateStatsUI(cardType) {
       `Current: <span style="color:${cardType.css}">${cardType.name}</span>` +
       ` → ${floorLabel} floor, col ${cardType.col + 1}`;
   }
-  // Per-domain breakdown
+  // Per-domain breakdown with mini-bar graphs
   let breakdownHtml = '';
   CARD_TYPES.forEach(t => {
     const count = domainCounts[t.name] || 0;
     if(count > 0) {
-      breakdownHtml += `<div><span style="color:${t.css}">●</span> ${t.name}: ${count}</div>`;
+      const barW = Math.min(80, count * 8); // 8px per card, cap at 80px
+      breakdownHtml +=
+        `<div style="display:flex;align-items:center;gap:4px">` +
+        `<span style="color:${t.css}">●</span> ` +
+        `<span style="color:#aaa;flex:1">${t.name}</span>` +
+        `<span style="color:#ddd;min-width:16px;text-align:right">${count}</span>` +
+        `<span class="domain-bar-wrap">` +
+          `<span class="domain-bar-fill" style="width:${barW}px;background:${t.css}"></span>` +
+        `</span>` +
+        `</div>`;
     }
   });
   let bd = document.getElementById('stats-breakdown');
@@ -1040,21 +1182,33 @@ function updateStatsUI(cardType) {
   bd.innerHTML = breakdownHtml;
 }
 
-function showScanOverlay(cardType, visible) {
+function showScanOverlay(cardType, visible, routeText) {
   const el = document.getElementById('scan-overlay');
   el.style.opacity = visible ? '1' : '0';
   if(visible && cardType) {
     document.getElementById('scan-type').textContent = cardType.name;
     document.getElementById('scan-type').style.color = cardType.css;
-    const floorLabel = ['Lower', 'Upper'][cardType.floor];
-    document.getElementById('scan-slot').textContent =
-      `→ ${floorLabel} floor · Col ${cardType.col + 1}`;
+    const isLower = cardType.floor === 0;
+    const floorName = isLower ? 'Lower floor' : 'Upper floor';
+    if(routeText) {
+      // Route confirmation mode (used during slotDrop pulse)
+      document.getElementById('scan-slot').innerHTML =
+        `<span style="font-size:13px;letter-spacing:1px;color:${cardType.css}">Route: ${cardType.name}</span><br>` +
+        `<span style="color:#fff;font-size:11px;opacity:0.85;">→ ${floorName} · Col ${cardType.col + 1}</span>`;
+    } else {
+      // Normal scan mode — colored directional arrow
+      const arrow = isLower ? '↓' : '↑';
+      const arrowColor = isLower ? '#44dd88' : '#bb66ff';
+      document.getElementById('scan-slot').innerHTML =
+        `<span class="floor-arrow" style="color:${arrowColor}">${arrow}</span>` +
+        ` <span style="color:#ccc">${floorName} · Col ${cardType.col + 1}</span>`;
+    }
   }
 }
 
-// Paddle angle: maps slotZ to rotation angle (flat = center, ±90° for edges)
+// Paddle angle: maps slotZ to rotation angle (flat = center, wider swing for visibility)
 function paddleAngleForSlot(slotZ) {
-  return -(slotZ / 160) * (Math.PI / 2.5);
+  return -(slotZ / 160) * 1.2;
 }
 
 // ─── Hopper stack (dynamic — shrinks each cycle, refills after 6 cards) ───────
@@ -1201,11 +1355,17 @@ function animate(ts) {
 
   // ── Phases 1a–1c: Arm descend / lift / swing (0..1.5s) ──
   // Card is visible and tracks the suction cup throughout
+  // Reset pivot Y to nominal every frame; armDescend overrides it with jitter
+  suctionPivot.position.y = 108;
   if(cycleT < PH.conveyorIn[0]) {
     if(inPhase(PH.armDescend)) {
       // Gravity-assisted descent: ease-in; end at -0.036 rad to center cup over card stack
       const pt = phaseT(PH.armDescend, easeIn);
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.35, -0.036, pt);
+      // Subtle vertical jitter — simulates servo hunting to find card surface
+      // Amplitude shrinks from 2 → 0 as arm settles onto stack
+      const jitter = 2.0 * (1 - pt) * Math.sin(ts * 0.055);
+      suctionPivot.position.y = 108 + jitter;
     } else if(inPhase(PH.armLift)) {
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
@@ -1310,9 +1470,10 @@ function animate(ts) {
       THREE.MathUtils.lerp(-40, GATE_X, ot),
       CONV_Y_TOP + CARD_T/2 + 2, 0
     );
-    // Paddle uses easing (servo has inertia)
+    // Paddle snaps early: covers ~70% travel in first half, holds before card arrives
     const targetAngle = paddleAngleForSlot(ct.slotZ);
-    paddlePivot.rotation.z = THREE.MathUtils.lerp(0, targetAngle, easeInOut(ot));
+    const paddleT = Math.min(1, easeOut(ot * 2));
+    paddlePivot.rotation.z = THREE.MathUtils.lerp(0, targetAngle, paddleT);
     scanFlash.intensity = 0;
     scanBloom.intensity = 0;
     scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
@@ -1331,11 +1492,14 @@ function animate(ts) {
     const dt2 = phaseT(PH.deflect);
     const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
     const cz = THREE.MathUtils.lerp(0, ct.slotZ, dt2);
-    const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP;
+    // Floor 0 lofts 20u above belt so the gravity drop has visual drama
+    const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
     activeCard.position.set(cx, cy, cz);
-    activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.3 * Math.sign(ct.slotZ || 0), dt2);
-    activeCard.rotation.x = 0;
+    const bankSign = Math.sign(ct.slotZ || 0);
+    const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
+    activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.5 * bankSign, dt2);
+    activeCard.rotation.x = THREE.MathUtils.lerp(0, floorTilt, dt2);
     activeCard.rotation.z = 0;
     cardGlow.intensity = 0.6;
     cardGlow.position.copy(activeCard.position);
@@ -1345,20 +1509,50 @@ function animate(ts) {
   // ── Phase 6: Drop into slot (4.8..5.8s) ──
   else if(inPhase(PH.slotDrop)) {
     activeCard.visible = true;
-    const dt3 = phaseRaw(PH.slotDrop); // linear 0..1 for spring calc
-    const targetY = ct.slotFloorY + 29; // 29 = 58/2 matches tray card rest height
-    const _spring = dt3 < 0.85 ? easeInOut(dt3/0.85) : 1 + 0.08 * Math.sin((dt3-0.85)*Math.PI/0.15);
-    const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, targetY, Math.min(_spring, 1));
+    const dt3 = phaseRaw(PH.slotDrop); // linear 0..1
+    const targetY = ct.slotFloorY + 29; // matches static tray card center
+    // startY must match where deflect phase ended (arcY)
+    const startY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
+    let cy;
+    if (ct.floor === 0) {
+      // Gravity fall: quadratic easeIn (slow start, accelerates down — realistic)
+      if (dt3 < 0.88) {
+        const g = dt3 / 0.88;
+        cy = THREE.MathUtils.lerp(startY, targetY, g * g);
+      } else {
+        // Small bounce at landing
+        const bT = (dt3 - 0.88) / 0.12;
+        cy = targetY + 6 * Math.sin(bT * Math.PI) * (1 - bT * 0.5);
+      }
+    } else {
+      // Upper floor: card is guided up into elevated slot — smooth easeInOut
+      cy = THREE.MathUtils.lerp(startY, targetY, easeInOut(dt3));
+    }
     activeCard.position.set(TRAY_X_START + 20, cy, ct.slotZ);
     activeCard.rotation.y = 0;
-    // X-axis rotation stands the card upright: 88mm Z extent rotates onto +Y axis
-    activeCard.rotation.x = THREE.MathUtils.lerp(0, -Math.PI / 2, dt3);
+    // Card stays upright (no somersault) — face visible as it drops in
+    activeCard.rotation.x = 0;
     activeCard.rotation.z = 0;
-    // Fade out over last 0.25s of the phase (dt3 > 0.75)
-    activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.75) * 4));
+    // Fade out over last 20% only
+    activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3);
     cardGlow.position.copy(activeCard.position);
     beltTex.offset.x -= dt * speedMult * 0.04;
+    // Route confirmation overlay — pulse once at start of drop
+    const routePulseAlpha = dt3 < 0.4 ? Math.sin(dt3 / 0.4 * Math.PI) : 0;
+    if(routePulseAlpha > 0) {
+      showScanOverlay(ct, true, true);
+      const overlayEl = document.getElementById('scan-overlay');
+      overlayEl.style.opacity = String(routePulseAlpha);
+      const _sv2 = activeCard.position.clone().project(camera);
+      const _sx2 = (_sv2.x * 0.5 + 0.5) * window.innerWidth;
+      const _sy2 = (-_sv2.y * 0.5 + 0.5) * window.innerHeight;
+      overlayEl.style.left = _sx2 + 'px';
+      overlayEl.style.top  = (_sy2 - 90) + 'px';
+      overlayEl.style.transform = 'translateX(-50%)';
+    } else {
+      showScanOverlay(ct, false);
+    }
   }
 
   // ── Phase 7: Arm return (5.8..6.3s) ──
@@ -1385,16 +1579,19 @@ function animate(ts) {
     scanLine.visible = false;
   }
 
-  // Belt emissive flicker implies motion throughout the cycle
-  beltSurfMat.emissiveIntensity = 0.05 + 0.03 * Math.sin(cycleT * 10);
+  // Belt emissive flicker implies motion throughout the cycle (base scales with speed)
+  const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.05;
+  beltSurfMat.emissiveIntensity = beltBase + 0.03 * Math.sin(cycleT * 10);
 
   // Spin conveyor rollers when belt is moving
   const beltFullSpeed = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
   const beltHalfSpeed = inPhase(PH.deflect);
   if (!paused) {
     rollerMeshes.forEach(r => {
-      if (beltFullSpeed) r.rotation.x += dt * speedMult * 8;
-      else if (beltHalfSpeed) r.rotation.x += dt * speedMult * 4; // half rate during deflect
+      // rotation.z drives belt-axis spin (rollers lie along Z after initial rotation.x=PI/2)
+      // negative = counterclockwise from +Z = top surface moves right (+X = card travel direction)
+      if (beltFullSpeed) r.rotation.z -= dt * speedMult * 8;
+      else if (beltHalfSpeed) r.rotation.z -= dt * speedMult * 4; // half rate during deflect
     });
   }
 
@@ -1416,6 +1613,16 @@ function animate(ts) {
 
   // ── Arm rod emissive highlight during armLift ──
   armRod.material.emissiveIntensity = inPhase(PH.armLift) ? 0.15 : 0.0;
+
+  // Auto-orbit recovery: re-enable after 12 s of pointer inactivity
+  if(controls._userInteracted && controls._lastPointerMs > 0) {
+    if(performance.now() - controls._lastPointerMs > 12000) {
+      controls._userInteracted = false;
+      controls._lastPointerMs = 0;
+      const btn = document.getElementById('auto-btn');
+      if(btn) btn.classList.add('active');
+    }
+  }
 
   // Camera auto-orbit: gentle ellipse centered on true machine midpoint X=-30
   if(!controls.enableRotate || !controls._userInteracted) {
@@ -1440,24 +1647,61 @@ function animate(ts) {
     if(el) { el.style.left = x+'px'; el.style.top = y+'px'; el.style.opacity = p.z < 1 ? '1' : '0'; }
   });
 
+  // ── Hopper card count overlay (projects below hopper label) ──
+  {
+    const _hp = new THREE.Vector3(HOPPER_X + 33, 70, 0).project(camera);
+    const _hx = (_hp.x * 0.5 + 0.5) * _lW;
+    const _hy = (-_hp.y * 0.5 + 0.5) * _lH;
+    const hcEl = document.getElementById('hopper-count');
+    if(hcEl) {
+      hcEl.style.left = _hx + 'px';
+      hcEl.style.top  = _hy + 'px';
+      hcEl.style.opacity = _hp.z < 1 ? '1' : '0';
+      const visCount = stackTopIdx + 1;
+      hcEl.textContent = visCount + ' card' + (visCount !== 1 ? 's' : '') + ' remaining';
+    }
+  }
+
+  // ── "Picking…" hint near hopper during armLift phase ──
+  {
+    const pickEl = document.getElementById('picking-hint');
+    if(pickEl) {
+      const showPick = inPhase(PH.armLift);
+      pickEl.style.opacity = showPick ? '1' : '0';
+      if(showPick) {
+        const _pp = new THREE.Vector3(HOPPER_X + 33, 110, 0).project(camera);
+        const _px = (_pp.x * 0.5 + 0.5) * _lW;
+        const _py = (-_pp.y * 0.5 + 0.5) * _lH;
+        pickEl.style.left = _px + 'px';
+        pickEl.style.top  = (_py - 30) + 'px';
+      }
+    }
+  }
+
   renderer.render(scene, camera);
 }
 
-// Detect user orbit interaction to pause auto-orbit
-controls.domElement.addEventListener('pointerdown', () => {
+// Detect user orbit interaction to pause auto-orbit; track last interaction time for recovery
+controls._lastPointerMs = 0;
+function _onPointerActivity() {
   controls._userInteracted = true;
+  controls._lastPointerMs = performance.now();
   const btn = document.getElementById('auto-btn');
   if (btn) btn.classList.remove('active');
+}
+controls.domElement.addEventListener('pointerdown', _onPointerActivity);
+controls.domElement.addEventListener('pointermove', e => {
+  if (e.buttons > 0) _onPointerActivity(); // only while dragging
 });
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
   if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if(e.code === 'Space') { e.preventDefault(); togglePause(); }
-  if(e.code === 'Digit1') { speedIdx=0; speedMult=SPEEDS[0]; document.getElementById('speed-btn').textContent=SPEEDS[0]+'× Speed'; }
-  if(e.code === 'Digit2') { speedIdx=1; speedMult=SPEEDS[1]; document.getElementById('speed-btn').textContent=SPEEDS[1]+'× Speed'; }
-  if(e.code === 'Digit3') { speedIdx=2; speedMult=SPEEDS[2]; document.getElementById('speed-btn').textContent=SPEEDS[2]+'× Speed'; }
-  if(e.code === 'Digit4') { speedIdx=3; speedMult=SPEEDS[3]; document.getElementById('speed-btn').textContent=SPEEDS[3]+'× Speed'; }
+  if(e.code === 'Digit1') applySpeed(0);
+  if(e.code === 'Digit2') applySpeed(1);
+  if(e.code === 'Digit3') applySpeed(2);
+  if(e.code === 'Digit4') applySpeed(3);
   if(e.code === 'KeyR') {
     controls._userInteracted = false;
     const btn = document.getElementById('auto-btn');
