@@ -3503,7 +3503,11 @@ function animate(ts) {
 
   // Belt emissive flicker implies motion throughout the cycle (base scales with speed)
   const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.05;
-  beltSurfMat.emissiveIntensity = beltBase + 0.03 * Math.sin(cycleT * 10);
+  // Pass 143: speed-proportional strobe frequency (3 Hz idle → 9 Hz at full belt speed)
+  const _beltStrobeFreq = 3 + _beltScrollSpeed * 75;
+  const _beltSpeedGlow = _beltScrollSpeed > 0.005
+    ? 0.028 * (_beltScrollSpeed / 0.08) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0;
+  beltSurfMat.emissiveIntensity = beltBase + 0.03 * Math.sin(cycleT * 10) + _beltSpeedGlow;
   // Belt surface tints subtly toward domain color when active card rides on it
   {
     const onBelt = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
