@@ -2317,7 +2317,9 @@ function animate(ts) {
       const _prePickT = inPhase(PH.pause) || inPhase(PH.armDescend) || inPhase(PH.armLift);
       if (_prePickT) {
         const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
-        sc.material.emissiveIntensity = 0.04 + _wave * 0.10;
+        // Pass 301: deck wave amplitude ramp during armDescend — shimmer builds as arm approaches
+        const _waveAmp301 = inPhase(PH.armDescend) ? 0.10 + phaseRaw(PH.armDescend) * 0.14 : 0.10;
+        sc.material.emissiveIntensity = 0.04 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
         sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 3);
@@ -3342,6 +3344,9 @@ function animate(ts) {
     }
     // Pass 285: cone reveal flash — scan cone briefly blazes at identity lock-on
     const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 0.22 : 0;
+    // Pass 302: scan cone Z sweep — cone slowly sweeps ±7 units Z to simulate active scanning
+    scanCone.position.z = 7 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5);
+    scanBeam.position.z = scanCone.position.z;
     scanConeMat.opacity = flashIntensity * 0.09 + _strobe * 0.5 + _coneRevealBoost;
     // Pass 287: scan beam strength scales with bar fill — beam grows as more data is acquired
     const _beamFillBoost = barFill * 0.20;
@@ -3878,7 +3883,8 @@ function animate(ts) {
       impactRing.scale.setScalar(1.0);
       impactRing.visible = true;
       // Pass 38: brief camera "thud" shake on hard floor landing
-      _cameraShake = Math.max(_cameraShake, 1.4);
+      // Pass 303: floor-0 shake boost — harder shake for the full gravity drop
+      _cameraShake = Math.max(_cameraShake, 2.2);
       // Pass 69: flash this slot's entry strip bright on landing
       if (ct.stripMat) ct.stripMat.emissiveIntensity = 4.0;
       // Pass 218: fill bar landing spark — domain fill bar flares bright when card arrives,
