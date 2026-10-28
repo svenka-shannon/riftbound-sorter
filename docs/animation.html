@@ -2636,9 +2636,9 @@ function animate(ts) {
           // Pass 203: cup contact dust puff — tiny displaced air burst upward from card surface.
           // 4 particles shoot upward and sideways, simulating air compressed under the cup.
           {
-            // Pass 509: boost contact dust puff count 4→6 for more visible air compression burst
+            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 for more visible burst
           let _cpSpawned = 0;
-            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 6; _ci++) {
+            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 9; _ci++) {
               const _cp = GRAB_PARTICLES[_ci];
               if (_cp.active) continue;
               _cp.active = true; _cp.age = 0; _cp.life = 0.20 + Math.random() * 0.10;
@@ -2659,9 +2659,10 @@ function animate(ts) {
       }
       // Pass 102: air displacement trail — cup cuts through air on rapid descent
       // Only active in faster descent portion (pt > 0.25); spawns every 90ms
+      // Pass 571: armDescend air trail spawn interval 0.09→0.065s for denser descent trail
       if (pt > 0.25) {
         _trailSpawnAcc += dt;
-        if (_trailSpawnAcc >= 0.09) {
+        if (_trailSpawnAcc >= 0.065) {
           _trailSpawnAcc = 0;
           const _dRot = suctionPivot.rotation.z;
           const _dCupX = PIV_X + 83 * Math.sin(_dRot);
@@ -3478,7 +3479,8 @@ function animate(ts) {
     // Pass 115: beam urgency strobe — frequency and amplitude build from 65%→85% scan progress
     const _prevT = barFill < 0.65 ? 0 : barFill > 0.85 ? 0 : (barFill - 0.65) / 0.20;
     const _strobeFreq = 5 + _prevT * 18; // Pass 442: ramps 5→23Hz (was 17Hz)
-    const _strobeAmp  = _prevT * 0.10;  // Pass 443: amplitude 0.06→0.10
+    // Pass 573: strobe amplitude 0.10→0.16 for more visible urgency strobe pre-reveal
+    const _strobeAmp  = _prevT * 0.16;  // Pass 573: 0.10→0.16
     const _strobe = Math.sin(ts * _strobeFreq * Math.PI * 2) * _strobeAmp;
     // Pass 189: cone + beam switch from scan-blue to domain color at identity reveal
     {
@@ -4708,8 +4710,11 @@ function animate(ts) {
   // Pass 200: scan camera Z sympathetic oscillation — very subtle ±1.8 unit Z sway matching
   // the scanner hood's 2.8Hz micro-sway (pass 197). Gives the camera a "feels the vibration"
   // sensation. Envelope follows sin(phaseRaw*π) so it peaks at scan midpoint.
+  // Pass 570: Z amplitude 1.8→2.8; add 0.6-unit Y component for fuller resonance feel
   if (inPhase(PH.scan) && !controls._userInteracted) {
-    camera.position.z += 1.8 * Math.sin(ts * 2.8 * Math.PI * 2) * Math.sin(phaseRaw(PH.scan) * Math.PI);
+    const _scanSinEnv = Math.sin(phaseRaw(PH.scan) * Math.PI);
+    camera.position.z += 2.8 * Math.sin(ts * 2.8 * Math.PI * 2) * _scanSinEnv;
+    camera.position.y += 0.6 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv;
   }
 
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
@@ -4729,11 +4734,13 @@ function animate(ts) {
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
     const _h2 = Math.sin(_shakePhase2) * 0.55;           // second harmonic (quieter)
-    const _shakeX = (_n * 0.30 + _h1 * 0.45 + _h2 * 0.25) * _cameraShake;
-    const _shakeY = (_n * 0.30 + Math.cos(_shakePhase1) * 0.45 + Math.cos(_shakePhase2) * 0.25 * 0.55) * _cameraShake;
+    // Pass 568: shake amplitude boost — white noise 0.30→0.45, h1 0.45→0.62, h2 0.25→0.38 for juicier impact
+    const _shakeX = (_n * 0.45 + _h1 * 0.62 + _h2 * 0.38) * _cameraShake;
+    const _shakeY = (_n * 0.45 + Math.cos(_shakePhase1) * 0.62 + Math.cos(_shakePhase2) * 0.38 * 0.55) * _cameraShake;
     camera.position.x += _shakeX;
     camera.position.y += _shakeY;
-    _cameraShake *= 0.78; // decay: 3.5 → ~0 in about 12 frames
+    // Pass 569: shake decay 0.78→0.72 for longer lingering impact feel
+    _cameraShake *= 0.72; // decay: 3.5 → ~0 in about 14 frames
   } else {
     _cameraShake = 0;
     _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
