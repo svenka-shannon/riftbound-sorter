@@ -78,6 +78,23 @@
     padding: 2px 6px;
     border-radius: 4px;
   }
+  #tray-legend {
+    position: fixed; bottom: 20px; left: 20px;
+    background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 10px 14px;
+    backdrop-filter: blur(8px); font-size: 11px; line-height: 1.7;
+    min-width: 160px;
+  }
+  #tray-legend .legend-title {
+    font-size: 10px; color: #666; text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 4px;
+  }
+  #tray-legend .legend-floor { margin-bottom: 4px; }
+  #tray-legend .legend-floor-label {
+    font-size: 10px; color: #888; margin-bottom: 2px;
+  }
+  .legend-dot { display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; margin-right: 4px; vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -110,6 +127,21 @@
 
 <div id="hint">Drag to rotate · Scroll to zoom · Right-drag to pan<br>Space=pause · 1–4=speed · R=reset view &amp; auto-orbit</div>
 
+<div id="tray-legend">
+  <div class="legend-title">Sorting Tray Layout</div>
+  <div class="legend-floor">
+    <div class="legend-floor-label">Lower floor →</div>
+    <div><span class="legend-dot" style="background:#cc2233"></span><span style="color:#cc2233">Fury</span> · <span class="legend-dot" style="background:#2244cc"></span><span style="color:#2244cc">Mind</span></div>
+    <div><span class="legend-dot" style="background:#22aa44"></span><span style="color:#22aa44">Calm</span> · <span class="legend-dot" style="background:#ff7700"></span><span style="color:#ff7700">Body</span></div>
+  </div>
+  <div class="legend-floor">
+    <div class="legend-floor-label">Upper floor →</div>
+    <div><span class="legend-dot" style="background:#9922cc"></span><span style="color:#9922cc">Chaos</span> · <span class="legend-dot" style="background:#ddcc00"></span><span style="color:#ddcc00">Order</span></div>
+    <div><span class="legend-dot" style="background:#888888"></span><span style="color:#aaa">Colorless</span> · <span class="legend-dot" style="background:#334455"></span><span style="color:#667788">Reject</span></div>
+  </div>
+  <div style="font-size:10px;color:#555;margin-top:4px;border-top:1px solid rgba(255,255,255,0.06);padding-top:4px;">Gate deflects card → correct slot</div>
+</div>
+
 <div class="machine-label" id="lbl-hopper"><span>Hopper</span></div>
 <div class="machine-label" id="lbl-scanner"><span>Scanner</span></div>
 <div class="machine-label" id="lbl-gate"><span>Sort Gate</span></div>
@@ -130,7 +162,7 @@
     this.minPolarAngle = 0; this.maxPolarAngle = Math.PI;
     this.enableDamping = true; this.dampingFactor = 0.06;
     this.enableZoom = true; this.zoomSpeed = 1.0;
-    this.enableRotate = true; this.rotateSpeed = 0.6;
+    this.enableRotate = true; this.rotateSpeed = 0.25;
     this.enablePan = true; this.panSpeed = 0.8;
     this.screenSpacePanning = true;
 
@@ -601,7 +633,7 @@ const TX_MID = (TRAY_X_START + TRAY_X_END) / 2;
 const TX_DEP = TRAY_X_END - TRAY_X_START;
 
 function makeTrayFloor(yBase, colorHex) {
-  const trayMat = new THREE.MeshStandardMaterial({ color: 0x2a3040, roughness: 0.55, metalness: 0.15 });
+  const trayMat = new THREE.MeshStandardMaterial({ color: 0x8899bb, roughness: 0.55, metalness: 0.1 });
   function makeTrayBox(w, h, d) {
     const geo = new THREE.BoxGeometry(w, h, d);
     const mesh = new THREE.Mesh(geo, trayMat);
@@ -1215,7 +1247,7 @@ function animate(ts) {
     activeCardMat.opacity = Math.min(1, ct2 * 5); // fade in over first 0.2s
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
-    activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 1, 0);
+    activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2, 0);
     scanFlash.intensity = 0;
     scanBloom.intensity = 0;
     activeCardMat.emissiveIntensity = 0.2;
@@ -1232,7 +1264,7 @@ function animate(ts) {
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
     activeCard.rotation.set(0, 0, 0);
-    activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 1, 0);
+    activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2, 0);
     const ft = phaseRaw(PH.scan);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
@@ -1276,7 +1308,7 @@ function animate(ts) {
     const ot = phaseRaw(PH.conveyorOut); // LINEAR for card position (belt speed)
     activeCard.position.set(
       THREE.MathUtils.lerp(-40, GATE_X, ot),
-      CONV_Y_TOP + CARD_T/2 + 1, 0
+      CONV_Y_TOP + CARD_T/2 + 2, 0
     );
     // Paddle uses easing (servo has inertia)
     const targetAngle = paddleAngleForSlot(ct.slotZ);
@@ -1300,7 +1332,7 @@ function animate(ts) {
     const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
     const cz = THREE.MathUtils.lerp(0, ct.slotZ, dt2);
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP;
-    const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 1, arcY, dt2);
+    const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
     activeCard.position.set(cx, cy, cz);
     activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.3 * Math.sign(ct.slotZ || 0), dt2);
     activeCard.rotation.x = 0;
@@ -1316,7 +1348,7 @@ function animate(ts) {
     const dt3 = phaseRaw(PH.slotDrop); // linear 0..1 for spring calc
     const targetY = ct.slotFloorY + 29; // 29 = 58/2 matches tray card rest height
     const _spring = dt3 < 0.85 ? easeInOut(dt3/0.85) : 1 + 0.08 * Math.sin((dt3-0.85)*Math.PI/0.15);
-    const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 1, targetY, Math.min(_spring, 1));
+    const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, targetY, Math.min(_spring, 1));
     activeCard.position.set(TRAY_X_START + 20, cy, ct.slotZ);
     activeCard.rotation.y = 0;
     // X-axis rotation stands the card upright: 88mm Z extent rotates onto +Y axis
