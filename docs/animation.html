@@ -3249,7 +3249,9 @@ function animate(ts) {
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
     const _tumblePeak = bankSign * 0.65; // center-slot (bankSign=0) gets no roll
-    activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI);
+    // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
+    const _flutter = Math.sin(ts * 23 * Math.PI * 2) * 0.020 * Math.sin(dt2 * Math.PI);
+    activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter;
     cardGlow.intensity = 0.6;
     cardGlow.position.copy(activeCard.position);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
