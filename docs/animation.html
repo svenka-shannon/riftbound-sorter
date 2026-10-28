@@ -3634,18 +3634,18 @@ function animate(ts) {
   else if(inPhase(PH.deflect)) {
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
-    // Pass 34: gate contact flash — brief domain burst where paddle meets card
+    // Pass 34: gate contact flash — Pass 409: intensity 5.5→8.0, dist 75→100 (bigger burst)
     if (!_gateFlashFired) {
       _gateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 5.5, 75);
+      const _gfl = new THREE.PointLight(ct.hex, 8.0, 100);
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _gfl, age: 0 });
       // Pass 72: peak spike on gate contact — discharges charge-up energy
       paddleMat.emissiveIntensity = 5.5;
-      // Pass 269: gate-contact card face flash — card face blazes hot at paddle impact
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 2.2);
+      // Pass 269: gate-contact card face flash — Pass 411: boost 2.2 → 3.5 (hotter impact blaze)
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 3.5);
       // Pass 298: gate-contact camera micro-shake — physical impact reverberates into camera
       _cameraShake = 1.8;
       // Pass 369: gate-contact FOV micro-punch — brief 1.8° zoom at paddle impact
@@ -3663,7 +3663,7 @@ function animate(ts) {
       {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
         let _spawned = 0;
-        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 8; _si++) {
+        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 12; _si++) { // Pass 410: 8→12 sparks
           const _sp = GRAB_PARTICLES[_si];
           if (_sp.active) continue;
           _sp.active = true; _sp.age = 0; _sp.life = 0.25 + Math.random() * 0.18;
