@@ -4756,7 +4756,8 @@ function animate(ts) {
       // Pass 186: Z now follows card's Z-wobble (passes 173-174) instead of hardcoded 0
       _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 6, activeCard.position.z);
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 3.5 : 2.2;
+      // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 3.5 : 2.8;
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
     } else {
       // Fade card-tracking mode out
@@ -4766,7 +4767,7 @@ function animate(ts) {
       const _beltIdle = inPhase(PH.armReturn) || inPhase(PH.pause) ||
                         inPhase(PH.armDescend) || inPhase(PH.armLift);
       if (_beltIdle) {
-        _beltIdlePhase = (_beltIdlePhase + dt * 0.38 * speedMult) % 1; // full sweep ~2.6s at 1×
+        _beltIdlePhase = (_beltIdlePhase + dt * 0.55 * speedMult) % 1; // Pass 361: sweep speed boost 0.38 → 0.55 (~1.8s)
         const shimmerX = THREE.MathUtils.lerp(HOPPER_X + 10, GATE_X - 10,
                            (Math.sin(_beltIdlePhase * Math.PI * 2) * 0.5 + 0.5));
         // Pass 209: idle shimmer domain echo — during armReturn, the belt briefly remembers
@@ -4779,7 +4780,7 @@ function animate(ts) {
         _beltTrackLight.position.set(shimmerX, CONV_Y_TOP + 5, 0);
         // Pulse the shimmer brightness — brighter at belt midpoint, softer at ends
         const midT = 1 - Math.abs((_beltIdlePhase % 1) - 0.5) * 2;
-        _beltTrackLight.intensity = 0.35 + midT * 0.45;
+        _beltTrackLight.intensity = 0.45 + midT * 0.65; // Pass 362: idle shimmer brightness boost (max 1.10)
       }
     }
   }
