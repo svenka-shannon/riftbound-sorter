@@ -1538,6 +1538,15 @@ confirmRing.rotation.x = -Math.PI / 2; // lie flat (XZ plane)
 confirmRing.visible = false;
 scene.add(confirmRing);
 let _confirmRingT = -1; // -1=idle; 0..1=animation progress
+// Pass 184: second, slightly smaller and delayed confirm ring for double-ripple effect
+const confirmRing2Mat = new THREE.MeshBasicMaterial({
+  color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
+});
+const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 0.8, 4, 48), confirmRing2Mat);
+confirmRing2.rotation.x = -Math.PI / 2;
+confirmRing2.visible = false;
+scene.add(confirmRing2);
+let _confirmRingT2 = -1; // -1=idle; 0..1=animation progress (fires 0.12s after ring 1)
 
 // Pass 110: Grab contact ring — expands outward at suction cup grab moment (armLift start)
 const grabRingMat = new THREE.MeshBasicMaterial({
@@ -2240,6 +2249,8 @@ function animate(ts) {
     _domainFillBoost = 0;       // pass 99
     _confirmRingT = -1;         // pass 100
     confirmRing.visible = false; confirmRingMat.opacity = 0;
+    _confirmRingT2 = -1;        // pass 184
+    confirmRing2.visible = false; confirmRing2Mat.opacity = 0;
 
     // Pass 51: paddle smooth-return in armReturn phase brings it to ~0; cycle reset
     // just snaps to exactly 0 to clear floating-point residue, then restores color.
@@ -2893,11 +2904,21 @@ function animate(ts) {
       0
     );
     scanLine2.material.opacity = flashIntensity * 0.65;
-    // Pass 38: tint scan crosshairs to domain color so the scanner "identifies" the card visually
-    scanLineMat.color.setHex(ct.hex);
-    scanLineMat.emissive.setHex(ct.hex);
-    scanLineMat2.color.setHex(ct.hex);
-    scanLineMat2.emissive.setHex(ct.hex);
+    // Pass 183: scan beams stay neutral cyan before identity reveal, snap to domain at 85%
+    // (cohesive with pass 176 card tint + pass 180 ghost trail reveal sequence)
+    const _beamHex = _identityRevealed ? ct.hex : 0x00ccff;
+    scanLineMat.color.setHex(_beamHex);
+    scanLineMat.emissive.setHex(_beamHex);
+    scanLineMat2.color.setHex(_beamHex);
+    scanLineMat2.emissive.setHex(_beamHex);
+    // Brief intensity spike on the first frame of reveal
+    if (_identityRevealed && ft >= 0.85 && ft < 0.87) {
+      scanLineMat.emissiveIntensity = 6.0;
+      scanLineMat2.emissiveIntensity = 4.5;
+    } else {
+      scanLineMat.emissiveIntensity = 3.0;
+      scanLineMat2.emissiveIntensity = 2.5;
+    }
     // Scan grid dots: 3×3 points appear staggered across card face with flash
     {
       // Pass 148 + 171: dots cascade to domain color one by one starting at ft=0.85 reveal
@@ -2953,6 +2974,10 @@ function animate(ts) {
         confirmRingMat.color.setHex(ct.hex);
         confirmRing.scale.setScalar(1.0);
         confirmRing.visible = true;
+        // Pass 184: launch second smaller ring 0.12s delayed (t starts at -0.22 → fires when >=0)
+        _confirmRingT2 = -0.22;
+        confirmRing2.position.set(-40, CONV_Y_TOP + CARD_T + 1, 0);
+        confirmRing2Mat.color.setHex(ct.hex);
         // Pass 96: domain name "CONFIRMED" text pop below scan overlay
         const _cfEl = document.getElementById('scan-confirm');
         if (_cfEl) {
@@ -4032,6 +4057,21 @@ function animate(ts) {
       _confirmRingT = -1;
       confirmRing.visible = false;
       confirmRingMat.opacity = 0;
+    }
+  }
+  // Pass 184: second confirm ring — fires 0.12s after first, smaller and faster
+  if (_confirmRingT2 > -1) {
+    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 2.2); // ~0.45s expansion (faster)
+    if (_confirmRingT2 >= 0) {
+      confirmRing2.visible = true;
+      const _crs2 = 0.6 + _confirmRingT2 * 4.2; // scale 0.6 → 4.8
+      confirmRing2.scale.setScalar(_crs2);
+      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 0.55);
+      if (_confirmRingT2 >= 1) {
+        _confirmRingT2 = -1;
+        confirmRing2.visible = false;
+        confirmRing2Mat.opacity = 0;
+      }
     }
   }
 
