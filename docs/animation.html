@@ -146,6 +146,38 @@
     font-weight: 600; transform: translateX(-50%);
     opacity: 0; transition: opacity 0.12s;
   }
+
+  /* ── Phase step bar ─────────────────────────────────────────── */
+  #phase-bar {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 4px;
+    background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 8px 14px;
+    backdrop-filter: blur(8px); pointer-events: none; z-index: 20;
+  }
+  .ph-step {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .ph-step .ph-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: background 0.15s, box-shadow 0.15s;
+    flex-shrink: 0;
+  }
+  .ph-step .ph-label {
+    font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    transition: color 0.15s;
+    white-space: nowrap;
+  }
+  .ph-step.active .ph-dot {
+    background: #fff;
+    box-shadow: 0 0 6px 2px rgba(255,255,255,0.6);
+  }
+  .ph-step.active .ph-label { color: rgba(255,255,255,0.9); }
+  .ph-arrow {
+    color: rgba(255,255,255,0.2); font-size: 10px; margin: 0 2px;
+  }
 </style>
 </head>
 <body>
@@ -202,6 +234,18 @@ Space=pause · 1–4=speed · R=reset view &amp; auto-orbit<br>
 
 <div id="hopper-count">6 cards remaining</div>
 <div id="picking-hint">Picking…</div>
+
+<div id="phase-bar">
+  <div class="ph-step" id="ph-pick"><div class="ph-dot"></div><div class="ph-label">Pick</div></div>
+  <div class="ph-arrow">›</div>
+  <div class="ph-step" id="ph-belt"><div class="ph-dot"></div><div class="ph-label">Belt</div></div>
+  <div class="ph-arrow">›</div>
+  <div class="ph-step" id="ph-scan"><div class="ph-dot"></div><div class="ph-label">Scan</div></div>
+  <div class="ph-arrow">›</div>
+  <div class="ph-step" id="ph-gate"><div class="ph-dot"></div><div class="ph-label">Gate</div></div>
+  <div class="ph-arrow">›</div>
+  <div class="ph-step" id="ph-drop"><div class="ph-dot"></div><div class="ph-label">Sort</div></div>
+</div>
 
 <div id="vignette" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,0.4) 100%);"></div>
 
@@ -1337,6 +1381,29 @@ function animate(ts) {
     showScanOverlay(ct, true);
   } else {
     showScanOverlay(ct, false);
+  }
+
+  // ── Phase bar step indicator ──
+  {
+    const inPick = cycleT < PH.armSwing[1];
+    const inBelt = cycleT >= PH.conveyorIn[0] && cycleT < PH.conveyorOut[1];
+    const inScan = cycleT >= PH.scan[0] && cycleT < PH.scan[1];
+    const inGate = cycleT >= PH.conveyorOut[0] && cycleT < PH.deflect[1];
+    const inSort = cycleT >= PH.slotDrop[0] && cycleT < PH.slotDrop[1];
+    const steps = [
+      { id: 'ph-pick', on: inPick },
+      { id: 'ph-belt', on: inBelt },
+      { id: 'ph-scan', on: inScan },
+      { id: 'ph-gate', on: inGate },
+      { id: 'ph-drop', on: inSort },
+    ];
+    steps.forEach(s => {
+      const el = document.getElementById(s.id);
+      if (el) {
+        if (s.on) el.classList.add('active');
+        else el.classList.remove('active');
+      }
+    });
   }
 
   // ── Active card color / texture (update map only when card type changes) ──
