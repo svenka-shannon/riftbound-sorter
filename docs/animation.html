@@ -1782,6 +1782,7 @@ let _depositFired = false;     // true once belt-deposit flash fired at conveyor
 let _convOutFlashFired = false; // pass 46: once scanner-exit flash fires at conveyorOut start
 let _rejectAlarmFired = false;  // pass 48: once reject-alarm vignette fires at Reject card landing
 let _identityRevealed = false;  // pass 93: set when scan reaches 85% confirm threshold
+let _domainFillBoost = 0;      // pass 99: temporary intensity boost at identity reveal
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
 let _shakePhase1 = 0;          // pass 71: harmonic overtone phases for organic shake
 let _shakePhase2 = 0;
@@ -2152,6 +2153,7 @@ function animate(ts) {
     _convOutFlashFired = false; // pass 46
     _rejectAlarmFired = false;  // pass 48
     _identityRevealed = false;  // pass 93
+    _domainFillBoost = 0;       // pass 99
 
     // Pass 51: paddle smooth-return in armReturn phase brings it to ~0; cycle reset
     // just snaps to exactly 0 to clear floating-point residue, then restores color.
@@ -2672,6 +2674,7 @@ function animate(ts) {
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
       if (barFill >= 0.85 && !_identityRevealed) {
         _identityRevealed = true;
+        _domainFillBoost = 0.55; // pass 99: spike domain fill light at identity reveal
         // Pass 96: domain name "CONFIRMED" text pop below scan overlay
         const _cfEl = document.getElementById('scan-confirm');
         if (_cfEl) {
@@ -3580,7 +3583,13 @@ function animate(ts) {
   _domFillClr.setHex(ct.hex);
   _domainFillLight.color.lerp(_domFillClr, dt * 0.45);
   const _fillTgt = activeCard.visible ? 0.15 : 0.05;
-  _domainFillLight.intensity += (_fillTgt - _domainFillLight.intensity) * dt * 1.8;
+  // Pass 99: decay boost (set at 85% identity reveal), adds scene-wide domain color wash
+  if (_domainFillBoost > 0.005) {
+    _domainFillBoost = Math.max(0, _domainFillBoost - dt * 2.2); // ~0.25s decay
+    _domainFillLight.intensity = Math.min(0.70, (_fillTgt + _domainFillBoost));
+  } else {
+    _domainFillLight.intensity += (_fillTgt - _domainFillLight.intensity) * dt * 1.8;
+  }
 
   // ── Pass 36: Round completion celebration particle physics ──────────────────
   CELEB_PARTICLES.forEach(p => {
