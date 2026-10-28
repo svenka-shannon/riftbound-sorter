@@ -2191,7 +2191,16 @@ function animate(ts) {
   for(let i = trayArrivals.length - 1; i >= 0; i--) {
     const a = trayArrivals[i];
     a.t = Math.min(1, a.t + dt * speedMult * 3.5);
-    a.mesh.position.y = THREE.MathUtils.lerp(a.startY, a.targetY, easeOut(a.t));
+    // Pass 98: landing bounce — card overshoots target slightly then springs back up
+    // First 80%: cubic ease-out approach; last 20%: half-sine spring (goes +5u up then settles)
+    let _yPos;
+    if (a.t < 0.80) {
+      _yPos = THREE.MathUtils.lerp(a.startY, a.targetY, easeOut(a.t / 0.80));
+    } else {
+      const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
+      _yPos = a.targetY + 5 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
+    }
+    a.mesh.position.y = _yPos;
     if(a.t >= 1) trayArrivals.splice(i, 1);
   }
 
