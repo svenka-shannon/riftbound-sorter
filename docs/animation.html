@@ -1946,6 +1946,15 @@ function animate(ts) {
         stackCards.forEach((c, i) => {
           c.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
         });
+        // Pass 49: hopper refill flash — warm white burst signals fresh batch loaded
+        const _rfl = new THREE.PointLight(0xfff0cc, 5.5, 150);
+        _rfl.position.set(HOPPER_X + 33, 160, 0);
+        scene.add(_rfl);
+        if (!window._flashLights) window._flashLights = [];
+        window._flashLights.push({ light: _rfl, age: 0 });
+        // Spike the hopper light for visual emphasis
+        hopperLight.intensity = 2.5;
+        hopperLight.color.set(0xfff0cc);
       }
     }
   }
@@ -2126,9 +2135,10 @@ function animate(ts) {
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: grabLight, age: 0 });
       }
-      // Pass 34: scatter domain-colored particles from grab point on first lift frame
+      // Pass 34/49: scatter domain particles from grab point; pass 49 adds grab micro-shake
       if (!_grabBurstFired && lt < 0.12) {
         _grabBurstFired = true;
+        _cameraShake = Math.max(_cameraShake, 0.8); // pass 49: subtle grab "lurch"
         // Cup starts at armDescend end position (rot ≈ -0.036 from vertical)
         const _bx = PIV_X + 83 * Math.sin(-0.036);
         const _by = PIV_Y - 83 * Math.cos(-0.036);
