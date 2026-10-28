@@ -3285,11 +3285,20 @@ function animate(ts) {
     beltTex.offset.x -= _beltScrollSpeed * dt * speedMult;
   }
 
-  // ── Pass 45: Tray card emissive decay — restores 0.25 baseline after arrival pulse ──
-  Object.values(trayCards).forEach(slotArr => {
+  // ── Pass 45+64: Tray card emissive — arrival pulse decays then breathes gently ──
+  // Pass 64: idle baseline is a slow per-slot breathing pulse (0.20..0.32) rather than fixed 0.25
+  Object.entries(trayCards).forEach(([slotKey, slotArr], ki) => {
+    // Derive phase offset from slot key (e.g. "0_0" → 0, "0_1" → 1, etc.)
+    const phaseOff = ki * 0.9 + (slotKey.charCodeAt(0) * 0.3 + slotKey.charCodeAt(2) * 0.4);
+    const _breathe = 0.22 + 0.08 * (Math.sin(ts * 0.00055 + phaseOff) * 0.5 + 0.5);
     slotArr.forEach(m => {
-      if (m.material && m.material.emissiveIntensity > 0.25) {
-        m.material.emissiveIntensity = Math.max(0.25, m.material.emissiveIntensity - dt * 2.2);
+      if (!m.material) return;
+      if (m.material.emissiveIntensity > _breathe + 0.05) {
+        // Arrival pulse still decaying — let it fall toward breathe target
+        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 2.2);
+      } else {
+        // At idle — gently track the breathing target
+        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 1.2);
       }
     });
   });
