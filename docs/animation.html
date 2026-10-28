@@ -2550,7 +2550,9 @@ function animate(ts) {
         Math.sin(ts * 8 * Math.PI * 2) * 0.7 +
         Math.sin(ts * 13 * Math.PI * 2) * 0.3
       );
-      suctionPivot.position.y = 108 + jitter;
+      // Pass 243: terminal servo micro-tap — precision down-push in final 5% of descent
+      const _tapOffset = pt > 0.95 ? -0.8 * ((pt - 0.95) / 0.05) : 0;
+      suctionPivot.position.y = 108 + jitter + _tapOffset;
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
       suctionPivot.position.z = 2.0 * Math.sin(pt * Math.PI) * (1 - pt * 0.7);
@@ -2636,7 +2638,9 @@ function animate(ts) {
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack
       if (lt < 0.22) {
         const _yDip = -2.5 * Math.sin((lt / 0.22) * Math.PI);
-        suctionPivot.position.y = 108 + _yDip;
+        // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
+        const _pickStutter = lt < 0.12 ? 0.70 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
+        suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
@@ -2775,6 +2779,8 @@ function animate(ts) {
     else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 0.35 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
     activeCardMat.emissiveIntensity = _armCardEmissive;
     cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 1.85 : 0;
+    // Pass 242: arm-phase cardGlow domain pre-tint — point light during arc shines domain color
+    if (_armCardEmissive > 0) cardGlow.color.setHex(ct.hex);
     cardGlow.position.copy(activeCard.position);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
