@@ -3884,16 +3884,16 @@ function animate(ts) {
     // Pass 147: parabolic arc — Pass 416: arc height boost floor-0 10→13, floor-1 18→22
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
-    // Pass 683: floor-0 arc height 13→16 for higher card flight arc during deflect
-    const _arcBump = (ct.floor === 1 ? 22 : 16) * Math.sin(dt2 * Math.PI);
+    // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 for even higher card flight arc during deflect
+    const _arcBump = (ct.floor === 1 ? 22 : 21) * Math.sin(dt2 * Math.PI);
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
-    // Pass 488: Z-tremor amplitude boost 3.2→4.8; add secondary Y micro-tremor for 3D turbulence
-    // Pass 612: add tertiary Z tremor at 7.2Hz — three-frequency Z turbulence for richer buffet
-    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 4.8
-      // Pass 680: tertiary Z tremor amplitude 1.6→2.2 for richer air buffet turbulence
+    // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 for stronger buffet
+    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 6.2
+      // Pass 680: tertiary Z tremor amplitude 1.6→2.2
       + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 2.2;
-    const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 1.8;
+    // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 for more 3D turbulence feel
+    const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 2.4;
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
     const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
@@ -3903,27 +3903,28 @@ function animate(ts) {
     {
       const _defEntryT = Math.min(1, dt2 / 0.14);
       const _normTilt = THREE.MathUtils.lerp(0, floorTilt, dt2);
-      const _launchKick = 0.28 * Math.exp(-dt2 * 13) * (1 - _defEntryT);
+      // Pass 763: launch kick 0.28→0.40 for more dramatic gate-exit nose-up
+      const _launchKick = 0.40 * Math.exp(-dt2 * 13) * (1 - _defEntryT);
       activeCard.rotation.x = THREE.MathUtils.lerp(-0.18, _normTilt, easeOut(_defEntryT)) + _launchKick;
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
     // Pass 317: deflect tumble distance scaling — outer columns tumble harder (steeper deflect angle)
-    const _tumbleAmp = 0.65 + Math.abs(ct.slotZ) / 97.5 * 0.25;
+    // Pass 759: tumble base 0.65→0.82 for more dramatic card spin mid-arc
+    const _tumbleAmp = 0.82 + Math.abs(ct.slotZ) / 97.5 * 0.25;
     const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
-    // Pass 353: flutter amplitude boost at arc peak (0.020 → 0.030)
-    // Pass 613: add 17Hz secondary flutter harmonic for more organic card spin during deflect arc
-    const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 0.030 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 0.014) * Math.sin(dt2 * Math.PI);
+    // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020
+    const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 0.042 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 0.020) * Math.sin(dt2 * Math.PI);
     // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
     if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 11);
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
-    // Pass 226: tumble-correlated glow — Pass 417: arc-peak coefficient 0.28→0.40
-    // cos(2θ) maps: face-on (θ=0) → 1.0, edge-on (θ≈π/4) → 0 (dims by 30%).
-    // Pass 465: deflect glow boost — increase base+peak 0.60+0.40 → 0.80+0.60 (max 1.4→ from 1.0)
-    cardGlow.intensity = (0.80 + 0.60 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
+    // Pass 226: tumble-correlated glow — Pass 417: 0.28→0.40 — Pass 465: base+peak 0.80+0.60
+    // Pass 761: base 0.80→1.05, peak 0.60→0.80 for brighter deflect arc glow
+    cardGlow.intensity = (1.05 + 0.80 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
     cardGlow.position.copy(activeCard.position);
-    // Pass 250: deflect tumble emissive — Pass 415: face-on coefficient 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
-    const _tumbleEmissive = 0.55 + 0.72 * Math.max(0, Math.cos(2 * activeCard.rotation.z));
+    // Pass 250: deflect tumble emissive — Pass 415: 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
+    // Pass 762: base 0.55→0.45, peak 0.72→0.95 for more dynamic emissive swing during tumble
+    const _tumbleEmissive = 0.45 + 0.95 * Math.max(0, Math.cos(2 * activeCard.rotation.z));
     activeCardMat.emissiveIntensity += (_tumbleEmissive - activeCardMat.emissiveIntensity) * Math.min(1, dt * 7);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
     // Pass 126: color warms from neutral white to domain color as card approaches
