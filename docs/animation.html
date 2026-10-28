@@ -2288,6 +2288,13 @@ function animate(ts) {
       // Amplitude shrinks from 2 → 0 as arm settles onto stack
       const jitter = 2.0 * (1 - pt) * Math.sin(ts * 0.055);
       suctionPivot.position.y = 108 + jitter;
+      // Pass 78: cup squishes as it contacts card stack in final 20% of descent
+      if (pt > 0.80) {
+        const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
+        suctionCup.scale.y = THREE.MathUtils.lerp(1.0, 0.35, _sq);
+      } else {
+        suctionCup.scale.y = 1.0;
+      }
       // Pass 66: vacuum ring contracts as cup approaches card (last 40% of descend)
       if (pt > 0.60) {
         const _vt = (pt - 0.60) / 0.40; // 0..1 within approach window
@@ -2309,6 +2316,16 @@ function animate(ts) {
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card
       const _ltLurch = lt < 0.18 ? -0.10 * Math.sin((lt / 0.18) * Math.PI) : 0;
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt) + _ltLurch;
+      // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
+      if (lt < 0.22) {
+        const _rb = lt / 0.22; // 0→1 rebound window
+        suctionCup.scale.y = 0.35 + (1.2 - 0.35) * _rb;
+      } else if (lt < 0.38) {
+        const _ov = (lt - 0.22) / 0.16; // 0→1 overshoot decay
+        suctionCup.scale.y = 1.2 - 0.2 * _ov; // 1.2→1.0
+      } else {
+        suctionCup.scale.y = 1.0;
+      }
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
