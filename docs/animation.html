@@ -3811,7 +3811,8 @@ function animate(ts) {
       cy = THREE.MathUtils.lerp(startY, targetY, easeInOut(dt3));
     }
     // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
-    const _slotWallZ = ct.slotZ + 1.4 * Math.sin(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 1.4);
+    // Pass 355: wall bounce amplitude boost — 1.4 → 2.2 for more visible settling
+    const _slotWallZ = ct.slotZ + 2.2 * Math.sin(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 1.4);
     activeCard.position.set(TRAY_X_START + 20, cy, _slotWallZ);
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
@@ -3823,7 +3824,7 @@ function animate(ts) {
     // Pass 169: aerodynamic fall lean — card noses down during gravity fall, peaks at midpoint
     if (ct.floor === 0 && dt3 >= 0.88) {
       const _bT = (dt3 - 0.88) / 0.12;
-      activeCard.rotation.x = 0.14 * Math.sin(_bT * Math.PI); // bounce pitch
+      activeCard.rotation.x = 0.20 * Math.sin(_bT * Math.PI); // Pass 356: bounce pitch boost 0.14 → 0.20
     } else if (ct.floor === 0) {
       // Aerodynamic drag: nose-down lean proportional to fall velocity (bell curve)
       activeCard.rotation.x = -0.07 * Math.sin(dt3 / 0.88 * Math.PI);
@@ -3841,7 +3842,7 @@ function animate(ts) {
     }
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.55 + (dt3 / 0.88) * 0.30;
+      const _fallRamp = 0.55 + (dt3 / 0.88) * 0.45; // Pass 357: emissive ramp boost 0.30 → 0.45 (peaks at 1.0)
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
