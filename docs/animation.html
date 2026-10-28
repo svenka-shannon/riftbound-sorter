@@ -4691,8 +4691,13 @@ function animate(ts) {
     const _hBase = 0.3 + _depthRatio * 0.35; // 0.3 (empty) → 0.65 (full)
     if (pickOn) {
       hopperLight.color.setHex(ct.hex);
-      const _hTarget = _hBase + 1.1; // pick phase spike
+      const _hTarget = _hBase + 1.55; // Pass 358: pick intensity boost 1.1 → 1.55
       hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 4);
+      // Pass 359: Y-track during armDescend — light follows arm down toward card stack
+      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 25 : 0;
+      // Pass 360: X-drift during armSwing — light tracks card arc from hopper toward belt
+      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 55 : 0;
+      hopperLight.position.set(HOPPER_X + 33 + _hXDrift360, 200 - _hYTrack359, 0);
     } else if (inPhase(PH.pause)) {
       // Pass 233: hopper LED domain pre-charge — in the final 40% of pause, hopper light
       // slowly tints toward the next domain color, pre-announcing the upcoming pick.
@@ -4709,6 +4714,7 @@ function animate(ts) {
     } else {
       hopperLight.color.set(0xffeedd); // warm neutral when idle
       hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
+      hopperLight.position.set(HOPPER_X + 33, 200, 0); // reset to home position
     }
   }
 
