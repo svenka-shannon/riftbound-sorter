@@ -2509,14 +2509,21 @@ function animate(ts) {
       // Gravity-assisted descent: ease-in; end at -0.036 rad to center cup over card stack
       const pt = phaseT(PH.armDescend, easeIn);
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.35, -0.036, pt);
-      // Subtle vertical jitter — simulates servo hunting to find card surface
-      // Amplitude shrinks from 2 → 0 as arm settles onto stack
-      const jitter = 2.0 * (1 - pt) * Math.sin(ts * 0.055);
+      // Pass 182: servo hunt jitter — was ts*0.055 (114-second period = invisible).
+      // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
+      const jitter = 1.8 * (1 - pt) * (
+        Math.sin(ts * 8 * Math.PI * 2) * 0.7 +
+        Math.sin(ts * 13 * Math.PI * 2) * 0.3
+      );
       suctionPivot.position.y = 108 + jitter;
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
         suctionCup.scale.y = THREE.MathUtils.lerp(1.0, 0.35, _sq);
+        // Pass 181: cup pre-warms with domain color in approach window
+        const _cupApproach = _sq;
+        suctionCupMat.emissive.setHex(ct.hex);
+        suctionCupMat.emissiveIntensity += (0.9 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10);
         // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
         if (!_contactFlashFired) {
           _contactFlashFired = true;
@@ -2584,6 +2591,9 @@ function animate(ts) {
       } else {
         suctionCup.scale.y = 1.0;
       }
+      // Pass 181: cup holds bright domain glow while actively carrying the card (armLift)
+      suctionCupMat.emissive.setHex(ct.hex);
+      suctionCupMat.emissiveIntensity += (1.5 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8);
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
@@ -2641,6 +2651,8 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(0.80, 1.57, st);
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
       suctionPivot.position.z = Math.sin(st * Math.PI) * 14;
+      // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
+      suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 4);
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
       // Reuses the TRAIL_PARTICLES pool (armSwing and deflect phases don't overlap).
       _trailSpawnAcc += dt;
