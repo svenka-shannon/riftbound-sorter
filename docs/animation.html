@@ -2643,7 +2643,9 @@ function animate(ts) {
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2, 0);
     // Slight forward lean so card face visible from all orbit angles (not just top-down)
-    activeCard.rotation.set(-0.18, 0, 0);
+    // Pass 116: belt micro-vibration — tiny noise jitter in rotation.z simulates belt roughness
+    const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015;
+    activeCard.rotation.set(-0.18, 0, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
@@ -2688,7 +2690,10 @@ function animate(ts) {
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Bell curve (sin(ft*π)) peaks at ft=0.5 with 0.40 rad (~23°) tilt; flat at start & end.
     const _revealTilt = -0.40 * Math.sin(ft * Math.PI);
-    activeCard.rotation.set(_revealTilt, 0, 0);
+    // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
+    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 0.8;
+    const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015) * _scanVibScale;
+    activeCard.rotation.set(_revealTilt, 0, _scanVib);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
     scanFlash.intensity = flashIntensity * 5; // brighter scan flash
