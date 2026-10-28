@@ -2800,6 +2800,12 @@ function animate(ts) {
     const flashIntensity = Math.sin(ft * Math.PI);
     scanFlash.intensity = flashIntensity * 5; // brighter scan flash
     scanFlash.position.set(-40, CONV_Y_TOP + 10, 0);
+    // Pass 176: pre-reveal emissive tint — scanner blue before 85%, blends to domain after
+    // Overrides the global ct.hex emissive so card "glows unknown" until identity confirmed
+    {
+      const _tintBlend = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.08) : 0;
+      activeCardMat.emissive.lerpColors(new THREE.Color(0x3388ff), new THREE.Color(ct.hex), _tintBlend);
+    }
     // Pass 105: 12Hz scan strobe on card face — stroboscopic effect of fast scanner sweep
     const _scanStrobe = Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
     // Pass 125 + 168: card face reveal burst with damped 8Hz resonance oscillation
@@ -3151,10 +3157,17 @@ function animate(ts) {
     const _exitBlendT = Math.min(1, ot / 0.12);
     const _exitLean = THREE.MathUtils.lerp(0, -0.18, easeOut(_exitBlendT));
     activeCard.rotation.set(_exitLean, 0, zBank); // forward lean + destination bank
-    activeCard.position.set(
-      THREE.MathUtils.lerp(-40, GATE_X, ot),
-      CONV_Y_TOP + CARD_T/2 + 2, 0
-    );
+    // Pass 174: continue belt Z-wobble during conveyorOut — fades in over first 5% and out
+    // over last 30% so card arrives stable at gate (no Z snap at scan→out or out→deflect)
+    {
+      const _oFadeIn  = Math.min(1, ot / 0.05);
+      const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
+      const _oWobbleZ = 1.2 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut;
+      activeCard.position.set(
+        THREE.MathUtils.lerp(-40, GATE_X, ot),
+        CONV_Y_TOP + CARD_T/2 + 2, _oWobbleZ
+      );
+    }
     // Paddle snaps early: covers ~70% travel in first half, holds before card arrives
     const targetAngle = paddleAngleForSlot(ct.slotZ);
     const paddleT = Math.min(1, easeOut(ot * 2));
@@ -3541,6 +3554,9 @@ function animate(ts) {
       const _osT = (art - 0.82) / 0.18;
       suctionPivot.rotation.z = -0.35 - 0.06 * Math.sin(_osT * Math.PI);
     }
+    // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154), tighter at ×10 vs ×14
+    // Arm dips toward viewer at midpoint of return sweep for 3-D parabolic path
+    suctionPivot.position.z = Math.sin(art * Math.PI) * 10;
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.z += (0 - paddlePivot.rotation.z) * Math.min(1, dt * 4.5);
     // Pass 72: decay paddle back to resting orange glow after charge discharge
@@ -3578,7 +3594,7 @@ function animate(ts) {
       const _aCupY = PIV_Y - 83 * Math.cos(_aRot);
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
-      tp.mesh.position.set(_aCupX + (Math.random()-0.5)*3, _aCupY + (Math.random()-0.5)*3, (Math.random()-0.5)*5);
+      tp.mesh.position.set(_aCupX + (Math.random()-0.5)*3, _aCupY + (Math.random()-0.5)*3, suctionPivot.position.z + (Math.random()-0.5)*6);
       tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
       tp.mat.opacity = 0.30 + Math.random() * 0.15;
       tp.age = 0; tp.life = 0.32 + Math.random() * 0.12;
