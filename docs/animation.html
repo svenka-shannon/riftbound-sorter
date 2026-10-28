@@ -1472,8 +1472,11 @@ function animate(ts) {
     activeCard.position.set(cupX, cupY, 0);
     activeCard.rotation.set(0, 0, armRot - Math.PI / 2);
     activeCardMat.opacity = 1.0;
-    activeCardMat.emissiveIntensity = 0;
-    cardGlow.intensity = 0;
+    // During armLift: card glows slightly as "suction grabs" it
+    const _isLift = inPhase(PH.armLift) || inPhase(PH.armSwing);
+    activeCardMat.emissiveIntensity = _isLift ? 0.3 : 0;
+    cardGlow.intensity = _isLift ? 0.6 : 0;
+    cardGlow.position.copy(activeCard.position);
     scanFlash.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false;
@@ -1511,7 +1514,7 @@ function animate(ts) {
     const ft = phaseRaw(PH.scan);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
-    scanFlash.intensity = flashIntensity * 3;
+    scanFlash.intensity = flashIntensity * 5; // brighter scan flash
     scanFlash.position.set(-40, CONV_Y_TOP + 10, 0);
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6;
     cardGlow.intensity = 1.5 + flashIntensity;
