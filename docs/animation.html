@@ -3858,6 +3858,9 @@ function animate(ts) {
     const _glintDist = Math.abs(beltShimmerMesh.position.x - activeCard.position.x);
     const _glint = Math.max(0, 1 - _glintDist / 18) * 0.22;
     if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
+    // Pass 163: shimmer pressure lift — card floats ~0.9 units up when stripe is directly below
+    if (_glint > 0.005 && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)))
+      activeCard.position.y += _glint * 4.0;
   }
 
   // ── Hopper top card domain preview ──────────────────────────────────────────
