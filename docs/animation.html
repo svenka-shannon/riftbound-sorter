@@ -2714,7 +2714,8 @@ function animate(ts) {
       if (lt < 0.22) {
         const _yDip = -2.5 * Math.sin((lt / 0.22) * Math.PI);
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
-        const _pickStutter = lt < 0.12 ? 0.70 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
+        // Pass 525: pick stutter amplitude 0.70→1.10 for stronger suction-break feel
+        const _pickStutter = lt < 0.12 ? 1.10 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 291: armLift peel-off Z drift — brief forward Z sway as suction cup tears card off stack
@@ -2737,7 +2738,8 @@ function animate(ts) {
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
-        const grabLight = new THREE.PointLight(ct.hex, 6.0, 80); // Pass 424: 4.0→6.0, dist 60→80
+        // Pass 524: grab pulse light intensity 6.0→7.5 for stronger card-pick moment
+        const grabLight = new THREE.PointLight(ct.hex, 7.5, 90); // Pass 524: 6.0→7.5, dist 80→90
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -3781,9 +3783,10 @@ function animate(ts) {
     const dt2 = phaseT(PH.deflect);
     // Pass 454: arc-peak domain flash — at arc midpoint (dt2≈0.46) spawn a brief domain
     // point light at card position; the card is at its highest, most visible trajectory point.
+    // Pass 526: arc-peak flash intensity 6.5→9.0, dist 100→120 for stronger top-of-arc pop
     if (!_arcPeakFlashFired && dt2 >= 0.46) {
       _arcPeakFlashFired = true;
-      const _apfl = new THREE.PointLight(ct.hex, 6.5, 100);
+      const _apfl = new THREE.PointLight(ct.hex, 9.0, 120);
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3895,7 +3898,8 @@ function animate(ts) {
       tp.mat.opacity = Math.min(0.95, 0.60 + _arcMid * 0.45);
       tp.age = 0;
       // Pass 387: life boost — 0.38-0.52 → 0.45-0.65s — Pass 506: extend 0.45-0.65 → 0.55-0.75s
-      tp.life = 0.55 + Math.random() * 0.20;
+      // Pass 527: deflect trail life 0.55+0.20 → 0.65+0.25 for longer arc smoke trace
+      tp.life = 0.65 + Math.random() * 0.25;
       tp.active = true;
       tp.mesh.visible = true;
     }
@@ -3977,9 +3981,10 @@ function animate(ts) {
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
     // Pass 252: slotDrop bounce face flash — Pass 391: boost 1.6 → 2.2, decay 14 → 12 (brighter, slightly longer)
+    // Pass 528: bounce flash peak 2.2→3.0, decay 12→10 for bigger landing pop
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 2.2 * Math.exp(-_bFlashT * 12));
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 3.0 * Math.exp(-_bFlashT * 10));
     }
     // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: boost 1.2 → 1.8, decay 30 → 25
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
@@ -3995,16 +4000,18 @@ function animate(ts) {
       const _sweepZOsc315 = 5 * Math.sin(dt3 * Math.PI * 3) * Math.max(0, 1 - dt3 * 1.5);
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 for stronger slot light
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 5.5, dt3 / 0.35)
-                                             : THREE.MathUtils.lerp(4.0, 0, (dt3 - 0.35) / 0.65);
+      // Pass 529: sweep light peak 5.5→7.0 for more vivid slot interior illumination
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 7.0, dt3 / 0.35)
+                                             : THREE.MathUtils.lerp(5.5, 0, (dt3 - 0.35) / 0.65);
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
     // Pass 278: sympathetic flicker — all columns briefly flash at slot entry crossing
     // Pass 470: target LED hold-then-snap — holds at 3.5 for first 22%, then snaps to 0.15 quickly
-    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 0.55 : 0;
+    // Pass 530: sympathetic flash amplitude 0.55→0.75; target LED spike 1.8→2.6 for stronger confirm flash
+    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 0.75 : 0;
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 1.8 : _sympFlash278;
+      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 2.6 : _sympFlash278;
       const _ledDrop = dt3 < 0.22 ? 3.5 : THREE.MathUtils.lerp(3.5, 0.15, (dt3 - 0.22) / 0.78); // Pass 470
       const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.15 + _sympFlash278;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
@@ -4413,8 +4420,10 @@ function animate(ts) {
   {
     // Scan phase: flash ambient up with the domain color
     // Celebration (impactRing or camera shake): spike ambient white briefly
-    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.30 : 0;
-    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.12 : 0;
+    // Pass 521: scan ambient boost 0.30→0.38 for stronger domain atmosphere during scan
+    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.38 : 0;
+    // Pass 521: armLift grab ambient boost 0.12→0.18 (card break-free moment has energy)
+    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.18 : 0;
     const _shakeBoost   = _cameraShake > 2 ? Math.min(0.25, _cameraShake * 0.04) : 0;
     // Pass 117: slotDrop domain ambient wash — Pass 393: boost 0.18 → 0.26 for bigger scene response
     const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.26 : 0;
@@ -4441,8 +4450,9 @@ function animate(ts) {
       const _bodyApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.80
         ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 0.06 : 0;
       // Pass 279: scanner-exit echo — body briefly spikes as card departs scanner with identity confirmed
+      // Pass 522: exit echo boost 0.12→0.20 for stronger scanner departure flash on conveyor body
       const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
-        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 0.12 : 0;
+        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 0.20 : 0;
       const _bodyTarget = 0.08 + 0.04 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho;
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
     } else {
@@ -4460,7 +4470,8 @@ function animate(ts) {
       const _beltRevealedOrPost = _identityRevealed || inPhase(PH.conveyorOut);
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
       beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 1.5));
-      const _bsTarget = 0.07 + 0.04 * Math.sin(cycleT * 6);
+      // Pass 523: belt surface active emissive target boost 0.07+0.04 → 0.10+0.06 for more glow
+      const _bsTarget = 0.10 + 0.06 * Math.sin(cycleT * 6);
       beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2);
     } else {
       beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 1.5));
