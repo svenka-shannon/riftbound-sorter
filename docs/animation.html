@@ -1573,6 +1573,7 @@ let _grabPulseFired = false;   // true once suction grab light burst fired this 
 let _impactFired = false;      // true once slot landing impact ring fired this slotDrop
 let _grabBurstFired = false;   // true once particle burst fired on card grab (pass 34)
 let _gateFlashFired = false;   // true once gate contact flash fired in deflect (pass 34)
+let _depositFired = false;     // true once belt-deposit flash fired at conveyorIn start (pass 39)
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
 const _beltDomainRGB  = new THREE.Color(0x8888a0); // reused for belt domain tint
 const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
@@ -1877,6 +1878,7 @@ function animate(ts) {
     _impactFired = false;
     _grabBurstFired = false;  // pass 34
     _gateFlashFired = false;  // pass 34
+    _depositFired = false;    // pass 39
 
     // Reset paddle to neutral at cycle start; dim gate glow + restore orange color
     paddlePivot.rotation.z = 0;
@@ -2136,6 +2138,15 @@ function animate(ts) {
   // ── Phase 2: Card on conveyor (1.5..2.5s) ──
   else if(inPhase(PH.conveyorIn)) {
     suctionPivot.rotation.z = 1.57; // arm stays at deposit position (pointing right)
+    // Pass 39: belt deposit flash — domain burst when card first touches the belt
+    if (!_depositFired) {
+      _depositFired = true;
+      const _dfl = new THREE.PointLight(ct.hex, 4.5, 70);
+      _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
+      scene.add(_dfl);
+      if (!window._flashLights) window._flashLights = [];
+      window._flashLights.push({ light: _dfl, age: 0 });
+    }
     activeCard.visible = true;
     activeCard.rotation.set(0, 0, 0); // card lies flat
     const ct2 = phaseRaw(PH.conveyorIn); // LINEAR — belt runs at constant speed
@@ -2682,6 +2693,22 @@ function animate(ts) {
       _impactRingT = -1;
       impactRing.visible = false;
       impactRingMat.opacity = 0;
+    }
+  }
+
+  // ── Pass 39: Hopper light pulse — brightens + domain-tinted during pick phases ──
+  // stackTopIdx tracks remaining cards (0=last); depth ratio drives base brightness.
+  {
+    const pickOn = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing);
+    const _depthRatio = (stackTopIdx + 1) / Math.max(1, stackCards.length);
+    const _hBase = 0.3 + _depthRatio * 0.35; // 0.3 (empty) → 0.65 (full)
+    if (pickOn) {
+      hopperLight.color.setHex(ct.hex);
+      const _hTarget = _hBase + 1.1; // pick phase spike
+      hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 4);
+    } else {
+      hopperLight.color.set(0xffeedd); // warm neutral when idle
+      hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
     }
   }
 
