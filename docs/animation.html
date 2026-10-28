@@ -59,6 +59,12 @@
     border-radius: 8px; padding: 8px 14px;
     font-size: 11px; color: #555; line-height: 1.8; text-align: right;
   }
+  .machine-label {
+    position: fixed; color: rgba(200,200,220,0.7); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; pointer-events: none;
+    transform: translateX(-50%); border-top: 1px solid rgba(200,200,220,0.3);
+    padding-top: 3px;
+  }
 </style>
 </head>
 <body>
@@ -79,6 +85,7 @@
 <div id="stats">
   <div id="stats-title">Cards Sorted</div>
   <div id="stats-count">0</div>
+  <div id="stats-rate" style="font-size:11px;color:#555;margin-top:1px;margin-bottom:2px;"></div>
   <div id="stats-current">Waiting for first card…</div>
 </div>
 
@@ -87,7 +94,12 @@
   <div id="scan-slot"></div>
 </div>
 
-<div id="hint">Drag to rotate · Scroll to zoom<br>Right-drag to pan</div>
+<div id="hint">Drag to rotate · Scroll to zoom · Right-drag to pan<br>Space=pause · 1–4=speed · R=reset view</div>
+
+<div class="machine-label" id="lbl-hopper">Hopper</div>
+<div class="machine-label" id="lbl-scanner">Scanner</div>
+<div class="machine-label" id="lbl-gate">Sort Gate</div>
+<div class="machine-label" id="lbl-tray">Domain Tray</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -229,10 +241,10 @@
 // ─── Scene Setup ──────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0f);
-scene.fog = new THREE.FogExp2(0x0a0a0f, 0.00035);
+scene.fog = new THREE.FogExp2(0x0a0a0f, 0.00065);
 
 const W = window.innerWidth, H = window.innerHeight;
-const camera = new THREE.PerspectiveCamera(45, W/H, 1, 8000);
+const camera = new THREE.PerspectiveCamera(55, W/H, 1, 8000);
 // Default view: (-30, 350, 800) shows full machine with hopper left, belt center, tray right
 camera.position.set(-30, 350, 800);
 
@@ -411,12 +423,14 @@ for(let lx of [-140, -40, 60]) {
 // Conveyor end rollers at belt ends
 const rollerGeo = new THREE.CylinderGeometry(8, 8, 76, 16);
 const rollerMat = new THREE.MeshStandardMaterial({ color: 0x606068, roughness: 0.3, metalness: 0.6 });
+const rollerMeshes = [];
 for (const rx of [-140, 60]) {
   const roller = new THREE.Mesh(rollerGeo, rollerMat);
   roller.rotation.x = Math.PI / 2;
   roller.position.set(rx, CONV_Y_TOP - 6, 0);
   roller.castShadow = true;
   scene.add(roller);
+  rollerMeshes.push(roller);
 }
 
 // --- Scanner hood --- dedicated matte-black material
@@ -565,6 +579,14 @@ scene.add(shelf);
 // Upper floor (floor 1)
 makeTrayFloor(FLOOR_Y[1] - 4, 0xc0b8d8);
 
+// Machine label 3D anchor points (projected to screen each frame in animate)
+const labelDefs = [
+  { id:'lbl-hopper',  pos: new THREE.Vector3(HOPPER_X+33, 120, 0) },
+  { id:'lbl-scanner', pos: new THREE.Vector3(-40, 120, 0) },
+  { id:'lbl-gate',    pos: new THREE.Vector3(GATE_X, 90, 0) },
+  { id:'lbl-tray',    pos: new THREE.Vector3(TX_MID, 150, 0) },
+];
+
 // ─── Suction Arm ─────────────────────────────────────────────────────────────
 // Pivot at top of hopper; arm hangs down and swings to deposit on belt
 const suctionPivot = new THREE.Group();
@@ -602,17 +624,65 @@ suctionPivot.add(servoBody);
 
 // ─── Card Textures ────────────────────────────────────────────────────────────
 // Per-type canvas textures with border frame, color panel, art strip
-function makeCardTexture(hexColor) {
+function makeCardTexture(hexColor, domainName) {
   const c = document.createElement('canvas');
   c.width = 126; c.height = 176;
   const ctx = c.getContext('2d');
   ctx.fillStyle = '#f0f0f0';
   ctx.fillRect(0, 0, 126, 176);
   const r = (hexColor >> 16) & 0xff, g = (hexColor >> 8) & 0xff, b = hexColor & 0xff;
-  ctx.fillStyle = `rgb(${r},${g},${b})`;
+  // Gradient fill — lighter at top, darker at bottom
+  const grad = ctx.createLinearGradient(10, 10, 10, 166);
+  grad.addColorStop(0, `rgba(${Math.min(255,r+60)},${Math.min(255,g+60)},${Math.min(255,b+60)},1)`);
+  grad.addColorStop(0.5, `rgb(${r},${g},${b})`);
+  grad.addColorStop(1, `rgba(${Math.max(0,r-40)},${Math.max(0,g-40)},${Math.max(0,b-40)},1)`);
+  ctx.fillStyle = grad;
   ctx.fillRect(10, 10, 106, 156);
+  // Art strip highlight
   ctx.fillStyle = 'rgba(255,255,255,0.3)';
   ctx.fillRect(10, 10, 106, 40);
+  // Domain symbol in art area
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  switch(domainName) {
+    case 'Fury':
+      ctx.moveTo(63, 30); ctx.lineTo(45, 70); ctx.lineTo(81, 70); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(63, 38); ctx.lineTo(52, 62); ctx.lineTo(74, 62); ctx.closePath(); ctx.fill();
+      break;
+    case 'Mind':
+      ctx.ellipse(63, 52, 22, 12, 0, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(63, 52, 6, 0, Math.PI*2); ctx.fill();
+      break;
+    case 'Calm':
+      for(let x=35;x<=90;x++){const y=52+Math.sin((x-35)*0.18)*12; x===35?ctx.moveTo(x,y):ctx.lineTo(x,y);} ctx.stroke();
+      break;
+    case 'Body':
+      ctx.arc(63, 52, 18, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(63, 34); ctx.lineTo(63, 48); ctx.moveTo(53, 40); ctx.lineTo(63, 52); ctx.lineTo(73, 40); ctx.stroke();
+      break;
+    case 'Chaos':
+      for(let a=0;a<Math.PI*3;a+=0.05){const rad=a*3.5; a<0.05?ctx.moveTo(63+Math.cos(a)*rad,52+Math.sin(a)*rad):ctx.lineTo(63+Math.cos(a)*rad,52+Math.sin(a)*rad);} ctx.stroke();
+      break;
+    case 'Order':
+      for(let i=0;i<12;i++){const angle=(i*Math.PI/6)-Math.PI/2; const rad=i%2===0?20:9; i===0?ctx.moveTo(63+rad*Math.cos(angle),52+rad*Math.sin(angle)):ctx.lineTo(63+rad*Math.cos(angle),52+rad*Math.sin(angle));}
+      ctx.closePath(); ctx.fill();
+      break;
+    case 'Colorless':
+      ctx.moveTo(63,30); ctx.lineTo(85,52); ctx.lineTo(63,74); ctx.lineTo(41,52); ctx.closePath(); ctx.stroke();
+      break;
+    case 'Reject':
+      ctx.moveTo(44, 34); ctx.lineTo(82, 70); ctx.moveTo(82, 34); ctx.lineTo(44, 70); ctx.stroke();
+      break;
+  }
+  // Card name at bottom of face
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(domainName ? domainName.toUpperCase() : '', 63, 162);
+  // Outer border and inner frame
   ctx.strokeStyle = '#333';
   ctx.lineWidth = 6;
   ctx.strokeRect(3, 3, 120, 170);
@@ -622,7 +692,7 @@ function makeCardTexture(hexColor) {
   return new THREE.CanvasTexture(c);
 }
 const cardTextures = {};
-CARD_TYPES.forEach(t => { cardTextures[t.slot] = makeCardTexture(t.hex); });
+CARD_TYPES.forEach(t => { cardTextures[t.slot] = makeCardTexture(t.hex, t.name); });
 
 // ─── Active Card Mesh ─────────────────────────────────────────────────────────
 // BoxGeometry(63, 2, 88): 63mm wide in X, 2mm thick in Y, 88mm long in Z
@@ -693,7 +763,7 @@ function addCardToTray(ct) {
 // ─── Animation State ──────────────────────────────────────────────────────────
 let paused = false;
 let speedMult = 1;
-const SPEEDS = [0.5, 1, 2];
+const SPEEDS = [0.5, 1, 2, 4];
 let speedIdx = 1;
 
 let totalSorted = 0;
@@ -759,6 +829,11 @@ function cycleSpeed() {
 
 function updateStatsUI(cardType) {
   document.getElementById('stats-count').textContent = totalSorted;
+  // Throughput: cards/min at current speed
+  const cpm = (60 / CYCLE_DUR) * speedMult;
+  const cpmStr = cpm >= 10 ? Math.round(cpm) : cpm.toFixed(1);
+  const rateEl = document.getElementById('stats-rate');
+  if(rateEl) rateEl.textContent = '~' + cpmStr + ' cards/min';
   if(cardType) {
     const floorLabel = ['Lower', 'Upper'][cardType.floor];
     document.getElementById('stats-current').innerHTML =
@@ -1042,9 +1117,10 @@ function animate(ts) {
   // ── Phase 6: Drop into slot (4.8..5.8s) ──
   else if(inPhase(PH.slotDrop)) {
     activeCard.visible = true;
-    const dt3 = phaseT(PH.slotDrop, easeIn); // gravity-assisted drop
+    const dt3 = phaseRaw(PH.slotDrop); // linear 0..1 for spring calc
     const targetY = ct.slotFloorY + 29; // 29 = 58/2 matches tray card rest height
-    const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 1, targetY, dt3);
+    const _spring = dt3 < 0.85 ? easeInOut(dt3/0.85) : 1 + 0.08 * Math.sin((dt3-0.85)*Math.PI/0.15);
+    const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 1, targetY, Math.min(_spring, 1));
     activeCard.position.set(TRAY_X_START + 20, cy, ct.slotZ);
     activeCard.rotation.y = 0;
     // X-axis rotation stands the card upright: 88mm Z extent rotates onto +Y axis
@@ -1084,6 +1160,10 @@ function animate(ts) {
   // Belt emissive flicker implies motion throughout the cycle
   beltSurfMat.emissiveIntensity = 0.05 + 0.03 * Math.sin(cycleT * 10);
 
+  // Spin conveyor rollers when belt is moving
+  const beltMoving = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
+  if(!paused) rollerMeshes.forEach(r => { if(beltMoving) r.rotation.x += dt * speedMult * 8; });
+
   // Camera auto-orbit: gentle ellipse centered on true machine midpoint X=-30
   if(!controls.enableRotate || !controls._userInteracted) {
     const orbitAngle = ts * 0.000025 + Math.PI * 0.3; // phase offset for 3/4 front view
@@ -1096,11 +1176,38 @@ function animate(ts) {
   }
 
   controls.update();
+
+  // Project machine labels to screen
+  const _lW = window.innerWidth, _lH = window.innerHeight;
+  labelDefs.forEach(ld => {
+    const p = ld.pos.clone().project(camera);
+    const x = (p.x * 0.5 + 0.5) * _lW;
+    const y = (-p.y * 0.5 + 0.5) * _lH;
+    const el = document.getElementById(ld.id);
+    if(el) { el.style.left = x+'px'; el.style.top = y+'px'; el.style.opacity = p.z < 1 ? '1' : '0'; }
+  });
+
   renderer.render(scene, camera);
 }
 
 // Detect user orbit interaction to pause auto-orbit
 controls.domElement.addEventListener('pointerdown', () => { controls._userInteracted = true; });
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if(e.code === 'Space') { e.preventDefault(); togglePause(); }
+  if(e.code === 'Digit1') { speedIdx=0; speedMult=SPEEDS[0]; document.getElementById('speed-btn').textContent=SPEEDS[0]+'× Speed'; }
+  if(e.code === 'Digit2') { speedIdx=1; speedMult=SPEEDS[1]; document.getElementById('speed-btn').textContent=SPEEDS[1]+'× Speed'; }
+  if(e.code === 'Digit3') { speedIdx=2; speedMult=SPEEDS[2]; document.getElementById('speed-btn').textContent=SPEEDS[2]+'× Speed'; }
+  if(e.code === 'Digit4') { speedIdx=3; speedMult=SPEEDS[3]; document.getElementById('speed-btn').textContent=SPEEDS[3]+'× Speed'; }
+  if(e.code === 'KeyR') {
+    controls._userInteracted = false;
+    camera.position.set(-30, 350, 800);
+    controls.target.set(-30, 30, 0);
+    controls.update();
+  }
+});
 
 // ─── Resize ───────────────────────────────────────────────────────────────────
 window.addEventListener('resize', () => {
