@@ -2453,7 +2453,7 @@ function animate(ts) {
   // Belt phases: full opacity slow spin. Deflect/slotDrop: faster, slightly dim.
   const beltActive = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
   const airActive  = inPhase(PH.deflect) || inPhase(PH.slotDrop);
-  const haloTargetOpacity = beltActive ? 0.35 : airActive ? 0.20 : 0;
+  const haloTargetOpacity = beltActive ? 0.45 : airActive ? 0.20 : 0; // Pass 431: belt halo 0.35→0.45
   const haloSpinRate = beltActive ? 0.0012 : 0.003; // faster when airborne
   cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.15;
   if (cardHaloMat.opacity > 0.01) {
@@ -2466,14 +2466,14 @@ function animate(ts) {
     const _haloHex = (_identityRevealed || !inPhase(PH.conveyorIn)) ? ct.hex : 0x3388ff;
     cardHaloMat.color.setHex(_haloHex);
     cardHaloMat.emissive.setHex(_haloHex);
-    // Pass 331: halo emissive boost post-reveal — ring blazes brighter after identity confirmed
+    // Pass 331: halo emissive boost post-reveal — Pass 430: 1.2+0.50 → 1.4+0.70
     const _haloEmissive331 = (_identityRevealed && (beltActive || airActive))
-      ? 1.2 + 0.50 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60;
+      ? 1.4 + 0.70 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60;
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases
     const _haloScale332 = beltActive ? 1.0 + 0.04 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0;
-    // Pass 333: gate-contact halo scale burst — ring briefly expands at deflect gate impact
-    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 0.55 : 0;
+    // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80
+    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 0.80 : 0;
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
   }
 
