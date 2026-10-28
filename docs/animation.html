@@ -2976,7 +2976,11 @@ function animate(ts) {
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 2.8;
     // Wide bloom soft halo around scanner
-    scanBloom.intensity = flashIntensity * 0.8;
+    // Pass 239: scanBloom post-reveal domain burst — bloom light spikes in domain color
+    // at identity confirm and decays to normal over 0.40s. Bloom color also switches to domain.
+    const _bloomRevealSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 3.5 : 0;
+    scanBloom.color.setHex(_identityRevealed ? ct.hex : 0x0088ff);
+    scanBloom.intensity = flashIntensity * 0.8 + _bloomRevealSurge;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, 0);
     // Crosshair scan lines sweep across the card
     scanLine.visible = true;
@@ -3087,6 +3091,15 @@ function animate(ts) {
         _confirmRingT2 = -0.22;
         confirmRing2.position.set(-40, CONV_Y_TOP + CARD_T + 1, 0);
         confirmRing2Mat.color.setHex(ct.hex);
+        // Pass 240: scan HUD domain color flash — HUD bracket briefly adopts domain color
+        // at identity confirm, then fades back to default scan-blue via CSS transition.
+        const _hudRevealEl = document.getElementById('scan-hud');
+        if (_hudRevealEl) {
+          _hudRevealEl.style.borderColor = ct.css;
+          _hudRevealEl.style.transition = 'border-color 0.4s ease-out';
+          // Reset to original color after 0.4s
+          setTimeout(() => { if (_hudRevealEl) _hudRevealEl.style.borderColor = ''; }, 400);
+        }
         // Pass 96: domain name "CONFIRMED" text pop below scan overlay
         const _cfEl = document.getElementById('scan-confirm');
         if (_cfEl) {
@@ -4045,8 +4058,17 @@ function animate(ts) {
       hoodMat.emissiveIntensity += (0.28 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5);
     }
     // Pass 80: lens iris closes back to resting size
-    lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 4);
-    lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 4);
+    // Pass 238: iris snap-close overshoot — at conveyorOut start, iris briefly overshoots
+    // resting scale (peaks at +0.22 extra) then settles, mirroring the pass 162 snap-open.
+    if (inPhase(PH.conveyorOut)) {
+      const _ot2 = phaseRaw(PH.conveyorOut);
+      const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 0.22 : 0;
+      lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 10);
+      lens.scale.z = lens.scale.x;
+    } else {
+      lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 4);
+      lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 4);
+    }
     lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 3));
     lensMat.emissiveIntensity += (0.4 - lensMat.emissiveIntensity) * Math.min(1, dt * 3);
     // Pass 197: hood settles back to Z=0 after scan ends
