@@ -3023,7 +3023,8 @@ function animate(ts) {
     // Pass 123: hood reveal strobe — advance and apply rapid 3-pulse flash at identity confirm
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 5.5); // ~0.18s full duration
-      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 3)) * (1 - _hoodRevealFlash) * 1.4;
+      // Pass 373: strobe intensity boost 1.4→2.0; Pass 374: 3 pulses → 4.5 for faster strobe
+      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 2.0;
       hoodMat.emissiveIntensity = 0.28 + flashIntensity * 0.85 + _revStrobe;
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
@@ -3211,7 +3212,8 @@ function animate(ts) {
         // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
         _hoodRevealFlash = 0.001; // just above 0 to activate
         // Pass 125: card face emissive burst at identity reveal — card "powers up"
-        _cardRevealBurst = 3.5;
+        // Pass 375: burst boost 3.5 → 5.0 for bigger initial face flash
+        _cardRevealBurst = 5.0;
         // Pass 205: destination slot strip pre-announce flash — strip briefly superflashes when
         // machine "announces" the destination. ct.stripMat normal decay (pass 127) fades it back.
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 3.0;
