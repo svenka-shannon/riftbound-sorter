@@ -2852,13 +2852,16 @@ function animate(ts) {
     scanLineMat2.emissive.setHex(ct.hex);
     // Scan grid dots: 3×3 points appear staggered across card face with flash
     {
-      // Pass 148: dots are scan-blue before identity reveal, switch to domain color after
-      const dotColor = _identityRevealed ? ct.hex : 0xaaddff;
+      // Pass 148 + 171: dots cascade to domain color one by one starting at ft=0.85 reveal
+      // Each dot switches ft=0.85 + di*0.014 — wave of domain color spreading across grid
       // Brief brightness spike at reveal moment
       const _dotRevealBurst = (_identityRevealed && ft > 0.85 && ft < 0.92) ? (0.92 - ft) / 0.07 : 0;
       SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
         const stagger = di * 0.06; // 60ms stagger per dot (0..0.48s)
         const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
+        // Pass 171: each dot switches domain color at its own cascade threshold
+        const _dotSwitchFt = 0.85 + di * 0.014; // dot 0 at 0.85, dot 8 at 0.962
+        const dotColor = ft >= _dotSwitchFt ? ct.hex : 0xaaddff;
         const dotOp = Math.sin(Math.min(1, dotFt) * Math.PI) * flashIntensity * (0.95 + _dotRevealBurst * 0.5);
         if (dotOp > 0.01) {
           mesh.visible = true;
