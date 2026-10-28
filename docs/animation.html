@@ -3055,6 +3055,18 @@ function animate(ts) {
       convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
     }
   }
+  // Pass 83: belt surface domain emissive — subtle tint while card rides the belt
+  {
+    const _beltActive = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
+    if (_beltActive && _beltScrollSpeed > 0.01) {
+      beltSurfMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 1.5));
+      const _bsTarget = 0.07 + 0.04 * Math.sin(cycleT * 6);
+      beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2);
+    } else {
+      beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 1.5));
+      beltSurfMat.emissiveIntensity += (0.12 - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2);
+    }
+  }
   // Pass 74/80: scanner hood + lens decay to resting after scan ends
   if (!inPhase(PH.scan)) {
     hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
