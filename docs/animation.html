@@ -3772,7 +3772,7 @@ function animate(ts) {
     _beltScrollSpeed = 0.04; // half speed while card arcs off belt
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.055) { // one particle every ~55ms
+    if (_trailSpawnAcc >= 0.040) { // Pass 386: spawn rate boost — 55ms → 40ms for denser trail
       _trailSpawnAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -3784,9 +3784,11 @@ function animate(ts) {
       // Pass 128: opacity peaks at arc midpoint — trail denser near arc peak
       const _arcMid = 1 - Math.abs(dt2 - 0.5) * 2; // 1 at peak, 0 at start/end
       tp.mat.color.setHex(ct.hex);
-      tp.mat.opacity = 0.45 + _arcMid * 0.38;
+      // Pass 385: opacity boost — base 0.45→0.60, peak multiplier 0.38→0.45
+      tp.mat.opacity = Math.min(0.95, 0.60 + _arcMid * 0.45);
       tp.age = 0;
-      tp.life = 0.38 + Math.random() * 0.14;
+      // Pass 387: life boost — 0.38-0.52 → 0.45-0.65s for longer-lived trail
+      tp.life = 0.45 + Math.random() * 0.20;
       tp.active = true;
       tp.mesh.visible = true;
     }
