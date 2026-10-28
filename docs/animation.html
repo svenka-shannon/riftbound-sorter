@@ -3336,8 +3336,8 @@ function animate(ts) {
           scanBarMat.emissive.copy(_blendC);
           // Pass 497: scan bar 65-85% pre-reveal tension boost — 1.2→1.5 base, 1.8→2.3 peak (builds urgency)
           const _baseI = barFill >= 0.85 ? 2.2 + flashIntensity * 2.5 : 1.5 + flashIntensity * 2.3;
-          // Pass 130: post-reveal breathing pulse on scan bar at 3Hz
-          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 0.30 : 0;
+          // Pass 130: post-reveal breathing pulse on scan bar at 3Hz — Pass 518: amplitude 0.30→0.48
+          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 0.48 : 0;
           // Pass 207: scan bar completion superflash — bar spikes to max emissive in the final 2%
           // of scan (barFill 0.98→1.0), giving a "scan complete" visual climax as conveyorOut begins.
           const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 3.5 : 0;
@@ -3438,9 +3438,9 @@ function animate(ts) {
     // Pass 192: target slot spotlight only fires AFTER identity reveal (85%)
     // Pre-reveal it was spoiling the destination — machine shouldn't "know" yet
     scanTargetLight.color.setHex(ct.hex);
-    // Pass 348: target light reveal spike — destination fires a bright exp flash at lock-on
-    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 3.0 : 0;
-    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 2.5 + _tgtRevealSpike348 : 0;
+    // Pass 348: target light reveal spike — Pass 517: spike 3.0→4.5 and base 2.5→3.2 for stronger destination lock-on
+    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 4.5 : 0;
+    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 3.2 + _tgtRevealSpike348 : 0;
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
     // Fill bar also only brightens after reveal
     if(fillBars[ct.slot]) {
@@ -3476,12 +3476,14 @@ function animate(ts) {
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — brief vertical elongation at lock-on
     scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 0.45 : 0);
-    scanConeMat.opacity = flashIntensity * 0.09 + _strobe * 0.5 + _coneRevealBoost;
+    // Pass 515: scan cone base opacity boost 0.09→0.14 for more visible beam cone during scan
+    scanConeMat.opacity = flashIntensity * 0.14 + _strobe * 0.5 + _coneRevealBoost;
     // Pass 287: scan beam strength scales with bar fill — beam grows as more data is acquired
     const _beamFillBoost = barFill * 0.20;
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
     const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.55 : 0;
-    scanBeamMat.opacity = flashIntensity * 0.55 + _strobe + _beamFillBoost + _beamRevealBoost389;
+    // Pass 516: scan beam base opacity boost 0.55→0.70 for stronger column through scan chamber
+    scanBeamMat.opacity = flashIntensity * 0.70 + _strobe + _beamFillBoost + _beamRevealBoost389;
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
@@ -4853,7 +4855,8 @@ function animate(ts) {
     _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 2.2); // ~0.45s expansion (faster)
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
-      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 4.8; // Pass 334: easeOut scale 0.6 → 5.4 (was linear *4.2)
+      // Pass 520: second confirm ring max scale boost 4.8→6.5 for wider confirm burst
+      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 6.5; // Pass 520: scale range 0.6 → 7.1
       confirmRing2.scale.setScalar(_crs2);
       confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 0.75); // Pass 446: 0.55→0.75
       if (_confirmRingT2 >= 1) {
@@ -5052,12 +5055,14 @@ function animate(ts) {
   const _fillTgt = activeCard.visible ? 0.15 : 0.05;
   // Pass 498: deflect domain fill boost — domain fill light surges during card arc (peaks at midpoint)
   const _deflectFill498 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.22 : 0;
+  // Pass 519: scan phase domain fill boost — scanner chamber glows stronger with domain color at scan peak
+  const _scanFill519 = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.18 : 0;
   // Pass 99: decay boost (set at 85% identity reveal), adds scene-wide domain color wash
   if (_domainFillBoost > 0.005) {
     _domainFillBoost = Math.max(0, _domainFillBoost - dt * 2.2); // ~0.25s decay
-    _domainFillLight.intensity = Math.min(0.90, (_fillTgt + _domainFillBoost + _deflectFill498)); // Pass 440: max 0.70→0.90
+    _domainFillLight.intensity = Math.min(0.90, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 440: max 0.70→0.90
   } else {
-    _domainFillLight.intensity += (_fillTgt + _deflectFill498 - _domainFillLight.intensity) * dt * 1.8;
+    _domainFillLight.intensity += (_fillTgt + _deflectFill498 + _scanFill519 - _domainFillLight.intensity) * dt * 1.8;
   }
 
   // ── Pass 36: Round completion celebration particle physics ──────────────────
