@@ -1937,6 +1937,13 @@ function fireCelebration() {
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: _cfl, age: 0 });
+  // Pass 150: rainbow tray burst — one domain-colored flash per slot (synchronized rainbow)
+  CARD_TYPES.forEach(dct => {
+    const _dfl = new THREE.PointLight(dct.hex, 5.5, 95);
+    _dfl.position.set(TX_MID, dct.slotFloorY + 55, dct.slotZ);
+    scene.add(_dfl);
+    window._flashLights.push({ light: _dfl, age: 0 });
+  });
   // Pass 68: round-complete banner
   _roundCount++;
   const _bannerEl = document.getElementById('round-banner');
