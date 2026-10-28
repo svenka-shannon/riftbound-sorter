@@ -2340,7 +2340,8 @@ function animate(ts) {
       _yPos = THREE.MathUtils.lerp(a.startY, a.targetY, easeOut(a.t / 0.80));
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
-      _yPos = a.targetY + 5 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
+      // Pass 325: arrival bounce boost — bigger spring for more physical impact feel
+      _yPos = a.targetY + 7 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
@@ -3128,7 +3129,8 @@ function animate(ts) {
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
       // Pass 247: reveal overshoot pulse — bar briefly surges past fill at identity confirm
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.10 : 0;
+      // Pass 327: stronger overshoot — more pronounced surge to sell the lock-on moment
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.18 : 0;
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
@@ -3233,7 +3235,9 @@ function animate(ts) {
         if (barFill < 0.65) {
           scanBarMat.color.set(0xffffff);
           scanBarMat.emissive.set(0xaaddff);
-          scanBarMat.emissiveIntensity = 1.2 + flashIntensity * 1.8;
+          // Pass 326: pre-reveal urgency breath — emissive pulses faster as bar fills toward 65%
+          const _preBreath326 = barFill * 0.35 * Math.abs(Math.sin(ts * 5 * Math.PI * 2));
+          scanBarMat.emissiveIntensity = 1.2 + flashIntensity * 1.8 + _preBreath326;
         } else {
           scanBarMat.color.copy(_blendC);
           scanBarMat.emissive.copy(_blendC);
