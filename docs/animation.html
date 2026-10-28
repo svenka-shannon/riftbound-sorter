@@ -2728,7 +2728,9 @@ function animate(ts) {
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
       suctionPivot.position.z = Math.sin(st * Math.PI) * 14;
       // Pass 234: arm pivot Y sag — pivot slightly droops under card weight at swing midpoint
-      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 2.2;
+      // Pass 282: end-of-swing Y bounce — brief upward over-correction as arm decelerates at deposit
+      const _swingEndBounce = st > 0.88 ? 0.55 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0;
+      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 2.2 + _swingEndBounce;
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 4);
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
@@ -3727,7 +3729,9 @@ function animate(ts) {
     } else {
       activeCard.rotation.x = 0;
     }
-    activeCard.rotation.z = 0;
+    // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
+    const _wallLean = 0.032 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0);
+    activeCard.rotation.z = _wallLean;
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
       const _wallOsc = Math.abs(Math.sin(dt3 * Math.PI * 4)) * Math.max(0, 1 - dt3 * 1.4);
@@ -4514,7 +4518,8 @@ function animate(ts) {
   // Pass 100: confirm ring expands from scanner center at identity reveal
   if (_confirmRingT >= 0) {
     _confirmRingT = Math.min(1, _confirmRingT + dt * 1.8); // ~0.55s expansion
-    const _crs = 1.0 + _confirmRingT * 5.5; // scale 1 → 6.5
+    // Pass 280: easeOut scale for faster initial punch, slower fade — more impactful
+    const _crs = 1.0 + easeOut(_confirmRingT) * 8.0; // easeOut scale 1 → 9.0 (was linear *5.5)
     confirmRing.scale.setScalar(_crs);
     confirmRingMat.opacity = (1 - _confirmRingT) * 0.75;
     if (_confirmRingT >= 1) {
