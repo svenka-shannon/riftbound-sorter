@@ -3394,15 +3394,19 @@ function animate(ts) {
       scanConeMat.color.setHex(_coneHex);
       scanBeamMat.color.setHex(_beamHex2);
     }
-    // Pass 285: cone reveal flash — scan cone briefly blazes at identity lock-on
-    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 0.22 : 0;
+    // Pass 285: cone reveal flash — Pass 388: boost 0.22 → 0.40 for more visible cone flash
+    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 0.40 : 0;
     // Pass 302: scan cone Z sweep — cone slowly sweeps ±7 units Z to simulate active scanning
     scanCone.position.z = 7 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5);
     scanBeam.position.z = scanCone.position.z;
+    // Pass 390: cone Y scale punch at reveal — brief vertical elongation at lock-on
+    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 0.45 : 0);
     scanConeMat.opacity = flashIntensity * 0.09 + _strobe * 0.5 + _coneRevealBoost;
     // Pass 287: scan beam strength scales with bar fill — beam grows as more data is acquired
     const _beamFillBoost = barFill * 0.20;
-    scanBeamMat.opacity = flashIntensity * 0.55 + _strobe + _beamFillBoost;
+    // Pass 389: scan beam reveal boost — beam flares at identity lock-on
+    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.55 : 0;
+    scanBeamMat.opacity = flashIntensity * 0.55 + _strobe + _beamFillBoost + _beamRevealBoost389;
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
