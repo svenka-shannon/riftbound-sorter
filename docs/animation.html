@@ -599,27 +599,40 @@ scene.add(hopperWire);
 // --- Conveyor belt ---
 const CONV_Y_TOP = 45;
 const convBodyGeo = new THREE.BoxGeometry(250, 12, 80);
-const convBodyMat = new THREE.MeshStandardMaterial({ color: 0x3a3a4a, roughness: 0.7, metalness: 0.2 });
+const convBodyMat = new THREE.MeshStandardMaterial({ color: 0x303038, roughness: 0.65, metalness: 0.35 });
 const conveyorBody = new THREE.Mesh(convBodyGeo, convBodyMat);
 conveyorBody.castShadow = true;
 conveyorBody.receiveShadow = true;
 conveyorBody.position.set(-40, CONV_Y_TOP - 6, 0);
 scene.add(conveyorBody);
 
-// Belt surface: canvas texture with horizontal stripes for animated scroll effect
+// Belt surface: alternating-width stripes with diagonal slant to show travel direction
 const beltCanvas = document.createElement('canvas');
-beltCanvas.width = 256; beltCanvas.height = 32;
+beltCanvas.width = 128; beltCanvas.height = 32;
 const bctx = beltCanvas.getContext('2d');
-for(let i = 0; i < 8; i++) {
-  bctx.fillStyle = i % 2 === 0 ? '#7a7a88' : '#959596';
-  bctx.fillRect(0, i * 4, 256, 4);
+// Base mid-grey
+bctx.fillStyle = '#5a5a66';
+bctx.fillRect(0, 0, 128, 32);
+// Lighter bands (wide) — diagonal slant shows direction
+for (let xi = -32; xi < 128 + 32; xi += 32) {
+  bctx.fillStyle = '#7a7a90';
+  bctx.beginPath();
+  bctx.moveTo(xi, 0); bctx.lineTo(xi + 18, 0); bctx.lineTo(xi + 28, 32); bctx.lineTo(xi + 10, 32);
+  bctx.closePath(); bctx.fill();
+}
+// Bright highlight seams
+for (let xi = -32; xi < 128 + 32; xi += 32) {
+  bctx.fillStyle = '#a0a0b8';
+  bctx.beginPath();
+  bctx.moveTo(xi + 17, 0); bctx.lineTo(xi + 19, 0); bctx.lineTo(xi + 29, 32); bctx.lineTo(xi + 27, 32);
+  bctx.closePath(); bctx.fill();
 }
 const beltTex = new THREE.CanvasTexture(beltCanvas);
 beltTex.wrapS = THREE.RepeatWrapping;
-beltTex.repeat.set(8, 1);
+beltTex.repeat.set(4, 1); // fewer repeats for wider visible pattern
 const beltSurfMat = new THREE.MeshStandardMaterial({
-  map: beltTex, roughness: 0.6, metalness: 0.05,
-  emissive: new THREE.Color(0x888896), emissiveIntensity: 0.05
+  map: beltTex, roughness: 0.55, metalness: 0.1,
+  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.12 // brighter baseline
 });
 const beltSurf = new THREE.Mesh(new THREE.BoxGeometry(248, 2, 76), beltSurfMat);
 beltSurf.position.set(-40, CONV_Y_TOP + 1, 0);
