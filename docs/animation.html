@@ -3364,6 +3364,10 @@ function animate(ts) {
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
     tp.mesh.position.y += dt * 4; // gentle upward drift, like heat shimmer
     tp.mat.opacity = (1 - _tt) * 0.65;
+    // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
+    tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 1.8);
+    tp.mat.color.g += (1.0 - tp.mat.color.g) * Math.min(1, dt * 1.8);
+    tp.mat.color.b = Math.min(1, tp.mat.color.b + dt * 2.4); // blue channel rises fastest → cool white
   });
 
   // ── Pass 34: Grab particle physics ──────────────────────────────────────────
