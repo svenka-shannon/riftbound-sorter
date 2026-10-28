@@ -2101,6 +2101,24 @@ function animate(ts) {
       // Servo swing toward belt deposit position (+1.57 = horizontal right)
       const st = phaseT(PH.armSwing);
       suctionPivot.rotation.z = THREE.MathUtils.lerp(0.80, 1.57, st);
+      // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
+      // Reuses the TRAIL_PARTICLES pool (armSwing and deflect phases don't overlap).
+      _trailSpawnAcc += dt;
+      if (_trailSpawnAcc >= 0.05) {
+        _trailSpawnAcc = 0;
+        const _aRot = suctionPivot.rotation.z;
+        const _aCupX = PIV_X + 83 * Math.sin(_aRot);
+        const _aCupY = PIV_Y - 83 * Math.cos(_aRot);
+        const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
+        _trailHead++;
+        tp.mesh.position.set(_aCupX + (Math.random() - 0.5) * 4, _aCupY + (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 6);
+        tp.mat.color.setHex(ct.hex);
+        tp.mat.opacity = 0.55;
+        tp.age = 0;
+        tp.life = 0.45 + Math.random() * 0.15;
+        tp.active = true;
+        tp.mesh.visible = true;
+      }
     }
 
     // Animate top stack card rising with the arm during armLift
@@ -2727,8 +2745,8 @@ function animate(ts) {
   }
 
   // ── Pass 35: Deflect contrail particle update ────────────────────────────────
-  // Reset spawn timer when not in deflect so trail starts fresh each cycle.
-  if (!inPhase(PH.deflect)) _trailSpawnAcc = 0;
+  // Reset spawn timer when not in deflect OR armSwing so trail starts fresh each phase.
+  if (!inPhase(PH.deflect) && !inPhase(PH.armSwing)) _trailSpawnAcc = 0;
   TRAIL_PARTICLES.forEach(tp => {
     if (!tp.active) return;
     tp.age += dt;
