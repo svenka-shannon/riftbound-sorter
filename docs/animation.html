@@ -1929,7 +1929,8 @@ function animate(ts) {
     _convOutFlashFired = false; // pass 46
     _rejectAlarmFired = false;  // pass 48
 
-    // Reset paddle to neutral at cycle start; dim gate glow + restore orange color
+    // Pass 51: paddle smooth-return in armReturn phase brings it to ~0; cycle reset
+    // just snaps to exactly 0 to clear floating-point residue, then restores color.
     paddlePivot.rotation.z = 0;
     paddleMat.emissiveIntensity = 0.5; // back to resting glow
     paddleMat.color.setHex(0xff6600);   // restore orange at cycle boundary
@@ -2613,6 +2614,9 @@ function animate(ts) {
   else if(inPhase(PH.armReturn)) {
     const art = phaseT(PH.armReturn);
     suctionPivot.rotation.z = THREE.MathUtils.lerp(1.57, -0.35, art);
+    // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
+    paddlePivot.rotation.z += (0 - paddlePivot.rotation.z) * Math.min(1, dt * 4.5);
+    paddleMat.emissiveIntensity += (0.5 - paddleMat.emissiveIntensity) * Math.min(1, dt * 3);
     activeCard.visible = false;
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
