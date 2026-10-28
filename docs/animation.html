@@ -2775,8 +2775,10 @@ function animate(ts) {
     }
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
-    activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2, 0);
+    // Pass 172: scan-field levitation — card floats on 0.8Hz sine during scan (peaks at midpoint)
     const ft = phaseRaw(PH.scan);
+    const _levitate = 0.30 * Math.sin(ts * 0.8 * Math.PI * 2) * Math.sin(ft * Math.PI);
+    activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's -0.18 belt lean into the reveal bell curve over first 10%
     // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
