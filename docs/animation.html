@@ -4209,7 +4209,11 @@ function animate(ts) {
     const _shakeBoost   = _cameraShake > 2 ? Math.min(0.25, _cameraShake * 0.04) : 0;
     // Pass 117: slotDrop domain ambient wash — brief domain color tint as card drops into slot
     const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.18 : 0;
-    const _ambTarget = 0.45 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost;
+    // Pass 323: deflect ambient boost — scene brightens as card arcs through the air
+    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.14 : 0;
+    // Pass 324: scan ambient reveal peak — brief scene-wide flood at lock-on moment
+    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 0.20 : 0;
+    const _ambTarget = 0.45 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324;
     ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
     // Tint ambient toward domain color during scan or slotDrop
     if (_scanAmbBoost > 0.02 || _dropAmbBoost > 0.02) {
@@ -4715,7 +4719,9 @@ function animate(ts) {
       _beltTrackLight.color.setHex(ct.hex);
       // Pass 186: Z now follows card's Z-wobble (passes 173-174) instead of hardcoded 0
       _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 6, activeCard.position.z);
-      _beltTrackLight.intensity += (2.2 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
+      // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 3.5 : 2.2;
+      _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
     } else {
       // Fade card-tracking mode out
       _beltTrackLight.intensity *= 1 - dt * 3;
