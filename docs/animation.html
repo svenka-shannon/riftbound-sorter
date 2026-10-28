@@ -212,6 +212,11 @@
 
 <div id="canvas-container"></div>
 
+<!-- Cycle progress bar — full-width color stripe at very top -->
+<div id="cycle-bar" style="position:fixed;top:0;left:0;right:0;height:4px;z-index:50;pointer-events:none;background:rgba(255,255,255,0.08);">
+  <div id="cycle-fill" style="height:100%;width:0%;transition:none;box-shadow:0 0 6px 1px currentColor;"></div>
+</div>
+
 <div id="ui-top">
   <div id="title-block">
     <h1>Riftbound Card Sorter</h1>
@@ -1140,8 +1145,8 @@ activeCard.castShadow = true;
 scene.add(activeCard);
 activeCard.visible = false;
 
-// Card glow: increased range (160) and physical falloff
-const cardGlow = new THREE.PointLight(0xffffff, 0, 160);
+// Card glow: increased range (200) and physical falloff
+const cardGlow = new THREE.PointLight(0xffffff, 0, 200);
 cardGlow.decay = 2;
 scene.add(cardGlow);
 
@@ -1573,6 +1578,13 @@ function animate(ts) {
 
   // ── Update UI ──
   updateStatsUI(ct);
+  // Cycle progress bar (full-width stripe, domain color)
+  { const fillEl = document.getElementById('cycle-fill');
+    if(fillEl) {
+      fillEl.style.width = (cycleT / CYCLE_DUR * 100) + '%';
+      if(ct) fillEl.style.background = ct.css;
+    }
+  }
   if(cycleT >= PH.scan[0] && cycleT < PH.scan[0] + 0.8) {
     showScanOverlay(ct, true);
   } else {
@@ -1721,6 +1733,8 @@ function animate(ts) {
     cardGlow.position.y += 10; // above card for top-face highlight
     // Scanner LED pulses brightly during scan
     scanLEDMat.emissiveIntensity = 2.0 + flashIntensity * 3.0;
+    // Scanner hood glows cyan-blue during scan
+    hoodMat.emissiveIntensity = 0.3 + flashIntensity * 0.45;
     // Wide bloom soft halo around scanner
     scanBloom.intensity = flashIntensity * 0.8;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, 0);
@@ -1895,6 +1909,10 @@ function animate(ts) {
   // Belt emissive flicker implies motion throughout the cycle (base scales with speed)
   const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.05;
   beltSurfMat.emissiveIntensity = beltBase + 0.03 * Math.sin(cycleT * 10);
+  // Scanner hood: resting dim blue glow (resets on non-scan frames)
+  if (!inPhase(PH.scan)) {
+    hoodMat.emissiveIntensity = 0.3;
+  }
 
   // Spin conveyor rollers when belt is moving
   const beltFullSpeed = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
