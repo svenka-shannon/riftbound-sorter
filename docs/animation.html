@@ -1598,6 +1598,7 @@ let _impactFired = false;      // true once slot landing impact ring fired this 
 let _grabBurstFired = false;   // true once particle burst fired on card grab (pass 34)
 let _gateFlashFired = false;   // true once gate contact flash fired in deflect (pass 34)
 let _depositFired = false;     // true once belt-deposit flash fired at conveyorIn start (pass 39)
+let _convOutFlashFired = false; // pass 46: once scanner-exit flash fires at conveyorOut start
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
 let _beltIdlePhase = 0;        // pass 44: 0..1 drives idle shimmer sweep along belt
 const _beltDomainRGB  = new THREE.Color(0x8888a0); // reused for belt domain tint
@@ -1904,6 +1905,7 @@ function animate(ts) {
     _grabBurstFired = false;  // pass 34
     _gateFlashFired = false;  // pass 34
     _depositFired = false;    // pass 39
+    _convOutFlashFired = false; // pass 46
 
     // Reset paddle to neutral at cycle start; dim gate glow + restore orange color
     paddlePivot.rotation.z = 0;
@@ -2356,6 +2358,18 @@ function animate(ts) {
 
   // ── Phase 4: Conveyor to gate (3.1..3.8s) ──
   else if(inPhase(PH.conveyorOut)) {
+    // Pass 46: scanner-exit "identity confirmed" flash — fires once at phase start
+    if (!_convOutFlashFired) {
+      _convOutFlashFired = true;
+      // Bright domain-colored burst at scanner exit hood position
+      const _cofl = new THREE.PointLight(ct.hex, 6.0, 90);
+      _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
+      scene.add(_cofl);
+      if (!window._flashLights) window._flashLights = [];
+      window._flashLights.push({ light: _cofl, age: 0 });
+      // Card blazes bright at scan-confirm moment (overrides the 0.55 set each frame)
+      activeCardMat.emissiveIntensity = 1.8;
+    }
     scanTargetLight.intensity = 0;
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
@@ -2388,7 +2402,8 @@ function animate(ts) {
     scanLine.visible = false; scanLine2.visible = false;
     scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 4);
     scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
-    activeCardMat.emissiveIntensity = 0.55;
+    // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
+    activeCardMat.emissiveIntensity = Math.max(0.55, activeCardMat.emissiveIntensity - dt * 5.5);
     cardGlow.intensity = 1.2;
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling
