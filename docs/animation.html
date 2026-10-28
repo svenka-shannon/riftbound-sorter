@@ -2936,7 +2936,7 @@ function animate(ts) {
     // Camera-flash: brief colored screen overlay fires once per scan
     if (!_scanFlashFired) {
       _scanFlashFired = true;
-      _cameraShake = 3.5; // trigger micro-shake on scan strobe
+      _cameraShake = 5.0; // Pass 418: scan start shake boost 3.5 → 5.0
       const flashEl = document.getElementById('scan-flash-overlay');
       if (flashEl) {
         flashEl.style.background = ct.css;
@@ -3967,11 +3967,10 @@ function animate(ts) {
       impactRingMat.color.setHex(ct.hex);
       impactRing.scale.setScalar(1.0);
       impactRing.visible = true;
-      // Pass 38: brief camera "thud" shake on hard floor landing
-      // Pass 303: floor-0 shake boost — harder shake for the full gravity drop
-      _cameraShake = Math.max(_cameraShake, 2.2);
-      // Pass 69: flash this slot's entry strip bright on landing
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 4.0;
+      // Pass 38: floor landing thud — Pass 419: boost 2.2 → 3.2 (harder floor thud)
+      _cameraShake = Math.max(_cameraShake, 3.2);
+      // Pass 69: flash this slot's entry strip — Pass 420: boost 4.0 → 5.5 (brighter landing)
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 5.5;
       // Pass 218: fill bar landing spark — domain fill bar flares bright when card arrives,
       // then decays back to resting via the existing emissive decay loop.
       if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 3.2;
