@@ -2871,11 +2871,12 @@ function animate(ts) {
     activeCardMat.emissiveIntensity = _armCardEmissive;
     // Pass 467: arm-swing arc-peak domain flash — at arm's fastest midpoint, spawn a brief domain
     // point light at card position, syncing with the emissive peak (pass 466).
+    // Pass 536: armSwing arc-peak flash 5.5→8.0, dist 85→105 for stronger swing apex pop
     if (inPhase(PH.armSwing)) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 5.5, 85);
+        const _spfl = new THREE.PointLight(ct.hex, 8.0, 105);
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
@@ -3283,8 +3284,8 @@ function animate(ts) {
         // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
         _hoodRevealFlash = 0.001; // just above 0 to activate
         // Pass 125: card face emissive burst at identity reveal — card "powers up"
-        // Pass 375: burst boost 3.5 → 5.0 for bigger initial face flash
-        _cardRevealBurst = 5.0;
+        // Pass 375: burst boost 3.5 → 5.0 — Pass 531: →7.5 for bigger initial face flash
+        _cardRevealBurst = 7.5;
         // Pass 205: destination slot strip pre-announce flash — strip briefly superflashes when
         // machine "announces" the destination. ct.stripMat normal decay (pass 127) fades it back.
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 3.0;
@@ -3301,19 +3302,20 @@ function animate(ts) {
         _scanLEDRevealT = 0;
         // Pass 235: scanner confirmation particle burst — 6 domain-colored particles burst
         // outward from the scanner center at identity confirm, adding physical "pop" to the reveal.
+        // Pass 532: burst speed 38+42 → 55+55, vy 20+35 → 30+50 for bigger reveal pop
         {
           const _bx = activeCard.position.x, _by = CONV_Y_TOP + CARD_T/2 + 2, _bz = activeCard.position.z;
           let _burstSpawned = 0;
           for (let _bi = 0; _bi < GRAB_PARTICLES.length && _burstSpawned < 6; _bi++) {
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
-            _bp.active = true; _bp.age = 0; _bp.life = 0.32 + Math.random() * 0.20;
+            _bp.active = true; _bp.age = 0; _bp.life = 0.36 + Math.random() * 0.24;
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 6) * Math.PI * 2 + Math.random() * 0.8;
-            const _spd = 38 + Math.random() * 42;
+            const _spd = 55 + Math.random() * 55;
             _bp.vx = Math.cos(_ang) * _spd * 0.55;
-            _bp.vy = 20 + Math.random() * 35; // strong upward component
+            _bp.vy = 30 + Math.random() * 50; // strong upward component
             _bp.vz = Math.sin(_ang) * _spd * 0.55;
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
@@ -3342,7 +3344,8 @@ function animate(ts) {
           const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 0.48 : 0;
           // Pass 207: scan bar completion superflash — bar spikes to max emissive in the final 2%
           // of scan (barFill 0.98→1.0), giving a "scan complete" visual climax as conveyorOut begins.
-          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 3.5 : 0;
+          // Pass 533: completion superflash 3.5→5.5 for bigger scan-done climax
+          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 5.5 : 0;
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
         }
       }
@@ -3356,8 +3359,9 @@ function animate(ts) {
     }
     // Pass 50: scanner heat exhaust — dim rising wisps from hood top during scan
     // Reuses TRAIL_PARTICLES (idle during scan since no arm-swing/deflect overlap).
+    // Pass 535: scan exhaust spawn interval 0.14→0.10s for denser heat wisps
     _scanExhaustAcc += dt;
-    if (_scanExhaustAcc >= 0.14 && flashIntensity > 0.15) {
+    if (_scanExhaustAcc >= 0.10 && flashIntensity > 0.15) {
       _scanExhaustAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -3396,7 +3400,8 @@ function animate(ts) {
           // Pass 135: non-linear doppler fade — ring dissipates faster as it expands
           const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
-          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 0.85 : 0;
+          // Pass 534: ping reveal spike 0.85→1.35 for brighter confirm ring flash
+          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 1.35 : 0;
           // Pass 510: post-reveal ping boost 1.35→1.65 for more dramatic confirm rings
           const _pingBoost = ft >= 0.85 ? 1.65 + _pingRevealSpike337 : 1.0;
           p.mat.opacity = _pingFade * flashIntensity * 0.56 * _pingBoost;
@@ -4021,7 +4026,8 @@ function animate(ts) {
     // this is an instant photogate flash that fires and dies in ~0.15s.
     if (!_slotGateFlashFired && dt3 >= 0.06) {
       _slotGateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 8.0, 80); // Pass 433: 5.5→8.0, dist 55→80
+      // Pass 537: slot gate flash 8.0→11.0, dist 80→100 for brighter tray entry burst
+      const _gfl = new THREE.PointLight(ct.hex, 11.0, 100); // Pass 537: 8.0→11.0, dist 80→100
       _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
