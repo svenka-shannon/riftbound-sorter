@@ -2563,7 +2563,9 @@ function animate(ts) {
         const _pickTgtT = (pt - 0.75) / 0.25;
         scanTargetLight.color.setHex(0xffeedd);
         scanTargetLight.position.set(PIV_X, CONV_Y_TOP + 8, 0);
-        scanTargetLight.intensity = _pickTgtT * 0.90 * Math.sin(_pickTgtT * Math.PI * 0.85);
+        // Pass 276: rangefinder lock-on flicker — 22Hz strobe in final 12% as arm locks on
+        const _lockFlicker = pt > 0.88 ? (0.80 + 0.20 * Math.sin(ts * 22 * Math.PI * 2)) : 1.0;
+        scanTargetLight.intensity = _pickTgtT * 0.90 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
       }
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       if (pt > 0.80) {
@@ -2631,11 +2633,13 @@ function animate(ts) {
         const _cupY = PIV_Y - 83 * Math.cos(_cupRot);
         vacuumRing.visible = true;
         vacuumRing.position.set(_cupX, _cupY + 1, 0);
-        vacuumRing.scale.setScalar(THREE.MathUtils.lerp(1.5, 0.25, _vt));
+        const _vacBaseScale = THREE.MathUtils.lerp(1.5, 0.25, _vt);
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
         const _vacSurge = pt > 0.85 ? 0.28 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
         vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.55 + _vacSurge;
+        // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
+        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 0.55), _vacBaseScale);
       } else {
         vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       }
@@ -3239,7 +3243,9 @@ function animate(ts) {
         const localFt = ((ft * 0.6 + staggerOffset) % pingPeriod) / pingPeriod; // 0..1 within period
         if (localFt < 0.85) {
           p.mesh.visible = true;
-          const s = 1 + localFt * 5.5; // scale from 1 → 6.5
+          // Pass 274: post-reveal ping scale boost — rings expand wider after identity confirm
+          const _pingMaxScale = _identityRevealed ? 8.5 : 5.5;
+          const s = 1 + localFt * _pingMaxScale;
           p.mesh.scale.setScalar(s);
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
           p.mat.color.setHex(ft < 0.85 ? 0xaaddff : ct.hex);
