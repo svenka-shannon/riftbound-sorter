@@ -1194,6 +1194,23 @@ const cardGlow = new THREE.PointLight(0xffffff, 0, 200);
 cardGlow.decay = 2;
 scene.add(cardGlow);
 
+// ─── Routing arc: scanner → target slot ──────────────────────────────────────
+// Quadratic bezier arc drawn during scan phase — makes routing decision unmistakable
+const ROUTE_SEGS = 28;
+const routeArcGeo = new THREE.BufferGeometry();
+const routeArcPts = new Float32Array((ROUTE_SEGS + 1) * 3);
+routeArcGeo.setAttribute('position', new THREE.BufferAttribute(routeArcPts, 3));
+const routeArcMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
+const routeArcLine = new THREE.Line(routeArcGeo, routeArcMat);
+scene.add(routeArcLine);
+
+// Small pulsing sphere at the arc endpoint (destination marker)
+const routeTargetMat = new THREE.MeshStandardMaterial({
+  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0, roughness: 0.3, transparent: true, opacity: 0
+});
+const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(4, 10, 10), routeTargetMat);
+scene.add(routeTarget);
+
 // ─── Tray Card Accumulation ───────────────────────────────────────────────────
 const trayCards = {};
 const trayArrivals = []; // {mesh, startY, targetY, t} — animates card settling into slot
@@ -1450,6 +1467,12 @@ function updateStatsUI(cardType) {
     document.getElementById('stats-current').innerHTML =
       `Current: <span style="color:${cardType.css}">${cardType.name}</span>` +
       ` → ${floorLabel} floor, col ${cardType.col + 1}`;
+    // Accent stats panel border with current domain color (subtle 20% alpha glow)
+    const statsEl = document.getElementById('stats');
+    if(statsEl) {
+      statsEl.style.borderColor = cardType.css + '55';
+      statsEl.style.boxShadow = `0 0 12px 1px ${cardType.css}22`;
+    }
   }
   // Per-domain breakdown with mini-bar graphs
   let breakdownHtml = '';
@@ -1761,6 +1784,9 @@ function animate(ts) {
     scanBloom.intensity = 0;
     scanTargetLight.intensity = 0;
     scanLine.visible = false;
+    routeArcMat.opacity = 0;
+    routeTargetMat.opacity = 0;
+    routeTargetMat.emissiveIntensity = 0;
   }
 
   // ── Phase 2: Card on conveyor (1.5..2.5s) ──
@@ -1839,6 +1865,34 @@ function animate(ts) {
     if(fillBars[ct.slot]) {
       fillBars[ct.slot].material.emissiveIntensity = 0.4 + flashIntensity * 1.2;
     }
+    // ── Routing arc: curved path from scanner lens → destination slot ──
+    {
+      const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
+      const arcEnd   = new THREE.Vector3(TX_MID, ct.slotFloorY + 30, ct.slotZ);
+      const arcMid   = new THREE.Vector3(
+        (arcStart.x + arcEnd.x) / 2 + 10,
+        Math.max(arcStart.y, arcEnd.y) + 55,  // loft the arc well above the machine
+        arcEnd.z * 0.4                         // bias midpoint toward destination Z
+      );
+      const arcPts = routeArcGeo.attributes.position.array;
+      for (let i = 0; i <= ROUTE_SEGS; i++) {
+        const t = i / ROUTE_SEGS;
+        const s = 1 - t;
+        // Quadratic bezier: B(t) = s²P0 + 2stP1 + t²P2
+        arcPts[i*3+0] = s*s*arcStart.x + 2*s*t*arcMid.x + t*t*arcEnd.x;
+        arcPts[i*3+1] = s*s*arcStart.y + 2*s*t*arcMid.y + t*t*arcEnd.y;
+        arcPts[i*3+2] = s*s*arcStart.z + 2*s*t*arcMid.z + t*t*arcEnd.z;
+      }
+      routeArcGeo.attributes.position.needsUpdate = true;
+      routeArcMat.color.setHex(ct.hex);
+      routeArcMat.opacity = flashIntensity * 0.75;
+      // Target sphere pulses at destination
+      routeTarget.position.copy(arcEnd);
+      routeTargetMat.color.setHex(ct.hex);
+      routeTargetMat.emissive.setHex(ct.hex);
+      routeTargetMat.emissiveIntensity = flashIntensity * 2.0;
+      routeTargetMat.opacity = flashIntensity * 0.9;
+    }
     // World-to-screen projection for scan overlay (clamped to visible area)
     const _sv = activeCard.position.clone().project(camera);
     const _rawX = (_sv.x * 0.5 + 0.5) * window.innerWidth;
@@ -1856,6 +1910,10 @@ function animate(ts) {
   // ── Phase 4: Conveyor to gate (3.1..3.8s) ──
   else if(inPhase(PH.conveyorOut)) {
     scanTargetLight.intensity = 0;
+    // Fade routing arc out as card leaves scanner
+    routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
+    routeTargetMat.opacity = routeArcMat.opacity;
+    routeTargetMat.emissiveIntensity = routeArcMat.opacity * 2;
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
     const ot = phaseRaw(PH.conveyorOut); // LINEAR for card position (belt speed)
@@ -1974,6 +2032,9 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false;
+    routeArcMat.opacity = 0;
+    routeTargetMat.opacity = 0;
+    routeTargetMat.emissiveIntensity = 0;
   }
 
   // ── Phase 8: Pause (6.3..6.8s) ──
@@ -1986,6 +2047,9 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false;
+    routeArcMat.opacity = 0;
+    routeTargetMat.opacity = 0;
+    routeTargetMat.emissiveIntensity = 0;
   }
 
   // Belt emissive flicker implies motion throughout the cycle (base scales with speed)
