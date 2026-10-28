@@ -3368,10 +3368,12 @@ function animate(ts) {
     const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.30 : 0;
     const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.12 : 0;
     const _shakeBoost   = _cameraShake > 2 ? Math.min(0.25, _cameraShake * 0.04) : 0;
-    const _ambTarget = 0.45 + _scanAmbBoost + _grabBoost + _shakeBoost;
+    // Pass 117: slotDrop domain ambient wash — brief domain color tint as card drops into slot
+    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.18 : 0;
+    const _ambTarget = 0.45 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost;
     ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
-    // Tint ambient slightly toward domain color during scan
-    if (_scanAmbBoost > 0.02) {
+    // Tint ambient toward domain color during scan or slotDrop
+    if (_scanAmbBoost > 0.02 || _dropAmbBoost > 0.02) {
       ambientLight.color.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 2));
     } else {
       ambientLight.color.lerp(new THREE.Color(0x202030), Math.min(1, dt * 1.5));
