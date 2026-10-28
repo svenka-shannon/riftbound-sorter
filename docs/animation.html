@@ -4643,13 +4643,16 @@ function animate(ts) {
 
   // ── Impact ring: expansion animation ─────────────────────────────────────────
   if (_impactRingT >= 0) {
-    _impactRingT = Math.min(1, _impactRingT + dt * 2.5); // ~0.4s full animation
+    // Pass 384: expansion speed boost — 0.4s → 0.31s for snappier ring
+    _impactRingT = Math.min(1, _impactRingT + dt * 3.2);
     // scale0: floor-0 starts at 1.0 (big bang), floor-1 starts at 0.55 (gentle glide)
     // Pass 284: easeOut expansion + floor-0 scale boost — ring punches out hard then decelerates
-    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 6.0 : 4.5; // floor-0: 6.0 (was 4.5), floor-1: 4.5
+    // Pass 382: floor-0 max scale boost 6.0 → 7.5
+    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 7.5 : 4.5;
     const irs = _impactRingScale0 + easeOut(_impactRingT) * (_impactMaxScale - _impactRingScale0);
     impactRing.scale.setScalar(irs);
-    const peakOpacity = _impactRingScale0 < 0.8 ? 0.55 : 0.88; // softer for upper floor
+    // Pass 383: floor-0 peak opacity boost 0.88 → 1.0
+    const peakOpacity = _impactRingScale0 < 0.8 ? 0.55 : 1.0;
     impactRingMat.opacity = (1 - _impactRingT) * peakOpacity;
     if (_impactRingT >= 1) {
       _impactRingT = -1;
