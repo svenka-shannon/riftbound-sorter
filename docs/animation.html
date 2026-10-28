@@ -692,7 +692,10 @@ scene.add(hopperWire);
 // --- Conveyor belt ---
 const CONV_Y_TOP = 45;
 const convBodyGeo = new THREE.BoxGeometry(250, 12, 80);
-const convBodyMat = new THREE.MeshStandardMaterial({ color: 0x303038, roughness: 0.65, metalness: 0.35 });
+const convBodyMat = new THREE.MeshStandardMaterial({
+  color: 0x303038, roughness: 0.65, metalness: 0.35,
+  emissive: new THREE.Color(0x000000), emissiveIntensity: 0,
+});
 const conveyorBody = new THREE.Mesh(convBodyGeo, convBodyMat);
 conveyorBody.castShadow = true;
 conveyorBody.receiveShadow = true;
@@ -2745,20 +2748,30 @@ function animate(ts) {
       beltSurfMat.emissive.lerp(_beltBaseRGB, Math.min(1, dt * 0.9));
     }
   }
+  // Pass 56: Conveyor body sides pulse faintly with domain color while card rides belt
+  {
+    const _bodyActive = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
+    if (_bodyActive) {
+      convBodyMat.emissive.setHex(ct.hex);
+      const _bodyTarget = 0.08 + 0.04 * Math.sin(cycleT * 8); // gentle pulsing
+      convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
+    } else {
+      convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
+    }
+  }
   // Scanner hood: resting dim blue glow (resets on non-scan frames)
   if (!inPhase(PH.scan)) {
     hoodMat.emissiveIntensity = 0.3;
   }
 
-  // Spin conveyor rollers when belt is moving
-  const beltFullSpeed = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
-  const beltHalfSpeed = inPhase(PH.deflect);
-  if (!paused) {
+  // Pass 56: Spin rollers proportional to belt scroll speed (synced to smooth ramp from pass 53)
+  // _beltScrollSpeed is 0 (idle) → 0.08 (full). Map to roller rate: 0.08 → 8 rad/s ≡ ×100.
+  if (!paused && _beltScrollSpeed > 0.001) {
+    const rollerRate = _beltScrollSpeed * 100 * speedMult;
     rollerMeshes.forEach(r => {
       // rotation.z drives belt-axis spin (rollers lie along Z after initial rotation.x=PI/2)
       // negative = counterclockwise from +Z = top surface moves right (+X = card travel direction)
-      if (beltFullSpeed) r.rotation.z -= dt * speedMult * 8;
-      else if (beltHalfSpeed) r.rotation.z -= dt * speedMult * 4; // half rate during deflect
+      r.rotation.z -= dt * rollerRate;
     });
   }
 
