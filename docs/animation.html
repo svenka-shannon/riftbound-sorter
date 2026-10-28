@@ -1595,6 +1595,21 @@ const _domainFillLight = new THREE.PointLight(0xffffff, 0.14, 700);
 _domainFillLight.position.set(-30, 280, 0); // centered above the belt, high up
 scene.add(_domainFillLight);
 
+// ─── Pass 35: Deflect arc contrail particle pool ────────────────────────────
+// 24 small spheres remain stationary where spawned, tracing the card's arc path
+// during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
+const TRAIL_PARTICLES = [];
+const TRAIL_PARTICLE_COUNT = 24;
+for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
+  const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
+  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(2.2, 4, 4), _tpMat);
+  _tpMesh.visible = false;
+  scene.add(_tpMesh);
+  TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 0.4, age: 0, active: false });
+}
+let _trailHead = 0;        // ring-buffer head for trail particles
+let _trailSpawnAcc = 0;    // time accumulator for spawn rate
+
 // Domain atmosphere: slowly tint background/fog toward current domain color
 let _fogTint = new THREE.Color(0x0a0a0f);
 
@@ -2309,6 +2324,24 @@ function animate(ts) {
     paddleMat.emissive.setHex(ct.hex);
     paddleMat.emissiveIntensity = Math.max(0.3, paddleMat.emissiveIntensity * 0.92); // dim slowly
     beltTex.offset.x -= dt * speedMult * 0.04;
+    // Pass 35: spawn contrail particles tracing the card's arc trajectory
+    _trailSpawnAcc += dt;
+    if (_trailSpawnAcc >= 0.055) { // one particle every ~55ms
+      _trailSpawnAcc = 0;
+      const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
+      _trailHead++;
+      tp.mesh.position.set(
+        activeCard.position.x + (Math.random() - 0.5) * 5,
+        activeCard.position.y + (Math.random() - 0.5) * 5,
+        activeCard.position.z + (Math.random() - 0.5) * 5
+      );
+      tp.mat.color.setHex(ct.hex);
+      tp.mat.opacity = 0.72;
+      tp.age = 0;
+      tp.life = 0.38 + Math.random() * 0.14;
+      tp.active = true;
+      tp.mesh.visible = true;
+    }
   }
 
   // ── Phase 6: Drop into slot (4.8..5.8s) ──
@@ -2602,6 +2635,18 @@ function animate(ts) {
       impactRingMat.opacity = 0;
     }
   }
+
+  // ── Pass 35: Deflect contrail particle update ────────────────────────────────
+  // Reset spawn timer when not in deflect so trail starts fresh each cycle.
+  if (!inPhase(PH.deflect)) _trailSpawnAcc = 0;
+  TRAIL_PARTICLES.forEach(tp => {
+    if (!tp.active) return;
+    tp.age += dt;
+    const _tt = tp.age / tp.life;
+    if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
+    tp.mesh.position.y += dt * 4; // gentle upward drift, like heat shimmer
+    tp.mat.opacity = (1 - _tt) * 0.65;
+  });
 
   // ── Pass 34: Grab particle physics ──────────────────────────────────────────
   // Each particle follows simple ballistic trajectory with gravity + air drag.
