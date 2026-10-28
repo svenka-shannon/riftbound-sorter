@@ -3082,7 +3082,8 @@ function animate(ts) {
       hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.10 + _revStrobe; // Pass 436: boost
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
-      hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.10; // Pass 436: 0.28+0.85 → 0.35+1.10
+      // Pass 500: scanner hood scan intensity boost 0.35+1.10 → 0.40+1.40 for stronger hood presence
+      hoodMat.emissiveIntensity = 0.40 + flashIntensity * 1.40; // Pass 500: milestone boost
     }
     // Pass 197: scanner hood micro-sway — very subtle Z oscillation (±0.5 units, 2.8Hz)
     // simulates vibration from scanner emitter/receiver pair resonance during active scan.
@@ -3322,7 +3323,8 @@ function animate(ts) {
         } else {
           scanBarMat.color.copy(_blendC);
           scanBarMat.emissive.copy(_blendC);
-          const _baseI = barFill >= 0.85 ? 2.2 + flashIntensity * 2.5 : 1.2 + flashIntensity * 1.8;
+          // Pass 497: scan bar 65-85% pre-reveal tension boost — 1.2→1.5 base, 1.8→2.3 peak (builds urgency)
+          const _baseI = barFill >= 0.85 ? 2.2 + flashIntensity * 2.5 : 1.5 + flashIntensity * 2.3;
           // Pass 130: post-reveal breathing pulse on scan bar at 3Hz
           const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 0.30 : 0;
           // Pass 207: scan bar completion superflash — bar spikes to max emissive in the final 2%
@@ -3909,9 +3911,9 @@ function animate(ts) {
         const g = dt3 / 0.88;
         cy = THREE.MathUtils.lerp(startY, targetY, g * g);
       } else {
-        // Small bounce at landing
+        // Small bounce at landing — Pass 496: bounce height 6→9 for more satisfying floor impact
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 6 * Math.sin(bT * Math.PI) * (1 - bT * 0.5);
+        cy = targetY + 9 * Math.sin(bT * Math.PI) * (1 - bT * 0.5);
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4401,7 +4403,8 @@ function animate(ts) {
     // Pass 117: slotDrop domain ambient wash — Pass 393: boost 0.18 → 0.26 for bigger scene response
     const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.26 : 0;
     // Pass 323: deflect ambient boost — scene brightens as card arcs through the air
-    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.14 : 0;
+    // Pass 499: deflect ambient boost 0.14→0.20 for stronger scene response to card flight
+    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.20 : 0;
     // Pass 324: scan ambient reveal peak — brief scene-wide flood at lock-on moment
     const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 0.20 : 0;
     const _ambTarget = 0.45 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324;
@@ -4592,7 +4595,8 @@ function animate(ts) {
     const orbitAngle = ts * 0.00006 + Math.PI * 0.3; // phase offset for 3/4 front view
     // Orbit radius tightens slightly during scan for closer scanner view
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
-    const orbitRBase = inPhase(PH.scan) ? 600 : inPhase(PH.armSwing) ? 680 : 750;
+    // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
+    const orbitRBase = inPhase(PH.scan) ? 600 : inPhase(PH.armSwing) ? 680 : inPhase(PH.deflect) ? 700 : 750;
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.02; // smooth zoom
     const orbitR = controls._orbitR;
@@ -4930,7 +4934,8 @@ function animate(ts) {
       _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 6, activeCard.position.z);
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 3.5 : 2.8;
+      // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 for stronger domain spotlight on belt exit
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 4.8 : 2.8;
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
     } else {
       // Fade card-tracking mode out
@@ -5027,12 +5032,14 @@ function animate(ts) {
   _domFillClr.setHex(ct.hex);
   _domainFillLight.color.lerp(_domFillClr, dt * 0.45);
   const _fillTgt = activeCard.visible ? 0.15 : 0.05;
+  // Pass 498: deflect domain fill boost — domain fill light surges during card arc (peaks at midpoint)
+  const _deflectFill498 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.22 : 0;
   // Pass 99: decay boost (set at 85% identity reveal), adds scene-wide domain color wash
   if (_domainFillBoost > 0.005) {
     _domainFillBoost = Math.max(0, _domainFillBoost - dt * 2.2); // ~0.25s decay
-    _domainFillLight.intensity = Math.min(0.90, (_fillTgt + _domainFillBoost)); // Pass 440: max 0.70→0.90
+    _domainFillLight.intensity = Math.min(0.90, (_fillTgt + _domainFillBoost + _deflectFill498)); // Pass 440: max 0.70→0.90
   } else {
-    _domainFillLight.intensity += (_fillTgt - _domainFillLight.intensity) * dt * 1.8;
+    _domainFillLight.intensity += (_fillTgt + _deflectFill498 - _domainFillLight.intensity) * dt * 1.8;
   }
 
   // ── Pass 36: Round completion celebration particle physics ──────────────────
@@ -5186,7 +5193,8 @@ function animate(ts) {
     const phaseOff = ki * 0.9 + (slotKey.charCodeAt(0) * 0.3 + slotKey.charCodeAt(2) * 0.4);
     // Pass 188: fix tray card breathe — was ts*0.00055 (~3.2h period = stationary).
     // Fixed to 0.3Hz per slot, each slot phase-offset so cards breathe independently.
-    const _breathe = 0.22 + 0.08 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5);
+    // Pass 493: breathe amplitude boost 0.08→0.14 for more life in sorted cards at rest
+    const _breathe = 0.22 + 0.14 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5);
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
