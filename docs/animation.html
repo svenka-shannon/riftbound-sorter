@@ -330,7 +330,7 @@ function makeWireBox(w, h, d, color) {
 
 // --- Baseplate ---
 const baseMesh = makeBox(570, 6, 420, 0x1a1a2a);
-baseMesh.position.set(10, -3, 0);
+baseMesh.position.set(-30, -3, 0);
 scene.add(baseMesh);
 
 // --- Hopper (left) ---
@@ -372,18 +372,18 @@ hopperWire.position.set(HOPPER_X + 33, 54, 0);
 scene.add(hopperWire);
 
 // --- Conveyor belt ---
-// X from -115 to +135 → length = 250, center at X=10
-// Left end at -115 clears suction arm reach (~-111)
+// X from -165 to +85 → length = 250, center at X=-40
+// Left end at -165 butts against hopper right wall at X≈-158
 const CONV_Y_TOP = 45;
 const conveyorBody = makeBox(250, 12, 80, 0xb0b0b8);
-conveyorBody.position.set(10, CONV_Y_TOP - 6, 0);
+conveyorBody.position.set(-40, CONV_Y_TOP - 6, 0);
 scene.add(conveyorBody);
 // belt surface (slightly different color)
 const beltSurf = makeBox(248, 2, 76, 0x888896);
-beltSurf.position.set(10, CONV_Y_TOP + 1, 0);
+beltSurf.position.set(-40, CONV_Y_TOP + 1, 0);
 scene.add(beltSurf);
-// legs (at -90, 10, 110 — evenly spaced along 250mm belt)
-for(let lx of [-90, 10, 110]) {
+// legs (at -140, -40, 60 — evenly spaced along 250mm belt)
+for(let lx of [-140, -40, 60]) {
   const leg = makeBox(8, CONV_Y_TOP - 12, 8, 0x909098);
   leg.position.set(lx, (CONV_Y_TOP - 12)/2, 30);
   scene.add(leg);
@@ -393,26 +393,26 @@ for(let lx of [-90, 10, 110]) {
 }
 
 // --- Scanner hood ---
-// Black box at X=10 (center of belt), Y from 45 to 110 (height=65), Z -50..+50
+// Black box at X=-40 (center of belt), Y from 45 to 110 (height=65), Z -50..+50
 const scannerHood = makeBox(80, 65, 100, 0x111118);
-scannerHood.position.set(10, CONV_Y_TOP + 32.5, 0);
+scannerHood.position.set(-40, CONV_Y_TOP + 32.5, 0);
 scene.add(scannerHood);
 // LED strip on scanner
 const scanLED = makeBox(78, 3, 3, 0x00aaff, 0.7);
-scanLED.position.set(10, CONV_Y_TOP + 5, 0);
+scanLED.position.set(-40, CONV_Y_TOP + 5, 0);
 scene.add(scanLED);
 // scanner opening slot
 const scanSlot = makeBox(2, 6, 80, 0x222233);
-scanSlot.position.set(-30, CONV_Y_TOP + 2, 0);
+scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
 // Flash point light inside scanner (animated)
 const scanFlash = new THREE.PointLight(0xffffff, 0, 60);
-scanFlash.position.set(10, CONV_Y_TOP + 20, 0);
+scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // --- Sort gate servo + paddle ---
-const GATE_X = 110;
+const GATE_X = 60;
 const gateBase = makeBox(20, 30, 20, 0xc0c0c8);
 gateBase.position.set(GATE_X, CONV_Y_TOP + 15, 0);
 scene.add(gateBase);
@@ -434,8 +434,8 @@ scene.add(paddlePivot);
 // 2-FLOOR TRAY — compact redesign
 // X: 85mm deep (225→310), Z: 271mm wide (4 cols × 65mm), H: 133mm (2×65 + 3mm shelf)
 // Total machine: ~540mm X × ~300mm Z — well under original 2ft×2ft target ✓
-const TRAY_X_START = 160;
-const TRAY_X_END   = 245;
+const TRAY_X_START = 110;
+const TRAY_X_END   = 195;
 const TRAY_Y_BASE  = 0;
 const TRAY_FLOOR_H = 65;   // height per floor
 const TRAY_SHELF_H = 3;    // shelf between floors
@@ -714,7 +714,7 @@ function animate(ts) {
     activeCard.visible = true;
     activeCard.rotation.set(0, 0, 0);
     const ct2 = phaseT(PH.conveyorIn);
-    const cx = THREE.MathUtils.lerp(-110, 10, ct2);
+    const cx = THREE.MathUtils.lerp(-155, -40, ct2);
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 1, 0);
     scanFlash.intensity = 0;
     activeCardMat.emissiveIntensity = 0.2;
@@ -727,12 +727,12 @@ function animate(ts) {
   else if(inPhase(PH.scan)) {
     activeCard.visible = true;
     activeCard.rotation.set(0, 0, 0);
-    activeCard.position.set(10, CONV_Y_TOP + CARD_T/2 + 1, 0);
+    activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 1, 0);
     const ft = phaseT(PH.scan);
     // flash goes up then fades
     const flashIntensity = ft < 0.5 ? ft * 4 : (1 - ft) * 4;
     scanFlash.intensity = flashIntensity * 3;
-    scanFlash.position.set(10, CONV_Y_TOP + 10, 0);
+    scanFlash.position.set(-40, CONV_Y_TOP + 10, 0);
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.5;
     cardGlow.intensity = 1.5 + flashIntensity;
     cardGlow.position.copy(activeCard.position);
@@ -743,7 +743,7 @@ function animate(ts) {
     activeCard.visible = true;
     activeCard.rotation.set(0, 0, 0);
     const ot = phaseT(PH.conveyorOut);
-    activeCard.position.set(THREE.MathUtils.lerp(10, GATE_X, ot), CONV_Y_TOP + CARD_T/2 + 1, 0);
+    activeCard.position.set(THREE.MathUtils.lerp(-40, GATE_X, ot), CONV_Y_TOP + CARD_T/2 + 1, 0);
     // Paddle rotates to target angle during this phase
     const targetAngle = paddleAngleForSlot(ct.slotZ);
     paddlePivot.rotation.z = THREE.MathUtils.lerp(0, targetAngle, ot);
