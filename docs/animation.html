@@ -1961,19 +1961,19 @@ function fireCelebration() {
     void flashEl.offsetWidth;
     flashEl.classList.add('scan-flash-on');
   }
-  // Camera shake: big celebratory jolt
-  _cameraShake = Math.max(_cameraShake, 5.5);
-  // Pass 106: FOV zoom-punch — briefly zoom in (55→47) then slowly recover
-  _fovBump = 8;
+  // Camera shake: big celebratory jolt — Pass 421: boost 5.5 → 7.5
+  _cameraShake = Math.max(_cameraShake, 7.5);
+  // Pass 106: FOV zoom-punch — Pass 422: boost 8° → 11° (55→44) for bigger impact
+  _fovBump = 11;
   // Spawn a bright white point light burst at tray center
   const _cfl = new THREE.PointLight(0xffffff, 8.0, 220);
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: _cfl, age: 0 });
-  // Pass 150: rainbow tray burst — one domain-colored flash per slot (synchronized rainbow)
+  // Pass 150: rainbow tray burst — Pass 423: per-slot 5.5→8.0, dist 95→130
   CARD_TYPES.forEach(dct => {
-    const _dfl = new THREE.PointLight(dct.hex, 5.5, 95);
+    const _dfl = new THREE.PointLight(dct.hex, 8.0, 130);
     _dfl.position.set(TX_MID, dct.slotFloorY + 55, dct.slotZ);
     scene.add(_dfl);
     window._flashLights.push({ light: _dfl, age: 0 });
