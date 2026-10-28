@@ -1800,6 +1800,7 @@ let _convOutFlashFired = false; // pass 46: once scanner-exit flash fires at con
 let _rejectAlarmFired = false;  // pass 48: once reject-alarm vignette fires at Reject card landing
 let _identityRevealed = false;  // pass 93: set when scan reaches 85% confirm threshold
 let _domainFillBoost = 0;      // pass 99: temporary intensity boost at identity reveal
+let _fovBump = 0;              // pass 106: FOV zoom-in amount at celebration (8 = zoom in 8°)
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
 let _shakePhase1 = 0;          // pass 71: harmonic overtone phases for organic shake
 let _shakePhase2 = 0;
@@ -1898,6 +1899,8 @@ function fireCelebration() {
   }
   // Camera shake: big celebratory jolt
   _cameraShake = Math.max(_cameraShake, 5.5);
+  // Pass 106: FOV zoom-punch — briefly zoom in (55→47) then slowly recover
+  _fovBump = 8;
   // Spawn a bright white point light burst at tray center
   const _cfl = new THREE.PointLight(0xffffff, 8.0, 220);
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
@@ -3447,6 +3450,17 @@ function animate(ts) {
   } else {
     _cameraShake = 0;
     _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
+  }
+
+  // Pass 106: FOV zoom-punch decay — slowly return to nominal 55° after celebration
+  if (_fovBump > 0.05) {
+    _fovBump *= Math.max(0, 1 - dt * 1.1); // decay at 1.1/s → reaches ~0 in ~2s
+    camera.fov = 55 - _fovBump;
+    camera.updateProjectionMatrix();
+  } else if (_fovBump > 0) {
+    _fovBump = 0;
+    camera.fov = 55;
+    camera.updateProjectionMatrix();
   }
 
   // ── Floor halo disc: domain-colored glow circle on floor below active card ───
