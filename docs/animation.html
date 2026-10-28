@@ -2995,8 +2995,8 @@ function animate(ts) {
     }
     // Pass 105: 12Hz scan strobe on card face — stroboscopic effect of fast scanner sweep
     const _scanStrobe = Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
-    // Pass 125 + 168: card face reveal burst with damped 8Hz resonance oscillation
-    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 7);
+    // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 (longer oscillation)
+    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 5.5);
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades
     const _revOsc = _cardRevealBurst * (0.55 + 0.45 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)));
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6 + _scanStrobe + _revOsc;
@@ -4664,8 +4664,8 @@ function animate(ts) {
   // Pass 100: confirm ring expands from scanner center at identity reveal
   if (_confirmRingT >= 0) {
     _confirmRingT = Math.min(1, _confirmRingT + dt * 1.8); // ~0.55s expansion
-    // Pass 280: easeOut scale for faster initial punch, slower fade — more impactful
-    const _crs = 1.0 + easeOut(_confirmRingT) * 8.0; // easeOut scale 1 → 9.0 (was linear *5.5)
+    // Pass 280: easeOut scale — Pass 445: boost 8.0→10.0 (scale 1→11, bigger ring)
+    const _crs = 1.0 + easeOut(_confirmRingT) * 10.0;
     confirmRing.scale.setScalar(_crs);
     confirmRingMat.opacity = (1 - _confirmRingT) * 0.90; // Pass 336: opacity boost 0.75 → 0.90
     if (_confirmRingT >= 1) {
@@ -4681,7 +4681,7 @@ function animate(ts) {
       confirmRing2.visible = true;
       const _crs2 = 0.6 + easeOut(_confirmRingT2) * 4.8; // Pass 334: easeOut scale 0.6 → 5.4 (was linear *4.2)
       confirmRing2.scale.setScalar(_crs2);
-      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 0.55);
+      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 0.75); // Pass 446: 0.55→0.75
       if (_confirmRingT2 >= 1) {
         _confirmRingT2 = -1;
         confirmRing2.visible = false;
