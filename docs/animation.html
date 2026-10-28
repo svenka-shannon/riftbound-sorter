@@ -951,6 +951,19 @@ const gateBase = makeBox(20, 30, 20, 0xc0c0c8);
 gateBase.position.set(GATE_X, CONV_Y_TOP + 15, 0);
 scene.add(gateBase);
 
+// Pass 60: Sort gate column indicator LEDs — 4 small spheres showing destination Z column
+const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x224466, emissive: 0x112233, emissiveIntensity: 0.3,
+    roughness: 0.05, metalness: 0.0,
+  });
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 10, 10), mat);
+  // Place in a row above the gate base, at each column's Z position
+  mesh.position.set(GATE_X + 14, CONV_Y_TOP + 30, z);
+  scene.add(mesh);
+  return { mesh, mat };
+});
+
 const paddleGeo = new THREE.BoxGeometry(4, 55, 18);
 const paddleMat = new THREE.MeshStandardMaterial({
   color: 0xff6600, roughness: 0.3,
@@ -2503,6 +2516,13 @@ function animate(ts) {
       activeCardMat.emissiveIntensity = 1.8;
     }
     scanTargetLight.intensity = 0;
+    // Pass 60: gate column LEDs light up as card exits scanner (preview destination)
+    GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
+      const _target = gi === ct.col ? 2.5 * ot : 0.1;
+      gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
+      gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
+      gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
+    });
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -2577,6 +2597,15 @@ function animate(ts) {
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
     paddleMat.emissiveIntensity = Math.max(0.3, paddleMat.emissiveIntensity * 0.92); // dim slowly
+    // Pass 60: light up the destination column LED, dim others
+    GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
+      if (gi === ct.col) {
+        gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
+        gm.emissiveIntensity += (3.5 - gm.emissiveIntensity) * Math.min(1, dt * 10);
+      } else {
+        gm.emissiveIntensity += (0.15 - gm.emissiveIntensity) * Math.min(1, dt * 5);
+      }
+    });
     _beltScrollSpeed = 0.04; // half speed while card arcs off belt
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
@@ -2630,6 +2659,11 @@ function animate(ts) {
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3);
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     scanTargetLight.intensity = THREE.MathUtils.lerp(1.8, 0, easeInOut(dt3));
+    // Pass 60: gate column LED holds then fades as card lands
+    GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
+      const _target = gi === ct.col ? THREE.MathUtils.lerp(3.5, 0.15, dt3) : 0.15;
+      gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
+    });
     // Fire impact shockwave ring once when floor-0 card hits the tray floor
     if (ct.floor === 0 && !_impactFired && dt3 >= 0.86) {
       _impactFired = true;
