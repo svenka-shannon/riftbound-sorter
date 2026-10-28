@@ -1331,9 +1331,11 @@ function animate(ts) {
     addCardToTray(completedCt);
     cycleIdx = (cycleIdx + 1) % CARD_TYPES.length;
 
-    // Reset paddle to neutral at cycle start; dim gate glow
+    // Reset paddle to neutral at cycle start; dim gate glow + restore orange color
     paddlePivot.rotation.z = 0;
     paddleMat.emissiveIntensity = 0.5; // back to resting glow
+    paddleMat.color.setHex(0xff6600);   // restore orange at cycle boundary
+    paddleMat.emissive.setHex(0xff3300);
 
     // Hide top stack card; refill when all 6 used
     if(stackCards[stackTopIdx]) {
@@ -1414,8 +1416,22 @@ function animate(ts) {
     steps.forEach(s => {
       const el = document.getElementById(s.id);
       if (el) {
-        if (s.on) el.classList.add('active');
-        else el.classList.remove('active');
+        const dot = el.querySelector('.ph-dot');
+        if (s.on) {
+          el.classList.add('active');
+          if (dot && ct) {
+            // Each phase gets a contextually meaningful color:
+            // scan = scanner blue, gate = domain color (routing signal), rest = domain color
+            const dotColor = s.id === 'ph-scan' ? '#44aaff'
+                           : s.id === 'ph-gate' ? ct.css
+                           : ct.css;
+            dot.style.background = dotColor;
+            dot.style.boxShadow = `0 0 6px 2px ${dotColor}80`;
+          }
+        } else {
+          el.classList.remove('active');
+          if (dot) { dot.style.background = ''; dot.style.boxShadow = ''; }
+        }
       }
     });
   }
@@ -1554,8 +1570,11 @@ function animate(ts) {
   else if(inPhase(PH.conveyorOut)) {
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
-    activeCard.rotation.set(-0.12, 0, 0); // same lean as conveyorIn — consistent look
     const ot = phaseRaw(PH.conveyorOut); // LINEAR for card position (belt speed)
+    // Card banks in Z direction during exit — previews which column it's heading to
+    const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
+    const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign, ot);
+    activeCard.rotation.set(-0.12, 0, zBank); // forward lean + destination bank
     activeCard.position.set(
       THREE.MathUtils.lerp(-40, GATE_X, ot),
       CONV_Y_TOP + CARD_T/2 + 2, 0
@@ -1564,7 +1583,9 @@ function animate(ts) {
     const targetAngle = paddleAngleForSlot(ct.slotZ);
     const paddleT = Math.min(1, easeOut(ot * 2));
     paddlePivot.rotation.z = THREE.MathUtils.lerp(0, targetAngle, paddleT);
-    // Gate glows bright orange while routing (emissive scales with deflection magnitude)
+    // Gate glows in DOMAIN color while routing (shows which path is active)
+    paddleMat.color.setHex(ct.hex);
+    paddleMat.emissive.setHex(ct.hex);
     const gateGlow = Math.abs(targetAngle) * 1.8 + 0.6;
     paddleMat.emissiveIntensity = gateGlow;
     scanFlash.intensity = 0;
@@ -1596,6 +1617,10 @@ function animate(ts) {
     activeCard.rotation.z = 0;
     cardGlow.intensity = 0.6;
     cardGlow.position.copy(activeCard.position);
+    // Keep gate paddle domain-colored while card is deflecting
+    paddleMat.color.setHex(ct.hex);
+    paddleMat.emissive.setHex(ct.hex);
+    paddleMat.emissiveIntensity = Math.max(0.3, paddleMat.emissiveIntensity * 0.92); // dim slowly
     beltTex.offset.x -= dt * speedMult * 0.04;
   }
 
