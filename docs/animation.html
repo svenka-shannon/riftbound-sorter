@@ -1742,6 +1742,8 @@ let _depositFired = false;     // true once belt-deposit flash fired at conveyor
 let _convOutFlashFired = false; // pass 46: once scanner-exit flash fires at conveyorOut start
 let _rejectAlarmFired = false;  // pass 48: once reject-alarm vignette fires at Reject card landing
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
+let _shakePhase1 = 0;          // pass 71: harmonic overtone phases for organic shake
+let _shakePhase2 = 0;
 let _beltIdlePhase = 0;        // pass 44: 0..1 drives idle shimmer sweep along belt
 const _ledCooloff = new Float32Array(8); // pass 52: per-slot LED afterglow timer (seconds)
 let _scanExhaustAcc = 0;       // pass 50: time accumulator for scanner heat exhaust particles
@@ -3109,13 +3111,23 @@ function animate(ts) {
     });
   }
 
-  // ── Camera micro-shake: apply after orbit, before render ─────────────────────
+  // ── Camera micro-shake: multi-harmonic for organic impact feel (pass 71) ────
+  // Combines white noise (impulse) + two sine harmonics (resonance overtones).
+  // Harmonic 1 (primary rattle ~18Hz) + Harmonic 2 (secondary ~31Hz) decay with shake.
   if (_cameraShake > 0.05) {
-    camera.position.x += (Math.random() - 0.5) * 2 * _cameraShake;
-    camera.position.y += (Math.random() - 0.5) * 2 * _cameraShake;
-    _cameraShake *= 0.78; // decay: 3.5 → ~0 in about 12 frames (0.2s at 60fps)
+    _shakePhase1 += dt * 113; // ~18Hz
+    _shakePhase2 += dt * 193; // ~31Hz
+    const _n  = (Math.random() - 0.5) * 2;             // white noise
+    const _h1 = Math.sin(_shakePhase1);                  // first harmonic
+    const _h2 = Math.sin(_shakePhase2) * 0.55;           // second harmonic (quieter)
+    const _shakeX = (_n * 0.30 + _h1 * 0.45 + _h2 * 0.25) * _cameraShake;
+    const _shakeY = (_n * 0.30 + Math.cos(_shakePhase1) * 0.45 + Math.cos(_shakePhase2) * 0.25 * 0.55) * _cameraShake;
+    camera.position.x += _shakeX;
+    camera.position.y += _shakeY;
+    _cameraShake *= 0.78; // decay: 3.5 → ~0 in about 12 frames
   } else {
     _cameraShake = 0;
+    _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
   }
 
   // ── Floor halo disc: domain-colored glow circle on floor below active card ───
