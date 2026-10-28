@@ -3028,6 +3028,9 @@ function animate(ts) {
       scanLineMat.emissiveIntensity = 3.0 + _beamProxZ * 2.0;
       scanLineMat2.emissiveIntensity = 2.5;
     }
+    // Pass 244: beam reversal flare — brief emissive surge when primary beam reverses at ft=0.5
+    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 2.0;
+    scanLineMat.emissiveIntensity += _revFlare;
     // Scan grid dots: 3×3 points appear staggered across card face with flash
     {
       // Pass 148 + 171: dots cascade to domain color one by one starting at ft=0.85 reveal
@@ -3948,8 +3951,15 @@ function animate(ts) {
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
       tp.mesh.position.set(_aCupX + (Math.random()-0.5)*3, _aCupY + (Math.random()-0.5)*3, suctionPivot.position.z + (Math.random()-0.5)*6);
-      tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
-      tp.mat.opacity = 0.30 + Math.random() * 0.15;
+      // Pass 245: armReturn domain wisps — first 30% of return trail carries domain color
+      const _arT245 = phaseRaw(PH.armReturn);
+      if (_arT245 < 0.30) {
+        tp.mat.color.setHex(ct.hex);
+        tp.mat.opacity = 0.20 + Math.random() * 0.10;
+      } else {
+        tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
+        tp.mat.opacity = 0.30 + Math.random() * 0.15;
+      }
       tp.age = 0; tp.life = 0.32 + Math.random() * 0.12;
       tp.active = true; tp.mesh.visible = true;
     }
@@ -3962,6 +3972,8 @@ function animate(ts) {
     suctionPivot.rotation.z = -0.35
       + 0.009 * Math.sin(ts * 0.58 * Math.PI * 2)   // ~0.58 Hz slow hold sway
       + 0.004 * Math.sin(ts * 1.43 * Math.PI * 2);  // ~1.43 Hz higher tremor
+    // Pass 246: pause arm hover Y float — soft PID hold oscillation (0.30Hz, ±0.6 units)
+    suctionPivot.position.y = 108 + 0.6 * Math.sin(ts * 0.30 * Math.PI * 2);
     activeCard.visible = false;
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
