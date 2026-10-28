@@ -507,6 +507,10 @@ renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.25;
 document.getElementById('canvas-container').appendChild(renderer.domElement);
+// Pass 67: animated clear color — base dark navy tints toward domain on scan/celebration
+const _clearBase = new THREE.Color(0x0a0a12);
+const _clearCurrent = new THREE.Color(0x0a0a12);
+renderer.setClearColor(_clearBase, 1);
 
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.target.set(-30, 30, 0);
@@ -3345,6 +3349,23 @@ function animate(ts) {
     });
   });
 
+  // Pass 67: clear color tints faintly toward domain during scan; brief warm flash on celebration
+  {
+    const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.055 : 0;
+    const _celebBoost = _cameraShake > 3 ? Math.min(0.08, _cameraShake * 0.012) : 0;
+    if (_scanBoost > 0.002 || _celebBoost > 0.002) {
+      const _tintR = ((ct.hex >> 16) & 0xff) / 255;
+      const _tintG = ((ct.hex >> 8) & 0xff) / 255;
+      const _tintB = (ct.hex & 0xff) / 255;
+      const _strength = _scanBoost + _celebBoost;
+      _clearCurrent.r = _clearBase.r + (_tintR - _clearBase.r) * _strength;
+      _clearCurrent.g = _clearBase.g + (_tintG - _clearBase.g) * _strength;
+      _clearCurrent.b = _clearBase.b + (_tintB - _clearBase.b) * _strength;
+    } else {
+      _clearCurrent.lerp(_clearBase, Math.min(1, dt * 3));
+    }
+    renderer.setClearColor(_clearCurrent, 1);
+  }
   renderer.render(scene, camera);
 }
 
