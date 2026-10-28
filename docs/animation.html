@@ -3355,10 +3355,12 @@ function animate(ts) {
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
       const arcEnd   = new THREE.Vector3(TX_MID, ct.slotFloorY + 30, ct.slotZ);
+      // Pass 305: post-reveal arc Z lean — midpoint biases harder toward destination column once route confirmed
+      const _arcZBias305 = _identityRevealed ? 0.65 : 0.40;
       const arcMid   = new THREE.Vector3(
         (arcStart.x + arcEnd.x) / 2 + 10,
         Math.max(arcStart.y, arcEnd.y) + 55,  // loft the arc well above the machine
-        arcEnd.z * 0.4                         // bias midpoint toward destination Z
+        arcEnd.z * _arcZBias305                // bias midpoint toward destination Z
       );
       const arcPts = routeArcGeo.attributes.position.array;
       for (let i = 0; i <= ROUTE_SEGS; i++) {
@@ -3387,6 +3389,9 @@ function animate(ts) {
       routeTargetMat.emissive.copy(_arcColor);
       routeTargetMat.emissiveIntensity = flashIntensity * (2.0 + (_identityRevealed ? 1.2 : 0));
       routeTargetMat.opacity = flashIntensity * 0.9;
+      // Pass 304: destination sphere scale pulse — sphere breathes to draw eye to target slot
+      const _tgtScale304 = 1.0 + flashIntensity * 0.55 * Math.sin(ts * 4 * Math.PI * 2);
+      routeTarget.scale.setScalar(Math.max(0.1, _tgtScale304));
     }
     // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
     // Simulates scanner beam reflecting off card surface; color reveals domain at 85%
@@ -4375,8 +4380,9 @@ function animate(ts) {
     const cardX = activeCard.visible ? activeCard.position.x : -30;
     // Pass 220: armSwing camera arc follow — during swing, camera target drifts from
     // hopper area (HOPPER_X+80) to belt entry (-80) as the arm sweeps across.
+    // Pass 306: armLift camera Y track — target Y rises 8 units with cup during lift
     const _tgt = inPhase(PH.armDescend) || inPhase(PH.armLift)
-      ? { x: HOPPER_X + 80, y: 60 }
+      ? { x: HOPPER_X + 80, y: 60 + (inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 8 : 0) }
       : inPhase(PH.armSwing)
       ? { x: THREE.MathUtils.lerp(HOPPER_X + 80, -80, phaseRaw(PH.armSwing)), y: 60 }
       : inPhase(PH.conveyorIn)
