@@ -3128,13 +3128,13 @@ function animate(ts) {
     // Pass 123: hood reveal strobe — Pass 437: duration dt*5.5→dt*3.8 (longer visible strobe)
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 3.8);
-      // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: intensity 2.0→3.0 for stronger strobe
-      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 3.0;
-      hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.10 + _revStrobe; // Pass 436: boost
+      // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5
+      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 4.5;
+      hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.35 + _revStrobe; // Pass 738: 1.10→1.35
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
-      // Pass 500: scanner hood scan intensity boost 0.35+1.10 → 0.40+1.40 for stronger hood presence
-      hoodMat.emissiveIntensity = 0.40 + flashIntensity * 1.40; // Pass 500: milestone boost
+      // Pass 500: scanner hood scan intensity 0.35+1.10→0.40+1.40 — Pass 739: →0.45+1.70
+      hoodMat.emissiveIntensity = 0.45 + flashIntensity * 1.70; // Pass 739: stronger hood presence
     }
     // Pass 197: scanner hood micro-sway — Z oscillation simulates emitter/receiver resonance.
     // Pass 607: amplitude 0.5→0.85 + secondary 4.1Hz harmonic for richer mechanical resonance feel.
@@ -3263,14 +3263,14 @@ function animate(ts) {
       });
     }
     // Pass 55: scan progress LED bar — fills left-to-right as ft 0→1
-    // Pass 469: scan bar init pulse — brief white emissive spike in first 4% (scanner power-on test)
-    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 3.5 : 0;
+    // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 for bigger scanner power-on test
+    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 5.5 : 0;
     {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
-      // Pass 247: reveal overshoot pulse — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 (bigger surge)
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.48 : 0; // Pass 579: 0.30→0.48
+      // Pass 247: reveal overshoot — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 — Pass 733: →0.68
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.68 : 0; // Pass 733: 0.48→0.68
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
@@ -3287,11 +3287,11 @@ function animate(ts) {
       scanBarCursorMat.opacity = _identityRevealed
         ? 0.72 + 0.30 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // slow domain breath (bigger swing)
         : 0.78 + 0.22 * Math.abs(Math.sin(ts * 18 * Math.PI * 2)); // rapid pre-reveal flicker (higher amplitude)
-      // Pass 290: cursor scale punch at reveal — cursor briefly swells 2× at lock-on moment
+      // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 for bigger swell
       // Pass 300: cursor pre-reveal scale search pulse — slow 3Hz breathing scale while scanning
       const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.10 * Math.sin(ts * 3 * Math.PI * 2) : 1.0;
       const _cursorScale290 = _identityRevealed && ft < 0.91
-        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 1.0
+        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 1.6 // Pass 737: 1.0→1.6
         : _cursorPreScale300;
       scanBarCursor.scale.setScalar(_cursorScale290);
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
@@ -3327,18 +3327,17 @@ function animate(ts) {
           _cfEl.classList.add('confirm-pop');
         }
         // Pass 121: destination fill bar spikes at identity reveal — pre-announces incoming card
-        // Pass 565: fill bar reveal spike 2.2→4.0 for more dramatic destination announcement
+        // Pass 565: fill bar reveal spike 2.2→4.0 — Pass 735: →5.8 for bigger reveal announcement
         if (fillBars[ct.slot] && fillBars[ct.slot].material) {
-          fillBars[ct.slot].material.emissiveIntensity = 4.0;
+          fillBars[ct.slot].material.emissiveIntensity = 5.8;
         }
         // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
         _hoodRevealFlash = 0.001; // just above 0 to activate
         // Pass 125: card face emissive burst at identity reveal — card "powers up"
-        // Pass 375: burst boost 3.5 → 5.0 — Pass 531: →7.5 for bigger initial face flash
-        _cardRevealBurst = 7.5;
-        // Pass 205: destination slot strip pre-announce flash — strip briefly superflashes when
-        // machine "announces" the destination. ct.stripMat normal decay (pass 127) fades it back.
-        if (ct.stripMat) ct.stripMat.emissiveIntensity = 3.0;
+        // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 for bigger face power-up flash
+        _cardRevealBurst = 10.5;
+        // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 for stronger pop
+        if (ct.stripMat) ct.stripMat.emissiveIntensity = 4.8;
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
         // Pass 367: shake boost 0.45 → 1.5 for more prominent scanner lock-on feel
