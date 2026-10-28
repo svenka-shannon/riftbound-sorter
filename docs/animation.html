@@ -2875,7 +2875,9 @@ function animate(ts) {
     // Pass 217: belt deposit flash — brief brightness spike as card slaps onto belt at phase start.
     // Decays in ~0.11s; independent of approach brightening (which happens later).
     const _entryBoost = Math.exp(-ct2 * 28) * 0.85;
-    activeCardMat.emissiveIntensity = 0.55 + _approachT * 0.65 + _approachT * 0.3 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) + _entryBoost;
+    // Pass 272: approach emissive frequency ramp — pulse quickens 8→20Hz as card nears scanner
+    const _approachFreq272 = 8 + _approachT * 12;
+    activeCardMat.emissiveIntensity = 0.55 + _approachT * 0.65 + _approachT * 0.3 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) + _entryBoost;
     cardGlow.intensity = 1.4 + _approachT * 1.2; // glow brightens as card enters scanner
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     const _warmupT = Math.max(0, (ct2 - 0.80) / 0.20); // 0→1 in last 20%
@@ -3158,6 +3160,8 @@ function animate(ts) {
         _cameraShake = Math.max(_cameraShake, 0.45);
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm,
         // then decays back to scan-blue over 0.35s.
+        // Pass 271: LED intensity spike at reveal — hard flash at lock-on moment
+        scanLEDMat.emissiveIntensity = 5.5;
         _scanLEDRevealT = 0;
         // Pass 235: scanner confirmation particle burst — 6 domain-colored particles burst
         // outward from the scanner center at identity confirm, adding physical "pop" to the reveal.
@@ -3662,6 +3666,16 @@ function animate(ts) {
       tp.life = 0.38 + Math.random() * 0.14;
       tp.active = true;
       tp.mesh.visible = true;
+    }
+    // Pass 273: gate-contact contrail burst — extra trail particles near gate in first 6%
+    if (dt2 < 0.06 && Math.random() < 0.65) {
+      const _btp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
+      _trailHead++;
+      _btp.mesh.position.set(GATE_X + (Math.random()-0.5)*8, CONV_Y_TOP + 8 + Math.random()*8, ct.slotZ * 0.12 + (Math.random()-0.5)*5);
+      _btp.mat.color.setHex(ct.hex);
+      _btp.mat.opacity = 0.62 + Math.random() * 0.22;
+      _btp.age = 0; _btp.life = 0.28 + Math.random() * 0.16;
+      _btp.active = true; _btp.mesh.visible = true;
     }
   }
 
