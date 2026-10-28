@@ -1675,10 +1675,12 @@ function addCardToTray(ct) {
   mesh.rotation.y = yRotJitter;
   scene.add(mesh);
   arr.push(mesh);
-  trayArrivals.push({ mesh, startY, targetY, t: 0 });
+  trayArrivals.push({ mesh, startY, targetY, t: 0, glowAge: 0 });
 
   // Pass 45: pulse ALL existing cards in this slot — "stack reacts to new member" ripple
   arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 0.85; });
+  // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
+  if (mesh.material) mesh.material.emissiveIntensity = 3.2;
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s after arrival
   _ledCooloff[ct.slot] = 1.8;
 
@@ -2227,6 +2229,13 @@ function animate(ts) {
       _yPos = a.targetY + 5 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
     }
     a.mesh.position.y = _yPos;
+    // Pass 108: decay arrival emissive glow — bright flash fades to resting level
+    if (a.glowAge < 1.2) {
+      a.glowAge += dt;
+      if (a.mesh.material) {
+        a.mesh.material.emissiveIntensity = 0.15 + 3.05 * Math.exp(-a.glowAge * 6.5);
+      }
+    }
     if(a.t >= 1) trayArrivals.splice(i, 1);
   }
 
