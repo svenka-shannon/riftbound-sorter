@@ -2603,6 +2603,8 @@ function animate(ts) {
       // Servo swing toward belt deposit position (+1.57 = horizontal right)
       const st = phaseT(PH.armSwing);
       suctionPivot.rotation.z = THREE.MathUtils.lerp(0.80, 1.57, st);
+      // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
+      suctionPivot.position.z = Math.sin(st * Math.PI) * 14;
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
       // Reuses the TRAIL_PARTICLES pool (armSwing and deflect phases don't overlap).
       _trailSpawnAcc += dt;
@@ -2613,7 +2615,8 @@ function animate(ts) {
         const _aCupY = PIV_Y - 83 * Math.cos(_aRot);
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
-        tp.mesh.position.set(_aCupX + (Math.random() - 0.5) * 4, _aCupY + (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 6);
+        // Pass 154: trail Z follows the pivot arc for realistic 3D sweep
+        tp.mesh.position.set(_aCupX + (Math.random() - 0.5) * 4, _aCupY + (Math.random() - 0.5) * 4, suctionPivot.position.z + (Math.random() - 0.5) * 6);
         tp.mat.color.setHex(ct.hex);
         tp.mat.opacity = 0.55;
         tp.age = 0;
@@ -2630,12 +2633,12 @@ function animate(ts) {
       stackCards[stackTopIdx].position.y = baseY + lt * 20;
     }
 
-    // Card tracks suction cup
+    // Card tracks suction cup (pass 154: Z follows pivot during arm phases)
     const armRot = suctionPivot.rotation.z;
     const cupX = PIV_X + 83 * Math.sin(armRot);
     const cupY = PIV_Y - 83 * Math.cos(armRot);
     activeCard.visible = true;
-    activeCard.position.set(cupX, cupY, 0);
+    activeCard.position.set(cupX, cupY, suctionPivot.position.z);
     // Pass 112: arm swing momentum — card wobbles like a pendulum as arm decelerates
     let _swingWobble = 0;
     if (inPhase(PH.armSwing)) {
