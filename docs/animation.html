@@ -2726,7 +2726,9 @@ function animate(ts) {
     const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
     activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.5 * bankSign, dt2);
     activeCard.rotation.x = THREE.MathUtils.lerp(0, floorTilt, dt2);
-    activeCard.rotation.z = 0;
+    // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
+    const _tumblePeak = bankSign * 0.65; // center-slot (bankSign=0) gets no roll
+    activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI);
     cardGlow.intensity = 0.6;
     cardGlow.position.copy(activeCard.position);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
