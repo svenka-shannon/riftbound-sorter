@@ -3695,14 +3695,16 @@ function animate(ts) {
     const _tumbleAmp = 0.65 + Math.abs(ct.slotZ) / 97.5 * 0.25;
     const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
-    const _flutter = Math.sin(ts * 23 * Math.PI * 2) * 0.020 * Math.sin(dt2 * Math.PI);
+    // Pass 353: flutter amplitude boost at arc peak (0.020 → 0.030)
+    const _flutter = Math.sin(ts * 23 * Math.PI * 2) * 0.030 * Math.sin(dt2 * Math.PI);
     // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
     if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 11);
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     // Pass 226: tumble-correlated glow — card glow dims when edge-on (face invisible) and
     // brightens when face-on, simulating the card's domain energy facing the camera.
     // cos(2θ) maps: face-on (θ=0) → 1.0, edge-on (θ≈π/4) → 0 (dims by 30%).
-    cardGlow.intensity = 0.6 * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
+    // Pass 352: cardGlow arc-peak boost — brighter at mid-flight when card is most visible
+    cardGlow.intensity = (0.60 + 0.28 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
     cardGlow.position.copy(activeCard.position);
     // Pass 250: deflect tumble emissive — card material also brightens when face-on during arc
     const _tumbleEmissive = 0.45 + 0.40 * Math.max(0, Math.cos(2 * activeCard.rotation.z));
@@ -3714,7 +3716,8 @@ function animate(ts) {
     const _lightZ318 = dt2 < 0.5 ? activeCard.position.z
       : THREE.MathUtils.lerp(activeCard.position.z, ct.slotZ, (dt2 - 0.5) / 0.5);
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, _lightZ318);
-    scanTargetLight.intensity = THREE.MathUtils.lerp(0, 1.8, dt2);
+    // Pass 354: deflect target light easeOut + intensity boost (1.8 → 2.6)
+    scanTargetLight.intensity = easeOut(dt2) * 2.6;
     // Keep gate paddle colored while card is deflecting
     // Pass 248: paddle domain-to-orange afterglow — domain color during peak window, then fades
     // to orange-red after dt2=0.18, giving a visible cool-down transition on the paddle face.
