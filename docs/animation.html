@@ -2642,10 +2642,12 @@ function animate(ts) {
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2, 0);
-    // Slight forward lean so card face visible from all orbit angles (not just top-down)
+    // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
+    const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
+    const _beltLean = THREE.MathUtils.lerp(0, -0.18, easeOut(_leanT));
     // Pass 116: belt micro-vibration — tiny noise jitter in rotation.z simulates belt roughness
     const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015;
-    activeCard.rotation.set(-0.18, 0, _beltVib);
+    activeCard.rotation.set(_beltLean, 0, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
