@@ -2966,10 +2966,10 @@ function animate(ts) {
     // Scanner LED pulses brightly during scan
     scanLEDMat.emissiveIntensity = 2.0 + flashIntensity * 3.0;
     // Pass 222: scanner LED domain flash — at identity reveal, LED color switches to domain
-    // then decays back to scan-blue over 0.35s. Visually anchors "locked on" to the LED strip.
+    // Pass 270: hold domain color 0.12s before fading (was immediate fade) — more visual lock-on impact
     if (_scanLEDRevealT >= 0) {
       _scanLEDRevealT += dt;
-      const _ledBlend = Math.min(1, _scanLEDRevealT / 0.35);
+      const _ledBlend = Math.max(0, Math.min(1, (_scanLEDRevealT - 0.12) / 0.35));
       scanLEDMat.color.lerpColors(new THREE.Color(ct.hex), new THREE.Color(0x00aaff), _ledBlend);
       scanLEDMat.emissive.lerpColors(new THREE.Color(ct.hex), new THREE.Color(0x0055cc), _ledBlend);
     } else {
@@ -3431,9 +3431,11 @@ function animate(ts) {
       const _oFadeIn  = Math.min(1, ot / 0.05);
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
       const _oWobbleZ = 1.2 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut;
+      // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
+      const _z268drift = ct.slotZ * 0.08 * easeInOut(Math.min(1, ot / 0.85));
       activeCard.position.set(
         THREE.MathUtils.lerp(-40, GATE_X, ot),
-        CONV_Y_TOP + CARD_T/2 + 2, _oWobbleZ
+        CONV_Y_TOP + CARD_T/2 + 2, _oWobbleZ + _z268drift
       );
     }
     // Paddle snaps early: covers ~70% travel in first half, holds before card arrives
@@ -3526,6 +3528,8 @@ function animate(ts) {
       window._flashLights.push({ light: _gfl, age: 0 });
       // Pass 72: peak spike on gate contact — discharges charge-up energy
       paddleMat.emissiveIntensity = 5.5;
+      // Pass 269: gate-contact card face flash — card face blazes hot at paddle impact
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 2.2);
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
       // Pass 109: recoil kick — paddle pushed further in deflect direction by card impact
