@@ -177,6 +177,21 @@
     animation: rippleOut 0.7s ease-out forwards;
   }
 
+  /* ── Scan flash overlay ─────────────────────────────────────────────── */
+  #scan-flash-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 45; opacity: 0;
+    mix-blend-mode: screen;
+  }
+  @keyframes scanFlashFade {
+    0%   { opacity: 0; }
+    8%   { opacity: 0.22; }
+    100% { opacity: 0; }
+  }
+  .scan-flash-on {
+    animation: scanFlashFade 0.6s ease-out forwards;
+  }
+
   #hopper-count {
     position: fixed; pointer-events: none; z-index: 15;
     background: rgba(0,0,0,0.65); border: 1px solid rgba(120,160,255,0.25);
@@ -293,6 +308,7 @@ Space=pause · 1–4=speed · R=reset view &amp; auto-orbit<br>
 </div>
 
 <div id="vignette" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,0.4) 100%);"></div>
+<div id="scan-flash-overlay"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -1161,6 +1177,18 @@ activeCard.castShadow = true;
 scene.add(activeCard);
 activeCard.visible = false;
 
+// ─── Active card edge outline (domain-colored glowing border) ─────────────────
+// Follows active card exactly; brightens domain color makes card unmistakable in scene
+const activeCardEdgeGeo = new THREE.EdgesGeometry(activeCardGeo);
+const activeCardEdgeMat = new THREE.LineBasicMaterial({
+  color: 0xffffff,
+  transparent: true,
+  opacity: 0.0,
+});
+const activeCardEdge = new THREE.LineSegments(activeCardEdgeGeo, activeCardEdgeMat);
+activeCardEdge.visible = false;
+scene.add(activeCardEdge);
+
 // Card glow: increased range (200) and physical falloff
 const cardGlow = new THREE.PointLight(0xffffff, 0, 200);
 cardGlow.decay = 2;
@@ -1330,6 +1358,10 @@ let speedIdx = 1;
 let totalSorted = 0;
 let cycleIdx = 0;   // which card type (0..7)
 let cycleT = 0;     // elapsed time within current cycle
+
+// Per-cycle event flags — reset on cycle rollover
+let _scanFlashFired = false;   // true once camera-flash triggered this scan phase
+let _grabPulseFired = false;   // true once suction grab light burst fired this armLift
 
 // Extended scan phase (0.6s), new armReturn phase, CYCLE_DUR = 6.8s
 const CYCLE_DUR = 6.8;
@@ -1541,6 +1573,10 @@ function animate(ts) {
     addCardToTray(completedCt);
     cycleIdx = (cycleIdx + 1) % CARD_TYPES.length;
 
+    // Reset per-cycle event flags
+    _scanFlashFired = false;
+    _grabPulseFired = false;
+
     // Reset paddle to neutral at cycle start; dim gate glow + restore orange color
     paddlePivot.rotation.z = 0;
     paddleMat.emissiveIntensity = 0.5; // back to resting glow
@@ -1684,6 +1720,16 @@ function animate(ts) {
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt);
+      // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
+      if (!_grabPulseFired && lt < 0.15) {
+        _grabPulseFired = true;
+        const grabLight = new THREE.PointLight(ct.hex, 4.0, 60);
+        const armRot0 = suctionPivot.rotation.z;
+        grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
+        scene.add(grabLight);
+        if (!window._flashLights) window._flashLights = [];
+        window._flashLights.push({ light: grabLight, age: 0 });
+      }
     } else if(inPhase(PH.armSwing)) {
       // Servo swing toward belt deposit position (+1.57 = horizontal right)
       const st = phaseT(PH.armSwing);
@@ -1743,6 +1789,17 @@ function animate(ts) {
 
   // ── Phase 3: Scanner flash (2.5..3.1s) ──
   else if(inPhase(PH.scan)) {
+    // Camera-flash: brief colored screen overlay fires once per scan
+    if (!_scanFlashFired) {
+      _scanFlashFired = true;
+      const flashEl = document.getElementById('scan-flash-overlay');
+      if (flashEl) {
+        flashEl.style.background = ct.css;
+        flashEl.classList.remove('scan-flash-on');
+        void flashEl.offsetWidth; // force reflow so animation restarts
+        flashEl.classList.add('scan-flash-on');
+      }
+    }
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
     activeCard.rotation.set(0, 0, 0);
@@ -2016,6 +2073,19 @@ function animate(ts) {
     controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.018;
     controls.target.set(controls._camTgt.x, controls._camTgt.y, 0);
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, 0);
+  }
+
+  // ── Sync active card edge outline ──────────────────────────────────────────
+  // Copy card transform + apply domain color; opacity tracks card opacity
+  activeCardEdge.visible = activeCard.visible;
+  if (activeCard.visible) {
+    activeCardEdge.position.copy(activeCard.position);
+    activeCardEdge.rotation.copy(activeCard.rotation);
+    activeCardEdgeMat.color.setHex(ct.hex);
+    // Brighter outline while on belt + scan; gentler during arm swing and drop
+    const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
+    const edgeTarget = edgeFull ? 0.85 : 0.45;
+    activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
   controls.update();
