@@ -4176,11 +4176,13 @@ function animate(ts) {
   {
     const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.055 : 0;
     const _celebBoost = _cameraShake > 3 ? Math.min(0.08, _cameraShake * 0.012) : 0;
-    if (_scanBoost > 0.002 || _celebBoost > 0.002) {
+    // Pass 152: brief domain tint on slotDrop — card joins the tray, background echoes domain
+    const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.028 : 0;
+    if (_scanBoost > 0.002 || _celebBoost > 0.002 || _dropTintBoost > 0.002) {
       const _tintR = ((ct.hex >> 16) & 0xff) / 255;
       const _tintG = ((ct.hex >> 8) & 0xff) / 255;
       const _tintB = (ct.hex & 0xff) / 255;
-      const _strength = _scanBoost + _celebBoost;
+      const _strength = _scanBoost + _celebBoost + _dropTintBoost;
       _clearCurrent.r = _clearBase.r + (_tintR - _clearBase.r) * _strength;
       _clearCurrent.g = _clearBase.g + (_tintG - _clearBase.g) * _strength;
       _clearCurrent.b = _clearBase.b + (_tintB - _clearBase.b) * _strength;
