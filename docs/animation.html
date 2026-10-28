@@ -3319,7 +3319,9 @@ function animate(ts) {
     // Pass 285: cone reveal flash — scan cone briefly blazes at identity lock-on
     const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 0.22 : 0;
     scanConeMat.opacity = flashIntensity * 0.09 + _strobe * 0.5 + _coneRevealBoost;
-    scanBeamMat.opacity = flashIntensity * 0.55 + _strobe;        // brighter core
+    // Pass 287: scan beam strength scales with bar fill — beam grows as more data is acquired
+    const _beamFillBoost = barFill * 0.20;
+    scanBeamMat.opacity = flashIntensity * 0.55 + _strobe + _beamFillBoost;
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
@@ -4019,7 +4021,9 @@ function animate(ts) {
     }
     // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154), tighter at ×10 vs ×14
     // Arm dips toward viewer at midpoint of return sweep for 3-D parabolic path
-    suctionPivot.position.z = Math.sin(art * Math.PI) * 10;
+    // Pass 288: final Z ring oscillation — brief Z ringing as arm settles to rest position
+    const _artZRing = art > 0.88 ? 0.50 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0;
+    suctionPivot.position.z = Math.sin(art * Math.PI) * 10 + _artZRing;
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.z += (0 - paddlePivot.rotation.z) * Math.min(1, dt * 4.5);
     // Pass 72: decay paddle back to resting orange glow after charge discharge
@@ -4491,6 +4495,8 @@ function animate(ts) {
         const _ghostHex = inPhase(PH.conveyorOut) ? ct.hex : 0x3388ff;
         mat.color.setHex(_ghostHex);
         mat.emissive.setHex(_ghostHex);
+        // Pass 286: ghost emissive intensity speed sync — trail glows brighter at full belt speed
+        mat.emissiveIntensity = (0.28 - gi * 0.08) * _speedFactor;
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
         mat.opacity += (targetOp - mat.opacity) * 0.35;
       } else {
