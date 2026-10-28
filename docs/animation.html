@@ -3568,6 +3568,9 @@ function animate(ts) {
     // cos(2θ) maps: face-on (θ=0) → 1.0, edge-on (θ≈π/4) → 0 (dims by 30%).
     cardGlow.intensity = 0.6 * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
     cardGlow.position.copy(activeCard.position);
+    // Pass 250: deflect tumble emissive — card material also brightens when face-on during arc
+    const _tumbleEmissive = 0.45 + 0.40 * Math.max(0, Math.cos(2 * activeCard.rotation.z));
+    activeCardMat.emissiveIntensity += (_tumbleEmissive - activeCardMat.emissiveIntensity) * Math.min(1, dt * 7);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
     // Pass 126: color warms from neutral white to domain color as card approaches
     scanTargetLight.color.set(0xffeecc).lerp(new THREE.Color(ct.hex), easeOut(dt2));
@@ -3678,6 +3681,11 @@ function animate(ts) {
     activeCard.rotation.z = 0;
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
+    // Pass 252: slotDrop bounce face flash — card face briefly flares on floor-0 bounce impact
+    if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
+      const _bFlashT = (dt3 - 0.88) / 0.06;
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 1.6 * Math.exp(-_bFlashT * 14));
+    }
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3);
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     scanTargetLight.intensity = THREE.MathUtils.lerp(1.8, 0, easeInOut(dt3));
@@ -4084,7 +4092,9 @@ function animate(ts) {
       const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
       hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 3));
       const _warmTarget = 0.28 + _warmT * 0.48;
-      hoodMat.emissiveIntensity += (_warmTarget - hoodMat.emissiveIntensity) * Math.min(1, dt * 4);
+      // Pass 251: scanner hood thermal shimmer — 17Hz heat flicker overlaid on warm-up ramp
+      const _hoodShimmer = 0.06 * Math.sin(ts * 17 * Math.PI * 2) * _warmT;
+      hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 4);
     } else {
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
       hoodMat.emissiveIntensity += (0.28 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5);
