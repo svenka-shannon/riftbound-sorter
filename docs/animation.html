@@ -689,6 +689,17 @@ const hopperWire = makeWireBox(72, 108, 80, 0x444466);
 hopperWire.position.set(HOPPER_X + 33, 54, 0);
 scene.add(hopperWire);
 
+// Pass 59: Hopper status LED — small indicator sphere on hopper front face
+// Color: green (full) → yellow (half) → red (low) → fast-blink when empty+refilling
+const hopperLEDMat = new THREE.MeshStandardMaterial({
+  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 2.0,
+  roughness: 0.05, metalness: 0.0,
+});
+const hopperLED = new THREE.Mesh(new THREE.SphereGeometry(3.5, 10, 10), hopperLEDMat);
+// Position on front-right face of hopper body (Z=52 = front side wall)
+hopperLED.position.set(HOPPER_X + 55, 80, 52);
+scene.add(hopperLED);
+
 // --- Conveyor belt ---
 const CONV_Y_TOP = 45;
 const convBodyGeo = new THREE.BoxGeometry(250, 12, 80);
@@ -2971,6 +2982,28 @@ function animate(ts) {
       hopperLight.color.set(0xffeedd); // warm neutral when idle
       hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
     }
+  }
+
+  // Pass 59: Hopper status LED — reflects remaining card count
+  {
+    // stackTopIdx: 5=full (6 cards), 0=last card (1 card left), resets on refill
+    // Visible cards = stackTopIdx + 1 (when card 0 is visible)
+    const _visibleCards = stackCards.filter(c => c.visible).length;
+    let _ledColor, _ledGlow;
+    if (_visibleCards >= 5) {
+      _ledColor = 0x00ff44; _ledGlow = 2.0; // green: full
+    } else if (_visibleCards >= 3) {
+      _ledColor = 0xffcc00; _ledGlow = 2.2; // yellow: half-full
+    } else if (_visibleCards >= 1) {
+      // Red: low — add fast blink for urgency
+      const _blinkOn = Math.sin(ts * 0.012) > 0;
+      _ledColor = 0xff2200; _ledGlow = _blinkOn ? 2.8 : 0.4;
+    } else {
+      _ledColor = 0xff6600; _ledGlow = 1.2; // orange: empty (refilling)
+    }
+    hopperLEDMat.color.setHex(_ledColor);
+    hopperLEDMat.emissive.setHex(_ledColor);
+    hopperLEDMat.emissiveIntensity += (_ledGlow - hopperLEDMat.emissiveIntensity) * Math.min(1, dt * 8);
   }
 
   // ── Pass 37: Belt card tracking light ───────────────────────────────────────
