@@ -2637,6 +2637,10 @@ function animate(ts) {
         const _cupY = PIV_Y - 83 * Math.cos(_cupRot);
         vacuumRing.visible = true;
         vacuumRing.position.set(_cupX, _cupY + 1, 0);
+        // Pass 307: vacuum ring spin — ring rotates on its local axis, accelerating as cup descends
+        if (!controls._vacRingAngle) controls._vacRingAngle = 0;
+        controls._vacRingAngle += dt * (2.5 + _vt * 12.0);
+        vacuumRing.rotation.z = controls._vacRingAngle;
         const _vacBaseScale = THREE.MathUtils.lerp(1.5, 0.25, _vt);
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
@@ -2885,7 +2889,9 @@ function animate(ts) {
     const _beltLean = THREE.MathUtils.lerp(0, -0.18, easeOut(_leanT));
     // Pass 116: belt micro-vibration — tiny noise jitter in rotation.z simulates belt roughness
     const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015;
-    activeCard.rotation.set(_beltLean, 0, _beltVib);
+    // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
+    const _beltFlopY309 = 0.07 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5);
+    activeCard.rotation.set(_beltLean, _beltFlopY309, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
@@ -4534,6 +4540,8 @@ function animate(ts) {
         mesh.position.copy(activeCard.position);
         mesh.position.x -= lag;
         mesh.rotation.copy(activeCard.rotation);
+        // Pass 308: ghost card scale taper — successive ghosts slightly smaller for depth
+        mesh.scale.setScalar(1.0 - gi * 0.055);
         // Pass 180: ghost trails are scan-blue in conveyorIn (pre-reveal) and domain in conveyorOut
         // (post-reveal) — cohesive with pass 176's card emissive tint timing
         const _ghostHex = inPhase(PH.conveyorOut) ? ct.hex : 0x3388ff;
