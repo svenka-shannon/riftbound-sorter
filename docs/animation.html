@@ -2792,9 +2792,11 @@ function animate(ts) {
     scanFlash.position.set(-40, CONV_Y_TOP + 10, 0);
     // Pass 105: 12Hz scan strobe on card face — stroboscopic effect of fast scanner sweep
     const _scanStrobe = Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
-    // Pass 125: card face emissive burst — decays from reveal spike back to normal
-    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 9);
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6 + _scanStrobe + _cardRevealBurst;
+    // Pass 125 + 168: card face reveal burst with damped 8Hz resonance oscillation
+    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 7);
+    // Pass 168: oscillate during decay — ~4 visible pulses as burst fades
+    const _revOsc = _cardRevealBurst * (0.55 + 0.45 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)));
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6 + _scanStrobe + _revOsc;
     cardGlow.intensity = 1.5 + flashIntensity;
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
