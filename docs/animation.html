@@ -3464,14 +3464,17 @@ function animate(ts) {
   });
 
   // ── Domain atmosphere: subtle fog/background color tint ────────────────────
-  // Slowly tints the dark background 4% toward the current domain color;
-  // transitions at ~0.5 units/second — smooth, atmospheric, never distracting
+  // Pass 88: context-sensitive intensity — ramps to 15% during scan+deflect moments,
+  // then decays back to 4.5% baseline. Creates brief "domain ownership" atmosphere.
   {
     const domainRGB = new THREE.Color(ct.hex);
     const baseFog   = new THREE.Color(0x0a0a0f);
-    // Target: 4.5% domain tint over base dark
-    const targetTint = baseFog.clone().lerp(domainRGB, 0.045);
-    _fogTint.lerp(targetTint, Math.min(1, dt * 0.55));
+    // Context: scan and deflect get a stronger tint boost
+    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.12 : 0;
+    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.07 : 0;
+    const _tintStr = 0.045 + _scanBoost + _deflectBoost;
+    const targetTint = baseFog.clone().lerp(domainRGB, _tintStr);
+    _fogTint.lerp(targetTint, Math.min(1, dt * 0.85));
     scene.fog.color.copy(_fogTint);
     scene.background.copy(_fogTint);
   }
