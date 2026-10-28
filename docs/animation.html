@@ -1989,16 +1989,18 @@ function animate(ts) {
     }
   });
 
-  // ── Card halo ring ──
-  // Visible during belt phases; spins in the horizontal plane around the card
+  // ── Card halo ring (pass 42: extended to deflect + slotDrop phases) ──
+  // Belt phases: full opacity slow spin. Deflect/slotDrop: faster, slightly dim.
   const beltActive = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
-  const haloTargetOpacity = beltActive ? 0.35 : 0;
+  const airActive  = inPhase(PH.deflect) || inPhase(PH.slotDrop);
+  const haloTargetOpacity = beltActive ? 0.35 : airActive ? 0.20 : 0;
+  const haloSpinRate = beltActive ? 0.0012 : 0.003; // faster when airborne
   cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.15;
   if (cardHaloMat.opacity > 0.01) {
     cardHalo.position.copy(activeCard.position);
-    // Halo lies flat (horizontal) — rotate to match card orientation, then spin
+    // Halo lies flat (horizontal) — rotate to match card, then spin
     cardHalo.rotation.x = activeCard.rotation.x - Math.PI / 2;
-    cardHalo.rotation.z = activeCard.rotation.z + ts * 0.0012; // slow spin
+    cardHalo.rotation.z = activeCard.rotation.z + ts * haloSpinRate;
     cardHaloMat.color.setHex(ct.hex);
     cardHaloMat.emissive.setHex(ct.hex);
   }
