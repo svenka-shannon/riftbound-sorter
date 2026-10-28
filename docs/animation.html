@@ -1742,9 +1742,9 @@ function addCardToTray(ct) {
   if(!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: flashLight, age: 0, peak: flashLight.intensity });
 
-  // Pulse fill bar brightness on arrival — Pass 398: boost 1.5 → 2.8
+  // Pulse fill bar brightness on arrival — Pass 398: 1.5→2.8 — Pass 851: →5.0 for vivid fill animation
   if(fillBars[ct.slot]) {
-    fillBars[ct.slot].material.emissiveIntensity = 2.8;
+    fillBars[ct.slot].material.emissiveIntensity = 5.0;
   }
 
   // Track per-domain sort count
@@ -3189,8 +3189,8 @@ function animate(ts) {
       CONV_Y_TOP + CARD_T/2 + 3,
       0
     );
-    // Pass 606: secondary scan line opacity 0.65→0.90 for more visible X-sweep crossing line
-    scanLine2.material.opacity = flashIntensity * 0.90;
+    // Pass 606: secondary scan line opacity 0.65→0.90 — Pass 850: →1.0 for max visible X-sweep
+    scanLine2.material.opacity = Math.min(1, flashIntensity * 1.0);
     // Pass 183: scan beams stay neutral cyan before identity reveal, snap to domain at 85%
     // (cohesive with pass 176 card tint + pass 180 ghost trail reveal sequence)
     const _beamHex = _identityRevealed ? ct.hex : 0x00ccff;
@@ -3205,21 +3205,22 @@ function animate(ts) {
     const _beamZ = scanLine.position.z;
     const _cardCenterZ = activeCard.position.z;
     const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
-    // Pass 343: scan beam reveal spike — Pass 575: primary 4.0→6.5, secondary 2.8→4.5 for stronger beam pop
-    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 6.5 : 0;
-    // Pass 599: beam base 3.0→4.5; prox boost 2.0→3.5 for brighter scan lines and crossing spike
-    scanLineMat.emissiveIntensity = 4.5 + _beamProxZ * 3.5 + _beamRevealSpike343;
-    // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5, reveal 4.5→6.0 for stronger sweep lines
-    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 6.0 : 0;
-    scanLineMat2.emissiveIntensity = 3.5 + _beam2Reveal345;
-    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: 3.5→5.5 for more dramatic pivot
-    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 5.5;
+    // Pass 343: scan beam reveal spike — Pass 575: 4.0→6.5 — Pass 845: →9.5 for stronger beam pop at lock-on
+    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 9.5 : 0;
+    // Pass 599: beam base 3.0→4.5 — Pass 844: →6.5 + prox boost 3.5→5.5 for brighter scan lines
+    scanLineMat.emissiveIntensity = 6.5 + _beamProxZ * 5.5 + _beamRevealSpike343;
+    // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5
+    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 8.5 : 0;
+    scanLineMat2.emissiveIntensity = 5.0 + _beam2Reveal345;
+    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 for dramatic pivot
+    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 8.5;
     scanLineMat.emissiveIntensity += _revFlare;
     // Pass 611: beam reversal point light — at ft≈0.5 scan midpoint, brief white point light fires
     // at the scanner to mark the beam direction flip moment with a physical light burst.
+    // Pass 848: reversal flash intensity 5.5→9.0 for bigger physical beam reversal burst
     if (!_beamReversalFlashFired && ft >= 0.50 && !_identityRevealed) {
       _beamReversalFlashFired = true;
-      const _brfl = new THREE.PointLight(0xaaddff, 5.5, 80);
+      const _brfl = new THREE.PointLight(0xaaddff, 9.0, 80);
       _brfl.position.set(-40, CONV_Y_TOP + 20, 0);
       scene.add(_brfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3230,8 +3231,8 @@ function animate(ts) {
       // Pass 148 + 171: dots cascade to domain color one by one starting at ft=0.85 reveal
       // Each dot switches ft=0.85 + di*0.014 — wave of domain color spreading across grid
       // Brief brightness spike at reveal moment
-      // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 for bigger grid dot cascade flash at reveal
-      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 1.30 : 0;
+      // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 — Pass 849: →1.90 for bigger dot cascade flash
+      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 1.90 : 0;
       SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
         const stagger = di * 0.06; // 60ms stagger per dot (0..0.48s)
         const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
