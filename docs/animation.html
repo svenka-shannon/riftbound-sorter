@@ -38,7 +38,14 @@
     backdrop-filter: blur(8px); min-width: 240px;
   }
   #stats-title { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
-  #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; transition: color 0.3s; }
+  #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; transition: color 0.3s; display: inline-block; }
+  @keyframes countBump {
+    0%   { transform: scale(1.0);   text-shadow: none; }
+    20%  { transform: scale(1.55);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; }
+    55%  { transform: scale(0.95);  text-shadow: 0 0 8px currentColor; }
+    100% { transform: scale(1.0);   text-shadow: none; }
+  }
+  #stats-count.score-bump { animation: countBump 0.45s ease-out forwards; }
   #stats-current { font-size: 12px; color: #aaa; margin-top: 4px; }
   #stats-current span { font-weight: 600; }
 
@@ -1934,7 +1941,15 @@ function toggleAutoOrbit() {
 }
 
 function updateStatsUI(cardType) {
-  document.getElementById('stats-count').textContent = totalSorted;
+  const _countEl = document.getElementById('stats-count');
+  _countEl.textContent = totalSorted;
+  // Pass 79: score-bump animation on each sort event
+  if (cardType) {
+    _countEl.style.color = cardType.css;
+    _countEl.classList.remove('score-bump');
+    void _countEl.offsetWidth; // force reflow to restart animation
+    _countEl.classList.add('score-bump');
+  }
   // Throughput: cards/min at current speed
   const cpm = (60 / CYCLE_DUR) * speedMult;
   const cpmStr = cpm >= 10 ? Math.round(cpm) : cpm.toFixed(1);
