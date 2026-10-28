@@ -2708,6 +2708,8 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(0.80, 1.57, st);
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
       suctionPivot.position.z = Math.sin(st * Math.PI) * 14;
+      // Pass 234: arm pivot Y sag — pivot slightly droops under card weight at swing midpoint
+      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 2.2;
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 4);
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
@@ -3344,7 +3346,10 @@ function animate(ts) {
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
     const _exitBlendT = Math.min(1, ot / 0.12);
     const _exitLean = THREE.MathUtils.lerp(0, -0.18, easeOut(_exitBlendT));
-    activeCard.rotation.set(_exitLean, 0, zBank); // forward lean + destination bank
+    // Pass 232: belt acceleration pitch kick — belt surges from scan crawl (0.02) to full
+    // speed at conveyorOut start, briefly pitching card nose-up (+0.06 rad) by inertia.
+    const _beltKickPitch = Math.exp(-ot * 22) * 0.06;
+    activeCard.rotation.set(_exitLean + _beltKickPitch, 0, zBank); // forward lean + kick + bank
     // Pass 174: continue belt Z-wobble during conveyorOut — fades in over first 5% and out
     // over last 30% so card arrives stable at gate (no Z snap at scan→out or out→deflect)
     {
@@ -4380,6 +4385,19 @@ function animate(ts) {
       hopperLight.color.setHex(ct.hex);
       const _hTarget = _hBase + 1.1; // pick phase spike
       hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 4);
+    } else if (inPhase(PH.pause)) {
+      // Pass 233: hopper LED domain pre-charge — in the final 40% of pause, hopper light
+      // slowly tints toward the next domain color, pre-announcing the upcoming pick.
+      const _pauseRaw = phaseRaw(PH.pause);
+      if (_pauseRaw >= 0.60) {
+        const _nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
+        const _preT = (_pauseRaw - 0.60) / 0.40; // 0→1 in last 40% of pause
+        hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 0.32);
+        hopperLight.intensity += (_hBase + _preT * 0.28 - hopperLight.intensity) * Math.min(1, dt * 2.5);
+      } else {
+        hopperLight.color.set(0xffeedd);
+        hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
+      }
     } else {
       hopperLight.color.set(0xffeedd); // warm neutral when idle
       hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
