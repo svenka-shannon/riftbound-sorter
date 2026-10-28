@@ -1490,6 +1490,18 @@ scene.add(impactRing);
 let _impactRingT = -1;        // -1 = idle, 0..1 = animation progress
 let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.6 = floor-1 glide)
 
+// ─── Pass 100: Scanner identity confirm ring ────────────────────────────────
+// Horizontal torus expands from scanner center when domain identity is confirmed (85% scan).
+// Single-shot domain-colored ring; separate from the sonar pings.
+const confirmRingMat = new THREE.MeshBasicMaterial({
+  color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
+});
+const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 1.2, 4, 48), confirmRingMat);
+confirmRing.rotation.x = -Math.PI / 2; // lie flat (XZ plane)
+confirmRing.visible = false;
+scene.add(confirmRing);
+let _confirmRingT = -1; // -1=idle; 0..1=animation progress
+
 // Pass 66: Vacuum suction ring — contracts inward as arm approaches card (armDescend)
 const vacuumRingMat = new THREE.MeshBasicMaterial({
   color: 0xaaccff, transparent: true, opacity: 0, side: THREE.DoubleSide,
@@ -2154,6 +2166,8 @@ function animate(ts) {
     _rejectAlarmFired = false;  // pass 48
     _identityRevealed = false;  // pass 93
     _domainFillBoost = 0;       // pass 99
+    _confirmRingT = -1;         // pass 100
+    confirmRing.visible = false; confirmRingMat.opacity = 0;
 
     // Pass 51: paddle smooth-return in armReturn phase brings it to ~0; cycle reset
     // just snaps to exactly 0 to clear floating-point residue, then restores color.
@@ -2675,6 +2689,12 @@ function animate(ts) {
       if (barFill >= 0.85 && !_identityRevealed) {
         _identityRevealed = true;
         _domainFillBoost = 0.55; // pass 99: spike domain fill light at identity reveal
+        // Pass 100: launch confirm ring expansion from scanner center
+        _confirmRingT = 0;
+        confirmRing.position.set(-40, CONV_Y_TOP + CARD_T + 1, 0);
+        confirmRingMat.color.setHex(ct.hex);
+        confirmRing.scale.setScalar(1.0);
+        confirmRing.visible = true;
         // Pass 96: domain name "CONFIRMED" text pop below scan overlay
         const _cfEl = document.getElementById('scan-confirm');
         if (_cfEl) {
@@ -3474,6 +3494,19 @@ function animate(ts) {
       _impactRingT = -1;
       impactRing.visible = false;
       impactRingMat.opacity = 0;
+    }
+  }
+
+  // Pass 100: confirm ring expands from scanner center at identity reveal
+  if (_confirmRingT >= 0) {
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 1.8); // ~0.55s expansion
+    const _crs = 1.0 + _confirmRingT * 5.5; // scale 1 → 6.5
+    confirmRing.scale.setScalar(_crs);
+    confirmRingMat.opacity = (1 - _confirmRingT) * 0.75;
+    if (_confirmRingT >= 1) {
+      _confirmRingT = -1;
+      confirmRing.visible = false;
+      confirmRingMat.opacity = 0;
     }
   }
 
