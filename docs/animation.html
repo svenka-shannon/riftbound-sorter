@@ -2939,6 +2939,11 @@ function animate(ts) {
     const targetAngle = paddleAngleForSlot(ct.slotZ);
     const paddleT = Math.min(1, easeOut(ot * 2));
     paddlePivot.rotation.z = THREE.MathUtils.lerp(0, targetAngle, paddleT);
+    // Pass 111: servo micro-vibration — paddle hunts at target angle (servo hold jitter)
+    if (paddleT >= 0.98) {
+      const _hunt = Math.sin(ts * 76 * Math.PI * 2) * 0.009 + Math.sin(ts * 53 * Math.PI * 2) * 0.005;
+      paddlePivot.rotation.z += _hunt;
+    }
     // Gate glows in DOMAIN color while routing (shows which path is active)
     // Pass 72: smooth charge-up ramp as card approaches (ot 0→1 = charge 0.18→3.8)
     paddleMat.color.setHex(ct.hex);
