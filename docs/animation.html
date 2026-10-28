@@ -3535,10 +3535,10 @@ function animate(ts) {
       scanConeMat.color.setHex(_coneHex);
       scanBeamMat.color.setHex(_beamHex2);
     }
-    // Pass 285: cone reveal flash — Pass 388: boost 0.22 → 0.40 — Pass 548: 0.40→0.60 for bigger cone burst
-    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 0.60 : 0;
-    // Pass 302: scan cone Z sweep — cone slowly sweeps ±7 units Z to simulate active scanning
-    scanCone.position.z = 7 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5);
+    // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80
+    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 0.80 : 0;
+    // Pass 302: scan cone Z sweep — Pass 684: sweep ±7→±9 for wider active-scanning range
+    scanCone.position.z = 9 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5);
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — brief vertical elongation at lock-on
     scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 0.45 : 0);
@@ -3549,8 +3549,8 @@ function animate(ts) {
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
     // Pass 549: beam reveal boost 0.55→0.80 for more vivid beam flare at lock-on
     const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.80 : 0;
-    // Pass 516: scan beam base opacity boost 0.55→0.70 for stronger column through scan chamber
-    scanBeamMat.opacity = flashIntensity * 0.70 + _strobe + _beamFillBoost + _beamRevealBoost389;
+    // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 for stronger scan column
+    scanBeamMat.opacity = flashIntensity * 0.82 + _strobe + _beamFillBoost + _beamRevealBoost389;
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
@@ -3559,7 +3559,8 @@ function animate(ts) {
       const _arcZBias305 = _identityRevealed ? 0.65 : 0.40;
       const arcMid   = new THREE.Vector3(
         (arcStart.x + arcEnd.x) / 2 + 10,
-        Math.max(arcStart.y, arcEnd.y) + 55,  // loft the arc well above the machine
+        // Pass 685: route arc loft 55→68 for more dramatic predicted-path arc
+        Math.max(arcStart.y, arcEnd.y) + 68,  // loft the arc well above the machine
         arcEnd.z * _arcZBias305                // bias midpoint toward destination Z
       );
       const arcPts = routeArcGeo.attributes.position.array;
@@ -3592,8 +3593,8 @@ function animate(ts) {
       const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 4.0 : 0;
       routeTargetMat.emissiveIntensity = flashIntensity * (2.0 + (_identityRevealed ? 1.2 : 0)) + _tgtRevealSpike339;
       routeTargetMat.opacity = flashIntensity * 0.9;
-      // Pass 304: destination sphere scale pulse — sphere breathes to draw eye to target slot
-      const _tgtScale304 = 1.0 + flashIntensity * 0.55 * Math.sin(ts * 4 * Math.PI * 2);
+      // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 for more vivid pulse
+      const _tgtScale304 = 1.0 + flashIntensity * 0.80 * Math.sin(ts * 4 * Math.PI * 2);
       routeTarget.scale.setScalar(Math.max(0.1, _tgtScale304));
     }
     // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
@@ -3609,8 +3610,8 @@ function animate(ts) {
       // Mirror card tilt so shimmer stays flush with card surface (pass 90 + 164)
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
-      // Pass 310: shimmer bloom at reveal — Pass 562: bloom coefficient 0.85→1.30 for wider shimmer flash
-      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 1.30 : 1.0;
+      // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 for wider shimmer flash
+      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 1.65 : 1.0;
       cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
@@ -3644,14 +3645,14 @@ function animate(ts) {
     // Pass 46: scanner-exit "identity confirmed" flash — fires once at phase start
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
-      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: 9.0→13.0, dist 120→150
-      const _cofl = new THREE.PointLight(ct.hex, 13.0, 150);
+      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: 9.0→13.0 — Pass 687: →17.0
+      const _cofl = new THREE.PointLight(ct.hex, 17.0, 160);
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
-      // Pass 428: card blaze at scan confirm 1.8 → 3.0 — Pass 553: 3.0→5.0 (hotter identity flash)
-      activeCardMat.emissiveIntensity = 5.0;
+      // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: 3.0→5.0 — Pass 688: →7.5 hotter blaze
+      activeCardMat.emissiveIntensity = 7.5;
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
       lensMat.emissiveIntensity = 9.0;
       lensMat.emissive.setHex(ct.hex);
