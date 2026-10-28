@@ -2978,8 +2978,12 @@ function animate(ts) {
     activeCard.rotation.set(_revealTilt, _yTilt, _scanVib + _revealZShake);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
-    scanFlash.intensity = flashIntensity * 5; // brighter scan flash
-    scanFlash.position.set(-40, CONV_Y_TOP + 10, 0);
+    // Pass 350: scanFlash reveal spike — bright exp burst when identity locks on
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 3.5 : 0;
+    scanFlash.intensity = flashIntensity * 5 + _flashRevealSpike350;
+    // Pass 351: scanFlash Z drift toward destination after reveal
+    const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.25 : 0;
+    scanFlash.position.set(-40, CONV_Y_TOP + 10, _flashZ351);
     // Pass 257: scanFlash domain color snap — scan light shifts to domain color at identity reveal
     scanFlash.color.setHex(_identityRevealed ? ct.hex : 0xffffff);
     // Pass 176: pre-reveal emissive tint — scanner blue before 85%, blends to domain after
@@ -3453,7 +3457,9 @@ function animate(ts) {
       cardShimmerMat.color.copy(_shimColor);
       // Opacity: standard bell curve + extra brightness after reveal (shimmer "acknowledges" domain)
       const _shimBoost = _identityRevealed ? 0.18 : 0;
-      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.52 + _shimBoost);
+      // Pass 349: shimmer opacity reveal spike — brief flash at identity lock-on
+      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 0.30 : 0;
+      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.52 + _shimBoost) + _shimRevealSpike349;
     }
     // World-to-screen projection for scan overlay (clamped to visible area)
     const _sv = activeCard.position.clone().project(camera);
