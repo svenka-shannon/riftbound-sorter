@@ -3867,14 +3867,14 @@ function animate(ts) {
     }
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
-    // Pass 252: slotDrop bounce face flash — card face briefly flares on floor-0 bounce impact
+    // Pass 252: slotDrop bounce face flash — Pass 391: boost 1.6 → 2.2, decay 14 → 12 (brighter, slightly longer)
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 1.6 * Math.exp(-_bFlashT * 14));
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 2.2 * Math.exp(-_bFlashT * 12));
     }
-    // Pass 313: floor-0 slot impact cardGlow spike — glow briefly flares at bounce contact
+    // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: boost 1.2 → 1.8, decay 30 → 25
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
-      ? Math.exp(-(dt3 - 0.88) * 30) * 1.2 : 0;
+      ? Math.exp(-(dt3 - 0.88) * 25) * 1.8 : 0;
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     scanTargetLight.intensity = THREE.MathUtils.lerp(1.8, 0, easeInOut(dt3));
@@ -4257,8 +4257,8 @@ function animate(ts) {
     const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.30 : 0;
     const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.12 : 0;
     const _shakeBoost   = _cameraShake > 2 ? Math.min(0.25, _cameraShake * 0.04) : 0;
-    // Pass 117: slotDrop domain ambient wash — brief domain color tint as card drops into slot
-    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.18 : 0;
+    // Pass 117: slotDrop domain ambient wash — Pass 393: boost 0.18 → 0.26 for bigger scene response
+    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.26 : 0;
     // Pass 323: deflect ambient boost — scene brightens as card arcs through the air
     const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.14 : 0;
     // Pass 324: scan ambient reveal peak — brief scene-wide flood at lock-on moment
