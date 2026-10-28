@@ -3001,9 +3001,8 @@ function animate(ts) {
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades
     const _revOsc = _cardRevealBurst * (0.55 + 0.45 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)));
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.6 + _scanStrobe + _revOsc;
-    // Pass 237: post-reveal card glow surge — at identity confirm, cardGlow pulses to 4.0
-    // then decays back to normal over 0.40s of scan time, emphasizing the domain reveal.
-    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 2.5 : 0;
+    // Pass 237: post-reveal card glow surge — Pass 404: boost 2.5 → 3.5 for bigger glow pop
+    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 3.5 : 0;
     cardGlow.intensity = 1.5 + flashIntensity + _revealGlowSurge;
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
@@ -3471,8 +3470,8 @@ function animate(ts) {
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
       cardShimmerMat.color.copy(_shimColor);
-      // Opacity: standard bell curve + extra brightness after reveal (shimmer "acknowledges" domain)
-      const _shimBoost = _identityRevealed ? 0.18 : 0;
+      // Opacity: standard bell curve + extra brightness after reveal — Pass 403: boost 0.18 → 0.28
+      const _shimBoost = _identityRevealed ? 0.28 : 0;
       // Pass 349: shimmer opacity reveal spike — brief flash at identity lock-on
       const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 0.30 : 0;
       cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.52 + _shimBoost) + _shimRevealSpike349;
@@ -3609,7 +3608,7 @@ function animate(ts) {
     // Pass 129: brief acceleration surge emissive at exit start — belt launches card out
     const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 0.5 : 0;
     activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
-    cardGlow.intensity = 1.2;
+    cardGlow.intensity = 1.6; // Pass 405: conveyorOut glow boost 1.2 → 1.6
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
     _beltScrollSpeed = 0.08;
