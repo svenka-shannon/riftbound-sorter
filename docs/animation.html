@@ -3089,13 +3089,15 @@ function animate(ts) {
         });
       }
     }
-    // Target slot spotlight — illuminates destination tray slot during scan
+    // Pass 192: target slot spotlight only fires AFTER identity reveal (85%)
+    // Pre-reveal it was spoiling the destination — machine shouldn't "know" yet
     scanTargetLight.color.setHex(ct.hex);
-    scanTargetLight.intensity = flashIntensity * 2.5;
+    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 2.5 : 0;
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
-    // Also pulse the fill bar of the target slot
+    // Fill bar also only brightens after reveal
     if(fillBars[ct.slot]) {
-      fillBars[ct.slot].material.emissiveIntensity = 0.4 + flashIntensity * 1.2;
+      const _fbTarget = _identityRevealed ? (0.4 + flashIntensity * 1.2) : 0.12;
+      fillBars[ct.slot].material.emissiveIntensity += (_fbTarget - fillBars[ct.slot].material.emissiveIntensity) * Math.min(1, dt * 5);
     }
     // ── Scanner beam cone + core column ──
     // Pass 76: beam starts white (card unknown), transitions to domain color at 85% confirm
