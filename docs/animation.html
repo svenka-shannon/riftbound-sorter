@@ -2762,10 +2762,14 @@ function animate(ts) {
     }
     activeCard.rotation.set(_swingDragX + _liftHoverX, 0, armRot - Math.PI / 2 + _swingWobble);
     activeCardMat.opacity = 1.0;
-    // During armLift: card glows slightly as "suction grabs" it
-    const _isLift = inPhase(PH.armLift) || inPhase(PH.armSwing);
-    activeCardMat.emissiveIntensity = _isLift ? 0.3 : 0;
-    cardGlow.intensity = _isLift ? 0.6 : 0;
+    // Pass 229: armSwing card face domain arc — emissive brightens through armLift and
+    // peaks at the swing midpoint (0.65), simulating domain energy pulsing as card travels.
+    // armDescend uses 0 so the card doesn't glow before the suction picks it up.
+    let _armCardEmissive = 0;
+    if (inPhase(PH.armLift)) _armCardEmissive = 0.22 + 0.08 * phaseRaw(PH.armLift);
+    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 0.35 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
+    activeCardMat.emissiveIntensity = _armCardEmissive;
+    cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 1.85 : 0;
     cardGlow.position.copy(activeCard.position);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
@@ -2888,7 +2892,10 @@ function animate(ts) {
     // Pass 172: scan-field levitation — card floats on 0.8Hz sine during scan (peaks at midpoint)
     const ft = phaseRaw(PH.scan);
     const _levitate = 0.30 * Math.sin(ts * 0.8 * Math.PI * 2) * Math.sin(ft * Math.PI);
-    activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate, 0);
+    // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
+    // confirmed (ft 0.85→1.0: 0→3 units), giving a subtle "recognition" gesture.
+    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 3.0 : 0;
+    activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's -0.18 belt lean into the reveal bell curve over first 10%
     // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
@@ -3617,8 +3624,11 @@ function animate(ts) {
                                              : THREE.MathUtils.lerp(2.5, 0, (dt3 - 0.75) / 0.25);
     }
     // Pass 60: gate column LED holds then fades as card lands
+    // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
+    // (exp-decay additive peak) as card crosses the threshold, confirming the route.
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-      const _target = gi === ct.col ? THREE.MathUtils.lerp(3.5, 0.15, dt3) : 0.15;
+      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 1.8 : 0;
+      const _target = gi === ct.col ? THREE.MathUtils.lerp(3.5, 0.15, dt3) + _ledSpike : 0.15;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
     });
     // Pass 195: slot entrance gate-burst — brief bright point light at slot threshold when
