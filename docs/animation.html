@@ -2558,6 +2558,10 @@ function animate(ts) {
     activeCard.rotation.z = 0;
     cardGlow.intensity = 0.6;
     cardGlow.position.copy(activeCard.position);
+    // Pass 57: target slot spotlight ramps up as card arcs toward tray
+    scanTargetLight.color.setHex(ct.hex);
+    scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
+    scanTargetLight.intensity = THREE.MathUtils.lerp(0, 1.8, dt2);
     // Keep gate paddle domain-colored while card is deflecting
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
@@ -2613,6 +2617,8 @@ function animate(ts) {
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3);
+    // Pass 57: target spotlight fades as card arrives (held from deflect entry)
+    scanTargetLight.intensity = THREE.MathUtils.lerp(1.8, 0, easeInOut(dt3));
     // Fire impact shockwave ring once when floor-0 card hits the tray floor
     if (ct.floor === 0 && !_impactFired && dt3 >= 0.86) {
       _impactFired = true;
