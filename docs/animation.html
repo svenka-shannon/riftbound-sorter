@@ -1931,7 +1931,9 @@ for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMesh = new THREE.Mesh(new THREE.BoxGeometry(5, 4, 0.8), _cpMat);
   _cpMesh.visible = false;
   scene.add(_cpMesh);
-  CELEB_PARTICLES.push({ mesh: _cpMesh, mat: _cpMat, vx: 0, vy: 0, vz: 0, rx: 0, ry: 0, rz: 0, age: 0, life: 1.2, active: false });
+  // Pass 481: randomized gravity factor per particle (18–35) for organic varied fall speed
+  const _gravFactor = 18 + Math.random() * 17;
+  CELEB_PARTICLES.push({ mesh: _cpMesh, mat: _cpMat, vx: 0, vy: 0, vz: 0, rx: 0, ry: 0, rz: 0, age: 0, life: 1.2, active: false, grav: _gravFactor });
 }
 
 function fireCelebration() {
@@ -2804,7 +2806,9 @@ function animate(ts) {
         // Pass 236: arm trail domain-hold — tag arm-swing particles so the update loop
         // holds their domain color for the first 40% of life before bleaching.
         tp._birthHex = ct.hex;
-        tp.mat.opacity = 0.55;
+        // Pass 482: Z-apex trail opacity boost — brightest at arc midpoint (closest to viewer)
+        const _swT482 = phaseRaw(PH.armSwing);
+        tp.mat.opacity = 0.55 + 0.30 * Math.sin(_swT482 * Math.PI);
         tp.age = 0;
         tp.life = 0.45 + Math.random() * 0.15;
         tp.active = true;
@@ -3563,6 +3567,10 @@ function animate(ts) {
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5
       lensMat.emissiveIntensity = 5.5;
       lensMat.emissive.setHex(ct.hex);
+      // Pass 478: scan-confirm LED flashbang — scanner LED briefly goes white-hot at scan complete
+      scanLEDMat.emissiveIntensity = 8.0;
+      scanLEDMat.color.set(0xffffff);
+      scanLEDMat.emissive.set(0xffffff);
     }
     scanTargetLight.intensity = 0;
     // Pass 60: gate column LEDs light up as card exits scanner (preview destination)
@@ -4689,14 +4697,15 @@ function animate(ts) {
 
   // Pass 97: belt shimmer glint on card — brief emissive boost as stripe passes beneath card
   // Only active while card is on the belt (conveyorIn / scan / conveyorOut phases)
+  // Pass 479: glint boost 0.22→0.32, lift 4.0→5.5 for more visible stripe-under-card flash
   if (activeCard.visible && beltShimmerMesh.visible &&
       (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))) {
     const _glintDist = Math.abs(beltShimmerMesh.position.x - activeCard.position.x);
-    const _glint = Math.max(0, 1 - _glintDist / 18) * 0.22;
+    const _glint = Math.max(0, 1 - _glintDist / 18) * 0.32; // Pass 479: 0.22→0.32
     if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
     // Pass 163: shimmer pressure lift — card floats ~0.9 units up when stripe is directly below
     if (_glint > 0.005 && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)))
-      activeCard.position.y += _glint * 4.0;
+      activeCard.position.y += _glint * 5.5; // Pass 479: 4.0→5.5
   }
 
   // ── Hopper top card domain preview ──────────────────────────────────────────
@@ -4715,10 +4724,12 @@ function animate(ts) {
         topCard.material.emissiveIntensity = glowT * 0.7;
       } else if (previewPhase) {
         // Dim preview: next card's domain glows subtly on the top hopper card
+        // Pass 480: next-card preview slow pulse — 0.6Hz breathing for "anticipate" feel
         const nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
         topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 1.5));
         const _prevT = inPhase(PH.pause) ? phaseRaw(PH.pause) : phaseRaw(PH.armReturn);
-        topCard.material.emissiveIntensity += (0.25 * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 2);
+        const _prevPulse = 0.25 + 0.10 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 480: 0.6Hz pulse
+        topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 2);
       } else {
         topCard.material.emissiveIntensity *= 0.85; // decay when not in pick phase
       }
@@ -5012,7 +5023,7 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= 28 * dt; // gentle gravity arc
+    p.vy -= (p.grav || 28) * dt; // Pass 481: randomized gravity per particle (18-35)
     p.vx *= 1 - dt * 1.2;
     p.vz *= 1 - dt * 1.2;
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
