@@ -276,6 +276,8 @@
   <div id="stats-count">0</div>
   <div id="stats-rate" style="font-size:11px;color:#555;margin-top:1px;margin-bottom:2px;"></div>
   <div id="stats-current">Waiting for first card…</div>
+  <!-- Pass 41: Domain distribution mini-histogram -->
+  <svg id="domain-chart" width="72" height="24" style="margin-top:8px;display:block;" title="Cards per domain"></svg>
 </div>
 
 <div id="scan-overlay">
@@ -1427,6 +1429,23 @@ function updateTrayLegend() {
 // Init legend immediately so it shows before first card arrives
 setTimeout(updateTrayLegend, 0);
 
+// ─── Pass 41: Domain distribution mini-histogram ─────────────────────────────
+// SVG bar chart showing relative card counts per domain, updated on each sort.
+function updateDomainChart() {
+  const _svg = document.getElementById('domain-chart');
+  if (!_svg) return;
+  const _maxCount = Math.max(1, ...CARD_TYPES.map(t => domainCounts[t.name] || 0));
+  const _BW = 7, _GAP = 2, _MH = 22;
+  _svg.setAttribute('width', CARD_TYPES.length * (_BW + _GAP) - _GAP);
+  _svg.innerHTML = CARD_TYPES.map((t, i) => {
+    const c = domainCounts[t.name] || 0;
+    const h = Math.max(1, (c / _maxCount) * _MH);
+    const x = i * (_BW + _GAP);
+    const y = _MH - h;
+    return `<rect x="${x}" y="${y}" width="${_BW}" height="${h}" rx="1" fill="${t.css}" opacity="0.85"/>`;
+  }).join('');
+}
+
 function addCardToTray(ct) {
   const key = `${ct.floor}_${ct.col}`;
   if(!trayCards[key]) trayCards[key] = [];
@@ -1501,6 +1520,7 @@ function addCardToTray(ct) {
     ct.slotZ
   );
   showSlotPlusOne(slotWorldPos, ct.css, ct.name);
+  updateDomainChart(); // pass 41: refresh mini-histogram
 }
 
 // ─── Slot indicator LEDs ─────────────────────────────────────────────────────
