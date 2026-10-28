@@ -3796,7 +3796,8 @@ function animate(ts) {
     // as it accelerates toward the gate. Spawns every ~70ms, short life.
     // Pass 459: final-approach trail density boost — last 35% of conveyorOut spawns at 38ms
     // instead of 70ms, creating a denser contrail "surge" as card punches toward the gate.
-    const _convTrailRate = ot > 0.65 ? 0.038 : 0.07;
+    // Pass 459: final-approach density — Pass 823: early 0.07→0.05, final 0.038→0.026 for denser contrail
+    const _convTrailRate = ot > 0.65 ? 0.026 : 0.05;
     _trailSpawnAcc += dt;
     if (_trailSpawnAcc >= _convTrailRate) {
       _trailSpawnAcc = 0;
@@ -3808,9 +3809,10 @@ function animate(ts) {
         activeCard.position.z + (Math.random()-0.5)*4
       );
       tp.mat.color.setHex(ct.hex);
-      // Pass 475: final-approach trail opacity boost — denser AND brighter contrail in last 35%
-      tp.mat.opacity = ot > 0.65 ? 0.42 + Math.random() * 0.20 : 0.28 + Math.random() * 0.12;
-      tp.age = 0; tp.life = 0.22 + Math.random() * 0.10;
+      // Pass 475: final-approach trail opacity boost — Pass 824/825: early 0.28+0.12→0.42+0.18, final 0.42+0.20→0.60+0.30
+      tp.mat.opacity = ot > 0.65 ? 0.60 + Math.random() * 0.30 : 0.42 + Math.random() * 0.18;
+      // Pass 826: trail life 0.22+0.10→0.30+0.14 for longer exhaust contrail
+      tp.age = 0; tp.life = 0.30 + Math.random() * 0.14;
       tp.active = true; tp.mesh.visible = true;
     }
   }
@@ -4913,18 +4915,18 @@ function animate(ts) {
     const beltTrail = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
     const _speedFactor = Math.min(1, _beltScrollSpeed / 0.08); // 0 idle → 1 at full speed
     // Pass 376: ghost opacity boost — more visible trail effect
-    // Pass 661: ghost opacity 0.42/0.22/0.10 → 0.52/0.28/0.14 for brighter motion trail
-    const ghostOpacities = [0.52 * _speedFactor, 0.28 * _speedFactor, 0.14 * _speedFactor];
+    // Pass 661: ghost opacity 0.42/0.22/0.10 → 0.52/0.28/0.14 — Pass 820: →0.68/0.40/0.22
+    const ghostOpacities = [0.68 * _speedFactor, 0.40 * _speedFactor, 0.22 * _speedFactor];
     ghostCards.forEach(({ mesh, mat }, gi) => {
       if (beltTrail && activeCard.visible) {
-        // Pass 377: lag spacing 9 → 12 units — Pass 660: 12→15 for wider motion-blur spread
-        const lag = (gi + 1) * 15;
+        // Pass 377: lag spacing 9→12 — Pass 660: →15 — Pass 822: →19 for wider motion-blur spread
+        const lag = (gi + 1) * 19;
         mesh.visible = true;
         mesh.position.copy(activeCard.position);
         mesh.position.x -= lag;
         mesh.rotation.copy(activeCard.rotation);
-        // Pass 308: ghost card scale taper — successive ghosts slightly smaller for depth
-        mesh.scale.setScalar(1.0 - gi * 0.055);
+        // Pass 308: ghost card scale taper — Pass 827: gi*0.055→gi*0.038 (less size taper = more even trail)
+        mesh.scale.setScalar(1.0 - gi * 0.038);
         // Pass 180: ghost trails are scan-blue in conveyorIn (pre-reveal) and domain in conveyorOut
         // (post-reveal) — cohesive with pass 176's card emissive tint timing
         const _ghostHex = inPhase(PH.conveyorOut) ? ct.hex : 0x3388ff;
@@ -4933,9 +4935,10 @@ function animate(ts) {
         // Pass 286: ghost emissive intensity speed sync — trail glows brighter at full belt speed
         // Pass 378: post-reveal emissive boost — trail blazes in domain color on conveyorOut
         // Pass 504: post-reveal ghost emissive boost 0.30→0.45 for more vivid domain identity trail
-        const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 0.45 : 0;
-        // Pass 667: ghost emissive base 0.28→0.36 for more luminous motion trail
-        mat.emissiveIntensity = ((0.36 - gi * 0.09) + _ghostRevealBoost378) * _speedFactor;
+        // Pass 504: post-reveal ghost boost 0.30→0.45 — Pass 821: →0.65 for more vivid domain trail
+        const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 0.65 : 0;
+        // Pass 667: ghost emissive base 0.28→0.36 — Pass 821: →0.50 for more luminous motion trail
+        mat.emissiveIntensity = ((0.50 - gi * 0.12) + _ghostRevealBoost378) * _speedFactor;
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
         mat.opacity += (targetOp - mat.opacity) * 0.35;
       } else {
