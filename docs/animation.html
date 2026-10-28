@@ -2592,9 +2592,17 @@ function animate(ts) {
       fillBars[ct.slot].material.emissiveIntensity = 0.4 + flashIntensity * 1.2;
     }
     // ── Scanner beam cone + core column ──
-    scanConeMat.color.setHex(ct.hex);
+    // Pass 76: beam starts white (card unknown), transitions to domain color at 85% confirm
+    if (ft < 0.85) {
+      scanConeMat.color.setHex(0xffffff);
+      scanBeamMat.color.setHex(0xaaddff); // cool blue-white (scanning / unknown)
+    } else {
+      const _revealT = Math.min(1, (ft - 0.85) / 0.15); // 0→1 in last 15% of scan
+      scanConeMat.color.lerp(new THREE.Color(ct.hex), _revealT * 0.9 + 0.1);
+      const _beamHex = ct.hex === 0x888888 ? 0xbbbbbb : ct.hex;
+      scanBeamMat.color.lerp(new THREE.Color(_beamHex), _revealT * 0.9 + 0.1);
+    }
     scanConeMat.opacity = flashIntensity * 0.09; // subtle wide cone
-    scanBeamMat.color.setHex(ct.hex === 0x888888 ? 0xbbbbbb : ct.hex); // brighten colorless
     scanBeamMat.opacity = flashIntensity * 0.55; // brighter core
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
