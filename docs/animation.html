@@ -3348,10 +3348,13 @@ function animate(ts) {
     const _ySettleT = Math.min(1, dt3 / 0.5); // 0→1 over first half of slotDrop
     activeCard.rotation.y = THREE.MathUtils.lerp(_bankStart, 0, easeOut(_ySettleT));
     // Pass 161: landing pitch — card tips forward at bounce impact, springs back
-    // Only fires for lower floor (which has the gravity bounce); upper floor glides in upright
+    // Pass 169: aerodynamic fall lean — card noses down during gravity fall, peaks at midpoint
     if (ct.floor === 0 && dt3 >= 0.88) {
       const _bT = (dt3 - 0.88) / 0.12;
-      activeCard.rotation.x = 0.14 * Math.sin(_bT * Math.PI); // 0→peak→0 with bounce
+      activeCard.rotation.x = 0.14 * Math.sin(_bT * Math.PI); // bounce pitch
+    } else if (ct.floor === 0) {
+      // Aerodynamic drag: nose-down lean proportional to fall velocity (bell curve)
+      activeCard.rotation.x = -0.07 * Math.sin(dt3 / 0.88 * Math.PI);
     } else {
       activeCard.rotation.x = 0;
     }
