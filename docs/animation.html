@@ -1813,6 +1813,7 @@ let _rejectAlarmFired = false;  // pass 48: once reject-alarm vignette fires at 
 let _identityRevealed = false;  // pass 93: set when scan reaches 85% confirm threshold
 let _slotPuffFired = false;     // pass 107: true once slot entry air puff fires this slotDrop
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
+let _hoodRevealFlash = 0;       // pass 123: hood strobe at identity reveal (0=idle, t=0..1)
 let _domainFillBoost = 0;      // pass 99: temporary intensity boost at identity reveal
 let _fovBump = 0;              // pass 106: FOV zoom-in amount at celebration (8 = zoom in 8°)
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
@@ -2189,6 +2190,7 @@ function animate(ts) {
     _identityRevealed = false;  // pass 93
     _slotPuffFired = false;     // pass 107
     _paddleRecoil = 0;          // pass 109
+    _hoodRevealFlash = 0;       // pass 123
     _domainFillBoost = 0;       // pass 99
     _confirmRingT = -1;         // pass 100
     confirmRing.visible = false; confirmRingMat.opacity = 0;
@@ -2715,7 +2717,15 @@ function animate(ts) {
     scanLEDMat.emissiveIntensity = 2.0 + flashIntensity * 3.0;
     // Pass 74: scanner hood deep pulse — domain color tint at scan peak
     hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 2 + flashIntensity * 0.8));
-    hoodMat.emissiveIntensity = 0.28 + flashIntensity * 0.85;
+    // Pass 123: hood reveal strobe — advance and apply rapid 3-pulse flash at identity confirm
+    if (_hoodRevealFlash > 0) {
+      _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 5.5); // ~0.18s full duration
+      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 3)) * (1 - _hoodRevealFlash) * 1.4;
+      hoodMat.emissiveIntensity = 0.28 + flashIntensity * 0.85 + _revStrobe;
+      if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
+    } else {
+      hoodMat.emissiveIntensity = 0.28 + flashIntensity * 0.85;
+    }
     // Pass 80: lens iris opens during scan — scale XZ pulses 0.75→1.15 with flash
     const _irisScale = 0.75 + flashIntensity * 0.40;
     lens.scale.x = _irisScale; lens.scale.z = _irisScale;
@@ -2801,6 +2811,8 @@ function animate(ts) {
         if (fillBars[ct.slot] && fillBars[ct.slot].material) {
           fillBars[ct.slot].material.emissiveIntensity = 2.2;
         }
+        // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
+        _hoodRevealFlash = 0.001; // just above 0 to activate
       }
       // Pass 113: scan bar color blends white→domain over 0.65→0.85 for gradual reveal
       // Below 0.65: pure white; 0.65-0.85: interpolate; above 0.85: full domain
