@@ -3114,22 +3114,25 @@ function animate(ts) {
           // Pass 211: scan grid dots float — pre-reveal dots oscillate in Y at 3Hz with
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
-          const _dotFloat = _identityRevealed ? 0 : 0.5 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
+          // Pass 365: float amplitude boost 0.5 → 0.75 for more visible hover effect
+          const _dotFloat = _identityRevealed ? 0 : 0.75 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
           // Pass 292: lock-in X jitter at reveal — dots vibrate X axis briefly as scanner locks on
           const _dotLockJitter = _identityRevealed && ft < 0.91 ? 0.38 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
+          // Pass 366: post-reveal dots Z drift toward destination slot (20% of slotZ over 0.12s)
+          const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.20 : 0;
           mesh.position.set(
             activeCard.position.x + SCAN_DOT_OFFSETS[di].x + _dotLockJitter,
             CONV_Y_TOP + CARD_T + 3.5 + _dotFloat,
-            activeCard.position.z + SCAN_DOT_OFFSETS[di].z
+            activeCard.position.z + SCAN_DOT_OFFSETS[di].z + _dotZ366
           );
           mat.color.setHex(dotColor);
           // Pass 215: beam-proximity brightening — each dot brightens as the Z-sweep beam
           // crosses its Z position, creating a sweep highlight that travels with the beam.
           const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 11);
           mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 0.60));
-          // Pass 294: dot scale pop cascade — each dot briefly 1.6× at its own reveal threshold
+          // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0×
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
-            ? 1.0 + 0.60 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0;
+            ? 1.0 + 1.00 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0;
           mesh.scale.setScalar(_dotRevealScale);
         } else {
           mesh.visible = false;
