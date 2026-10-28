@@ -3057,8 +3057,9 @@ function animate(ts) {
         CONV_Y_TOP + CARD_T + 0.9,
         _shimZ
       );
-      // Mirror card face-reveal tilt so shimmer stays flush with card surface
+      // Mirror card tilt so shimmer stays flush with card surface (pass 90 + 164)
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
+      cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
@@ -3167,7 +3168,8 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     slotSweepLight.intensity = 0; // pass 81: off during conveyor
     scanBloom.intensity = 0;
-    scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
+    // Pass 165: smooth LED decay from scan peak (~2.0) to idle (1.2) — was hard snap
+    scanLEDMat.emissiveIntensity += (1.2 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6);
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
