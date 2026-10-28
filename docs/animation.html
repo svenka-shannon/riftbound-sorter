@@ -2910,16 +2910,15 @@ function animate(ts) {
     gateColLight.intensity *= Math.max(0, 1 - dt * 4); // pass 141: fade gate column light on belt entry
     // Pass 144: scan anticipation — card brightens in final 15% of conveyorIn as scanner looms
     const _approachT = Math.max(0, (ct2 - 0.85) / 0.15); // 0→1 in last 15%
-    // Pass 217: belt deposit flash — brief brightness spike as card slaps onto belt at phase start.
-    // Decays in ~0.11s; independent of approach brightening (which happens later).
-    const _entryBoost = Math.exp(-ct2 * 28) * 0.85;
+    // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap)
+    const _entryBoost = Math.exp(-ct2 * 20) * 1.4;
     // Pass 272: approach emissive frequency ramp — pulse quickens 8→20Hz as card nears scanner
     const _approachFreq272 = 8 + _approachT * 12;
     activeCardMat.emissiveIntensity = 0.55 + _approachT * 0.65 + _approachT * 0.3 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) + _entryBoost;
-    cardGlow.intensity = 1.4 + _approachT * 1.2; // glow brightens as card enters scanner
+    cardGlow.intensity = 1.4 + _approachT * 1.8; // Pass 407: approach glow ramp 1.2 → 1.8
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     const _warmupT = Math.max(0, (ct2 - 0.80) / 0.20); // 0→1 in last 20%
-    const _ledWarmTarget = 0.3 + _warmupT * 1.7; // 0.3 baseline → 2.0 at scanner entry
+    const _ledWarmTarget = 0.3 + _warmupT * 2.5; // Pass 408: LED warmup boost 1.7→2.5 (peaks at 2.8)
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
