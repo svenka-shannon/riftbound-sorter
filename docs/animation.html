@@ -2558,6 +2558,13 @@ function animate(ts) {
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
       suctionPivot.position.z = 2.0 * Math.sin(pt * Math.PI) * (1 - pt * 0.7);
+      // Pass 262: pre-pick targeting spotlight — warm downward spot on hopper card in final approach
+      if (pt > 0.75) {
+        const _pickTgtT = (pt - 0.75) / 0.25;
+        scanTargetLight.color.setHex(0xffeedd);
+        scanTargetLight.position.set(PIV_X, CONV_Y_TOP + 8, 0);
+        scanTargetLight.intensity = _pickTgtT * 0.90 * Math.sin(_pickTgtT * Math.PI * 0.85);
+      }
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
@@ -2927,7 +2934,10 @@ function animate(ts) {
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
     const _yTilt = _identityRevealed ? 0.14 * Math.sin(_yTiltT * Math.PI) : 0;
-    activeCard.rotation.set(_revealTilt, _yTilt, _scanVib);
+    // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
+    const _revealZShake = _identityRevealed && ft < 0.91
+      ? 0.022 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0;
+    activeCard.rotation.set(_revealTilt, _yTilt, _scanVib + _revealZShake);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
     scanFlash.intensity = flashIntensity * 5; // brighter scan flash
@@ -4090,7 +4100,10 @@ function animate(ts) {
     const _bodyActive = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     if (_bodyActive) {
       convBodyMat.emissive.setHex(ct.hex);
-      const _bodyTarget = 0.08 + 0.04 * Math.sin(cycleT * 8); // gentle pulsing
+      // Pass 263: conveyor body scanner-approach boost — body brightens as card nears scanner
+      const _bodyApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.80
+        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 0.06 : 0;
+      const _bodyTarget = 0.08 + 0.04 * Math.sin(cycleT * 8) + _bodyApproach;
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
     } else {
       convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
