@@ -1934,6 +1934,18 @@ function applySpeed(idx) {
   beltSurfMat._glowBase = speedMult >= 4 ? 0.30
                         : speedMult >= 2 ? 0.15
                         : 0.05;
+  // Pass 87: chromatic aberration + saturation boost on canvas at high speed
+  const _canvas = renderer.domElement;
+  if (speedMult >= 4) {
+    _canvas.style.filter = 'saturate(1.55) contrast(1.08) hue-rotate(3deg)';
+    _canvas.style.boxShadow = '0 0 0 2px rgba(255,60,20,0.18), 0 0 0 4px rgba(20,80,255,0.12)';
+  } else if (speedMult >= 2) {
+    _canvas.style.filter = 'saturate(1.25) contrast(1.04)';
+    _canvas.style.boxShadow = '0 0 0 1px rgba(255,60,20,0.09)';
+  } else {
+    _canvas.style.filter = '';
+    _canvas.style.boxShadow = '';
+  }
 }
 function cycleSpeed() { applySpeed((speedIdx + 1) % SPEEDS.length); }
 
