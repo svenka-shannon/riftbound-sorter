@@ -2631,8 +2631,8 @@ function animate(ts) {
         if (!_contactFlashFired) {
           _contactFlashFired = true;
           const _cfRot = suctionPivot.rotation.z;
-          // Pass 509: contact flash intensity boost 3.5→6.0 and range 45→65 for more visible pick flash
-          const _cfL = new THREE.PointLight(0xffffff, 6.0, 65);
+          // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5, dist 65→90 for bigger pick moment
+          const _cfL = new THREE.PointLight(0xffffff, 8.5, 90);
           _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
@@ -2745,8 +2745,8 @@ function animate(ts) {
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
-        // Pass 524: grab pulse light intensity 6.0→7.5 for stronger card-pick moment
-        const grabLight = new THREE.PointLight(ct.hex, 7.5, 90); // Pass 524: 6.0→7.5, dist 80→90
+        // Pass 524: grab pulse light intensity 6.0→7.5 — Pass 625: →10.0, dist 90→110 for bolder suction pop
+        const grabLight = new THREE.PointLight(ct.hex, 10.0, 110); // Pass 625: 7.5→10.0, dist 90→110
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -3599,9 +3599,9 @@ function animate(ts) {
       cardShimmerMat.color.copy(_shimColor);
       // Opacity: standard bell curve + extra brightness after reveal — Pass 403: boost 0.18 → 0.28
       const _shimBoost = _identityRevealed ? 0.28 : 0;
-      // Pass 349: shimmer opacity reveal spike — Pass 563: boost 0.30→0.55 for bigger shimmer pop
-      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 0.55 : 0;
-      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.52 + _shimBoost) + _shimRevealSpike349;
+      // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75, base bell 0.52→0.62
+      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 0.75 : 0;
+      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.62 + _shimBoost) + _shimRevealSpike349;
     }
     // World-to-screen projection for scan overlay (clamped to visible area)
     const _sv = activeCard.position.clone().project(camera);
@@ -4913,11 +4913,11 @@ function animate(ts) {
   }
 
   // Pass 100: confirm ring expands from scanner center at identity reveal
-  // Pass 543: first confirm ring expansion speed 1.8→2.4 for snappier scan-lock ring
+  // Pass 543: first confirm ring expansion speed 1.8→2.4 — Pass 627: →3.2 for even snappier lock-on ring
   if (_confirmRingT >= 0) {
-    _confirmRingT = Math.min(1, _confirmRingT + dt * 2.4); // Pass 543: ~0.42s expansion (snappier)
-    // Pass 280: easeOut scale — Pass 445: boost 8.0→10.0 (scale 1→11, bigger ring)
-    const _crs = 1.0 + easeOut(_confirmRingT) * 10.0;
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 3.2); // Pass 627: 2.4→3.2 (~0.31s expansion)
+    // Pass 280: easeOut scale — Pass 445: boost 8.0→10.0 — Pass 627: →13.0 for wider ring burst
+    const _crs = 1.0 + easeOut(_confirmRingT) * 13.0;
     confirmRing.scale.setScalar(_crs);
     confirmRingMat.opacity = (1 - _confirmRingT) * 0.90; // Pass 336: opacity boost 0.75 → 0.90
     if (_confirmRingT >= 1) {
@@ -5195,13 +5195,14 @@ function animate(ts) {
     activeCardEdgeMat.color.setHex(_identityRevealed ? ct.hex : 0x3388ff);
     // Pass 460: edge reveal white flash — at identity lock-on the outline briefly blooms white
     // before settling to domain color. Uses _confirmRingT [0..1] as a proxy timing signal.
-    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 0.18) ? (1.0 - _confirmRingT / 0.18) : 0;
+    // Pass 628: edge reveal flash window 0.18→0.24 for longer white bloom at identity lock-on
+    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 0.24) ? (1.0 - _confirmRingT / 0.24) : 0;
     if (_edgeRvl > 0.05) activeCardEdgeMat.color.lerp(new THREE.Color(0xffffff), _edgeRvl);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     // Pass 477: deflect arc edge boost — outline more visible as card arcs through air (0.45→0.65)
-    // Pass 512: armSwing edge boost 0.45→0.58 — card is closest to viewer at arc midpoint
-    const edgeTarget = edgeFull ? 0.85 : inPhase(PH.deflect) ? 0.65 : inPhase(PH.armSwing) ? 0.58 : 0.45;
+    // Pass 512: armSwing edge boost 0.45→0.58 — Pass 629: scan/conveyor edge 0.85→0.95; deflect 0.65→0.78
+    const edgeTarget = edgeFull ? 0.95 : inPhase(PH.deflect) ? 0.78 : inPhase(PH.armSwing) ? 0.58 : 0.45;
     activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
