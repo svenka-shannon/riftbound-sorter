@@ -1014,7 +1014,7 @@ const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
 const paddleGeo = new THREE.BoxGeometry(4, 55, 18);
 const paddleMat = new THREE.MeshStandardMaterial({
   color: 0xff6600, roughness: 0.3,
-  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.5
+  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.18 // pass 72: starts low; charges up
 });
 const paddleMesh = new THREE.Mesh(paddleGeo, paddleMat);
 paddleMesh.castShadow = true;
@@ -2679,10 +2679,11 @@ function animate(ts) {
     const paddleT = Math.min(1, easeOut(ot * 2));
     paddlePivot.rotation.z = THREE.MathUtils.lerp(0, targetAngle, paddleT);
     // Gate glows in DOMAIN color while routing (shows which path is active)
+    // Pass 72: smooth charge-up ramp as card approaches (ot 0→1 = charge 0.18→3.8)
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
-    const gateGlow = Math.abs(targetAngle) * 1.8 + 0.6;
-    paddleMat.emissiveIntensity = gateGlow;
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 3.8, easeInOut(ot));
+    paddleMat.emissiveIntensity += (_gateChargeTarget - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
@@ -2711,6 +2712,8 @@ function animate(ts) {
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _gfl, age: 0 });
+      // Pass 72: peak spike on gate contact — discharges charge-up energy
+      paddleMat.emissiveIntensity = 5.5;
     }
     const dt2 = phaseT(PH.deflect);
     const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
@@ -2893,7 +2896,10 @@ function animate(ts) {
     suctionPivot.rotation.z = THREE.MathUtils.lerp(1.57, -0.35, art);
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.z += (0 - paddlePivot.rotation.z) * Math.min(1, dt * 4.5);
-    paddleMat.emissiveIntensity += (0.5 - paddleMat.emissiveIntensity) * Math.min(1, dt * 3);
+    // Pass 72: decay paddle back to resting orange glow after charge discharge
+    paddleMat.emissive.lerp(new THREE.Color(0xff3300), Math.min(1, dt * 3));
+    paddleMat.color.lerp(new THREE.Color(0xff6600), Math.min(1, dt * 3));
+    paddleMat.emissiveIntensity += (0.18 - paddleMat.emissiveIntensity) * Math.min(1, dt * 3);
     activeCard.visible = false;
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
