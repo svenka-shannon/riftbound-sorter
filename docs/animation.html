@@ -2982,13 +2982,16 @@ function animate(ts) {
         arcPts[i*3+2] = s*s*arcStart.z + 2*s*t*arcMid.z + t*t*arcEnd.z;
       }
       routeArcGeo.attributes.position.needsUpdate = true;
-      routeArcMat.color.setHex(ct.hex);
-      routeArcMat.opacity = flashIntensity * 0.75;
+      // Pass 149: arc blends white→domain as scan progresses (parallels scan bar blending)
+      const _arcBlend = _identityRevealed ? 1.0 : Math.max(0, (ft - 0.50) / 0.35);
+      const _arcColor = new THREE.Color(0xaaddff).lerp(new THREE.Color(ct.hex), _arcBlend);
+      routeArcMat.color.copy(_arcColor);
+      routeArcMat.opacity = flashIntensity * (0.75 + (_identityRevealed ? 0.22 : 0));
       // Target sphere pulses at destination
       routeTarget.position.copy(arcEnd);
-      routeTargetMat.color.setHex(ct.hex);
-      routeTargetMat.emissive.setHex(ct.hex);
-      routeTargetMat.emissiveIntensity = flashIntensity * 2.0;
+      routeTargetMat.color.copy(_arcColor);
+      routeTargetMat.emissive.copy(_arcColor);
+      routeTargetMat.emissiveIntensity = flashIntensity * (2.0 + (_identityRevealed ? 1.2 : 0));
       routeTargetMat.opacity = flashIntensity * 0.9;
     }
     // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
