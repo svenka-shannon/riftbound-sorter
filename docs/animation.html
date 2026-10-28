@@ -3053,7 +3053,9 @@ function animate(ts) {
     scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 4);
     scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
-    activeCardMat.emissiveIntensity = Math.max(0.55, activeCardMat.emissiveIntensity - dt * 5.5);
+    // Pass 129: brief acceleration surge emissive at exit start — belt launches card out
+    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 0.5 : 0;
+    activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
     cardGlow.intensity = 1.2;
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
