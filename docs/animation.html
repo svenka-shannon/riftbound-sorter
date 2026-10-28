@@ -929,6 +929,13 @@ scanBarMesh.position.set(-40, CONV_Y_TOP + 62, -51);
 scanBarMesh.visible = false;
 scene.add(scanBarMesh);
 
+// Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
+const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
+const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(3.5, 3.5, 3.5), scanBarCursorMat);
+scanBarCursor.position.set(-40, CONV_Y_TOP + 62, -51);
+scanBarCursor.visible = false;
+scene.add(scanBarCursor);
+
 // Scan destination target light — illuminates the slot the card is going to
 // during scan phase so viewer immediately knows the routing decision
 const scanTargetLight = new THREE.PointLight(0xffffff, 0, 90);
@@ -2647,6 +2654,7 @@ function animate(ts) {
     scanBloom.intensity = 0;
     scanTargetLight.intensity = 0;
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    scanBarCursor.visible = false; // pass 151
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = 0;
@@ -2848,6 +2856,14 @@ function animate(ts) {
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
       scanBarMesh.position.x = leftEdge + (SCAN_BAR_MAX_W * barFill) / 2;
+      // Pass 151: leading-edge cursor tracks the bar's rightmost pixel
+      scanBarCursor.visible = barFill < 0.99;
+      scanBarCursor.position.x = leftEdge + SCAN_BAR_MAX_W * barFill;
+      scanBarCursor.position.y = CONV_Y_TOP + 62;
+      scanBarCursor.position.z = -51;
+      const _cursorColor = _identityRevealed ? ct.hex : 0xffffff;
+      scanBarCursorMat.color.setHex(_cursorColor);
+      scanBarCursorMat.opacity = 0.9 + 0.1 * Math.sin(ts * 18 * Math.PI * 2); // fast flicker
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
       if (barFill >= 0.85 && !_identityRevealed) {
         _identityRevealed = true;
