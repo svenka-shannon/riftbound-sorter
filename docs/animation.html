@@ -3141,16 +3141,22 @@ function animate(ts) {
   }
 
   // ── Floor halo disc: domain-colored glow circle on floor below active card ───
+  // Pass 75: disc expands and dims as card rises (altitude-based contact shadow effect)
   {
     if (activeCard.visible) {
       floorDisc.position.x = activeCard.position.x;
       floorDisc.position.z = activeCard.position.z;
       floorDiscMat.color.setHex(ct.hex);
-      const fdTarget = 0.18;
-      floorDiscMat.opacity += (fdTarget - floorDiscMat.opacity) * 0.12;
+      // Altitude = card Y above belt surface; belt at CONV_Y_TOP+2
+      const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
+      const _altFrac = Math.min(1, _altitude / 50); // 0 at belt, 1 at 50 units up
+      const _fdScale = 1.0 + _altFrac * 1.4;  // 1.0 on belt → 2.4 at peak
+      const _fdOpacity = THREE.MathUtils.lerp(0.18, 0.055, _altFrac);
+      floorDisc.scale.setScalar(_fdScale);
+      floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.15;
     } else {
       floorDiscMat.opacity *= 0.82; // smooth fade-out when card hidden
-      if (floorDiscMat.opacity < 0.005) floorDiscMat.opacity = 0;
+      if (floorDiscMat.opacity < 0.005) { floorDiscMat.opacity = 0; floorDisc.scale.setScalar(1.0); }
     }
   }
 
