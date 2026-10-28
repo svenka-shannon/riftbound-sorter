@@ -3649,8 +3649,13 @@ function animate(ts) {
     if(!controls._camTgt) controls._camTgt = { x: -30, y: 30 };
     controls._camTgt.x += (_tgt.x - controls._camTgt.x) * 0.018; // slightly faster drift
     controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.018;
-    controls.target.set(controls._camTgt.x, controls._camTgt.y, 0);
-    camera.lookAt(controls._camTgt.x, controls._camTgt.y, 0);
+    // Pass 138: Z lead — camera subluminally pre-pans toward destination column post-reveal
+    const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
+      ? ct.slotZ * 0.25 : 0;
+    if (!controls._camTgtZ) controls._camTgtZ = 0;
+    controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.016;
+    controls.target.set(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
+    camera.lookAt(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
   }
 
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
