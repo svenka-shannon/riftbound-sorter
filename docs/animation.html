@@ -3056,6 +3056,9 @@ function animate(ts) {
         // Pass 205: destination slot strip pre-announce flash — strip briefly superflashes when
         // machine "announces" the destination. ct.stripMat normal decay (pass 127) fades it back.
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 3.0;
+        // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
+        // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
+        _cameraShake = Math.max(_cameraShake, 0.45);
       }
       // Pass 113: scan bar color blends white→domain over 0.65→0.85 for gradual reveal
       // Below 0.65: pure white; 0.65-0.85: interpolate; above 0.85: full domain
@@ -3205,7 +3208,11 @@ function animate(ts) {
       const _arcBlend = _identityRevealed ? 1.0 : Math.max(0, (ft - 0.50) / 0.35);
       const _arcColor = new THREE.Color(0xaaddff).lerp(new THREE.Color(ct.hex), _arcBlend);
       routeArcMat.color.copy(_arcColor);
-      routeArcMat.opacity = flashIntensity * (0.75 + (_identityRevealed ? 0.22 : 0));
+      // Pass 210: route arc strobe pulse — arc opacity modulates at 12Hz scan beat frequency,
+      // making it "flicker" in sync with the scan strobe (pass 105). Post-reveal the arc
+      // settles to steady (no more scanning needed), pre-reveal it shows scan progress.
+      const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
+      routeArcMat.opacity = flashIntensity * (0.75 + (_identityRevealed ? 0.22 : 0)) + _arcStrobeMod;
       // Target sphere pulses at destination
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
@@ -4263,7 +4270,13 @@ function animate(ts) {
         _beltIdlePhase = (_beltIdlePhase + dt * 0.38 * speedMult) % 1; // full sweep ~2.6s at 1×
         const shimmerX = THREE.MathUtils.lerp(HOPPER_X + 10, GATE_X - 10,
                            (Math.sin(_beltIdlePhase * Math.PI * 2) * 0.5 + 0.5));
-        _beltTrackLight.color.set(0xaaccff); // cool blue-white for idle standby
+        // Pass 209: idle shimmer domain echo — during armReturn, the belt briefly remembers
+        // the last card's domain color before fading to neutral blue by pause/armDescend.
+        // art = armReturn progress; lerps from ct.hex → 0xaaccff over the phase.
+        const _idleColor = inPhase(PH.armReturn)
+          ? new THREE.Color(ct.hex).lerp(new THREE.Color(0xaaccff), phaseRaw(PH.armReturn)).getHex()
+          : 0xaaccff;
+        _beltTrackLight.color.setHex(_idleColor);
         _beltTrackLight.position.set(shimmerX, CONV_Y_TOP + 5, 0);
         // Pulse the shimmer brightness — brighter at belt midpoint, softer at ends
         const midT = 1 - Math.abs((_beltIdlePhase % 1) - 0.5) * 2;
