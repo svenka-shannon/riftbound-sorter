@@ -1331,8 +1331,9 @@ function animate(ts) {
     addCardToTray(completedCt);
     cycleIdx = (cycleIdx + 1) % CARD_TYPES.length;
 
-    // Reset paddle to neutral at cycle start
+    // Reset paddle to neutral at cycle start; dim gate glow
     paddlePivot.rotation.z = 0;
+    paddleMat.emissiveIntensity = 0.5; // back to resting glow
 
     // Hide top stack card; refill when all 6 used
     if(stackCards[stackTopIdx]) {
@@ -1532,10 +1533,14 @@ function animate(ts) {
     );
     // Belt scrolls while card sits under scanner
     beltTex.offset.x -= dt * speedMult * 0.02;
-    // World-to-screen projection for scan overlay
+    // World-to-screen projection for scan overlay (clamped to visible area)
     const _sv = activeCard.position.clone().project(camera);
-    const _sx = (_sv.x * 0.5 + 0.5) * window.innerWidth;
-    const _sy = (-_sv.y * 0.5 + 0.5) * window.innerHeight;
+    const _rawX = (_sv.x * 0.5 + 0.5) * window.innerWidth;
+    const _rawY = (-_sv.y * 0.5 + 0.5) * window.innerHeight;
+    // If projected point is behind camera or far off-screen, use centered default
+    const _offscreen = _sv.z > 1 || _rawX < 50 || _rawX > window.innerWidth - 50 || _rawY < 50 || _rawY > window.innerHeight - 200;
+    const _sx = _offscreen ? window.innerWidth * 0.62 : _rawX;
+    const _sy = _offscreen ? window.innerHeight * 0.32 : _rawY;
     const _ov = document.getElementById('scan-overlay');
     _ov.style.left = _sx + 'px';
     _ov.style.top  = (_sy - 90) + 'px';
@@ -1556,6 +1561,9 @@ function animate(ts) {
     const targetAngle = paddleAngleForSlot(ct.slotZ);
     const paddleT = Math.min(1, easeOut(ot * 2));
     paddlePivot.rotation.z = THREE.MathUtils.lerp(0, targetAngle, paddleT);
+    // Gate glows bright orange while routing (emissive scales with deflection magnitude)
+    const gateGlow = Math.abs(targetAngle) * 1.8 + 0.6;
+    paddleMat.emissiveIntensity = gateGlow;
     scanFlash.intensity = 0;
     scanBloom.intensity = 0;
     scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
