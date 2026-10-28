@@ -3294,7 +3294,8 @@ function animate(ts) {
         // Pass 367: shake boost 0.45 → 1.5 for more prominent scanner lock-on feel
         _cameraShake = Math.max(_cameraShake, 1.5);
         // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° at identity lock-on
-        _fovBump = Math.max(_fovBump, 3.5);
+        // Pass 538: FOV reveal zoom-punch 3.5°→5.5° for bigger camera snap at lock-on
+        _fovBump = Math.max(_fovBump, 5.5);
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm,
         // then decays back to scan-blue over 0.35s.
         // Pass 271: LED intensity spike at reveal — hard flash at lock-on moment
@@ -4855,8 +4856,9 @@ function animate(ts) {
   }
 
   // Pass 100: confirm ring expands from scanner center at identity reveal
+  // Pass 543: first confirm ring expansion speed 1.8→2.4 for snappier scan-lock ring
   if (_confirmRingT >= 0) {
-    _confirmRingT = Math.min(1, _confirmRingT + dt * 1.8); // ~0.55s expansion
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 2.4); // Pass 543: ~0.42s expansion (snappier)
     // Pass 280: easeOut scale — Pass 445: boost 8.0→10.0 (scale 1→11, bigger ring)
     const _crs = 1.0 + easeOut(_confirmRingT) * 10.0;
     confirmRing.scale.setScalar(_crs);
@@ -4906,7 +4908,8 @@ function animate(ts) {
     const _hBase = 0.3 + _depthRatio * 0.35; // 0.3 (empty) → 0.65 (full)
     if (pickOn) {
       hopperLight.color.setHex(ct.hex);
-      const _hTarget = _hBase + 1.55; // Pass 358: pick intensity boost 1.1 → 1.55
+      // Pass 541: hopper pick intensity boost 1.55→2.10 for brighter domain light during arm cycle
+      const _hTarget = _hBase + 2.10; // Pass 541: pick intensity boost 1.55 → 2.10
       hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 4);
       // Pass 359: Y-track during armDescend — light follows arm down toward card stack
       const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 25 : 0;
@@ -5076,8 +5079,9 @@ function animate(ts) {
   const _scanFill519 = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.18 : 0;
   // Pass 99: decay boost (set at 85% identity reveal), adds scene-wide domain color wash
   if (_domainFillBoost > 0.005) {
-    _domainFillBoost = Math.max(0, _domainFillBoost - dt * 2.2); // ~0.25s decay
-    _domainFillLight.intensity = Math.min(0.90, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 440: max 0.70→0.90
+    // Pass 542: reveal fill boost decay 2.2→1.6 (longer wash ~0.35s) + max cap 0.90→1.10
+    _domainFillBoost = Math.max(0, _domainFillBoost - dt * 1.6); // ~0.35s decay
+    _domainFillLight.intensity = Math.min(1.10, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 542: max 0.90→1.10
   } else {
     _domainFillLight.intensity += (_fillTgt + _deflectFill498 + _scanFill519 - _domainFillLight.intensity) * dt * 1.8;
   }
@@ -5234,8 +5238,8 @@ function animate(ts) {
     const phaseOff = ki * 0.9 + (slotKey.charCodeAt(0) * 0.3 + slotKey.charCodeAt(2) * 0.4);
     // Pass 188: fix tray card breathe — was ts*0.00055 (~3.2h period = stationary).
     // Fixed to 0.3Hz per slot, each slot phase-offset so cards breathe independently.
-    // Pass 493: breathe amplitude boost 0.08→0.14 for more life in sorted cards at rest
-    const _breathe = 0.22 + 0.14 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5);
+    // Pass 493: breathe amplitude boost 0.08→0.14 — Pass 544: 0.14→0.20 for more tray card life
+    const _breathe = 0.22 + 0.20 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5);
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
@@ -5250,12 +5254,14 @@ function animate(ts) {
 
   // Pass 67: clear color tints faintly toward domain during scan; brief warm flash on celebration
   {
-    const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.055 : 0;
+    // Pass 540: scan background boost 0.055→0.080 for more atmospheric scan domain tint
+    const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.080 : 0;
     const _celebBoost = _cameraShake > 3 ? Math.min(0.08, _cameraShake * 0.012) : 0;
     // Pass 152: brief domain tint on slotDrop — card joins the tray, background echoes domain
     const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.028 : 0;
     // Pass 328: reveal background flash — brief domain flood at identity lock-on moment
-    const _revealTintBoost328 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 20) * 0.09 : 0;
+    // Pass 539: reveal flood 0.09→0.14 for bigger background domain surge at lock-on
+    const _revealTintBoost328 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 20) * 0.14 : 0;
     // Pass 329: deflect background tint — background echoes domain as card arcs through air
     const _deflectTintBoost329 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.022 : 0;
     // Pass 330: armSwing background echo — brief tint at arc midpoint as card swings closest
