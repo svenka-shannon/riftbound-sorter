@@ -3689,7 +3689,8 @@ function animate(ts) {
         activeCard.position.z + (Math.random()-0.5)*4
       );
       tp.mat.color.setHex(ct.hex);
-      tp.mat.opacity = 0.28 + Math.random() * 0.12;
+      // Pass 475: final-approach trail opacity boost — denser AND brighter contrail in last 35%
+      tp.mat.opacity = ot > 0.65 ? 0.42 + Math.random() * 0.20 : 0.28 + Math.random() * 0.12;
       tp.age = 0; tp.life = 0.22 + Math.random() * 0.10;
       tp.active = true; tp.mesh.visible = true;
     }
@@ -4486,7 +4487,8 @@ function animate(ts) {
     const _belFrac = (_beltShimmerX + 140) / 200; // 0=left edge, 1=right edge
     const _edgeFade = Math.sin(_belFrac * Math.PI); // 0→1→0
     beltShimmerMat.color.set(beltSurfMat.emissive); // tint to belt emissive (domain color)
-    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 0.38;
+    // Pass 472: shimmer opacity boost 0.38→0.50 for stronger belt surface shimmer at full speed
+    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 0.50;
   } else {
     beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 4);
     if (beltShimmerMat.opacity < 0.01) beltShimmerMesh.visible = false;
@@ -4591,7 +4593,8 @@ function animate(ts) {
       : inPhase(PH.scan)
       // Pass 194: scan camera lean — lookAt dips toward belt at scan midpoint for drama.
       // y goes 60 → 42 (peak at ft=0.5) → 60, making camera appear to "peer in" at the scan.
-      ? { x: -40, y: 60 - 18 * Math.sin(phaseRaw(PH.scan) * Math.PI) }
+      // Pass 473: reveal camera dip — extra 5-unit dip at identity lock-on for dramatic focus.
+      ? { x: -40, y: 60 - 18 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 5 : 0) }
       : inPhase(PH.conveyorOut)
       ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
       : inPhase(PH.deflect)
@@ -5029,8 +5032,13 @@ function animate(ts) {
     // Context: scan and deflect get a stronger tint boost
     const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.12 : 0;
     const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.07 : 0;
+    // Pass 474: reject alarm fog — when slot-7 card is in slotDrop alarm state, background deepens
+    // toward red-orange for a brief warning atmosphere (0.12 → 0 over 0.6s after alarm fires).
+    const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
+      ? Math.max(0, 0.14 - phaseRaw(PH.slotDrop) * 0.22) : 0;
+    const _rejectFogRGB = new THREE.Color(0xff3300);
     const _tintStr = 0.045 + _scanBoost + _deflectBoost;
-    const targetTint = baseFog.clone().lerp(domainRGB, _tintStr);
+    const targetTint = baseFog.clone().lerp(domainRGB, _tintStr).lerp(_rejectFogRGB, _rejectFogBoost);
     _fogTint.lerp(targetTint, Math.min(1, dt * 0.85));
     scene.fog.color.copy(_fogTint);
     scene.background.copy(_fogTint);
@@ -5050,7 +5058,8 @@ function animate(ts) {
     if (_edgeRvl > 0.05) activeCardEdgeMat.color.lerp(new THREE.Color(0xffffff), _edgeRvl);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
-    const edgeTarget = edgeFull ? 0.85 : 0.45;
+    // Pass 477: deflect arc edge boost — outline more visible as card arcs through air (0.45→0.65)
+    const edgeTarget = edgeFull ? 0.85 : inPhase(PH.deflect) ? 0.65 : 0.45;
     activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
