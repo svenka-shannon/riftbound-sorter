@@ -2475,6 +2475,11 @@ function animate(ts) {
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card
       const _ltLurch = lt < 0.18 ? -0.10 * Math.sin((lt / 0.18) * Math.PI) : 0;
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt) + _ltLurch;
+      // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack
+      if (lt < 0.22) {
+        const _yDip = -2.5 * Math.sin((lt / 0.22) * Math.PI);
+        suctionPivot.position.y = 108 + _yDip;
+      }
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
         const _rb = lt / 0.22; // 0→1 rebound window
