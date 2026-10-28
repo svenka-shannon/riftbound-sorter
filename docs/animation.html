@@ -1859,6 +1859,7 @@ let _slotGateFlashFired = false; // pass 195: true once slot entrance gate-burst
 let _armReturnThunkFired = false; // pass 196: true once arm end-stop micro-shake fires
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
 let _paddleJitterAmt = 0;       // pass 216: solenoid Z-vibration decay amplitude
+let _scanLEDRevealT = -1;       // pass 222: elapsed time since scanner LED domain flash (-1 = inactive)
 let _hoodRevealFlash = 0;       // pass 123: hood strobe at identity reveal (0=idle, t=0..1)
 let _cardRevealBurst = 0;       // pass 125: card face emissive burst at identity reveal
 let _domainFillBoost = 0;      // pass 99: temporary intensity boost at identity reveal
@@ -2250,6 +2251,7 @@ function animate(ts) {
     _slotStreakFired = false;   // pass 142
     _paddleRecoil = 0;          // pass 109
     _paddleJitterAmt = 0;       // pass 216
+    _scanLEDRevealT = -1;       // pass 222
     _hoodRevealFlash = 0;       // pass 123
     _cardRevealBurst = 0;       // pass 125
     _domainFillBoost = 0;       // pass 99
@@ -2920,6 +2922,17 @@ function animate(ts) {
     cardGlow.position.y += 10; // above card for top-face highlight
     // Scanner LED pulses brightly during scan
     scanLEDMat.emissiveIntensity = 2.0 + flashIntensity * 3.0;
+    // Pass 222: scanner LED domain flash — at identity reveal, LED color switches to domain
+    // then decays back to scan-blue over 0.35s. Visually anchors "locked on" to the LED strip.
+    if (_scanLEDRevealT >= 0) {
+      _scanLEDRevealT += dt;
+      const _ledBlend = Math.min(1, _scanLEDRevealT / 0.35);
+      scanLEDMat.color.lerpColors(new THREE.Color(ct.hex), new THREE.Color(0x00aaff), _ledBlend);
+      scanLEDMat.emissive.lerpColors(new THREE.Color(ct.hex), new THREE.Color(0x0055cc), _ledBlend);
+    } else {
+      scanLEDMat.color.setHex(0x00aaff);
+      scanLEDMat.emissive.setHex(0x0055cc);
+    }
     // Pass 74: scanner hood deep pulse — domain color tint at scan peak
     hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 2 + flashIntensity * 0.8));
     // Pass 123: hood reveal strobe — advance and apply rapid 3-pulse flash at identity confirm
@@ -3077,6 +3090,9 @@ function animate(ts) {
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
         _cameraShake = Math.max(_cameraShake, 0.45);
+        // Pass 222: scanner LED domain flash — LED switches to domain color at confirm,
+        // then decays back to scan-blue over 0.35s.
+        _scanLEDRevealT = 0;
       }
       // Pass 113: scan bar color blends white→domain over 0.65→0.85 for gradual reveal
       // Below 0.65: pure white; 0.65-0.85: interpolate; above 0.85: full domain
@@ -4067,8 +4083,12 @@ function animate(ts) {
     // Phase-aware lookAt: gently drift target toward the active machine area
     // Belt phases track card X position for smooth card-following
     const cardX = activeCard.visible ? activeCard.position.x : -30;
-    const _tgt = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing)
+    // Pass 220: armSwing camera arc follow — during swing, camera target drifts from
+    // hopper area (HOPPER_X+80) to belt entry (-80) as the arm sweeps across.
+    const _tgt = inPhase(PH.armDescend) || inPhase(PH.armLift)
       ? { x: HOPPER_X + 80, y: 60 }
+      : inPhase(PH.armSwing)
+      ? { x: THREE.MathUtils.lerp(HOPPER_X + 80, -80, phaseRaw(PH.armSwing)), y: 60 }
       : inPhase(PH.conveyorIn)
       ? { x: cardX - 10, y: 50 }  // follow card along belt during entry
       : inPhase(PH.scan)
@@ -4085,8 +4105,12 @@ function animate(ts) {
     controls._camTgt.x += (_tgt.x - controls._camTgt.x) * 0.018; // slightly faster drift
     controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.018;
     // Pass 138: Z lead — camera subluminally pre-pans toward destination column post-reveal
+    // Pass 221: stronger Z pre-roll in last 20% of conveyorOut — card commits to its lane,
+    // camera follows more eagerly (ramps from 0.25 → 0.65 of slotZ in the final stretch).
+    const _coRaw = inPhase(PH.conveyorOut) ? phaseRaw(PH.conveyorOut) : 0;
+    const _coZBoost = inPhase(PH.conveyorOut) ? 0.40 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0;
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
-      ? ct.slotZ * 0.25 : 0;
+      ? ct.slotZ * (0.25 + _coZBoost) : 0;
     if (!controls._camTgtZ) controls._camTgtZ = 0;
     controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.016;
     controls.target.set(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
