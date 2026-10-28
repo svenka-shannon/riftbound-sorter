@@ -1687,19 +1687,36 @@ function fireCelebration() {
   CELEB_PARTICLES.forEach((p, pi) => {
     const domCt = CARD_TYPES[pi % CARD_TYPES.length];
     const angle = (pi / CELEB_COUNT) * Math.PI * 2;
-    const spd = 28 + Math.random() * 40;
+    const spd = 40 + Math.random() * 60; // pass 54: faster burst (was 28+40)
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
     p.vx = Math.cos(angle) * spd * 0.75;
-    p.vy = spd * (0.5 + Math.random() * 0.5);
+    p.vy = spd * (0.6 + Math.random() * 0.6); // more upward bias
     p.vz = Math.sin(angle) * spd * 0.65;
     p.mesh.position.set(TX_MID, floorY, domCt.slotZ * 0.4);
     p.mat.color.setHex(domCt.hex);
-    p.mat.opacity = 0.9;
+    p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
-    p.life = 0.9 + Math.random() * 0.7;
+    p.life = 1.1 + Math.random() * 0.9; // longer life
     p.active = true;
     p.mesh.visible = true;
   });
+  // Pass 54: full-scene celebration enhancement
+  // White screen flash to punctuate the round-complete moment
+  const flashEl = document.getElementById('scan-flash-overlay');
+  if (flashEl) {
+    flashEl.style.background = '#ffffff';
+    flashEl.classList.remove('scan-flash-on');
+    void flashEl.offsetWidth;
+    flashEl.classList.add('scan-flash-on');
+  }
+  // Camera shake: big celebratory jolt
+  _cameraShake = Math.max(_cameraShake, 5.5);
+  // Spawn a bright white point light burst at tray center
+  const _cfl = new THREE.PointLight(0xffffff, 8.0, 220);
+  _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
+  scene.add(_cfl);
+  if (!window._flashLights) window._flashLights = [];
+  window._flashLights.push({ light: _cfl, age: 0 });
 }
 
 // Domain atmosphere: slowly tint background/fog toward current domain color
