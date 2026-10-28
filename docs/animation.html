@@ -2306,7 +2306,9 @@ function animate(ts) {
       vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt);
+      // Pass 77: lift lurch — brief downward strain as cup breaks suction on card
+      const _ltLurch = lt < 0.18 ? -0.10 * Math.sin((lt / 0.18) * Math.PI) : 0;
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt) + _ltLurch;
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
