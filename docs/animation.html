@@ -2722,8 +2722,10 @@ function animate(ts) {
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 4);
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
       // Reuses the TRAIL_PARTICLES pool (armSwing and deflect phases don't overlap).
+      // Pass 256: spawn density ramp — faster particles at midswing when arm moves fastest
+      const _swingInt = 0.030 + 0.040 * (1 - Math.sin(st * Math.PI)); // 30ms mid → 70ms ends
       _trailSpawnAcc += dt;
-      if (_trailSpawnAcc >= 0.05) {
+      if (_trailSpawnAcc >= _swingInt) {
         _trailSpawnAcc = 0;
         const _aRot = suctionPivot.rotation.z;
         const _aCupX = PIV_X + 83 * Math.sin(_aRot);
@@ -2930,6 +2932,8 @@ function animate(ts) {
     const flashIntensity = Math.sin(ft * Math.PI);
     scanFlash.intensity = flashIntensity * 5; // brighter scan flash
     scanFlash.position.set(-40, CONV_Y_TOP + 10, 0);
+    // Pass 257: scanFlash domain color snap — scan light shifts to domain color at identity reveal
+    scanFlash.color.setHex(_identityRevealed ? ct.hex : 0xffffff);
     // Pass 176: pre-reveal emissive tint — scanner blue before 85%, blends to domain after
     // Overrides the global ct.hex emissive so card "glows unknown" until identity confirmed
     {
@@ -4262,8 +4266,11 @@ function animate(ts) {
       ? { x: -40, y: 60 - 18 * Math.sin(phaseRaw(PH.scan) * Math.PI) }
       : inPhase(PH.conveyorOut)
       ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
-      : inPhase(PH.slotDrop) || inPhase(PH.deflect)
+      : inPhase(PH.deflect)
       ? { x: TX_MID, y: 60 }
+      // Pass 258: slotDrop camera floor-0 pan — camera dips for floor-0 fall, stays up for floor-1 guide
+      : inPhase(PH.slotDrop)
+      ? { x: TX_MID, y: ct.floor === 0 ? 48 : 60 }
       : { x: -30, y: 30 }; // default: machine center
 
     if(!controls._camTgt) controls._camTgt = { x: -30, y: 30 };
