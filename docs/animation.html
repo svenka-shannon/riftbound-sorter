@@ -2695,7 +2695,7 @@ function animate(ts) {
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
-        const grabLight = new THREE.PointLight(ct.hex, 4.0, 60);
+        const grabLight = new THREE.PointLight(ct.hex, 6.0, 80); // Pass 424: 4.0→6.0, dist 60→80
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -2718,7 +2718,7 @@ function animate(ts) {
         grabRing.visible = true;
         GRAB_PARTICLES.forEach((p, _gi) => {
           const angle = Math.random() * Math.PI * 2;
-          const spd = 18 + Math.random() * 28;
+          const spd = 18 + Math.random() * 40; // Pass 425: speed range boost 28→40
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.15;
           p.vx = Math.cos(angle) * spd * 0.55;
@@ -2737,7 +2737,7 @@ function animate(ts) {
             _pc = (Math.max(0, _r - 60) << 16) | (Math.max(0, _g - 60) << 8) | Math.max(0, _b - 60);
           }
           p.mat.color.setHex(_pc);
-          p.mat.opacity = 0.6 + Math.random() * 0.35;
+          p.mat.opacity = 0.75 + Math.random() * 0.25; // Pass 426: brighter grab particles
           p.age = 0;
           p.life = 0.36 + Math.random() * 0.28;
           p.active = true;
