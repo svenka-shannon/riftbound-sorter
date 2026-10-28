@@ -782,6 +782,18 @@ beltSurf.castShadow = true;
 beltSurf.receiveShadow = true;
 scene.add(beltSurf);
 
+// Pass 70: belt shimmer stripe — thin plane sweeps right with belt motion
+const beltShimmerMat = new THREE.MeshBasicMaterial({
+  color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide,
+});
+const beltShimmerMesh = new THREE.Mesh(
+  new THREE.BoxGeometry(10, 1, 78),
+  beltShimmerMat
+);
+beltShimmerMesh.position.set(-140, CONV_Y_TOP + 2.6, 0);
+beltShimmerMesh.visible = false;
+scene.add(beltShimmerMesh);
+
 // Belt legs
 for(let lx of [-140, -40, 60]) {
   const leg = makeBox(8, CONV_Y_TOP - 12, 8, 0x606068);
@@ -1734,6 +1746,7 @@ let _beltIdlePhase = 0;        // pass 44: 0..1 drives idle shimmer sweep along 
 const _ledCooloff = new Float32Array(8); // pass 52: per-slot LED afterglow timer (seconds)
 let _scanExhaustAcc = 0;       // pass 50: time accumulator for scanner heat exhaust particles
 let _beltScrollSpeed = 0;      // pass 53: smooth belt speed (lerps toward target, avoids jumps)
+let _beltShimmerX = -140;      // pass 70: X position of shimmer stripe along belt
 const _beltDomainRGB  = new THREE.Color(0x8888a0); // reused for belt domain tint
 const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 
@@ -2983,6 +2996,22 @@ function animate(ts) {
       // negative = counterclockwise from +Z = top surface moves right (+X = card travel direction)
       r.rotation.z -= dt * rollerRate;
     });
+  }
+
+  // Pass 70: belt shimmer stripe sweeps left→right while belt moves
+  if (!paused && _beltScrollSpeed > 0.005) {
+    _beltShimmerX += dt * _beltScrollSpeed * 2800 * speedMult;
+    if (_beltShimmerX > 68) _beltShimmerX = -148; // wrap: just past right roller → just before left
+    beltShimmerMesh.visible = true;
+    beltShimmerMesh.position.x = _beltShimmerX;
+    // Fade near edges, peak in middle; scale with belt speed
+    const _belFrac = (_beltShimmerX + 140) / 200; // 0=left edge, 1=right edge
+    const _edgeFade = Math.sin(_belFrac * Math.PI); // 0→1→0
+    beltShimmerMat.color.set(beltSurfMat.emissive); // tint to belt emissive (domain color)
+    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 0.38;
+  } else {
+    beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 4);
+    if (beltShimmerMat.opacity < 0.01) beltShimmerMesh.visible = false;
   }
 
   // ── Dust particle update ──
