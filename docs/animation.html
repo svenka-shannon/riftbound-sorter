@@ -4630,7 +4630,7 @@ function animate(ts) {
     // Pass 280: easeOut scale for faster initial punch, slower fade — more impactful
     const _crs = 1.0 + easeOut(_confirmRingT) * 8.0; // easeOut scale 1 → 9.0 (was linear *5.5)
     confirmRing.scale.setScalar(_crs);
-    confirmRingMat.opacity = (1 - _confirmRingT) * 0.75;
+    confirmRingMat.opacity = (1 - _confirmRingT) * 0.90; // Pass 336: opacity boost 0.75 → 0.90
     if (_confirmRingT >= 1) {
       _confirmRingT = -1;
       confirmRing.visible = false;
@@ -4642,7 +4642,7 @@ function animate(ts) {
     _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 2.2); // ~0.45s expansion (faster)
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
-      const _crs2 = 0.6 + _confirmRingT2 * 4.2; // scale 0.6 → 4.8
+      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 4.8; // Pass 334: easeOut scale 0.6 → 5.4 (was linear *4.2)
       confirmRing2.scale.setScalar(_crs2);
       confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 0.55);
       if (_confirmRingT2 >= 1) {
@@ -4656,7 +4656,7 @@ function animate(ts) {
   // Pass 110: grab contact ring — fast expanding ring at suction cup contact moment
   if (_grabRingT >= 0) {
     _grabRingT = Math.min(1, _grabRingT + dt * 3.5); // ~0.28s expansion (fast mechanical snap)
-    const _grs = 1.0 + _grabRingT * 3.5; // scale 1 → 4.5
+    const _grs = 1.0 + easeOut(_grabRingT) * 5.0; // Pass 335: easeOut scale 1 → 6.0 (was linear *3.5)
     grabRing.scale.setScalar(_grs);
     grabRingMat.opacity = (1 - _grabRingT) * 0.6;
     if (_grabRingT >= 1) {
