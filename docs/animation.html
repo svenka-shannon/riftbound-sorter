@@ -4057,16 +4057,16 @@ function animate(ts) {
         void _ral.offsetWidth; // force reflow
         _ral.classList.add('reject-alarm-on');
       }
-      // Two warning point lights: amber + red at reject slot position
-      [[0xff6600, 5.5, 80], [0xff1a00, 3.5, 60]].forEach(([c, i, d], fi) => {
+      // Two warning point lights — Pass 451: amber 5.5,80→8.5,110; red unchanged
+      [[0xff6600, 8.5, 110], [0xff1a00, 3.5, 60]].forEach(([c, i, d], fi) => {
         const _wl = new THREE.PointLight(c, i, d);
         _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 8 : -8));
         scene.add(_wl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _wl, age: 0 });
       });
-      // Extra camera shake for "rejected" emphasis
-      _cameraShake = Math.max(_cameraShake, 2.2);
+      // Extra camera shake for "rejected" — Pass 452: boost 2.2 → 3.5 (harder rejection)
+      _cameraShake = Math.max(_cameraShake, 3.5);
       // Pass 65: reject spark fountain — upward burst of red/orange trail particles
       for (let _ri = 0; _ri < 14; _ri++) {
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
@@ -4078,7 +4078,7 @@ function animate(ts) {
         );
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
-        tp.mat.opacity = 0.7 + Math.random() * 0.25;
+        tp.mat.opacity = 0.82 + Math.random() * 0.18; // Pass 453: reject spark opacity boost
         tp.age = 0; tp.life = 0.45 + Math.random() * 0.3;
         tp.active = true; tp.mesh.visible = true;
       }
