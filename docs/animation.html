@@ -1416,6 +1416,17 @@ const cardGlow = new THREE.PointLight(0xffffff, 0, 200);
 cardGlow.decay = 2;
 scene.add(cardGlow);
 
+// ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
+// Narrow bright band swept across the card face during scan — simulates specular
+// reflection of the scanner beam reading the card surface (X=fullwidth, thin Z=7).
+const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 0.9, 7);
+const cardShimmerMat = new THREE.MeshBasicMaterial({
+  color: 0xffffff, transparent: true, opacity: 0, depthWrite: false,
+});
+const cardShimmerMesh = new THREE.Mesh(cardShimmerGeo, cardShimmerMat);
+cardShimmerMesh.visible = false;
+scene.add(cardShimmerMesh);
+
 // ─── Routing arc: scanner → target slot ──────────────────────────────────────
 // Quadratic bezier arc drawn during scan phase — makes routing decision unmistakable
 const ROUTE_SEGS = 28;
@@ -2457,6 +2468,7 @@ function animate(ts) {
     scanBloom.intensity = 0;
     scanTargetLight.intensity = 0;
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = 0;
     scanBeamMat.opacity = 0;
@@ -2496,6 +2508,7 @@ function animate(ts) {
     // Belt scroll target: conveyorIn full speed
     _beltScrollSpeed = 0.08;
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = 0;
     scanBeamMat.opacity = 0;
@@ -2708,6 +2721,23 @@ function animate(ts) {
       routeTargetMat.emissiveIntensity = flashIntensity * 2.0;
       routeTargetMat.opacity = flashIntensity * 0.9;
     }
+    // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
+    // Simulates scanner beam reflecting off card surface; color reveals domain at 85%
+    {
+      const _shimZ = THREE.MathUtils.lerp(-CARD_H / 2 + 3, CARD_H / 2 - 3, ft);
+      cardShimmerMesh.visible = true;
+      cardShimmerMesh.position.set(
+        activeCard.position.x,
+        CONV_Y_TOP + CARD_T + 0.9,
+        _shimZ
+      );
+      // Mirror card face-reveal tilt so shimmer stays flush with card surface
+      cardShimmerMesh.rotation.x = activeCard.rotation.x;
+      // Color: crisp white before ID confirmed, snaps to domain color at 85%
+      cardShimmerMat.color.setHex(ft < 0.85 ? 0xffffff : ct.hex);
+      // Soft bell curve opacity — peaks near scan midpoint, zero at phase boundaries
+      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * 0.52;
+    }
     // World-to-screen projection for scan overlay (clamped to visible area)
     const _sv = activeCard.position.clone().project(camera);
     const _rawX = (_sv.x * 0.5 + 0.5) * window.innerWidth;
@@ -2775,6 +2805,7 @@ function animate(ts) {
     scanBloom.intensity = 0;
     scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 4);
     scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
@@ -3004,6 +3035,7 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = 0;
     scanBeamMat.opacity = 0;
@@ -3039,6 +3071,7 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = 0;
     scanBeamMat.opacity = 0;
