@@ -1735,8 +1735,8 @@ function addCardToTray(ct) {
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s after arrival
   _ledCooloff[ct.slot] = 1.8;
 
-  // Flash point light burst at slot position on card arrival
-  const flashLight = new THREE.PointLight(ct.hex, 3.0, 80);
+  // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
+  const flashLight = new THREE.PointLight(ct.hex, 5.0, 120);
   flashLight.position.copy(mesh.position);
   scene.add(flashLight);
   if(!window._flashLights) window._flashLights = [];
@@ -2440,7 +2440,7 @@ function animate(ts) {
       const afterT = _ledCooloff[_li] / 1.8; // 1.0→0.0 as cooloff expires
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity = 0.9 + afterT * 1.6; // peaks at 2.5 right after arrival
+      mat.emissiveIntensity = 0.9 + afterT * 2.4; // Pass 395: peaks at 3.3 right after arrival (was 2.5)
     } else {
       // Idle: resting domain color, low glow
       mat.color.setHex(slotCt.hex);
@@ -4426,7 +4426,7 @@ function animate(ts) {
     const _memFade = Math.max(0, 1 - _arMemT / 0.30); // 1→0 in first 30%
     if (_memFade > 0.01) {
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (_memFade * 0.22 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8);
+      suctionCupMat.emissiveIntensity += (_memFade * 0.35 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 396: memory boost 0.22 → 0.35
     } else {
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.15;
     }
