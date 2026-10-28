@@ -3381,6 +3381,9 @@ function animate(ts) {
       window._flashLights.push({ light: _cofl, age: 0 });
       // Card blazes bright at scan-confirm moment (overrides the 0.55 set each frame)
       activeCardMat.emissiveIntensity = 1.8;
+      // Pass 261: lens domain persistence — scanner lens briefly spikes domain color at scan→conveyorOut
+      lensMat.emissiveIntensity = 3.5;
+      lensMat.emissive.setHex(ct.hex);
     }
     scanTargetLight.intensity = 0;
     // Pass 60: gate column LEDs light up as card exits scanner (preview destination)
@@ -3437,7 +3440,9 @@ function animate(ts) {
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
     const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 3.8, easeInOut(ot));
-    paddleMat.emissiveIntensity += (_gateChargeTarget - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
+    // Pass 259: gate pre-charge electromagnetic flicker — 6Hz solenoid shudder in last 30%
+    const _gateFlicker = ot > 0.70 ? 0.35 * Math.sin(ts * 6 * Math.PI * 2) * ((ot - 0.70) / 0.30) : 0;
+    paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
     if (ot > 0.45) {
       _trailSpawnAcc += dt;
@@ -3940,6 +3945,21 @@ function animate(ts) {
       if (!_armReturnThunkFired) {
         _armReturnThunkFired = true;
         _cameraShake = Math.max(_cameraShake, 0.28);
+        // Pass 260: cup arrival dust puff — 3 pale particles burst from cup as arm hits stopper
+        const _arRot = suctionPivot.rotation.z;
+        const _arCupX = PIV_X + 83 * Math.sin(_arRot);
+        const _arCupY = PIV_Y - 83 * Math.cos(_arRot);
+        let _dustCount = 0;
+        for (let _di = 0; _di < GRAB_PARTICLES.length && _dustCount < 3; _di++) {
+          const _dp2 = GRAB_PARTICLES[_di];
+          if (_dp2.active) continue;
+          _dp2.active = true; _dp2.age = 0; _dp2.life = 0.22 + Math.random() * 0.12;
+          _dp2.mesh.position.set(_arCupX + (Math.random()-0.5)*6, _arCupY + (Math.random()-0.5)*4, (Math.random()-0.5)*8);
+          _dp2.mesh.visible = true;
+          _dp2.vx = (Math.random()-0.5) * 12; _dp2.vy = 6 + Math.random() * 10; _dp2.vz = (Math.random()-0.5) * 14;
+          _dp2.mat.color.setRGB(0.82, 0.86, 0.90);
+          _dustCount++;
+        }
       }
     }
     // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154), tighter at ×10 vs ×14
