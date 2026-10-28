@@ -4336,14 +4336,16 @@ function animate(ts) {
   if(!controls.enableRotate || !controls._userInteracted) {
     const orbitAngle = ts * 0.00006 + Math.PI * 0.3; // phase offset for 3/4 front view
     // Orbit radius tightens slightly during scan for closer scanner view
-    const orbitRBase = inPhase(PH.scan) ? 600 : 750;
+    // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
+    const orbitRBase = inPhase(PH.scan) ? 600 : inPhase(PH.armSwing) ? 680 : 750;
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.02; // smooth zoom
     const orbitR = controls._orbitR;
     camera.position.x = orbitR * 0.45 * Math.cos(orbitAngle) - 30;
     camera.position.z = orbitR * Math.sin(orbitAngle);
     // Slight vertical bob for cinematic feel; lower elevation during scan to see belt better
-    const yTarget = inPhase(PH.scan) ? 260 : 320;
+    // Pass 295: armLift camera Y dip — lower target during pickup for better card-peel view
+    const yTarget = inPhase(PH.scan) ? 260 : inPhase(PH.armLift) ? 290 : 320;
     if(!controls._camY) controls._camY = yTarget;
     controls._camY += (yTarget - controls._camY) * 0.02;
     // Pass 185: fix camera Y bob — was ts*0.00008 (~21h period = invisible).
@@ -4382,8 +4384,10 @@ function animate(ts) {
     // camera follows more eagerly (ramps from 0.25 → 0.65 of slotZ in the final stretch).
     const _coRaw = inPhase(PH.conveyorOut) ? phaseRaw(PH.conveyorOut) : 0;
     const _coZBoost = inPhase(PH.conveyorOut) ? 0.40 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0;
+    // Pass 297: slotDrop Z camera lead boost — camera leans further into destination column as card falls
+    const _sdZBoost = inPhase(PH.slotDrop) ? 0.20 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0;
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
-      ? ct.slotZ * (0.25 + _coZBoost) : 0;
+      ? ct.slotZ * (0.25 + _coZBoost + _sdZBoost) : 0;
     if (!controls._camTgtZ) controls._camTgtZ = 0;
     controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.016;
     controls.target.set(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
