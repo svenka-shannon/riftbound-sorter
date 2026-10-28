@@ -3235,7 +3235,14 @@ function animate(ts) {
     const bankSign = Math.sign(ct.slotZ || 0);
     const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
     activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.5 * bankSign, dt2);
-    activeCard.rotation.x = THREE.MathUtils.lerp(0, floorTilt, dt2);
+    // Pass 159: smooth conveyorOut exit lean (-0.18) → floorTilt + brief nose-up launch kick
+    // Eliminates the snap at the conveyorOut/deflect rotation.x boundary
+    {
+      const _defEntryT = Math.min(1, dt2 / 0.14);
+      const _normTilt = THREE.MathUtils.lerp(0, floorTilt, dt2);
+      const _launchKick = 0.28 * Math.exp(-dt2 * 13) * (1 - _defEntryT);
+      activeCard.rotation.x = THREE.MathUtils.lerp(-0.18, _normTilt, easeOut(_defEntryT)) + _launchKick;
+    }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
     const _tumblePeak = bankSign * 0.65; // center-slot (bankSign=0) gets no roll
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI);
