@@ -1595,6 +1595,14 @@ const _domainFillLight = new THREE.PointLight(0xffffff, 0.14, 700);
 _domainFillLight.position.set(-30, 280, 0); // centered above the belt, high up
 scene.add(_domainFillLight);
 
+// ─── Pass 37: Belt card tracking light ─────────────────────────────────────
+// Domain-colored point light that follows the card along the belt surface
+// during conveyorIn and conveyorOut phases, casting a moving pool of color
+// on the belt texture beneath the card. Fades to zero outside belt phases.
+const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 95);
+_beltTrackLight.position.set(-40, CONV_Y_TOP + 6, 0);
+scene.add(_beltTrackLight);
+
 // ─── Pass 35: Deflect arc contrail particle pool ────────────────────────────
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
@@ -2206,6 +2214,11 @@ function animate(ts) {
       0
     );
     scanLine2.material.opacity = flashIntensity * 0.65;
+    // Pass 38: tint scan crosshairs to domain color so the scanner "identifies" the card visually
+    scanLineMat.color.setHex(ct.hex);
+    scanLineMat.emissive.setHex(ct.hex);
+    scanLineMat2.color.setHex(ct.hex);
+    scanLineMat2.emissive.setHex(ct.hex);
     // Scan grid dots: 3×3 points appear staggered across card face with flash
     {
       const dotColor = ct.hex;
@@ -2417,6 +2430,8 @@ function animate(ts) {
       impactRingMat.color.setHex(ct.hex);
       impactRing.scale.setScalar(1);
       impactRing.visible = true;
+      // Pass 38: brief camera "thud" shake on hard floor landing
+      _cameraShake = Math.max(_cameraShake, 1.4);
     }
     cardGlow.position.copy(activeCard.position);
     beltTex.offset.x -= dt * speedMult * 0.04;
@@ -2667,6 +2682,20 @@ function animate(ts) {
       _impactRingT = -1;
       impactRing.visible = false;
       impactRingMat.opacity = 0;
+    }
+  }
+
+  // ── Pass 37: Belt card tracking light ───────────────────────────────────────
+  // Follows card X position on belt during conveyorIn/Out; fades otherwise.
+  {
+    const onBelt = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
+    if (onBelt && activeCard.visible) {
+      _beltTrackLight.color.setHex(ct.hex);
+      _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 6, 0);
+      _beltTrackLight.intensity += (2.2 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
+    } else {
+      _beltTrackLight.intensity *= 1 - dt * 3;
+      if (_beltTrackLight.intensity < 0.04) _beltTrackLight.intensity = 0;
     }
   }
 
