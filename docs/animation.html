@@ -2286,6 +2286,9 @@ function animate(ts) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 1.23;
           mesh.material.emissiveIntensity = 0.12 + 0.09 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
+          // Pass 134: micro Z-axis sway — cards rock very gently in their slots
+          const _swayPhase = _globalCardIdx * 1.83;
+          mesh.rotation.z = 0.007 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
         }
         _globalCardIdx++;
       });
