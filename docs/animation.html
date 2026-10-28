@@ -2829,8 +2829,9 @@ function animate(ts) {
         // holds their domain color for the first 40% of life before bleaching.
         tp._birthHex = ct.hex;
         // Pass 482: Z-apex trail opacity boost — brightest at arc midpoint (closest to viewer)
+        // Pass 641: trail opacity base 0.55→0.72; apex boost 0.30→0.45 for more visible arc trail
         const _swT482 = phaseRaw(PH.armSwing);
-        tp.mat.opacity = 0.55 + 0.30 * Math.sin(_swT482 * Math.PI);
+        tp.mat.opacity = 0.72 + 0.45 * Math.sin(_swT482 * Math.PI);
         tp.age = 0;
         tp.life = 0.45 + Math.random() * 0.15;
         tp.active = true;
@@ -2967,13 +2968,14 @@ function animate(ts) {
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
     // Pass 155: settle bounce — decaying oscillation as card slaps onto belt at entry
     const _settleY = 3.0 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
-    // Pass 173: belt lateral wobble — ±1.2 unit Z, fades in (0→5%) and out (90→100%)
+    // Pass 173: belt lateral wobble — fades in (0→5%) and out (90→100%)
+    // Pass 637: Z wobble 1.2→1.7 + add secondary 6.3Hz wobble for dual-frequency belt weave
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
-    const _beltWobbleZ = 1.2 * Math.sin(ts * 4.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
+    const _beltWobbleZ = (1.7 * Math.sin(ts * 4.7 * Math.PI * 2) + 0.45 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut;
     // Pass 254: belt Y micro-bump — ±0.15 unit high-freq vertical bounce from belt surface texture
-    // Pass 483: frequency upgrade 14Hz → 22Hz for more realistic textured-belt feel
-    const _beltYBump = 0.15 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
+    // Pass 483: frequency upgrade 14Hz → 22Hz — Pass 638: amplitude 0.15→0.22 for more tactile belt feel
+    const _beltYBump = 0.22 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
@@ -3680,8 +3682,9 @@ function animate(ts) {
     const _exitBlendT = Math.min(1, ot / 0.12);
     const _exitLean = THREE.MathUtils.lerp(0, -0.18, easeOut(_exitBlendT));
     // Pass 232: belt acceleration pitch kick — belt surges from scan crawl (0.02) to full
-    // speed at conveyorOut start, briefly pitching card nose-up (+0.06 rad) by inertia.
-    const _beltKickPitch = Math.exp(-ot * 22) * 0.06;
+    // speed at conveyorOut start, briefly pitching card nose-up by inertia.
+    // Pass 640: belt launch pitch kick 0.06→0.10 for stronger card-lurch at scan exit
+    const _beltKickPitch = Math.exp(-ot * 22) * 0.10;
     activeCard.rotation.set(_exitLean + _beltKickPitch, 0, zBank); // forward lean + kick + bank
     // Pass 174: continue belt Z-wobble during conveyorOut — fades in over first 5% and out
     // over last 30% so card arrives stable at gate (no Z snap at scan→out or out→deflect)
@@ -3755,9 +3758,10 @@ function animate(ts) {
     // Pass 129: brief acceleration surge emissive at exit start — belt launches card out
     const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 0.5 : 0;
     activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
-    // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens 1.6→2.2
-    const _coGlowSurge = ot > 0.80 ? 1.6 + (ot - 0.80) / 0.20 * 0.6 : 1.6;
-    cardGlow.intensity = _coGlowSurge; // Pass 405: 1.2→1.6; Pass 463: →2.2 in final approach
+    // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
+    // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
+    const _coGlowSurge = ot > 0.80 ? 2.2 + (ot - 0.80) / 0.20 * 1.2 : 2.2;
+    cardGlow.intensity = _coGlowSurge; // Pass 639: base 1.6→2.2; surge peak 2.2→3.4
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
     _beltScrollSpeed = 0.08;
@@ -4748,14 +4752,13 @@ function animate(ts) {
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
   }
 
-  // Pass 200: scan camera Z sympathetic oscillation — very subtle ±1.8 unit Z sway matching
-  // the scanner hood's 2.8Hz micro-sway (pass 197). Gives the camera a "feels the vibration"
-  // sensation. Envelope follows sin(phaseRaw*π) so it peaks at scan midpoint.
-  // Pass 570: Z amplitude 1.8→2.8; add 0.6-unit Y component for fuller resonance feel
+  // Pass 200: scan camera Z sympathetic oscillation — hood's 2.8Hz micro-sway felt by camera.
+  // Pass 570: Z amplitude 1.8→2.8; add 0.6-unit Y component for fuller resonance feel.
+  // Pass 642: Z→3.5, Y→0.9; add secondary 4.1Hz hood harmonic (matching pass 607 hood sway)
   if (inPhase(PH.scan) && !controls._userInteracted) {
     const _scanSinEnv = Math.sin(phaseRaw(PH.scan) * Math.PI);
-    camera.position.z += 2.8 * Math.sin(ts * 2.8 * Math.PI * 2) * _scanSinEnv;
-    camera.position.y += 0.6 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv;
+    camera.position.z += (3.5 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.90 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv;
+    camera.position.y += 0.9 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv;
   }
 
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
