@@ -3390,6 +3390,15 @@ function animate(ts) {
     }
   }
 
+  // Pass 97: belt shimmer glint on card — brief emissive boost as stripe passes beneath card
+  // Only active while card is on the belt (conveyorIn / scan / conveyorOut phases)
+  if (activeCard.visible && beltShimmerMesh.visible &&
+      (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))) {
+    const _glintDist = Math.abs(beltShimmerMesh.position.x - activeCard.position.x);
+    const _glint = Math.max(0, 1 - _glintDist / 18) * 0.22;
+    if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
+  }
+
   // ── Hopper top card domain preview ──────────────────────────────────────────
   // During arm pick phases, tint the top stack card in current domain color
   // so the viewer can anticipate which domain is next before card hits the belt
