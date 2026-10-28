@@ -1621,6 +1621,7 @@ let _convOutFlashFired = false; // pass 46: once scanner-exit flash fires at con
 let _rejectAlarmFired = false;  // pass 48: once reject-alarm vignette fires at Reject card landing
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
 let _beltIdlePhase = 0;        // pass 44: 0..1 drives idle shimmer sweep along belt
+let _scanExhaustAcc = 0;       // pass 50: time accumulator for scanner heat exhaust particles
 const _beltDomainRGB  = new THREE.Color(0x8888a0); // reused for belt domain tint
 const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 
@@ -2330,6 +2331,24 @@ function animate(ts) {
         }
       });
     }
+    // Pass 50: scanner heat exhaust — dim rising wisps from hood top during scan
+    // Reuses TRAIL_PARTICLES (idle during scan since no arm-swing/deflect overlap).
+    _scanExhaustAcc += dt;
+    if (_scanExhaustAcc >= 0.14 && flashIntensity > 0.15) {
+      _scanExhaustAcc = 0;
+      const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
+      _trailHead++;
+      // Spawn along the scanner hood top (Y ≈ CONV_Y_TOP+65), spread in Z
+      tp.mesh.position.set(
+        -40 + (Math.random() - 0.5) * 28,
+        CONV_Y_TOP + 65 + Math.random() * 8,
+        (Math.random() - 0.5) * 50
+      );
+      tp.mat.color.set(0xccddff); // cool blue-white heat
+      tp.mat.opacity = 0.18 + Math.random() * 0.15;
+      tp.age = 0; tp.life = 0.55 + Math.random() * 0.4;
+      tp.active = true; tp.mesh.visible = true;
+    }
     // Belt scrolls while card sits under scanner
     beltTex.offset.x -= dt * speedMult * 0.02;
     // Target slot spotlight — illuminates destination tray slot during scan
@@ -2885,9 +2904,11 @@ function animate(ts) {
     }
   }
 
-  // ── Pass 35/47: Contrail particle update ─────────────────────────────────────
+  // ── Pass 35/47/50: Contrail particle update ──────────────────────────────────
   // Reset spawn timer when not in any phase that spawns contrail particles.
   if (!inPhase(PH.deflect) && !inPhase(PH.armSwing) && !inPhase(PH.armReturn)) _trailSpawnAcc = 0;
+  // Reset scanner exhaust accumulator when not scanning
+  if (!inPhase(PH.scan)) _scanExhaustAcc = 0;
   TRAIL_PARTICLES.forEach(tp => {
     if (!tp.active) return;
     tp.age += dt;
