@@ -64,6 +64,34 @@
     text-shadow: 0 0 12px currentColor;
   }
 
+  /* Corner-bracket HUD around scan overlay */
+  #scan-hud {
+    position: absolute;
+    width: 180px; height: 110px;
+    left: 50%; top: -20px;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  #scan-hud::before, #scan-hud::after,
+  #scan-hud .hud-br, #scan-hud .hud-bl {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: var(--hud-c, rgba(255,255,255,0.55));
+    border-style: solid;
+    opacity: 0.7;
+  }
+  #scan-hud::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
+  #scan-hud::after  { top: 0; right: 0; border-width: 2px 2px 0 0; }
+  #scan-hud .hud-bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+  #scan-hud .hud-br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+  @keyframes scanLine { 0%{top:0} 100%{top:100%} }
+  #scan-hud .hud-line {
+    position: absolute; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(80,200,255,0.8), transparent);
+    animation: scanLine 0.6s linear infinite alternate;
+  }
+
   #hint {
     position: fixed; bottom: 20px; right: 20px;
     background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
@@ -204,6 +232,11 @@
 </div>
 
 <div id="scan-overlay">
+  <div id="scan-hud">
+    <div class="hud-bl"></div>
+    <div class="hud-br"></div>
+    <div class="hud-line"></div>
+  </div>
   <div id="scan-type">Champion</div>
   <div id="scan-slot"></div>
 </div>
@@ -1376,6 +1409,9 @@ function showScanOverlay(cardType, visible, routeText) {
   if(visible && cardType) {
     document.getElementById('scan-type').textContent = cardType.name;
     document.getElementById('scan-type').style.color = cardType.css;
+    // HUD bracket color matches domain
+    const hudEl = document.getElementById('scan-hud');
+    if(hudEl) hudEl.style.setProperty('--hud-c', cardType.css);
     const isLower = cardType.floor === 0;
     const floorName = isLower ? 'Lower floor' : 'Upper floor';
     if(routeText) {
@@ -1640,7 +1676,7 @@ function animate(ts) {
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2, 0);
     // Slight forward lean so card face visible from all orbit angles (not just top-down)
-    activeCard.rotation.set(-0.12, 0, 0);
+    activeCard.rotation.set(-0.18, 0, 0);
     scanFlash.intensity = 0;
     scanBloom.intensity = 0;
     activeCardMat.emissiveIntensity = 0.55; // brighter — card must be visible on belt
@@ -1705,7 +1741,7 @@ function animate(ts) {
     // Card banks in Z direction during exit — previews which column it's heading to
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign, ot);
-    activeCard.rotation.set(-0.12, 0, zBank); // forward lean + destination bank
+    activeCard.rotation.set(-0.18, 0, zBank); // forward lean + destination bank
     activeCard.position.set(
       THREE.MathUtils.lerp(-40, GATE_X, ot),
       CONV_Y_TOP + CARD_T/2 + 2, 0
