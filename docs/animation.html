@@ -1053,6 +1053,11 @@ const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
   return { mesh, mat };
 });
 
+// Pass 141: Gate column tracking light — point light that follows the active LED column
+const gateColLight = new THREE.PointLight(0xffffff, 0, 90);
+gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, 0);
+scene.add(gateColLight);
+
 const paddleGeo = new THREE.BoxGeometry(4, 55, 18);
 const paddleMat = new THREE.MeshStandardMaterial({
   color: 0xff6600, roughness: 0.3,
@@ -2690,6 +2695,7 @@ function animate(ts) {
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
+    gateColLight.intensity *= Math.max(0, 1 - dt * 4); // pass 141: fade gate column light on belt entry
     activeCardMat.emissiveIntensity = 0.55; // brighter — card must be visible on belt
     cardGlow.intensity = 1.4;               // stronger glow to track card position
     cardGlow.position.copy(activeCard.position);
@@ -3029,6 +3035,10 @@ function animate(ts) {
       gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
     });
+    // Pass 141: gate column tracking light — colored pool on tray at active LED column
+    gateColLight.color.setHex(ct.hex);
+    gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
+    gateColLight.intensity += (2.5 * ot - gateColLight.intensity) * Math.min(1, dt * 7);
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -3185,6 +3195,10 @@ function animate(ts) {
         gm.emissiveIntensity += (0.15 - gm.emissiveIntensity) * Math.min(1, dt * 5);
       }
     });
+    // Pass 141: keep gate column tracking light on during deflect
+    gateColLight.color.setHex(ct.hex);
+    gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
+    gateColLight.intensity += (3.0 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6);
     _beltScrollSpeed = 0.04; // half speed while card arcs off belt
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
