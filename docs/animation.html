@@ -3362,7 +3362,13 @@ function animate(ts) {
   // Time-based lerp guarantees arm arrives exactly at -0.35 — no single-frame snap
   else if(inPhase(PH.armReturn)) {
     const art = phaseT(PH.armReturn);
-    suctionPivot.rotation.z = THREE.MathUtils.lerp(1.57, -0.35, art);
+    // Pass 132: end-stop bounce — overshoot to -0.41 then spring back to -0.35
+    if (art < 0.82) {
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(1.57, -0.35, art / 0.82);
+    } else {
+      const _osT = (art - 0.82) / 0.18;
+      suctionPivot.rotation.z = -0.35 - 0.06 * Math.sin(_osT * Math.PI);
+    }
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.z += (0 - paddlePivot.rotation.z) * Math.min(1, dt * 4.5);
     // Pass 72: decay paddle back to resting orange glow after charge discharge
