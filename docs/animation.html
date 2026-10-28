@@ -1812,10 +1812,11 @@ const CELEB_PARTICLES = [];
 const CELEB_COUNT = 32;
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _cpMesh = new THREE.Mesh(new THREE.SphereGeometry(3.0, 5, 5), _cpMat);
+  // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
+  const _cpMesh = new THREE.Mesh(new THREE.BoxGeometry(5, 4, 0.8), _cpMat);
   _cpMesh.visible = false;
   scene.add(_cpMesh);
-  CELEB_PARTICLES.push({ mesh: _cpMesh, mat: _cpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 1.2, active: false });
+  CELEB_PARTICLES.push({ mesh: _cpMesh, mat: _cpMat, vx: 0, vy: 0, vz: 0, rx: 0, ry: 0, rz: 0, age: 0, life: 1.2, active: false });
 }
 
 function fireCelebration() {
@@ -1832,6 +1833,10 @@ function fireCelebration() {
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
     p.life = 1.1 + Math.random() * 0.9; // longer life
+    // Pass 84: random angular velocity for tumbling confetti effect
+    p.rx = (Math.random() - 0.5) * 18;
+    p.ry = (Math.random() - 0.5) * 22;
+    p.rz = (Math.random() - 0.5) * 28;
     p.active = true;
     p.mesh.visible = true;
   });
@@ -3417,6 +3422,11 @@ function animate(ts) {
     p.vy -= 28 * dt; // gentle gravity arc
     p.vx *= 1 - dt * 1.2;
     p.vz *= 1 - dt * 1.2;
+    // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
+    p.mesh.rotation.x += p.rx * dt;
+    p.mesh.rotation.y += p.ry * dt;
+    p.mesh.rotation.z += p.rz * dt;
+    p.rx *= 1 - dt * 0.8; p.ry *= 1 - dt * 0.8; p.rz *= 1 - dt * 0.8;
     p.mat.opacity = (1 - _ct2 * _ct2) * 0.88;
   });
 
