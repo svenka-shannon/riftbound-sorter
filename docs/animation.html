@@ -1764,6 +1764,7 @@ let _gateFlashFired = false;   // true once gate contact flash fired in deflect 
 let _depositFired = false;     // true once belt-deposit flash fired at conveyorIn start (pass 39)
 let _convOutFlashFired = false; // pass 46: once scanner-exit flash fires at conveyorOut start
 let _rejectAlarmFired = false;  // pass 48: once reject-alarm vignette fires at Reject card landing
+let _identityRevealed = false;  // pass 93: set when scan reaches 85% confirm threshold
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
 let _shakePhase1 = 0;          // pass 71: harmonic overtone phases for organic shake
 let _shakePhase2 = 0;
@@ -2133,6 +2134,7 @@ function animate(ts) {
     _depositFired = false;    // pass 39
     _convOutFlashFired = false; // pass 46
     _rejectAlarmFired = false;  // pass 48
+    _identityRevealed = false;  // pass 93
 
     // Pass 51: paddle smooth-return in armReturn phase brings it to ~0; cycle reset
     // just snaps to exactly 0 to clear floating-point residue, then restores color.
@@ -2618,6 +2620,8 @@ function animate(ts) {
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
       scanBarMesh.position.x = leftEdge + (SCAN_BAR_MAX_W * barFill) / 2;
+      // Pass 93: mark identity revealed once scan crosses 85% confirm threshold
+      if (barFill >= 0.85 && !_identityRevealed) _identityRevealed = true;
       // Color: white until 85% done, then snap to domain color (ID confirmed)
       if (barFill < 0.85) {
         scanBarMat.color.set(0xffffff);
@@ -3544,7 +3548,8 @@ function animate(ts) {
   if (activeCard.visible) {
     activeCardEdge.position.copy(activeCard.position);
     activeCardEdge.rotation.copy(activeCard.rotation);
-    activeCardEdgeMat.color.setHex(ct.hex);
+    // Pass 93: edge is white/neutral before identity confirmed; snaps to domain color at 85% scan
+    activeCardEdgeMat.color.setHex(_identityRevealed ? ct.hex : 0xffffff);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     const edgeTarget = edgeFull ? 0.85 : 0.45;
