@@ -2770,7 +2770,10 @@ function animate(ts) {
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
     const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 0.8;
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015) * _scanVibScale;
-    activeCard.rotation.set(_revealTilt, 0, _scanVib);
+    // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
+    const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
+    const _yTilt = _identityRevealed ? 0.14 * Math.sin(_yTiltT * Math.PI) : 0;
+    activeCard.rotation.set(_revealTilt, _yTilt, _scanVib);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
     scanFlash.intensity = flashIntensity * 5; // brighter scan flash
