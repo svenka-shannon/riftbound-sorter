@@ -108,6 +108,22 @@
     animation: scanLine 0.6s linear infinite alternate;
   }
 
+  /* Pass 96: scan confirm pop — domain name slides up and fades at 85% identify */
+  #scan-confirm {
+    font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.25em; text-transform: uppercase;
+    color: #ffffff; opacity: 0; pointer-events: none;
+    white-space: nowrap; margin-top: 8px; display: block;
+    text-shadow: 0 0 10px currentColor;
+  }
+  @keyframes scanConfirmPop {
+    0%   { opacity: 0; transform: translateY(6px); }
+    18%  { opacity: 1; transform: translateY(-1px); }
+    45%  { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-4px); }
+  }
+  #scan-confirm.confirm-pop { animation: scanConfirmPop 1.6s ease-out forwards; }
+
   #hint {
     position: fixed; bottom: 20px; right: 20px;
     background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
@@ -342,6 +358,7 @@
   </div>
   <div id="scan-type">Champion</div>
   <div id="scan-slot"></div>
+  <div id="scan-confirm"></div>
 </div>
 
 <div id="hint">Drag to rotate · Scroll to zoom · Right-drag to pan<br>
@@ -2643,8 +2660,19 @@ function animate(ts) {
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
       scanBarMesh.position.x = leftEdge + (SCAN_BAR_MAX_W * barFill) / 2;
-      // Pass 93: mark identity revealed once scan crosses 85% confirm threshold
-      if (barFill >= 0.85 && !_identityRevealed) _identityRevealed = true;
+      // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
+      if (barFill >= 0.85 && !_identityRevealed) {
+        _identityRevealed = true;
+        // Pass 96: domain name "CONFIRMED" text pop below scan overlay
+        const _cfEl = document.getElementById('scan-confirm');
+        if (_cfEl) {
+          _cfEl.textContent = ct.name.toUpperCase() + ' · CONFIRMED';
+          _cfEl.style.color = ct.css;
+          _cfEl.classList.remove('confirm-pop');
+          void _cfEl.offsetWidth; // force CSS reflow
+          _cfEl.classList.add('confirm-pop');
+        }
+      }
       // Color: white until 85% done, then snap to domain color (ID confirmed)
       if (barFill < 0.85) {
         scanBarMat.color.set(0xffffff);
