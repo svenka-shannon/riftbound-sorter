@@ -1941,8 +1941,8 @@ function fireCelebration() {
   CELEB_PARTICLES.forEach((p, pi) => {
     const domCt = CARD_TYPES[pi % CARD_TYPES.length];
     const angle = (pi / CELEB_COUNT) * Math.PI * 2;
-    // Pass 594: confetti burst speed 60+90 — Pass 652: →80+120 — Pass 728: →100+150
-    const spd = 100 + Math.random() * 150; // Pass 728: 80+120 → 100+150
+    // Pass 594: confetti burst speed 60+90 — Pass 652: →80+120 — Pass 728: →100+150 — Pass 755: →125+180
+    const spd = 125 + Math.random() * 180; // Pass 755: 100+150 → 125+180
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
     p.vx = Math.cos(angle) * spd * 0.75;
     // Pass 729: upward bias 0.6+0.6→0.75+0.70 for stronger confetti launch
@@ -3065,8 +3065,8 @@ function animate(ts) {
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's -0.18 belt lean into the reveal bell curve over first 10%
     // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
-    // Pass 659: tilt peak -0.40→-0.52 for more dramatic face-toward-camera presentation during scan
-    const _bellTilt = -0.52 * Math.sin(ft * Math.PI);
+    // Pass 659: tilt peak -0.40→-0.52 — Pass 749: -0.52→-0.64 for even more face-toward-camera during scan
+    const _bellTilt = -0.64 * Math.sin(ft * Math.PI);
     const _blendInT = Math.min(1, ft / 0.10); // 0→1 over first 10% of scan phase
     const _revealTilt = THREE.MathUtils.lerp(-0.18, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
@@ -3074,9 +3074,9 @@ function animate(ts) {
     const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 1.3;
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015) * _scanVibScale;
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
-    // Pass 656: tilt 0.14→0.22 for more dramatic card-edge flash at identity confirm
+    // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 for sharper card-edge flash at identity reveal
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
-    const _yTilt = _identityRevealed ? 0.22 * Math.sin(_yTiltT * Math.PI) : 0;
+    const _yTilt = _identityRevealed ? 0.32 * Math.sin(_yTiltT * Math.PI) : 0;
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
     // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 for sharper scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
@@ -4022,9 +4022,9 @@ function animate(ts) {
         const g = dt3 / 0.88;
         cy = THREE.MathUtils.lerp(startY, targetY, g * g);
       } else {
-        // Small bounce at landing — Pass 496: bounce height 6→9 — Pass 668: →12, damping 0.5→0.38
+        // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 12 * Math.sin(bT * Math.PI) * (1 - bT * 0.38);
+        cy = targetY + 16 * Math.sin(bT * Math.PI) * (1 - bT * 0.32);
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4063,28 +4063,28 @@ function animate(ts) {
     }
     // Pass 456: pre-impact micro-shake ramp — for floor-0, subtle increasing camera tremor
     // from dt3=0.72→0.88 builds tension before the big landing shake at 0.88.
-    // Pass 669: pre-impact shake ramp 0.4+1.0→0.55+1.6 for more dramatic approach tension
+    // Pass 669: pre-impact shake ramp 0.4+1.0→0.55+1.6 — Pass 752: →0.70+2.5 for bigger impact buildup
     if (ct.floor === 0 && dt3 >= 0.72 && dt3 < 0.88) {
       const _preImpactT = (dt3 - 0.72) / 0.16; // 0→1 in approach window
-      _cameraShake = Math.max(_cameraShake, 0.55 + _preImpactT * 1.6);
+      _cameraShake = Math.max(_cameraShake, 0.70 + _preImpactT * 2.5);
     }
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
-    // Pass 670: fall emissive ramp 0.55+(dt3/0.88)*0.45 → 0.45+(dt3/0.88)*0.62 for brighter glow at impact
+    // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 for stronger glow build at impact
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.45 + (dt3 / 0.88) * 0.62; // Pass 670: peaks at ~1.07 just before bounce flash
+      const _fallRamp = 0.35 + (dt3 / 0.88) * 0.88; // Pass 753: peaks at ~1.23 just before bounce flash
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
-    // Pass 252: slotDrop bounce face flash — Pass 391: boost 1.6 → 2.2, decay 14 → 12 (brighter, slightly longer)
-    // Pass 528: bounce flash peak 2.2→3.0, decay 12→10 — Pass 671: peak 3.0→3.8, decay 10→8.5 bigger pop
+    // Pass 252: slotDrop bounce face flash — Pass 391: 1.6→2.2 — Pass 528: →3.0 — Pass 671: →3.8
+    // Pass 751: peak 3.8→5.2, decay 8.5→11 for sharper, bigger landing pop
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 3.8 * Math.exp(-_bFlashT * 8.5));
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 5.2 * Math.exp(-_bFlashT * 11));
     }
-    // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: boost 1.2 → 1.8, decay 30 → 25
+    // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: 1.2→1.8, decay 30→25 — Pass 754: 1.8→3.0, decay 25→22
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
-      ? Math.exp(-(dt3 - 0.88) * 25) * 1.8 : 0;
+      ? Math.exp(-(dt3 - 0.88) * 22) * 3.0 : 0;
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     scanTargetLight.intensity = THREE.MathUtils.lerp(1.8, 0, easeInOut(dt3));
