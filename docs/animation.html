@@ -3563,8 +3563,17 @@ function animate(ts) {
   }
   // Pass 74/80: scanner hood + lens decay to resting after scan ends
   if (!inPhase(PH.scan)) {
-    hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
-    hoodMat.emissiveIntensity += (0.28 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5);
+    // Pass 145: during approach window (last 40% of conveyorIn), hood warms up instead of decaying
+    const _inApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.60;
+    if (_inApproach) {
+      const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
+      hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 3));
+      const _warmTarget = 0.28 + _warmT * 0.48;
+      hoodMat.emissiveIntensity += (_warmTarget - hoodMat.emissiveIntensity) * Math.min(1, dt * 4);
+    } else {
+      hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
+      hoodMat.emissiveIntensity += (0.28 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5);
+    }
     // Pass 80: lens iris closes back to resting size
     lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 4);
     lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 4);
