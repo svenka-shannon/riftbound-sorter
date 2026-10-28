@@ -3311,8 +3311,8 @@ function animate(ts) {
           // Pass 311: scan ping Z drift post-reveal — pings drift toward destination column on confirm
           const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.38 : 0;
           p.mesh.position.z = _pingZ311;
-          // Pass 274: post-reveal ping scale boost — rings expand wider after identity confirm
-          const _pingMaxScale = _identityRevealed ? 8.5 : 5.5;
+          // Pass 274: post-reveal ping scale boost — Pass 400: boost 8.5 → 11.0 (wider confirm rings)
+          const _pingMaxScale = _identityRevealed ? 11.0 : 5.5;
           const s = 1 + localFt * _pingMaxScale;
           p.mesh.scale.setScalar(s);
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
@@ -3348,13 +3348,13 @@ function animate(ts) {
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 320: non-target LEDs fade to 0 post-reveal — spotlight narrows to destination
           const _nonTargetDim = Math.max(0, 0.10 - Math.min(1, (ft - 0.85) / 0.05) * 0.10);
-          const _cTarget = gi === ct.col ? 3.2 : _nonTargetDim;
+          const _cTarget = gi === ct.col ? 4.5 : _nonTargetDim; // Pass 401: target LED emissive 3.2 → 4.5
           gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
           gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 20);
         });
-        // Pass 321: target gate LED scale pop at reveal — LED sphere briefly balloons at lock-on
-        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 0.85 : 1.0;
+        // Pass 321: target gate LED scale pop at reveal — Pass 402: balloon boost 0.85 → 1.30
+        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 1.30 : 1.0;
         GATE_COL_LEDS.forEach(({ mesh: gMesh }, gi) => {
           gMesh.scale.setScalar(gi === ct.col ? _ledRevealScale : 1.0);
         });
