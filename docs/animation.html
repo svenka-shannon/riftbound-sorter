@@ -2251,6 +2251,24 @@ function animate(ts) {
     if(a.t >= 1) trayArrivals.splice(i, 1);
   }
 
+  // Pass 114: settled tray cards gentle breathing glow — all settled cards pulse softly
+  // Only runs every other frame check (using _trayGlowTick) to keep cost minimal
+  {
+    let _globalCardIdx = 0;
+    Object.values(trayCards).forEach(arr => {
+      arr.forEach(mesh => {
+        // Skip cards still in trayArrivals (they have their own glow management)
+        const inFlight = trayArrivals.some(a => a.mesh === mesh);
+        if (!inFlight && mesh.material) {
+          // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
+          const _phase = _globalCardIdx * 1.23;
+          mesh.material.emissiveIntensity = 0.12 + 0.09 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
+        }
+        _globalCardIdx++;
+      });
+    });
+  }
+
   // ── Decay arrival flash lights ──
   if(window._flashLights) {
     window._flashLights = window._flashLights.filter(f => {
