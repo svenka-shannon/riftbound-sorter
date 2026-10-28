@@ -3233,10 +3233,10 @@ function animate(ts) {
           // Pass 211: scan grid dots float — pre-reveal dots oscillate in Y at 3Hz with
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
-          // Pass 365: float amplitude boost 0.5 → 0.75 for more visible hover effect
-          const _dotFloat = _identityRevealed ? 0 : 0.75 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
-          // Pass 292: lock-in X jitter at reveal — Pass 578: amplitude 0.38→0.65 for more visible lock-on jitter
-          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 0.65 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
+          // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 for more dramatic hover effect
+          const _dotFloat = _identityRevealed ? 0 : 1.0 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
+          // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 for more vivid lock-on
+          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 0.90 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
           // Pass 366: post-reveal dots Z drift toward destination slot (20% of slotZ over 0.12s)
           const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.20 : 0;
           mesh.position.set(
@@ -4750,9 +4750,9 @@ function animate(ts) {
       ? { x: cardX - 10, y: 50 }  // follow card along belt during entry
       : inPhase(PH.scan)
       // Pass 194: scan camera lean — lookAt dips toward belt at scan midpoint for drama.
-      // y goes 60 → 42 (peak at ft=0.5) → 60, making camera appear to "peer in" at the scan.
       // Pass 473: reveal camera dip — extra 5-unit dip at identity lock-on for dramatic focus.
-      ? { x: -40, y: 60 - 18 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 5 : 0) }
+      // Pass 707: scan lean dip 18→25 for deeper camera dive during identity scan
+      ? { x: -40, y: 60 - 25 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 5 : 0) }
       : inPhase(PH.conveyorOut)
       ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
       : inPhase(PH.deflect)
@@ -4806,13 +4806,13 @@ function animate(ts) {
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
     const _h2 = Math.sin(_shakePhase2) * 0.55;           // second harmonic (quieter)
-    // Pass 568: shake amplitude boost — white noise 0.30→0.45, h1 0.45→0.62, h2 0.25→0.38 for juicier impact
-    const _shakeX = (_n * 0.45 + _h1 * 0.62 + _h2 * 0.38) * _cameraShake;
-    const _shakeY = (_n * 0.45 + Math.cos(_shakePhase1) * 0.62 + Math.cos(_shakePhase2) * 0.38 * 0.55) * _cameraShake;
+    // Pass 568: shake amplitude 0.30→0.45/0.62/0.38 — Pass 700: →0.55/0.78/0.50 for even juicier impact
+    const _shakeX = (_n * 0.55 + _h1 * 0.78 + _h2 * 0.50) * _cameraShake;
+    const _shakeY = (_n * 0.55 + Math.cos(_shakePhase1) * 0.78 + Math.cos(_shakePhase2) * 0.50 * 0.55) * _cameraShake;
     camera.position.x += _shakeX;
     camera.position.y += _shakeY;
-    // Pass 569: shake decay 0.78→0.72 for longer lingering impact feel
-    _cameraShake *= 0.72; // decay: 3.5 → ~0 in about 14 frames
+    // Pass 569: shake decay 0.78→0.72 — Pass 701: →0.69 for slightly longer lingering feel
+    _cameraShake *= 0.69; // decay: Pass 701
   } else {
     _cameraShake = 0;
     _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
@@ -4839,10 +4839,12 @@ function animate(ts) {
       // Altitude = card Y above belt surface; belt at CONV_Y_TOP+2
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
       const _altFrac = Math.min(1, _altitude / 50); // 0 at belt, 1 at 50 units up
-      const _fdScale = 1.0 + _altFrac * 1.4;  // 1.0 on belt → 2.4 at peak
+      // Pass 703: floor disc altitude expansion 1.4→1.8 for larger domain halo spread when card rises
+      const _fdScale = 1.0 + _altFrac * 1.8;  // 1.0 on belt → 2.8 at peak
       // Pass 514: floor disc breathing pulse — 1.5Hz subtle opacity pulse when card is close to belt
       const _fdPulse514 = (1 - _altFrac) * 0.025 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2));
-      const _fdOpacity = THREE.MathUtils.lerp(0.18, 0.055, _altFrac) + _fdPulse514;
+      // Pass 702: floor disc ground opacity 0.18→0.24 for more visible domain floor glow
+      const _fdOpacity = THREE.MathUtils.lerp(0.24, 0.055, _altFrac) + _fdPulse514;
       floorDisc.scale.setScalar(_fdScale);
       floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.15;
     } else {
@@ -4857,7 +4859,8 @@ function animate(ts) {
   if (activeCard.visible && beltShimmerMesh.visible &&
       (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))) {
     const _glintDist = Math.abs(beltShimmerMesh.position.x - activeCard.position.x);
-    const _glint = Math.max(0, 1 - _glintDist / 18) * 0.32; // Pass 479: 0.22→0.32
+    // Pass 479: glint 0.22→0.32 — Pass 704: →0.45 for stronger stripe-under-card flash
+    const _glint = Math.max(0, 1 - _glintDist / 18) * 0.45;
     if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
     // Pass 163: shimmer pressure lift — card floats ~0.9 units up when stripe is directly below
     if (_glint > 0.005 && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)))
