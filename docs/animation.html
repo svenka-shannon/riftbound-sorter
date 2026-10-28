@@ -3150,7 +3150,7 @@ function animate(ts) {
       const barFill = Math.min(1, ft);
       // Pass 247: reveal overshoot pulse — bar briefly surges past fill at identity confirm
       // Pass 327: stronger overshoot — more pronounced surge to sell the lock-on moment
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.18 : 0;
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.30 : 0; // Pass 444: 0.18→0.30
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
@@ -3382,8 +3382,8 @@ function animate(ts) {
     // (Pass 76 lerp superseded by pass 189 binary snap — removed)
     // Pass 115: beam urgency strobe — frequency and amplitude build from 65%→85% scan progress
     const _prevT = barFill < 0.65 ? 0 : barFill > 0.85 ? 0 : (barFill - 0.65) / 0.20;
-    const _strobeFreq = 5 + _prevT * 12; // ramps 5Hz → 17Hz as bar approaches reveal
-    const _strobeAmp  = _prevT * 0.06;
+    const _strobeFreq = 5 + _prevT * 18; // Pass 442: ramps 5→23Hz (was 17Hz)
+    const _strobeAmp  = _prevT * 0.10;  // Pass 443: amplitude 0.06→0.10
     const _strobe = Math.sin(ts * _strobeFreq * Math.PI * 2) * _strobeAmp;
     // Pass 189: cone + beam switch from scan-blue to domain color at identity reveal
     {
