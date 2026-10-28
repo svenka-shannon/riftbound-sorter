@@ -3953,19 +3953,25 @@ function animate(ts) {
     }
   }
 
-  // Pass 59: Hopper status LED — reflects remaining card count
+  // Pass 59 + 158: Hopper status LED — reflects remaining card count
+  // Pass 158: fixed blink freq (was ts*0.012 ≈ 1 cycle/523s — bug); added pick pulse
   {
     // stackTopIdx: 5=full (6 cards), 0=last card (1 card left), resets on refill
     // Visible cards = stackTopIdx + 1 (when card 0 is visible)
     const _visibleCards = stackCards.filter(c => c.visible).length;
+    const _picking = inPhase(PH.armDescend) || inPhase(PH.armLift);
     let _ledColor, _ledGlow;
-    if (_visibleCards >= 5) {
+    if (_picking) {
+      // Pass 158: domain-colored pulse during active pick — LED "reacts" to arm
+      _ledColor = ct.hex;
+      _ledGlow = 2.5 + 0.8 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // 8Hz pulse
+    } else if (_visibleCards >= 5) {
       _ledColor = 0x00ff44; _ledGlow = 2.0; // green: full
     } else if (_visibleCards >= 3) {
       _ledColor = 0xffcc00; _ledGlow = 2.2; // yellow: half-full
     } else if (_visibleCards >= 1) {
-      // Red: low — add fast blink for urgency
-      const _blinkOn = Math.sin(ts * 0.012) > 0;
+      // Red: low — fast 4Hz blink for urgency (fix: was ts*0.012, far too slow)
+      const _blinkOn = Math.sin(ts * Math.PI * 2 * 4) > 0;
       _ledColor = 0xff2200; _ledGlow = _blinkOn ? 2.8 : 0.4;
     } else {
       _ledColor = 0xff6600; _ledGlow = 1.2; // orange: empty (refilling)
