@@ -2394,12 +2394,14 @@ function animate(ts) {
     const _springDiff = targetScaleY - bar.scale.y;
     bar._springVel = bar._springVel * 0.80 + _springDiff * 0.10; // k=0.10, damping=0.80
     bar.scale.y = Math.max(0.01, Math.min(1.18, bar.scale.y + bar._springVel));
-    // Decay emissive flash back to resting level 0.4
-    if(bar.material.emissiveIntensity > 0.4) {
-      bar.material.emissiveIntensity *= 0.90;  // ~10 frames to reach resting
-      if(bar.material.emissiveIntensity < 0.4) {
-        bar.material.emissiveIntensity = 0.4;
-      }
+    // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
+    // Pass 249: fill bar breathing — each slot pulses at slightly different phase offset
+    const _fbRest = 0.36 + 0.13 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7));
+    if(bar.material.emissiveIntensity > _fbRest + 0.06) {
+      bar.material.emissiveIntensity *= 0.90;
+      if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
+    } else {
+      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 2.5);
     }
   });
 
@@ -3071,7 +3073,9 @@ function animate(ts) {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
-      scanBarMesh.scale.x = Math.max(0.01, barFill);
+      // Pass 247: reveal overshoot pulse — bar briefly surges past fill at identity confirm
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.10 : 0;
+      scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
       scanBarMesh.position.x = leftEdge + (SCAN_BAR_MAX_W * barFill) / 2;
@@ -3497,6 +3501,8 @@ function animate(ts) {
       window._flashLights.push({ light: _gfl, age: 0 });
       // Pass 72: peak spike on gate contact — discharges charge-up energy
       paddleMat.emissiveIntensity = 5.5;
+      // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
+      paddleMat.emissive.setHex(ct.hex);
       // Pass 109: recoil kick — paddle pushed further in deflect direction by card impact
       _paddleRecoil = 0.26 * Math.sign(ct.slotZ);
       // Pass 216: solenoid Z-vibration — brief lateral jitter at gate contact (solenoid resonance)
@@ -3567,9 +3573,17 @@ function animate(ts) {
     scanTargetLight.color.set(0xffeecc).lerp(new THREE.Color(ct.hex), easeOut(dt2));
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
     scanTargetLight.intensity = THREE.MathUtils.lerp(0, 1.8, dt2);
-    // Keep gate paddle domain-colored while card is deflecting
+    // Keep gate paddle colored while card is deflecting
+    // Pass 248: paddle domain-to-orange afterglow — domain color during peak window, then fades
+    // to orange-red after dt2=0.18, giving a visible cool-down transition on the paddle face.
     paddleMat.color.setHex(ct.hex);
-    paddleMat.emissive.setHex(ct.hex);
+    if (dt2 < 0.18) {
+      paddleMat.emissive.setHex(ct.hex);
+    } else {
+      paddleMat.emissive.r += (1.0 - paddleMat.emissive.r) * Math.min(1, dt * 3.5);
+      paddleMat.emissive.g += (0.26 - paddleMat.emissive.g) * Math.min(1, dt * 3.5);
+      paddleMat.emissive.b *= Math.max(0, 1 - dt * 3.5);
+    }
     paddleMat.emissiveIntensity = Math.max(0.3, paddleMat.emissiveIntensity * 0.92); // dim slowly
     // Pass 109: apply paddle recoil offset and spring it back to base target angle
     if (Math.abs(_paddleRecoil) > 0.001) {
