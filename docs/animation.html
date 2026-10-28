@@ -4884,10 +4884,12 @@ function animate(ts) {
     const beltTrail = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
     const _speedFactor = Math.min(1, _beltScrollSpeed / 0.08); // 0 idle → 1 at full speed
     // Pass 376: ghost opacity boost — more visible trail effect
-    const ghostOpacities = [0.42 * _speedFactor, 0.22 * _speedFactor, 0.10 * _speedFactor];
+    // Pass 661: ghost opacity 0.42/0.22/0.10 → 0.52/0.28/0.14 for brighter motion trail
+    const ghostOpacities = [0.52 * _speedFactor, 0.28 * _speedFactor, 0.14 * _speedFactor];
     ghostCards.forEach(({ mesh, mat }, gi) => {
       if (beltTrail && activeCard.visible) {
-        const lag = (gi + 1) * 12; // Pass 377: lag spacing 9 → 12 units for more spread trail
+        // Pass 377: lag spacing 9 → 12 units — Pass 660: 12→15 for wider motion-blur spread
+        const lag = (gi + 1) * 15;
         mesh.visible = true;
         mesh.position.copy(activeCard.position);
         mesh.position.x -= lag;
@@ -4903,7 +4905,8 @@ function animate(ts) {
         // Pass 378: post-reveal emissive boost — trail blazes in domain color on conveyorOut
         // Pass 504: post-reveal ghost emissive boost 0.30→0.45 for more vivid domain identity trail
         const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 0.45 : 0;
-        mat.emissiveIntensity = ((0.28 - gi * 0.08) + _ghostRevealBoost378) * _speedFactor;
+        // Pass 667: ghost emissive base 0.28→0.36 for more luminous motion trail
+        mat.emissiveIntensity = ((0.36 - gi * 0.09) + _ghostRevealBoost378) * _speedFactor;
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
         mat.opacity += (targetOp - mat.opacity) * 0.35;
       } else {
@@ -4927,7 +4930,8 @@ function animate(ts) {
     const irs = _impactRingScale0 + easeOut(_impactRingT) * (_impactMaxScale - _impactRingScale0);
     impactRing.scale.setScalar(irs);
     // Pass 383: floor-0 peak opacity boost 0.88 → 1.0
-    const peakOpacity = _impactRingScale0 < 0.8 ? 0.55 : 1.0;
+    // Pass 666: floor-1 impact ring opacity 0.55→0.68 for more visible gentle landing ring
+    const peakOpacity = _impactRingScale0 < 0.8 ? 0.68 : 1.0;
     impactRingMat.opacity = (1 - _impactRingT) * peakOpacity;
     if (_impactRingT >= 1) {
       _impactRingT = -1;
@@ -5092,7 +5096,9 @@ function animate(ts) {
   {
     const _onBelt = (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))
                      && activeCard.visible;
-    const _shadowTarget = _onBelt ? 0.38 : 0;
+    // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
+    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 0.08 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0;
+    const _shadowTarget = _onBelt ? 0.38 + _shadowScanPulse : 0;
     _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 8);
     if (_onBelt) {
       _shadowMesh.position.set(activeCard.position.x, CONV_Y_TOP + 0.4, activeCard.position.z);
@@ -5159,7 +5165,8 @@ function animate(ts) {
   // Pass 498: deflect domain fill boost — domain fill light surges during card arc (peaks at midpoint)
   const _deflectFill498 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.22 : 0;
   // Pass 519: scan phase domain fill boost — scanner chamber glows stronger with domain color at scan peak
-  const _scanFill519 = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.18 : 0;
+  // Pass 664: scan fill boost 0.18→0.26 for more vivid scanner chamber domain wash
+  const _scanFill519 = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.26 : 0;
   // Pass 99: decay boost (set at 85% identity reveal), adds scene-wide domain color wash
   if (_domainFillBoost > 0.005) {
     // Pass 542: reveal fill boost decay 2.2→1.6 (longer wash ~0.35s) + max cap 0.90→1.10
@@ -5324,7 +5331,9 @@ function animate(ts) {
     // Pass 188: fix tray card breathe — was ts*0.00055 (~3.2h period = stationary).
     // Fixed to 0.3Hz per slot, each slot phase-offset so cards breathe independently.
     // Pass 493: breathe amplitude boost 0.08→0.14 — Pass 544: 0.14→0.20 for more tray card life
-    const _breathe = 0.22 + 0.20 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5);
+    // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
+    const _breathe = 0.22 + 0.16 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5)
+                         + 0.05 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5));
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
@@ -5339,8 +5348,8 @@ function animate(ts) {
 
   // Pass 67: clear color tints faintly toward domain during scan; brief warm flash on celebration
   {
-    // Pass 540: scan background boost 0.055→0.080 for more atmospheric scan domain tint
-    const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.080 : 0;
+    // Pass 540: scan background boost 0.055→0.080 — Pass 662: 0.080→0.105 for deeper domain atmosphere
+    const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.105 : 0;
     const _celebBoost = _cameraShake > 3 ? Math.min(0.08, _cameraShake * 0.012) : 0;
     // Pass 152: brief domain tint on slotDrop — card joins the tray, background echoes domain
     const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.028 : 0;
