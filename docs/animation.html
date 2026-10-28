@@ -1856,6 +1856,7 @@ let _identityRevealed = false;  // pass 93: set when scan reaches 85% confirm th
 let _slotPuffFired = false;     // pass 107: true once slot entry air puff fires this slotDrop
 let _slotStreakFired = false;   // pass 142: true once slot entry vertical streak fires
 let _slotGateFlashFired = false; // pass 195: true once slot entrance gate-burst flash fires
+let _armReturnThunkFired = false; // pass 196: true once arm end-stop micro-shake fires
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
 let _hoodRevealFlash = 0;       // pass 123: hood strobe at identity reveal (0=idle, t=0..1)
 let _cardRevealBurst = 0;       // pass 125: card face emissive burst at identity reveal
@@ -2244,6 +2245,7 @@ function animate(ts) {
     _identityRevealed = false;  // pass 93
     _slotPuffFired = false;     // pass 107
     _slotGateFlashFired = false; // pass 195
+    _armReturnThunkFired = false; // pass 196
     _slotStreakFired = false;   // pass 142
     _paddleRecoil = 0;          // pass 109
     _hoodRevealFlash = 0;       // pass 123
@@ -2885,6 +2887,13 @@ function animate(ts) {
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
       hoodMat.emissiveIntensity = 0.28 + flashIntensity * 0.85;
+    }
+    // Pass 197: scanner hood micro-sway — very subtle Z oscillation (±0.5 units, 2.8Hz)
+    // simulates vibration from scanner emitter/receiver pair resonance during active scan.
+    // Damps out near identity reveal (post 85%) as the machine "locks on".
+    {
+      const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.10) : 1.0;
+      scannerHood.position.z = 0.5 * Math.sin(ts * 2.8 * Math.PI * 2) * _swayDamp;
     }
     // Pass 80: lens iris opens during scan — scale XZ pulses 0.75→1.15 with flash
     const _irisScale = 0.75 + flashIntensity * 0.40;
@@ -3637,6 +3646,12 @@ function animate(ts) {
     } else {
       const _osT = (art - 0.82) / 0.18;
       suctionPivot.rotation.z = -0.35 - 0.06 * Math.sin(_osT * Math.PI);
+      // Pass 196: arm end-stop mechanical clunk — tiny camera shake when arm hits its rest stop.
+      // Fires once at art=0.82 (first frame of overshoot), very small so it's felt not seen.
+      if (!_armReturnThunkFired) {
+        _armReturnThunkFired = true;
+        _cameraShake = Math.max(_cameraShake, 0.28);
+      }
     }
     // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154), tighter at ×10 vs ×14
     // Arm dips toward viewer at midpoint of return sweep for 3-D parabolic path
@@ -3793,6 +3808,8 @@ function animate(ts) {
     lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 4);
     lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 3));
     lensMat.emissiveIntensity += (0.4 - lensMat.emissiveIntensity) * Math.min(1, dt * 3);
+    // Pass 197: hood settles back to Z=0 after scan ends
+    scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 8);
   }
 
   // Pass 56: Spin rollers proportional to belt scroll speed (synced to smooth ramp from pass 53)
@@ -4198,6 +4215,13 @@ function animate(ts) {
     _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 8);
     if (_onBelt) {
       _shadowMesh.position.set(activeCard.position.x, CONV_Y_TOP + 0.4, activeCard.position.z);
+    }
+    {
+      // Pass 198: shadow speed-stretch — shadow elongates forward along belt when card is moving.
+      // conveyorIn/Out → stretch up to ~7 extra units; scan (stationary) → compress back to base.
+      const _beltMoving = (_onBelt && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)));
+      const _stretchTarget = _beltMoving ? CARD_H * 0.55 + _beltScrollSpeed * 350 : CARD_H * 0.55;
+      _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 6);
     }
     _shadowMesh.visible = _shadowMat.opacity > 0.01;
   }
