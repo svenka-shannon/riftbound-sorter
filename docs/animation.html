@@ -3080,14 +3080,12 @@ function animate(ts) {
     const _beamZ = scanLine.position.z;
     const _cardCenterZ = activeCard.position.z;
     const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
-    // Brief intensity spike on the first frame of reveal (pass 183)
-    if (_identityRevealed && ft >= 0.85 && ft < 0.87) {
-      scanLineMat.emissiveIntensity = 6.0;
-      scanLineMat2.emissiveIntensity = 4.5;
-    } else {
-      scanLineMat.emissiveIntensity = 3.0 + _beamProxZ * 2.0;
-      scanLineMat2.emissiveIntensity = 2.5;
-    }
+    // Pass 343: scan beam reveal spike — exp decay replaces hard 2-frame window; primary gets +4.0, secondary +2.8
+    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 4.0 : 0;
+    scanLineMat.emissiveIntensity = 3.0 + _beamProxZ * 2.0 + _beamRevealSpike343;
+    // Pass 345: secondary beam post-reveal boost
+    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 2.8 : 0;
+    scanLineMat2.emissiveIntensity = 2.5 + _beam2Reveal345;
     // Pass 244: beam reversal flare — brief emissive surge when primary beam reverses at ft=0.5
     const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 2.0;
     scanLineMat.emissiveIntensity += _revFlare;
@@ -3096,7 +3094,8 @@ function animate(ts) {
       // Pass 148 + 171: dots cascade to domain color one by one starting at ft=0.85 reveal
       // Each dot switches ft=0.85 + di*0.014 — wave of domain color spreading across grid
       // Brief brightness spike at reveal moment
-      const _dotRevealBurst = (_identityRevealed && ft > 0.85 && ft < 0.92) ? (0.92 - ft) / 0.07 : 0;
+      // Pass 344: dot reveal burst — exp decay replaces linear window for sharper initial flash
+      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 0.80 : 0;
       SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
         const stagger = di * 0.06; // 60ms stagger per dot (0..0.48s)
         const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
