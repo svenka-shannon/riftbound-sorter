@@ -2805,10 +2805,12 @@ function animate(ts) {
       const st = phaseT(PH.armSwing);
       suctionPivot.rotation.z = THREE.MathUtils.lerp(0.80, 1.57, st);
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
-      suctionPivot.position.z = Math.sin(st * Math.PI) * 14;
+      // Pass 676: Z-depth arc 14→17 for more dramatic 3D depth sweep during card swing
+      suctionPivot.position.z = Math.sin(st * Math.PI) * 17;
       // Pass 234: arm pivot Y sag — pivot slightly droops under card weight at swing midpoint
       // Pass 282: end-of-swing Y bounce — brief upward over-correction as arm decelerates at deposit
-      const _swingEndBounce = st > 0.88 ? 0.55 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0;
+      // Pass 677: deposit bounce 0.55→0.85 for more spring at belt handoff
+      const _swingEndBounce = st > 0.88 ? 0.85 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0;
       suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 2.2 + _swingEndBounce;
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 4);
@@ -2932,8 +2934,8 @@ function animate(ts) {
     // Pass 39: belt deposit flash — domain burst when card first touches the belt
     if (!_depositFired) {
       _depositFired = true;
-      // Pass 559: belt deposit flash intensity 4.5→8.0, dist 70→90 for bigger card-on-belt impact
-      const _dfl = new THREE.PointLight(ct.hex, 8.0, 90);
+      // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 for bigger card-on-belt impact
+      const _dfl = new THREE.PointLight(ct.hex, 11.0, 95);
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
@@ -2941,8 +2943,9 @@ function animate(ts) {
       // Pass 95: belt entry dust puff — air blast from card slapping onto belt
       {
         const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
+        // Pass 679: belt entry dust puff count 5→8 for more visible card-on-belt burst
         let _dpSpawned = 0;
-        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 5; _di++) {
+        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 8; _di++) {
           const _dp = GRAB_PARTICLES[_di];
           if (_dp.active) continue;
           _dp.active = true; _dp.age = 0; _dp.life = 0.22 + Math.random() * 0.12;
@@ -3814,11 +3817,13 @@ function animate(ts) {
       window._flashLights.push({ light: _gfl, age: 0, peak: _gfl.intensity });
       // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 (synced with flash light)
       paddleMat.emissiveIntensity = 8.0;
-      // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 for hotter paddle blaze
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 5.5);
+      // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 hotter blaze
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 7.0);
       // Pass 298: gate-contact camera shake — Pass 588: 1.8→3.0 for more physical paddle impact
       _cameraShake = 3.0;
-      // Pass 369: gate-contact FOV punch — Pass 589: 1.8°→3.2° for more visible gate hit zoom
+      // Pass 369: gate-contact FOV punch — Pass 589: 1.8°→3.2° — Pass 682: camera shake 3.0→4.2
+      _cameraShake = Math.max(_cameraShake, 4.2);
+      // Pass 369: gate-contact FOV punch
       _fovBump = Math.max(_fovBump, 3.2);
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
@@ -3871,13 +3876,15 @@ function animate(ts) {
     // Pass 147: parabolic arc — Pass 416: arc height boost floor-0 10→13, floor-1 18→22
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
-    const _arcBump = (ct.floor === 1 ? 22 : 13) * Math.sin(dt2 * Math.PI);
+    // Pass 683: floor-0 arc height 13→16 for higher card flight arc during deflect
+    const _arcBump = (ct.floor === 1 ? 22 : 16) * Math.sin(dt2 * Math.PI);
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor amplitude boost 3.2→4.8; add secondary Y micro-tremor for 3D turbulence
     // Pass 612: add tertiary Z tremor at 7.2Hz — three-frequency Z turbulence for richer buffet
     const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 4.8
-      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 1.6;
+      // Pass 680: tertiary Z tremor amplitude 1.6→2.2 for richer air buffet turbulence
+      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 2.2;
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 1.8;
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
