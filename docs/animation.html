@@ -1857,6 +1857,8 @@ let _slotPuffFired = false;     // pass 107: true once slot entry air puff fires
 let _slotStreakFired = false;   // pass 142: true once slot entry vertical streak fires
 let _slotGateFlashFired = false; // pass 195: true once slot entrance gate-burst flash fires
 let _armReturnThunkFired = false; // pass 196: true once arm end-stop micro-shake fires
+let _arcPeakFlashFired = false;  // pass 454: true once deflect arc-peak domain flash fires
+let _rejectBurst2Fired = false;  // pass 457: true once second reject burst fires at dt3=0.55
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
 let _gateZKick = 0;             // pass 223: lateral Z rotation impulse applied to card at gate hit
 let _paddleJitterAmt = 0;       // pass 216: solenoid Z-vibration decay amplitude
@@ -1952,6 +1954,23 @@ function fireCelebration() {
     p.active = true;
     p.mesh.visible = true;
   });
+  // Pass 458: metallic shimmer burst — 8 silver-gold confetti pieces with fast tumble
+  // create a "glitter" layer distinct from domain-colored main confetti.
+  const _shimmerColors = [0xffffff, 0xffe0a0, 0xf0f0f0, 0xffd070, 0xeeeeee, 0xffc040, 0xe8e8ff, 0xffeebb];
+  for (let _mi = 0; _mi < 8; _mi++) {
+    const _mp = CELEB_PARTICLES[(_mi * 4 + 1) % CELEB_COUNT]; // reuse pool slots between domain confetti
+    _mp.vx = (Math.random() - 0.5) * 90;
+    _mp.vy = 55 + Math.random() * 50;
+    _mp.vz = (Math.random() - 0.5) * 80;
+    _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*30, FLOOR_Y[0] + 85, (Math.random()-0.5)*40);
+    _mp.mat.color.setHex(_shimmerColors[_mi]);
+    _mp.mat.opacity = 1.0;
+    _mp.age = 0; _mp.life = 0.65 + Math.random() * 0.45;
+    _mp.rx = (Math.random() - 0.5) * 36; // fast tumble
+    _mp.ry = (Math.random() - 0.5) * 44;
+    _mp.rz = (Math.random() - 0.5) * 52;
+    _mp.active = true; _mp.mesh.visible = true;
+  }
   // Pass 54: full-scene celebration enhancement
   // White screen flash to punctuate the round-complete moment
   const flashEl = document.getElementById('scan-flash-overlay');
@@ -2250,6 +2269,8 @@ function animate(ts) {
     _slotGateFlashFired = false; // pass 195
     _armReturnThunkFired = false; // pass 196
     _slotStreakFired = false;   // pass 142
+    _arcPeakFlashFired = false;  // pass 454
+    _rejectBurst2Fired = false;  // pass 457
     _paddleRecoil = 0;          // pass 109
     _paddleJitterAmt = 0;       // pass 216
     _gateZKick = 0;             // pass 223
@@ -3511,10 +3532,15 @@ function animate(ts) {
     }
     scanTargetLight.intensity = 0;
     // Pass 60: gate column LEDs light up as card exits scanner (preview destination)
+    // Pass 455: urgency pulse frequency ramp — target column beats faster as card approaches.
+    // Hz climbs 6→22 as ot goes 0→1; non-target columns are steady.
+    const _ledUrgencyHz = 6 + ot * 16;
+    const _ledUrgencyPulse = 0.35 + 0.35 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2));
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-      const _target = gi === ct.col ? 2.5 * ot : 0.1;
-      gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
-      gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
+      const _isTarget = gi === ct.col;
+      const _target = _isTarget ? (2.5 * ot) * _ledUrgencyPulse : 0.1;
+      gm.color.setHex(_isTarget ? ct.hex : 0x224466);
+      gm.emissive.setHex(_isTarget ? ct.hex : 0x112233);
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
     });
     // Pass 141: gate column tracking light — colored pool on tray at active LED column
@@ -3613,8 +3639,11 @@ function animate(ts) {
     _beltScrollSpeed = 0.08;
     // Pass 212: conveyorOut domain exhaust trail — card leaves a brief domain-colored contrail
     // as it accelerates toward the gate. Spawns every ~70ms, short life.
+    // Pass 459: final-approach trail density boost — last 35% of conveyorOut spawns at 38ms
+    // instead of 70ms, creating a denser contrail "surge" as card punches toward the gate.
+    const _convTrailRate = ot > 0.65 ? 0.038 : 0.07;
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.07) {
+    if (_trailSpawnAcc >= _convTrailRate) {
       _trailSpawnAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -3684,6 +3713,16 @@ function animate(ts) {
       }
     }
     const dt2 = phaseT(PH.deflect);
+    // Pass 454: arc-peak domain flash — at arc midpoint (dt2≈0.46) spawn a brief domain
+    // point light at card position; the card is at its highest, most visible trajectory point.
+    if (!_arcPeakFlashFired && dt2 >= 0.46) {
+      _arcPeakFlashFired = true;
+      const _apfl = new THREE.PointLight(ct.hex, 6.5, 100);
+      _apfl.position.copy(activeCard.position);
+      scene.add(_apfl);
+      if (!window._flashLights) window._flashLights = [];
+      window._flashLights.push({ light: _apfl, age: 0 });
+    }
     const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
     const cz = THREE.MathUtils.lerp(0, ct.slotZ, dt2);
     // Pass 147: parabolic arc — Pass 416: arc height boost floor-0 10→13, floor-1 18→22
@@ -3854,6 +3893,12 @@ function animate(ts) {
     if (ct.stripMat && dt3 < 0.80) {
       const _wallOsc = Math.abs(Math.sin(dt3 * Math.PI * 4)) * Math.max(0, 1 - dt3 * 1.4);
       if (_wallOsc > 0.72) ct.stripMat.emissiveIntensity = Math.max(ct.stripMat.emissiveIntensity, 0.15 + (_wallOsc - 0.72) / 0.28 * 0.90);
+    }
+    // Pass 456: pre-impact micro-shake ramp — for floor-0, subtle increasing camera tremor
+    // from dt3=0.72→0.88 builds tension before the big landing shake at 0.88.
+    if (ct.floor === 0 && dt3 >= 0.72 && dt3 < 0.88) {
+      const _preImpactT = (dt3 - 0.72) / 0.16; // 0→1 in approach window
+      _cameraShake = Math.max(_cameraShake, 0.4 + _preImpactT * 1.0);
     }
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
     if (ct.floor === 0 && dt3 < 0.88) {
@@ -4082,6 +4127,33 @@ function animate(ts) {
         tp.age = 0; tp.life = 0.45 + Math.random() * 0.3;
         tp.active = true; tp.mesh.visible = true;
       }
+    }
+    // Pass 457: reject second burst — at dt3=0.55 a smaller follow-up spark burst fires,
+    // echoing the first alarm like a double-tap warning strobe.
+    if (ct.slot === 7 && !_rejectBurst2Fired && dt3 >= 0.55) {
+      _rejectBurst2Fired = true;
+      let _rb2 = 0;
+      for (let _ri2 = 0; _ri2 < TRAIL_PARTICLES.length && _rb2 < 8; _ri2++) {
+        const tp2 = TRAIL_PARTICLES[(_trailHead + _ri2) % TRAIL_PARTICLE_COUNT];
+        if (tp2.active) continue;
+        _trailHead++;
+        tp2.mesh.position.set(
+          TRAY_X_START + 15 + (Math.random() - 0.5) * 10,
+          ct.slotFloorY + 22 + Math.random() * 10,
+          ct.slotZ + (Math.random() - 0.5) * 16
+        );
+        tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
+        tp2.mat.opacity = 0.70 + Math.random() * 0.25;
+        tp2.age = 0; tp2.life = 0.30 + Math.random() * 0.22;
+        tp2.active = true; tp2.mesh.visible = true;
+        _rb2++;
+      }
+      // Smaller secondary amber light
+      const _ral2 = new THREE.PointLight(0xff6600, 4.5, 70);
+      _ral2.position.set(TRAY_X_START + 20, ct.slotFloorY + 30, ct.slotZ);
+      scene.add(_ral2);
+      if (!window._flashLights) window._flashLights = [];
+      window._flashLights.push({ light: _ral2, age: 0 });
     }
     cardGlow.position.copy(activeCard.position);
     _beltScrollSpeed = 0.04; // belt coasts slowly during slot drop
