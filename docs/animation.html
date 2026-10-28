@@ -1802,6 +1802,7 @@ let _convOutFlashFired = false; // pass 46: once scanner-exit flash fires at con
 let _rejectAlarmFired = false;  // pass 48: once reject-alarm vignette fires at Reject card landing
 let _identityRevealed = false;  // pass 93: set when scan reaches 85% confirm threshold
 let _slotPuffFired = false;     // pass 107: true once slot entry air puff fires this slotDrop
+let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
 let _domainFillBoost = 0;      // pass 99: temporary intensity boost at identity reveal
 let _fovBump = 0;              // pass 106: FOV zoom-in amount at celebration (8 = zoom in 8°)
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
@@ -2177,6 +2178,7 @@ function animate(ts) {
     _rejectAlarmFired = false;  // pass 48
     _identityRevealed = false;  // pass 93
     _slotPuffFired = false;     // pass 107
+    _paddleRecoil = 0;          // pass 109
     _domainFillBoost = 0;       // pass 99
     _confirmRingT = -1;         // pass 100
     confirmRing.visible = false; confirmRingMat.opacity = 0;
@@ -2959,6 +2961,8 @@ function animate(ts) {
       window._flashLights.push({ light: _gfl, age: 0 });
       // Pass 72: peak spike on gate contact — discharges charge-up energy
       paddleMat.emissiveIntensity = 5.5;
+      // Pass 109: recoil kick — paddle pushed further in deflect direction by card impact
+      _paddleRecoil = 0.26 * Math.sign(ct.slotZ);
       // Pass 92: gate impact sparks — micro-burst from paddle contact point
       {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
@@ -3007,6 +3011,11 @@ function animate(ts) {
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
     paddleMat.emissiveIntensity = Math.max(0.3, paddleMat.emissiveIntensity * 0.92); // dim slowly
+    // Pass 109: apply paddle recoil offset and spring it back to base target angle
+    if (Math.abs(_paddleRecoil) > 0.001) {
+      _paddleRecoil *= Math.max(0, 1 - dt * 9);
+      paddlePivot.rotation.z += _paddleRecoil;
+    }
     // Pass 60: light up the destination column LED, dim others
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       if (gi === ct.col) {
