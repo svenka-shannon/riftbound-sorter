@@ -2435,8 +2435,11 @@ function animate(ts) {
     // Halo lies flat (horizontal) — rotate to match card, then spin
     cardHalo.rotation.x = activeCard.rotation.x - Math.PI / 2;
     cardHalo.rotation.z = activeCard.rotation.z + ts * haloSpinRate;
-    cardHaloMat.color.setHex(ct.hex);
-    cardHaloMat.emissive.setHex(ct.hex);
+    // Pass 190: halo is scan-blue during conveyorIn (pre-reveal) and domain after
+    // Cohesive with passes 176/180/183/189 — whole machine reveals domain at 85%
+    const _haloHex = (_identityRevealed || !inPhase(PH.conveyorIn)) ? ct.hex : 0x3388ff;
+    cardHaloMat.color.setHex(_haloHex);
+    cardHaloMat.emissive.setHex(_haloHex);
   }
 
   // ── Update UI ──
@@ -4277,8 +4280,8 @@ function animate(ts) {
   if (activeCard.visible) {
     activeCardEdge.position.copy(activeCard.position);
     activeCardEdge.rotation.copy(activeCard.rotation);
-    // Pass 93: edge is white/neutral before identity confirmed; snaps to domain color at 85% scan
-    activeCardEdgeMat.color.setHex(_identityRevealed ? ct.hex : 0xffffff);
+    // Pass 93/191: edge is scan-blue before identity confirmed (matches pass 176/190 tint sequence)
+    activeCardEdgeMat.color.setHex(_identityRevealed ? ct.hex : 0x3388ff);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     const edgeTarget = edgeFull ? 0.85 : 0.45;
