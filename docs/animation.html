@@ -1412,6 +1412,21 @@ scene.add(impactRing);
 let _impactRingT = -1;        // -1 = idle, 0..1 = animation progress
 let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.6 = floor-1 glide)
 
+// Pass 63: Scanner sonar ping rings — 3 concentric rings that expand from scanner during scan
+const SCAN_PING_COUNT = 3;
+const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
+  const mat = new THREE.MeshBasicMaterial({
+    color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
+  });
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(6, 1, 6, 24), mat);
+  mesh.visible = false;
+  // Oriented flat (XZ plane) at card level, centered on scanner X
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.set(-40, CONV_Y_TOP + CARD_T + 4, 0);
+  scene.add(mesh);
+  return { mesh, mat, t: -1 }; // t: -1 idle, 0..1 animating
+});
+
 // ─── Scan grid dots: 3×3 array of bright points on card surface during scan ────
 // Gives the scanner a "barcode reader" targeting feel — dots fade in staggered
 // across the card face with the flash intensity, coloured to the domain.
@@ -2291,6 +2306,7 @@ function animate(ts) {
     scanBloom.intensity = 0;
     scanTargetLight.intensity = 0;
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = 0;
     scanBeamMat.opacity = 0;
     routeArcMat.opacity = 0;
@@ -2329,6 +2345,7 @@ function animate(ts) {
     // Belt scroll target: conveyorIn full speed
     _beltScrollSpeed = 0.08;
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = 0;
     scanBeamMat.opacity = 0;
   }
@@ -2461,6 +2478,26 @@ function animate(ts) {
       tp.age = 0; tp.life = 0.55 + Math.random() * 0.4;
       tp.active = true; tp.mesh.visible = true;
     }
+    // Pass 63: scanner sonar ping rings expand horizontally from scanner during scan
+    // 3 rings staggered by 0.33s each; repeat as long as scan phase is active
+    {
+      const pingPeriod = 0.55; // one ping every 0.55s
+      scanPings.forEach((p, pi) => {
+        // Stagger start times across the phase: pi × (pingPeriod/3)
+        const staggerOffset = pi * (pingPeriod / SCAN_PING_COUNT);
+        const localFt = ((ft * 0.6 + staggerOffset) % pingPeriod) / pingPeriod; // 0..1 within period
+        if (localFt < 0.85) {
+          p.mesh.visible = true;
+          const s = 1 + localFt * 5.5; // scale from 1 → 6.5
+          p.mesh.scale.setScalar(s);
+          p.mat.color.setHex(ct.hex);
+          p.mat.opacity = (1 - localFt / 0.85) * flashIntensity * 0.5;
+        } else {
+          p.mesh.visible = false;
+          p.mat.opacity = 0;
+        }
+      });
+    }
     // Belt crawls slowly while card sits under scanner
     _beltScrollSpeed = 0.02;
     // Target slot spotlight — illuminates destination tray slot during scan
@@ -2569,6 +2606,7 @@ function animate(ts) {
     scanBloom.intensity = 0;
     scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 4);
     scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
@@ -2762,6 +2800,7 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = 0;
     scanBeamMat.opacity = 0;
     routeArcMat.opacity = 0;
@@ -2796,6 +2835,7 @@ function animate(ts) {
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
+    scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = 0;
     scanBeamMat.opacity = 0;
     routeArcMat.opacity = 0;
