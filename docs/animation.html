@@ -3431,13 +3431,15 @@ function animate(ts) {
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 320: non-target LEDs fade to 0 post-reveal — spotlight narrows to destination
           const _nonTargetDim = Math.max(0, 0.10 - Math.min(1, (ft - 0.85) / 0.05) * 0.10);
-          const _cTarget = gi === ct.col ? 4.5 : _nonTargetDim; // Pass 401: target LED emissive 3.2 → 4.5
+          // Pass 545: target LED emissive 4.5→6.0 for stronger destination lock-on glow
+          const _cTarget = gi === ct.col ? 6.0 : _nonTargetDim; // Pass 545: 4.5 → 6.0
           gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
           gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 20);
         });
         // Pass 321: target gate LED scale pop at reveal — Pass 402: balloon boost 0.85 → 1.30
-        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 1.30 : 1.0;
+        // Pass 546: LED scale pop balloon 1.30→1.70 for bigger LED bloat at reveal
+        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 1.70 : 1.0;
         GATE_COL_LEDS.forEach(({ mesh: gMesh }, gi) => {
           gMesh.scale.setScalar(gi === ct.col ? _ledRevealScale : 1.0);
         });
@@ -3446,13 +3448,15 @@ function animate(ts) {
     // Pass 192: target slot spotlight only fires AFTER identity reveal (85%)
     // Pre-reveal it was spoiling the destination — machine shouldn't "know" yet
     scanTargetLight.color.setHex(ct.hex);
-    // Pass 348: target light reveal spike — Pass 517: spike 3.0→4.5 and base 2.5→3.2 for stronger destination lock-on
-    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 4.5 : 0;
-    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 3.2 + _tgtRevealSpike348 : 0;
+    // Pass 348: target light reveal spike — Pass 517: spike 3.0→4.5 and base 2.5→3.2
+    // Pass 547: spike 4.5→6.5, base 3.2→4.2 for even stronger destination spotlight at lock-on
+    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 6.5 : 0;
+    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 4.2 + _tgtRevealSpike348 : 0;
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
     // Fill bar also only brightens after reveal
+    // Pass 550: fill bar post-reveal target 0.4+1.2 → 0.6+1.6 for stronger destination slot pre-announce
     if(fillBars[ct.slot]) {
-      const _fbTarget = _identityRevealed ? (0.4 + flashIntensity * 1.2) : 0.12;
+      const _fbTarget = _identityRevealed ? (0.6 + flashIntensity * 1.6) : 0.12;
       fillBars[ct.slot].material.emissiveIntensity += (_fbTarget - fillBars[ct.slot].material.emissiveIntensity) * Math.min(1, dt * 5);
     }
     // Pass 204: paddle pre-aim — after identity reveal, paddle very subtly pre-positions
@@ -3477,8 +3481,8 @@ function animate(ts) {
       scanConeMat.color.setHex(_coneHex);
       scanBeamMat.color.setHex(_beamHex2);
     }
-    // Pass 285: cone reveal flash — Pass 388: boost 0.22 → 0.40 for more visible cone flash
-    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 0.40 : 0;
+    // Pass 285: cone reveal flash — Pass 388: boost 0.22 → 0.40 — Pass 548: 0.40→0.60 for bigger cone burst
+    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 0.60 : 0;
     // Pass 302: scan cone Z sweep — cone slowly sweeps ±7 units Z to simulate active scanning
     scanCone.position.z = 7 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5);
     scanBeam.position.z = scanCone.position.z;
@@ -3489,7 +3493,8 @@ function animate(ts) {
     // Pass 287: scan beam strength scales with bar fill — beam grows as more data is acquired
     const _beamFillBoost = barFill * 0.20;
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
-    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.55 : 0;
+    // Pass 549: beam reveal boost 0.55→0.80 for more vivid beam flare at lock-on
+    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.80 : 0;
     // Pass 516: scan beam base opacity boost 0.55→0.70 for stronger column through scan chamber
     scanBeamMat.opacity = flashIntensity * 0.70 + _strobe + _beamFillBoost + _beamRevealBoost389;
     // ── Routing arc: curved path from scanner lens → destination slot ──
