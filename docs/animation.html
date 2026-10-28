@@ -3029,10 +3029,13 @@ function animate(ts) {
       );
       // Mirror card face-reveal tilt so shimmer stays flush with card surface
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
-      // Color: crisp white before ID confirmed, snaps to domain color at 85%
-      cardShimmerMat.color.setHex(ft < 0.85 ? 0xffffff : ct.hex);
-      // Soft bell curve opacity — peaks near scan midpoint, zero at phase boundaries
-      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * 0.52;
+      // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
+      const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
+      const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
+      cardShimmerMat.color.copy(_shimColor);
+      // Opacity: standard bell curve + extra brightness after reveal (shimmer "acknowledges" domain)
+      const _shimBoost = _identityRevealed ? 0.18 : 0;
+      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.52 + _shimBoost);
     }
     // World-to-screen projection for scan overlay (clamped to visible area)
     const _sv = activeCard.position.clone().project(camera);
