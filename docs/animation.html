@@ -2803,7 +2803,13 @@ function animate(ts) {
     if (inPhase(PH.armLift)) _armCardEmissive = 0.22 + 0.08 * phaseRaw(PH.armLift);
     else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 0.35 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
     activeCardMat.emissiveIntensity = _armCardEmissive;
-    cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 1.85 : 0;
+    // Pass 299: armSwing Z-apex glow boost — cardGlow peaks as arm swings closest to viewer at Z apex
+    if (inPhase(PH.armSwing)) {
+      const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
+      cardGlow.intensity = _armCardEmissive * (1.85 + _swZ299 * 1.20);
+    } else {
+      cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 1.85 : 0;
+    }
     // Pass 242: arm-phase cardGlow domain pre-tint — point light during arc shines domain color
     if (_armCardEmissive > 0) cardGlow.color.setHex(ct.hex);
     cardGlow.position.copy(activeCard.position);
@@ -3131,7 +3137,11 @@ function animate(ts) {
         ? 0.80 + 0.20 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // slow domain breath
         : 0.90 + 0.10 * Math.sin(ts * 18 * Math.PI * 2);           // rapid pre-reveal flicker
       // Pass 290: cursor scale punch at reveal — cursor briefly swells 2× at lock-on moment
-      const _cursorScale290 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 1.0 : 1.0;
+      // Pass 300: cursor pre-reveal scale search pulse — slow 3Hz breathing scale while scanning
+      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.10 * Math.sin(ts * 3 * Math.PI * 2) : 1.0;
+      const _cursorScale290 = _identityRevealed && ft < 0.91
+        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 1.0
+        : _cursorPreScale300;
       scanBarCursor.scale.setScalar(_cursorScale290);
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
       if (barFill >= 0.85 && !_identityRevealed) {
@@ -3563,6 +3573,8 @@ function animate(ts) {
       paddleMat.emissiveIntensity = 5.5;
       // Pass 269: gate-contact card face flash — card face blazes hot at paddle impact
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 2.2);
+      // Pass 298: gate-contact camera micro-shake — physical impact reverberates into camera
+      _cameraShake = 1.8;
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
       // Pass 109: recoil kick — paddle pushed further in deflect direction by card impact
