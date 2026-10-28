@@ -1458,6 +1458,18 @@ const cardGlow = new THREE.PointLight(0xffffff, 0, 200);
 cardGlow.decay = 2;
 scene.add(cardGlow);
 
+// ─── Pass 177: Card contact shadow disc ──────────────────────────────────────
+// Flat ellipse on the belt surface that follows the active card's X/Z position.
+// Gives the card physical grounding while on the belt — vanishes when card is airborne.
+const _shadowMat = new THREE.MeshBasicMaterial({
+  color: 0x000000, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide,
+});
+const _shadowMesh = new THREE.Mesh(new THREE.CircleGeometry(1, 32), _shadowMat);
+_shadowMesh.rotation.x = -Math.PI / 2; // lie flat on belt surface
+_shadowMesh.scale.set(CARD_H * 0.55, 1, CARD_W * 0.55); // elongated card-proportioned ellipse
+_shadowMesh.position.set(-40, CONV_Y_TOP + 0.4, 0);
+scene.add(_shadowMesh);
+
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
 // Narrow bright band swept across the card face during scan — simulates specular
 // reflection of the scanner beam reading the card surface (X=fullwidth, thin Z=7).
@@ -2262,6 +2274,7 @@ function animate(ts) {
   }
 
   // Pass 133 — hopper stack micro-jitter (cards look loose, not frozen)
+  // Pass 178: stack shimmer wave — gentle emissive pulse ripples up the deck during pause/armDescend
   stackCards.forEach((sc, i) => {
     if (!sc.visible) return;
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
@@ -2269,6 +2282,17 @@ function animate(ts) {
     const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.08
               + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.04;
     sc.position.y = _baseY + _jY;
+    // Pass 178: deck "charge" shimmer — ripples bottom→top at 0.6 Hz during idle/approach
+    if (sc.material) {
+      const _prePickT = inPhase(PH.pause) || inPhase(PH.armDescend) || inPhase(PH.armLift);
+      if (_prePickT) {
+        const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
+        sc.material.emissiveIntensity = 0.04 + _wave * 0.10;
+        sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
+      } else {
+        sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 3);
+      }
+    }
   });
 
   const ct = CARD_TYPES[cycleIdx];
@@ -4078,6 +4102,19 @@ function animate(ts) {
         _beltTrackLight.intensity = 0.35 + midT * 0.45;
       }
     }
+  }
+
+  // ── Pass 177: Card contact shadow disc ───────────────────────────────────────────
+  // Flat ellipse that follows the card on the belt; fades in/out with belt presence
+  {
+    const _onBelt = (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))
+                     && activeCard.visible;
+    const _shadowTarget = _onBelt ? 0.38 : 0;
+    _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 8);
+    if (_onBelt) {
+      _shadowMesh.position.set(activeCard.position.x, CONV_Y_TOP + 0.4, activeCard.position.z);
+    }
+    _shadowMesh.visible = _shadowMat.opacity > 0.01;
   }
 
   // ── Pass 35/47/50: Contrail particle update ──────────────────────────────────
