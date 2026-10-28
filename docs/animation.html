@@ -31,7 +31,7 @@
   .btn.active { background: rgba(99,120,255,0.3); border-color: #6378ff; color: #fff; }
 
   #stats {
-    position: fixed; bottom: 20px; left: 20px;
+    position: fixed; top: 64px; left: 20px;
     background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 10px; padding: 12px 16px;
     font-size: 12px; line-height: 2;
@@ -43,7 +43,7 @@
   #stats-current span { font-weight: 600; }
 
   #scan-overlay {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -60%);
+    position: fixed;
     text-align: center; pointer-events: none; z-index: 20;
     opacity: 0; transition: opacity 0.15s;
   }
@@ -233,8 +233,8 @@ scene.fog = new THREE.FogExp2(0x0a0a0f, 0.00035);
 
 const W = window.innerWidth, H = window.innerHeight;
 const camera = new THREE.PerspectiveCamera(45, W/H, 1, 8000);
-// Default view: (-50, 300, 700) shows full machine with hopper left, belt center, tray right
-camera.position.set(-50, 300, 700);
+// Default view: (-30, 350, 800) shows full machine with hopper left, belt center, tray right
+camera.position.set(-30, 350, 800);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(W, H);
@@ -243,11 +243,11 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1;
+renderer.toneMappingExposure = 1.25;
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.target.set(20, 40, 0);
+controls.target.set(-30, 30, 0);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
 controls.minDistance = 100;
@@ -349,13 +349,23 @@ const hfloor = makeBox(72, 4, 80, 0xc0c0c8);
 hfloor.position.set(33, 2, 0);
 hopperGroup.add(hfloor);
 const hside1 = makeBox(72, 108, 4, 0xd0d0d8);
-hside1.position.set(33, 54, 38);
+hside1.position.set(33, 54, 48);
 hopperGroup.add(hside1);
 const hside2 = makeBox(72, 108, 4, 0xd0d0d8);
-hside2.position.set(33, 54, -38);
+hside2.position.set(33, 54, -48);
 hopperGroup.add(hside2);
 hopperGroup.position.set(HOPPER_X, 0, 0);
 scene.add(hopperGroup);
+
+// Angled inner guide walls inside hopper (funnel shape to direct cards to exit)
+const guideL = makeBox(6, 70, 5, 0xb8b8c4);
+guideL.position.set(HOPPER_X + 15, 40, -30);
+guideL.rotation.z = 0.25;
+scene.add(guideL);
+const guideR = makeBox(6, 70, 5, 0xb8b8c4);
+guideR.position.set(HOPPER_X + 15, 40, 30);
+guideR.rotation.z = 0.25;
+scene.add(guideR);
 
 const hopperWire = makeWireBox(72, 108, 80, 0x444466);
 hopperWire.position.set(HOPPER_X + 33, 54, 0);
@@ -398,6 +408,17 @@ for(let lx of [-140, -40, 60]) {
   scene.add(leg2);
 }
 
+// Conveyor end rollers at belt ends
+const rollerGeo = new THREE.CylinderGeometry(8, 8, 76, 16);
+const rollerMat = new THREE.MeshStandardMaterial({ color: 0x606068, roughness: 0.3, metalness: 0.6 });
+for (const rx of [-140, 60]) {
+  const roller = new THREE.Mesh(rollerGeo, rollerMat);
+  roller.rotation.x = Math.PI / 2;
+  roller.position.set(rx, CONV_Y_TOP - 6, 0);
+  roller.castShadow = true;
+  scene.add(roller);
+}
+
 // --- Scanner hood --- dedicated matte-black material
 const hoodMat = new THREE.MeshStandardMaterial({ color: 0x111118, roughness: 0.85, metalness: 0.15 });
 const scannerHood = new THREE.Mesh(new THREE.BoxGeometry(80, 65, 100), hoodMat);
@@ -405,6 +426,26 @@ scannerHood.castShadow = true;
 scannerHood.receiveShadow = true;
 scannerHood.position.set(-40, CONV_Y_TOP + 32.5, 0);
 scene.add(scannerHood);
+
+// Camera lens aperture on hood underside
+const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 20);
+const lensMat = new THREE.MeshStandardMaterial({
+  color: 0x001122, roughness: 0.05, metalness: 0.9,
+  emissive: new THREE.Color(0x002244), emissiveIntensity: 0.4
+});
+const lens = new THREE.Mesh(lensGeo, lensMat);
+lens.rotation.x = Math.PI / 2;
+lens.position.set(-40, CONV_Y_TOP + 3, 0);
+scene.add(lens);
+
+// Lens retaining ring
+const lensRing = new THREE.Mesh(
+  new THREE.TorusGeometry(8, 1.5, 8, 20),
+  new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.5, metalness: 0.6 })
+);
+lensRing.rotation.x = Math.PI / 2;
+lensRing.position.set(-40, CONV_Y_TOP + 3, 0);
+scene.add(lensRing);
 
 // Scanner LED strip: emissive material that pulses during scan phase
 const scanLEDMat = new THREE.MeshStandardMaterial({
@@ -415,7 +456,7 @@ const scanLEDMat = new THREE.MeshStandardMaterial({
   roughness: 0.1, metalness: 0.2
 });
 const scanLED = new THREE.Mesh(new THREE.BoxGeometry(78, 3, 3), scanLEDMat);
-scanLED.position.set(-40, CONV_Y_TOP + 5, 0);
+scanLED.position.set(-40, CONV_Y_TOP + 0.5, 20);
 scene.add(scanLED);
 
 // Scanner opening slot
@@ -424,15 +465,20 @@ scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
 // Flash point light inside scanner (animated during scan phase)
-const scanFlash = new THREE.PointLight(0xffffff, 0, 60);
+const scanFlash = new THREE.PointLight(0xffffff, 0, 100);
 scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
+
+// Wide soft bloom light for scan glow effect
+const scanBloom = new THREE.PointLight(0x0088ff, 0, 300);
+scanBloom.decay = 2;
+scene.add(scanBloom);
 
 // Thin cyan scan line that sweeps across the card during scan phase
 const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ffff,
   emissive: new THREE.Color(0x00ffff),
-  emissiveIntensity: 2.0,
+  emissiveIntensity: 4.0,
   transparent: true, opacity: 0.8
 });
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(63, 2, 2), scanLineMat);
@@ -445,7 +491,7 @@ const gateBase = makeBox(20, 30, 20, 0xc0c0c8);
 gateBase.position.set(GATE_X, CONV_Y_TOP + 15, 0);
 scene.add(gateBase);
 
-const paddleGeo = new THREE.BoxGeometry(4, 60, 10);
+const paddleGeo = new THREE.BoxGeometry(4, 55, 18);
 const paddleMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e8, roughness: 0.3 });
 const paddleMesh = new THREE.Mesh(paddleGeo, paddleMat);
 paddleMesh.castShadow = true;
@@ -453,6 +499,20 @@ const paddlePivot = new THREE.Group();
 paddlePivot.position.set(GATE_X, CONV_Y_TOP + 15, 0);
 paddlePivot.add(paddleMesh);
 paddleMesh.position.set(0, 0, 0);
+// Connecting shaft from servo to paddle
+const shaftMesh = new THREE.Mesh(
+  new THREE.CylinderGeometry(3, 3, 10, 10),
+  new THREE.MeshStandardMaterial({ color: 0x888890, roughness: 0.3, metalness: 0.7 })
+);
+shaftMesh.position.set(0, 8, 0);
+paddlePivot.add(shaftMesh);
+// Tip indicator on paddle bottom (contact face)
+const tipMesh = new THREE.Mesh(
+  new THREE.BoxGeometry(6, 4, 20),
+  new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.4, emissive: 0x442200, emissiveIntensity: 0.3 })
+);
+tipMesh.position.set(0, -30, 0);
+paddlePivot.add(tipMesh);
 scene.add(paddlePivot);
 
 // --- Sorting tray (right side) ---
@@ -461,7 +521,7 @@ const TRAY_X_END   = 170;
 const TRAY_Y_BASE  = 0;
 const TRAY_FLOOR_H = 65;
 const TRAY_SHELF_H = 3;
-const TRAY_Z_HALF  = 135.5;
+const TRAY_Z_HALF  = 130;
 
 const TX_MID = (TRAY_X_START + TRAY_X_END) / 2;
 const TX_DEP = TRAY_X_END - TRAY_X_START;
@@ -511,16 +571,28 @@ const suctionPivot = new THREE.Group();
 suctionPivot.position.set(HOPPER_X + 36, 108, 0);
 scene.add(suctionPivot);
 
-// Arm rod: metallic material to differentiate from painted plastic parts
+// Arm rod: cylindrical metal rod
 const armRod = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 80, 4),
+  new THREE.CylinderGeometry(2.5, 2.5, 80, 12),
   new THREE.MeshStandardMaterial({ color: 0x909098, roughness: 0.2, metalness: 0.7 })
 );
 armRod.castShadow = true;
 armRod.position.set(0, -40, 0);
 suctionPivot.add(armRod);
 
-const suctionCup = makeBox(10, 4, 14, 0x333344);
+// Pivot flange ring at servo joint
+const flange = new THREE.Mesh(
+  new THREE.TorusGeometry(6, 2, 8, 16),
+  new THREE.MeshStandardMaterial({ color: 0x555566, roughness: 0.4, metalness: 0.5 })
+);
+flange.position.set(0, 0, 0);
+suctionPivot.add(flange);
+
+// Suction cup — round disc (more realistic than box)
+const suctionCupGeo = new THREE.CylinderGeometry(7, 5, 4, 12);
+const suctionCupMat = new THREE.MeshStandardMaterial({ color: 0x222233, roughness: 0.8 });
+const suctionCup = new THREE.Mesh(suctionCupGeo, suctionCupMat);
+suctionCup.castShadow = true;
 suctionCup.position.set(0, -83, 0);
 suctionPivot.add(suctionCup);
 
@@ -586,24 +658,33 @@ function addCardToTray(ct) {
     old.material.dispose();
   }
   const cardIdx = arr.length;
-  // Tray cards stand upright: 2mm thick in X, 88mm tall in Y, 63mm wide in Z
-  const geo = new THREE.BoxGeometry(CARD_T, CARD_H, CARD_W);
+  const TRAY_CARD_H = 58; // shorter than active card so it fits within tray wall height
+  // Tray cards stand upright: 2mm thick in X, 58mm tall in Y, 63mm wide in Z
+  const geo = new THREE.BoxGeometry(CARD_T, TRAY_CARD_H, CARD_W);
   const mat = new THREE.MeshStandardMaterial({
-    color: ct.hex, roughness: 0.25, metalness: 0.0,
-    emissive: ct.hex, emissiveIntensity: 0.12
+    color: 0xffffff, roughness: 0.18, metalness: 0.0,
+    emissive: ct.hex, emissiveIntensity: 0.25,
+    map: cardTextures[ct.slot]
   });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;
-  const targetY = ct.slotFloorY + CARD_H / 2;
+  const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 30; // start above, animate down
   mesh.position.set(
-    TRAY_X_START + 8 + cardIdx * (CARD_T + 2),
+    TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
     startY,
     ct.slotZ
   );
   scene.add(mesh);
   arr.push(mesh);
   trayArrivals.push({ mesh, startY, targetY, t: 0 });
+
+  // Flash point light burst at slot position on card arrival
+  const flashLight = new THREE.PointLight(ct.hex, 3.0, 80);
+  flashLight.position.copy(mesh.position);
+  scene.add(flashLight);
+  if(!window._flashLights) window._flashLights = [];
+  window._flashLights.push({ light: flashLight, age: 0 });
 
   // Track per-domain sort count
   domainCounts[ct.name] = (domainCounts[ct.name] || 0) + 1;
@@ -785,6 +866,16 @@ function animate(ts) {
     if(a.t >= 1) trayArrivals.splice(i, 1);
   }
 
+  // ── Decay arrival flash lights ──
+  if(window._flashLights) {
+    window._flashLights = window._flashLights.filter(f => {
+      f.age += dt;
+      f.light.intensity = Math.max(0, 3.0 * (1 - f.age / 0.5));
+      if(f.age > 0.5) { scene.remove(f.light); return false; }
+      return true;
+    });
+  }
+
   // ── Update UI ──
   updateStatsUI(ct);
   if(cycleT >= PH.scan[0] && cycleT < PH.scan[0] + 0.8) {
@@ -794,7 +885,7 @@ function animate(ts) {
   }
 
   // ── Active card color / texture (update map only when card type changes) ──
-  activeCardMat.color.setHex(ct.hex);
+  activeCardMat.color.set(0xffffff); // white so texture renders at face value; emissive carries domain tint
   activeCardMat.emissive.setHex(ct.hex);
   if(prevCt !== ct) {
     activeCardMat.map = cardTextures[ct.slot];
@@ -842,6 +933,7 @@ function animate(ts) {
     activeCardMat.emissiveIntensity = 0;
     cardGlow.intensity = 0;
     scanFlash.intensity = 0;
+    scanBloom.intensity = 0;
     scanLine.visible = false;
   }
 
@@ -856,6 +948,7 @@ function animate(ts) {
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 1, 0);
     scanFlash.intensity = 0;
+    scanBloom.intensity = 0;
     activeCardMat.emissiveIntensity = 0.2;
     cardGlow.intensity = 0.5;
     cardGlow.position.copy(activeCard.position);
@@ -879,8 +972,12 @@ function animate(ts) {
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 0.5;
     cardGlow.intensity = 1.5 + flashIntensity;
     cardGlow.position.copy(activeCard.position);
+    cardGlow.position.y += 10; // above card for top-face highlight
     // Scanner LED pulses brightly during scan
     scanLEDMat.emissiveIntensity = 1.2 + flashIntensity * 3.0;
+    // Wide bloom soft halo around scanner
+    scanBloom.intensity = flashIntensity * 0.8;
+    scanBloom.position.set(-40, CONV_Y_TOP + 15, 0);
     // Scan line sweeps across the card in Z direction
     scanLine.visible = true;
     scanLine.position.set(
@@ -890,6 +987,14 @@ function animate(ts) {
     );
     // Belt scrolls while card sits under scanner
     beltTex.offset.x -= dt * speedMult * 0.02;
+    // World-to-screen projection for scan overlay
+    const _sv = activeCard.position.clone().project(camera);
+    const _sx = (_sv.x * 0.5 + 0.5) * window.innerWidth;
+    const _sy = (-_sv.y * 0.5 + 0.5) * window.innerHeight;
+    const _ov = document.getElementById('scan-overlay');
+    _ov.style.left = _sx + 'px';
+    _ov.style.top  = (_sy - 90) + 'px';
+    _ov.style.transform = 'translateX(-50%)';
   }
 
   // ── Phase 4: Conveyor to gate (3.1..3.8s) ──
@@ -906,6 +1011,7 @@ function animate(ts) {
     const targetAngle = paddleAngleForSlot(ct.slotZ);
     paddlePivot.rotation.z = THREE.MathUtils.lerp(0, targetAngle, easeInOut(ot));
     scanFlash.intensity = 0;
+    scanBloom.intensity = 0;
     scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
     scanLine.visible = false;
     activeCardMat.emissiveIntensity = 0.2;
@@ -930,13 +1036,14 @@ function animate(ts) {
     activeCard.rotation.z = 0;
     cardGlow.intensity = 0.6;
     cardGlow.position.copy(activeCard.position);
+    beltTex.offset.x -= dt * speedMult * 0.04;
   }
 
   // ── Phase 6: Drop into slot (4.8..5.8s) ──
   else if(inPhase(PH.slotDrop)) {
     activeCard.visible = true;
     const dt3 = phaseT(PH.slotDrop, easeIn); // gravity-assisted drop
-    const targetY = ct.slotFloorY + CARD_H / 2;
+    const targetY = ct.slotFloorY + 29; // 29 = 58/2 matches tray card rest height
     const cy = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 1, targetY, dt3);
     activeCard.position.set(TRAY_X_START + 20, cy, ct.slotZ);
     activeCard.rotation.y = 0;
@@ -947,6 +1054,7 @@ function animate(ts) {
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.75) * 4));
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3);
     cardGlow.position.copy(activeCard.position);
+    beltTex.offset.x -= dt * speedMult * 0.04;
   }
 
   // ── Phase 7: Arm return (5.8..6.3s) ──
@@ -958,6 +1066,7 @@ function animate(ts) {
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
     scanFlash.intensity = 0;
+    scanBloom.intensity = 0;
     scanLine.visible = false;
   }
 
@@ -968,20 +1077,22 @@ function animate(ts) {
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
     scanFlash.intensity = 0;
+    scanBloom.intensity = 0;
     scanLine.visible = false;
   }
 
   // Belt emissive flicker implies motion throughout the cycle
   beltSurfMat.emissiveIntensity = 0.05 + 0.03 * Math.sin(cycleT * 10);
 
-  // Camera auto-orbit: gentle ellipse with front-left starting angle
+  // Camera auto-orbit: gentle ellipse centered on true machine midpoint X=-30
   if(!controls.enableRotate || !controls._userInteracted) {
     const orbitAngle = ts * 0.000025 + Math.PI * 0.3; // phase offset for 3/4 front view
-    const orbitR = 680;
-    camera.position.x = orbitR * 0.45 * Math.cos(orbitAngle) + 20;
+    const orbitR = 750;
+    camera.position.x = orbitR * 0.45 * Math.cos(orbitAngle) - 30;
     camera.position.z = orbitR * Math.sin(orbitAngle);
-    camera.position.y = 300 + 50 * Math.sin(ts * 0.00008);
-    camera.lookAt(20, 40, 0);
+    camera.position.y = 350 + 50 * Math.sin(ts * 0.00008);
+    controls.target.set(-30, 30, 0);
+    camera.lookAt(-30, 30, 0);
   }
 
   controls.update();
