@@ -1732,8 +1732,8 @@ function addCardToTray(ct) {
   arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 0.85; });
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 3.2;
-  // Pass 52: slot LED afterglow — keep LED bright for 1.8s after arrival
-  _ledCooloff[ct.slot] = 1.8;
+  // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s for longer afterglow
+  _ledCooloff[ct.slot] = 2.8;
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
   const flashLight = new THREE.PointLight(ct.hex, 5.0, 120);
@@ -2466,19 +2466,21 @@ function animate(ts) {
       const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 18;
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      const pulse = 0.8 + 0.7 * Math.sin(ts * _slotPulseFreq);
-      mat.emissiveIntensity = 2.5 + pulse;
+      // Pass 834: slot LED active pulse base 0.8+0.7→0.5+1.1 for deeper trough and higher peak
+      const pulse = 0.5 + 1.1 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.5));
+      // Pass 828: routing target base 2.5→3.5 for brighter active slot LED
+      mat.emissiveIntensity = 3.5 + pulse;
     } else if (_ledCooloff[_li] > 0) {
-      // Pass 52: afterglow — LED stays bright for 1.8s after card arrival, then decays
-      const afterT = _ledCooloff[_li] / 1.8; // 1.0→0.0 as cooloff expires
+      // Pass 52: afterglow — Pass 835: 1.8→2.8s — Pass 829: peak intensity 0.9+2.4 → 1.2+3.8
+      const afterT = _ledCooloff[_li] / 2.8; // 1.0→0.0 as cooloff expires
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity = 0.9 + afterT * 2.4; // Pass 395: peaks at 3.3 right after arrival (was 2.5)
+      mat.emissiveIntensity = 1.2 + afterT * 3.8; // Pass 829: peaks at 5.0 right after arrival
     } else {
-      // Idle: resting domain color, low glow
+      // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 for brighter resting LEDs
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity += (0.9 - mat.emissiveIntensity) * 0.12;
+      mat.emissiveIntensity += (1.4 - mat.emissiveIntensity) * 0.12;
     }
   });
 
@@ -2486,9 +2488,10 @@ function animate(ts) {
   // Belt phases: full opacity slow spin. Deflect/slotDrop: faster, slightly dim.
   const beltActive = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
   const airActive  = inPhase(PH.deflect) || inPhase(PH.slotDrop);
-  // Pass 431: belt halo 0.35→0.45 — Pass 708/709: belt 0.45→0.58, air 0.20→0.28
-  const haloTargetOpacity = beltActive ? 0.58 : airActive ? 0.28 : 0;
-  const haloSpinRate = beltActive ? 0.0012 : 0.003; // faster when airborne
+  // Pass 431: belt halo 0.35→0.45 — Pass 708/709: belt 0.45→0.58, air 0.20→0.28 — Pass 832: belt→0.72, air→0.38
+  const haloTargetOpacity = beltActive ? 0.72 : airActive ? 0.38 : 0;
+  // Pass 833: airborne spin rate 0.003→0.006 for faster spinning when card is airborne
+  const haloSpinRate = beltActive ? 0.0012 : 0.006;
   cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.15;
   if (cardHaloMat.opacity > 0.01) {
     cardHalo.position.copy(activeCard.position);
@@ -2500,9 +2503,9 @@ function animate(ts) {
     const _haloHex = (_identityRevealed || !inPhase(PH.conveyorIn)) ? ct.hex : 0x3388ff;
     cardHaloMat.color.setHex(_haloHex);
     cardHaloMat.emissive.setHex(_haloHex);
-    // Pass 331: halo emissive 1.2+0.50→1.4+0.70 — Pass 710: →1.8+0.90 for brighter post-reveal halo
+    // Pass 331: halo emissive 1.2+0.50→1.4+0.70 — Pass 710: →1.8+0.90 — Pass 831: →2.6+1.3 for brighter halo
     const _haloEmissive331 = (_identityRevealed && (beltActive || airActive))
-      ? 1.8 + 0.90 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60;
+      ? 2.6 + 1.3 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60;
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases
     const _haloScale332 = beltActive ? 1.0 + 0.04 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0;
