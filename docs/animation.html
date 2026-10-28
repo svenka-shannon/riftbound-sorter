@@ -4987,11 +4987,18 @@ function animate(ts) {
     const _celebBoost = _cameraShake > 3 ? Math.min(0.08, _cameraShake * 0.012) : 0;
     // Pass 152: brief domain tint on slotDrop — card joins the tray, background echoes domain
     const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.028 : 0;
-    if (_scanBoost > 0.002 || _celebBoost > 0.002 || _dropTintBoost > 0.002) {
+    // Pass 328: reveal background flash — brief domain flood at identity lock-on moment
+    const _revealTintBoost328 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 20) * 0.09 : 0;
+    // Pass 329: deflect background tint — background echoes domain as card arcs through air
+    const _deflectTintBoost329 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.022 : 0;
+    // Pass 330: armSwing background echo — brief tint at arc midpoint as card swings closest
+    const _swingTintBoost330 = inPhase(PH.armSwing) ? Math.sin(phaseRaw(PH.armSwing) * Math.PI) * 0.018 : 0;
+    if (_scanBoost > 0.002 || _celebBoost > 0.002 || _dropTintBoost > 0.002
+        || _revealTintBoost328 > 0.002 || _deflectTintBoost329 > 0.002 || _swingTintBoost330 > 0.002) {
       const _tintR = ((ct.hex >> 16) & 0xff) / 255;
       const _tintG = ((ct.hex >> 8) & 0xff) / 255;
       const _tintB = (ct.hex & 0xff) / 255;
-      const _strength = _scanBoost + _celebBoost + _dropTintBoost;
+      const _strength = _scanBoost + _celebBoost + _dropTintBoost + _revealTintBoost328 + _deflectTintBoost329 + _swingTintBoost330;
       _clearCurrent.r = _clearBase.r + (_tintR - _clearBase.r) * _strength;
       _clearCurrent.g = _clearBase.g + (_tintG - _clearBase.g) * _strength;
       _clearCurrent.b = _clearBase.b + (_tintB - _clearBase.b) * _strength;
