@@ -177,6 +177,17 @@
     animation: rippleOut 0.7s ease-out forwards;
   }
 
+  /* ── Stats count bounce ─────────────────────────────────────────────── */
+  @keyframes countBounce {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.5); }
+    65%  { transform: scale(0.92); }
+    100% { transform: scale(1); }
+  }
+  .count-bounce {
+    animation: countBounce 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+  }
+
   /* ── Scan flash overlay ─────────────────────────────────────────────── */
   #scan-flash-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -1337,11 +1348,14 @@ function addCardToTray(ct) {
     setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 600);
   }
 
-  // Flash stats counter in domain color on each card sorted
+  // Flash stats counter in domain color + bounce animation on each card sorted
   const statsCount = document.getElementById('stats-count');
   if(statsCount) {
     statsCount.style.color = ct.css;
-    setTimeout(() => { statsCount.style.color = '#fff'; }, 400);
+    statsCount.classList.remove('count-bounce');
+    void statsCount.offsetWidth; // force reflow so animation restarts
+    statsCount.classList.add('count-bounce');
+    setTimeout(() => { statsCount.style.color = '#fff'; statsCount.classList.remove('count-bounce'); }, 500);
   }
 
   // Floating +1 indicator at slot screen position
@@ -1420,6 +1434,9 @@ let cycleT = 0;     // elapsed time within current cycle
 // Per-cycle event flags — reset on cycle rollover
 let _scanFlashFired = false;   // true once camera-flash triggered this scan phase
 let _grabPulseFired = false;   // true once suction grab light burst fired this armLift
+
+// Domain atmosphere: slowly tint background/fog toward current domain color
+let _fogTint = new THREE.Color(0x0a0a0f);
 
 // Extended scan phase (0.6s), new armReturn phase, CYCLE_DUR = 6.8s
 const CYCLE_DUR = 6.8;
@@ -2227,6 +2244,19 @@ function animate(ts) {
     controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.018;
     controls.target.set(controls._camTgt.x, controls._camTgt.y, 0);
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, 0);
+  }
+
+  // ── Domain atmosphere: subtle fog/background color tint ────────────────────
+  // Slowly tints the dark background 4% toward the current domain color;
+  // transitions at ~0.5 units/second — smooth, atmospheric, never distracting
+  {
+    const domainRGB = new THREE.Color(ct.hex);
+    const baseFog   = new THREE.Color(0x0a0a0f);
+    // Target: 4.5% domain tint over base dark
+    const targetTint = baseFog.clone().lerp(domainRGB, 0.045);
+    _fogTint.lerp(targetTint, Math.min(1, dt * 0.55));
+    scene.fog.color.copy(_fogTint);
+    scene.background.copy(_fogTint);
   }
 
   // ── Sync active card edge outline ──────────────────────────────────────────
