@@ -2609,8 +2609,10 @@ function animate(ts) {
         scanTargetLight.color.setHex(0xffeedd);
         scanTargetLight.position.set(PIV_X, CONV_Y_TOP + 8, 0);
         // Pass 276: rangefinder lock-on flicker — 22Hz strobe in final 12% as arm locks on
-        const _lockFlicker = pt > 0.88 ? (0.80 + 0.20 * Math.sin(ts * 22 * Math.PI * 2)) : 1.0;
-        scanTargetLight.intensity = _pickTgtT * 0.90 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
+        // Pass 632: lock-on flicker amplitude 0.20→0.35 for more nervous rangefinder hunting
+        const _lockFlicker = pt > 0.88 ? (0.65 + 0.35 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0;
+        // Pass 632: targeting light peak 0.90→1.40 for brighter pre-pick spotlight
+        scanTargetLight.intensity = _pickTgtT * 1.40 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
       }
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       // Pass 462: early cup pre-glow — from pt=0.50 the cup begins a faint domain warmup
@@ -3416,7 +3418,8 @@ function animate(ts) {
     // Pass 63: scanner sonar ping rings expand horizontally from scanner during scan
     // 3 rings staggered by 0.33s each; repeat as long as scan phase is active
     {
-      const pingPeriod = 0.55; // one ping every 0.55s
+      // Pass 633: ping period 0.55→0.42 for faster sonar pulse rate (more anxious scanner rhythm)
+      const pingPeriod = 0.42; // Pass 633: one ping every 0.42s (was 0.55s)
       scanPings.forEach((p, pi) => {
         // Stagger start times across the phase: pi × (pingPeriod/3)
         const staggerOffset = pi * (pingPeriod / SCAN_PING_COUNT);
@@ -3437,9 +3440,10 @@ function animate(ts) {
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
           // Pass 534: ping reveal spike 0.85→1.35 for brighter confirm ring flash
           const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 1.35 : 0;
-          // Pass 510: post-reveal ping boost 1.35→1.65 for more dramatic confirm rings
-          const _pingBoost = ft >= 0.85 ? 1.65 + _pingRevealSpike337 : 1.0;
-          p.mat.opacity = _pingFade * flashIntensity * 0.56 * _pingBoost;
+          // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 for stronger confirm ring flash
+          const _pingBoost = ft >= 0.85 ? 2.10 + _pingRevealSpike337 : 1.0;
+          // Pass 634: ping base opacity 0.56→0.72 for more visible sonar rings
+          p.mat.opacity = _pingFade * flashIntensity * 0.72 * _pingBoost;
         } else {
           p.mesh.visible = false;
           p.mat.opacity = 0;
@@ -3708,8 +3712,11 @@ function animate(ts) {
     paddleMat.emissive.setHex(ct.hex);
     // Pass 555: gate charge max emissive 5.0→7.0 for brighter pre-gate glow as card approaches
     const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 7.0, easeInOut(ot)); // Pass 555: max charge 5.0→7.0
-    // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: flicker amp 0.35→0.55
-    const _gateFlicker = ot > 0.70 ? 0.55 * Math.sin(ts * 6 * Math.PI * 2) * ((ot - 0.70) / 0.30) : 0;
+    // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
+    // also add secondary 11Hz harmonic for more chaotic electromagnetic charging feel
+    const _gateFlicker = ot > 0.70
+      ? (0.85 * Math.sin(ts * 6 * Math.PI * 2) + 0.30 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30)
+      : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
     if (ot > 0.45) {
@@ -3834,10 +3841,10 @@ function animate(ts) {
     const dt2 = phaseT(PH.deflect);
     // Pass 454: arc-peak domain flash — at arc midpoint (dt2≈0.46) spawn a brief domain
     // point light at card position; the card is at its highest, most visible trajectory point.
-    // Pass 526: arc-peak flash intensity 6.5→9.0, dist 100→120 for stronger top-of-arc pop
+    // Pass 526: arc-peak flash intensity 6.5→9.0 — Pass 636: →12.5, dist 120→150 for bigger arc apex pop
     if (!_arcPeakFlashFired && dt2 >= 0.46) {
       _arcPeakFlashFired = true;
-      const _apfl = new THREE.PointLight(ct.hex, 9.0, 120);
+      const _apfl = new THREE.PointLight(ct.hex, 12.5, 150); // Pass 636: 9.0→12.5, dist 120→150
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4980,8 +4987,9 @@ function animate(ts) {
       if (_pauseRaw >= 0.60) {
         const _nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
         const _preT = (_pauseRaw - 0.60) / 0.40; // 0→1 in last 40% of pause
-        hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 0.32);
-        hopperLight.intensity += (_hBase + _preT * 0.28 - hopperLight.intensity) * Math.min(1, dt * 2.5);
+        // Pass 635: pre-charge tint blend 0.32→0.52 + intensity delta 0.28→0.55 for stronger domain herald
+        hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 0.52);
+        hopperLight.intensity += (_hBase + _preT * 0.55 - hopperLight.intensity) * Math.min(1, dt * 2.5);
       } else {
         hopperLight.color.set(0xffeedd);
         hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
@@ -5171,8 +5179,9 @@ function animate(ts) {
     const domainRGB = new THREE.Color(ct.hex);
     const baseFog   = new THREE.Color(0x0a0a0f);
     // Context: scan and deflect get a stronger tint boost
-    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.12 : 0;
-    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.07 : 0;
+    // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 for more immersive domain atmosphere
+    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.18 : 0;
+    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.11 : 0;
     // Pass 474: reject alarm fog — when slot-7 card is in slotDrop alarm state, background deepens
     // toward red-orange for a brief warning atmosphere (0.12 → 0 over 0.6s after alarm fires).
     const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
