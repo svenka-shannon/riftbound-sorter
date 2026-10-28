@@ -2993,8 +2993,8 @@ function animate(ts) {
       const _tintBlend = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.08) : 0;
       activeCardMat.emissive.lerpColors(new THREE.Color(0x3388ff), new THREE.Color(ct.hex), _tintBlend);
     }
-    // Pass 105: 12Hz scan strobe on card face — stroboscopic effect of fast scanner sweep
-    const _scanStrobe = Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
+    // Pass 105: 12Hz scan strobe on card face — Pass 448: amplitude 0.12→0.18
+    const _scanStrobe = Math.sin(ts * 12 * Math.PI * 2) * 0.18 * flashIntensity;
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 (longer oscillation)
     if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 5.5);
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades
@@ -3436,7 +3436,7 @@ function animate(ts) {
       const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
       // Pass 289: route arc reveal spike — brief opacity surge at identity lock-on
       const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.65 : 0; // Pass 338: spike boost 0.45→0.65
-      routeArcMat.opacity = flashIntensity * (0.75 + (_identityRevealed ? 0.22 : 0)) + _arcStrobeMod + _arcRevealSpike;
+      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 0.35 : 0)) + _arcStrobeMod + _arcRevealSpike; // Pass 449: 0.75→0.90; Pass 450: reveal boost 0.22→0.35
       // Target sphere pulses at destination
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
