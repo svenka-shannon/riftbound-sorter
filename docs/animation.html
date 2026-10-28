@@ -3733,6 +3733,11 @@ function animate(ts) {
       const _wallOsc = Math.abs(Math.sin(dt3 * Math.PI * 4)) * Math.max(0, 1 - dt3 * 1.4);
       if (_wallOsc > 0.72) ct.stripMat.emissiveIntensity = Math.max(ct.stripMat.emissiveIntensity, 0.15 + (_wallOsc - 0.72) / 0.28 * 0.90);
     }
+    // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
+    if (ct.floor === 0 && dt3 < 0.88) {
+      const _fallRamp = 0.55 + (dt3 / 0.88) * 0.30;
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
+    }
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
     // Pass 252: slotDrop bounce face flash — card face briefly flares on floor-0 bounce impact
@@ -3754,10 +3759,11 @@ function animate(ts) {
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
-    // (exp-decay additive peak) as card crosses the threshold, confirming the route.
+    // Pass 278: sympathetic flicker — all columns briefly flash at slot entry crossing
+    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 0.55 : 0;
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 1.8 : 0;
-      const _target = gi === ct.col ? THREE.MathUtils.lerp(3.5, 0.15, dt3) + _ledSpike : 0.15;
+      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 1.8 : _sympFlash278;
+      const _target = gi === ct.col ? THREE.MathUtils.lerp(3.5, 0.15, dt3) + _ledSpike : 0.15 + _sympFlash278;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
     });
     // Pass 195: slot entrance gate-burst — brief bright point light at slot threshold when
@@ -4135,7 +4141,10 @@ function animate(ts) {
       // Pass 263: conveyor body scanner-approach boost — body brightens as card nears scanner
       const _bodyApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.80
         ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 0.06 : 0;
-      const _bodyTarget = 0.08 + 0.04 * Math.sin(cycleT * 8) + _bodyApproach;
+      // Pass 279: scanner-exit echo — body briefly spikes as card departs scanner with identity confirmed
+      const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
+        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 0.12 : 0;
+      const _bodyTarget = 0.08 + 0.04 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho;
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
     } else {
       convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
