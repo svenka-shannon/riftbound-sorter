@@ -2296,7 +2296,16 @@ function animate(ts) {
     const _jPhase = i * 1.47; // stagger per card
     const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.08
               + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.04;
-    sc.position.y = _baseY + _jY;
+    // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
+    // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
+    let _recoilDip = 0;
+    if (inPhase(PH.armLift) && i < stackTopIdx) {
+      const _lt2 = phaseRaw(PH.armLift);
+      const _cardDelay = (stackTopIdx - 1 - i) * 0.08; // top-most remaining card fires first
+      const _delayedT = Math.max(0, _lt2 - _cardDelay);
+      if (_delayedT < 0.45) _recoilDip = -0.6 * Math.sin(_delayedT / 0.45 * Math.PI);
+    }
+    sc.position.y = _baseY + _jY + _recoilDip;
     // Pass 178: deck "charge" shimmer — ripples bottom→top at 0.6 Hz during idle/approach
     if (sc.material) {
       const _prePickT = inPhase(PH.pause) || inPhase(PH.armDescend) || inPhase(PH.armLift);
@@ -2712,11 +2721,15 @@ function animate(ts) {
     activeCard.position.set(cupX, cupY, suctionPivot.position.z);
     // Pass 112: arm swing momentum — card wobbles like a pendulum as arm decelerates
     let _swingWobble = 0;
+    // Pass 199: aerodynamic drag lean — card hangs slightly back on arm during swing arc.
+    // As arm sweeps 0.80→1.57 rad, inertia tilts card face ~4° (peaks at midpoint st=0.5).
+    let _swingDragX = 0;
     if (inPhase(PH.armSwing)) {
       const _sw = phaseT(PH.armSwing);
       _swingWobble = Math.sin(_sw * 19) * Math.exp(-_sw * 3.2) * 0.065;
+      _swingDragX = 0.07 * Math.sin(_sw * Math.PI);
     }
-    activeCard.rotation.set(0, 0, armRot - Math.PI / 2 + _swingWobble);
+    activeCard.rotation.set(_swingDragX, 0, armRot - Math.PI / 2 + _swingWobble);
     activeCardMat.opacity = 1.0;
     // During armLift: card glows slightly as "suction grabs" it
     const _isLift = inPhase(PH.armLift) || inPhase(PH.armSwing);
@@ -3948,6 +3961,13 @@ function animate(ts) {
     controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.016;
     controls.target.set(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
+  }
+
+  // Pass 200: scan camera Z sympathetic oscillation — very subtle ±1.8 unit Z sway matching
+  // the scanner hood's 2.8Hz micro-sway (pass 197). Gives the camera a "feels the vibration"
+  // sensation. Envelope follows sin(phaseRaw*π) so it peaks at scan midpoint.
+  if (inPhase(PH.scan) && !controls._userInteracted) {
+    camera.position.z += 1.8 * Math.sin(ts * 2.8 * Math.PI * 2) * Math.sin(phaseRaw(PH.scan) * Math.PI);
   }
 
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
