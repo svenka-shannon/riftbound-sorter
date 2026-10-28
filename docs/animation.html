@@ -2603,6 +2603,13 @@ function animate(ts) {
         scanTargetLight.intensity = _pickTgtT * 0.90 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
       }
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
+      // Pass 462: early cup pre-glow — from pt=0.50 the cup begins a faint domain warmup
+      // (vacuum pressure building), so the contact at pt=0.80 feels expected, not sudden.
+      if (pt > 0.50 && pt <= 0.80) {
+        const _earlyT = (pt - 0.50) / 0.30; // 0→1 in early warmup window
+        suctionCupMat.emissive.setHex(ct.hex);
+        suctionCupMat.emissiveIntensity += (0.25 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 5);
+      }
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
         suctionCup.scale.y = THREE.MathUtils.lerp(1.0, 0.35, _sq);
@@ -3633,7 +3640,9 @@ function animate(ts) {
     // Pass 129: brief acceleration surge emissive at exit start — belt launches card out
     const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 0.5 : 0;
     activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
-    cardGlow.intensity = 1.6; // Pass 405: conveyorOut glow boost 1.2 → 1.6
+    // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens 1.6→2.2
+    const _coGlowSurge = ot > 0.80 ? 1.6 + (ot - 0.80) / 0.20 * 0.6 : 1.6;
+    cardGlow.intensity = _coGlowSurge; // Pass 405: 1.2→1.6; Pass 463: →2.2 in final approach
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
     _beltScrollSpeed = 0.08;
@@ -3756,7 +3765,8 @@ function animate(ts) {
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     // Pass 226: tumble-correlated glow — Pass 417: arc-peak coefficient 0.28→0.40
     // cos(2θ) maps: face-on (θ=0) → 1.0, edge-on (θ≈π/4) → 0 (dims by 30%).
-    cardGlow.intensity = (0.60 + 0.40 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
+    // Pass 465: deflect glow boost — increase base+peak 0.60+0.40 → 0.80+0.60 (max 1.4→ from 1.0)
+    cardGlow.intensity = (0.80 + 0.60 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
     cardGlow.position.copy(activeCard.position);
     // Pass 250: deflect tumble emissive — Pass 415: face-on coefficient 0.40→0.60
     const _tumbleEmissive = 0.45 + 0.60 * Math.max(0, Math.cos(2 * activeCard.rotation.z));
@@ -4275,6 +4285,12 @@ function animate(ts) {
       + 0.004 * Math.sin(ts * 1.43 * Math.PI * 2);  // ~1.43 Hz higher tremor
     // Pass 246: pause arm hover Y float — soft PID hold oscillation (0.30Hz, ±0.6 units)
     suctionPivot.position.y = 108 + 0.6 * Math.sin(ts * 0.30 * Math.PI * 2);
+    // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
+    // on the scanner hood emissive, as if it's slowly cooling down between cycles.
+    {
+      const _hoodEmber = 0.04 * Math.sin(ts * 0.4 * Math.PI * 2) * Math.sin(ts * 1.3 * Math.PI * 2);
+      hoodMat.emissiveIntensity = Math.max(0.10, hoodMat.emissiveIntensity + _hoodEmber * dt * 3.5);
+    }
     activeCard.visible = false;
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
@@ -4418,13 +4434,14 @@ function animate(ts) {
   }
 
   // Pass 101: roller proximity glow — each roller brightens in domain color when card passes over
+  // Pass 461: boost proximity radius 25→38 units and max intensity 0.9→1.5 for stronger presence.
   {
     const _rollerXs = [-140, 60];
     const _cardX = activeCard.visible ? activeCard.position.x : 9999;
     rollerMats.forEach((rm, ri) => {
       const _dist = Math.abs(_cardX - _rollerXs[ri]);
-      const _prox = Math.max(0, 1 - _dist / 25); // max glow within 25 units
-      const _targetI = _prox * 0.9;
+      const _prox = Math.max(0, 1 - _dist / 38); // Pass 461: extended radius 25→38 units
+      const _targetI = _prox * 1.5;               // Pass 461: max intensity 0.9→1.5
       rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 5));
       rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 6);
     });
@@ -4998,6 +5015,10 @@ function animate(ts) {
     activeCardEdge.rotation.copy(activeCard.rotation);
     // Pass 93/191: edge is scan-blue before identity confirmed (matches pass 176/190 tint sequence)
     activeCardEdgeMat.color.setHex(_identityRevealed ? ct.hex : 0x3388ff);
+    // Pass 460: edge reveal white flash — at identity lock-on the outline briefly blooms white
+    // before settling to domain color. Uses _confirmRingT [0..1] as a proxy timing signal.
+    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 0.18) ? (1.0 - _confirmRingT / 0.18) : 0;
+    if (_edgeRvl > 0.05) activeCardEdgeMat.color.lerp(new THREE.Color(0xffffff), _edgeRvl);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     const edgeTarget = edgeFull ? 0.85 : 0.45;
