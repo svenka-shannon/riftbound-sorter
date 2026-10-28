@@ -60,10 +60,21 @@
     font-size: 11px; color: #555; line-height: 1.8; text-align: right;
   }
   .machine-label {
-    position: fixed; color: rgba(200,200,220,0.7); font-size: 10px;
+    position: fixed; color: rgba(200,200,220,0.85); font-size: 10px;
     letter-spacing: 0.1em; text-transform: uppercase; pointer-events: none;
-    transform: translateX(-50%); border-top: 1px solid rgba(200,200,220,0.3);
-    padding-top: 3px;
+    transform: translateX(-50%);
+  }
+  .machine-label::before {
+    content: '';
+    display: block;
+    width: 100%;
+    border-top: 1px solid rgba(200,200,220,0.3);
+    margin-bottom: 3px;
+  }
+  .machine-label span {
+    background: rgba(0,0,0,0.5);
+    padding: 2px 6px;
+    border-radius: 4px;
   }
 </style>
 </head>
@@ -79,6 +90,7 @@
   <div id="controls">
     <button class="btn" id="pause-btn" onclick="togglePause()">Pause</button>
     <button class="btn" id="speed-btn" onclick="cycleSpeed()">1× Speed</button>
+    <button class="btn active" id="auto-btn" onclick="toggleAutoOrbit()">↺ Auto</button>
   </div>
 </div>
 
@@ -94,12 +106,12 @@
   <div id="scan-slot"></div>
 </div>
 
-<div id="hint">Drag to rotate · Scroll to zoom · Right-drag to pan<br>Space=pause · 1–4=speed · R=reset view</div>
+<div id="hint">Drag to rotate · Scroll to zoom · Right-drag to pan<br>Space=pause · 1–4=speed · R=reset view &amp; auto-orbit</div>
 
-<div class="machine-label" id="lbl-hopper">Hopper</div>
-<div class="machine-label" id="lbl-scanner">Scanner</div>
-<div class="machine-label" id="lbl-gate">Sort Gate</div>
-<div class="machine-label" id="lbl-tray">Domain Tray</div>
+<div class="machine-label" id="lbl-hopper"><span>Hopper</span></div>
+<div class="machine-label" id="lbl-scanner"><span>Scanner</span></div>
+<div class="machine-label" id="lbl-gate"><span>Sort Gate</span></div>
+<div class="machine-label" id="lbl-tray"><span>Domain Tray</span></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -293,6 +305,27 @@ scene.add(rimLight);
 const gridHelper = new THREE.GridHelper(800, 40, 0x1a1a2e, 0x111118);
 gridHelper.position.y = -2;
 scene.add(gridHelper);
+
+// ─── Ambient Dust Particles ───────────────────────────────────────────────────
+const DUST_COUNT = 50;
+const dustPositions = new Float32Array(DUST_COUNT * 3);
+const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
+const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
+for (let i = 0; i < DUST_COUNT; i++) {
+  dustPositions[i*3+0] = THREE.MathUtils.randFloat(-300, 200);  // X
+  dustPositions[i*3+1] = THREE.MathUtils.randFloat(0, 200);     // Y
+  dustPositions[i*3+2] = THREE.MathUtils.randFloat(-200, 200);  // Z
+  dustPhases[i] = Math.random() * Math.PI * 2;
+  dustSpeeds[i] = THREE.MathUtils.randFloat(0.03, 0.09);
+}
+const dustGeo = new THREE.BufferGeometry();
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+const dustMat = new THREE.PointsMaterial({
+  size: 1.5, color: 0x8899bb, transparent: true, opacity: 0.35,
+  depthWrite: false, sizeAttenuation: true
+});
+const dustPoints = new THREE.Points(dustGeo, dustMat);
+scene.add(dustPoints);
 
 // ─── Card Types ───────────────────────────────────────────────────────────────
 // 2-floor tray: 4 columns × 2 floors = 8 slots
@@ -579,6 +612,44 @@ scene.add(shelf);
 // Upper floor (floor 1)
 makeTrayFloor(FLOOR_Y[1] - 4, 0xc0b8d8);
 
+// ─── Domain labels on tray back wall ─────────────────────────────────────────
+// Canvas plane meshes with domain name, rotated to face +X toward viewer
+CARD_TYPES.forEach(ct => {
+  const labelCanvas = document.createElement('canvas');
+  labelCanvas.width  = 120;
+  labelCanvas.height = 24;
+  const ctx = labelCanvas.getContext('2d');
+  ctx.fillStyle = 'rgba(10,10,15,0.85)';
+  ctx.fillRect(0, 0, 120, 24);
+  ctx.font = 'bold 13px "Segoe UI", sans-serif';
+  // White outline via 8-direction offset
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  [[-1,-1],[1,-1],[-1,1],[1,1],[-1,0],[1,0],[0,-1],[0,1]]
+    .forEach(([dx,dy]) => ctx.fillText(ct.name, 8+dx, 17+dy));
+  ctx.fillStyle = ct.css;
+  ctx.fillText(ct.name, 8, 17);
+  const labelTex = new THREE.CanvasTexture(labelCanvas);
+  const labelGeo = new THREE.PlaneGeometry(60, 12);
+  const labelMat = new THREE.MeshBasicMaterial({
+    map: labelTex, transparent: true, opacity: 0.92,
+    depthWrite: false, side: THREE.FrontSide
+  });
+  const labelMesh = new THREE.Mesh(labelGeo, labelMat);
+  labelMesh.position.set(165, ct.slotFloorY + 20, ct.slotZ);
+  labelMesh.rotation.y = -Math.PI / 2;
+  scene.add(labelMesh);
+
+  // Color-coded entry strip at tray front lip
+  const stripGeo = new THREE.BoxGeometry(2, 60, 2);
+  const stripMat = new THREE.MeshStandardMaterial({
+    color: ct.hex, roughness: 0.4, metalness: 0.2,
+    emissive: ct.hex, emissiveIntensity: 0.15
+  });
+  const stripMesh = new THREE.Mesh(stripGeo, stripMat);
+  stripMesh.position.set(TRAY_X_START, ct.slotFloorY + 1, ct.slotZ);
+  scene.add(stripMesh);
+});
+
 // Machine label 3D anchor points (projected to screen each frame in animate)
 const labelDefs = [
   { id:'lbl-hopper',  pos: new THREE.Vector3(HOPPER_X+33, 120, 0) },
@@ -596,7 +667,10 @@ scene.add(suctionPivot);
 // Arm rod: cylindrical metal rod
 const armRod = new THREE.Mesh(
   new THREE.CylinderGeometry(2.5, 2.5, 80, 12),
-  new THREE.MeshStandardMaterial({ color: 0x909098, roughness: 0.2, metalness: 0.7 })
+  new THREE.MeshStandardMaterial({
+    color: 0x909098, roughness: 0.2, metalness: 0.7,
+    emissive: new THREE.Color(0xffffff), emissiveIntensity: 0
+  })
 );
 armRod.castShadow = true;
 armRod.position.set(0, -40, 0);
@@ -721,7 +795,7 @@ function addCardToTray(ct) {
   const key = `${ct.floor}_${ct.col}`;
   if(!trayCards[key]) trayCards[key] = [];
   const arr = trayCards[key];
-  if(arr.length >= 3) {
+  if(arr.length >= 6) {
     const old = arr.shift();
     scene.remove(old);
     old.geometry.dispose();
@@ -740,11 +814,14 @@ function addCardToTray(ct) {
   mesh.castShadow = true;
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 30; // start above, animate down
+  const zJitter    = (Math.random() - 0.5) * 2;     // ±1 unit Z fan
+  const yRotJitter = (Math.random() - 0.5) * 0.10;  // ±0.05 rad tilt
   mesh.position.set(
     TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
     startY,
-    ct.slotZ
+    ct.slotZ + zJitter
   );
+  mesh.rotation.y = yRotJitter;
   scene.add(mesh);
   arr.push(mesh);
   trayArrivals.push({ mesh, startY, targetY, t: 0 });
@@ -756,9 +833,39 @@ function addCardToTray(ct) {
   if(!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: flashLight, age: 0 });
 
+  // Pulse fill bar brightness on arrival
+  if(fillBars[ct.slot]) {
+    fillBars[ct.slot].material.emissiveIntensity = 1.5;
+  }
+
   // Track per-domain sort count
   domainCounts[ct.name] = (domainCounts[ct.name] || 0) + 1;
 }
+
+// ─── Fill Bars ─────────────────────────────────────────────────────────────────
+// One thin bar per domain slot; scale.z maps card count → fill level.
+// Index matches ct.slot (0–7) so fillBars[ct.slot] is always the right bar.
+const fillBars = [];
+CARD_TYPES.forEach(ct => {
+  const geo = new THREE.BoxGeometry(2, 1, 60);
+  const mat = new THREE.MeshStandardMaterial({
+    color:             ct.hex,
+    emissive:          ct.hex,
+    emissiveIntensity: 0.4,
+    roughness:         0.5,
+    metalness:         0.0,
+  });
+  const bar = new THREE.Mesh(geo, mat);
+  // Position: left of tray entry, above tray wall top.
+  bar.position.set(
+    TRAY_X_START - 8,
+    FLOOR_Y[ct.floor] + 66,
+    ct.slotZ
+  );
+  bar.scale.z = 0.01;   // near-zero at start; grows as cards arrive
+  scene.add(bar);
+  fillBars.push(bar);   // fillBars[0]=Fury … fillBars[7]=Reject
+});
 
 // ─── Animation State ──────────────────────────────────────────────────────────
 let paused = false;
@@ -825,6 +932,19 @@ function cycleSpeed() {
   speedIdx = (speedIdx + 1) % SPEEDS.length;
   speedMult = SPEEDS[speedIdx];
   document.getElementById('speed-btn').textContent = speedMult + '× Speed';
+}
+
+function toggleAutoOrbit() {
+  const btn = document.getElementById('auto-btn');
+  if (controls._userInteracted) {
+    // Re-enable auto-orbit
+    controls._userInteracted = false;
+    btn.classList.add('active');
+  } else {
+    // Lock to manual
+    controls._userInteracted = true;
+    btn.classList.remove('active');
+  }
 }
 
 function updateStatsUI(cardType) {
@@ -950,6 +1070,24 @@ function animate(ts) {
       return true;
     });
   }
+
+  // ── Fill bar scale + emissive decay ──
+  CARD_TYPES.forEach((ct, idx) => {
+    const bar = fillBars[idx];
+    if(!bar) return;
+    const count = domainCounts[ct.name] || 0;
+    // scale.z: 0.01 at 0 cards → 1.0 at 20 cards; clamp to [0.01, 1.0]
+    const targetScaleZ = Math.max(0.01, Math.min(1.0, count / 20));
+    // Smooth exponential approach so bar grows visibly over ~1 s
+    bar.scale.z += (targetScaleZ - bar.scale.z) * 0.08;
+    // Decay emissive flash back to resting level 0.4
+    if(bar.material.emissiveIntensity > 0.4) {
+      bar.material.emissiveIntensity *= 0.90;  // ~10 frames to reach resting
+      if(bar.material.emissiveIntensity < 0.4) {
+        bar.material.emissiveIntensity = 0.4;
+      }
+    }
+  });
 
   // ── Update UI ──
   updateStatsUI(ct);
@@ -1161,12 +1299,37 @@ function animate(ts) {
   beltSurfMat.emissiveIntensity = 0.05 + 0.03 * Math.sin(cycleT * 10);
 
   // Spin conveyor rollers when belt is moving
-  const beltMoving = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
-  if(!paused) rollerMeshes.forEach(r => { if(beltMoving) r.rotation.x += dt * speedMult * 8; });
+  const beltFullSpeed = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
+  const beltHalfSpeed = inPhase(PH.deflect);
+  if (!paused) {
+    rollerMeshes.forEach(r => {
+      if (beltFullSpeed) r.rotation.x += dt * speedMult * 8;
+      else if (beltHalfSpeed) r.rotation.x += dt * speedMult * 4; // half rate during deflect
+    });
+  }
+
+  // ── Dust particle update ──
+  if (!paused) {
+    const pos = dustGeo.attributes.position;
+    for (let i = 0; i < DUST_COUNT; i++) {
+      pos.array[i*3+1] += dustSpeeds[i] * dt * speedMult;       // float upward
+      pos.array[i*3+0] += Math.sin(ts * 0.0003 + dustPhases[i]) * 0.04; // gentle X sway
+      if (pos.array[i*3+1] > 200) {
+        // reset to bottom with new random X/Z
+        pos.array[i*3+0] = THREE.MathUtils.randFloat(-300, 200);
+        pos.array[i*3+1] = 0;
+        pos.array[i*3+2] = THREE.MathUtils.randFloat(-200, 200);
+      }
+    }
+    pos.needsUpdate = true;
+  }
+
+  // ── Arm rod emissive highlight during armLift ──
+  armRod.material.emissiveIntensity = inPhase(PH.armLift) ? 0.15 : 0.0;
 
   // Camera auto-orbit: gentle ellipse centered on true machine midpoint X=-30
   if(!controls.enableRotate || !controls._userInteracted) {
-    const orbitAngle = ts * 0.000025 + Math.PI * 0.3; // phase offset for 3/4 front view
+    const orbitAngle = ts * 0.00006 + Math.PI * 0.3; // phase offset for 3/4 front view
     const orbitR = 750;
     camera.position.x = orbitR * 0.45 * Math.cos(orbitAngle) - 30;
     camera.position.z = orbitR * Math.sin(orbitAngle);
@@ -1191,7 +1354,11 @@ function animate(ts) {
 }
 
 // Detect user orbit interaction to pause auto-orbit
-controls.domElement.addEventListener('pointerdown', () => { controls._userInteracted = true; });
+controls.domElement.addEventListener('pointerdown', () => {
+  controls._userInteracted = true;
+  const btn = document.getElementById('auto-btn');
+  if (btn) btn.classList.remove('active');
+});
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
@@ -1203,6 +1370,8 @@ document.addEventListener('keydown', e => {
   if(e.code === 'Digit4') { speedIdx=3; speedMult=SPEEDS[3]; document.getElementById('speed-btn').textContent=SPEEDS[3]+'× Speed'; }
   if(e.code === 'KeyR') {
     controls._userInteracted = false;
+    const btn = document.getElementById('auto-btn');
+    if (btn) btn.classList.add('active');
     camera.position.set(-30, 350, 800);
     controls.target.set(-30, 30, 0);
     controls.update();
