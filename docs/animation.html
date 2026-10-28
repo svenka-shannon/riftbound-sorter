@@ -3153,8 +3153,10 @@ function animate(ts) {
         activeCard.position.y + (Math.random() - 0.5) * 5,
         activeCard.position.z + (Math.random() - 0.5) * 5
       );
+      // Pass 128: opacity peaks at arc midpoint — trail denser near arc peak
+      const _arcMid = 1 - Math.abs(dt2 - 0.5) * 2; // 1 at peak, 0 at start/end
       tp.mat.color.setHex(ct.hex);
-      tp.mat.opacity = 0.72;
+      tp.mat.opacity = 0.45 + _arcMid * 0.38;
       tp.age = 0;
       tp.life = 0.38 + Math.random() * 0.14;
       tp.active = true;
