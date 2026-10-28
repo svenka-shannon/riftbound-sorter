@@ -3432,8 +3432,11 @@ function animate(ts) {
 
   // ── Phase 8: Pause (6.3..6.8s) ──
   else {
-    // Arm at rest: add a subtle ~1.4s idle servo oscillation for realism
-    suctionPivot.rotation.z = -0.35 + 0.012 * Math.sin(ts * 0.0045);
+    // Pass 136: arm holds home position with realistic multi-frequency servo tremor
+    // Two overlapping sine waves at different frequencies simulate motor holding dither
+    suctionPivot.rotation.z = -0.35
+      + 0.009 * Math.sin(ts * 0.58 * Math.PI * 2)   // ~0.58 Hz slow hold sway
+      + 0.004 * Math.sin(ts * 1.43 * Math.PI * 2);  // ~1.43 Hz higher tremor
     activeCard.visible = false;
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
