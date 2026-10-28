@@ -2722,8 +2722,10 @@ function animate(ts) {
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
     // Pass 155: settle bounce — decaying oscillation as card slaps onto belt at entry
     const _settleY = 3.0 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
-    // Pass 173: belt lateral wobble — ±1.2 unit Z oscillation from conveyor belt play
-    const _beltWobbleZ = 1.2 * Math.sin(ts * 4.7 * Math.PI * 2);
+    // Pass 173: belt lateral wobble — ±1.2 unit Z, fades in (0→5%) and out (90→100%)
+    const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
+    const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
+    const _beltWobbleZ = 1.2 * Math.sin(ts * 4.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
