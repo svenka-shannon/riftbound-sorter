@@ -2392,6 +2392,24 @@ function animate(ts) {
       } else {
         suctionCup.scale.y = 1.0;
       }
+      // Pass 102: air displacement trail — cup cuts through air on rapid descent
+      // Only active in faster descent portion (pt > 0.25); spawns every 90ms
+      if (pt > 0.25) {
+        _trailSpawnAcc += dt;
+        if (_trailSpawnAcc >= 0.09) {
+          _trailSpawnAcc = 0;
+          const _dRot = suctionPivot.rotation.z;
+          const _dCupX = PIV_X + 83 * Math.sin(_dRot);
+          const _dCupY = PIV_Y - 83 * Math.cos(_dRot);
+          const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
+          _trailHead++;
+          tp.mesh.position.set(_dCupX + (Math.random()-0.5)*4, _dCupY, (Math.random()-0.5)*6);
+          tp.mat.color.set(0x9aaabb); // cool steel-gray (no domain reveal yet)
+          tp.mat.opacity = 0.22 + Math.random() * 0.12;
+          tp.age = 0; tp.life = 0.20 + Math.random() * 0.10;
+          tp.active = true; tp.mesh.visible = true;
+        }
+      }
       // Pass 66: vacuum ring contracts as cup approaches card (last 40% of descend)
       if (pt > 0.60) {
         const _vt = (pt - 0.60) / 0.40; // 0..1 within approach window
@@ -3597,7 +3615,7 @@ function animate(ts) {
 
   // ── Pass 35/47/50: Contrail particle update ──────────────────────────────────
   // Reset spawn timer when not in any phase that spawns contrail particles.
-  if (!inPhase(PH.deflect) && !inPhase(PH.armSwing) && !inPhase(PH.armReturn)) _trailSpawnAcc = 0;
+  if (!inPhase(PH.deflect) && !inPhase(PH.armSwing) && !inPhase(PH.armReturn) && !inPhase(PH.armDescend)) _trailSpawnAcc = 0;
   // Reset scanner exhaust accumulator when not scanning
   if (!inPhase(PH.scan)) _scanExhaustAcc = 0;
   TRAIL_PARTICLES.forEach(tp => {
