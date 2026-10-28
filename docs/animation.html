@@ -2832,6 +2832,29 @@ function animate(ts) {
       window._flashLights.push({ light: _gfl, age: 0 });
       // Pass 72: peak spike on gate contact — discharges charge-up energy
       paddleMat.emissiveIntensity = 5.5;
+      // Pass 92: gate impact sparks — micro-burst from paddle contact point
+      {
+        const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
+        let _spawned = 0;
+        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 8; _si++) {
+          const _sp = GRAB_PARTICLES[_si];
+          if (_sp.active) continue;
+          _sp.active = true; _sp.age = 0; _sp.life = 0.25 + Math.random() * 0.18;
+          _sp.mesh.position.set(_impX, _impY, _impZ);
+          _sp.mesh.visible = true;
+          const _ang = Math.random() * Math.PI * 2;
+          const _spd = 50 + Math.random() * 60;
+          _sp.vx = Math.cos(_ang) * _spd * 0.7;
+          _sp.vy = 40 + Math.random() * 50;  // strong upward bias — sparks fly upward
+          _sp.vz = Math.sin(_ang) * _spd * 0.5 + Math.sign(ct.slotZ || 1) * 15;
+          // Near-white domain highlight (like hot metal sparks)
+          const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
+          _sp.mat.color.setHex(
+            (Math.min(255, _rr + 90) << 16) | (Math.min(255, _gg + 90) << 8) | Math.min(255, _bb + 90)
+          );
+          _spawned++;
+        }
+      }
     }
     const dt2 = phaseT(PH.deflect);
     const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
