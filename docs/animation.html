@@ -745,6 +745,12 @@ const scanBloom = new THREE.PointLight(0x0088ff, 0, 300);
 scanBloom.decay = 2;
 scene.add(scanBloom);
 
+// Scan destination target light — illuminates the slot the card is going to
+// during scan phase so viewer immediately knows the routing decision
+const scanTargetLight = new THREE.PointLight(0xffffff, 0, 90);
+scanTargetLight.decay = 2;
+scene.add(scanTargetLight);
+
 // Thin cyan scan line that sweeps across the card during scan phase
 const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
@@ -1661,7 +1667,9 @@ function animate(ts) {
     cardGlow.intensity = _isLift ? 0.6 : 0;
     cardGlow.position.copy(activeCard.position);
     scanFlash.intensity = 0;
+    scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
+    scanTargetLight.intensity = 0;
     scanLine.visible = false;
   }
 
@@ -1678,6 +1686,7 @@ function animate(ts) {
     // Slight forward lean so card face visible from all orbit angles (not just top-down)
     activeCard.rotation.set(-0.18, 0, 0);
     scanFlash.intensity = 0;
+    scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     activeCardMat.emissiveIntensity = 0.55; // brighter — card must be visible on belt
     cardGlow.intensity = 1.4;               // stronger glow to track card position
@@ -1719,6 +1728,14 @@ function animate(ts) {
     );
     // Belt scrolls while card sits under scanner
     beltTex.offset.x -= dt * speedMult * 0.02;
+    // Target slot spotlight — illuminates destination tray slot during scan
+    scanTargetLight.color.setHex(ct.hex);
+    scanTargetLight.intensity = flashIntensity * 2.5;
+    scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
+    // Also pulse the fill bar of the target slot
+    if(fillBars[ct.slot]) {
+      fillBars[ct.slot].material.emissiveIntensity = 0.4 + flashIntensity * 1.2;
+    }
     // World-to-screen projection for scan overlay (clamped to visible area)
     const _sv = activeCard.position.clone().project(camera);
     const _rawX = (_sv.x * 0.5 + 0.5) * window.innerWidth;
@@ -1735,6 +1752,7 @@ function animate(ts) {
 
   // ── Phase 4: Conveyor to gate (3.1..3.8s) ──
   else if(inPhase(PH.conveyorOut)) {
+    scanTargetLight.intensity = 0;
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
     const ot = phaseRaw(PH.conveyorOut); // LINEAR for card position (belt speed)
@@ -1756,6 +1774,7 @@ function animate(ts) {
     const gateGlow = Math.abs(targetAngle) * 1.8 + 0.6;
     paddleMat.emissiveIntensity = gateGlow;
     scanFlash.intensity = 0;
+    scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
     scanLine.visible = false;
@@ -1849,6 +1868,7 @@ function animate(ts) {
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
     scanFlash.intensity = 0;
+    scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false;
   }
@@ -1860,6 +1880,7 @@ function animate(ts) {
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
     scanFlash.intensity = 0;
+    scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
     scanLine.visible = false;
   }
