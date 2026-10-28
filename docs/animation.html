@@ -2319,8 +2319,11 @@ function animate(ts) {
     const count = domainCounts[ct.name] || 0;
     // scale.y: 0.01 at 0 cards → 1.0 at 6 cards; clamp to [0.01, 1.0]
     const targetScaleY = Math.max(0.01, Math.min(1.0, count / 6));
-    // Smooth exponential approach so bar grows visibly over ~1 s
-    bar.scale.y += (targetScaleY - bar.scale.y) * 0.08;
+    // Pass 146: spring overshoot — bar bounces slightly when a new card arrives
+    if (!bar._springVel) bar._springVel = 0;
+    const _springDiff = targetScaleY - bar.scale.y;
+    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.10; // k=0.10, damping=0.80
+    bar.scale.y = Math.max(0.01, Math.min(1.18, bar.scale.y + bar._springVel));
     // Decay emissive flash back to resting level 0.4
     if(bar.material.emissiveIntensity > 0.4) {
       bar.material.emissiveIntensity *= 0.90;  // ~10 frames to reach resting
