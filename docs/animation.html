@@ -2565,6 +2565,25 @@ function animate(ts) {
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
           window._flashLights.push({ light: _cfL, age: 0 });
+          // Pass 203: cup contact dust puff — tiny displaced air burst upward from card surface.
+          // 4 particles shoot upward and sideways, simulating air compressed under the cup.
+          {
+            let _cpSpawned = 0;
+            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 4; _ci++) {
+              const _cp = GRAB_PARTICLES[_ci];
+              if (_cp.active) continue;
+              _cp.active = true; _cp.age = 0; _cp.life = 0.20 + Math.random() * 0.10;
+              const _cpX = PIV_X + 83 * Math.sin(_cfRot);
+              const _cpY = PIV_Y - 83 * Math.cos(_cfRot);
+              _cp.mesh.position.set(_cpX + (Math.random()-0.5)*10, _cpY - 4, (Math.random()-0.5)*8);
+              _cp.mesh.visible = true;
+              _cp.vx = (Math.random() - 0.5) * 28;
+              _cp.vy = 16 + Math.random() * 20;   // shoot upward past cup
+              _cp.vz = (Math.random() - 0.5) * 20;
+              _cp.mat.color.setRGB(0.85, 0.88, 0.92); // cool pale grey (displaced air)
+              _cpSpawned++;
+            }
+          }
         }
       } else {
         suctionCup.scale.y = 1.0;
@@ -2943,12 +2962,19 @@ function animate(ts) {
     scanLineMat.emissive.setHex(_beamHex);
     scanLineMat2.color.setHex(_beamHex);
     scanLineMat2.emissive.setHex(_beamHex);
-    // Brief intensity spike on the first frame of reveal
+    // Pass 202: scan beam proximity pulse — beam briefly spikes when it crosses card center.
+    // Primary Z-beam proximity: spikes when scanLine.position.z ≈ activeCard.position.z (≈0).
+    // Within ±10 units of center → extra +2.0 intensity boost. Pre-reveal only (post-reveal
+    // the spike was already done in pass 183).
+    const _beamZ = scanLine.position.z;
+    const _cardCenterZ = activeCard.position.z;
+    const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
+    // Brief intensity spike on the first frame of reveal (pass 183)
     if (_identityRevealed && ft >= 0.85 && ft < 0.87) {
       scanLineMat.emissiveIntensity = 6.0;
       scanLineMat2.emissiveIntensity = 4.5;
     } else {
-      scanLineMat.emissiveIntensity = 3.0;
+      scanLineMat.emissiveIntensity = 3.0 + _beamProxZ * 2.0;
       scanLineMat2.emissiveIntensity = 2.5;
     }
     // Scan grid dots: 3×3 points appear staggered across card face with flash
@@ -3125,6 +3151,14 @@ function animate(ts) {
     if(fillBars[ct.slot]) {
       const _fbTarget = _identityRevealed ? (0.4 + flashIntensity * 1.2) : 0.12;
       fillBars[ct.slot].material.emissiveIntensity += (_fbTarget - fillBars[ct.slot].material.emissiveIntensity) * Math.min(1, dt * 5);
+    }
+    // Pass 204: paddle pre-aim — after identity reveal, paddle very subtly pre-positions
+    // toward destination (15% of target angle) before conveyorOut takes over at 100%.
+    // Gives the impression the machine is already routing before the card exits.
+    if (_identityRevealed) {
+      const _preAimT = Math.min(1, (ft - 0.85) / 0.15); // 0→1 in window after reveal
+      const _preAimAngle = paddleAngleForSlot(ct.slotZ) * 0.15 * _preAimT;
+      paddlePivot.rotation.z += (_preAimAngle - paddlePivot.rotation.z) * Math.min(1, dt * 2);
     }
     // ── Scanner beam cone + core column ──
     // (Pass 76 lerp superseded by pass 189 binary snap — removed)
