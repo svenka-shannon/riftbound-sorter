@@ -3636,9 +3636,10 @@ function animate(ts) {
     const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
     const cz = THREE.MathUtils.lerp(0, ct.slotZ, dt2);
     // Pass 147: parabolic arc — card rises then falls like a physical toss
+    // Pass 316: floor-1 arc height boost — upper floor cards toss higher for more dramatic trajectory
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
-    const _arcBump = (ct.floor === 1 ? 14 : 10) * Math.sin(dt2 * Math.PI);
+    const _arcBump = (ct.floor === 1 ? 18 : 10) * Math.sin(dt2 * Math.PI);
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 3.2;
@@ -3655,7 +3656,9 @@ function animate(ts) {
       activeCard.rotation.x = THREE.MathUtils.lerp(-0.18, _normTilt, easeOut(_defEntryT)) + _launchKick;
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
-    const _tumblePeak = bankSign * 0.65; // center-slot (bankSign=0) gets no roll
+    // Pass 317: deflect tumble distance scaling — outer columns tumble harder (steeper deflect angle)
+    const _tumbleAmp = 0.65 + Math.abs(ct.slotZ) / 97.5 * 0.25;
+    const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
     const _flutter = Math.sin(ts * 23 * Math.PI * 2) * 0.020 * Math.sin(dt2 * Math.PI);
     // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
@@ -3672,7 +3675,10 @@ function animate(ts) {
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
     // Pass 126: color warms from neutral white to domain color as card approaches
     scanTargetLight.color.set(0xffeecc).lerp(new THREE.Color(ct.hex), easeOut(dt2));
-    scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
+    // Pass 318: deflect target light Z-track — light follows card Z in first half, converges to slot
+    const _lightZ318 = dt2 < 0.5 ? activeCard.position.z
+      : THREE.MathUtils.lerp(activeCard.position.z, ct.slotZ, (dt2 - 0.5) / 0.5);
+    scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, _lightZ318);
     scanTargetLight.intensity = THREE.MathUtils.lerp(0, 1.8, dt2);
     // Keep gate paddle colored while card is deflecting
     // Pass 248: paddle domain-to-orange afterglow — domain color during peak window, then fades
