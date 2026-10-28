@@ -214,16 +214,7 @@ Space=pause · 1–4=speed · R=reset view &amp; auto-orbit<br>
 
 <div id="tray-legend">
   <div class="legend-title">Sorting Tray Layout</div>
-  <div class="legend-floor">
-    <div class="legend-floor-label">Lower floor →</div>
-    <div><span class="legend-dot" style="background:#cc2233"></span><span style="color:#cc2233">Fury</span> · <span class="legend-dot" style="background:#2244cc"></span><span style="color:#2244cc">Mind</span></div>
-    <div><span class="legend-dot" style="background:#22aa44"></span><span style="color:#22aa44">Calm</span> · <span class="legend-dot" style="background:#ff7700"></span><span style="color:#ff7700">Body</span></div>
-  </div>
-  <div class="legend-floor">
-    <div class="legend-floor-label">Upper floor →</div>
-    <div><span class="legend-dot" style="background:#9922cc"></span><span style="color:#9922cc">Chaos</span> · <span class="legend-dot" style="background:#ddcc00"></span><span style="color:#ddcc00">Order</span></div>
-    <div><span class="legend-dot" style="background:#888888"></span><span style="color:#aaa">Colorless</span> · <span class="legend-dot" style="background:#334455"></span><span style="color:#667788">Reject</span></div>
-  </div>
+  <div id="tray-legend-body"></div>
   <div style="font-size:10px;color:#555;margin-top:4px;border-top:1px solid rgba(255,255,255,0.06);padding-top:4px;">Gate deflects card → correct slot</div>
 </div>
 
@@ -1028,6 +1019,33 @@ function showSlotPlusOne(worldPos, color) {
   div.addEventListener('animationend', () => div.remove());
 }
 
+function updateTrayLegend() {
+  const body = document.getElementById('tray-legend-body');
+  if (!body) return;
+  const floors = [
+    { label: 'Lower floor →', types: CARD_TYPES.filter(t => t.floor === 0) },
+    { label: 'Upper floor →', types: CARD_TYPES.filter(t => t.floor === 1) },
+  ];
+  body.innerHTML = floors.map(fl => {
+    const rows = [];
+    for (let i = 0; i < fl.types.length; i += 2) {
+      const pair = fl.types.slice(i, i + 2).map(t => {
+        const count = domainCounts[t.name] || 0;
+        const badge = count > 0
+          ? `<span style="color:${t.css};font-size:10px;margin-left:2px">${count}</span>`
+          : '';
+        const domId = 'lc-' + t.name.toLowerCase();
+        return `<span class="legend-dot" style="background:${t.css}"></span>` +
+               `<span id="${domId}" style="color:${t.css}">${t.name}</span>${badge}`;
+      });
+      rows.push(`<div style="display:flex;gap:10px;align-items:center">${pair.map(p => `<span>${p}</span>`).join('')}</div>`);
+    }
+    return `<div class="legend-floor"><div class="legend-floor-label">${fl.label}</div>${rows.join('')}</div>`;
+  }).join('');
+}
+// Init legend immediately so it shows before first card arrives
+setTimeout(updateTrayLegend, 0);
+
 function addCardToTray(ct) {
   const key = `${ct.floor}_${ct.col}`;
   if(!trayCards[key]) trayCards[key] = [];
@@ -1077,6 +1095,13 @@ function addCardToTray(ct) {
 
   // Track per-domain sort count
   domainCounts[ct.name] = (domainCounts[ct.name] || 0) + 1;
+  updateTrayLegend(); // refresh legend with updated count badge
+  // Flash the tray legend slot entry
+  const legSlot = document.getElementById('lc-' + ct.name.toLowerCase());
+  if(legSlot) {
+    legSlot.style.textShadow = `0 0 10px ${ct.css}`;
+    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 600);
+  }
 
   // Floating +1 indicator at slot screen position
   const slotWorldPos = new THREE.Vector3(
@@ -1793,20 +1818,28 @@ function animate(ts) {
     }
   }
 
-  // ── "Picking: [Domain]" hint near hopper during arm phases ──
+  // ── "Picking: [Domain]" hint + "Next:" preview near hopper ──
   {
     const pickEl = document.getElementById('picking-hint');
     if(pickEl) {
       const showPick = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing);
-      pickEl.style.opacity = showPick ? '1' : '0';
-      if(showPick) {
-        // Update label to show domain name in domain color
-        pickEl.innerHTML = `<span style="color:${ct.css}">▼ ${ct.name}</span>`;
+      const showNext = inPhase(PH.armReturn) || cycleT >= PH.pause[0];
+      const showAny = showPick || showNext;
+      pickEl.style.opacity = showAny ? '1' : '0';
+      if(showAny) {
         const _pp = new THREE.Vector3(HOPPER_X + 33, 115, 0).project(camera);
         const _px = (_pp.x * 0.5 + 0.5) * _lW;
         const _py = (-_pp.y * 0.5 + 0.5) * _lH;
         pickEl.style.left = _px + 'px';
         pickEl.style.top  = (_py - 30) + 'px';
+        if (showPick) {
+          // Active pick: bold domain color
+          pickEl.innerHTML = `<span style="color:${ct.css}">▼ ${ct.name}</span>`;
+        } else {
+          // Arm returning: show which card is next in queue
+          const nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
+          pickEl.innerHTML = `<span style="color:${nextCt.css};opacity:0.65;font-size:11px">next: ${nextCt.name}</span>`;
+        }
       }
     }
   }
