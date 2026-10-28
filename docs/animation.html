@@ -1714,15 +1714,28 @@ function animate(ts) {
     }
   }
 
-  // Camera auto-orbit: gentle ellipse centered on true machine midpoint X=-30
+  // Camera auto-orbit: ellipse + phase-aware target drift
   if(!controls.enableRotate || !controls._userInteracted) {
     const orbitAngle = ts * 0.00006 + Math.PI * 0.3; // phase offset for 3/4 front view
     const orbitR = 750;
     camera.position.x = orbitR * 0.45 * Math.cos(orbitAngle) - 30;
     camera.position.z = orbitR * Math.sin(orbitAngle);
     camera.position.y = 320 + 20 * Math.sin(ts * 0.00008);
-    controls.target.set(-30, 30, 0);
-    camera.lookAt(-30, 30, 0);
+
+    // Phase-aware lookAt: gently drift target toward the active machine area
+    const _tgt = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing)
+      ? { x: HOPPER_X + 80, y: 60 }
+      : inPhase(PH.scan)
+      ? { x: -40, y: 55 }
+      : inPhase(PH.slotDrop) || inPhase(PH.deflect)
+      ? { x: TX_MID, y: 60 }
+      : { x: -30, y: 30 }; // default: machine center
+
+    if(!controls._camTgt) controls._camTgt = { x: -30, y: 30 };
+    controls._camTgt.x += (_tgt.x - controls._camTgt.x) * 0.015; // slow ease
+    controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.015;
+    controls.target.set(controls._camTgt.x, controls._camTgt.y, 0);
+    camera.lookAt(controls._camTgt.x, controls._camTgt.y, 0);
   }
 
   controls.update();
