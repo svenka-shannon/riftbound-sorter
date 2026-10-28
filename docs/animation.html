@@ -3110,6 +3110,13 @@ function animate(ts) {
     const _strobeFreq = 5 + _prevT * 12; // ramps 5Hz → 17Hz as bar approaches reveal
     const _strobeAmp  = _prevT * 0.06;
     const _strobe = Math.sin(ts * _strobeFreq * Math.PI * 2) * _strobeAmp;
+    // Pass 189: cone + beam switch from scan-blue to domain color at identity reveal
+    {
+      const _coneHex = _identityRevealed ? ct.hex : 0x00aaff;
+      const _beamHex2 = _identityRevealed ? ct.hex : 0x00ff88;
+      scanConeMat.color.setHex(_coneHex);
+      scanBeamMat.color.setHex(_beamHex2);
+    }
     scanConeMat.opacity = flashIntensity * 0.09 + _strobe * 0.5; // subtle wide cone
     scanBeamMat.opacity = flashIntensity * 0.55 + _strobe;        // brighter core
     // ── Routing arc: curved path from scanner lens → destination slot ──
@@ -4367,7 +4374,9 @@ function animate(ts) {
   Object.entries(trayCards).forEach(([slotKey, slotArr], ki) => {
     // Derive phase offset from slot key (e.g. "0_0" → 0, "0_1" → 1, etc.)
     const phaseOff = ki * 0.9 + (slotKey.charCodeAt(0) * 0.3 + slotKey.charCodeAt(2) * 0.4);
-    const _breathe = 0.22 + 0.08 * (Math.sin(ts * 0.00055 + phaseOff) * 0.5 + 0.5);
+    // Pass 188: fix tray card breathe — was ts*0.00055 (~3.2h period = stationary).
+    // Fixed to 0.3Hz per slot, each slot phase-offset so cards breathe independently.
+    const _breathe = 0.22 + 0.08 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5);
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
