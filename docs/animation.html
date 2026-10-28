@@ -3164,23 +3164,22 @@ function animate(ts) {
     const _beamZ = scanLine.position.z;
     const _cardCenterZ = activeCard.position.z;
     const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
-    // Pass 343: scan beam reveal spike — exp decay replaces hard 2-frame window; primary gets +4.0, secondary +2.8
-    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 4.0 : 0;
+    // Pass 343: scan beam reveal spike — Pass 575: primary 4.0→6.5, secondary 2.8→4.5 for stronger beam pop
+    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 6.5 : 0;
     scanLineMat.emissiveIntensity = 3.0 + _beamProxZ * 2.0 + _beamRevealSpike343;
-    // Pass 345: secondary beam post-reveal boost
-    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 2.8 : 0;
+    // Pass 345/575: secondary beam post-reveal boost 2.8→4.5
+    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 4.5 : 0;
     scanLineMat2.emissiveIntensity = 2.5 + _beam2Reveal345;
-    // Pass 244: beam reversal flare — brief emissive surge when primary beam reverses at ft=0.5
-    // Pass 485: flare amplitude boost 2.0→3.5 for more dramatic mid-scan beam reversal pivot
-    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 3.5;
+    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: 3.5→5.5 for more dramatic pivot
+    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 5.5;
     scanLineMat.emissiveIntensity += _revFlare;
     // Scan grid dots: 3×3 points appear staggered across card face with flash
     {
       // Pass 148 + 171: dots cascade to domain color one by one starting at ft=0.85 reveal
       // Each dot switches ft=0.85 + di*0.014 — wave of domain color spreading across grid
       // Brief brightness spike at reveal moment
-      // Pass 344: dot reveal burst — exp decay replaces linear window for sharper initial flash
-      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 0.80 : 0;
+      // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 for bigger grid dot cascade flash at reveal
+      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 1.30 : 0;
       SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
         const stagger = di * 0.06; // 60ms stagger per dot (0..0.48s)
         const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
@@ -3195,8 +3194,8 @@ function animate(ts) {
           // Post-reveal they snap to still (locked on).
           // Pass 365: float amplitude boost 0.5 → 0.75 for more visible hover effect
           const _dotFloat = _identityRevealed ? 0 : 0.75 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
-          // Pass 292: lock-in X jitter at reveal — dots vibrate X axis briefly as scanner locks on
-          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 0.38 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
+          // Pass 292: lock-in X jitter at reveal — Pass 578: amplitude 0.38→0.65 for more visible lock-on jitter
+          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 0.65 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
           // Pass 366: post-reveal dots Z drift toward destination slot (20% of slotZ over 0.12s)
           const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.20 : 0;
           mesh.position.set(
@@ -3207,8 +3206,9 @@ function animate(ts) {
           mat.color.setHex(dotColor);
           // Pass 215: beam-proximity brightening — each dot brightens as the Z-sweep beam
           // crosses its Z position, creating a sweep highlight that travels with the beam.
+          // Pass 577: dot beam-proximity brightening 0.60→0.95 for more vivid sweep highlight
           const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 11);
-          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 0.60));
+          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 0.95));
           // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× harder pop
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
             ? 1.0 + 1.50 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0;
@@ -3226,9 +3226,8 @@ function animate(ts) {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
-      // Pass 247: reveal overshoot pulse — bar briefly surges past fill at identity confirm
-      // Pass 327: stronger overshoot — more pronounced surge to sell the lock-on moment
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.30 : 0; // Pass 444: 0.18→0.30
+      // Pass 247: reveal overshoot pulse — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 (bigger surge)
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.48 : 0; // Pass 579: 0.30→0.48
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
