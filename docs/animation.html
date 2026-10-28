@@ -3015,6 +3015,27 @@ function animate(ts) {
     paddleMat.emissive.setHex(ct.hex);
     const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 3.8, easeInOut(ot));
     paddleMat.emissiveIntensity += (_gateChargeTarget - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
+    // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
+    if (ot > 0.45) {
+      _trailSpawnAcc += dt;
+      const _coronaRate = 0.18 - (ot - 0.45) * 0.10; // faster spawn as charge peaks
+      if (_trailSpawnAcc >= _coronaRate) {
+        _trailSpawnAcc = 0;
+        const _coronaAng = Math.random() * Math.PI * 2;
+        const _coronaR = 6 + Math.random() * 10;
+        const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
+        _trailHead++;
+        tp.mesh.position.set(
+          GATE_X + Math.cos(_coronaAng) * _coronaR * 0.4,
+          CONV_Y_TOP + 15 + Math.sin(_coronaAng) * _coronaR,
+          Math.sin(_coronaAng * 0.7) * _coronaR * 0.3
+        );
+        tp.mat.color.setHex(ct.hex);
+        tp.mat.opacity = 0.15 + Math.random() * 0.12;
+        tp.age = 0; tp.life = 0.22 + Math.random() * 0.18;
+        tp.active = true; tp.mesh.visible = true;
+      }
+    }
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
     slotSweepLight.intensity = 0; // pass 81: off during conveyor
