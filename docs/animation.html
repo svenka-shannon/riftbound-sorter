@@ -848,6 +848,51 @@ const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 90), scanLineMat2);
 scanLine2.visible = false;
 scene.add(scanLine2);
 
+// ─── Machine Nameplate ────────────────────────────────────────────────────────
+// Canvas-textured industrial plaque on the scanner hood front face
+{
+  const _nc = document.createElement('canvas');
+  _nc.width = 256; _nc.height = 72;
+  const _nCtx = _nc.getContext('2d');
+  // Background: dark metallic gradient
+  const _nGrd = _nCtx.createLinearGradient(0, 0, 0, 72);
+  _nGrd.addColorStop(0, '#1c1c2e'); _nGrd.addColorStop(1, '#0e0e1a');
+  _nCtx.fillStyle = _nGrd;
+  _nCtx.fillRect(0, 0, 256, 72);
+  // Border
+  _nCtx.strokeStyle = 'rgba(80,160,255,0.45)';
+  _nCtx.lineWidth = 2;
+  _nCtx.strokeRect(3, 3, 250, 66);
+  // Corner accent dots
+  [[9,9],[247,9],[9,63],[247,63]].forEach(([x,y]) => {
+    _nCtx.fillStyle = 'rgba(80,180,255,0.7)';
+    _nCtx.beginPath(); _nCtx.arc(x, y, 3, 0, Math.PI*2); _nCtx.fill();
+  });
+  // Top line divider
+  _nCtx.strokeStyle = 'rgba(80,140,255,0.25)';
+  _nCtx.lineWidth = 1;
+  _nCtx.beginPath(); _nCtx.moveTo(10, 38); _nCtx.lineTo(246, 38); _nCtx.stroke();
+  // "RIFTBOUND" main title
+  _nCtx.font = 'bold 24px "Arial Narrow", Arial, sans-serif';
+  _nCtx.textAlign = 'center'; _nCtx.textBaseline = 'middle';
+  _nCtx.fillStyle = '#eeeeff';
+  _nCtx.fillText('RIFTBOUND', 128, 21);
+  // "CARD SORTER" subtitle in cyan
+  _nCtx.font = '12px "Arial Narrow", Arial, sans-serif';
+  _nCtx.letterSpacing = '0.2em';
+  _nCtx.fillStyle = '#50a0ff';
+  _nCtx.fillText('CARD  SORTER', 128, 54);
+  const _nTex = new THREE.CanvasTexture(_nc);
+  const _nMat = new THREE.MeshStandardMaterial({
+    map: _nTex, roughness: 0.4, metalness: 0.3,
+    emissive: new THREE.Color(0x203060), emissiveIntensity: 0.25,
+  });
+  const _nMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 18), _nMat);
+  // Front face of scanner hood: hood center is (-40, CONV_Y_TOP+32.5, 0), depth=100, front at Z=+50
+  _nMesh.position.set(-40, CONV_Y_TOP + 42, 51);
+  scene.add(_nMesh);
+}
+
 // --- Sort gate servo + paddle ---
 const GATE_X = 60;
 const gateBase = makeBox(20, 30, 20, 0xc0c0c8);
