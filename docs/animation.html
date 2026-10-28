@@ -1799,6 +1799,7 @@ let _depositFired = false;     // true once belt-deposit flash fired at conveyor
 let _convOutFlashFired = false; // pass 46: once scanner-exit flash fires at conveyorOut start
 let _rejectAlarmFired = false;  // pass 48: once reject-alarm vignette fires at Reject card landing
 let _identityRevealed = false;  // pass 93: set when scan reaches 85% confirm threshold
+let _slotPuffFired = false;     // pass 107: true once slot entry air puff fires this slotDrop
 let _domainFillBoost = 0;      // pass 99: temporary intensity boost at identity reveal
 let _fovBump = 0;              // pass 106: FOV zoom-in amount at celebration (8 = zoom in 8°)
 let _cameraShake = 0;          // current shake magnitude (pixels); decays per frame
@@ -2173,6 +2174,7 @@ function animate(ts) {
     _convOutFlashFired = false; // pass 46
     _rejectAlarmFired = false;  // pass 48
     _identityRevealed = false;  // pass 93
+    _slotPuffFired = false;     // pass 107
     _domainFillBoost = 0;       // pass 99
     _confirmRingT = -1;         // pass 100
     confirmRing.visible = false; confirmRingMat.opacity = 0;
@@ -3072,6 +3074,36 @@ function animate(ts) {
       const _target = gi === ct.col ? THREE.MathUtils.lerp(3.5, 0.15, dt3) : 0.15;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
     });
+    // Pass 107: slot-entry air puff — burst upward as card first pushes into slot opening
+    if (!_slotPuffFired && dt3 >= 0.30) {
+      _slotPuffFired = true;
+      const _puffX = TRAY_X_START + 20;
+      const _puffY = ct.slotFloorY + 58; // top of slot opening (TRAY_CARD_H = 58)
+      const _puffZ = ct.slotZ;
+      const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
+      let _puffSpawned = 0;
+      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 6; _pi++) {
+        const _pp = GRAB_PARTICLES[_pi];
+        if (_pp.active) continue;
+        _pp.active = true; _pp.age = 0; _pp.life = 0.28 + Math.random() * 0.15;
+        _pp.mesh.position.set(
+          _puffX + (Math.random() - 0.5) * 10,
+          _puffY + Math.random() * 4,
+          _puffZ + (Math.random() - 0.5) * 12
+        );
+        _pp.mesh.visible = true;
+        _pp.vx = (Math.random() - 0.5) * 20;
+        _pp.vy = 32 + Math.random() * 28; // shoot upward
+        _pp.vz = (Math.random() - 0.5) * 22;
+        // Pale tint: blend 55% toward white so they read as "air"
+        _pp.mat.color.setRGB(
+          Math.min(1, _rr / 255 * 0.45 + 0.55),
+          Math.min(1, _gg / 255 * 0.45 + 0.55),
+          Math.min(1, _bb / 255 * 0.45 + 0.55)
+        );
+        _puffSpawned++;
+      }
+    }
     // Fire impact shockwave ring once when floor-0 card hits the tray floor
     if (ct.floor === 0 && !_impactFired && dt3 >= 0.86) {
       _impactFired = true;
