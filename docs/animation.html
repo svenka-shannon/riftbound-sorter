@@ -1475,12 +1475,14 @@ function animate(ts) {
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2, 0);
+    // Slight forward lean so card face visible from all orbit angles (not just top-down)
+    activeCard.rotation.set(-0.12, 0, 0);
     scanFlash.intensity = 0;
     scanBloom.intensity = 0;
-    activeCardMat.emissiveIntensity = 0.2;
-    cardGlow.intensity = 0.5;
+    activeCardMat.emissiveIntensity = 0.55; // brighter — card must be visible on belt
+    cardGlow.intensity = 1.4;               // stronger glow to track card position
     cardGlow.position.copy(activeCard.position);
-    cardGlow.position.y += 10;
+    cardGlow.position.y += 12;
     // Scroll belt texture to imply motion
     beltTex.offset.x -= dt * speedMult * 0.08;
     scanLine.visible = false;
@@ -1531,7 +1533,7 @@ function animate(ts) {
   else if(inPhase(PH.conveyorOut)) {
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
-    activeCard.rotation.set(0, 0, 0);
+    activeCard.rotation.set(-0.12, 0, 0); // same lean as conveyorIn — consistent look
     const ot = phaseRaw(PH.conveyorOut); // LINEAR for card position (belt speed)
     activeCard.position.set(
       THREE.MathUtils.lerp(-40, GATE_X, ot),
@@ -1545,8 +1547,8 @@ function animate(ts) {
     scanBloom.intensity = 0;
     scanLEDMat.emissiveIntensity = 1.2; // LED back to idle glow
     scanLine.visible = false;
-    activeCardMat.emissiveIntensity = 0.2;
-    cardGlow.intensity = 0.8;
+    activeCardMat.emissiveIntensity = 0.55;
+    cardGlow.intensity = 1.2;
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling
     beltTex.offset.x -= dt * speedMult * 0.08;
