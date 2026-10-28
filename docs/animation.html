@@ -3056,13 +3056,13 @@ function animate(ts) {
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
     // Pass 172: scan-field levitation — card floats on 0.8Hz sine during scan (peaks at midpoint)
-    // Pass 658: levitate amplitude 0.30→0.55 + add secondary 1.3Hz harmonic for organic float
+    // Pass 658: levitate 0.30→0.55 + secondary 0.15 — Pass 788: primary 0.55→0.75, secondary 0.15→0.24
     const ft = phaseRaw(PH.scan);
-    const _levitate = (0.55 * Math.sin(ts * 0.8 * Math.PI * 2) + 0.15 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI);
+    const _levitate = (0.75 * Math.sin(ts * 0.8 * Math.PI * 2) + 0.24 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI);
     // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
     // confirmed (ft 0.85→1.0), giving a subtle "recognition" gesture.
-    // Pass 655: reveal lift 3.0→5.5 units for more prominent "recognized!" rise
-    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 5.5 : 0;
+    // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 for more prominent "recognized!" rise
+    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 8.5 : 0;
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's -0.18 belt lean into the reveal bell curve over first 10%
@@ -3156,15 +3156,16 @@ function animate(ts) {
     const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 0.65 : 0;
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
-    // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 and base 2.8→3.5 for stronger lens flare
-    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 4.5 : 0;
-    lensMat.emissiveIntensity = 0.4 + flashIntensity * 3.5 + _lensReveal370;
+    // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8
+    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 7.0 : 0;
+    // Pass 793: lens flash base 3.5→4.8 for brighter scanner lens during scan
+    lensMat.emissiveIntensity = 0.4 + flashIntensity * 4.8 + _lensReveal370;
     // Wide bloom soft halo around scanner
-    // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 for bigger bloom burst at lock-on
-    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 7.0 : 0;
+    // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 for bigger bloom burst at lock-on
+    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 11.0 : 0;
     scanBloom.color.setHex(_identityRevealed ? ct.hex : 0x0088ff);
-    // Pass 595: bloom base 0.8→1.2 for stronger soft halo during scan
-    scanBloom.intensity = flashIntensity * 1.2 + _bloomRevealSurge;
+    // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 for stronger soft scan halo
+    scanBloom.intensity = flashIntensity * 1.9 + _bloomRevealSurge;
     // Pass 347: bloom Z drift toward destination slot after identity reveal
     const _bloomZ347 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.20) * 0.30 : 0;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, _bloomZ347);
@@ -3545,11 +3546,11 @@ function animate(ts) {
     }
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80
     const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 0.80 : 0;
-    // Pass 302: scan cone Z sweep — Pass 684: sweep ±7→±9 for wider active-scanning range
-    scanCone.position.z = 9 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5);
+    // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 for wider active-scanning range
+    scanCone.position.z = 13 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5);
     scanBeam.position.z = scanCone.position.z;
-    // Pass 390: cone Y scale punch at reveal — brief vertical elongation at lock-on
-    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 0.45 : 0);
+    // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 for bigger vertical elongation at lock-on
+    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 0.70 : 0);
     // Pass 515: scan cone base opacity boost 0.09→0.14 for more visible beam cone during scan
     scanConeMat.opacity = flashIntensity * 0.14 + _strobe * 0.5 + _coneRevealBoost;
     // Pass 287: scan beam strength scales with bar fill — beam grows as more data is acquired
