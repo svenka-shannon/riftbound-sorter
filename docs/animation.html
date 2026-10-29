@@ -2995,8 +2995,8 @@ function animate(ts) {
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
     const _beltWobbleZ = (3.0 * Math.sin(ts * 4.7 * Math.PI * 2) + 0.90 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut;
-    // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 for more tactile belt feel
-    const _beltYBump = 0.35 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
+    // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 for more tactile belt feel
+    const _beltYBump = 0.55 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
@@ -3016,10 +3016,10 @@ function animate(ts) {
     // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap)
     const _entryBoost = Math.exp(-ct2 * 20) * 1.4;
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
-    // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 for stronger scanner-approach tension
+    // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension
     const _approachFreq272 = 8 + _approachT * 20;
     activeCardMat.emissiveIntensity = 0.55 + _approachT * 0.85 // Pass 874: 0.65→0.85
-      + _approachT * 0.45 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 874: 0.3→0.45
+      + _approachT * 0.65 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1145: 0.45→0.65
       + _approachT * 0.10 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat
       + _entryBoost;
     // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 for stronger tension glow
@@ -3030,8 +3030,8 @@ function animate(ts) {
     const _warmupT = Math.max(0, (ct2 - 0.80) / 0.20); // 0→1 in last 20%
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
       ? (ct2 - 0.60) / 0.20 * 0.8 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 888: 0.5→0.8
-    // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 for more vivid warmup before scan
-    const _ledWarmTarget = 0.3 + _warmupT * 5.5 + _earlyDetect; // Pass 887: 3.5→5.5
+    // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 for more vivid warmup before scan
+    const _ledWarmTarget = 0.3 + _warmupT * 7.5 + _earlyDetect; // Pass 1146: 5.5→7.5
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
@@ -3670,14 +3670,14 @@ function animate(ts) {
     // Pass 46: scanner-exit "identity confirmed" flash — fires once at phase start
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
-      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0
-      const _cofl = new THREE.PointLight(ct.hex, 23.0, 160);
+      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0 — Pass 1139: →32.0
+      const _cofl = new THREE.PointLight(ct.hex, 32.0, 160);
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
-      // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 hotter blaze
-      activeCardMat.emissiveIntensity = 10.0;
+      // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 — Pass 1140: →14.0 hotter blaze
+      activeCardMat.emissiveIntensity = 14.0;
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
       lensMat.emissiveIntensity = 9.0;
       lensMat.emissive.setHex(ct.hex);
@@ -3695,17 +3695,17 @@ function animate(ts) {
     const _ledUrgencyPulse = 0.18 + 0.88 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 779: deeper throb
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
-      // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 for brighter gate approach signal
-      const _target = _isTarget ? (5.0 * ot) * _ledUrgencyPulse : 0.1;
+      // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 for brighter gate approach signal
+      const _target = _isTarget ? (7.0 * ot) * _ledUrgencyPulse : 0.1;
       gm.color.setHex(_isTarget ? ct.hex : 0x224466);
       gm.emissive.setHex(_isTarget ? ct.hex : 0x112233);
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
     });
     // Pass 141: gate column tracking light — colored pool on tray at active LED column
-    // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 for stronger domain pool
+    // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (8.0 * ot - gateColLight.intensity) * Math.min(1, dt * 7);
+    gateColLight.intensity += (11.0 * ot - gateColLight.intensity) * Math.min(1, dt * 7);
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -3757,8 +3757,8 @@ function animate(ts) {
     // Pass 72: smooth charge-up ramp as card approaches (ot 0→1 = charge 0.18→3.8)
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
-    // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 for stronger pre-gate glow
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 13.0, easeInOut(ot));
+    // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 for stronger pre-gate glow
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 18.0, easeInOut(ot));
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
     // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
