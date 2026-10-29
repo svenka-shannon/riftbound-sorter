@@ -2312,14 +2312,14 @@ function animate(ts) {
         stackCards.forEach((c, i) => {
           c.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
         });
-        // Pass 49: hopper refill flash — warm white burst signals fresh batch loaded
-        const _rfl = new THREE.PointLight(0xfff0cc, 5.5, 150);
+        // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 for bigger batch-loaded burst
+        const _rfl = new THREE.PointLight(0xfff0cc, 9.5, 180);
         _rfl.position.set(HOPPER_X + 33, 160, 0);
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
-        // Spike the hopper light for visual emphasis
-        hopperLight.intensity = 2.5;
+        // Spike the hopper light for visual emphasis — Pass 1014: 2.5→5.0
+        hopperLight.intensity = 5.0;
         hopperLight.color.set(0xfff0cc);
       }
     }
@@ -2331,9 +2331,9 @@ function animate(ts) {
     if (!sc.visible) return;
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
     const _jPhase = i * 1.47; // stagger per card
-    // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 for livelier deck tremor
-    const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.12
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.06;
+    // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 livelier
+    const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.18
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.09;
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2341,8 +2341,8 @@ function animate(ts) {
       const _lt2 = phaseRaw(PH.armLift);
       const _cardDelay = (stackTopIdx - 1 - i) * 0.08; // top-most remaining card fires first
       const _delayedT = Math.max(0, _lt2 - _cardDelay);
-      // Pass 901: stack pick recoil dip 0.6→1.0 for more dramatic suction-break recoil
-      if (_delayedT < 0.45) _recoilDip = -1.0 * Math.sin(_delayedT / 0.45 * Math.PI);
+      // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 for more dramatic suction-break recoil
+      if (_delayedT < 0.45) _recoilDip = -1.6 * Math.sin(_delayedT / 0.45 * Math.PI);
     }
     sc.position.y = _baseY + _jY + _recoilDip;
     // Pass 178: deck "charge" shimmer — ripples bottom→top at 0.6 Hz during idle/approach
@@ -2351,9 +2351,10 @@ function animate(ts) {
       if (_prePickT) {
         const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
-        const _waveAmp301 = inPhase(PH.armDescend) ? 0.15 + phaseRaw(PH.armDescend) * 0.22 : 0.15;
-        // Pass 905: shimmer base emissive 0.04→0.06 for brighter deck energy
-        sc.material.emissiveIntensity = 0.06 + _wave * _waveAmp301;
+        // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 for more vivid deck charge wave
+        const _waveAmp301 = inPhase(PH.armDescend) ? 0.22 + phaseRaw(PH.armDescend) * 0.35 : 0.22;
+        // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 for brighter deck energy
+        sc.material.emissiveIntensity = 0.10 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
         sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 3);
@@ -4775,7 +4776,8 @@ function animate(ts) {
     camera.position.z = orbitR * Math.sin(orbitAngle);
     // Slight vertical bob for cinematic feel; lower elevation during scan to see belt better
     // Pass 295: armLift camera Y dip — lower target during pickup for better card-peel view
-    const yTarget = inPhase(PH.scan) ? 260 : inPhase(PH.armLift) ? 290 : 320;
+    // Pass 1020: scan Y 260→240 for deeper camera dive into scanner, armLift 290→270 for peel view
+    const yTarget = inPhase(PH.scan) ? 240 : inPhase(PH.armLift) ? 270 : 320;
     if(!controls._camY) controls._camY = yTarget;
     controls._camY += (yTarget - controls._camY) * 0.02;
     // Pass 185: fix camera Y bob — was ts*0.00008 (~21h period = invisible).
@@ -4797,8 +4799,8 @@ function animate(ts) {
       : inPhase(PH.scan)
       // Pass 194: scan camera lean — lookAt dips toward belt at scan midpoint for drama.
       // Pass 473: reveal camera dip — extra 5-unit dip at identity lock-on for dramatic focus.
-      // Pass 707: scan lean dip 18→25 for deeper camera dive during identity scan
-      ? { x: -40, y: 60 - 25 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 5 : 0) }
+      // Pass 707: scan lean dip 18→25 — Pass 1019: →35 for deeper camera dive + reveal dip 5→8
+      ? { x: -40, y: 60 - 35 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 8 : 0) }
       : inPhase(PH.conveyorOut)
       ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
       : inPhase(PH.deflect)
