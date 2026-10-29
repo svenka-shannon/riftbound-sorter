@@ -2374,16 +2374,16 @@ function animate(ts) {
       _yPos = THREE.MathUtils.lerp(a.startY, a.targetY, easeOut(a.t / 0.80));
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
-      // Pass 325: arrival bounce boost — Pass 902: 7→11 for more physical slot landing
-      _yPos = a.targetY + 11 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
+      // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 for more physical slot landing
+      _yPos = a.targetY + 16 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
     if (a.glowAge < 1.2) {
       a.glowAge += dt;
       if (a.mesh.material) {
-        // Pass 903: tray arrival emissive peak 4.0→6.5 for brighter landing flash
-        a.mesh.material.emissiveIntensity = 0.15 + 6.5 * Math.exp(-a.glowAge * 5.0);
+        // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 for brighter landing flash
+        a.mesh.material.emissiveIntensity = 0.15 + 9.5 * Math.exp(-a.glowAge * 5.0);
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2400,11 +2400,11 @@ function animate(ts) {
         if (!inFlight && mesh.material) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 1.23;
-          // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 for more vivid settled slot cards
-          mesh.material.emissiveIntensity = 0.16 + 0.22 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
-          // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 for more visible card rocking
+          // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32
+          mesh.material.emissiveIntensity = 0.22 + 0.32 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
+          // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 more visible rocking
           const _swayPhase = _globalCardIdx * 1.83;
-          mesh.rotation.z = 0.012 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
+          mesh.rotation.z = 0.020 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
         }
         _globalCardIdx++;
       });
@@ -2417,9 +2417,9 @@ function animate(ts) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
       const _fPeak = f.peak || 3.0; // use stored creation intensity; fallback 3.0
-      // Pass 915: flash light decay duration 0.5→0.70s for longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 0.70));
-      if(f.age > 0.70) { scene.remove(f.light); return false; }
+      // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s for longer flash persistence
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 0.90));
+      if(f.age > 0.90) { scene.remove(f.light); return false; }
       return true;
     });
   }
@@ -2437,8 +2437,8 @@ function animate(ts) {
     bar._springVel = bar._springVel * 0.80 + _springDiff * 0.10; // k=0.10, damping=0.80
     bar.scale.y = Math.max(0.01, Math.min(1.18, bar.scale.y + bar._springVel));
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
-    // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 for more vivid pulse
-    const _fbRest = 0.46 + 0.20 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7));
+    // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28
+    const _fbRest = 0.58 + 0.28 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7));
     if(bar.material.emissiveIntensity > _fbRest + 0.06) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
@@ -2472,10 +2472,10 @@ function animate(ts) {
       const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 18;
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      // Pass 834: slot LED active pulse base 0.8+0.7→0.5+1.1 for deeper trough and higher peak
-      const pulse = 0.5 + 1.1 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.5));
-      // Pass 828: routing target base 2.5→3.5 for brighter active slot LED
-      mat.emissiveIntensity = 3.5 + pulse;
+      // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 for bigger LED swing
+      const pulse = 0.4 + 1.6 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.5));
+      // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 for brighter active slot LED
+      mat.emissiveIntensity = 5.0 + pulse;
     } else if (_ledCooloff[_li] > 0) {
       // Pass 52: afterglow — Pass 835: 1.8→2.8s — Pass 829: peak intensity 0.9+2.4 → 1.2+3.8
       const afterT = _ledCooloff[_li] / 2.8; // 1.0→0.0 as cooloff expires
