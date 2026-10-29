@@ -4672,7 +4672,7 @@ function animate(ts) {
     rollerMats.forEach((rm, ri) => {
       const _dist = Math.abs(_cardX - _rollerXs[ri]);
       const _prox = Math.max(0, 1 - _dist / 38); // Pass 461: extended radius 25→38 units
-      const _targetI = _prox * 2.0;              // Pass 461: 0.9→1.5 — Pass 695: →2.0
+      const _targetI = _prox * 2.8;              // Pass 461: 0.9→1.5 — Pass 695: →2.0 — Pass 994: →2.8
       rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 5));
       rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 6);
     });
@@ -4688,8 +4688,8 @@ function animate(ts) {
     const _belFrac = (_beltShimmerX + 140) / 200; // 0=left edge, 1=right edge
     const _edgeFade = Math.sin(_belFrac * Math.PI); // 0→1→0
     beltShimmerMat.color.set(beltSurfMat.emissive); // tint to belt emissive (domain color)
-    // Pass 472: shimmer opacity 0.38→0.50 — Pass 696: →0.65 for stronger belt shimmer stripe
-    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 0.65;
+    // Pass 472: shimmer opacity 0.38→0.50 — Pass 696: →0.65 — Pass 993: →0.85 for stronger belt shimmer stripe
+    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 0.85;
   } else {
     beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 4);
     if (beltShimmerMat.opacity < 0.01) beltShimmerMesh.visible = false;
@@ -4720,9 +4720,9 @@ function animate(ts) {
     const _armSwingT = inPhase(PH.armSwing) ? 1.0 : 0;
     const _convInT  = inPhase(PH.conveyorIn) ? Math.max(0, 1 - phaseRaw(PH.conveyorIn) * 5) : 0;
     // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
-    // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 for stronger rod domain presence
-    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 1.30 : 0;
-    const _rodGlow = Math.max(_armDescT * 0.18, _armLiftT * 0.42 + _liftPickSpike, _armSwingT * 0.75, _convInT * 0.25);
+    // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0
+    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 1.80 : 0;
+    const _rodGlow = Math.max(_armDescT * 0.18, _armLiftT * 0.42 + _liftPickSpike, _armSwingT * 1.0, _convInT * 0.25);
     armRod.material.emissive.setHex(ct.hex);
     armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 6);
   }
@@ -4734,7 +4734,7 @@ function animate(ts) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
                      inPhase(PH.armLift)    ? 1.0 : 0.5;
     suctionCupMat.emissive.setHex(ct.hex);
-    suctionCupMat.emissiveIntensity = cupGlowT * 1.2;
+    suctionCupMat.emissiveIntensity = cupGlowT * 1.8; // Pass 991: peak 1.2→1.8 stronger cup glow
   } else if (inPhase(PH.armReturn)) {
     // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
     // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
@@ -4742,7 +4742,7 @@ function animate(ts) {
     const _memFade = Math.max(0, 1 - _arMemT / 0.30); // 1→0 in first 30%
     if (_memFade > 0.01) {
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (_memFade * 0.35 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 396: memory boost 0.22 → 0.35
+      suctionCupMat.emissiveIntensity += (_memFade * 0.55 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 992: memory boost 0.35→0.55
     } else {
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.15;
     }
@@ -4766,7 +4766,8 @@ function animate(ts) {
     // Orbit radius tightens slightly during scan for closer scanner view
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
-    const orbitRBase = inPhase(PH.scan) ? 600 : inPhase(PH.armSwing) ? 680 : inPhase(PH.deflect) ? 700 : 750;
+    // Pass 996: scan orbit 600→530 for tighter close-up during identity scan, armSwing 680→620
+    const orbitRBase = inPhase(PH.scan) ? 530 : inPhase(PH.armSwing) ? 620 : inPhase(PH.deflect) ? 700 : 750;
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.02; // smooth zoom
     const orbitR = controls._orbitR;
@@ -4828,10 +4829,11 @@ function animate(ts) {
   // Pass 200: scan camera Z sympathetic oscillation — hood's 2.8Hz micro-sway felt by camera.
   // Pass 570: Z amplitude 1.8→2.8; add 0.6-unit Y component for fuller resonance feel.
   // Pass 642: Z→3.5, Y→0.9; add secondary 4.1Hz hood harmonic (matching pass 607 hood sway)
+  // Pass 995: Z→4.5, Y→1.2 for deeper camera resonance with scanner hood during scan
   if (inPhase(PH.scan) && !controls._userInteracted) {
     const _scanSinEnv = Math.sin(phaseRaw(PH.scan) * Math.PI);
-    camera.position.z += (3.5 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.90 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv;
-    camera.position.y += 0.9 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv;
+    camera.position.z += (4.5 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.90 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv;
+    camera.position.y += 1.2 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv;
   }
 
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
