@@ -3160,12 +3160,12 @@ function animate(ts) {
       const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.10) : 1.0;
       scannerHood.position.z = (0.85 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.28 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp;
     }
-    // Pass 80: lens iris opens during scan — scale XZ pulses 0.75→1.15 with flash
-    const _irisScale = 0.75 + flashIntensity * 0.40;
+    // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 for more dynamic iris pulse
+    const _irisScale = 0.75 + flashIntensity * 0.65;
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.07 ? easeOut(ft / 0.07) : 1.0;
-    // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 for bigger iris pop at reveal
-    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 0.65 : 0;
+    // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 for bigger iris pop at reveal
+    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 1.0 : 0;
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8
@@ -4972,12 +4972,13 @@ function animate(ts) {
 
   // ── Impact ring: expansion animation ─────────────────────────────────────────
   if (_impactRingT >= 0) {
-    // Pass 384: expansion speed boost 0.4s→0.31s — Pass 809: dt*3.2→dt*4.8 for even snappier ring
-    _impactRingT = Math.min(1, _impactRingT + dt * 4.8);
+    // Pass 384: expansion speed boost 0.4s→0.31s — Pass 809: dt*3.2→dt*4.8 — Pass 942: →dt*3.5 for longer visible ring
+    _impactRingT = Math.min(1, _impactRingT + dt * 3.5);
     // scale0: floor-0 starts at 1.0 (big bang), floor-1 starts at 0.55 (gentle glide)
     // Pass 284: easeOut expansion + floor-0 scale boost — ring punches out hard then decelerates
-    // Pass 382: floor-0 max scale 6.0→7.5 — Pass 808: →11.0 for wider shockwave ring
-    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 11.0 : 4.5;
+    // Pass 382: floor-0 max scale 6.0→7.5 — Pass 808: →11.0 — Pass 940: →16.0 for wider shockwave
+    // Pass 941: floor-1 max scale 4.5→7.5 for more visible gentle landing ring
+    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 16.0 : 7.5;
     const irs = _impactRingScale0 + easeOut(_impactRingT) * (_impactMaxScale - _impactRingScale0);
     impactRing.scale.setScalar(irs);
     // Pass 383: floor-0 peak opacity boost 0.88 → 1.0
@@ -4992,11 +4993,11 @@ function animate(ts) {
   }
 
   // Pass 100: confirm ring expands from scanner center at identity reveal
-  // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 for snappier lock-on ring
+  // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 — Pass 944: →dt*3.5 for longer ring
   if (_confirmRingT >= 0) {
-    _confirmRingT = Math.min(1, _confirmRingT + dt * 5.0); // Pass 811: 3.2→5.0 (~0.20s expansion)
-    // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 for wider burst
-    const _crs = 1.0 + easeOut(_confirmRingT) * 18.0;
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 3.5); // Pass 944: slower for longer visible duration
+    // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0
+    const _crs = 1.0 + easeOut(_confirmRingT) * 26.0;
     confirmRing.scale.setScalar(_crs);
     confirmRingMat.opacity = (1 - _confirmRingT) * 0.90; // Pass 336: opacity boost 0.75 → 0.90
     if (_confirmRingT >= 1) {
@@ -5007,11 +5008,12 @@ function animate(ts) {
   }
   // Pass 184: second confirm ring — fires 0.12s after first, smaller and faster
   if (_confirmRingT2 > -1) {
-    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 2.2); // ~0.45s expansion (faster)
+    // Pass 945: second ring speed dt*2.2→dt*2.8 for snappier second wave
+    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 2.8);
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
-      // Pass 520: second confirm ring max scale boost 4.8→6.5 for wider confirm burst
-      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 6.5; // Pass 520: scale range 0.6 → 7.1
+      // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 for wider second burst
+      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 11.0;
       confirmRing2.scale.setScalar(_crs2);
       confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 0.75); // Pass 446: 0.55→0.75
       if (_confirmRingT2 >= 1) {
