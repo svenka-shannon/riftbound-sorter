@@ -3049,10 +3049,10 @@ function animate(ts) {
     // Camera-flash: brief colored screen overlay fires once per scan
     if (!_scanFlashFired) {
       _scanFlashFired = true;
-      // Pass 418: scan start shake 3.5→5.0 — Pass 740: →7.2 for bigger scan-start jolt
-      _cameraShake = 7.2;
-      // Pass 889: scan start FOV punch 3.5° — brief zoom-in at scanner activation
-      _fovBump = Math.max(_fovBump, 3.5);
+      // Pass 418: scan start shake 3.5→5.0 — Pass 740: →7.2 — Pass 1147: →10.5 for bigger scan-start jolt
+      _cameraShake = 10.5;
+      // Pass 889: scan start FOV punch 3.5° — Pass 1148: →6.0° broader zoom-in at scanner activation
+      _fovBump = Math.max(_fovBump, 6.0);
       const flashEl = document.getElementById('scan-flash-overlay');
       if (flashEl) {
         flashEl.style.background = ct.css;
@@ -3091,13 +3091,13 @@ function animate(ts) {
     const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 1.3;
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015) * _scanVibScale;
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
-    // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 for sharper card-edge flash at identity reveal
+    // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 for sharper card-edge flash at identity reveal
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
-    const _yTilt = _identityRevealed ? 0.32 * Math.sin(_yTiltT * Math.PI) : 0;
+    const _yTilt = _identityRevealed ? 0.44 * Math.sin(_yTiltT * Math.PI) : 0;
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
-    // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 for sharper scanner lock-on recoil
+    // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 — Pass 1150: →0.085 for sharper scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
-      ? 0.058 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0;
+      ? 0.085 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0;
     activeCard.rotation.set(_revealTilt, _yTilt, _scanVib + _revealZShake);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
@@ -3148,8 +3148,8 @@ function animate(ts) {
     // Pass 123: hood reveal strobe — Pass 437: duration dt*5.5→dt*3.8 (longer visible strobe)
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 3.8);
-      // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5
-      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 4.5;
+      // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5 — Pass 1151: →6.5
+      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 6.5;
       hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.35 + _revStrobe; // Pass 738: 1.10→1.35
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
@@ -3161,14 +3161,15 @@ function animate(ts) {
     // Damps out near identity reveal (post 85%) as the machine "locks on".
     {
       const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.10) : 1.0;
-      scannerHood.position.z = (1.20 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.42 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp;
+      // Pass 1152: hood sway primary 1.20→1.65, secondary 0.42→0.60 for more resonant scanner oscillation
+      scannerHood.position.z = (1.65 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.60 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp;
     }
-    // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 for more dynamic iris pulse
-    const _irisScale = 0.75 + flashIntensity * 0.65;
+    // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 for more dynamic iris pulse
+    const _irisScale = 0.75 + flashIntensity * 0.92;
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.07 ? easeOut(ft / 0.07) : 1.0;
-    // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 for bigger iris pop at reveal
-    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 1.0 : 0;
+    // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 for bigger iris pop at reveal
+    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 1.55 : 0;
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 bigger lens pop
