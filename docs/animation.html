@@ -4462,9 +4462,9 @@ function animate(ts) {
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
-    // Pass 557: armReturn trail spawn interval 0.07→0.05s — Pass 672: →0.038s for even denser trail
+    // Pass 557: armReturn trail spawn interval 0.07→0.05s — Pass 672: →0.038s — Pass 1055: →0.026s denser trail
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.038) {
+    if (_trailSpawnAcc >= 0.026) {
       _trailSpawnAcc = 0;
       const _aRot = suctionPivot.rotation.z;
       const _aCupX = PIV_X + 83 * Math.sin(_aRot);
@@ -4474,18 +4474,18 @@ function animate(ts) {
       tp.mesh.position.set(_aCupX + (Math.random()-0.5)*3, _aCupY + (Math.random()-0.5)*3, suctionPivot.position.z + (Math.random()-0.5)*6);
       // Pass 245: armReturn domain wisps — first 30% of return trail carries domain color
       // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 — Pass 643: extend wisp to 45%; boost 0.48+0.22→0.62+0.28
-      // Pass 865: domain wisp opacity 0.62+0.28→0.80+0.40 for richer domain memory trail
+      // Pass 865: domain wisp opacity 0.62+0.28→0.80+0.40 — Pass 1052: →0.90+0.48 richer memory trail
       const _arT245 = phaseRaw(PH.armReturn);
       if (_arT245 < 0.45) { // Pass 643: 0.30→0.45 (longer domain memory on return)
         tp.mat.color.setHex(ct.hex);
-        tp.mat.opacity = 0.80 + Math.random() * 0.40; // Pass 865: 0.62+0.28→0.80+0.40
+        tp.mat.opacity = 0.90 + Math.random() * 0.10; // Pass 1052: 0.80+0.40→0.90+0.10
       } else {
-        // Pass 674: mechanical return trail opacity 0.35+0.15→0.44+0.18 — Pass 866: →0.58+0.26
+        // Pass 674: mechanical return trail — Pass 866: →0.58+0.26 — Pass 1053: →0.72+0.30
         tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
-        tp.mat.opacity = 0.58 + Math.random() * 0.26; // Pass 866
+        tp.mat.opacity = 0.72 + Math.random() * 0.28; // Pass 1053: 0.58+0.26→0.72+0.28
       }
-      // Pass 867: trail life 0.32+0.12→0.46+0.18 for longer-lived contrail
-      tp.age = 0; tp.life = 0.46 + Math.random() * 0.18;
+      // Pass 867: trail life 0.32+0.12→0.46+0.18 — Pass 1054: →0.62+0.24 for longer-lived contrail
+      tp.age = 0; tp.life = 0.62 + Math.random() * 0.24;
       tp.active = true; tp.mesh.visible = true;
     }
   }
@@ -4499,8 +4499,9 @@ function animate(ts) {
       + 0.004 * Math.sin(ts * 1.43 * Math.PI * 2);  // ~1.43 Hz higher tremor
     // Pass 492: gate LED domain afterglow — during pause, active column retains a faint 0.4Hz
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
+    // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory
     {
-      const _pausePulse492 = 0.08 + 0.06 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2));
+      const _pausePulse492 = 0.14 + 0.12 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2));
       GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
         if (gi === ct.col) {
           gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
@@ -4508,8 +4509,8 @@ function animate(ts) {
         }
       });
     }
-    // Pass 246: pause arm hover Y float — soft PID hold oscillation (0.30Hz, ±0.6 units)
-    suctionPivot.position.y = 108 + 0.6 * Math.sin(ts * 0.30 * Math.PI * 2);
+    // Pass 246: pause arm hover Y float — soft PID hold oscillation — Pass 1056: ±0.6→±1.4 more visible hover
+    suctionPivot.position.y = 108 + 1.4 * Math.sin(ts * 0.30 * Math.PI * 2);
     // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
     // on the scanner hood emissive, as if it's slowly cooling down between cycles.
     {
@@ -4532,8 +4533,9 @@ function animate(ts) {
     routeTargetMat.emissiveIntensity = 0;
     // Pass 104: scanner standby breathing — slow sine pulse during idle pause
     // ~0.35Hz (2.2 rad/s) so one full breath spans ~2.9s (6× the 0.5s pause — natural)
+    // Pass 1058: breathing base 0.12→0.20, amp 0.07→0.14 for more visible scanner idle pulse
     {
-      const _breathe = 0.12 + 0.07 * Math.sin(ts * 2.2);
+      const _breathe = 0.20 + 0.14 * Math.sin(ts * 2.2);
       scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 2.5);
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 1.5));
       hoodMat.emissiveIntensity += (_breathe * 1.4 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2);
@@ -4544,9 +4546,9 @@ function animate(ts) {
   const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.05;
   // Pass 143: speed-proportional strobe frequency (3 Hz idle → 9 Hz at full belt speed)
   const _beltStrobeFreq = 3 + _beltScrollSpeed * 75;
-  // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 for more reactive belt surface
+  // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 — Pass 1059: →0.10 reactive belt
   const _beltSpeedGlow = _beltScrollSpeed > 0.005
-    ? 0.070 * (_beltScrollSpeed / 0.08) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0;
+    ? 0.10 * (_beltScrollSpeed / 0.08) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0;
   beltSurfMat.emissiveIntensity = beltBase + 0.03 * Math.sin(cycleT * 10) + _beltSpeedGlow;
   // Belt surface tints subtly toward domain color when active card rides on it
   {
