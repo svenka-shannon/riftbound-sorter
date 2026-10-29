@@ -1953,7 +1953,7 @@ function fireCelebration() {
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
-    p.life = 1.4 + Math.random() * 1.0; // Pass 899: 1.1+0.9→1.4+1.0 for longer celebration
+    p.life = 2.0 + Math.random() * 1.5; // Pass 1106: 1.4+1.0→2.0+1.5 for longer celebration confetti
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72
     p.rx = (Math.random() - 0.5) * 48;
@@ -1988,19 +1988,19 @@ function fireCelebration() {
     void flashEl.offsetWidth;
     flashEl.classList.add('scan-flash-on');
   }
-  // Camera shake: Pass 421: 5.5→7.5 — Pass 724: →10.5 — Pass 818: →15.0 — Pass 1005: →22.0 bigger celebratory jolt
-  _cameraShake = Math.max(_cameraShake, 22.0);
-  // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° — Pass 1006: →26°
-  _fovBump = 26;
-  // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0 — Pass 897: →20.0 — Pass 1007: →30.0, dist →500
-  const _cfl = new THREE.PointLight(0xffffff, 30.0, 500);
+  // Camera shake: Pass 421: 5.5→7.5 — Pass 724: →10.5 — Pass 818: →15.0 — Pass 1005: →22.0 — Pass 1102: →32.0 bigger celebratory jolt
+  _cameraShake = Math.max(_cameraShake, 32.0);
+  // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° — Pass 1006: →26° — Pass 1103: →36°
+  _fovBump = 36;
+  // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0 — Pass 897: →20.0 — Pass 1007: →30.0, dist →500 — Pass 1104: →45.0, dist→650
+  const _cfl = new THREE.PointLight(0xffffff, 45.0, 650);
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: _cfl, age: 0, peak: _cfl.intensity });
-  // Pass 150: rainbow tray burst — Pass 423: 5.5→8.0 — Pass 727: →12.0 — Pass 898: →18.0 — Pass 1008: →26.0, dist →300
+  // Pass 150: rainbow tray burst — Pass 423: 5.5→8.0 — Pass 727: →12.0 — Pass 898: →18.0 — Pass 1008: →26.0, dist →300 — Pass 1105: →38.0, dist→400
   CARD_TYPES.forEach(dct => {
-    const _dfl = new THREE.PointLight(dct.hex, 26.0, 300);
+    const _dfl = new THREE.PointLight(dct.hex, 38.0, 400);
     _dfl.position.set(TX_MID, dct.slotFloorY + 55, dct.slotZ);
     scene.add(_dfl);
     window._flashLights.push({ light: _dfl, age: 0, peak: _dfl.intensity });
@@ -4225,12 +4225,12 @@ function animate(ts) {
       impactRingMat.color.setHex(ct.hex);
       impactRing.scale.setScalar(1.0);
       impactRing.visible = true;
-      // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0
-      _cameraShake = Math.max(_cameraShake, 9.0);
-      // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 vivid landing pop
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 17.0;
-      // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 vivid count
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 18.0;
+      // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 for bigger floor thud
+      _cameraShake = Math.max(_cameraShake, 13.0);
+      // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 vivid landing pop
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 26.0;
+      // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 vivid count
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 28.0;
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
@@ -4275,10 +4275,10 @@ function animate(ts) {
       impactRing.scale.setScalar(0.55);
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
-      // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 for stronger floor-1 arrival
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 10.0;
-      // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 — Pass 986: →11.0 vivid arrival
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 11.0;
+      // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 for stronger floor-1 arrival
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 16.0;
+      // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 — Pass 986: →11.0 — Pass 1107: →18.0 vivid arrival
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 18.0;
       // Pass 224: upper floor arrival glow particles — 3 gentle domain-tinted motes that
       // drift upward softly (upper floor is a guided arrival, no hard impact scatter).
       {
