@@ -2847,12 +2847,12 @@ function animate(ts) {
         // holds their domain color for the first 40% of life before bleaching.
         tp._birthHex = ct.hex;
         // Pass 482: Z-apex trail opacity boost — brightest at arc midpoint (closest to viewer)
-        // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: base 0.72→0.85, apex 0.45→0.62
+        // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: →0.85+0.62 — Pass 1060: →0.95+0.80
         const _swT482 = phaseRaw(PH.armSwing);
-        tp.mat.opacity = 0.85 + 0.62 * Math.sin(_swT482 * Math.PI);
+        tp.mat.opacity = Math.min(1, 0.95 + 0.80 * Math.sin(_swT482 * Math.PI));
         tp.age = 0;
-        // Pass 771: trail life 0.45+0.15 → 0.52+0.22 for longer arc trail
-        tp.life = 0.52 + Math.random() * 0.22;
+        // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 for longer arc trail
+        tp.life = 0.68 + Math.random() * 0.30;
         tp.active = true;
         tp.mesh.visible = true;
       }
@@ -2862,7 +2862,7 @@ function animate(ts) {
     if(inPhase(PH.armLift) && stackCards[stackTopIdx]) {
       const lt = phaseRaw(PH.armLift);
       const baseY = CARD_T/2 + 6 + stackTopIdx * (CARD_T + 0.5);
-      stackCards[stackTopIdx].position.y = baseY + lt * 20;
+      stackCards[stackTopIdx].position.y = baseY + lt * 30; // Pass 1067: lt*20→lt*30 higher card elevation during lift
     }
 
     // Card tracks suction cup (pass 154: Z follows pivot during arm phases)
@@ -2881,10 +2881,10 @@ function animate(ts) {
     let _liftHoverX = 0;
     if (inPhase(PH.armSwing)) {
       const _sw = phaseT(PH.armSwing);
-      // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: primary 0.090→0.118, secondary 0.022→0.034
-      _swingWobble = (Math.sin(_sw * 19) * 0.118 + Math.sin(_sw * 29 + 0.6) * 0.034) * Math.exp(-_sw * 3.2);
-      // Pass 616: swing drag lean 0.07→0.10 — Pass 767: 0.10→0.15 for stronger inertia tilt at arc peak
-      _swingDragX = 0.15 * Math.sin(_sw * Math.PI);
+      // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050
+      _swingWobble = (Math.sin(_sw * 19) * 0.155 + Math.sin(_sw * 29 + 0.6) * 0.050) * Math.exp(-_sw * 3.2);
+      // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt
+      _swingDragX = 0.22 * Math.sin(_sw * Math.PI);
     } else if (inPhase(PH.armLift)) {
       const _lt3 = phaseRaw(PH.armLift);
       // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter
@@ -2900,18 +2900,17 @@ function animate(ts) {
     // armDescend uses 0 so the card doesn't glow before the suction picks it up.
     let _armCardEmissive = 0;
     if (inPhase(PH.armLift)) _armCardEmissive = 0.22 + 0.08 * phaseRaw(PH.armLift);
-    // Pass 381: armSwing emissive peak boost 0.35 → 0.50 for brighter card at arc apex
-    // Pass 466: armSwing emissive peak boost 0.50 → 0.65 — brighter glow at arm's fastest arc point
-    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 0.65 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
+    // Pass 381: armSwing emissive peak boost 0.35 → 0.50 — Pass 466: →0.65 — Pass 1064: →0.92 brighter arc glow
+    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 0.92 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
     activeCardMat.emissiveIntensity = _armCardEmissive;
     // Pass 467: arm-swing arc-peak domain flash — at arm's fastest midpoint, spawn a brief domain
     // point light at card position, syncing with the emissive peak (pass 466).
-    // Pass 536: armSwing arc-peak flash 5.5→8.0, dist 85→105 for stronger swing apex pop
+    // Pass 536: armSwing arc-peak flash 5.5→8.0, dist 85→105 — Pass 1062: →13.0, dist→140 stronger apex pop
     if (inPhase(PH.armSwing)) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 8.0, 105);
+        const _spfl = new THREE.PointLight(ct.hex, 13.0, 140);
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
@@ -2919,9 +2918,10 @@ function animate(ts) {
       }
     }
     // Pass 299: armSwing Z-apex glow boost — cardGlow peaks as arm swings closest to viewer at Z apex
+    // Pass 1063: apex boost 1.20→1.65 for brighter cardGlow at swing closest-point
     if (inPhase(PH.armSwing)) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
-      cardGlow.intensity = _armCardEmissive * (1.85 + _swZ299 * 1.20);
+      cardGlow.intensity = _armCardEmissive * (1.85 + _swZ299 * 1.65);
     } else {
       cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 1.85 : 0;
     }
