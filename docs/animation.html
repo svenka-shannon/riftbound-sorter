@@ -3841,24 +3841,24 @@ function animate(ts) {
   else if(inPhase(PH.deflect)) {
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
-    // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 — Pass 916: →19.0 — Pass 1074: →27.0 for bigger paddle hit
+    // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 — Pass 916: →19.0 — Pass 1074: →27.0 — Pass 1179: →38.0 for bigger paddle hit
     if (!_gateFlashFired) {
       _gateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 27.0, 110);
+      const _gfl = new THREE.PointLight(ct.hex, 38.0, 110);
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _gfl, age: 0, peak: _gfl.intensity });
-      // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 — Pass 917: →12.0
-      paddleMat.emissiveIntensity = 12.0;
-      // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 — Pass 781: →10.0 hotter blaze
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 10.0);
+      // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 — Pass 917: →12.0 — Pass 1180: →17.0
+      paddleMat.emissiveIntensity = 17.0;
+      // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 — Pass 781: →10.0 — Pass 1181: →15.0 hotter blaze
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 15.0);
       // Pass 298: gate-contact camera shake — Pass 588: 1.8→3.0 for more physical paddle impact
       _cameraShake = 3.0;
-      // Pass 369: gate-contact camera shake — Pass 782: →6.5 — Pass 923: →9.5 for bigger paddle hit feel
-      _cameraShake = Math.max(_cameraShake, 9.5);
-      // Pass 369: gate-contact FOV punch — Pass 783: 3.2°→5.0° — Pass 923: →7.5° for bigger gate hit feel
-      _fovBump = Math.max(_fovBump, 7.5);
+      // Pass 369: gate-contact camera shake — Pass 782: →6.5 — Pass 923: →9.5 — Pass 1182: →14.0 for bigger paddle hit feel
+      _cameraShake = Math.max(_cameraShake, 14.0);
+      // Pass 369: gate-contact FOV punch — Pass 783: 3.2°→5.0° — Pass 923: →7.5° — Pass 1183: →11.0° for bigger gate hit feel
+      _fovBump = Math.max(_fovBump, 11.0);
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
       // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 for harder paddle whack feel
@@ -3897,10 +3897,10 @@ function animate(ts) {
     const dt2 = phaseT(PH.deflect);
     // Pass 454: arc-peak domain flash — at arc midpoint (dt2≈0.46) spawn a brief domain
     // point light at card position; the card is at its highest, most visible trajectory point.
-    // Pass 526: 6.5→9.0 — Pass 636: →12.5 — Pass 784: →18.0 — Pass 918: →26.0 for bigger arc apex pop
+    // Pass 526: 6.5→9.0 — Pass 636: →12.5 — Pass 784: →18.0 — Pass 918: →26.0 — Pass 1184: →36.0 for bigger arc apex pop
     if (!_arcPeakFlashFired && dt2 >= 0.46) {
       _arcPeakFlashFired = true;
-      const _apfl = new THREE.PointLight(ct.hex, 26.0, 150); // Pass 918: 18.0→26.0
+      const _apfl = new THREE.PointLight(ct.hex, 36.0, 150); // Pass 1184: 26.0→36.0
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3911,8 +3911,8 @@ function animate(ts) {
     // Pass 147: parabolic arc — Pass 416: arc height boost floor-0 10→13, floor-1 18→22
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
-    // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 for even higher card flight arc during deflect
-    const _arcBump = (ct.floor === 1 ? 22 : 21) * Math.sin(dt2 * Math.PI);
+    // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 for even higher card flight arc during deflect
+    const _arcBump = (ct.floor === 1 ? 30 : 29) * Math.sin(dt2 * Math.PI);
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 for stronger air buffet
@@ -3930,8 +3930,8 @@ function animate(ts) {
     {
       const _defEntryT = Math.min(1, dt2 / 0.14);
       const _normTilt = THREE.MathUtils.lerp(0, floorTilt, dt2);
-      // Pass 763: launch kick 0.28→0.40 for more dramatic gate-exit nose-up
-      const _launchKick = 0.40 * Math.exp(-dt2 * 13) * (1 - _defEntryT);
+      // Pass 763: launch kick 0.28→0.40 — Pass 1186: →0.58 for more dramatic gate-exit nose-up
+      const _launchKick = 0.58 * Math.exp(-dt2 * 13) * (1 - _defEntryT);
       activeCard.rotation.x = THREE.MathUtils.lerp(-0.18, _normTilt, easeOut(_defEntryT)) + _launchKick;
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
