@@ -2986,13 +2986,13 @@ function animate(ts) {
     activeCardMat.opacity = Math.min(1, ct2 * 5); // fade in over first 0.2s
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
-    // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0
-    const _settleY = 5.0 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
+    // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5
+    const _settleY = 7.5 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
     // Pass 173: belt lateral wobble — fades in (0→5%) and out (90→100%)
-    // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 for more vivid belt weave
+    // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 for more vivid belt weave
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
-    const _beltWobbleZ = (2.2 * Math.sin(ts * 4.7 * Math.PI * 2) + 0.65 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut;
+    const _beltWobbleZ = (3.0 * Math.sin(ts * 4.7 * Math.PI * 2) + 0.90 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut;
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 for more tactile belt feel
     const _beltYBump = 0.35 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
@@ -3020,8 +3020,8 @@ function animate(ts) {
       + _approachT * 0.45 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 874: 0.3→0.45
       + _approachT * 0.10 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat
       + _entryBoost;
-    // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 for stronger tension glow
-    cardGlow.intensity = 1.4 + _approachT * 4.2; // Pass 875: 2.8 → 4.2
+    // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 for stronger tension glow
+    cardGlow.intensity = 1.4 + _approachT * 5.8; // Pass 1085: 4.2 → 5.8
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     // Pass 468: early detection ripple — at ct2=0.60-0.80, LED flickers at 10Hz (card entering field)
     // Pass 888: early detect amplitude 0.5→0.8 for stronger card-entering-field detection
@@ -4565,18 +4565,18 @@ function animate(ts) {
   {
     // Scan phase: flash ambient up with the domain color
     // Celebration (impactRing or camera shake): spike ambient white briefly
-    // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 for stronger domain atmosphere
-    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.70 : 0;
+    // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 — Pass 1083: →0.92 for stronger domain atmosphere
+    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.92 : 0;
     // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy
     const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.28 : 0;
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response
     const _shakeBoost   = _cameraShake > 2 ? Math.min(0.40, _cameraShake * 0.05) : 0;
-    // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 for bigger scene response
-    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.38 : 0;
-    // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 for stronger card flight response
-    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.30 : 0;
-    // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 for stronger lock-on flood
-    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 0.50 : 0;
+    // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 for bigger scene response
+    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.56 : 0;
+    // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 for stronger card flight response
+    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.44 : 0;
+    // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 for stronger lock-on flood
+    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 0.72 : 0;
     const _ambTarget = 0.45 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324;
     ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
     // Tint ambient toward domain color during scan or slotDrop
@@ -4630,8 +4630,8 @@ function animate(ts) {
     if (_inApproach) {
       const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
       hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 3));
-      // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 for dramatic heat-up
-      const _warmTarget = 0.28 + _warmT * 0.90;
+      // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 for dramatic heat-up
+      const _warmTarget = 0.28 + _warmT * 1.30;
       // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 for more visible heat flicker
       const _hoodShimmer = 0.10 * Math.sin(ts * 17 * Math.PI * 2) * _warmT;
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 4);
