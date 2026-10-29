@@ -3984,11 +3984,11 @@ function animate(ts) {
     } else {
       paddlePivot.position.z += (0 - paddlePivot.position.z) * Math.min(1, dt * 10);
     }
-    // Pass 60: light up the destination column LED, dim others
+    // Pass 60: light up the destination column LED, dim others — Pass 1123: target 3.5→5.2 brighter destination LED during deflect
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       if (gi === ct.col) {
         gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
-        gm.emissiveIntensity += (3.5 - gm.emissiveIntensity) * Math.min(1, dt * 10);
+        gm.emissiveIntensity += (5.2 - gm.emissiveIntensity) * Math.min(1, dt * 10);
       } else {
         gm.emissiveIntensity += (0.15 - gm.emissiveIntensity) * Math.min(1, dt * 5);
       }
@@ -4014,13 +4014,12 @@ function animate(ts) {
       const _arcMid = 1 - Math.abs(dt2 - 0.5) * 2; // 1 at peak, 0 at start/end
       tp.mat.color.setHex(ct.hex);
       // Pass 385: opacity boost — base 0.45→0.60, peak multiplier 0.38→0.45
-      // Pass 965: base 0.60→0.75, peak 0.45→0.60 for denser deflect arc contrail
-      tp.mat.opacity = Math.min(0.95, 0.75 + _arcMid * 0.60);
+      // Pass 965: base 0.60→0.75, peak 0.45→0.60 — Pass 1116: base 0.75→0.88, peak 0.60→0.78 for denser deflect arc contrail
+      tp.mat.opacity = Math.min(0.98, 0.88 + _arcMid * 0.78);
       tp.age = 0;
       // Pass 387: life boost — 0.38-0.52 → 0.45-0.65s — Pass 506: extend 0.45-0.65 → 0.55-0.75s
-      // Pass 527: deflect trail life 0.55+0.20 → 0.65+0.25 for longer arc smoke trace
-      // Pass 966: life 0.65+0.25→0.82+0.32 for longer hang on arc contrail
-      tp.life = 0.82 + Math.random() * 0.32;
+      // Pass 527: deflect trail life 0.55+0.20 → 0.65+0.25 — Pass 966: →0.82+0.32 — Pass 1117: →1.05+0.42 for longer hang on arc contrail
+      tp.life = 1.05 + Math.random() * 0.42;
       tp.active = true;
       tp.mesh.visible = true;
     }
@@ -4030,7 +4029,7 @@ function animate(ts) {
       _trailHead++;
       _btp.mesh.position.set(GATE_X + (Math.random()-0.5)*8, CONV_Y_TOP + 8 + Math.random()*8, ct.slotZ * 0.12 + (Math.random()-0.5)*5);
       _btp.mat.color.setHex(ct.hex);
-      _btp.mat.opacity = 0.80 + Math.random() * 0.18; // Pass 967: 0.62+0.22→0.80+0.18 for brighter gate burst
+      _btp.mat.opacity = 0.92 + Math.random() * 0.08; // Pass 1118: 0.80+0.18→0.92+0.08 for brighter gate-contact burst
       _btp.age = 0; _btp.life = 0.28 + Math.random() * 0.16;
       _btp.active = true; _btp.mesh.visible = true;
     }
@@ -4150,8 +4149,8 @@ function animate(ts) {
     // this is an instant photogate flash that fires and dies in ~0.15s.
     if (!_slotGateFlashFired && dt3 >= 0.06) {
       _slotGateFlashFired = true;
-      // Pass 537: slot gate flash 8.0→11.0 — Pass 960: →17.0 for brighter tray entry burst
-      const _gfl = new THREE.PointLight(ct.hex, 17.0, 100); // Pass 960: 11.0→17.0
+      // Pass 537: slot gate flash 8.0→11.0 — Pass 960: →17.0 — Pass 1119: →26.0 for brighter tray entry burst
+      const _gfl = new THREE.PointLight(ct.hex, 26.0, 120); // Pass 1119: 17.0→26.0
       _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4194,7 +4193,7 @@ function animate(ts) {
         );
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 20;
-        _pp.vy = 45 + Math.random() * 40; // shoot upward — Pass 961: 32+28→45+40
+        _pp.vy = 62 + Math.random() * 55; // shoot upward — Pass 1120: 45+40→62+55 higher slot entry puff
         _pp.vz = (Math.random() - 0.5) * 22;
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
@@ -4208,10 +4207,10 @@ function animate(ts) {
     // Pass 127: slot entry strip build-up — strip glows brighter as card descends into slot
     // Pass 491: pre-landing urgency pulse — strip flickers at 8Hz in dt3 0.55-0.86 to sell approach
     if (ct.stripMat && dt3 < 0.86) {
-      const _stripApproach = Math.max(0.15, 0.15 + 1.65 * (dt3 / 0.86));
-      // Pass 988: strip urgency pulse amplitude 0.22→0.38 for more urgent pre-landing flicker
+      const _stripApproach = Math.max(0.15, 0.15 + 2.30 * (dt3 / 0.86)); // Pass 1121: 1.65→2.30 brighter strip approach build
+      // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 for more urgent pre-landing flicker
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
-        ? (dt3 - 0.55) / 0.31 * 0.38 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0;
+        ? (dt3 - 0.55) / 0.31 * 0.60 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0;
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
         ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 5);
       }
