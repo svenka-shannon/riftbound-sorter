@@ -2400,10 +2400,11 @@ function animate(ts) {
         if (!inFlight && mesh.material) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 1.23;
-          mesh.material.emissiveIntensity = 0.12 + 0.14 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 399: breathing amp 0.09 → 0.14
-          // Pass 134: micro Z-axis sway — cards rock very gently in their slots
+          // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 for more vivid settled slot cards
+          mesh.material.emissiveIntensity = 0.16 + 0.22 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
+          // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 for more visible card rocking
           const _swayPhase = _globalCardIdx * 1.83;
-          mesh.rotation.z = 0.007 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
+          mesh.rotation.z = 0.012 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
         }
         _globalCardIdx++;
       });
@@ -2416,8 +2417,9 @@ function animate(ts) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
       const _fPeak = f.peak || 3.0; // use stored creation intensity; fallback 3.0
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 0.5));
-      if(f.age > 0.5) { scene.remove(f.light); return false; }
+      // Pass 915: flash light decay duration 0.5→0.70s for longer flash persistence
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 0.70));
+      if(f.age > 0.70) { scene.remove(f.light); return false; }
       return true;
     });
   }
@@ -2435,8 +2437,8 @@ function animate(ts) {
     bar._springVel = bar._springVel * 0.80 + _springDiff * 0.10; // k=0.10, damping=0.80
     bar.scale.y = Math.max(0.01, Math.min(1.18, bar.scale.y + bar._springVel));
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
-    // Pass 249: fill bar breathing — each slot pulses at slightly different phase offset
-    const _fbRest = 0.36 + 0.13 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7));
+    // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 for more vivid pulse
+    const _fbRest = 0.46 + 0.20 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7));
     if(bar.material.emissiveIntensity > _fbRest + 0.06) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
@@ -2621,8 +2623,8 @@ function animate(ts) {
         // Pass 276: rangefinder lock-on flicker — 22Hz strobe in final 12% as arm locks on
         // Pass 632: lock-on flicker amplitude 0.20→0.35 for more nervous rangefinder hunting
         const _lockFlicker = pt > 0.88 ? (0.65 + 0.35 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0;
-        // Pass 632: targeting light peak 0.90→1.40 for brighter pre-pick spotlight
-        scanTargetLight.intensity = _pickTgtT * 1.40 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
+        // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 for brighter pre-pick spotlight
+        scanTargetLight.intensity = _pickTgtT * 2.20 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
       }
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       // Pass 462: early cup pre-glow — from pt=0.50 the cup begins a faint domain warmup
@@ -3516,15 +3518,16 @@ function animate(ts) {
     // Pass 192: target slot spotlight only fires AFTER identity reveal (85%)
     // Pre-reveal it was spoiling the destination — machine shouldn't "know" yet
     scanTargetLight.color.setHex(ct.hex);
-    // Pass 348: target light reveal spike — Pass 517: spike 3.0→4.5 and base 2.5→3.2
-    // Pass 547: spike 4.5→6.5, base 3.2→4.2 for even stronger destination spotlight at lock-on
-    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 6.5 : 0;
-    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 4.2 + _tgtRevealSpike348 : 0;
+    // Pass 348: target light reveal spike — Pass 547: spike 4.5→6.5, base 3.2→4.2
+    // Pass 913: spike 6.5→10.0 for bigger destination spotlight flash at lock-on
+    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 10.0 : 0;
+    // Pass 912: base 4.2→6.0 for stronger destination spotlight during scan
+    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 6.0 + _tgtRevealSpike348 : 0;
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
     // Fill bar also only brightens after reveal
-    // Pass 550: fill bar post-reveal target 0.4+1.2 → 0.6+1.6 for stronger destination slot pre-announce
+    // Pass 550: fill bar post-reveal 0.4+1.2 → 0.6+1.6 — Pass 910: →0.80+2.2 for stronger slot pre-announce
     if(fillBars[ct.slot]) {
-      const _fbTarget = _identityRevealed ? (0.6 + flashIntensity * 1.6) : 0.12;
+      const _fbTarget = _identityRevealed ? (0.80 + flashIntensity * 2.2) : 0.12;
       fillBars[ct.slot].material.emissiveIntensity += (_fbTarget - fillBars[ct.slot].material.emissiveIntensity) * Math.min(1, dt * 5);
     }
     // Pass 204: paddle pre-aim — after identity reveal, paddle very subtly pre-positions
