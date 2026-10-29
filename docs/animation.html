@@ -5043,13 +5043,13 @@ function animate(ts) {
   // Pass 110: grab contact ring — fast expanding ring at suction cup contact moment
   // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
-    // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 for longer visible ring
-    _grabRingT = Math.min(1, _grabRingT + dt * 3.5);
-    // Pass 938: grab ring max scale 5.0→8.5 for wider domain ring burst at pick
-    const _grs = 1.0 + easeOut(_grabRingT) * 8.5;
+    // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 — Pass 1037: →dt*2.6 for longer visible ring
+    _grabRingT = Math.min(1, _grabRingT + dt * 2.6);
+    // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 for wider domain ring burst at pick
+    const _grs = 1.0 + easeOut(_grabRingT) * 13.0;
     grabRing.scale.setScalar(_grs);
-    // Pass 938: grab ring opacity 0.6→0.85 for more vivid ring
-    grabRingMat.opacity = (1 - _grabRingT) * 0.85;
+    // Pass 938: grab ring opacity 0.6→0.85 — Pass 1036: →0.95 for more vivid ring
+    grabRingMat.opacity = (1 - _grabRingT) * 0.95;
     if (_grabRingT >= 1) {
       _grabRingT = -1;
       grabRing.visible = false;
@@ -5065,13 +5065,13 @@ function animate(ts) {
     const _hBase = 0.3 + _depthRatio * 0.35; // 0.3 (empty) → 0.65 (full)
     if (pickOn) {
       hopperLight.color.setHex(ct.hex);
-      // Pass 541: hopper pick intensity boost 1.55→2.10 for brighter domain light during arm cycle
-      const _hTarget = _hBase + 2.10; // Pass 541: pick intensity boost 1.55 → 2.10
+      // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 brighter during arm cycle
+      const _hTarget = _hBase + 3.20; // Pass 1038: 2.10→3.20
       hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 4);
-      // Pass 359: Y-track during armDescend — light follows arm down toward card stack
-      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 25 : 0;
-      // Pass 360: X-drift during armSwing — light tracks card arc from hopper toward belt
-      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 55 : 0;
+      // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 light follows arm deeper
+      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 42 : 0;
+      // Pass 360: X-drift during armSwing — Pass 1043: drift 55→80 light tracks wider card arc
+      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 80 : 0;
       hopperLight.position.set(HOPPER_X + 33 + _hXDrift360, 200 - _hYTrack359, 0);
     } else if (inPhase(PH.pause)) {
       // Pass 233: hopper LED domain pre-charge — in the final 40% of pause, hopper light
@@ -5080,9 +5080,9 @@ function animate(ts) {
       if (_pauseRaw >= 0.60) {
         const _nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
         const _preT = (_pauseRaw - 0.60) / 0.40; // 0→1 in last 40% of pause
-        // Pass 635: pre-charge tint blend 0.32→0.52 + intensity delta 0.28→0.55 for stronger domain herald
-        hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 0.52);
-        hopperLight.intensity += (_hBase + _preT * 0.55 - hopperLight.intensity) * Math.min(1, dt * 2.5);
+        // Pass 635: pre-charge tint blend 0.32→0.52 — Pass 1041: →0.75 + intensity delta 0.55→0.90 stronger herald
+        hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 0.75);
+        hopperLight.intensity += (_hBase + _preT * 0.90 - hopperLight.intensity) * Math.min(1, dt * 2.5);
       } else {
         hopperLight.color.set(0xffeedd);
         hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
@@ -5104,9 +5104,9 @@ function animate(ts) {
     let _ledColor, _ledGlow;
     if (_picking) {
       // Pass 158: domain-colored pulse during active pick — LED "reacts" to arm
-      // Pass 618: LED pick pulse amplitude 0.8→1.4, base 2.5→3.2 for more reactive status blink
+      // Pass 618: LED pick pulse amplitude 0.8→1.4, base 2.5→3.2 — Pass 1040: base 3.2→5.0, amp 1.4→2.2
       _ledColor = ct.hex;
-      _ledGlow = 3.2 + 1.4 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // 8Hz pulse
+      _ledGlow = 5.0 + 2.2 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // 8Hz pulse
     } else if (_visibleCards >= 5) {
       _ledColor = 0x00ff44; _ledGlow = 2.0; // green: full
     } else if (_visibleCards >= 3) {
@@ -5134,8 +5134,8 @@ function animate(ts) {
       _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 6, activeCard.position.z);
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
-      // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 for brighter domain exit beam
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 6.5 : 2.8;
+      // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 9.5 : 4.5;
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
     } else {
       // Fade card-tracking mode out
