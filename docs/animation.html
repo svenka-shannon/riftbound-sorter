@@ -3942,8 +3942,8 @@ function animate(ts) {
     if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 11);
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     // Pass 226: tumble-correlated glow — Pass 417: 0.28→0.40 — Pass 465: base+peak 0.80+0.60
-    // Pass 761: base 0.80→1.05, peak 0.60→0.80 for brighter deflect arc glow
-    cardGlow.intensity = (1.05 + 0.80 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
+    // Pass 761: base 0.80→1.05, peak 0.60→0.80 — Pass 980: base 1.05→1.35, peak 0.80→1.10 for brighter arc glow
+    cardGlow.intensity = (1.35 + 1.10 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
     cardGlow.position.copy(activeCard.position);
     // Pass 250: deflect tumble emissive — Pass 415: 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
     // Pass 762: base 0.55→0.45, peak 0.72→0.95 for more dynamic emissive swing during tumble
@@ -4060,7 +4060,8 @@ function animate(ts) {
     }
     // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
     // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
-    const _slotWallZ = ct.slotZ + (4.0 * Math.sin(dt3 * Math.PI * 4) + 1.0 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4);
+    // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 for more pronounced slot wall bounce
+    const _slotWallZ = ct.slotZ + (5.5 * Math.sin(dt3 * Math.PI * 4) + 1.5 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4);
     activeCard.position.set(TRAY_X_START + 20, cy, _slotWallZ);
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
@@ -4081,8 +4082,8 @@ function animate(ts) {
       activeCard.rotation.x = -0.04 * Math.sin(dt3 * Math.PI);
     }
     // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
-    // Pass 647: wall lean 0.032→0.055 for more physical lateral tilt at each wall contact
-    const _wallLean = 0.055 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0);
+    // Pass 647: wall lean 0.032→0.055 — Pass 974: →0.082 for more physical lateral tilt at each wall contact
+    const _wallLean = 0.082 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0);
     activeCard.rotation.z = _wallLean;
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
@@ -4091,31 +4092,33 @@ function animate(ts) {
     }
     // Pass 456: pre-impact micro-shake ramp — for floor-0, subtle increasing camera tremor
     // from dt3=0.72→0.88 builds tension before the big landing shake at 0.88.
-    // Pass 669: pre-impact shake ramp 0.4+1.0→0.55+1.6 — Pass 752: →0.70+2.5 for bigger impact buildup
+    // Pass 669: pre-impact shake ramp 0.4+1.0→0.55+1.6 — Pass 752: →0.70+2.5 — Pass 978: →0.90+3.5 bigger buildup
     if (ct.floor === 0 && dt3 >= 0.72 && dt3 < 0.88) {
       const _preImpactT = (dt3 - 0.72) / 0.16; // 0→1 in approach window
-      _cameraShake = Math.max(_cameraShake, 0.70 + _preImpactT * 2.5);
+      _cameraShake = Math.max(_cameraShake, 0.90 + _preImpactT * 3.5);
     }
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
-    // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 for stronger glow build at impact
+    // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.35 + (dt3 / 0.88) * 0.88; // Pass 753: peaks at ~1.23 just before bounce flash
+      const _fallRamp = 0.45 + (dt3 / 0.88) * 1.10; // Pass 977: peaks at ~1.55 just before bounce flash
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
     // Pass 252: slotDrop bounce face flash — Pass 391: 1.6→2.2 — Pass 528: →3.0 — Pass 671: →3.8
-    // Pass 751: peak 3.8→5.2, decay 8.5→11 for sharper, bigger landing pop
+    // Pass 751: peak 3.8→5.2, decay 8.5→11 — Pass 975: peak 5.2→7.5, decay 11→14 for bigger landing flash
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 5.2 * Math.exp(-_bFlashT * 11));
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 7.5 * Math.exp(-_bFlashT * 14));
     }
     // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: 1.2→1.8, decay 30→25 — Pass 754: 1.8→3.0, decay 25→22
+    // Pass 976: impact glow spike 3.0→4.8, decay 22→18 for longer-lasting slot impact glow
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
-      ? Math.exp(-(dt3 - 0.88) * 22) * 3.0 : 0;
+      ? Math.exp(-(dt3 - 0.88) * 18) * 4.8 : 0;
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
-    scanTargetLight.intensity = THREE.MathUtils.lerp(1.8, 0, easeInOut(dt3));
+    // Pass 979: start from 2.8 for brighter slot target spotlight at drop entry
+    scanTargetLight.intensity = THREE.MathUtils.lerp(2.8, 0, easeInOut(dt3));
     // Pass 81: slot sweep light travels from entrance to back wall as card inserts
     {
       const _sweepX = THREE.MathUtils.lerp(TRAY_X_START + 5, TRAY_X_END - 5, easeInOut(dt3));
