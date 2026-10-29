@@ -2331,8 +2331,9 @@ function animate(ts) {
     if (!sc.visible) return;
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
     const _jPhase = i * 1.47; // stagger per card
-    const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.08
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.04;
+    // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 for livelier deck tremor
+    const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.12
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.06;
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2340,7 +2341,8 @@ function animate(ts) {
       const _lt2 = phaseRaw(PH.armLift);
       const _cardDelay = (stackTopIdx - 1 - i) * 0.08; // top-most remaining card fires first
       const _delayedT = Math.max(0, _lt2 - _cardDelay);
-      if (_delayedT < 0.45) _recoilDip = -0.6 * Math.sin(_delayedT / 0.45 * Math.PI);
+      // Pass 901: stack pick recoil dip 0.6→1.0 for more dramatic suction-break recoil
+      if (_delayedT < 0.45) _recoilDip = -1.0 * Math.sin(_delayedT / 0.45 * Math.PI);
     }
     sc.position.y = _baseY + _jY + _recoilDip;
     // Pass 178: deck "charge" shimmer — ripples bottom→top at 0.6 Hz during idle/approach
@@ -2348,9 +2350,10 @@ function animate(ts) {
       const _prePickT = inPhase(PH.pause) || inPhase(PH.armDescend) || inPhase(PH.armLift);
       if (_prePickT) {
         const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
-        // Pass 301: deck wave amplitude ramp during armDescend — shimmer builds as arm approaches
-        const _waveAmp301 = inPhase(PH.armDescend) ? 0.10 + phaseRaw(PH.armDescend) * 0.14 : 0.10;
-        sc.material.emissiveIntensity = 0.04 + _wave * _waveAmp301;
+        // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
+        const _waveAmp301 = inPhase(PH.armDescend) ? 0.15 + phaseRaw(PH.armDescend) * 0.22 : 0.15;
+        // Pass 905: shimmer base emissive 0.04→0.06 for brighter deck energy
+        sc.material.emissiveIntensity = 0.06 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
         sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 3);
@@ -2371,15 +2374,16 @@ function animate(ts) {
       _yPos = THREE.MathUtils.lerp(a.startY, a.targetY, easeOut(a.t / 0.80));
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
-      // Pass 325: arrival bounce boost — bigger spring for more physical impact feel
-      _yPos = a.targetY + 7 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
+      // Pass 325: arrival bounce boost — Pass 902: 7→11 for more physical slot landing
+      _yPos = a.targetY + 11 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
     if (a.glowAge < 1.2) {
       a.glowAge += dt;
       if (a.mesh.material) {
-        a.mesh.material.emissiveIntensity = 0.15 + 4.0 * Math.exp(-a.glowAge * 5.0); // Pass 397: boost 3.05→4.0, decay 6.5→5.0
+        // Pass 903: tray arrival emissive peak 4.0→6.5 for brighter landing flash
+        a.mesh.material.emissiveIntensity = 0.15 + 6.5 * Math.exp(-a.glowAge * 5.0);
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -4824,14 +4828,15 @@ function animate(ts) {
   // Combines white noise (impulse) + two sine harmonics (resonance overtones).
   // Harmonic 1 (primary rattle ~18Hz) + Harmonic 2 (secondary ~31Hz) decay with shake.
   if (_cameraShake > 0.05) {
-    _shakePhase1 += dt * 113; // ~18Hz
-    _shakePhase2 += dt * 193; // ~31Hz
+    // Pass 907: shake harmonics 18Hz/31Hz → 22Hz/38Hz for more complex rattle
+    _shakePhase1 += dt * 138; // ~22Hz
+    _shakePhase2 += dt * 239; // ~38Hz
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
     const _h2 = Math.sin(_shakePhase2) * 0.55;           // second harmonic (quieter)
-    // Pass 568: shake amplitude 0.30→0.45/0.62/0.38 — Pass 700: →0.55/0.78/0.50 for even juicier impact
-    const _shakeX = (_n * 0.55 + _h1 * 0.78 + _h2 * 0.50) * _cameraShake;
-    const _shakeY = (_n * 0.55 + Math.cos(_shakePhase1) * 0.78 + Math.cos(_shakePhase2) * 0.50 * 0.55) * _cameraShake;
+    // Pass 568: shake amplitude 0.30→0.45/0.62/0.38 — Pass 700: →0.55/0.78/0.50 — Pass 906: →0.65/0.90/0.60
+    const _shakeX = (_n * 0.65 + _h1 * 0.90 + _h2 * 0.60) * _cameraShake;
+    const _shakeY = (_n * 0.65 + Math.cos(_shakePhase1) * 0.90 + Math.cos(_shakePhase2) * 0.60 * 0.55) * _cameraShake;
     camera.position.x += _shakeX;
     camera.position.y += _shakeY;
     // Pass 569: shake decay 0.78→0.72 — Pass 701: →0.69 for slightly longer lingering feel
