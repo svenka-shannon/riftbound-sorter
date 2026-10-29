@@ -4951,12 +4951,12 @@ function animate(ts) {
     const beltTrail = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
     const _speedFactor = Math.min(1, _beltScrollSpeed / 0.08); // 0 idle → 1 at full speed
     // Pass 376: ghost opacity boost — more visible trail effect
-    // Pass 661: ghost opacity 0.42/0.22/0.10 → 0.52/0.28/0.14 — Pass 820: →0.68/0.40/0.22
-    const ghostOpacities = [0.68 * _speedFactor, 0.40 * _speedFactor, 0.22 * _speedFactor];
+    // Pass 661: ghost opacity 0.42/0.22/0.10 → 0.52/0.28/0.14 — Pass 820: →0.68/0.40/0.22 — Pass 1028: →0.85/0.55/0.32
+    const ghostOpacities = [0.85 * _speedFactor, 0.55 * _speedFactor, 0.32 * _speedFactor];
     ghostCards.forEach(({ mesh, mat }, gi) => {
       if (beltTrail && activeCard.visible) {
-        // Pass 377: lag spacing 9→12 — Pass 660: →15 — Pass 822: →19 for wider motion-blur spread
-        const lag = (gi + 1) * 19;
+        // Pass 377: lag spacing 9→12 — Pass 660: →15 — Pass 822: →19 — Pass 1031: →24 for wider motion-blur spread
+        const lag = (gi + 1) * 24;
         mesh.visible = true;
         mesh.position.copy(activeCard.position);
         mesh.position.x -= lag;
@@ -4970,11 +4970,10 @@ function animate(ts) {
         mat.emissive.setHex(_ghostHex);
         // Pass 286: ghost emissive intensity speed sync — trail glows brighter at full belt speed
         // Pass 378: post-reveal emissive boost — trail blazes in domain color on conveyorOut
-        // Pass 504: post-reveal ghost emissive boost 0.30→0.45 for more vivid domain identity trail
-        // Pass 504: post-reveal ghost boost 0.30→0.45 — Pass 821: →0.65 for more vivid domain trail
-        const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 0.65 : 0;
-        // Pass 667: ghost emissive base 0.28→0.36 — Pass 821: →0.50 for more luminous motion trail
-        mat.emissiveIntensity = ((0.50 - gi * 0.12) + _ghostRevealBoost378) * _speedFactor;
+        // Pass 504: post-reveal ghost emissive boost 0.30→0.45 — Pass 821: →0.65 — Pass 1029: →0.90 vivid domain trail
+        const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 0.90 : 0;
+        // Pass 667: ghost emissive base 0.28→0.36 — Pass 821: →0.50 — Pass 1030: →0.65, decay 0.12→0.10
+        mat.emissiveIntensity = ((0.65 - gi * 0.10) + _ghostRevealBoost378) * _speedFactor;
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
         mat.opacity += (targetOp - mat.opacity) * 0.35;
       } else {
@@ -4989,13 +4988,13 @@ function animate(ts) {
 
   // ── Impact ring: expansion animation ─────────────────────────────────────────
   if (_impactRingT >= 0) {
-    // Pass 384: expansion speed boost 0.4s→0.31s — Pass 809: dt*3.2→dt*4.8 — Pass 942: →dt*3.5 for longer visible ring
-    _impactRingT = Math.min(1, _impactRingT + dt * 3.5);
+    // Pass 384: expansion speed boost 0.4s→0.31s — Pass 809: dt*3.2→dt*4.8 — Pass 942: →dt*3.5 — Pass 1033: →dt*2.8 longer ring
+    _impactRingT = Math.min(1, _impactRingT + dt * 2.8);
     // scale0: floor-0 starts at 1.0 (big bang), floor-1 starts at 0.55 (gentle glide)
     // Pass 284: easeOut expansion + floor-0 scale boost — ring punches out hard then decelerates
-    // Pass 382: floor-0 max scale 6.0→7.5 — Pass 808: →11.0 — Pass 940: →16.0 for wider shockwave
+    // Pass 382: floor-0 max scale 6.0→7.5 — Pass 808: →11.0 — Pass 940: →16.0 — Pass 1032: →22.0 wider shockwave
     // Pass 941: floor-1 max scale 4.5→7.5 for more visible gentle landing ring
-    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 16.0 : 7.5;
+    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 22.0 : 7.5;
     const irs = _impactRingScale0 + easeOut(_impactRingT) * (_impactMaxScale - _impactRingScale0);
     impactRing.scale.setScalar(irs);
     // Pass 383: floor-0 peak opacity boost 0.88 → 1.0
@@ -5016,7 +5015,7 @@ function animate(ts) {
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0
     const _crs = 1.0 + easeOut(_confirmRingT) * 26.0;
     confirmRing.scale.setScalar(_crs);
-    confirmRingMat.opacity = (1 - _confirmRingT) * 0.90; // Pass 336: opacity boost 0.75 → 0.90
+    confirmRingMat.opacity = (1 - _confirmRingT) * 0.95; // Pass 1034: opacity 0.90→0.95
     if (_confirmRingT >= 1) {
       _confirmRingT = -1;
       confirmRing.visible = false;
@@ -5032,7 +5031,7 @@ function animate(ts) {
       // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 for wider second burst
       const _crs2 = 0.6 + easeOut(_confirmRingT2) * 11.0;
       confirmRing2.scale.setScalar(_crs2);
-      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 0.75); // Pass 446: 0.55→0.75
+      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 0.90); // Pass 1035: 0.75→0.90
       if (_confirmRingT2 >= 1) {
         _confirmRingT2 = -1;
         confirmRing2.visible = false;
