@@ -2698,9 +2698,9 @@ function animate(ts) {
           } else {
             tp.mat.color.set(0x9aaabb); // cool steel-gray (no domain reveal yet)
           }
-          // Pass 883: descent trail opacity 0.22+0.12→0.32+0.18, life 0.20+0.10→0.28+0.14
-          tp.mat.opacity = 0.32 + Math.random() * 0.18;
-          tp.age = 0; tp.life = 0.28 + Math.random() * 0.14;
+          // Pass 883: descent trail opacity 0.22+0.12→0.32+0.18, life 0.20+0.10→0.28+0.14 — Pass 1091: opacity 0.32+0.18→0.48+0.26, life 0.28+0.14→0.40+0.20
+          tp.mat.opacity = 0.48 + Math.random() * 0.26;
+          tp.age = 0; tp.life = 0.40 + Math.random() * 0.20;
           tp.active = true; tp.mesh.visible = true;
         }
       }
@@ -2719,9 +2719,9 @@ function animate(ts) {
         const _vacBaseScale = THREE.MathUtils.lerp(1.5, 0.25, _vt);
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
-        // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 for more dramatic approach
-        const _vacSurge = pt > 0.85 ? 0.45 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
-        vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.75 + _vacSurge; // Pass 379: opacity boost 0.55→0.75
+        // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 for dramatic approach
+        const _vacSurge = pt > 0.85 ? 0.65 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
+        vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.95 + _vacSurge; // Pass 1092: opacity 0.75→0.95
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
         vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 0.55), _vacBaseScale);
       } else {
@@ -2738,12 +2738,12 @@ function animate(ts) {
       if (lt < 0.22) {
         const _yDip = -2.5 * Math.sin((lt / 0.22) * Math.PI);
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
-        // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 for stronger suction-break feel
-        const _pickStutter = lt < 0.12 ? 1.65 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
+        // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 for stronger suction-break feel
+        const _pickStutter = lt < 0.12 ? 2.40 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
-      // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 for more dramatic peel-off sway
-      const _peelZ291 = lt < 0.28 ? 4.0 * Math.sin(lt / 0.28 * Math.PI) : 0;
+      // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 for more dramatic peel-off sway
+      const _peelZ291 = lt < 0.28 ? 5.8 * Math.sin(lt / 0.28 * Math.PI) : 0;
       suctionPivot.position.z = _peelZ291;
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
@@ -2786,8 +2786,8 @@ function animate(ts) {
         grabRing.visible = true;
         GRAB_PARTICLES.forEach((p, _gi) => {
           const angle = Math.random() * Math.PI * 2;
-          // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 for more energetic burst
-          const spd = 28 + Math.random() * 65; // Pass 880: 22+50→28+65
+          // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 — Pass 1098: →40+90 for more energetic burst
+          const spd = 40 + Math.random() * 90; // Pass 1098: 28+65→40+90
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.15;
           p.vx = Math.cos(angle) * spd * 0.55;
@@ -2808,7 +2808,7 @@ function animate(ts) {
           p.mat.color.setHex(_pc);
           p.mat.opacity = 0.85 + Math.random() * 0.15; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst
           p.age = 0;
-          p.life = 0.48 + Math.random() * 0.36; // Pass 882: 0.36+0.28→0.48+0.36 for longer-lived scatter
+          p.life = 0.62 + Math.random() * 0.48; // Pass 1097: 0.48+0.36→0.62+0.48 for longer-lived scatter
           p.active = true;
           p.mesh.visible = true;
         });
@@ -2949,8 +2949,8 @@ function animate(ts) {
     // Pass 39: belt deposit flash — domain burst when card first touches the belt
     if (!_depositFired) {
       _depositFired = true;
-      // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 for bigger card-on-belt impact
-      const _dfl = new THREE.PointLight(ct.hex, 16.0, 95);
+      // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 for bigger card-on-belt impact
+      const _dfl = new THREE.PointLight(ct.hex, 24.0, 110);
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
@@ -2967,8 +2967,8 @@ function animate(ts) {
           _dp.mesh.position.set(-111 + (Math.random()-0.5)*8, CONV_Y_TOP + 4, (Math.random()-0.5)*7);
           _dp.mesh.visible = true;
           const _side = Math.random() < 0.5 ? 1 : -1;
-          _dp.vx = _side * (18 + Math.random() * 30); // Pass 869: 22→30
-          _dp.vy = 12 + Math.random() * 18;
+          _dp.vx = _side * (22 + Math.random() * 38); // Pass 1096: 18+30→22+38 wider dust burst
+          _dp.vy = 18 + Math.random() * 24; // Pass 1096: 12+18→18+24 higher-flying dust
           _dp.vz = (Math.random() - 0.5) * 16;
           // Pale domain-tinted dust: 35% domain + 65% white
           _dp.mat.color.setRGB(
