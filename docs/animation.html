@@ -1941,34 +1941,34 @@ function fireCelebration() {
   CELEB_PARTICLES.forEach((p, pi) => {
     const domCt = CARD_TYPES[pi % CARD_TYPES.length];
     const angle = (pi / CELEB_COUNT) * Math.PI * 2;
-    // Pass 594: confetti burst speed 60+90 — Pass 652: →80+120 — Pass 728: →100+150 — Pass 755: →125+180
-    const spd = 125 + Math.random() * 180; // Pass 755: 100+150 → 125+180
+    // Pass 594: confetti burst speed 60+90 — Pass 652: →80+120 — Pass 728: →100+150 — Pass 755: →125+180 — Pass 892: →155+220
+    const spd = 155 + Math.random() * 220; // Pass 892: 125+180 → 155+220
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
     p.vx = Math.cos(angle) * spd * 0.75;
-    // Pass 729: upward bias 0.6+0.6→0.75+0.70 for stronger confetti launch
-    p.vy = spd * (0.75 + Math.random() * 0.70); // Pass 729: stronger upward bias
+    // Pass 729: upward bias 0.6+0.6→0.75+0.70 — Pass 893: →0.90+0.85 for stronger confetti launch
+    p.vy = spd * (0.90 + Math.random() * 0.85); // Pass 893: 0.75+0.70→0.90+0.85
     p.vz = Math.sin(angle) * spd * 0.65;
     // Pass 652: randomize spawn position within ±25 units of tray center for wider burst area
     p.mesh.position.set(TX_MID + (Math.random()-0.5)*25, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*20);
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
-    p.life = 1.1 + Math.random() * 0.9; // longer life
+    p.life = 1.4 + Math.random() * 1.0; // Pass 899: 1.1+0.9→1.4+1.0 for longer celebration
     // Pass 84: random angular velocity for tumbling confetti effect
-    // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 for wilder confetti spin
-    p.rx = (Math.random() - 0.5) * 26;
-    p.ry = (Math.random() - 0.5) * 32;
-    p.rz = (Math.random() - 0.5) * 42;
+    // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 for wilder spin
+    p.rx = (Math.random() - 0.5) * 35;
+    p.ry = (Math.random() - 0.5) * 42;
+    p.rz = (Math.random() - 0.5) * 55;
     p.active = true;
     p.mesh.visible = true;
   });
   // Pass 458: metallic shimmer burst — silver-gold confetti pieces with fast tumble
-  // Pass 653: shimmer count 8→12 for more glitter density; speed 90→130; vy 55+50→75+65
-  const _shimmerColors = [0xffffff, 0xffe0a0, 0xf0f0f0, 0xffd070, 0xeeeeee, 0xffc040, 0xe8e8ff, 0xffeebb, 0xffd0a0, 0xffffff, 0xffe880, 0xf8f8ff];
-  for (let _mi = 0; _mi < 12; _mi++) { // Pass 653: 8→12 shimmer pieces
+  // Pass 653: shimmer count 8→12 — Pass 896: →16; speed 90→130 — Pass 895: →165; vy 55+50→75+65 — Pass 895: →95+80
+  const _shimmerColors = [0xffffff, 0xffe0a0, 0xf0f0f0, 0xffd070, 0xeeeeee, 0xffc040, 0xe8e8ff, 0xffeebb, 0xffd0a0, 0xffffff, 0xffe880, 0xf8f8ff, 0xffffff, 0xffd0ff, 0xffe0b0, 0xf8ffff];
+  for (let _mi = 0; _mi < 16; _mi++) { // Pass 896: 12→16 shimmer pieces
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
-    _mp.vx = (Math.random() - 0.5) * 130; // Pass 653: 90→130
-    _mp.vy = 75 + Math.random() * 65; // Pass 653: 55+50→75+65
+    _mp.vx = (Math.random() - 0.5) * 165; // Pass 895: 130→165
+    _mp.vy = 95 + Math.random() * 80; // Pass 895: 75+65→95+80
     _mp.vz = (Math.random() - 0.5) * 80;
     _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*30, FLOOR_Y[0] + 85, (Math.random()-0.5)*40);
     _mp.mat.color.setHex(_shimmerColors[_mi]);
@@ -1992,15 +1992,15 @@ function fireCelebration() {
   _cameraShake = Math.max(_cameraShake, 15.0);
   // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° for even bigger celebration
   _fovBump = 19;
-  // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0, dist 220→280
-  const _cfl = new THREE.PointLight(0xffffff, 14.0, 280);
+  // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0 — Pass 897: →20.0, dist 280→350
+  const _cfl = new THREE.PointLight(0xffffff, 20.0, 350);
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: _cfl, age: 0, peak: _cfl.intensity });
-  // Pass 150: rainbow tray burst — Pass 423: 5.5→8.0 — Pass 727: →12.0, dist 130→165
+  // Pass 150: rainbow tray burst — Pass 423: 5.5→8.0 — Pass 727: →12.0 — Pass 898: →18.0, dist 165→220
   CARD_TYPES.forEach(dct => {
-    const _dfl = new THREE.PointLight(dct.hex, 12.0, 165);
+    const _dfl = new THREE.PointLight(dct.hex, 18.0, 220);
     _dfl.position.set(TX_MID, dct.slotFloorY + 55, dct.slotZ);
     scene.add(_dfl);
     window._flashLights.push({ light: _dfl, age: 0, peak: _dfl.intensity });
