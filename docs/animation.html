@@ -4855,14 +4855,14 @@ function animate(ts) {
     _shakePhase2 += dt * 239; // ~38Hz
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
-    const _h2 = Math.sin(_shakePhase2) * 0.55;           // second harmonic (quieter)
+    const _h2 = Math.sin(_shakePhase2) * 0.70;           // Pass 1026: second harmonic 0.55→0.70 (richer rattle)
     // Pass 568: shake amplitude 0.30→0.45/0.62/0.38 — Pass 700: →0.55/0.78/0.50 — Pass 906: →0.65/0.90/0.60
     const _shakeX = (_n * 0.65 + _h1 * 0.90 + _h2 * 0.60) * _cameraShake;
     const _shakeY = (_n * 0.65 + Math.cos(_shakePhase1) * 0.90 + Math.cos(_shakePhase2) * 0.60 * 0.55) * _cameraShake;
     camera.position.x += _shakeX;
     camera.position.y += _shakeY;
-    // Pass 569: shake decay 0.78→0.72 — Pass 701: →0.69 for slightly longer lingering feel
-    _cameraShake *= 0.69; // decay: Pass 701
+    // Pass 569: shake decay 0.78→0.72 — Pass 701: →0.69 — Pass 1027: →0.66 for longer lingering feel
+    _cameraShake *= 0.66; // decay: Pass 1027
   } else {
     _cameraShake = 0;
     _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
@@ -4889,12 +4889,12 @@ function animate(ts) {
       // Altitude = card Y above belt surface; belt at CONV_Y_TOP+2
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
       const _altFrac = Math.min(1, _altitude / 50); // 0 at belt, 1 at 50 units up
-      // Pass 703: floor disc altitude expansion 1.4→1.8 for larger domain halo spread when card rises
-      const _fdScale = 1.0 + _altFrac * 1.8;  // 1.0 on belt → 2.8 at peak
-      // Pass 514: floor disc breathing pulse — 1.5Hz subtle opacity pulse when card is close to belt
-      const _fdPulse514 = (1 - _altFrac) * 0.025 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2));
-      // Pass 702: floor disc ground opacity 0.18→0.24 for more visible domain floor glow
-      const _fdOpacity = THREE.MathUtils.lerp(0.24, 0.055, _altFrac) + _fdPulse514;
+      // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 for larger domain halo spread
+      const _fdScale = 1.0 + _altFrac * 2.6;  // 1.0 on belt → 3.6 at peak
+      // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
+      const _fdPulse514 = (1 - _altFrac) * 0.042 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2));
+      // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 for more visible domain floor glow
+      const _fdOpacity = THREE.MathUtils.lerp(0.34, 0.055, _altFrac) + _fdPulse514;
       floorDisc.scale.setScalar(_fdScale);
       floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.15;
     } else {
@@ -4909,12 +4909,12 @@ function animate(ts) {
   if (activeCard.visible && beltShimmerMesh.visible &&
       (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))) {
     const _glintDist = Math.abs(beltShimmerMesh.position.x - activeCard.position.x);
-    // Pass 479: glint 0.22→0.32 — Pass 704: →0.45 for stronger stripe-under-card flash
-    const _glint = Math.max(0, 1 - _glintDist / 18) * 0.45;
+    // Pass 479: glint 0.22→0.32 — Pass 704: →0.45 — Pass 1023: →0.65 stronger stripe-under-card flash
+    const _glint = Math.max(0, 1 - _glintDist / 18) * 0.65;
     if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
-    // Pass 163: shimmer pressure lift — card floats ~0.9 units up when stripe is directly below
+    // Pass 163: shimmer pressure lift — Pass 1023: lift 5.5→8.0 higher card float under stripe
     if (_glint > 0.005 && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)))
-      activeCard.position.y += _glint * 5.5; // Pass 479: 4.0→5.5
+      activeCard.position.y += _glint * 8.0; // Pass 1023: 5.5→8.0
   }
 
   // ── Hopper top card domain preview ──────────────────────────────────────────
@@ -4930,14 +4930,14 @@ function animate(ts) {
       if (pickPhase) {
         topCard.material.emissive.setHex(ct.hex);
         const glowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) : 1.0;
-        topCard.material.emissiveIntensity = glowT * 0.7;
+        topCard.material.emissiveIntensity = glowT * 1.1; // Pass 1024: 0.7→1.1 brighter pick-phase top card
       } else if (previewPhase) {
         // Dim preview: next card's domain glows subtly on the top hopper card
         // Pass 480: next-card preview slow pulse — 0.6Hz breathing for "anticipate" feel
         const nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
         topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 1.5));
         const _prevT = inPhase(PH.pause) ? phaseRaw(PH.pause) : phaseRaw(PH.armReturn);
-        const _prevPulse = 0.25 + 0.10 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 480: 0.6Hz pulse
+        const _prevPulse = 0.35 + 0.18 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 1025: 0.25+0.10→0.35+0.18
         topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 2);
       } else {
         topCard.material.emissiveIntensity *= 0.85; // decay when not in pick phase
