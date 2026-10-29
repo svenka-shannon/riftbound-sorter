@@ -3604,8 +3604,8 @@ function animate(ts) {
       const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.20 * flashIntensity;
       // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 — Pass 855: →1.40 for bolder arc flash at lock-on
       const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 1.40 : 0;
-      // Pass 644: post-reveal arc opacity 0.35→0.50 — Pass 856: →0.80 for more solid confirmed-route arc
-      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 0.80 : 0)) + _arcStrobeMod + _arcRevealSpike;
+      // Pass 644: post-reveal arc opacity 0.35→0.50 — Pass 856: →0.80 — Pass 1075: →1.10 for more solid confirmed-route arc
+      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 1.10 : 0)) + _arcStrobeMod + _arcRevealSpike;
       // Target sphere pulses at destination
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
@@ -3615,8 +3615,8 @@ function animate(ts) {
       // Pass 858: post-reveal emissive add 1.2→2.0 for more vivid destination glow
       routeTargetMat.emissiveIntensity = flashIntensity * (2.0 + (_identityRevealed ? 2.0 : 0)) + _tgtRevealSpike339;
       routeTargetMat.opacity = flashIntensity * 0.9;
-      // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 — Pass 858: →1.20 for more vivid pulse
-      const _tgtScale304 = 1.0 + flashIntensity * 1.20 * Math.sin(ts * 4 * Math.PI * 2);
+      // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 — Pass 858: →1.20 — Pass 1068: →1.55 for bigger destination sphere pulse
+      const _tgtScale304 = 1.0 + flashIntensity * 1.55 * Math.sin(ts * 4 * Math.PI * 2);
       routeTarget.scale.setScalar(Math.max(0.1, _tgtScale304));
     }
     // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
@@ -3632,8 +3632,8 @@ function animate(ts) {
       // Mirror card tilt so shimmer stays flush with card surface (pass 90 + 164)
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
-      // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 for wider flash
-      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 2.6 : 1.0;
+      // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 — Pass 1069: →3.4 for wider flash
+      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 3.4 : 1.0;
       cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
@@ -3641,8 +3641,8 @@ function animate(ts) {
       cardShimmerMat.color.copy(_shimColor);
       // Opacity: standard bell + extra brightness after reveal — Pass 403: 0.18→0.28 — Pass 816: →0.42
       const _shimBoost = _identityRevealed ? 0.42 : 0;
-      // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75 — Pass 815: →1.0
-      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 1.0 : 0;
+      // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75 — Pass 815: →1.0 — Pass 1070: →1.40 for brighter shimmer at reveal
+      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 1.40 : 0;
       // Pass 626: base bell 0.52→0.62 — Pass 816: →0.75 for brighter shimmer throughout scan
       cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.75 + _shimBoost) + _shimRevealSpike349;
     }
@@ -3803,8 +3803,8 @@ function animate(ts) {
     activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
-    // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 for more dramatic gate approach
-    const _coGlowSurge = ot > 0.80 ? 3.5 + (ot - 0.80) / 0.20 * 2.0 : 3.5;
+    // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 for bigger gate approach glow
+    const _coGlowSurge = ot > 0.80 ? 3.5 + (ot - 0.80) / 0.20 * 2.8 : 3.5;
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
@@ -3838,10 +3838,10 @@ function animate(ts) {
   else if(inPhase(PH.deflect)) {
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
-    // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 — Pass 916: →19.0 for bigger paddle hit
+    // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 — Pass 916: →19.0 — Pass 1074: →27.0 for bigger paddle hit
     if (!_gateFlashFired) {
       _gateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 19.0, 100);
+      const _gfl = new THREE.PointLight(ct.hex, 27.0, 110);
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3912,12 +3912,12 @@ function animate(ts) {
     const _arcBump = (ct.floor === 1 ? 22 : 21) * Math.sin(dt2 * Math.PI);
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
-    // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 for stronger buffet
-    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 6.2
+    // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 for stronger air buffet
+    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 8.0
       // Pass 680: tertiary Z tremor amplitude 1.6→2.2
       + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 2.2;
-    // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 for more 3D turbulence feel
-    const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 2.4;
+    // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 — Pass 1072: →3.2 for more 3D turbulence feel
+    const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 3.2;
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
     const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
