@@ -3861,8 +3861,8 @@ function animate(ts) {
       _fovBump = Math.max(_fovBump, 11.0);
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
-      // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 for harder paddle whack feel
-      _paddleRecoil = 0.62 * Math.sign(ct.slotZ);
+      // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 — Pass 1194: →0.88 for harder paddle whack feel
+      _paddleRecoil = 0.88 * Math.sign(ct.slotZ);
       // Pass 216: solenoid jitter — Pass 591: 0.85→1.30 for stronger lateral vibration
       _paddleJitterAmt = 1.30;
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
@@ -3936,23 +3936,23 @@ function animate(ts) {
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
     // Pass 317: deflect tumble distance scaling — outer columns tumble harder (steeper deflect angle)
-    // Pass 759: tumble base 0.65→0.82 for more dramatic card spin mid-arc
-    const _tumbleAmp = 0.82 + Math.abs(ct.slotZ) / 97.5 * 0.25;
+    // Pass 759: tumble base 0.65→0.82 — Pass 1187: →1.15 for more dramatic card spin mid-arc
+    const _tumbleAmp = 1.15 + Math.abs(ct.slotZ) / 97.5 * 0.25;
     const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
-    // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020
-    const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 0.042 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 0.020) * Math.sin(dt2 * Math.PI);
+    // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020 — Pass 1188: primary →0.062, secondary →0.032
+    const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 0.062 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 0.032) * Math.sin(dt2 * Math.PI);
     // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
     if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 11);
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     // Pass 226: tumble-correlated glow — Pass 417: 0.28→0.40 — Pass 465: base+peak 0.80+0.60
-    // Pass 761: base 0.80→1.05, peak 0.60→0.80 — Pass 980: base 1.05→1.35, peak 0.80→1.10 for brighter arc glow
-    cardGlow.intensity = (1.35 + 1.10 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
+    // Pass 761: base 0.80→1.05, peak 0.60→0.80 — Pass 980: base 1.05→1.35, peak 0.80→1.10 — Pass 1189: base 1.35→1.80, peak 1.10→1.55 for brighter arc glow
+    cardGlow.intensity = (1.80 + 1.55 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z));
     cardGlow.position.copy(activeCard.position);
     // Pass 250: deflect tumble emissive — Pass 415: 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
     // Pass 762: base 0.55→0.45, peak 0.72→0.95 for more dynamic emissive swing during tumble
-    // Pass 968: base 0.45→0.55, peak 0.95→1.25 for brighter deflect tumble arc glow
-    const _tumbleEmissive = 0.55 + 1.25 * Math.max(0, Math.cos(2 * activeCard.rotation.z));
+    // Pass 968: base 0.45→0.55, peak 0.95→1.25 — Pass 1190: peak 1.25→1.65 for brighter deflect tumble arc glow
+    const _tumbleEmissive = 0.55 + 1.65 * Math.max(0, Math.cos(2 * activeCard.rotation.z));
     activeCardMat.emissiveIntensity += (_tumbleEmissive - activeCardMat.emissiveIntensity) * Math.min(1, dt * 7);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
     // Pass 126: color warms from neutral white to domain color as card approaches
@@ -3961,8 +3961,8 @@ function animate(ts) {
     const _lightZ318 = dt2 < 0.5 ? activeCard.position.z
       : THREE.MathUtils.lerp(activeCard.position.z, ct.slotZ, (dt2 - 0.5) / 0.5);
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, _lightZ318);
-    // Pass 354: deflect target light easeOut + intensity boost (1.8 → 2.6) — Pass 964: →4.0
-    scanTargetLight.intensity = easeOut(dt2) * 4.0;
+    // Pass 354: deflect target light easeOut + intensity boost (1.8 → 2.6) — Pass 964: →4.0 — Pass 1191: →6.0
+    scanTargetLight.intensity = easeOut(dt2) * 6.0;
     // Keep gate paddle colored while card is deflecting
     // Pass 248: paddle domain-to-orange afterglow — domain color during peak window, then fades
     // to orange-red after dt2=0.18, giving a visible cool-down transition on the paddle face.
@@ -3987,20 +3987,20 @@ function animate(ts) {
     } else {
       paddlePivot.position.z += (0 - paddlePivot.position.z) * Math.min(1, dt * 10);
     }
-    // Pass 60: light up the destination column LED, dim others — Pass 1123: target 3.5→5.2 brighter destination LED during deflect
+    // Pass 60: light up the destination column LED, dim others — Pass 1123: target 3.5→5.2 — Pass 1192: →7.5 brighter destination LED during deflect
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       if (gi === ct.col) {
         gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
-        gm.emissiveIntensity += (5.2 - gm.emissiveIntensity) * Math.min(1, dt * 10);
+        gm.emissiveIntensity += (7.5 - gm.emissiveIntensity) * Math.min(1, dt * 10);
       } else {
         gm.emissiveIntensity += (0.15 - gm.emissiveIntensity) * Math.min(1, dt * 5);
       }
     });
     // Pass 141: keep gate column tracking light on during deflect
-    // Pass 649: deflect column light max 3.0→4.5 — brighter gate column during arc flight
+    // Pass 649: deflect column light max 3.0→4.5 — Pass 1193: →6.5 brighter gate column during arc flight
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (4.5 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6);
+    gateColLight.intensity += (6.5 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6);
     _beltScrollSpeed = 0.04; // half speed while card arcs off belt
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
