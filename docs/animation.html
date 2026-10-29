@@ -4317,19 +4317,19 @@ function animate(ts) {
         void _ral.offsetWidth; // force reflow
         _ral.classList.add('reject-alarm-on');
       }
-      // Two warning point lights — Pass 451: amber 5.5,80→8.5,110; red unchanged
-      [[0xff6600, 8.5, 110], [0xff1a00, 3.5, 60]].forEach(([c, i, d], fi) => {
+      // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90
+      [[0xff6600, 14.0, 150], [0xff1a00, 7.0, 90]].forEach(([c, i, d], fi) => {
         const _wl = new THREE.PointLight(c, i, d);
         _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 8 : -8));
         scene.add(_wl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _wl, age: 0, peak: _wl.intensity });
       });
-      // Extra camera shake for "rejected" — Pass 452: 2.2→3.5 — Pass 651: →5.5 (bigger alarm jolt)
-      _cameraShake = Math.max(_cameraShake, 5.5);
+      // Extra camera shake for "rejected" — Pass 452: 2.2→3.5 — Pass 651: →5.5 — Pass 1044: →9.5 bigger alarm jolt
+      _cameraShake = Math.max(_cameraShake, 9.5);
       // Pass 65: reject spark fountain — upward burst of red/orange trail particles
-      // Pass 651: reject spark count 14→20 for bigger alarm fountain
-      for (let _ri = 0; _ri < 20; _ri++) {
+      // Pass 651: reject spark count 14→20 — Pass 1046: →30 for bigger alarm fountain
+      for (let _ri = 0; _ri < 30; _ri++) {
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         tp.mesh.position.set(
@@ -4339,8 +4339,8 @@ function animate(ts) {
         );
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
-        tp.mat.opacity = 0.82 + Math.random() * 0.18; // Pass 453: reject spark opacity boost
-        tp.age = 0; tp.life = 0.45 + Math.random() * 0.3;
+        tp.mat.opacity = 0.90 + Math.random() * 0.10; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks
+        tp.age = 0; tp.life = 0.60 + Math.random() * 0.35; // Pass 1047: 0.45+0.30→0.60+0.35 longer sparks
         tp.active = true; tp.mesh.visible = true;
       }
     }
@@ -4349,7 +4349,8 @@ function animate(ts) {
     if (ct.slot === 7 && !_rejectBurst2Fired && dt3 >= 0.55) {
       _rejectBurst2Fired = true;
       let _rb2 = 0;
-      for (let _ri2 = 0; _ri2 < TRAIL_PARTICLES.length && _rb2 < 8; _ri2++) {
+      // Pass 1048: reject burst2 count 8→12
+      for (let _ri2 = 0; _ri2 < TRAIL_PARTICLES.length && _rb2 < 12; _ri2++) {
         const tp2 = TRAIL_PARTICLES[(_trailHead + _ri2) % TRAIL_PARTICLE_COUNT];
         if (tp2.active) continue;
         _trailHead++;
@@ -4359,13 +4360,13 @@ function animate(ts) {
           ct.slotZ + (Math.random() - 0.5) * 16
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
-        tp2.mat.opacity = 0.70 + Math.random() * 0.25;
-        tp2.age = 0; tp2.life = 0.30 + Math.random() * 0.22;
+        tp2.mat.opacity = 0.85 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2
+        tp2.age = 0; tp2.life = 0.42 + Math.random() * 0.28; // Pass 1049: 0.30+0.22→0.42+0.28 longer
         tp2.active = true; tp2.mesh.visible = true;
         _rb2++;
       }
-      // Smaller secondary amber light
-      const _ral2 = new THREE.PointLight(0xff6600, 4.5, 70);
+      // Smaller secondary amber light — Pass 1048: 4.5→9.0 for brighter second alarm pulse
+      const _ral2 = new THREE.PointLight(0xff6600, 9.0, 100);
       _ral2.position.set(TRAY_X_START + 20, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_ral2);
       if (!window._flashLights) window._flashLights = [];
@@ -4399,17 +4400,17 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(1.57, -0.35, art / 0.82);
     } else {
       const _osT = (art - 0.82) / 0.18;
-      // Pass 673: arm overshoot spring 0.06→0.10 — Pass 862: →0.16 for more dramatic end-stop rebound
-      suctionPivot.rotation.z = -0.35 - 0.16 * Math.sin(_osT * Math.PI);
+      // Pass 673: arm overshoot spring 0.06→0.10 — Pass 862: →0.16 — Pass 1050: →0.26 more dramatic rebound
+      suctionPivot.rotation.z = -0.35 - 0.26 * Math.sin(_osT * Math.PI);
       // Pass 196: arm end-stop mechanical clunk — tiny camera shake when arm hits its rest stop.
       // Fires once at art=0.82 (first frame of overshoot), very small so it's felt not seen.
       if (!_armReturnThunkFired) {
         _armReturnThunkFired = true;
-        // Pass 556: arm end-stop camera shake 0.28→0.55 — Pass 863: →1.0 for more satisfying mechanical clunk
-        _cameraShake = Math.max(_cameraShake, 1.0);
-        // Pass 267: cup end-stop emissive spike — Pass 864: 2.8→4.5 brighter flash at hard stop
+        // Pass 556: arm end-stop camera shake 0.28→0.55 — Pass 863: →1.0 — Pass 1051: →2.0 better clunk
+        _cameraShake = Math.max(_cameraShake, 2.0);
+        // Pass 267: cup end-stop emissive spike — Pass 864: 2.8→4.5 — Pass 1051: →7.5 brighter hard stop flash
         suctionCupMat.emissive.set(1, 1, 1);
-        suctionCupMat.emissiveIntensity = 4.5;
+        suctionCupMat.emissiveIntensity = 7.5;
         // Pass 260: cup arrival dust puff — 3 pale particles burst from cup as arm hits stopper
         const _arRot = suctionPivot.rotation.z;
         const _arCupX = PIV_X + 83 * Math.sin(_arRot);
