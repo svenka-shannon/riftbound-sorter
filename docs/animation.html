@@ -4529,16 +4529,17 @@ function animate(ts) {
   const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.05;
   // Pass 143: speed-proportional strobe frequency (3 Hz idle → 9 Hz at full belt speed)
   const _beltStrobeFreq = 3 + _beltScrollSpeed * 75;
-  // Pass 697: belt speed glow amplitude 0.028→0.044 for more reactive belt surface at full speed
+  // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 for more reactive belt surface
   const _beltSpeedGlow = _beltScrollSpeed > 0.005
-    ? 0.044 * (_beltScrollSpeed / 0.08) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0;
+    ? 0.070 * (_beltScrollSpeed / 0.08) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0;
   beltSurfMat.emissiveIntensity = beltBase + 0.03 * Math.sin(cycleT * 10) + _beltSpeedGlow;
   // Belt surface tints subtly toward domain color when active card rides on it
   {
     const onBelt = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
     if (onBelt) {
       _beltDomainRGB.setHex(ct.hex);
-      beltSurfMat.emissive.lerp(_beltDomainRGB, Math.min(1, dt * 1.8));
+      // Pass 929: belt domain tint blend rate dt*1.8→dt*2.8 for faster color adoption
+      beltSurfMat.emissive.lerp(_beltDomainRGB, Math.min(1, dt * 2.8));
     } else {
       beltSurfMat.emissive.lerp(_beltBaseRGB, Math.min(1, dt * 0.9));
     }
@@ -4547,18 +4548,18 @@ function animate(ts) {
   {
     // Scan phase: flash ambient up with the domain color
     // Celebration (impactRing or camera shake): spike ambient white briefly
-    // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 for stronger domain atmosphere during scan
-    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.50 : 0;
-    // Pass 521: armLift grab ambient boost 0.12→0.18 (card break-free moment has energy)
-    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.18 : 0;
-    const _shakeBoost   = _cameraShake > 2 ? Math.min(0.25, _cameraShake * 0.04) : 0;
-    // Pass 117: slotDrop domain ambient wash — Pass 393: boost 0.18 → 0.26 for bigger scene response
-    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.26 : 0;
-    // Pass 323: deflect ambient boost — scene brightens as card arcs through the air
-    // Pass 499: deflect ambient boost 0.14→0.20 for stronger scene response to card flight
-    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.20 : 0;
-    // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 for stronger scene-wide flood at lock-on
-    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 0.32 : 0;
+    // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 for stronger domain atmosphere
+    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.70 : 0;
+    // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy
+    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.28 : 0;
+    // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response
+    const _shakeBoost   = _cameraShake > 2 ? Math.min(0.40, _cameraShake * 0.05) : 0;
+    // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 for bigger scene response
+    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.38 : 0;
+    // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 for stronger card flight response
+    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.30 : 0;
+    // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 for stronger lock-on flood
+    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 0.50 : 0;
     const _ambTarget = 0.45 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324;
     ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
     // Tint ambient toward domain color during scan or slotDrop
