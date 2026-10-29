@@ -3259,8 +3259,8 @@ function animate(ts) {
           // Post-reveal they snap to still (locked on).
           // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 for more dramatic hover effect
           const _dotFloat = _identityRevealed ? 0 : 1.0 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
-          // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 for more vivid lock-on
-          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 0.90 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
+          // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 for more vivid lock-on
+          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 1.30 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
           // Pass 366: post-reveal dots Z drift toward destination slot (20% of slotZ over 0.12s)
           const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.20 : 0;
           mesh.position.set(
@@ -3356,19 +3356,19 @@ function animate(ts) {
         // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
         _hoodRevealFlash = 0.001; // just above 0 to activate
         // Pass 125: card face emissive burst at identity reveal — card "powers up"
-        // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 for bigger face power-up flash
-        _cardRevealBurst = 10.5;
+        // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 — Pass 1131: →16.0 for bigger face power-up flash
+        _cardRevealBurst = 16.0;
         // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 for stronger pop
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 4.8;
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
-        // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 for prominent lock-on jolt
-        _cameraShake = Math.max(_cameraShake, 5.5);
-        // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° — Pass 538: →5.5° — Pass 812: →8.5° for bigger snap
-        _fovBump = Math.max(_fovBump, 8.5);
+        // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 for prominent lock-on jolt
+        _cameraShake = Math.max(_cameraShake, 8.0);
+        // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° — Pass 538: →5.5° — Pass 812: →8.5° — Pass 1133: →13.0 for bigger snap
+        _fovBump = Math.max(_fovBump, 13.0);
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm.
-        // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 for brighter lock-on flash
-        scanLEDMat.emissiveIntensity = 8.5;
+        // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 — Pass 1134: →13.0 for brighter lock-on flash
+        scanLEDMat.emissiveIntensity = 13.0;
         _scanLEDRevealT = 0;
         // Pass 235: scanner confirmation particle burst — Pass 532: speed 38+42→55+55, vy 20+35→30+50
         // Pass 956: burst count 6→12 — Pass 957: speed 55+55→80+75, vy 30+50→50+70 for bigger reveal pop
@@ -3383,9 +3383,9 @@ function animate(ts) {
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 12) * Math.PI * 2 + Math.random() * 0.8;
-            const _spd = 80 + Math.random() * 75; // Pass 957: 55+55→80+75
+            const _spd = 110 + Math.random() * 100; // Pass 957: 55+55→80+75 — Pass 1135: →110+100
             _bp.vx = Math.cos(_ang) * _spd * 0.55;
-            _bp.vy = 50 + Math.random() * 70; // Pass 957: 30+50→50+70 stronger upward component
+            _bp.vy = 70 + Math.random() * 90; // Pass 957: 30+50→50+70 — Pass 1135: →70+90 stronger upward component
             _bp.vz = Math.sin(_ang) * _spd * 0.55;
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
@@ -3402,8 +3402,8 @@ function animate(ts) {
         if (barFill < 0.65) {
           scanBarMat.color.set(0xffffff);
           scanBarMat.emissive.set(0xaaddff);
-          // Pass 326: pre-reveal urgency breath — Pass 836: 0.35→0.58 for more vivid scan bar pulse
-          const _preBreath326 = barFill * 0.58 * Math.abs(Math.sin(ts * 5 * Math.PI * 2));
+          // Pass 326: pre-reveal urgency breath — Pass 836: 0.35→0.58 — Pass 1137: →0.85 for more vivid scan bar pulse
+          const _preBreath326 = barFill * 0.85 * Math.abs(Math.sin(ts * 5 * Math.PI * 2));
           scanBarMat.emissiveIntensity = 1.2 + flashIntensity * 1.8 + _preBreath326;
         } else {
           scanBarMat.color.copy(_blendC);
@@ -3412,8 +3412,8 @@ function animate(ts) {
           const _baseI = barFill >= 0.85 ? 3.0 + flashIntensity * 3.5 : 1.8 + flashIntensity * 2.8;
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75
           const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 0.75 : 0;
-          // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 for bigger climax
-          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 9.0 : 0;
+          // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 for bigger climax
+          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 14.0 : 0;
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
         }
       }
