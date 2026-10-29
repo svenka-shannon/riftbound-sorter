@@ -3367,22 +3367,22 @@ function animate(ts) {
         // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 for brighter lock-on flash
         scanLEDMat.emissiveIntensity = 8.5;
         _scanLEDRevealT = 0;
-        // Pass 235: scanner confirmation particle burst — 6 domain-colored particles burst
-        // outward from the scanner center at identity confirm, adding physical "pop" to the reveal.
-        // Pass 532: burst speed 38+42 → 55+55, vy 20+35 → 30+50 for bigger reveal pop
+        // Pass 235: scanner confirmation particle burst — Pass 532: speed 38+42→55+55, vy 20+35→30+50
+        // Pass 956: burst count 6→12 — Pass 957: speed 55+55→80+75, vy 30+50→50+70 for bigger reveal pop
         {
           const _bx = activeCard.position.x, _by = CONV_Y_TOP + CARD_T/2 + 2, _bz = activeCard.position.z;
           let _burstSpawned = 0;
-          for (let _bi = 0; _bi < GRAB_PARTICLES.length && _burstSpawned < 6; _bi++) {
+          for (let _bi = 0; _bi < GRAB_PARTICLES.length && _burstSpawned < 12; _bi++) {
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
-            _bp.active = true; _bp.age = 0; _bp.life = 0.36 + Math.random() * 0.24;
+            // Pass 958: burst life 0.36+0.24→0.52+0.32 for longer-lived reveal particles
+            _bp.active = true; _bp.age = 0; _bp.life = 0.52 + Math.random() * 0.32;
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
-            const _ang = (_burstSpawned / 6) * Math.PI * 2 + Math.random() * 0.8;
-            const _spd = 55 + Math.random() * 55;
+            const _ang = (_burstSpawned / 12) * Math.PI * 2 + Math.random() * 0.8;
+            const _spd = 80 + Math.random() * 75; // Pass 957: 55+55→80+75
             _bp.vx = Math.cos(_ang) * _spd * 0.55;
-            _bp.vy = 30 + Math.random() * 50; // strong upward component
+            _bp.vy = 50 + Math.random() * 70; // Pass 957: 30+50→50+70 stronger upward component
             _bp.vz = Math.sin(_ang) * _spd * 0.55;
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
@@ -4119,19 +4119,20 @@ function animate(ts) {
       // Pass 315: sweep light Z oscillation — light sways laterally as it travels into the slot
       const _sweepZOsc315 = 5 * Math.sin(dt3 * Math.PI * 3) * Math.max(0, 1 - dt3 * 1.5);
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
-      // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0
-      // Pass 622: sweep peak 7.0→9.5 for brighter "search beam" scanning the slot interior
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 9.5, dt3 / 0.35)
-                                             : THREE.MathUtils.lerp(7.0, 0, (dt3 - 0.35) / 0.65);
+      // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
+      // Pass 959: sweep peak 9.5→14.0 for brighter domain spotlight in slot interior
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 14.0, dt3 / 0.35)
+                                             : THREE.MathUtils.lerp(10.0, 0, (dt3 - 0.35) / 0.65);
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
     // Pass 278: sympathetic flicker — all columns briefly flash at slot entry crossing
     // Pass 470: target LED hold-then-snap — holds at 3.5 for first 22%, then snaps to 0.15 quickly
     // Pass 530: sympathetic flash amplitude 0.55→0.75; target LED spike 1.8→2.6 for stronger confirm flash
-    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 0.75 : 0;
+    // Pass 963: sympathetic flash 0.75→1.20, target spike 2.6→4.0
+    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 1.20 : 0;
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 2.6 : _sympFlash278;
+      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 4.0 : _sympFlash278;
       const _ledDrop = dt3 < 0.22 ? 3.5 : THREE.MathUtils.lerp(3.5, 0.15, (dt3 - 0.22) / 0.78); // Pass 470
       const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.15 + _sympFlash278;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
@@ -4141,8 +4142,8 @@ function animate(ts) {
     // this is an instant photogate flash that fires and dies in ~0.15s.
     if (!_slotGateFlashFired && dt3 >= 0.06) {
       _slotGateFlashFired = true;
-      // Pass 537: slot gate flash 8.0→11.0, dist 80→100 for brighter tray entry burst
-      const _gfl = new THREE.PointLight(ct.hex, 11.0, 100); // Pass 537: 8.0→11.0, dist 80→100
+      // Pass 537: slot gate flash 8.0→11.0 — Pass 960: →17.0 for brighter tray entry burst
+      const _gfl = new THREE.PointLight(ct.hex, 17.0, 100); // Pass 960: 11.0→17.0
       _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4173,10 +4174,11 @@ function animate(ts) {
       const _puffZ = ct.slotZ;
       const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
       let _puffSpawned = 0;
-      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 6; _pi++) {
+      // Pass 961: puff count 6→10, vy 32+28→45+40; Pass 962: life 0.28+0.15→0.40+0.20
+      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 10; _pi++) {
         const _pp = GRAB_PARTICLES[_pi];
         if (_pp.active) continue;
-        _pp.active = true; _pp.age = 0; _pp.life = 0.28 + Math.random() * 0.15;
+        _pp.active = true; _pp.age = 0; _pp.life = 0.40 + Math.random() * 0.20;
         _pp.mesh.position.set(
           _puffX + (Math.random() - 0.5) * 10,
           _puffY + Math.random() * 4,
@@ -4184,7 +4186,7 @@ function animate(ts) {
         );
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 20;
-        _pp.vy = 32 + Math.random() * 28; // shoot upward
+        _pp.vy = 45 + Math.random() * 40; // shoot upward — Pass 961: 32+28→45+40
         _pp.vz = (Math.random() - 0.5) * 22;
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
