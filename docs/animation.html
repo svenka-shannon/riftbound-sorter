@@ -3297,11 +3297,11 @@ function animate(ts) {
       scanBarCursorMat.opacity = _identityRevealed
         ? 0.72 + 0.30 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // slow domain breath (bigger swing)
         : 0.78 + 0.22 * Math.abs(Math.sin(ts * 18 * Math.PI * 2)); // rapid pre-reveal flicker (higher amplitude)
-      // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 for bigger swell
-      // Pass 300: cursor pre-reveal scale search pulse — slow 3Hz breathing scale while scanning
-      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.10 * Math.sin(ts * 3 * Math.PI * 2) : 1.0;
+      // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 — Pass 853: →2.5 for bigger swell
+      // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
+      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.18 * Math.sin(ts * 3 * Math.PI * 2) : 1.0;
       const _cursorScale290 = _identityRevealed && ft < 0.91
-        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 1.6 // Pass 737: 1.0→1.6
+        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 2.5 // Pass 853: 1.6→2.5
         : _cursorPreScale300;
       scanBarCursor.scale.setScalar(_cursorScale290);
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
@@ -3590,21 +3590,23 @@ function animate(ts) {
       // Pass 210: route arc strobe pulse — arc opacity modulates at 12Hz scan beat frequency,
       // making it "flicker" in sync with the scan strobe (pass 105). Post-reveal the arc
       // settles to steady (no more scanning needed), pre-reveal it shows scan progress.
-      const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.12 * flashIntensity;
-      // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 for bolder arc flash at lock-on
-      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 0.90 : 0;
-      // Pass 644: post-reveal arc opacity 0.35→0.50 for more solid confirmed-route arc
-      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 0.50 : 0)) + _arcStrobeMod + _arcRevealSpike;
+      // Pass 854: strobe amplitude 0.12→0.20 for stronger urgency flicker pre-reveal
+      const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.20 * flashIntensity;
+      // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 — Pass 855: →1.40 for bolder arc flash at lock-on
+      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 1.40 : 0;
+      // Pass 644: post-reveal arc opacity 0.35→0.50 — Pass 856: →0.80 for more solid confirmed-route arc
+      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 0.80 : 0)) + _arcStrobeMod + _arcRevealSpike;
       // Target sphere pulses at destination
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
       routeTargetMat.emissive.copy(_arcColor);
-      // Pass 339: target emissive reveal spike — Pass 564: boost 2.5→4.0 for bigger sphere flare at lock-on
-      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 4.0 : 0;
-      routeTargetMat.emissiveIntensity = flashIntensity * (2.0 + (_identityRevealed ? 1.2 : 0)) + _tgtRevealSpike339;
+      // Pass 339: target emissive reveal spike — Pass 564: boost 2.5→4.0 — Pass 857: →6.5 for bigger sphere flare at lock-on
+      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 6.5 : 0;
+      // Pass 858: post-reveal emissive add 1.2→2.0 for more vivid destination glow
+      routeTargetMat.emissiveIntensity = flashIntensity * (2.0 + (_identityRevealed ? 2.0 : 0)) + _tgtRevealSpike339;
       routeTargetMat.opacity = flashIntensity * 0.9;
-      // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 for more vivid pulse
-      const _tgtScale304 = 1.0 + flashIntensity * 0.80 * Math.sin(ts * 4 * Math.PI * 2);
+      // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 — Pass 858: →1.20 for more vivid pulse
+      const _tgtScale304 = 1.0 + flashIntensity * 1.20 * Math.sin(ts * 4 * Math.PI * 2);
       routeTarget.scale.setScalar(Math.max(0.1, _tgtScale304));
     }
     // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
@@ -3789,8 +3791,9 @@ function animate(ts) {
     activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
-    const _coGlowSurge = ot > 0.80 ? 2.2 + (ot - 0.80) / 0.20 * 1.2 : 2.2;
-    cardGlow.intensity = _coGlowSurge; // Pass 639: base 1.6→2.2; surge peak 2.2→3.4
+    // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 for more dramatic gate approach
+    const _coGlowSurge = ot > 0.80 ? 3.5 + (ot - 0.80) / 0.20 * 2.0 : 3.5;
+    cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
     _beltScrollSpeed = 0.08;
