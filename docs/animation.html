@@ -4208,8 +4208,9 @@ function animate(ts) {
     // Pass 491: pre-landing urgency pulse — strip flickers at 8Hz in dt3 0.55-0.86 to sell approach
     if (ct.stripMat && dt3 < 0.86) {
       const _stripApproach = Math.max(0.15, 0.15 + 1.65 * (dt3 / 0.86));
+      // Pass 988: strip urgency pulse amplitude 0.22→0.38 for more urgent pre-landing flicker
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
-        ? (dt3 - 0.55) / 0.31 * 0.22 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0;
+        ? (dt3 - 0.55) / 0.31 * 0.38 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0;
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
         ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 5);
       }
@@ -4225,20 +4226,21 @@ function animate(ts) {
       impactRing.visible = true;
       // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0
       _cameraShake = Math.max(_cameraShake, 9.0);
-      // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 for vivid landing strip pop
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 12.0;
-      // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 vivid count
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 13.0;
+      // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 vivid landing pop
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 17.0;
+      // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 vivid count
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 18.0;
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
         const _rr2 = (ct.hex >> 16) & 0xff, _gg2 = (ct.hex >> 8) & 0xff, _bb2 = ct.hex & 0xff;
         // Pass 583: landing scatter count 5→8 — Pass 584: speed 22+32→35+50 — Pass 807: speed →60+80
+        // Pass 983: count 8→12 for bigger floor impact dust cloud
         let _landScattered = 0;
-        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 8; _li++) {
+        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 12; _li++) {
           const _lp = GRAB_PARTICLES[_li];
           if (_lp.active) continue;
-          _lp.active = true; _lp.age = 0; _lp.life = 0.32 + Math.random() * 0.20;
+          _lp.active = true; _lp.age = 0; _lp.life = 0.38 + Math.random() * 0.24; // Pass 983: life 0.32+0.20→0.38+0.24
           _lp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 10,
             ct.slotFloorY + 2,
@@ -4246,9 +4248,9 @@ function animate(ts) {
           );
           _lp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 60 + Math.random() * 80; // Pass 807: 35+50 → 60+80 for faster impact dust
+          const _spd = 80 + Math.random() * 100; // Pass 983: 60+80 → 80+100 for faster impact dust
           _lp.vx = Math.cos(_ang) * _spd * 0.45;
-          _lp.vy = 6 + Math.random() * 16; // modest upward drift — floor dust, not sparks
+          _lp.vy = 10 + Math.random() * 24; // Pass 984: 6+16→10+24 more dust loft
           _lp.vz = Math.sin(_ang) * _spd;
           _lp.mat.color.setRGB(
             Math.min(1, _rr2 / 255 * 0.55 + 0.45),
@@ -4272,20 +4274,20 @@ function animate(ts) {
       impactRing.scale.setScalar(0.55);
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
-      // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 for stronger floor-1 arrival
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 7.0;
-      // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 vivid arrival
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 7.5;
+      // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 for stronger floor-1 arrival
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 10.0;
+      // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 — Pass 986: →11.0 vivid arrival
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 11.0;
       // Pass 224: upper floor arrival glow particles — 3 gentle domain-tinted motes that
       // drift upward softly (upper floor is a guided arrival, no hard impact scatter).
       {
         const _rr3 = (ct.hex >> 16) & 0xff, _gg3 = (ct.hex >> 8) & 0xff, _bb3 = ct.hex & 0xff;
-        // Pass 586: upper floor arrival motes 3→5 for more visible guided arrival effect
+        // Pass 586: upper floor arrival motes 3→5 — Pass 987: →8, life 0.35+0.18→0.50+0.25
         let _upMotes = 0;
-        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 5; _mi++) {
+        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 8; _mi++) {
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
-          _mp.active = true; _mp.age = 0; _mp.life = 0.35 + Math.random() * 0.18;
+          _mp.active = true; _mp.age = 0; _mp.life = 0.50 + Math.random() * 0.25;
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 8,
             ct.slotFloorY + 30 + Math.random() * 6,
