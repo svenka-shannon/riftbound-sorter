@@ -3452,19 +3452,19 @@ function animate(ts) {
     // Pass 63: scanner sonar ping rings expand horizontally from scanner during scan
     // 3 rings staggered by 0.33s each; repeat as long as scan phase is active
     {
-      // Pass 633: ping period 0.55→0.42 — Pass 720: →0.35 — Pass 796: →0.27 for even faster scan rhythm
-      const pingPeriod = 0.27; // Pass 796: one ping every 0.27s
+      // Pass 633: ping period 0.55→0.42 — Pass 720: →0.35 — Pass 796: →0.27 — Pass 1163: →0.20 for even faster scan rhythm
+      const pingPeriod = 0.20; // Pass 1163: one ping every 0.20s
       scanPings.forEach((p, pi) => {
         // Stagger start times across the phase: pi × (pingPeriod/3)
         const staggerOffset = pi * (pingPeriod / SCAN_PING_COUNT);
         const localFt = ((ft * 0.6 + staggerOffset) % pingPeriod) / pingPeriod; // 0..1 within period
         if (localFt < 0.85) {
           p.mesh.visible = true;
-          // Pass 311: scan ping Z drift — Pass 717: 0.38→0.55 — Pass 803: →0.78 for more distinct destination lean
-          const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.78 : 0;
+          // Pass 311: scan ping Z drift — Pass 717: 0.38→0.55 — Pass 803: →0.78 — Pass 1164: →1.10 for more distinct destination lean
+          const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 1.10 : 0;
           p.mesh.position.z = _pingZ311;
-          // Pass 274: post-reveal ping scale — Pass 400: 8.5→11.0 — Pass 716: →14.0 — Pass 797: →19.0 (wider confirm rings)
-          const _pingMaxScale = _identityRevealed ? 19.0 : 5.5;
+          // Pass 274: post-reveal ping scale — Pass 400: 8.5→11.0 — Pass 716: →14.0 — Pass 797: →19.0 — Pass 1165: →26.0 (wider confirm rings)
+          const _pingMaxScale = _identityRevealed ? 26.0 : 5.5;
           const s = 1 + localFt * _pingMaxScale;
           p.mesh.scale.setScalar(s);
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
@@ -3472,10 +3472,10 @@ function animate(ts) {
           // Pass 135: non-linear doppler fade — ring dissipates faster as it expands
           const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
-          // Pass 534: ping reveal spike 0.85→1.35 for brighter confirm ring flash
-          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 1.35 : 0;
-          // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8
-          const _pingBoost = ft >= 0.85 ? 3.8 + _pingRevealSpike337 : 1.0;
+          // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 for brighter confirm ring flash
+          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 2.0 : 0;
+          // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5
+          const _pingBoost = ft >= 0.85 ? 5.5 + _pingRevealSpike337 : 1.0;
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
           p.mat.opacity = _pingFade * flashIntensity * 1.0 * _pingBoost;
         } else {
@@ -3495,8 +3495,8 @@ function animate(ts) {
         const _chaseHz = 10 + barFill * 16; // Pass 802: 9+9 → 10+16 (10→26Hz)
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-          // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 for more vivid pre-reveal LED cycling
-          const _cTarget = gi === _chaseIdx ? 5.5 : 0.1;
+          // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 for more vivid pre-reveal LED cycling
+          const _cTarget = gi === _chaseIdx ? 8.0 : 0.1;
           gm.color.setHex(0x0088cc);
           gm.emissive.setHex(0x003366);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 22);
@@ -3505,8 +3505,8 @@ function animate(ts) {
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 320: non-target LEDs fade to 0 post-reveal — spotlight narrows to destination
           const _nonTargetDim = Math.max(0, 0.10 - Math.min(1, (ft - 0.85) / 0.05) * 0.10);
-          // Pass 545: target LED emissive 4.5→6.0 — Pass 801: →9.0 for stronger destination lock-on glow
-          const _cTarget = gi === ct.col ? 9.0 : _nonTargetDim; // Pass 801: 6.0 → 9.0
+          // Pass 545: target LED emissive 4.5→6.0 — Pass 801: →9.0 — Pass 1169: →13.0 for stronger destination lock-on glow
+          const _cTarget = gi === ct.col ? 13.0 : _nonTargetDim; // Pass 1169: 9.0 → 13.0
           gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
           gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 20);
@@ -3547,7 +3547,7 @@ function animate(ts) {
     // (Pass 76 lerp superseded by pass 189 binary snap — removed)
     // Pass 115: beam urgency strobe — frequency and amplitude build from 65%→85% scan progress
     const _prevT = barFill < 0.65 ? 0 : barFill > 0.85 ? 0 : (barFill - 0.65) / 0.20;
-    const _strobeFreq = 5 + _prevT * 18; // Pass 442: ramps 5→23Hz (was 17Hz)
+    const _strobeFreq = 5 + _prevT * 28; // Pass 442: ramps 5→23Hz — Pass 1170: →33Hz for more frenetic pre-reveal urgency
     // Pass 573: strobe amplitude 0.10→0.16 — Pass 620: →0.22 — Pass 1155: →0.35 for stronger urgency strobe pre-reveal
     const _strobeAmp  = _prevT * 0.35;  // Pass 1155: 0.22→0.35
     const _strobe = Math.sin(ts * _strobeFreq * Math.PI * 2) * _strobeAmp;
