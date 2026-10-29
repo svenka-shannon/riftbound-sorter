@@ -4051,9 +4051,9 @@ function animate(ts) {
         cy = THREE.MathUtils.lerp(startY, targetY, g * g);
       } else {
         // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
-        // Pass 971: bounce 16→22 for a more satisfying slot landing thud
+        // Pass 971: bounce 16→22 — Pass 1108: →30 for a more satisfying slot landing thud
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 22 * Math.sin(bT * Math.PI) * (1 - bT * 0.32);
+        cy = targetY + 30 * Math.sin(bT * Math.PI) * (1 - bT * 0.32);
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4061,8 +4061,8 @@ function animate(ts) {
     }
     // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
     // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
-    // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 for more pronounced slot wall bounce
-    const _slotWallZ = ct.slotZ + (5.5 * Math.sin(dt3 * Math.PI * 4) + 1.5 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4);
+    // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 — Pass 1114: primary 5.5→7.5, secondary 1.5→2.2 for more pronounced slot wall bounce
+    const _slotWallZ = ct.slotZ + (7.5 * Math.sin(dt3 * Math.PI * 4) + 2.2 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4);
     activeCard.position.set(TRAY_X_START + 20, cy, _slotWallZ);
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
@@ -4083,8 +4083,8 @@ function animate(ts) {
       activeCard.rotation.x = -0.04 * Math.sin(dt3 * Math.PI);
     }
     // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
-    // Pass 647: wall lean 0.032→0.055 — Pass 974: →0.082 for more physical lateral tilt at each wall contact
-    const _wallLean = 0.082 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0);
+    // Pass 647: wall lean 0.032→0.055 — Pass 974: →0.082 — Pass 1115: →0.12 for more physical lateral tilt at each wall contact
+    const _wallLean = 0.12 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0);
     activeCard.rotation.z = _wallLean;
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
@@ -4093,29 +4093,29 @@ function animate(ts) {
     }
     // Pass 456: pre-impact micro-shake ramp — for floor-0, subtle increasing camera tremor
     // from dt3=0.72→0.88 builds tension before the big landing shake at 0.88.
-    // Pass 669: pre-impact shake ramp 0.4+1.0→0.55+1.6 — Pass 752: →0.70+2.5 — Pass 978: →0.90+3.5 bigger buildup
+    // Pass 669: pre-impact shake ramp 0.4+1.0→0.55+1.6 — Pass 752: →0.70+2.5 — Pass 978: →0.90+3.5 — Pass 1109: →1.20+5.0 bigger buildup
     if (ct.floor === 0 && dt3 >= 0.72 && dt3 < 0.88) {
       const _preImpactT = (dt3 - 0.72) / 0.16; // 0→1 in approach window
-      _cameraShake = Math.max(_cameraShake, 0.90 + _preImpactT * 3.5);
+      _cameraShake = Math.max(_cameraShake, 1.20 + _preImpactT * 5.0);
     }
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
-    // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10
+    // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 brighter fall glow
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.45 + (dt3 / 0.88) * 1.10; // Pass 977: peaks at ~1.55 just before bounce flash
+      const _fallRamp = 0.55 + (dt3 / 0.88) * 1.55; // Pass 1110: peaks at ~2.10 just before bounce flash
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
     // Pass 252: slotDrop bounce face flash — Pass 391: 1.6→2.2 — Pass 528: →3.0 — Pass 671: →3.8
-    // Pass 751: peak 3.8→5.2, decay 8.5→11 — Pass 975: peak 5.2→7.5, decay 11→14 for bigger landing flash
+    // Pass 751: peak 3.8→5.2, decay 8.5→11 — Pass 975: peak 5.2→7.5, decay 11→14 — Pass 1111: →11.0 for bigger landing flash
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 7.5 * Math.exp(-_bFlashT * 14));
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 11.0 * Math.exp(-_bFlashT * 14));
     }
     // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: 1.2→1.8, decay 30→25 — Pass 754: 1.8→3.0, decay 25→22
-    // Pass 976: impact glow spike 3.0→4.8, decay 22→18 for longer-lasting slot impact glow
+    // Pass 976: impact glow spike 3.0→4.8, decay 22→18 — Pass 1112: →7.5 for stronger slot impact glow
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
-      ? Math.exp(-(dt3 - 0.88) * 18) * 4.8 : 0;
+      ? Math.exp(-(dt3 - 0.88) * 18) * 7.5 : 0;
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     // Pass 979: start from 2.8 for brighter slot target spotlight at drop entry
@@ -4128,9 +4128,9 @@ function animate(ts) {
       const _sweepZOsc315 = 5 * Math.sin(dt3 * Math.PI * 3) * Math.max(0, 1 - dt3 * 1.5);
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
-      // Pass 959: sweep peak 9.5→14.0 for brighter domain spotlight in slot interior
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 14.0, dt3 / 0.35)
-                                             : THREE.MathUtils.lerp(10.0, 0, (dt3 - 0.35) / 0.65);
+      // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 for brighter domain spotlight in slot interior
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 20.0, dt3 / 0.35)
+                                             : THREE.MathUtils.lerp(14.0, 0, (dt3 - 0.35) / 0.65);
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
