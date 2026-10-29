@@ -2634,13 +2634,14 @@ function animate(ts) {
         // Pass 181: cup pre-warms with domain color in approach window
         const _cupApproach = _sq;
         suctionCupMat.emissive.setHex(ct.hex);
-        suctionCupMat.emissiveIntensity += (0.9 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10);
+        // Pass 886: cup pre-contact approach emissive target 0.9→1.5 for more vivid suction warmup
+        suctionCupMat.emissiveIntensity += (1.5 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10);
         // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
         if (!_contactFlashFired) {
           _contactFlashFired = true;
           const _cfRot = suctionPivot.rotation.z;
-          // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5, dist 65→90 for bigger pick moment
-          const _cfL = new THREE.PointLight(0xffffff, 8.5, 90);
+          // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5 — Pass 884: →13.0 for bigger pick moment
+          const _cfL = new THREE.PointLight(0xffffff, 13.0, 90);
           _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
@@ -2648,9 +2649,9 @@ function animate(ts) {
           // Pass 203: cup contact dust puff — tiny displaced air burst upward from card surface.
           // 4 particles shoot upward and sideways, simulating air compressed under the cup.
           {
-            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 for more visible burst
+            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 for explosive burst
           let _cpSpawned = 0;
-            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 9; _ci++) {
+            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 14; _ci++) {
               const _cp = GRAB_PARTICLES[_ci];
               if (_cp.active) continue;
               _cp.active = true; _cp.age = 0; _cp.life = 0.20 + Math.random() * 0.10;
@@ -3016,11 +3017,12 @@ function animate(ts) {
     cardGlow.intensity = 1.4 + _approachT * 4.2; // Pass 875: 2.8 → 4.2
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     // Pass 468: early detection ripple — at ct2=0.60-0.80, LED flickers at 10Hz (card entering field)
+    // Pass 888: early detect amplitude 0.5→0.8 for stronger card-entering-field detection
     const _warmupT = Math.max(0, (ct2 - 0.80) / 0.20); // 0→1 in last 20%
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
-      ? (ct2 - 0.60) / 0.20 * 0.5 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0;
-    // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 for more vivid warmup before scan
-    const _ledWarmTarget = 0.3 + _warmupT * 3.5 + _earlyDetect; // Pass 561: 2.5→3.5
+      ? (ct2 - 0.60) / 0.20 * 0.8 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 888: 0.5→0.8
+    // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 for more vivid warmup before scan
+    const _ledWarmTarget = 0.3 + _warmupT * 5.5 + _earlyDetect; // Pass 887: 3.5→5.5
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
@@ -3040,6 +3042,8 @@ function animate(ts) {
       _scanFlashFired = true;
       // Pass 418: scan start shake 3.5→5.0 — Pass 740: →7.2 for bigger scan-start jolt
       _cameraShake = 7.2;
+      // Pass 889: scan start FOV punch 3.5° — brief zoom-in at scanner activation
+      _fovBump = Math.max(_fovBump, 3.5);
       const flashEl = document.getElementById('scan-flash-overlay');
       if (flashEl) {
         flashEl.style.background = ct.css;
@@ -3349,14 +3353,13 @@ function animate(ts) {
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 4.8;
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
-        // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 for more prominent scanner lock-on feel
-        _cameraShake = Math.max(_cameraShake, 3.5);
+        // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 for prominent lock-on jolt
+        _cameraShake = Math.max(_cameraShake, 5.5);
         // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° — Pass 538: →5.5° — Pass 812: →8.5° for bigger snap
         _fovBump = Math.max(_fovBump, 8.5);
-        // Pass 222: scanner LED domain flash — LED switches to domain color at confirm,
-        // then decays back to scan-blue over 0.35s.
-        // Pass 271: LED intensity spike at reveal — hard flash at lock-on moment
-        scanLEDMat.emissiveIntensity = 5.5;
+        // Pass 222: scanner LED domain flash — LED switches to domain color at confirm.
+        // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 for brighter lock-on flash
+        scanLEDMat.emissiveIntensity = 8.5;
         _scanLEDRevealT = 0;
         // Pass 235: scanner confirmation particle burst — 6 domain-colored particles burst
         // outward from the scanner center at identity confirm, adding physical "pop" to the reveal.
