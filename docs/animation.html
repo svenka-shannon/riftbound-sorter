@@ -4574,14 +4574,14 @@ function animate(ts) {
     const _bodyActive = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     if (_bodyActive) {
       convBodyMat.emissive.setHex(ct.hex);
-      // Pass 263: conveyor body scanner-approach boost — Pass 692: 0.06→0.10 for brighter approach
+      // Pass 263: conveyor body scanner-approach boost — Pass 692: 0.06→0.10 — Pass 934: →0.18 for brighter approach
       const _bodyApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.80
-        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 0.10 : 0;
-      // Pass 279: scanner-exit echo — body briefly spikes as card departs scanner with identity confirmed
-      // Pass 522: exit echo boost 0.12→0.20 for stronger scanner departure flash on conveyor body
+        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 0.18 : 0;
+      // Pass 279: scanner-exit echo — Pass 522: 0.12→0.20 — Pass 933: →0.35 for stronger departure flash
       const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
-        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 0.20 : 0;
-      const _bodyTarget = 0.08 + 0.04 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho;
+        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 0.35 : 0;
+      // Pass 932: conveyor body base glow 0.08→0.14, pulse amp 0.04→0.08 for more vivid presence
+      const _bodyTarget = 0.14 + 0.08 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho;
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
     } else {
       convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
@@ -4598,8 +4598,8 @@ function animate(ts) {
       const _beltRevealedOrPost = _identityRevealed || inPhase(PH.conveyorOut);
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
       beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 1.5));
-      // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 for more glow
-      const _bsTarget = 0.14 + 0.09 * Math.sin(cycleT * 6);
+      // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14
+      const _bsTarget = 0.20 + 0.14 * Math.sin(cycleT * 6);
       beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2);
     } else {
       beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 1.5));
@@ -4613,10 +4613,10 @@ function animate(ts) {
     if (_inApproach) {
       const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
       hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 3));
-      // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 for more dramatic heat-up
-      const _warmTarget = 0.28 + _warmT * 0.62;
-      // Pass 251: scanner hood thermal shimmer — 17Hz heat flicker overlaid on warm-up ramp
-      const _hoodShimmer = 0.06 * Math.sin(ts * 17 * Math.PI * 2) * _warmT;
+      // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 for dramatic heat-up
+      const _warmTarget = 0.28 + _warmT * 0.90;
+      // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 for more visible heat flicker
+      const _hoodShimmer = 0.10 * Math.sin(ts * 17 * Math.PI * 2) * _warmT;
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 4);
     } else {
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
@@ -5025,10 +5025,13 @@ function animate(ts) {
   // Pass 110: grab contact ring — fast expanding ring at suction cup contact moment
   // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
-    _grabRingT = Math.min(1, _grabRingT + dt * 5.0); // Pass 513: ~0.20s expansion (snappier snap)
-    const _grs = 1.0 + easeOut(_grabRingT) * 5.0; // Pass 335: easeOut scale 1 → 6.0 (was linear *3.5)
+    // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 for longer visible ring
+    _grabRingT = Math.min(1, _grabRingT + dt * 3.5);
+    // Pass 938: grab ring max scale 5.0→8.5 for wider domain ring burst at pick
+    const _grs = 1.0 + easeOut(_grabRingT) * 8.5;
     grabRing.scale.setScalar(_grs);
-    grabRingMat.opacity = (1 - _grabRingT) * 0.6;
+    // Pass 938: grab ring opacity 0.6→0.85 for more vivid ring
+    grabRingMat.opacity = (1 - _grabRingT) * 0.85;
     if (_grabRingT >= 1) {
       _grabRingT = -1;
       grabRing.visible = false;
