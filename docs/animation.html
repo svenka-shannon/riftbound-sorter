@@ -2331,9 +2331,9 @@ function animate(ts) {
     if (!sc.visible) return;
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
     const _jPhase = i * 1.47; // stagger per card
-    // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 livelier
-    const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.18
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.09;
+    // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 livelier
+    const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.28
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.14;
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2341,8 +2341,8 @@ function animate(ts) {
       const _lt2 = phaseRaw(PH.armLift);
       const _cardDelay = (stackTopIdx - 1 - i) * 0.08; // top-most remaining card fires first
       const _delayedT = Math.max(0, _lt2 - _cardDelay);
-      // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 for more dramatic suction-break recoil
-      if (_delayedT < 0.45) _recoilDip = -1.6 * Math.sin(_delayedT / 0.45 * Math.PI);
+      // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 — Pass 1228: →2.4 for more dramatic suction-break recoil
+      if (_delayedT < 0.45) _recoilDip = -2.4 * Math.sin(_delayedT / 0.45 * Math.PI);
     }
     sc.position.y = _baseY + _jY + _recoilDip;
     // Pass 178: deck "charge" shimmer — ripples bottom→top at 0.6 Hz during idle/approach
@@ -2351,10 +2351,10 @@ function animate(ts) {
       if (_prePickT) {
         const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
-        // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 for more vivid deck charge wave
-        const _waveAmp301 = inPhase(PH.armDescend) ? 0.22 + phaseRaw(PH.armDescend) * 0.35 : 0.22;
-        // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 for brighter deck energy
-        sc.material.emissiveIntensity = 0.10 + _wave * _waveAmp301;
+        // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 for more vivid deck charge wave
+        const _waveAmp301 = inPhase(PH.armDescend) ? 0.35 + phaseRaw(PH.armDescend) * 0.55 : 0.35;
+        // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 for brighter deck energy
+        sc.material.emissiveIntensity = 0.18 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
         sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 3);
@@ -2375,16 +2375,16 @@ function animate(ts) {
       _yPos = THREE.MathUtils.lerp(a.startY, a.targetY, easeOut(a.t / 0.80));
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
-      // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 for more physical slot landing
-      _yPos = a.targetY + 16 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
+      // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 for more physical slot landing
+      _yPos = a.targetY + 23 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
     if (a.glowAge < 1.2) {
       a.glowAge += dt;
       if (a.mesh.material) {
-        // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 for brighter landing flash
-        a.mesh.material.emissiveIntensity = 0.15 + 9.5 * Math.exp(-a.glowAge * 5.0);
+        // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 for brighter landing flash
+        a.mesh.material.emissiveIntensity = 0.15 + 14.0 * Math.exp(-a.glowAge * 5.0);
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2401,8 +2401,8 @@ function animate(ts) {
         if (!inFlight && mesh.material) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 1.23;
-          // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32
-          mesh.material.emissiveIntensity = 0.22 + 0.32 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
+          // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48
+          mesh.material.emissiveIntensity = 0.30 + 0.48 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 more visible rocking
           const _swayPhase = _globalCardIdx * 1.83;
           mesh.rotation.z = 0.020 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
@@ -2418,9 +2418,9 @@ function animate(ts) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
       const _fPeak = f.peak || 3.0; // use stored creation intensity; fallback 3.0
-      // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s for longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 0.90));
-      if(f.age > 0.90) { scene.remove(f.light); return false; }
+      // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s for longer flash persistence
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 1.20));
+      if(f.age > 1.20) { scene.remove(f.light); return false; }
       return true;
     });
   }
