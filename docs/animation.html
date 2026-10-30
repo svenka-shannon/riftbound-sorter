@@ -4053,9 +4053,9 @@ function animate(ts) {
         cy = THREE.MathUtils.lerp(startY, targetY, g * g);
       } else {
         // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
-        // Pass 971: bounce 16→22 — Pass 1108: →30 for a more satisfying slot landing thud
+        // Pass 971: bounce 16→22 — Pass 1108: →30 — Pass 1195: →40 for even bigger card-slap landing bounce
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 30 * Math.sin(bT * Math.PI) * (1 - bT * 0.32);
+        cy = targetY + 40 * Math.sin(bT * Math.PI) * (1 - bT * 0.32);
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4063,8 +4063,8 @@ function animate(ts) {
     }
     // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
     // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
-    // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 — Pass 1114: primary 5.5→7.5, secondary 1.5→2.2 for more pronounced slot wall bounce
-    const _slotWallZ = ct.slotZ + (7.5 * Math.sin(dt3 * Math.PI * 4) + 2.2 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4);
+    // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 — Pass 1114: primary 5.5→7.5, secondary 1.5→2.2 — Pass 1200: primary →10.5, secondary →3.2 for more pronounced slot wall bounce
+    const _slotWallZ = ct.slotZ + (10.5 * Math.sin(dt3 * Math.PI * 4) + 3.2 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4);
     activeCard.position.set(TRAY_X_START + 20, cy, _slotWallZ);
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
@@ -4095,29 +4095,29 @@ function animate(ts) {
     }
     // Pass 456: pre-impact micro-shake ramp — for floor-0, subtle increasing camera tremor
     // from dt3=0.72→0.88 builds tension before the big landing shake at 0.88.
-    // Pass 669: pre-impact shake ramp 0.4+1.0→0.55+1.6 — Pass 752: →0.70+2.5 — Pass 978: →0.90+3.5 — Pass 1109: →1.20+5.0 bigger buildup
+    // Pass 669: pre-impact shake ramp 0.4+1.0→0.55+1.6 — Pass 752: →0.70+2.5 — Pass 978: →0.90+3.5 — Pass 1109: →1.20+5.0 — Pass 1196: →1.80+7.5 bigger buildup
     if (ct.floor === 0 && dt3 >= 0.72 && dt3 < 0.88) {
       const _preImpactT = (dt3 - 0.72) / 0.16; // 0→1 in approach window
-      _cameraShake = Math.max(_cameraShake, 1.20 + _preImpactT * 5.0);
+      _cameraShake = Math.max(_cameraShake, 1.80 + _preImpactT * 7.5);
     }
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
-    // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 brighter fall glow
+    // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 — Pass 1197: →0.65+(dt3/0.88)*2.20 brighter fall glow
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.55 + (dt3 / 0.88) * 1.55; // Pass 1110: peaks at ~2.10 just before bounce flash
+      const _fallRamp = 0.65 + (dt3 / 0.88) * 2.20; // Pass 1197: peaks at ~2.85 just before bounce flash
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
     activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 5));
     // Pass 252: slotDrop bounce face flash — Pass 391: 1.6→2.2 — Pass 528: →3.0 — Pass 671: →3.8
-    // Pass 751: peak 3.8→5.2, decay 8.5→11 — Pass 975: peak 5.2→7.5, decay 11→14 — Pass 1111: →11.0 for bigger landing flash
+    // Pass 751: peak 3.8→5.2, decay 8.5→11 — Pass 975: peak 5.2→7.5, decay 11→14 — Pass 1111: →11.0 — Pass 1198: →16.0 for bigger landing flash
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 11.0 * Math.exp(-_bFlashT * 14));
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 16.0 * Math.exp(-_bFlashT * 14));
     }
     // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: 1.2→1.8, decay 30→25 — Pass 754: 1.8→3.0, decay 25→22
-    // Pass 976: impact glow spike 3.0→4.8, decay 22→18 — Pass 1112: →7.5 for stronger slot impact glow
+    // Pass 976: impact glow spike 3.0→4.8, decay 22→18 — Pass 1112: →7.5 — Pass 1199: →11.5 for stronger slot impact glow
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
-      ? Math.exp(-(dt3 - 0.88) * 18) * 7.5 : 0;
+      ? Math.exp(-(dt3 - 0.88) * 18) * 11.5 : 0;
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     // Pass 979: start from 2.8 for brighter slot target spotlight at drop entry
@@ -4211,9 +4211,9 @@ function animate(ts) {
     // Pass 491: pre-landing urgency pulse — strip flickers at 8Hz in dt3 0.55-0.86 to sell approach
     if (ct.stripMat && dt3 < 0.86) {
       const _stripApproach = Math.max(0.15, 0.15 + 2.30 * (dt3 / 0.86)); // Pass 1121: 1.65→2.30 brighter strip approach build
-      // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 for more urgent pre-landing flicker
+      // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 — Pass 1201: →0.90 for more urgent pre-landing flicker
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
-        ? (dt3 - 0.55) / 0.31 * 0.60 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0;
+        ? (dt3 - 0.55) / 0.31 * 0.90 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0;
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
         ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 5);
       }
@@ -4251,7 +4251,7 @@ function animate(ts) {
           );
           _lp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 80 + Math.random() * 100; // Pass 983: 60+80 → 80+100 for faster impact dust
+          const _spd = 110 + Math.random() * 130; // Pass 983: 60+80 → 80+100 — Pass 1202: →110+130 for faster impact dust scatter
           _lp.vx = Math.cos(_ang) * _spd * 0.45;
           _lp.vy = 10 + Math.random() * 24; // Pass 984: 6+16→10+24 more dust loft
           _lp.vz = Math.sin(_ang) * _spd;
