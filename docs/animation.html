@@ -2988,15 +2988,15 @@ function animate(ts) {
     activeCardMat.opacity = Math.min(1, ct2 * 5); // fade in over first 0.2s
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
-    // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5
-    const _settleY = 7.5 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
+    // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5 — Pass 1203: →11.0 bigger card-slap settle
+    const _settleY = 11.0 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
     // Pass 173: belt lateral wobble — fades in (0→5%) and out (90→100%)
-    // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 for more vivid belt weave
+    // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
-    const _beltWobbleZ = (3.0 * Math.sin(ts * 4.7 * Math.PI * 2) + 0.90 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut;
-    // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 for more tactile belt feel
-    const _beltYBump = 0.55 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
+    const _beltWobbleZ = (4.2 * Math.sin(ts * 4.7 * Math.PI * 2) + 1.30 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut;
+    // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 for more tactile belt feel
+    const _beltYBump = 0.80 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
@@ -3004,8 +3004,8 @@ function animate(ts) {
     // Pass 116: belt micro-vibration — tiny noise jitter in rotation.z simulates belt roughness
     const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015;
     // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
-    // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 for more physical card-slap
-    const _beltFlopY309 = 0.20 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5);
+    // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 for more physical card-slap
+    const _beltFlopY309 = 0.32 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5);
     activeCard.rotation.set(_beltLean, _beltFlopY309, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
@@ -3022,8 +3022,8 @@ function animate(ts) {
       + _approachT * 0.65 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1145: 0.45→0.65
       + _approachT * 0.10 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat
       + _entryBoost;
-    // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 for stronger tension glow
-    cardGlow.intensity = 1.4 + _approachT * 5.8; // Pass 1085: 4.2 → 5.8
+    // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 for stronger tension glow
+    cardGlow.intensity = 1.4 + _approachT * 8.5; // Pass 1207: 5.8 → 8.5
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     // Pass 468: early detection ripple — at ct2=0.60-0.80, LED flickers at 10Hz (card entering field)
     // Pass 888: early detect amplitude 0.5→0.8 for stronger card-entering-field detection
@@ -3071,13 +3071,13 @@ function animate(ts) {
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
     // Pass 172: scan-field levitation — card floats on 0.8Hz sine during scan (peaks at midpoint)
-    // Pass 658: levitate 0.30→0.55 + secondary 0.15 — Pass 788: primary 0.55→0.75, secondary 0.15→0.24 — Pass 1076: primary 0.75→1.05, secondary 0.24→0.35
+    // Pass 658: levitate 0.30→0.55 + secondary 0.15 — Pass 788: primary 0.55→0.75, secondary 0.15→0.24 — Pass 1076: primary 0.75→1.05, secondary 0.24→0.35 — Pass 1208: primary 1.05→1.50, secondary 0.35→0.55
     const ft = phaseRaw(PH.scan);
-    const _levitate = (1.05 * Math.sin(ts * 0.8 * Math.PI * 2) + 0.35 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI);
+    const _levitate = (1.50 * Math.sin(ts * 0.8 * Math.PI * 2) + 0.55 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI);
     // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
     // confirmed (ft 0.85→1.0), giving a subtle "recognition" gesture.
-    // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 — Pass 1077: →12.0 for more prominent "recognized!" rise
-    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 12.0 : 0;
+    // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 — Pass 1077: →12.0 — Pass 1209: →17.0 for more prominent "recognized!" rise
+    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 17.0 : 0;
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's -0.18 belt lean into the reveal bell curve over first 10%
@@ -3125,8 +3125,8 @@ function animate(ts) {
     const _revOsc = _cardRevealBurst * (0.55 + 0.45 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)));
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 for even brighter card glow during scan
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 1.35 + _scanStrobe + _revOsc;
-    // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4
-    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 11.0 : 0;
+    // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0
+    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 15.0 : 0;
     cardGlow.intensity = 3.2 + flashIntensity * 2.4 + _revealGlowSurge;
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
