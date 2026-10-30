@@ -2606,8 +2606,8 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.35, -0.036, pt);
       // Pass 182: servo hunt jitter — was ts*0.055 (114-second period = invisible).
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
-      // Pass 1124: jitter amplitude 1.8→2.6 for more visible pre-pick servo hunting
-      const jitter = 2.6 * (1 - pt) * (
+      // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 for more visible pre-pick servo hunting
+      const jitter = 3.8 * (1 - pt) * (
         Math.sin(ts * 8 * Math.PI * 2) * 0.7 +
         Math.sin(ts * 13 * Math.PI * 2) * 0.3
       );
@@ -2616,8 +2616,8 @@ function animate(ts) {
       suctionPivot.position.y = 108 + jitter + _tapOffset;
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
-      // Pass 1125: Z drift peak 2.0→3.2 for more visible lateral inertia sway
-      suctionPivot.position.z = 3.2 * Math.sin(pt * Math.PI) * (1 - pt * 0.7);
+      // Pass 1125: Z drift peak 2.0→3.2 — Pass 1212: →4.8 for more visible lateral inertia sway
+      suctionPivot.position.z = 4.8 * Math.sin(pt * Math.PI) * (1 - pt * 0.7);
       // Pass 262: pre-pick targeting spotlight — warm downward spot on hopper card in final approach
       if (pt > 0.75) {
         const _pickTgtT = (pt - 0.75) / 0.25;
@@ -2626,8 +2626,8 @@ function animate(ts) {
         // Pass 276: rangefinder lock-on flicker — 22Hz strobe in final 12% as arm locks on
         // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 more nervous hunting
         const _lockFlicker = pt > 0.88 ? (0.48 + 0.52 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0;
-        // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 for brighter pre-pick spotlight
-        scanTargetLight.intensity = _pickTgtT * 3.20 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
+        // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 for brighter pre-pick spotlight
+        scanTargetLight.intensity = _pickTgtT * 5.0 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
       }
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       // Pass 462: early cup pre-glow — from pt=0.50 the cup begins a faint domain warmup
@@ -2643,14 +2643,14 @@ function animate(ts) {
         // Pass 181: cup pre-warms with domain color in approach window
         const _cupApproach = _sq;
         suctionCupMat.emissive.setHex(ct.hex);
-        // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 for more vivid suction warmup
-        suctionCupMat.emissiveIntensity += (2.4 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10);
+        // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 — Pass 1214: →3.6 for more vivid suction warmup
+        suctionCupMat.emissiveIntensity += (3.6 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10);
         // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
         if (!_contactFlashFired) {
           _contactFlashFired = true;
           const _cfRot = suctionPivot.rotation.z;
-          // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5 — Pass 884: →13.0 — Pass 1129: →20.0 for bigger pick moment
-          const _cfL = new THREE.PointLight(0xffffff, 20.0, 110);
+          // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5 — Pass 884: →13.0 — Pass 1129: →20.0 — Pass 1215: →30.0 for bigger pick moment
+          const _cfL = new THREE.PointLight(0xffffff, 30.0, 110);
           _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
@@ -2740,12 +2740,12 @@ function animate(ts) {
       if (lt < 0.22) {
         const _yDip = -3.8 * Math.sin((lt / 0.22) * Math.PI);
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
-        // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 for stronger suction-break feel
-        const _pickStutter = lt < 0.12 ? 2.40 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
+        // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 for stronger suction-break feel
+        const _pickStutter = lt < 0.12 ? 3.60 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
-      // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 for more dramatic peel-off sway
-      const _peelZ291 = lt < 0.28 ? 5.8 * Math.sin(lt / 0.28 * Math.PI) : 0;
+      // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 for more dramatic peel-off sway
+      const _peelZ291 = lt < 0.28 ? 8.2 * Math.sin(lt / 0.28 * Math.PI) : 0;
       suctionPivot.position.z = _peelZ291;
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
@@ -2788,8 +2788,8 @@ function animate(ts) {
         grabRing.visible = true;
         GRAB_PARTICLES.forEach((p, _gi) => {
           const angle = Math.random() * Math.PI * 2;
-          // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 — Pass 1098: →40+90 for more energetic burst
-          const spd = 40 + Math.random() * 90; // Pass 1098: 28+65→40+90
+          // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 — Pass 1098: →40+90 — Pass 1218: →55+115 for more energetic burst
+          const spd = 55 + Math.random() * 115; // Pass 1218: 40+90→55+115
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.15;
           p.vx = Math.cos(angle) * spd * 0.55;
