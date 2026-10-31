@@ -3404,21 +3404,21 @@ function animate(ts) {
         scanLEDMat.emissiveIntensity = 13.0;
         _scanLEDRevealT = 0;
         // Pass 235: scanner confirmation particle burst — Pass 532: speed 38+42→55+55, vy 20+35→30+50
-        // Pass 956: burst count 6→12 — Pass 957: speed 55+55→80+75, vy 30+50→50+70 for bigger reveal pop
+        // Pass 956: burst count 6→12 — Pass 957: speed 55+55→80+75, vy 30+50→50+70 — Pass 1324: count →18, Pass 1325: speed →145+130, Pass 1326: vy →95+120 for bigger reveal pop
         {
           const _bx = activeCard.position.x, _by = CONV_Y_TOP + CARD_T/2 + 2, _bz = activeCard.position.z;
           let _burstSpawned = 0;
-          for (let _bi = 0; _bi < GRAB_PARTICLES.length && _burstSpawned < 12; _bi++) {
+          for (let _bi = 0; _bi < GRAB_PARTICLES.length && _burstSpawned < 18; _bi++) {
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
             // Pass 958: burst life 0.36+0.24→0.52+0.32 for longer-lived reveal particles
             _bp.active = true; _bp.age = 0; _bp.life = 0.52 + Math.random() * 0.32;
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
-            const _ang = (_burstSpawned / 12) * Math.PI * 2 + Math.random() * 0.8;
-            const _spd = 110 + Math.random() * 100; // Pass 957: 55+55→80+75 — Pass 1135: →110+100
+            const _ang = (_burstSpawned / 18) * Math.PI * 2 + Math.random() * 0.8;
+            const _spd = 145 + Math.random() * 130; // Pass 1325: 110+100→145+130
             _bp.vx = Math.cos(_ang) * _spd * 0.55;
-            _bp.vy = 70 + Math.random() * 90; // Pass 957: 30+50→50+70 — Pass 1135: →70+90 stronger upward component
+            _bp.vy = 95 + Math.random() * 120; // Pass 1326: 70+90→95+120 stronger upward component
             _bp.vz = Math.sin(_ang) * _spd * 0.55;
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
@@ -3445,8 +3445,8 @@ function animate(ts) {
           const _baseI = barFill >= 0.85 ? 3.0 + flashIntensity * 3.5 : 1.8 + flashIntensity * 2.8;
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75
           const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 0.75 : 0;
-          // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 for bigger climax
-          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 14.0 : 0;
+          // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 — Pass 1327: →20.0 for bigger climax
+          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 20.0 : 0;
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
         }
       }
@@ -3476,8 +3476,8 @@ function animate(ts) {
       // Pass 89: exhaust color reveals domain at 85% scan (matches beam reveal timing)
       const _exColor = ft < 0.85 ? 0xccddff : ct.hex;
       tp.mat.color.setHex(_exColor); // pre-confirm: cool blue-white; post-confirm: domain
-      // Pass 723: exhaust opacity 0.18+0.15→0.26+0.20 — Pass 843: →0.40+0.32 for vivid scanner exhaust
-      tp.mat.opacity = 0.40 + Math.random() * 0.32;
+      // Pass 723: exhaust opacity 0.18+0.15→0.26+0.20 — Pass 843: →0.40+0.32 — Pass 1328: →0.55+0.42 for more vivid scanner exhaust
+      tp.mat.opacity = 0.55 + Math.random() * 0.42;
       tp.age = 0; tp.life = 0.55 + Math.random() * 0.4;
       tp.active = true; tp.mesh.visible = true;
     }
@@ -3504,10 +3504,10 @@ function animate(ts) {
           // Pass 135: non-linear doppler fade — ring dissipates faster as it expands
           const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
-          // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 for brighter confirm ring flash
-          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 2.0 : 0;
-          // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5
-          const _pingBoost = ft >= 0.85 ? 5.5 + _pingRevealSpike337 : 1.0;
+          // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 for brighter confirm ring flash
+          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 3.0 : 0;
+          // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0
+          const _pingBoost = ft >= 0.85 ? 8.0 + _pingRevealSpike337 : 1.0;
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
           p.mat.opacity = _pingFade * flashIntensity * 1.0 * _pingBoost;
         } else {
@@ -3527,8 +3527,8 @@ function animate(ts) {
         const _chaseHz = 10 + barFill * 16; // Pass 802: 9+9 → 10+16 (10→26Hz)
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-          // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 for more vivid pre-reveal LED cycling
-          const _cTarget = gi === _chaseIdx ? 8.0 : 0.1;
+          // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 for more vivid pre-reveal LED cycling
+          const _cTarget = gi === _chaseIdx ? 11.0 : 0.1;
           gm.color.setHex(0x0088cc);
           gm.emissive.setHex(0x003366);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 22);
