@@ -3101,20 +3101,20 @@ function animate(ts) {
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
     // Pass 172: scan-field levitation — card floats on 0.8Hz sine during scan (peaks at midpoint)
-    // Pass 658: levitate 0.30→0.55 + secondary 0.15 — Pass 788: primary 0.55→0.75, secondary 0.15→0.24 — Pass 1076: primary 0.75→1.05, secondary 0.24→0.35 — Pass 1208: primary 1.05→1.50, secondary 0.35→0.55
+    // Pass 658: levitate 0.30→0.55 + secondary 0.15 — Pass 788: primary 0.55→0.75, secondary 0.15→0.24 — Pass 1076: primary 0.75→1.05, secondary 0.24→0.35 — Pass 1208: primary 1.05→1.50, secondary 0.35→0.55 — Pass 1276: primary 1.50→2.10, secondary 0.55→0.78
     const ft = phaseRaw(PH.scan);
-    const _levitate = (1.50 * Math.sin(ts * 0.8 * Math.PI * 2) + 0.55 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI);
+    const _levitate = (2.10 * Math.sin(ts * 0.8 * Math.PI * 2) + 0.78 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI);
     // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
     // confirmed (ft 0.85→1.0), giving a subtle "recognition" gesture.
-    // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 — Pass 1077: →12.0 — Pass 1209: →17.0 for more prominent "recognized!" rise
-    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 17.0 : 0;
+    // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 — Pass 1077: →12.0 — Pass 1209: →17.0 — Pass 1277: →24.0 for more prominent "recognized!" rise
+    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 24.0 : 0;
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's belt lean into the reveal bell curve over first 10%
     // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
     // Pass 1235: starting lean -0.18→-0.05 to match belt lean bugfix
-    // Pass 659: tilt peak -0.40→-0.52 — Pass 749: -0.52→-0.64 — Pass 1078: →-0.82 for even more face-toward-camera during scan
-    const _bellTilt = -0.82 * Math.sin(ft * Math.PI);
+    // Pass 659: tilt peak -0.40→-0.52 — Pass 749: -0.52→-0.64 — Pass 1078: →-0.82 — Pass 1278: →-1.05 for even more face-toward-camera during scan
+    const _bellTilt = -1.05 * Math.sin(ft * Math.PI);
     const _blendInT = Math.min(1, ft / 0.10); // 0→1 over first 10% of scan phase
     const _revealTilt = THREE.MathUtils.lerp(-0.05, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
@@ -3122,19 +3122,19 @@ function animate(ts) {
     const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 1.3;
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015) * _scanVibScale;
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
-    // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 for sharper card-edge flash at identity reveal
+    // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 — Pass 1279: →0.62 for sharper card-edge flash at identity reveal
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
-    const _yTilt = _identityRevealed ? 0.44 * Math.sin(_yTiltT * Math.PI) : 0;
+    const _yTilt = _identityRevealed ? 0.62 * Math.sin(_yTiltT * Math.PI) : 0;
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
-    // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 — Pass 1150: →0.085 for sharper scanner lock-on recoil
+    // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 — Pass 1150: →0.085 — Pass 1280: →0.120 for sharper scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
-      ? 0.085 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0;
+      ? 0.120 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0;
     activeCard.rotation.set(_revealTilt, _yTilt, _scanVib + _revealZShake);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
     // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
-    // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 for bigger scan flash and lock-on pop
-    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 12.0 : 0;
+    // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 for bigger scan flash and lock-on pop
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 17.0 : 0;
     scanFlash.intensity = flashIntensity * 15 + _flashRevealSpike350;
     // Pass 351: scanFlash Z drift toward destination after reveal
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.25 : 0;
@@ -3154,10 +3154,10 @@ function animate(ts) {
     if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 3.8);
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades
     const _revOsc = _cardRevealBurst * (0.55 + 0.45 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)));
-    // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 for even brighter card glow during scan
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 1.35 + _scanStrobe + _revOsc;
-    // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0
-    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 15.0 : 0;
+    // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 for even brighter card glow during scan
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 1.85 + _scanStrobe + _revOsc;
+    // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 for bigger identity reveal glow
+    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 21.0 : 0;
     cardGlow.intensity = 3.2 + flashIntensity * 2.4 + _revealGlowSurge;
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
