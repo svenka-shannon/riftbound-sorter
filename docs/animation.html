@@ -1200,6 +1200,30 @@ CARD_TYPES.forEach(ct => {
   ct.stripMat = stripMat; // pass 69: reference for arrival flash
 });
 
+// ─── Floor diverter — stage-2 routing servo (upper vs lower floor) ───────────
+// Servo-controlled flap at tray entrance. Rotates around Z at the belt-exit edge.
+// Flat (0 rad) = card falls through to lower floor. ~0.65 rad (~37°) = ramp to upper floor.
+const DIVERTER_X = TRAY_X_START - 5;
+const DIVERTER_FLOOR0 = 0;    // lower floor: flat
+const DIVERTER_FLOOR1 = 0.65; // upper floor: ramp up ~37°
+const diverterServoBox = makeBox(14, 14, 22, 0x9aa0b0);
+diverterServoBox.position.set(DIVERTER_X - 3, CONV_Y_TOP + 7, 0);
+scene.add(diverterServoBox);
+const floorDiverterPivot = new THREE.Group();
+floorDiverterPivot.position.set(DIVERTER_X, CONV_Y_TOP + 3, 0); // CONV_Y_TOP + CARD_T/2 + 2 = 45+1+2=48 (CARD_T=2 defined later)
+scene.add(floorDiverterPivot);
+const diverterFlapMat = new THREE.MeshStandardMaterial({
+  color: 0xcc7700, roughness: 0.4, metalness: 0.25,
+  emissive: new THREE.Color(0x441f00), emissiveIntensity: 0.22
+});
+const diverterFlapMesh = new THREE.Mesh(
+  new THREE.BoxGeometry(TX_DEP + 6, 3, TRAY_Z_HALF * 2),
+  diverterFlapMat
+);
+// Pivot is at left edge — offset mesh half its width to the right
+diverterFlapMesh.position.set((TX_DEP + 6) / 2, 0, 0);
+floorDiverterPivot.add(diverterFlapMesh);
+
 // Machine label 3D anchor points (projected to screen each frame in animate)
 const labelDefs = [
   { id:'lbl-hopper',  pos: new THREE.Vector3(HOPPER_X+33, 120, 0) },
@@ -1864,6 +1888,7 @@ let _swingPeakFlashFired = false; // pass 467: true once arm-swing arc-peak flas
 let _paddleRecoil = 0;          // pass 109: angular kick applied to paddle at gate contact
 let _gateZKick = 0;             // pass 223: lateral Z rotation impulse applied to card at gate hit
 let _paddleJitterAmt = 0;       // pass 216: solenoid Z-vibration decay amplitude
+let _diverterAngle = 0;         // accuracy: floor diverter servo angle (0=lower floor, 0.65=upper floor)
 let _scanLEDRevealT = -1;       // pass 222: elapsed time since scanner LED domain flash (-1 = inactive)
 let _hoodRevealFlash = 0;       // pass 123: hood strobe at identity reveal (0=idle, t=0..1)
 let _cardRevealBurst = 0;       // pass 125: card face emissive burst at identity reveal
@@ -2192,8 +2217,10 @@ function showScanOverlay(cardType, visible, routeText) {
 }
 
 // Paddle angle: maps slotZ to rotation angle (flat = center, wider swing for visibility)
+// Paddle rotates around Y axis (vertical) to deflect cards in the Z direction (column routing).
+// slotZ ∈ {-97.5, -32.5, 32.5, 97.5}  →  angles ±0.73 rad outer, ±0.24 rad inner
 function paddleAngleForSlot(slotZ) {
-  return -(slotZ / 160) * 1.2;
+  return -(slotZ / 160) * 1.2; // Y-axis rotation: negative = gate swings toward +Z columns
 }
 
 // ─── Hopper stack (dynamic — shrinks each cycle, refills after 6 cards) ───────
@@ -2295,7 +2322,8 @@ function animate(ts) {
 
     // Pass 51: paddle smooth-return in armReturn phase brings it to ~0; cycle reset
     // just snaps to exactly 0 to clear floating-point residue, then restores color.
-    paddlePivot.rotation.z = 0;
+    paddlePivot.rotation.y = 0; // accuracy: Y-axis rotation for Z-column deflection
+    paddlePivot.rotation.z = 0; // clear any residual Z tilt
     paddleMat.emissiveIntensity = 0.5; // back to resting glow
     paddleMat.color.setHex(0xff6600);   // restore orange at cycle boundary
     paddleMat.emissive.setHex(0xff3300);
@@ -3543,7 +3571,11 @@ function animate(ts) {
       const _preAimT = Math.min(1, (ft - 0.85) / 0.15); // 0→1 in window after reveal
       // Pass 609: paddle pre-aim coefficient 0.15→0.28 — machine visibly commits to lane post-reveal
       const _preAimAngle = paddleAngleForSlot(ct.slotZ) * 0.28 * _preAimT;
-      paddlePivot.rotation.z += (_preAimAngle - paddlePivot.rotation.z) * Math.min(1, dt * 2);
+      paddlePivot.rotation.y += (_preAimAngle - paddlePivot.rotation.y) * Math.min(1, dt * 2); // accuracy: Y-axis
+      // Pre-position floor diverter: start moving to target floor during identity reveal
+      const _diverterTarget = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
+      _diverterAngle += (_diverterTarget - _diverterAngle) * Math.min(1, dt * 3);
+      floorDiverterPivot.rotation.z = -_diverterAngle; // negative = far end tilts up
     }
     // ── Scanner beam cone + core column ──
     // (Pass 76 lerp superseded by pass 189 binary snap — removed)
@@ -3750,12 +3782,12 @@ function animate(ts) {
     // Paddle snaps early: covers ~70% travel in first half, holds before card arrives
     const targetAngle = paddleAngleForSlot(ct.slotZ);
     const paddleT = Math.min(1, easeOut(ot * 2));
-    paddlePivot.rotation.z = THREE.MathUtils.lerp(0, targetAngle, paddleT);
+    paddlePivot.rotation.y = THREE.MathUtils.lerp(0, targetAngle, paddleT); // accuracy: Y-axis for Z-column routing
     // Pass 111: servo micro-vibration — paddle hunts at target angle (servo hold jitter)
     // Pass 954: amplitude 0.009→0.015, secondary 0.005→0.008 for more realistic servo hunting
     if (paddleT >= 0.98) {
       const _hunt = Math.sin(ts * 76 * Math.PI * 2) * 0.015 + Math.sin(ts * 53 * Math.PI * 2) * 0.008;
-      paddlePivot.rotation.z += _hunt;
+      paddlePivot.rotation.y += _hunt; // accuracy: Y-axis hunt jitter
     }
     // Gate glows in DOMAIN color while routing (shows which path is active)
     // Pass 72: smooth charge-up ramp as card approaches (ot 0→1 = charge 0.18→3.8)
@@ -3982,7 +4014,13 @@ function animate(ts) {
     // Pass 109: apply paddle recoil offset and spring it back to base target angle
     if (Math.abs(_paddleRecoil) > 0.001) {
       _paddleRecoil *= Math.max(0, 1 - dt * 9);
-      paddlePivot.rotation.z += _paddleRecoil;
+      paddlePivot.rotation.y += _paddleRecoil; // accuracy: Y-axis recoil
+    }
+    // Accuracy: hold floor diverter at target floor position throughout deflect
+    {
+      const _diverterTarget2 = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
+      _diverterAngle += (_diverterTarget2 - _diverterAngle) * Math.min(1, dt * 6);
+      floorDiverterPivot.rotation.z = -_diverterAngle;
     }
     // Pass 216: solenoid Z-vibration decay — paddle vibrates laterally at ~42Hz, fading ~0.2s
     if (_paddleJitterAmt > 0.005) {
@@ -4047,6 +4085,13 @@ function animate(ts) {
     activeCard.visible = true;
     const dt3 = phaseRaw(PH.slotDrop); // linear 0..1
     const targetY = ct.slotFloorY + 29; // matches static tray card center
+    // Accuracy: hold floor diverter at target during slotDrop; return after card lands
+    {
+      const _diverterTarget3 = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
+      const _diverterRelease = dt3 > 0.90 ? DIVERTER_FLOOR0 : _diverterTarget3; // return after landing
+      _diverterAngle += (_diverterRelease - _diverterAngle) * Math.min(1, dt * (dt3 > 0.90 ? 4 : 8));
+      floorDiverterPivot.rotation.z = -_diverterAngle;
+    }
     // startY must match where deflect phase ended (arcY)
     const startY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     let cy;
@@ -4440,7 +4485,10 @@ function animate(ts) {
     const _artZRing = art > 0.88 ? 0.80 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0;
     suctionPivot.position.z = Math.sin(art * Math.PI) * 15 + _artZRing;
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
-    paddlePivot.rotation.z += (0 - paddlePivot.rotation.z) * Math.min(1, dt * 4.5);
+    paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 4.5); // accuracy: Y-axis
+    // Return floor diverter to flat (lower floor default) during arm return
+    _diverterAngle += (DIVERTER_FLOOR0 - _diverterAngle) * Math.min(1, dt * 3);
+    floorDiverterPivot.rotation.z = -_diverterAngle;
     // Pass 72: decay paddle back to resting orange glow after charge discharge
     paddleMat.emissive.lerp(new THREE.Color(0xff3300), Math.min(1, dt * 3));
     paddleMat.color.lerp(new THREE.Color(0xff6600), Math.min(1, dt * 3));
