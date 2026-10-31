@@ -2999,8 +2999,9 @@ function animate(ts) {
     const _beltYBump = 0.80 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
+    // Pass 1235: lean -0.18→-0.05 (bugfix: at -0.18 the card front edge was 4.9u below belt; safe max ≈0.05rad)
     const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
-    const _beltLean = THREE.MathUtils.lerp(0, -0.18, easeOut(_leanT));
+    const _beltLean = THREE.MathUtils.lerp(0, -0.05, easeOut(_leanT));
     // Pass 116: belt micro-vibration — tiny noise jitter in rotation.z simulates belt roughness
     const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015;
     // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
@@ -3080,12 +3081,13 @@ function animate(ts) {
     const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 17.0 : 0;
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
-    // Pass 139: blend from conveyorIn's -0.18 belt lean into the reveal bell curve over first 10%
+    // Pass 139: blend from conveyorIn's belt lean into the reveal bell curve over first 10%
     // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
+    // Pass 1235: starting lean -0.18→-0.05 to match belt lean bugfix
     // Pass 659: tilt peak -0.40→-0.52 — Pass 749: -0.52→-0.64 — Pass 1078: →-0.82 for even more face-toward-camera during scan
     const _bellTilt = -0.82 * Math.sin(ft * Math.PI);
     const _blendInT = Math.min(1, ft / 0.10); // 0→1 over first 10% of scan phase
-    const _revealTilt = THREE.MathUtils.lerp(-0.18, _bellTilt, easeOut(_blendInT));
+    const _revealTilt = THREE.MathUtils.lerp(-0.05, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
     // Pass 746: pre-reveal vibration scale 0.8→1.3 for more visible scanner tremor buildup
     const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 1.3;
@@ -3720,10 +3722,11 @@ function animate(ts) {
     // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit
     const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 0.65;
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
-    // Pass 140: blend lean from 0 (scan end) to -0.18 over first 12% of phase
+    // Pass 140: blend lean from 0 (scan end) to belt lean over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
+    // Pass 1235: lean -0.18→-0.05 to match belt lean bugfix
     const _exitBlendT = Math.min(1, ot / 0.12);
-    const _exitLean = THREE.MathUtils.lerp(0, -0.18, easeOut(_exitBlendT));
+    const _exitLean = THREE.MathUtils.lerp(0, -0.05, easeOut(_exitBlendT));
     // Pass 232: belt acceleration pitch kick — belt surges from scan crawl (0.02) to full
     // speed at conveyorOut start, briefly pitching card nose-up by inertia.
     // Pass 640: belt launch pitch kick 0.06→0.10 — Pass 776: 0.10→0.16 — Pass 970: →0.22 for stronger card-lurch at scan exit
@@ -3925,14 +3928,15 @@ function animate(ts) {
     const bankSign = Math.sign(ct.slotZ || 0);
     const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
     activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.5 * bankSign, dt2);
-    // Pass 159: smooth conveyorOut exit lean (-0.18) → floorTilt + brief nose-up launch kick
+    // Pass 159: smooth conveyorOut exit lean → floorTilt + brief nose-up launch kick
     // Eliminates the snap at the conveyorOut/deflect rotation.x boundary
+    // Pass 1235: starting lean -0.18→-0.05 to match belt lean bugfix
     {
       const _defEntryT = Math.min(1, dt2 / 0.14);
       const _normTilt = THREE.MathUtils.lerp(0, floorTilt, dt2);
       // Pass 763: launch kick 0.28→0.40 — Pass 1186: →0.58 for more dramatic gate-exit nose-up
       const _launchKick = 0.58 * Math.exp(-dt2 * 13) * (1 - _defEntryT);
-      activeCard.rotation.x = THREE.MathUtils.lerp(-0.18, _normTilt, easeOut(_defEntryT)) + _launchKick;
+      activeCard.rotation.x = THREE.MathUtils.lerp(-0.05, _normTilt, easeOut(_defEntryT)) + _launchKick;
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
     // Pass 317: deflect tumble distance scaling — outer columns tumble harder (steeper deflect angle)
