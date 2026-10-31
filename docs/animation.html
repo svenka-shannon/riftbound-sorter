@@ -2753,8 +2753,8 @@ function animate(ts) {
         const _vacSurge = pt > 0.85 ? 0.92 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
         vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.95 + _vacSurge; // Pass 1092: opacity 0.75→0.95
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
-        // Pass 1250: elongation scale 0.55→0.82 for stronger suction pull visualization
-        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 0.82), _vacBaseScale);
+        // Pass 1250: elongation scale 0.55→0.82 — Pass 1275: →1.10 for stronger suction pull visualization
+        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 1.10), _vacBaseScale);
       } else {
         vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       }
@@ -2762,19 +2762,19 @@ function animate(ts) {
       vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
-      // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 for stronger suction-break strain
-      const _ltLurch = lt < 0.18 ? -0.24 * Math.sin((lt / 0.18) * Math.PI) : 0;
+      // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 for stronger suction-break strain
+      const _ltLurch = lt < 0.18 ? -0.34 * Math.sin((lt / 0.18) * Math.PI) : 0;
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt) + _ltLurch;
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 more dramatic dip
       if (lt < 0.22) {
         const _yDip = -3.8 * Math.sin((lt / 0.22) * Math.PI);
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
-        // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 for stronger suction-break feel
-        const _pickStutter = lt < 0.12 ? 3.60 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
+        // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 for stronger suction-break feel
+        const _pickStutter = lt < 0.12 ? 5.00 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
-      // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 for more dramatic peel-off sway
-      const _peelZ291 = lt < 0.28 ? 8.2 * Math.sin(lt / 0.28 * Math.PI) : 0;
+      // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 for more dramatic peel-off sway
+      const _peelZ291 = lt < 0.28 ? 11.0 * Math.sin(lt / 0.28 * Math.PI) : 0;
       suctionPivot.position.z = _peelZ291;
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
@@ -4452,17 +4452,17 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(1.57, -0.35, art / 0.82);
     } else {
       const _osT = (art - 0.82) / 0.18;
-      // Pass 673: arm overshoot spring 0.06→0.10 — Pass 862: →0.16 — Pass 1050: →0.26 more dramatic rebound
-      suctionPivot.rotation.z = -0.35 - 0.26 * Math.sin(_osT * Math.PI);
+      // Pass 673: arm overshoot spring 0.06→0.10 — Pass 862: →0.16 — Pass 1050: →0.26 — Pass 1268: →0.36 more dramatic rebound
+      suctionPivot.rotation.z = -0.35 - 0.36 * Math.sin(_osT * Math.PI);
       // Pass 196: arm end-stop mechanical clunk — tiny camera shake when arm hits its rest stop.
       // Fires once at art=0.82 (first frame of overshoot), very small so it's felt not seen.
       if (!_armReturnThunkFired) {
         _armReturnThunkFired = true;
-        // Pass 556: arm end-stop camera shake 0.28→0.55 — Pass 863: →1.0 — Pass 1051: →2.0 better clunk
-        _cameraShake = Math.max(_cameraShake, 2.0);
-        // Pass 267: cup end-stop emissive spike — Pass 864: 2.8→4.5 — Pass 1051: →7.5 brighter hard stop flash
+        // Pass 556: arm end-stop camera shake 0.28→0.55 — Pass 863: →1.0 — Pass 1051: →2.0 — Pass 1269: →3.2 better clunk
+        _cameraShake = Math.max(_cameraShake, 3.2);
+        // Pass 267: cup end-stop emissive spike — Pass 864: 2.8→4.5 — Pass 1051: →7.5 — Pass 1270: →12.0 brighter hard stop flash
         suctionCupMat.emissive.set(1, 1, 1);
-        suctionCupMat.emissiveIntensity = 7.5;
+        suctionCupMat.emissiveIntensity = 12.0;
         // Pass 260: cup arrival dust puff — 3 pale particles burst from cup as arm hits stopper
         const _arRot = suctionPivot.rotation.z;
         const _arCupX = PIV_X + 83 * Math.sin(_arRot);
@@ -4482,8 +4482,8 @@ function animate(ts) {
     }
     // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154) — Pass 860: 10→15 for more 3D sweep
     // Arm dips toward viewer at midpoint of return sweep for 3-D parabolic path
-    // Pass 288: final Z ring oscillation — Pass 861: 0.50→0.80 for bigger settling ring
-    const _artZRing = art > 0.88 ? 0.80 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0;
+    // Pass 288: final Z ring oscillation — Pass 861: 0.50→0.80 — Pass 1271: →1.10 for bigger settling ring
+    const _artZRing = art > 0.88 ? 1.10 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0;
     suctionPivot.position.z = Math.sin(art * Math.PI) * 15 + _artZRing;
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 4.5); // accuracy: Y-axis
