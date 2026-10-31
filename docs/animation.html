@@ -2980,8 +2980,8 @@ function animate(ts) {
     // Pass 39: belt deposit flash — domain burst when card first touches the belt
     if (!_depositFired) {
       _depositFired = true;
-      // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 for bigger card-on-belt impact
-      const _dfl = new THREE.PointLight(ct.hex, 24.0, 110);
+      // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 — Pass 1300: →34.0 for bigger card-on-belt impact
+      const _dfl = new THREE.PointLight(ct.hex, 34.0, 110);
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3017,15 +3017,15 @@ function animate(ts) {
     activeCardMat.opacity = Math.min(1, ct2 * 5); // fade in over first 0.2s
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
-    // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5 — Pass 1203: →11.0 bigger card-slap settle
-    const _settleY = 11.0 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
+    // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5 — Pass 1203: →11.0 — Pass 1301: →16.0 bigger card-slap settle
+    const _settleY = 16.0 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
     // Pass 173: belt lateral wobble — fades in (0→5%) and out (90→100%)
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
     const _beltWobbleZ = (4.2 * Math.sin(ts * 4.7 * Math.PI * 2) + 1.30 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut;
-    // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 for more tactile belt feel
-    const _beltYBump = 0.80 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
+    // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel
+    const _beltYBump = 1.10 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     // Pass 1235: lean -0.18→-0.05 (bugfix: at -0.18 the card front edge was 4.9u below belt; safe max ≈0.05rad)
@@ -3034,8 +3034,8 @@ function animate(ts) {
     // Pass 116: belt micro-vibration — tiny noise jitter in rotation.z simulates belt roughness
     const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015;
     // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
-    // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 for more physical card-slap
-    const _beltFlopY309 = 0.32 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5);
+    // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 — Pass 1303: →0.45 for more physical card-slap
+    const _beltFlopY309 = 0.45 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5);
     activeCard.rotation.set(_beltLean, _beltFlopY309, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
@@ -3049,19 +3049,19 @@ function animate(ts) {
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension
     const _approachFreq272 = 8 + _approachT * 20;
     activeCardMat.emissiveIntensity = 0.55 + _approachT * 0.85 // Pass 874: 0.65→0.85
-      + _approachT * 0.65 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1145: 0.45→0.65
+      + _approachT * 0.90 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1145: 0.45→0.65 — Pass 1305: →0.90 stronger scanner-approach tension
       + _approachT * 0.10 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat
       + _entryBoost;
-    // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 for stronger tension glow
-    cardGlow.intensity = 1.4 + _approachT * 8.5; // Pass 1207: 5.8 → 8.5
+    // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 — Pass 1304: →12.0 for stronger tension glow
+    cardGlow.intensity = 1.4 + _approachT * 12.0; // Pass 1304: 8.5→12.0
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     // Pass 468: early detection ripple — at ct2=0.60-0.80, LED flickers at 10Hz (card entering field)
     // Pass 888: early detect amplitude 0.5→0.8 for stronger card-entering-field detection
     const _warmupT = Math.max(0, (ct2 - 0.80) / 0.20); // 0→1 in last 20%
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
       ? (ct2 - 0.60) / 0.20 * 0.8 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 888: 0.5→0.8
-    // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 for more vivid warmup before scan
-    const _ledWarmTarget = 0.3 + _warmupT * 7.5 + _earlyDetect; // Pass 1146: 5.5→7.5
+    // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 — Pass 1306: →10.5 for more vivid warmup before scan
+    const _ledWarmTarget = 0.3 + _warmupT * 10.5 + _earlyDetect; // Pass 1306: 7.5→10.5
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
@@ -3079,8 +3079,8 @@ function animate(ts) {
     // Camera-flash: brief colored screen overlay fires once per scan
     if (!_scanFlashFired) {
       _scanFlashFired = true;
-      // Pass 418: scan start shake 3.5→5.0 — Pass 740: →7.2 — Pass 1147: →10.5 for bigger scan-start jolt
-      _cameraShake = 10.5;
+      // Pass 418: scan start shake 3.5→5.0 — Pass 740: →7.2 — Pass 1147: →10.5 — Pass 1307: →15.0 for bigger scan-start jolt
+      _cameraShake = 15.0;
       // Pass 889: scan start FOV punch 3.5° — Pass 1148: →6.0° broader zoom-in at scanner activation
       _fovBump = Math.max(_fovBump, 6.0);
       const flashEl = document.getElementById('scan-flash-overlay');
