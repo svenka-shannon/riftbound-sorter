@@ -3118,9 +3118,9 @@ function animate(ts) {
       const _tintBlend = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.08) : 0;
       activeCardMat.emissive.lerpColors(new THREE.Color(0x3388ff), new THREE.Color(ct.hex), _tintBlend);
     }
-    // Pass 105/448: scan strobe — Pass 604: amplitude 0.18→0.28 — Pass 621: add 7Hz secondary beat
+    // Pass 105/448: scan strobe — Pass 604: amplitude 0.18→0.28 — Pass 621: add 7Hz secondary beat — Pass 1239: primary 0.28→0.42 for more vivid scanner strobe flicker
     // Two-frequency scan strobe: primary 12Hz + secondary 7Hz creates interference pattern
-    const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 0.28 + Math.sin(ts * 7 * Math.PI * 2) * 0.10) * flashIntensity;
+    const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 0.42 + Math.sin(ts * 7 * Math.PI * 2) * 0.10) * flashIntensity;
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 (longer burst visibility)
     if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 3.8);
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades
@@ -3166,12 +3166,12 @@ function animate(ts) {
       // Pass 1152: hood sway primary 1.20→1.65, secondary 0.42→0.60 for more resonant scanner oscillation
       scannerHood.position.z = (1.65 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.60 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp;
     }
-    // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 for more dynamic iris pulse
-    const _irisScale = 0.75 + flashIntensity * 0.92;
+    // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 — Pass 1236: →1.30 for more dramatic iris breathing
+    const _irisScale = 0.75 + flashIntensity * 1.30;
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.07 ? easeOut(ft / 0.07) : 1.0;
-    // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 for bigger iris pop at reveal
-    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 1.55 : 0;
+    // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 — Pass 1237: →2.20 for even bigger iris pop at reveal
+    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 2.20 : 0;
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 bigger lens pop
@@ -3182,8 +3182,8 @@ function animate(ts) {
     // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 — Pass 1082: →16.0 for bigger bloom burst at lock-on
     const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 16.0 : 0;
     scanBloom.color.setHex(_identityRevealed ? ct.hex : 0x0088ff);
-    // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 for stronger soft scan halo
-    scanBloom.intensity = flashIntensity * 1.9 + _bloomRevealSurge;
+    // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 — Pass 1238: →2.8 for stronger soft scan halo
+    scanBloom.intensity = flashIntensity * 2.8 + _bloomRevealSurge;
     // Pass 347: bloom Z drift toward destination slot after identity reveal
     const _bloomZ347 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.20) * 0.30 : 0;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, _bloomZ347);
@@ -3227,8 +3227,8 @@ function animate(ts) {
     // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5
     const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 8.5 : 0;
     scanLineMat2.emissiveIntensity = 5.0 + _beam2Reveal345;
-    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 for dramatic pivot
-    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 8.5;
+    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 for even more dramatic beam pivot
+    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 12.5;
     scanLineMat.emissiveIntensity += _revFlare;
     // Pass 611: beam reversal point light — at ft≈0.5 scan midpoint, brief white point light fires
     // at the scanner to mark the beam direction flip moment with a physical light burst.
@@ -3260,10 +3260,10 @@ function animate(ts) {
           // Pass 211: scan grid dots float — pre-reveal dots oscillate in Y at 3Hz with
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
-          // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 for more dramatic hover effect
-          const _dotFloat = _identityRevealed ? 0 : 1.0 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
-          // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 for more vivid lock-on
-          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 1.30 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
+          // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 — Pass 1240: →1.40 for even more dramatic dot hover
+          const _dotFloat = _identityRevealed ? 0 : 1.40 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
+          // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 for sharper lock-on recoil
+          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 1.90 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
           // Pass 366: post-reveal dots Z drift toward destination slot (20% of slotZ over 0.12s)
           const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.20 : 0;
           mesh.position.set(
@@ -3903,7 +3903,7 @@ function animate(ts) {
     // Pass 526: 6.5→9.0 — Pass 636: →12.5 — Pass 784: →18.0 — Pass 918: →26.0 — Pass 1184: →36.0 for bigger arc apex pop
     if (!_arcPeakFlashFired && dt2 >= 0.46) {
       _arcPeakFlashFired = true;
-      const _apfl = new THREE.PointLight(ct.hex, 36.0, 150); // Pass 1184: 26.0→36.0
+      const _apfl = new THREE.PointLight(ct.hex, 50.0, 150); // Pass 1184: 26.0→36.0 — Pass 1243: →50.0 for bigger arc-apex domain burst
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
