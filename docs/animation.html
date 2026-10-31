@@ -2749,11 +2749,12 @@ function animate(ts) {
         const _vacBaseScale = THREE.MathUtils.lerp(1.5, 0.25, _vt);
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
-        // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 for dramatic approach
-        const _vacSurge = pt > 0.85 ? 0.65 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
+        // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 — Pass 1249: surge →0.92 for stronger pump surge
+        const _vacSurge = pt > 0.85 ? 0.92 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
         vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.95 + _vacSurge; // Pass 1092: opacity 0.75→0.95
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
-        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 0.55), _vacBaseScale);
+        // Pass 1250: elongation scale 0.55→0.82 for stronger suction pull visualization
+        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 0.82), _vacBaseScale);
       } else {
         vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       }
@@ -2761,8 +2762,8 @@ function animate(ts) {
       vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
-      // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 for stronger suction-break strain
-      const _ltLurch = lt < 0.18 ? -0.15 * Math.sin((lt / 0.18) * Math.PI) : 0;
+      // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 for stronger suction-break strain
+      const _ltLurch = lt < 0.18 ? -0.24 * Math.sin((lt / 0.18) * Math.PI) : 0;
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt) + _ltLurch;
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 more dramatic dip
       if (lt < 0.22) {
@@ -2848,14 +2849,14 @@ function animate(ts) {
       const st = phaseT(PH.armSwing);
       suctionPivot.rotation.z = THREE.MathUtils.lerp(0.80, 1.57, st);
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
-      // Pass 676: Z-depth arc 14→17 — Pass 764: →23 — Pass 1176: →32 for even more dramatic 3D depth sweep
-      suctionPivot.position.z = Math.sin(st * Math.PI) * 32;
+      // Pass 676: Z-depth arc 14→17 — Pass 764: →23 — Pass 1176: →32 — Pass 1244: →44 for even more dramatic 3D depth sweep
+      suctionPivot.position.z = Math.sin(st * Math.PI) * 44;
       // Pass 234: arm pivot Y sag — pivot slightly droops under card weight at swing midpoint
       // Pass 282: end-of-swing Y bounce — brief upward over-correction as arm decelerates at deposit
-      // Pass 677: deposit bounce 0.55→0.85 — Pass 765: →1.25 — Pass 1177: →1.80 for stronger spring at belt handoff
-      // Pass 770: pivot Y sag 2.2→3.2 — Pass 1178: →4.5 for more weight feel during swing
-      const _swingEndBounce = st > 0.88 ? 1.80 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0;
-      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 4.5 + _swingEndBounce;
+      // Pass 677: deposit bounce 0.55→0.85 — Pass 765: →1.25 — Pass 1177: →1.80 — Pass 1245: →2.60 for stronger spring at belt handoff
+      // Pass 770: pivot Y sag 2.2→3.2 — Pass 1178: →4.5 — Pass 1246: →6.2 for more weight feel during swing
+      const _swingEndBounce = st > 0.88 ? 2.60 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0;
+      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 6.2 + _swingEndBounce;
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 4);
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
@@ -2877,12 +2878,12 @@ function animate(ts) {
         // holds their domain color for the first 40% of life before bleaching.
         tp._birthHex = ct.hex;
         // Pass 482: Z-apex trail opacity boost — brightest at arc midpoint (closest to viewer)
-        // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: →0.85+0.62 — Pass 1060: →0.95+0.80
+        // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: →0.85+0.62 — Pass 1060: →0.95+0.80 — Pass 1247: apex →1.15 for brighter arc midpoint
         const _swT482 = phaseRaw(PH.armSwing);
-        tp.mat.opacity = Math.min(1, 0.95 + 0.80 * Math.sin(_swT482 * Math.PI));
+        tp.mat.opacity = Math.min(1, 0.95 + 1.15 * Math.sin(_swT482 * Math.PI));
         tp.age = 0;
-        // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 for longer arc trail
-        tp.life = 0.68 + Math.random() * 0.30;
+        // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 for longer arc trail
+        tp.life = 0.88 + Math.random() * 0.42;
         tp.active = true;
         tp.mesh.visible = true;
       }
