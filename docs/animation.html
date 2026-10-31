@@ -3276,8 +3276,8 @@ function animate(ts) {
       // Pass 148 + 171: dots cascade to domain color one by one starting at ft=0.85 reveal
       // Each dot switches ft=0.85 + di*0.014 — wave of domain color spreading across grid
       // Brief brightness spike at reveal moment
-      // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 — Pass 849: →1.90 for bigger dot cascade flash
-      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 1.90 : 0;
+      // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 — Pass 849: →1.90 — Pass 1316: →2.60 for bigger dot cascade flash
+      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 2.60 : 0;
       SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
         const stagger = di * 0.06; // 60ms stagger per dot (0..0.48s)
         const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
@@ -3290,10 +3290,10 @@ function animate(ts) {
           // Pass 211: scan grid dots float — pre-reveal dots oscillate in Y at 3Hz with
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
-          // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 — Pass 1240: →1.40 for even more dramatic dot hover
-          const _dotFloat = _identityRevealed ? 0 : 1.40 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
-          // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 for sharper lock-on recoil
-          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 1.90 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
+          // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 — Pass 1240: →1.40 — Pass 1317: →1.90 for even more dramatic dot hover
+          const _dotFloat = _identityRevealed ? 0 : 1.90 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
+          // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 — Pass 1318: →2.60 for sharper lock-on recoil
+          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 2.60 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
           // Pass 366: post-reveal dots Z drift toward destination slot (20% of slotZ over 0.12s)
           const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.20 : 0;
           mesh.position.set(
@@ -3307,9 +3307,9 @@ function animate(ts) {
           // Pass 577: dot beam-proximity brightening 0.60→0.95 for more vivid sweep highlight
           const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 11);
           mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 0.95));
-          // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× harder pop
+          // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× — Pass 1319: →3.2× harder pop
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
-            ? 1.0 + 1.50 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0;
+            ? 1.0 + 2.20 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0;
           mesh.scale.setScalar(_dotRevealScale);
         } else {
           mesh.visible = false;
@@ -3318,14 +3318,14 @@ function animate(ts) {
       });
     }
     // Pass 55: scan progress LED bar — fills left-to-right as ft 0→1
-    // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 for bigger scanner power-on test
-    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 5.5 : 0;
+    // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 — Pass 1320: →8.0 for bigger scanner power-on test
+    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 8.0 : 0;
     {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
-      // Pass 247: reveal overshoot — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 — Pass 733: →0.68
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.68 : 0; // Pass 733: 0.48→0.68
+      // Pass 247: reveal overshoot — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 — Pass 733: →0.68 — Pass 1321: →0.95 for more dramatic reveal overshoot
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.95 : 0; // Pass 1321: 0.68→0.95
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
@@ -3342,11 +3342,11 @@ function animate(ts) {
       scanBarCursorMat.opacity = _identityRevealed
         ? 0.72 + 0.30 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // slow domain breath (bigger swing)
         : 0.78 + 0.22 * Math.abs(Math.sin(ts * 18 * Math.PI * 2)); // rapid pre-reveal flicker (higher amplitude)
-      // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 — Pass 853: →2.5 for bigger swell
+      // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 — Pass 853: →2.5 — Pass 1322: →3.5 for bigger swell
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
       const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.18 * Math.sin(ts * 3 * Math.PI * 2) : 1.0;
       const _cursorScale290 = _identityRevealed && ft < 0.91
-        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 2.5 // Pass 853: 1.6→2.5
+        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 3.5 // Pass 1322: 2.5→3.5
         : _cursorPreScale300;
       scanBarCursor.scale.setScalar(_cursorScale290);
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
@@ -3395,8 +3395,8 @@ function animate(ts) {
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 4.8;
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
-        // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 for prominent lock-on jolt
-        _cameraShake = Math.max(_cameraShake, 8.0);
+        // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 — Pass 1323: →12.0 for prominent lock-on jolt
+        _cameraShake = Math.max(_cameraShake, 12.0);
         // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° — Pass 538: →5.5° — Pass 812: →8.5° — Pass 1133: →13.0 for bigger snap
         _fovBump = Math.max(_fovBump, 13.0);
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm.
