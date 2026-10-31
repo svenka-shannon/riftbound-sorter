@@ -3706,14 +3706,14 @@ function animate(ts) {
     // Pass 46: scanner-exit "identity confirmed" flash — fires once at phase start
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
-      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0 — Pass 1139: →32.0 — Pass 1219: →45.0
-      const _cofl = new THREE.PointLight(ct.hex, 45.0, 160);
+      // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0 — Pass 1139: →32.0 — Pass 1219: →45.0 — Pass 1292: →62.0
+      const _cofl = new THREE.PointLight(ct.hex, 62.0, 160);
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
-      // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 — Pass 1140: →14.0 — Pass 1220: →20.0 hotter blaze
-      activeCardMat.emissiveIntensity = 20.0;
+      // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 — Pass 1140: →14.0 — Pass 1220: →20.0 — Pass 1293: →28.0 hotter blaze
+      activeCardMat.emissiveIntensity = 28.0;
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
       lensMat.emissiveIntensity = 9.0;
       lensMat.emissive.setHex(ct.hex);
@@ -3726,9 +3726,9 @@ function animate(ts) {
     // Pass 60: gate column LEDs light up as card exits scanner (preview destination)
     // Pass 455: urgency pulse frequency ramp — target column beats faster as card approaches.
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
-    // Pass 779: base 0.30→0.18, amp 0.70→0.88 for even deeper LED throb
+    // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
     const _ledUrgencyHz = 8 + ot * 22; // 8→30Hz
-    const _ledUrgencyPulse = 0.18 + 0.88 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 779: deeper throb
+    const _ledUrgencyPulse = 0.18 + 1.10 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 1294: deeper throb
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 — Pass 1221: →10.0 for brighter gate approach signal
@@ -3738,10 +3738,10 @@ function animate(ts) {
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
     });
     // Pass 141: gate column tracking light — colored pool on tray at active LED column
-    // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 for stronger domain pool
+    // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (16.0 * ot - gateColLight.intensity) * Math.min(1, dt * 7);
+    gateColLight.intensity += (22.0 * ot - gateColLight.intensity) * Math.min(1, dt * 7);
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -3770,8 +3770,8 @@ function animate(ts) {
     {
       const _oFadeIn  = Math.min(1, ot / 0.05);
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
-      // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 — Pass 969: →3.2 for more lateral belt weave on exit
-      const _oWobbleZ = 3.2 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut;
+      // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 — Pass 969: →3.2 — Pass 1299: →4.2 for more lateral belt weave on exit
+      const _oWobbleZ = 4.2 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut;
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
       // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview
       const _z268drift = ct.slotZ * 0.50 * easeInOut(Math.min(1, ot / 0.85));
@@ -3794,12 +3794,12 @@ function animate(ts) {
     // Pass 72: smooth charge-up ramp as card approaches (ot 0→1 = charge 0.18→3.8)
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
-    // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 for stronger pre-gate glow
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 26.0, easeInOut(ot));
+    // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 for stronger pre-gate glow
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 36.0, easeInOut(ot));
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
-    // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 for more chaotic electromagnetic charging
+    // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
-      ? (1.80 * Math.sin(ts * 6 * Math.PI * 2) + 0.65 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30)
+      ? (2.50 * Math.sin(ts * 6 * Math.PI * 2) + 0.90 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30)
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
@@ -3818,8 +3818,8 @@ function animate(ts) {
           Math.sin(_coronaAng * 0.7) * _coronaR * 0.3
         );
         tp.mat.color.setHex(ct.hex);
-        // Pass 489: corona opacity 0.15+0.12→0.22+0.18 — Pass 713: →0.30+0.24 — Pass 951: →0.42+0.32 — Pass 1226: →0.58+0.44
-        tp.mat.opacity = 0.58 + Math.random() * 0.44;
+        // Pass 489: corona opacity 0.15+0.12→0.22+0.18 — Pass 713: →0.30+0.24 — Pass 951: →0.42+0.32 — Pass 1226: →0.58+0.44 — Pass 1298: →0.75+0.55 for denser charge aura
+        tp.mat.opacity = 0.75 + Math.random() * 0.55;
         // Pass 952: corona particle life 0.22+0.18→0.30+0.24 for longer-lived charge aura
         tp.age = 0; tp.life = 0.30 + Math.random() * 0.24;
         tp.active = true; tp.mesh.visible = true;
