@@ -3199,17 +3199,17 @@ function animate(ts) {
     const _irisScale = 0.75 + flashIntensity * 1.30;
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.07 ? easeOut(ft / 0.07) : 1.0;
-    // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 — Pass 1237: →2.20 for even bigger iris pop at reveal
-    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 2.20 : 0;
+    // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 — Pass 1237: →2.20 — Pass 1288: →3.00 for even bigger iris pop at reveal
+    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 3.00 : 0;
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
-    // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 bigger lens pop
-    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 10.0 : 0;
+    // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 bigger lens pop
+    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 14.0 : 0;
     // Pass 793: lens flash base 3.5→4.8 for brighter scanner lens during scan
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 4.8 + _lensReveal370;
     // Wide bloom soft halo around scanner
-    // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 — Pass 1082: →16.0 for bigger bloom burst at lock-on
-    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 16.0 : 0;
+    // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 — Pass 1082: →16.0 — Pass 1285: →22.0 for bigger bloom burst at lock-on
+    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 22.0 : 0;
     scanBloom.color.setHex(_identityRevealed ? ct.hex : 0x0088ff);
     // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 — Pass 1238: →2.8 for stronger soft scan halo
     scanBloom.intensity = flashIntensity * 2.8 + _bloomRevealSurge;
@@ -3249,15 +3249,15 @@ function animate(ts) {
     const _beamZ = scanLine.position.z;
     const _cardCenterZ = activeCard.position.z;
     const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
-    // Pass 343: scan beam reveal spike — Pass 575: 4.0→6.5 — Pass 845: →9.5 for stronger beam pop at lock-on
-    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 9.5 : 0;
+    // Pass 343: scan beam reveal spike — Pass 575: 4.0→6.5 — Pass 845: →9.5 — Pass 1286: →13.5 for stronger beam pop at lock-on
+    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 13.5 : 0;
     // Pass 599: beam base 3.0→4.5 — Pass 844: →6.5 + prox boost 3.5→5.5 for brighter scan lines
     scanLineMat.emissiveIntensity = 6.5 + _beamProxZ * 5.5 + _beamRevealSpike343;
     // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5
     const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 8.5 : 0;
     scanLineMat2.emissiveIntensity = 5.0 + _beam2Reveal345;
-    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 for even more dramatic beam pivot
-    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 12.5;
+    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 — Pass 1290: →17.0 for even more dramatic beam pivot
+    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 17.0;
     scanLineMat.emissiveIntensity += _revFlare;
     // Pass 611: beam reversal point light — at ft≈0.5 scan midpoint, brief white point light fires
     // at the scanner to mark the beam direction flip moment with a physical light burst.
@@ -3583,8 +3583,8 @@ function animate(ts) {
     // Pass 115: beam urgency strobe — frequency and amplitude build from 65%→85% scan progress
     const _prevT = barFill < 0.65 ? 0 : barFill > 0.85 ? 0 : (barFill - 0.65) / 0.20;
     const _strobeFreq = 5 + _prevT * 28; // Pass 442: ramps 5→23Hz — Pass 1170: →33Hz for more frenetic pre-reveal urgency
-    // Pass 573: strobe amplitude 0.10→0.16 — Pass 620: →0.22 — Pass 1155: →0.35 for stronger urgency strobe pre-reveal
-    const _strobeAmp  = _prevT * 0.35;  // Pass 1155: 0.22→0.35
+    // Pass 573: strobe amplitude 0.10→0.16 — Pass 620: →0.22 — Pass 1155: →0.35 — Pass 1291: →0.50 for stronger urgency strobe pre-reveal
+    const _strobeAmp  = _prevT * 0.50;  // Pass 1291: 0.35→0.50
     const _strobe = Math.sin(ts * _strobeFreq * Math.PI * 2) * _strobeAmp;
     // Pass 189: cone + beam switch from scan-blue to domain color at identity reveal
     {
@@ -3593,8 +3593,8 @@ function animate(ts) {
       scanConeMat.color.setHex(_coneHex);
       scanBeamMat.color.setHex(_beamHex2);
     }
-    // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20
-    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 1.20 : 0;
+    // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 for bigger cone reveal flare
+    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 1.65 : 0;
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
     scanCone.position.z = 18 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5);
     scanBeam.position.z = scanCone.position.z;
@@ -3607,8 +3607,8 @@ function animate(ts) {
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
     // Pass 549: beam reveal boost 0.55→0.80 — Pass 1161: →1.20 for more vivid beam flare at lock-on
     const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 1.20 : 0;
-    // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 — Pass 1162: →1.10 for stronger scan column
-    scanBeamMat.opacity = flashIntensity * 1.10 + _strobe + _beamFillBoost + _beamRevealBoost389;
+    // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 — Pass 1162: →1.10 — Pass 1289: →1.45 for stronger scan column
+    scanBeamMat.opacity = flashIntensity * 1.45 + _strobe + _beamFillBoost + _beamRevealBoost389;
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
