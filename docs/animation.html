@@ -4952,11 +4952,11 @@ function animate(ts) {
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
       const _altFrac = Math.min(1, _altitude / 90); // Pass 2195: floor disc altitude 67→90
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
-      const _fdScale = 1.0 + _altFrac * 6.39; // Pass 2196: floor disc expansion 4.73→6.39
+      const _fdScale = 1.0 + _altFrac * 8.63; // Pass 2477: floor disc expansion 6.39→8.63
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
       const _fdPulse514 = (1 - _altFrac) * 0.057 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
-      const _fdOpacity = THREE.MathUtils.lerp(0.82, 0.055, _altFrac) + _fdPulse514; // Pass 2197: disc ground opacity 0.61→0.82
+      const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.055, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00
       floorDisc.scale.setScalar(_fdScale);
       floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.15;
     } else {
@@ -4972,11 +4972,11 @@ function animate(ts) {
       (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))) {
     const _glintDist = Math.abs(beltShimmerMesh.position.x - activeCard.position.x);
     // Pass 479: glint 0.22→0.32 — Pass 704: →0.45 — Pass 1023: →0.65 — Pass 1403: →0.88 stronger stripe-under-card flash
-    const _glint = Math.max(0, 1 - _glintDist / 18) * 1.61; // Pass 2198: belt glint flash 1.19→1.61
+    const _glint = Math.max(0, 1 - _glintDist / 18) * 2.17; // Pass 2479: belt glint flash 1.61→2.17
     if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
     // Pass 163: shimmer pressure lift — Pass 1023: lift 5.5→8.0 — Pass 1403: →11.0 higher card float under stripe
     if (_glint > 0.005 && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)))
-      activeCard.position.y += _glint * 20.0; // Pass 2199: shimmer lift 14.85→20.0
+      activeCard.position.y += _glint * 27.0; // Pass 2480: shimmer lift 20.0→27.0
   }
 
   // ── Hopper top card domain preview ──────────────────────────────────────────
@@ -4992,14 +4992,14 @@ function animate(ts) {
       if (pickPhase) {
         topCard.material.emissive.setHex(ct.hex);
         const glowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) : 1.0;
-        topCard.material.emissiveIntensity = glowT * 2.01; // Pass 2200: pick-phase top card glow 1.49→2.01
+        topCard.material.emissiveIntensity = glowT * 2.71; // Pass 2481: pick-phase top card glow 2.01→2.71
       } else if (previewPhase) {
         // Dim preview: next card's domain glows subtly on the top hopper card
         // Pass 480: next-card preview slow pulse — 0.6Hz breathing for "anticipate" feel
         const nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
         topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 1.5));
         const _prevT = inPhase(PH.pause) ? phaseRaw(PH.pause) : phaseRaw(PH.armReturn);
-        const _prevPulse = 0.63 + 0.32 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 2201: preview pulse base 0.47→0.63 Pass 2202: amp 0.24→0.32
+        const _prevPulse = 0.85 + 0.43 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 2482: preview pulse base 0.63→0.85 Pass 2483: amp 0.32→0.43
         topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 2);
       } else {
         topCard.material.emissiveIntensity *= 0.85; // decay when not in pick phase
@@ -5014,7 +5014,7 @@ function animate(ts) {
     const _speedFactor = Math.min(1, _beltScrollSpeed / 0.08); // 0 idle → 1 at full speed
     // Pass 376: ghost opacity boost — more visible trail effect
     // Pass 661: ghost opacity 0.42/0.22/0.10 → 0.52/0.28/0.14 — Pass 820: →0.68/0.40/0.22 — Pass 1028: →0.85/0.55/0.32
-    const ghostOpacities = [1.00 * _speedFactor, 0.68 * _speedFactor, 0.41 * _speedFactor]; // Pass 2204: ghost opacity 0.85/0.55/0.32→1.00/0.68/0.41
+    const ghostOpacities = [1.00 * _speedFactor, 0.92 * _speedFactor, 0.55 * _speedFactor]; // Pass 2484: ghost opacity mid/tail 0.68/0.41→0.92/0.55
     ghostCards.forEach(({ mesh, mat }, gi) => {
       if (beltTrail && activeCard.visible) {
         // Pass 377: lag spacing 9→12 — Pass 660: →15 — Pass 822: →19 — Pass 1031: →24 for wider motion-blur spread
