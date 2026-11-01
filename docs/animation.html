@@ -2914,16 +2914,16 @@ function animate(ts) {
     let _liftHoverX = 0;
     if (inPhase(PH.armSwing)) {
       const _sw = phaseT(PH.armSwing);
-      // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050
-      _swingWobble = (Math.sin(_sw * 19) * 0.155 + Math.sin(_sw * 29 + 0.6) * 0.050) * Math.exp(-_sw * 3.2);
-      // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt
-      _swingDragX = 0.22 * Math.sin(_sw * Math.PI);
+      // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050 — Pass 1572: →0.210+0.050 bigger card oscillation — Pass 1573: decay 3.2→2.4 longer wobble tail
+      _swingWobble = (Math.sin(_sw * 19) * 0.210 + Math.sin(_sw * 29 + 0.6) * 0.050) * Math.exp(-_sw * 2.4);
+      // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt — Pass 1574: →0.30
+      _swingDragX = 0.30 * Math.sin(_sw * Math.PI);
     } else if (inPhase(PH.armLift)) {
       const _lt3 = phaseRaw(PH.armLift);
-      // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter
+      // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter — Pass 1575: →0.20 primary, 0.032→0.044 secondary
       if (_lt3 < 0.30) {
         const _env605 = Math.exp(-_lt3 * 6);
-        _liftHoverX = (0.15 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.032 * Math.sin(_lt3 / 0.30 * Math.PI * 3.8 + 0.9)) * _env605;
+        _liftHoverX = (0.20 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.044 * Math.sin(_lt3 / 0.30 * Math.PI * 3.8 + 0.9)) * _env605;
       }
     }
     activeCard.rotation.set(_swingDragX + _liftHoverX, 0, armRot - Math.PI / 2 + _swingWobble);
@@ -2932,9 +2932,10 @@ function animate(ts) {
     // peaks at the swing midpoint (0.65), simulating domain energy pulsing as card travels.
     // armDescend uses 0 so the card doesn't glow before the suction picks it up.
     let _armCardEmissive = 0;
-    if (inPhase(PH.armLift)) _armCardEmissive = 0.22 + 0.08 * phaseRaw(PH.armLift);
-    // Pass 381: armSwing emissive peak boost 0.35 → 0.50 — Pass 466: →0.65 — Pass 1064: →0.92 — Pass 1355: →1.25 brighter arc glow
-    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 1.25 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
+    // Pass 1576: armLift emissive base 0.22→0.30, ramp 0.08→0.11
+    if (inPhase(PH.armLift)) _armCardEmissive = 0.30 + 0.11 * phaseRaw(PH.armLift);
+    // Pass 381: armSwing emissive peak boost 0.35 → 0.50 — Pass 466: →0.65 — Pass 1064: →0.92 — Pass 1355: →1.25 brighter arc glow — Pass 1577: →1.70
+    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 1.70 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
     activeCardMat.emissiveIntensity = _armCardEmissive;
     // Pass 467: arm-swing arc-peak domain flash — at arm's fastest midpoint, spawn a brief domain
     // point light at card position, syncing with the emissive peak (pass 466).
@@ -4016,7 +4017,7 @@ function animate(ts) {
     paddleMat.emissiveIntensity = Math.max(0.3, paddleMat.emissiveIntensity * 0.92); // dim slowly
     // Pass 109: apply paddle recoil offset and spring it back to base target angle
     if (Math.abs(_paddleRecoil) > 0.001) {
-      _paddleRecoil *= Math.max(0, 1 - dt * 9);
+      _paddleRecoil *= Math.max(0, 1 - dt * 6.5); // Pass 1578: recoil decay 9→6.5 slower spring-back, more kick felt
       paddlePivot.rotation.y += _paddleRecoil; // accuracy: Y-axis recoil
     }
     // Accuracy: hold floor diverter at target floor position throughout deflect
@@ -4027,7 +4028,7 @@ function animate(ts) {
     }
     // Pass 216: solenoid Z-vibration decay — paddle vibrates laterally at ~42Hz, fading ~0.2s
     if (_paddleJitterAmt > 0.005) {
-      _paddleJitterAmt *= Math.max(0, 1 - dt * 14);
+      _paddleJitterAmt *= Math.max(0, 1 - dt * 10); // Pass 1579: jitter decay 14→10 longer solenoid buzz
       paddlePivot.position.z = _paddleJitterAmt * Math.sin(ts * 42 * Math.PI * 2);
     } else {
       paddlePivot.position.z += (0 - paddlePivot.position.z) * Math.min(1, dt * 10);
