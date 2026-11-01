@@ -2881,7 +2881,8 @@ function animate(ts) {
         // Pass 482: Z-apex trail opacity boost — brightest at arc midpoint (closest to viewer)
         // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: →0.85+0.62 — Pass 1060: →0.95+0.80 — Pass 1247: apex →1.15 for brighter arc midpoint
         const _swT482 = phaseRaw(PH.armSwing);
-        tp.mat.opacity = Math.min(1, 0.95 + 1.15 * Math.sin(_swT482 * Math.PI));
+        // Pass 482: trail opacity peak — Pass 1352: 0.95+1.15→0.95+1.55
+        tp.mat.opacity = Math.min(1, 0.95 + 1.55 * Math.sin(_swT482 * Math.PI));
         tp.age = 0;
         // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 for longer arc trail
         tp.life = 0.88 + Math.random() * 0.42;
@@ -2932,17 +2933,17 @@ function animate(ts) {
     // armDescend uses 0 so the card doesn't glow before the suction picks it up.
     let _armCardEmissive = 0;
     if (inPhase(PH.armLift)) _armCardEmissive = 0.22 + 0.08 * phaseRaw(PH.armLift);
-    // Pass 381: armSwing emissive peak boost 0.35 → 0.50 — Pass 466: →0.65 — Pass 1064: →0.92 brighter arc glow
-    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 0.92 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
+    // Pass 381: armSwing emissive peak boost 0.35 → 0.50 — Pass 466: →0.65 — Pass 1064: →0.92 — Pass 1355: →1.25 brighter arc glow
+    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.30 + 1.25 * Math.sin(phaseRaw(PH.armSwing) * Math.PI);
     activeCardMat.emissiveIntensity = _armCardEmissive;
     // Pass 467: arm-swing arc-peak domain flash — at arm's fastest midpoint, spawn a brief domain
     // point light at card position, syncing with the emissive peak (pass 466).
-    // Pass 536: armSwing arc-peak flash 5.5→8.0, dist 85→105 — Pass 1062: →13.0, dist→140 stronger apex pop
+    // Pass 536: armSwing arc-peak flash 5.5→8.0, dist 85→105 — Pass 1062: →13.0, dist→140 — Pass 1348: →18.0, dist→190 stronger apex pop
     if (inPhase(PH.armSwing)) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 13.0, 140);
+        const _spfl = new THREE.PointLight(ct.hex, 18.0, 190);
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
@@ -2950,10 +2951,10 @@ function animate(ts) {
       }
     }
     // Pass 299: armSwing Z-apex glow boost — cardGlow peaks as arm swings closest to viewer at Z apex
-    // Pass 1063: apex boost 1.20→1.65 for brighter cardGlow at swing closest-point
+    // Pass 1063: apex boost 1.20→1.65 — Pass 1349: →2.20 for brighter cardGlow at swing closest-point
     if (inPhase(PH.armSwing)) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
-      cardGlow.intensity = _armCardEmissive * (1.85 + _swZ299 * 1.65);
+      cardGlow.intensity = _armCardEmissive * (1.85 + _swZ299 * 2.20);
     } else {
       cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 1.85 : 0;
     }
@@ -3934,10 +3935,10 @@ function animate(ts) {
     const dt2 = phaseT(PH.deflect);
     // Pass 454: arc-peak domain flash — at arc midpoint (dt2≈0.46) spawn a brief domain
     // point light at card position; the card is at its highest, most visible trajectory point.
-    // Pass 526: 6.5→9.0 — Pass 636: →12.5 — Pass 784: →18.0 — Pass 918: →26.0 — Pass 1184: →36.0 for bigger arc apex pop
+    // Pass 526: 6.5→9.0 — Pass 636: →12.5 — Pass 784: →18.0 — Pass 918: →26.0 — Pass 1184: →36.0 — Pass 1353: →68.0 for bigger arc apex pop
     if (!_arcPeakFlashFired && dt2 >= 0.46) {
       _arcPeakFlashFired = true;
-      const _apfl = new THREE.PointLight(ct.hex, 50.0, 150); // Pass 1184: 26.0→36.0 — Pass 1243: →50.0 for bigger arc-apex domain burst
+      const _apfl = new THREE.PointLight(ct.hex, 68.0, 175); // Pass 1184: 26.0→36.0 — Pass 1243: →50.0 — Pass 1353: →68.0 for bigger arc-apex domain burst
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4481,11 +4482,11 @@ function animate(ts) {
         }
       }
     }
-    // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154) — Pass 860: 10→15 for more 3D sweep
+    // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154) — Pass 860: 10→15 — Pass 1350: →22 for more 3D sweep
     // Arm dips toward viewer at midpoint of return sweep for 3-D parabolic path
-    // Pass 288: final Z ring oscillation — Pass 861: 0.50→0.80 — Pass 1271: →1.10 for bigger settling ring
-    const _artZRing = art > 0.88 ? 1.10 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0;
-    suctionPivot.position.z = Math.sin(art * Math.PI) * 15 + _artZRing;
+    // Pass 288: final Z ring oscillation — Pass 861: 0.50→0.80 — Pass 1271: →1.10 — Pass 1351: →1.55 for bigger settling ring
+    const _artZRing = art > 0.88 ? 1.55 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0;
+    suctionPivot.position.z = Math.sin(art * Math.PI) * 22 + _artZRing;
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 4.5); // accuracy: Y-axis
     // Return floor diverter to flat (lower floor default) during arm return
@@ -4826,8 +4827,8 @@ function animate(ts) {
     // Orbit radius tightens slightly during scan for closer scanner view
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
-    // Pass 996: scan orbit 600→530 for tighter close-up during identity scan, armSwing 680→620
-    const orbitRBase = inPhase(PH.scan) ? 530 : inPhase(PH.armSwing) ? 620 : inPhase(PH.deflect) ? 700 : 750;
+    // Pass 996: scan orbit 600→530 for tighter close-up during identity scan, armSwing 680→620 — Pass 1354: scan→470, armSwing→560
+    const orbitRBase = inPhase(PH.scan) ? 470 : inPhase(PH.armSwing) ? 560 : inPhase(PH.deflect) ? 700 : 750;
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.02; // smooth zoom
     const orbitR = controls._orbitR;
