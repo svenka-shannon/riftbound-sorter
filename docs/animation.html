@@ -5338,16 +5338,16 @@ function animate(ts) {
     const baseFog   = new THREE.Color(0x0a0a0f);
     // Context: scan and deflect get a stronger tint boost
     // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 — Pass 1385: scan →0.26, deflect →0.16 — Pass 1474: scan →0.36, Pass 1475: deflect →0.22 — Pass 1639: scan →0.48, Pass 1640: deflect →0.30
-    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.88 : 0; // Pass 2237: scan fog boost 0.65→0.88
-    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.55 : 0; // Pass 2238: deflect fog boost 0.41→0.55
+    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 1.19 : 0; // Pass 2445: scan fog boost 0.88→1.19
+    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.74 : 0; // Pass 2446: deflect fog boost 0.55→0.74
     // Pass 474: reject alarm fog — when slot-7 card is in slotDrop alarm state, background deepens
     // toward red-orange for a brief warning atmosphere — Pass 1642: 0.14→0.22 stronger alarm fog
     const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
       ? Math.max(0, 0.22 - phaseRaw(PH.slotDrop) * 0.30) : 0;
     const _rejectFogRGB = new THREE.Color(0xff3300);
-    const _tintStr = 0.165 + _scanBoost + _deflectBoost; // Pass 2239: base fog tint 0.122→0.165
+    const _tintStr = 0.223 + _scanBoost + _deflectBoost; // Pass 2447: base fog tint 0.165→0.223
     const targetTint = baseFog.clone().lerp(domainRGB, _tintStr).lerp(_rejectFogRGB, _rejectFogBoost);
-    _fogTint.lerp(targetTint, Math.min(1, dt * 2.19)); // Pass 2240: fog tracking 1.62→2.19
+    _fogTint.lerp(targetTint, Math.min(1, dt * 2.96)); // Pass 2448: fog tracking 2.19→2.96
     scene.fog.color.copy(_fogTint);
     scene.background.copy(_fogTint);
   }
@@ -5363,13 +5363,13 @@ function animate(ts) {
     // Pass 460: edge reveal white flash — at identity lock-on the outline briefly blooms white
     // before settling to domain color. Uses _confirmRingT [0..1] as a proxy timing signal.
     // Pass 628: edge reveal flash window 0.18→0.24 — Pass 1391: →0.34 for longer white bloom at identity lock-on
-    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 0.62) ? (1.0 - _confirmRingT / 0.62) : 0; // Pass 2241: edge reveal window 0.46→0.62
+    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 0.84) ? (1.0 - _confirmRingT / 0.84) : 0; // Pass 2449: edge reveal window 0.62→0.84
     if (_edgeRvl > 0.05) activeCardEdgeMat.color.lerp(new THREE.Color(0xffffff), _edgeRvl);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     // Pass 477: deflect arc edge boost — outline more visible as card arcs through air (0.45→0.65)
     // Pass 512: armSwing edge boost 0.45→0.58 — Pass 629: scan/conveyor edge 0.85→0.95; deflect 0.65→0.78 — Pass 1392: scan 0.95→1.0, deflect 0.78→0.90, swing 0.58→0.72
-    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 1.65 : inPhase(PH.armSwing) ? 1.31 : 0.82; // Pass 2242: deflect 1.22→1.65 Pass 2243: swing 0.97→1.31 Pass 2244: rest 0.61→0.82
+    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 2.23 : inPhase(PH.armSwing) ? 1.77 : 1.11; // Pass 2450: deflect 1.65→2.23 Pass 2451: swing 1.31→1.77 Pass 2452: rest 0.82→1.11
     activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
