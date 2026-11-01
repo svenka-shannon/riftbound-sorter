@@ -2447,8 +2447,8 @@ function animate(ts) {
       f.age += dt;
       const _fPeak = f.peak || 3.0; // use stored creation intensity; fallback 3.0
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 2.20));
-      if(f.age > 2.20) { scene.remove(f.light); return false; }
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 2.97)); // Pass 2509: flash decay duration 2.20→2.97s
+      if(f.age > 2.97) { scene.remove(f.light); return false; }
       return true;
     });
   }
@@ -2467,7 +2467,7 @@ function animate(ts) {
     bar.scale.y = Math.max(0.01, Math.min(1.18, bar.scale.y + bar._springVel));
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
-    const _fbRest = 0.80 + 0.38 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7));
+    const _fbRest = 1.08 + 0.51 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51
     if(bar.material.emissiveIntensity > _fbRest + 0.06) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
@@ -2494,7 +2494,7 @@ function animate(ts) {
       const _warnPulse = 0.6 + 0.4 * Math.sin(ts * 0.8 * Math.PI * 2);
       mat.color.setHex(0xffaa00);
       mat.emissive.setHex(0xffaa00);
-      mat.emissiveIntensity = 2.4 + _warnPulse * 2.0; // Pass 1646: 1.8+1.5→2.4+2.0 brighter capacity warning
+      mat.emissiveIntensity = 3.24 + _warnPulse * 2.70; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
       // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
@@ -5258,13 +5258,13 @@ function animate(ts) {
     tp.age += dt;
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
-    tp.mesh.position.y += dt * (7.3 + _tt * 10.9); // Pass 2053: trail buoyancy base 5.4→7.3 Pass 2054: ramp 8.1→10.9
+    tp.mesh.position.y += dt * (9.9 + _tt * 14.7); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7
     tp.mat.opacity = (1 - _tt) * 0.88; // Pass 1944: contrail particle opacity lifetime 0.65→0.88
-    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 1.01)); // Pass 2055: trail scale taper 0.75→1.01
+    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 1.36)); // Pass 2512: trail scale taper 1.01→1.36
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
     // then bleach normally — so the arc trail stays vivid near the arm and fades away.
-    if (tp._birthHex && _tt < 0.54) { // Pass 2056: domain color hold 0.40→0.54
+    if (tp._birthHex && _tt < 0.73) { // Pass 2513: domain color hold 0.54→0.73
       tp.mat.color.setHex(tp._birthHex); // hold domain color fresh near the arm
     } else {
       tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 1.8);
