@@ -1756,8 +1756,8 @@ function addCardToTray(ct) {
   arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 0.85; });
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 3.2;
-  // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s for longer afterglow
-  _ledCooloff[ct.slot] = 2.8;
+  // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow
+  _ledCooloff[ct.slot] = 3.8;
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
   const flashLight = new THREE.PointLight(ct.hex, 5.0, 120);
@@ -2463,11 +2463,11 @@ function animate(ts) {
     // Pass 146: spring overshoot — bar bounces slightly when a new card arrives
     if (!bar._springVel) bar._springVel = 0;
     const _springDiff = targetScaleY - bar.scale.y;
-    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.10; // k=0.10, damping=0.80
+    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.14; // Pass 1645: k=0.10→0.14 snappier spring
     bar.scale.y = Math.max(0.01, Math.min(1.18, bar.scale.y + bar._springVel));
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
-    // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28
-    const _fbRest = 0.58 + 0.28 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7));
+    // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
+    const _fbRest = 0.80 + 0.38 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7));
     if(bar.material.emissiveIntensity > _fbRest + 0.06) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
@@ -2494,28 +2494,28 @@ function animate(ts) {
       const _warnPulse = 0.6 + 0.4 * Math.sin(ts * 0.8 * Math.PI * 2);
       mat.color.setHex(0xffaa00);
       mat.emissive.setHex(0xffaa00);
-      mat.emissiveIntensity = 1.8 + _warnPulse * 1.5;
+      mat.emissiveIntensity = 2.4 + _warnPulse * 2.0; // Pass 1646: 1.8+1.5→2.4+2.0 brighter capacity warning
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
       // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
       const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 18;
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 for bigger LED swing
-      const pulse = 0.4 + 1.6 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.5));
-      // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 for brighter active slot LED
-      mat.emissiveIntensity = 5.0 + pulse;
+      // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
+      const pulse = 0.5 + 2.2 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.5));
+      // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 — Pass 1647: →7.0 brighter active slot LED
+      mat.emissiveIntensity = 7.0 + pulse;
     } else if (_ledCooloff[_li] > 0) {
-      // Pass 52: afterglow — Pass 835: 1.8→2.8s — Pass 829: peak intensity 0.9+2.4 → 1.2+3.8
-      const afterT = _ledCooloff[_li] / 2.8; // 1.0→0.0 as cooloff expires
+      // Pass 52: afterglow — Pass 835: 1.8→2.8s — Pass 829: peak intensity 0.9+2.4 → 1.2+3.8 — Pass 1649: →1.5+5.0
+      const afterT = _ledCooloff[_li] / 3.8; // Pass 1650: updated to match new cooloff duration
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity = 1.2 + afterT * 3.8; // Pass 829: peaks at 5.0 right after arrival
+      mat.emissiveIntensity = 1.5 + afterT * 5.0; // Pass 1649: peaks at 6.5 right after arrival
     } else {
-      // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 for brighter resting LEDs
+      // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 — Pass 1651: →1.9 brighter resting LEDs
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity += (1.4 - mat.emissiveIntensity) * 0.12;
+      mat.emissiveIntensity += (1.9 - mat.emissiveIntensity) * 0.12;
     }
   });
 
