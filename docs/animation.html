@@ -3802,7 +3802,7 @@ function animate(ts) {
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
     // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 — Pass 1557: primary →4.80, secondary →1.70 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
-      ? (4.80 * Math.sin(ts * 6 * Math.PI * 2) + 1.70 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30)
+      ? (6.48 * Math.sin(ts * 6 * Math.PI * 2) + 2.30 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 1876: gate flicker primary 4.80→6.48, Pass 1877: secondary 1.70→2.30
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
@@ -3824,7 +3824,7 @@ function animate(ts) {
         // Pass 489: corona opacity 0.15+0.12→0.22+0.18 — Pass 713: →0.30+0.24 — Pass 951: →0.42+0.32 — Pass 1226: →0.58+0.44 — Pass 1298: →0.75+0.55 — Pass 1562: opacity capped at 1.0
         tp.mat.opacity = Math.min(1.0, 0.75 + Math.random() * 0.55);
         // Pass 952: corona particle life 0.22+0.18→0.30+0.24 — Pass 1563: →0.42+0.32 for longer-lived charge aura
-        tp.age = 0; tp.life = 0.42 + Math.random() * 0.32;
+        tp.age = 0; tp.life = 0.57 + Math.random() * 0.43; // Pass 1878: gate corona particle life 0.42+0.32→0.57+0.43
         tp.active = true; tp.mesh.visible = true;
       }
     }
@@ -3841,12 +3841,12 @@ function animate(ts) {
     scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
     // Pass 129: brief acceleration surge emissive at exit start — Pass 953: 0.5→0.9 — Pass 972: →1.4 brighter launch surge
-    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 1.4 : 0;
+    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 1.89 : 0; // Pass 1879: exit surge 1.4→1.89
     activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
     // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 — Pass 1372: →*3.8 for bigger gate approach glow
-    const _coGlowSurge = ot > 0.80 ? 3.5 + (ot - 0.80) / 0.20 * 3.8 : 3.5;
+    const _coGlowSurge = ot > 0.80 ? 4.73 + (ot - 0.80) / 0.20 * 5.13 : 4.73; // Pass 1880: gate approach glow base 3.5→4.73, Pass 1881: surge 3.8→5.13
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
@@ -3869,9 +3869,9 @@ function animate(ts) {
       );
       tp.mat.color.setHex(ct.hex);
       // Pass 475: final-approach trail opacity boost — Pass 824/825: early 0.28+0.12→0.42+0.18, final 0.42+0.20→0.60+0.30 — Pass 1496: early →0.56+0.24, final →0.80+0.40
-      tp.mat.opacity = ot > 0.65 ? 0.80 + Math.random() * 0.40 : 0.56 + Math.random() * 0.24;
+      tp.mat.opacity = ot > 0.65 ? Math.min(1, 0.80 + Math.random() * 0.40) : 0.76 + Math.random() * 0.32; // Pass 1882: contrail early opacity 0.56+0.24→0.76+0.32
       // Pass 826: trail life 0.22+0.10→0.30+0.14 — Pass 1497: →0.40+0.18 for longer exhaust contrail
-      tp.age = 0; tp.life = 0.40 + Math.random() * 0.18;
+      tp.age = 0; tp.life = 0.54 + Math.random() * 0.24; // Pass 1883: contrail trail life 0.40+0.18→0.54+0.24
       tp.active = true; tp.mesh.visible = true;
     }
   }
