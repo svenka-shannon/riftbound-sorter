@@ -3417,9 +3417,9 @@ function animate(ts) {
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 18) * Math.PI * 2 + Math.random() * 0.8;
-            const _spd = 145 + Math.random() * 130; // Pass 1325: 110+100→145+130
+            const _spd = 190 + Math.random() * 175; // Pass 1325: 110+100→145+130 — Pass 1468: →190+175 faster reveal burst
             _bp.vx = Math.cos(_ang) * _spd * 0.55;
-            _bp.vy = 95 + Math.random() * 120; // Pass 1326: 70+90→95+120 stronger upward component
+            _bp.vy = 125 + Math.random() * 155; // Pass 1326: 70+90→95+120 — Pass 1469: →125+155 higher reveal burst
             _bp.vz = Math.sin(_ang) * _spd * 0.55;
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
@@ -3919,9 +3919,9 @@ function animate(ts) {
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 120 + Math.random() * 140; // Pass 921: 95+110 → 120+140 for faster sparks
+          const _spd = 160 + Math.random() * 185; // Pass 921: 95+110 → 120+140 — Pass 1470: →160+185 faster gate sparks
           _sp.vx = Math.cos(_ang) * _spd * 0.7;
-          _sp.vy = 85 + Math.random() * 90;  // Pass 920: 65+70→85+90 higher flying sparks
+          _sp.vy = 110 + Math.random() * 120;  // Pass 920: 65+70→85+90 — Pass 1471: →110+120 higher flying sparks
           _sp.vz = Math.sin(_ang) * _spd * 0.5 + Math.sign(ct.slotZ || 1) * 15;
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
@@ -5325,7 +5325,7 @@ function animate(ts) {
     p.mesh.rotation.y += p.ry * dt;
     p.mesh.rotation.z += p.rz * dt;
     p.rx *= 1 - dt * 0.8; p.ry *= 1 - dt * 0.8; p.rz *= 1 - dt * 0.8;
-    p.mat.opacity = (1 - _ct2 * _ct2) * 0.88;
+    p.mat.opacity = (1 - _ct2 * _ct2) * 1.0; // Pass 1472: peak opacity 0.88→1.0
   });
 
   // ── Domain atmosphere: subtle fog/background color tint ────────────────────
@@ -5335,15 +5335,15 @@ function animate(ts) {
     const domainRGB = new THREE.Color(ct.hex);
     const baseFog   = new THREE.Color(0x0a0a0f);
     // Context: scan and deflect get a stronger tint boost
-    // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 — Pass 1385: scan →0.26, deflect →0.16 for more immersive domain atmosphere
-    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.26 : 0;
-    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.16 : 0;
+    // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 — Pass 1385: scan →0.26, deflect →0.16 — Pass 1474: scan →0.36, Pass 1475: deflect →0.22
+    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.36 : 0;
+    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.22 : 0;
     // Pass 474: reject alarm fog — when slot-7 card is in slotDrop alarm state, background deepens
     // toward red-orange for a brief warning atmosphere (0.12 → 0 over 0.6s after alarm fires).
     const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
       ? Math.max(0, 0.14 - phaseRaw(PH.slotDrop) * 0.22) : 0;
     const _rejectFogRGB = new THREE.Color(0xff3300);
-    const _tintStr = 0.045 + _scanBoost + _deflectBoost;
+    const _tintStr = 0.065 + _scanBoost + _deflectBoost; // Pass 1473: base fog tint 0.045→0.065
     const targetTint = baseFog.clone().lerp(domainRGB, _tintStr).lerp(_rejectFogRGB, _rejectFogBoost);
     _fogTint.lerp(targetTint, Math.min(1, dt * 0.85));
     scene.fog.color.copy(_fogTint);
