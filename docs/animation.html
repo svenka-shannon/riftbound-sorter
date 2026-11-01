@@ -4330,9 +4330,9 @@ function animate(ts) {
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
       // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 — Pass 1267: →22.0 — Pass 1371: →32.0 — Pass 1553: →45.0 for stronger floor-1 arrival
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 82.0; // Pass 1791: upper floor strip flash 45.0→60.75 — Pass 1917: →82.0
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 110.7; // Pass 2133: upper floor strip flash 82.0→110.7
       // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 — Pass 986: →11.0 — Pass 1107: →18.0 — Pass 1371: →26.0 — Pass 1554: →36.0 vivid arrival
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 65.6; // Pass 1792: upper floor fill bar spark 36.0→48.6 — Pass 1918: →65.6
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 88.6; // Pass 2134: upper floor fill bar spark 65.6→88.6
       // Pass 224: upper floor arrival glow particles — 3 gentle domain-tinted motes that
       // drift upward softly (upper floor is a guided arrival, no hard impact scatter).
       {
@@ -4342,7 +4342,7 @@ function animate(ts) {
         for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 8; _mi++) {
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
-          _mp.active = true; _mp.age = 0; _mp.life = 0.68 + Math.random() * 0.34; // Pass 1919: upper floor mote life 0.50+0.25→0.68+0.34
+          _mp.active = true; _mp.age = 0; _mp.life = 0.92 + Math.random() * 0.46; // Pass 2135: upper floor mote life 0.68+0.34→0.92+0.46
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 8,
             ct.slotFloorY + 30 + Math.random() * 6,
@@ -4350,7 +4350,7 @@ function animate(ts) {
           );
           _mp.mesh.visible = true;
           _mp.vx = (Math.random() - 0.5) * 10;
-          _mp.vy = 5 + Math.random() * 10; // gentle upward drift
+          _mp.vy = 6.75 + Math.random() * 13.5; // Pass 2136: upper floor mote vy 5+10→6.75+13.5
           _mp.vz = (Math.random() - 0.5) * 12;
           _mp.mat.color.setRGB(
             Math.min(1, _rr3 / 255 * 0.50 + 0.50),
@@ -4372,7 +4372,7 @@ function animate(ts) {
         _ral.classList.add('reject-alarm-on');
       }
       // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90 — Pass 1397: amber →20.0/200, red →10.0/120
-      [[0xff6600, 20.0, 200], [0xff1a00, 10.0, 120]].forEach(([c, i, d], fi) => {
+      [[0xff6600, 27.0, 200], [0xff1a00, 13.5, 120]].forEach(([c, i, d], fi) => { // Pass 2137: amber 20.0→27.0 Pass 2138: red 10.0→13.5
         const _wl = new THREE.PointLight(c, i, d);
         _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 8 : -8));
         scene.add(_wl);
@@ -4380,10 +4380,10 @@ function animate(ts) {
         window._flashLights.push({ light: _wl, age: 0, peak: _wl.intensity });
       });
       // Extra camera shake for "rejected" — Pass 452: 2.2→3.5 — Pass 651: →5.5 — Pass 1044: →9.5 — Pass 1398: →14.0 bigger alarm jolt
-      _cameraShake = Math.max(_cameraShake, 18.9); // Pass 1920: reject alarm shake 14.0→18.9
+      _cameraShake = Math.max(_cameraShake, 25.5); // Pass 2139: reject alarm shake 18.9→25.5
       // Pass 65: reject spark fountain — upward burst of red/orange trail particles
       // Pass 651: reject spark count 14→20 — Pass 1046: →30 — Pass 1399: →42 for bigger alarm fountain
-      for (let _ri = 0; _ri < 42; _ri++) {
+      for (let _ri = 0; _ri < 57; _ri++) { // Pass 2140: reject spark count 42→57
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         tp.mesh.position.set(
