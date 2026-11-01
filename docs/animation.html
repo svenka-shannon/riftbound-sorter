@@ -2982,8 +2982,8 @@ function animate(ts) {
     // Pass 39: belt deposit flash — domain burst when card first touches the belt
     if (!_depositFired) {
       _depositFired = true;
-      // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 — Pass 1300: →34.0 for bigger card-on-belt impact
-      const _dfl = new THREE.PointLight(ct.hex, 34.0, 110);
+      // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 — Pass 1300: →34.0 — Pass 1379: →46.0 for bigger card-on-belt impact
+      const _dfl = new THREE.PointLight(ct.hex, 46.0, 130);
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3135,8 +3135,8 @@ function animate(ts) {
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
     // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
-    // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 for bigger scan flash and lock-on pop
-    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 17.0 : 0;
+    // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 — Pass 1373: →23.0 for bigger scan flash and lock-on pop
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 23.0 : 0;
     scanFlash.intensity = flashIntensity * 15 + _flashRevealSpike350;
     // Pass 351: scanFlash Z drift toward destination after reveal
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.25 : 0;
@@ -3205,13 +3205,13 @@ function animate(ts) {
     const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 3.00 : 0;
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
-    // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 bigger lens pop
-    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 14.0 : 0;
+    // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 — Pass 1374: →19.0 bigger lens pop
+    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 19.0 : 0;
     // Pass 793: lens flash base 3.5→4.8 for brighter scanner lens during scan
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 4.8 + _lensReveal370;
     // Wide bloom soft halo around scanner
-    // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 — Pass 1082: →16.0 — Pass 1285: →22.0 for bigger bloom burst at lock-on
-    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 22.0 : 0;
+    // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 — Pass 1082: →16.0 — Pass 1285: →22.0 — Pass 1375: →30.0 for bigger bloom burst at lock-on
+    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 30.0 : 0;
     scanBloom.color.setHex(_identityRevealed ? ct.hex : 0x0088ff);
     // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 — Pass 1238: →2.8 for stronger soft scan halo
     scanBloom.intensity = flashIntensity * 2.8 + _bloomRevealSurge;
@@ -3258,8 +3258,8 @@ function animate(ts) {
     // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5
     const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 8.5 : 0;
     scanLineMat2.emissiveIntensity = 5.0 + _beam2Reveal345;
-    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 — Pass 1290: →17.0 for even more dramatic beam pivot
-    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 17.0;
+    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 — Pass 1290: →17.0 — Pass 1376: →24.0 for even more dramatic beam pivot
+    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 24.0;
     scanLineMat.emissiveIntensity += _revFlare;
     // Pass 611: beam reversal point light — at ft≈0.5 scan midpoint, brief white point light fires
     // at the scanner to mark the beam direction flip moment with a physical light burst.
@@ -3595,8 +3595,8 @@ function animate(ts) {
       scanConeMat.color.setHex(_coneHex);
       scanBeamMat.color.setHex(_beamHex2);
     }
-    // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 for bigger cone reveal flare
-    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 1.65 : 0;
+    // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
+    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 2.20 : 0;
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
     scanCone.position.z = 18 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5);
     scanBeam.position.z = scanCone.position.z;
@@ -3609,8 +3609,8 @@ function animate(ts) {
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
     // Pass 549: beam reveal boost 0.55→0.80 — Pass 1161: →1.20 for more vivid beam flare at lock-on
     const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 1.20 : 0;
-    // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 — Pass 1162: →1.10 — Pass 1289: →1.45 for stronger scan column
-    scanBeamMat.opacity = flashIntensity * 1.45 + _strobe + _beamFillBoost + _beamRevealBoost389;
+    // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 — Pass 1162: →1.10 — Pass 1289: →1.45 — Pass 1378: →1.90 for stronger scan column
+    scanBeamMat.opacity = flashIntensity * 1.90 + _strobe + _beamFillBoost + _beamRevealBoost389;
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
@@ -3844,8 +3844,8 @@ function animate(ts) {
     activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
-    // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 for bigger gate approach glow
-    const _coGlowSurge = ot > 0.80 ? 3.5 + (ot - 0.80) / 0.20 * 2.8 : 3.5;
+    // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 — Pass 1372: →*3.8 for bigger gate approach glow
+    const _coGlowSurge = ot > 0.80 ? 3.5 + (ot - 0.80) / 0.20 * 3.8 : 3.5;
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
