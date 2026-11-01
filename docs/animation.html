@@ -2446,9 +2446,9 @@ function animate(ts) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
       const _fPeak = f.peak || 3.0; // use stored creation intensity; fallback 3.0
-      // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s for longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 1.65));
-      if(f.age > 1.65) { scene.remove(f.light); return false; }
+      // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 2.20));
+      if(f.age > 2.20) { scene.remove(f.light); return false; }
       return true;
     });
   }
@@ -5320,13 +5320,13 @@ function animate(ts) {
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
     p.vy -= (p.grav || 28) * dt; // Pass 481: randomized gravity per particle (18-35)
-    p.vx *= 1 - dt * 1.2;
-    p.vz *= 1 - dt * 1.2;
+    p.vx *= 1 - dt * 0.9; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter)
+    p.vz *= 1 - dt * 0.9;
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
     p.mesh.rotation.x += p.rx * dt;
     p.mesh.rotation.y += p.ry * dt;
     p.mesh.rotation.z += p.rz * dt;
-    p.rx *= 1 - dt * 0.8; p.ry *= 1 - dt * 0.8; p.rz *= 1 - dt * 0.8;
+    p.rx *= 1 - dt * 0.6; p.ry *= 1 - dt * 0.6; p.rz *= 1 - dt * 0.6; // Pass 1637: angular drag 0.8→0.6 (longer spin)
     p.mat.opacity = (1 - _ct2 * _ct2) * 1.0; // Pass 1472: peak opacity 0.88→1.0
   });
 
@@ -5337,17 +5337,17 @@ function animate(ts) {
     const domainRGB = new THREE.Color(ct.hex);
     const baseFog   = new THREE.Color(0x0a0a0f);
     // Context: scan and deflect get a stronger tint boost
-    // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 — Pass 1385: scan →0.26, deflect →0.16 — Pass 1474: scan →0.36, Pass 1475: deflect →0.22
-    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.36 : 0;
-    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.22 : 0;
+    // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 — Pass 1385: scan →0.26, deflect →0.16 — Pass 1474: scan →0.36, Pass 1475: deflect →0.22 — Pass 1639: scan →0.48, Pass 1640: deflect →0.30
+    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.48 : 0;
+    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.30 : 0;
     // Pass 474: reject alarm fog — when slot-7 card is in slotDrop alarm state, background deepens
-    // toward red-orange for a brief warning atmosphere (0.12 → 0 over 0.6s after alarm fires).
+    // toward red-orange for a brief warning atmosphere — Pass 1642: 0.14→0.22 stronger alarm fog
     const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
-      ? Math.max(0, 0.14 - phaseRaw(PH.slotDrop) * 0.22) : 0;
+      ? Math.max(0, 0.22 - phaseRaw(PH.slotDrop) * 0.30) : 0;
     const _rejectFogRGB = new THREE.Color(0xff3300);
-    const _tintStr = 0.065 + _scanBoost + _deflectBoost; // Pass 1473: base fog tint 0.045→0.065
+    const _tintStr = 0.090 + _scanBoost + _deflectBoost; // Pass 1473: base fog tint 0.045→0.065 — Pass 1638: →0.090
     const targetTint = baseFog.clone().lerp(domainRGB, _tintStr).lerp(_rejectFogRGB, _rejectFogBoost);
-    _fogTint.lerp(targetTint, Math.min(1, dt * 0.85));
+    _fogTint.lerp(targetTint, Math.min(1, dt * 1.20)); // Pass 1641: fog tracking 0.85→1.20 snappier domain response
     scene.fog.color.copy(_fogTint);
     scene.background.copy(_fogTint);
   }
