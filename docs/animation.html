@@ -3547,7 +3547,7 @@ function animate(ts) {
         });
         // Pass 321: target gate LED scale pop at reveal — Pass 402: balloon boost 0.85 → 1.30
         // Pass 546: LED scale pop balloon 1.30→1.70 for bigger LED bloat at reveal
-        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 1.70 : 1.0;
+        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 2.30 : 1.0; // Pass 1729: gate LED scale pop 1.70→2.30
         GATE_COL_LEDS.forEach(({ mesh: gMesh }, gi) => {
           gMesh.scale.setScalar(gi === ct.col ? _ledRevealScale : 1.0);
         });
@@ -3558,7 +3558,7 @@ function animate(ts) {
     scanTargetLight.color.setHex(ct.hex);
     // Pass 348: target light reveal spike — Pass 547: spike 4.5→6.5, base 3.2→4.2
     // Pass 913: spike 6.5→10.0 — Pass 1425: →14.0 for bigger destination spotlight flash at lock-on
-    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 14.0 : 0;
+    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 18.9 : 0; // Pass 1730: target spotlight spike 14.0→18.9
     // Pass 912: base 4.2→6.0 — Pass 1425: →8.5 for stronger destination spotlight during scan
     scanTargetLight.intensity = _identityRevealed ? flashIntensity * 8.5 + _tgtRevealSpike348 : 0;
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
@@ -3646,7 +3646,7 @@ function animate(ts) {
       // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 — Pass 855: →1.40 — Pass 1438: →2.00 for bolder arc flash at lock-on
       const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 2.70 : 0; // Pass 1722: arc reveal spike 2.00→2.70
       // Pass 644: post-reveal arc opacity 0.35→0.50 — Pass 856: →0.80 — Pass 1075: →1.10 — Pass 1439: →1.55 for more solid confirmed-route arc
-      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 1.55 : 0)) + _arcStrobeMod + _arcRevealSpike;
+      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 2.09 : 0)) + _arcStrobeMod + _arcRevealSpike; // Pass 1731: arc post-reveal opacity 1.55→2.09
       // Target sphere pulses at destination
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
@@ -3654,10 +3654,10 @@ function animate(ts) {
       // Pass 339: target emissive reveal spike — Pass 564: boost 2.5→4.0 — Pass 857: →6.5 — Pass 1440: →9.0 — Pass 1536: →13.0 for bigger sphere flare at lock-on
       const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 17.5 : 0; // Pass 1723: target reveal spike 13.0→17.5
       // Pass 858: post-reveal emissive add 1.2→2.0 — Pass 1441: →3.0 — Pass 1537: base 2.0→2.8, boost 3.0→4.2 for more vivid destination glow
-      routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 4.2 : 0)) + _tgtRevealSpike339;
+      routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 5.67 : 0)) + _tgtRevealSpike339; // Pass 1728: post-reveal emissive boost 4.2→5.67
       routeTargetMat.opacity = flashIntensity * 1.0; // Pass 1538: 0.9→1.0
       // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 — Pass 858: →1.20 — Pass 1068: →1.55 — Pass 1442: →2.10 — Pass 1539: →2.80 for bigger destination sphere pulse
-      const _tgtScale304 = 1.0 + flashIntensity * 2.80 * Math.sin(ts * 4 * Math.PI * 2);
+      const _tgtScale304 = 1.0 + flashIntensity * 3.78 * Math.sin(ts * 4 * Math.PI * 2); // Pass 1724: sphere scale pulse 2.80→3.78
       routeTarget.scale.setScalar(Math.max(0.1, _tgtScale304));
     }
     // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
@@ -3674,16 +3674,16 @@ function animate(ts) {
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
       // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 — Pass 1069: →3.4 — Pass 1447: →4.8 for wider flash
-      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 4.8 : 1.0;
+      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 6.5 : 1.0; // Pass 1725: shimmer bloom 4.8→6.5
       cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
       cardShimmerMat.color.copy(_shimColor);
       // Opacity: standard bell + extra brightness after reveal — Pass 403: 0.18→0.28 — Pass 816: →0.42 — Pass 1448: →0.60
-      const _shimBoost = _identityRevealed ? 0.60 : 0;
+      const _shimBoost = _identityRevealed ? 0.81 : 0; // Pass 1726: shimmer post-reveal boost 0.60→0.81
       // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75 — Pass 815: →1.0 — Pass 1070: →1.40 — Pass 1449: →1.90 for brighter shimmer at reveal
-      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 1.90 : 0;
+      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 2.56 : 0; // Pass 1727: shimmer reveal spike 1.90→2.56
       // Pass 626: base bell 0.52→0.62 — Pass 816: →0.75 — Pass 1450: →1.0 for brighter shimmer throughout scan
       cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (1.0 + _shimBoost) + _shimRevealSpike349;
     }
