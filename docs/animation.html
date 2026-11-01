@@ -2678,8 +2678,8 @@ function animate(ts) {
         if (!_contactFlashFired) {
           _contactFlashFired = true;
           const _cfRot = suctionPivot.rotation.z;
-          // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5 — Pass 884: →13.0 — Pass 1129: →20.0 — Pass 1215: →30.0 — Pass 1312: →42.0 for bigger pick moment
-          const _cfL = new THREE.PointLight(0xffffff, 42.0, 110);
+          // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5 — Pass 884: →13.0 — Pass 1129: →20.0 — Pass 1215: →30.0 — Pass 1312: →42.0 — Pass 1668: →58.0, dist→150
+          const _cfL = new THREE.PointLight(0xffffff, 58.0, 150);
           _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
@@ -2687,19 +2687,19 @@ function animate(ts) {
           // Pass 203: cup contact dust puff — tiny displaced air burst upward from card surface.
           // 4 particles shoot upward and sideways, simulating air compressed under the cup.
           {
-            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 — Pass 1313: →20 for more explosive burst
+            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 — Pass 1313: →20 — Pass 1670: →28 for more explosive burst
           let _cpSpawned = 0;
-            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 20; _ci++) {
+            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 28; _ci++) {
               const _cp = GRAB_PARTICLES[_ci];
               if (_cp.active) continue;
-              _cp.active = true; _cp.age = 0; _cp.life = 0.30 + Math.random() * 0.15; // Pass 1130: 0.20+0.10→0.30+0.15 longer-lived pick dust
+              _cp.active = true; _cp.age = 0; _cp.life = 0.42 + Math.random() * 0.20; // Pass 1130: 0.20+0.10→0.30+0.15 — Pass 1671: →0.42+0.20 longer pick dust
               const _cpX = PIV_X + 83 * Math.sin(_cfRot);
               const _cpY = PIV_Y - 83 * Math.cos(_cfRot);
               _cp.mesh.position.set(_cpX + (Math.random()-0.5)*10, _cpY - 4, (Math.random()-0.5)*8);
               _cp.mesh.visible = true;
-              _cp.vx = (Math.random() - 0.5) * 70; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 wider pick burst
-              _cp.vy = 42 + Math.random() * 58;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 higher-flying pick dust
-              _cp.vz = (Math.random() - 0.5) * 20;
+              _cp.vx = (Math.random() - 0.5) * 95; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 — Pass 1672: →95 wider pick burst
+              _cp.vy = 56 + Math.random() * 76;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 — Pass 1673: →56+76 higher pick dust
+              _cp.vz = (Math.random() - 0.5) * 28; // Pass 1674: 20→28
               _cp.mat.color.setRGB(0.85, 0.88, 0.92); // cool pale grey (displaced air)
               _cpSpawned++;
             }
@@ -2794,8 +2794,8 @@ function animate(ts) {
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
-        // Pass 524: grab pulse light intensity 6.0→7.5 — Pass 625: →10.0 — Pass 877: →14.0 — Pass 1174: →20.0 for bolder suction pop
-        const grabLight = new THREE.PointLight(ct.hex, 20.0, 110); // Pass 1174: 14.0→20.0
+        // Pass 524: grab pulse light intensity 6.0→7.5 — Pass 625: →10.0 — Pass 877: →14.0 — Pass 1174: →20.0 — Pass 1669: →28.0, dist→150
+        const grabLight = new THREE.PointLight(ct.hex, 28.0, 150);
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -4798,7 +4798,7 @@ function animate(ts) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
                      inPhase(PH.armLift)    ? 1.0 : 0.5;
     suctionCupMat.emissive.setHex(ct.hex);
-    suctionCupMat.emissiveIntensity = cupGlowT * 2.5; // Pass 991: peak 1.2→1.8 — Pass 1459: →2.5 stronger cup glow
+    suctionCupMat.emissiveIntensity = cupGlowT * 3.4; // Pass 991: peak 1.2→1.8 — Pass 1459: →2.5 — Pass 1675: →3.4 stronger cup glow
   } else if (inPhase(PH.armReturn)) {
     // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
     // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
