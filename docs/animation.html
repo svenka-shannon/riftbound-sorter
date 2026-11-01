@@ -5124,16 +5124,16 @@ function animate(ts) {
   {
     const pickOn = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing);
     const _depthRatio = (stackTopIdx + 1) / Math.max(1, stackCards.length);
-    const _hBase = 0.3 + _depthRatio * 0.47; // Pass 2220: hopper base full-stack 0.35→0.47
+    const _hBase = 0.3 + _depthRatio * 0.63; // Pass 2465: hopper base full-stack 0.47→0.63
     if (pickOn) {
       hopperLight.color.setHex(ct.hex);
       // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 — Pass 1444: →4.50 brighter during arm cycle
-      const _hTarget = _hBase + 8.21; // Pass 2216: hopper pick intensity 6.08→8.21
+      const _hTarget = _hBase + 11.1; // Pass 2461: hopper pick intensity 8.21→11.1
       hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 4);
       // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 — Pass 1445: →58 light follows arm deeper
-      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 105 : 0; // Pass 2217: descent Y-track 78→105
+      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 142 : 0; // Pass 2462: descent Y-track 105→142
       // Pass 360: X-drift during armSwing — Pass 1043: drift 55→80 — Pass 1446: →110 light tracks wider card arc
-      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 201 : 0; // Pass 2218: swing X-drift 149→201
+      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 271 : 0; // Pass 2463: swing X-drift 201→271
       hopperLight.position.set(HOPPER_X + 33 + _hXDrift360, 200 - _hYTrack359, 0);
     } else if (inPhase(PH.pause)) {
       // Pass 233: hopper LED domain pre-charge — in the final 40% of pause, hopper light
@@ -5144,7 +5144,7 @@ function animate(ts) {
         const _preT = (_pauseRaw - 0.60) / 0.40; // 0→1 in last 40% of pause
         // Pass 635: pre-charge tint blend 0.32→0.52 — Pass 1041: →0.75 + intensity delta 0.55→0.90 stronger herald
         hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 0.75);
-        hopperLight.intensity += (_hBase + _preT * 1.65 - hopperLight.intensity) * Math.min(1, dt * 2.5); // Pass 2219: pre-charge delta 1.22→1.65
+        hopperLight.intensity += (_hBase + _preT * 2.23 - hopperLight.intensity) * Math.min(1, dt * 2.5); // Pass 2464: pre-charge delta 1.65→2.23
       } else {
         hopperLight.color.set(0xffeedd);
         hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
@@ -5168,7 +5168,7 @@ function animate(ts) {
       // Pass 158: domain-colored pulse during active pick — LED "reacts" to arm
       // Pass 618: LED pick pulse amplitude 0.8→1.4, base 2.5→3.2 — Pass 1040: base 3.2→5.0, amp 1.4→2.2
       _ledColor = ct.hex;
-      _ledGlow = 9.11 + 4.01 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2221: pick pulse base 6.75→9.11 Pass 2222: amp 2.97→4.01
+      _ledGlow = 12.3 + 5.41 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2466: pick pulse base 9.11→12.3 Pass 2467: amp 4.01→5.41
     } else if (_visibleCards >= 5) {
       _ledColor = 0x00ff44; _ledGlow = 2.0; // green: full
     } else if (_visibleCards >= 3) {
@@ -5197,7 +5197,7 @@ function animate(ts) {
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
       // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5 — Pass 1443: out →13.5, in →6.0
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 33.2 : 14.7; // Pass 2223: revealed-out 24.6→33.2 Pass 2224: in 10.9→14.7
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 44.8 : 19.8; // Pass 2468: revealed-out 33.2→44.8 Pass 2468b: in 14.7→19.8
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
     } else {
       // Fade card-tracking mode out
