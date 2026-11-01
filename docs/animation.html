@@ -4183,8 +4183,8 @@ function animate(ts) {
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 37.8, dt3 / 0.35)
-                                             : THREE.MathUtils.lerp(27.0, 0, (dt3 - 0.35) / 0.65); // Pass 1778: sweep peak 28.0→37.8, Pass 1779: sweep tail 20.0→27.0
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 51.0, dt3 / 0.35)
+                                             : THREE.MathUtils.lerp(36.5, 0, (dt3 - 0.35) / 0.65); // Pass 1778: sweep peak 28.0→37.8 — Pass 1908: →51.0; Pass 1779: sweep tail 20.0→27.0 — Pass 1908: →36.5
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
@@ -4192,9 +4192,9 @@ function animate(ts) {
     // Pass 470: target LED hold-then-snap — holds at 3.5 for first 22%, then snaps to 0.15 quickly
     // Pass 530: sympathetic flash amplitude 0.55→0.75; target LED spike 1.8→2.6 for stronger confirm flash
     // Pass 963: sympathetic flash 0.75→1.20, target spike 2.6→4.0 — Pass 1390: sympath →1.70, target →5.5
-    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 2.30 : 0; // Pass 1780: sympathetic flash 1.70→2.30
+    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 3.11 : 0; // Pass 1780: sympathetic flash 1.70→2.30 — Pass 1909: →3.11
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 7.42 : _sympFlash278; // Pass 1781: target LED spike 5.5→7.42
+      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 10.0 : _sympFlash278; // Pass 1781: target LED spike 5.5→7.42 — Pass 1910: →10.0
       const _ledDrop = dt3 < 0.22 ? 3.5 : THREE.MathUtils.lerp(3.5, 0.15, (dt3 - 0.22) / 0.78); // Pass 470
       const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.15 + _sympFlash278;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
@@ -4205,7 +4205,7 @@ function animate(ts) {
     if (!_slotGateFlashFired && dt3 >= 0.06) {
       _slotGateFlashFired = true;
       // Pass 537: slot gate flash 8.0→11.0 — Pass 960: →17.0 — Pass 1119: →26.0 — Pass 1260: →36.0 for brighter tray entry burst
-      const _gfl = new THREE.PointLight(ct.hex, 48.6, 120); // Pass 1782: slot gate flash 36.0→48.6
+      const _gfl = new THREE.PointLight(ct.hex, 65.6, 120); // Pass 1782: slot gate flash 36.0→48.6 — Pass 1911: →65.6
       _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4280,11 +4280,11 @@ function animate(ts) {
       impactRing.scale.setScalar(1.0);
       impactRing.visible = true;
       // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 — Pass 1263: →18.0 — Pass 1366: →26.0 — Pass 1542: →36.0 for bigger floor thud
-      _cameraShake = Math.max(_cameraShake, 48.6); // Pass 1788: floor landing shake 36.0→48.6
+      _cameraShake = Math.max(_cameraShake, 65.6); // Pass 1788: floor landing shake 36.0→48.6 — Pass 1912: →65.6
       // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 — Pass 1367: →50.0 — Pass 1543: →68.0 vivid landing pop
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 91.8; // Pass 1789: strip flash at landing 68.0→91.8
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 124.0; // Pass 1789: strip flash at landing 68.0→91.8 — Pass 1913: →124.0
       // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 — Pass 1368: →56.0 — Pass 1544: →75.0 vivid count
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 101.0; // Pass 1790: fill bar landing spark 75.0→101
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 136.4; // Pass 1790: fill bar landing spark 75.0→101 — Pass 1914: →136.4
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
@@ -4303,7 +4303,7 @@ function animate(ts) {
           );
           _lp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 256 + Math.random() * 290; // Pass 1795: impact dust speed 190+215→256+290
+          const _spd = 346 + Math.random() * 392; // Pass 1795: impact dust speed 190+215→256+290 — Pass 1915: →346+392
           _lp.vx = Math.cos(_ang) * _spd * 0.45;
           _lp.vy = 14 + Math.random() * 32; // Pass 984: 6+16→10+24 — Pass 1481: →14+32 more dust loft
           _lp.vz = Math.sin(_ang) * _spd;
