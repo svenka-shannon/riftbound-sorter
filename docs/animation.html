@@ -2654,8 +2654,8 @@ function animate(ts) {
         // Pass 276: rangefinder lock-on flicker — 22Hz strobe in final 12% as arm locks on
         // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 more nervous hunting
         const _lockFlicker = pt > 0.88 ? (0.48 + 0.52 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0;
-        // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 — Pass 1310: →7.5 for brighter pre-pick spotlight
-        scanTargetLight.intensity = _pickTgtT * 7.5 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
+        // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 — Pass 1310: →7.5 — Pass 1426: →10.5 for brighter pre-pick spotlight
+        scanTargetLight.intensity = _pickTgtT * 10.5 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
       }
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       // Pass 462: early cup pre-glow — from pt=0.50 the cup begins a faint domain warmup
@@ -2672,8 +2672,8 @@ function animate(ts) {
         // Pass 181: cup pre-warms with domain color in approach window
         const _cupApproach = _sq;
         suctionCupMat.emissive.setHex(ct.hex);
-        // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 — Pass 1214: →3.6 — Pass 1311: →5.2 for more vivid suction warmup
-        suctionCupMat.emissiveIntensity += (5.2 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10);
+        // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 — Pass 1214: →3.6 — Pass 1311: →5.2 — Pass 1427: →7.0 for more vivid suction warmup
+        suctionCupMat.emissiveIntensity += (7.0 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10);
         // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
         if (!_contactFlashFired) {
           _contactFlashFired = true;
@@ -3194,11 +3194,11 @@ function animate(ts) {
     // Damps out near identity reveal (post 85%) as the machine "locks on".
     {
       const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.10) : 1.0;
-      // Pass 1152: hood sway primary 1.20→1.65, secondary 0.42→0.60 for more resonant scanner oscillation
-      scannerHood.position.z = (1.65 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.60 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp;
+      // Pass 1152: hood sway primary 1.20→1.65, secondary 0.42→0.60 — Pass 1420: primary →2.20, secondary →0.82 for more resonant scanner oscillation
+      scannerHood.position.z = (2.20 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.82 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp;
     }
-    // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 — Pass 1236: →1.30 for more dramatic iris breathing
-    const _irisScale = 0.75 + flashIntensity * 1.30;
+    // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 — Pass 1236: →1.30 — Pass 1421: →1.75 for more dramatic iris breathing
+    const _irisScale = 0.75 + flashIntensity * 1.75;
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.07 ? easeOut(ft / 0.07) : 1.0;
     // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 — Pass 1237: →2.20 — Pass 1288: →3.00 for even bigger iris pop at reveal
@@ -3251,13 +3251,13 @@ function animate(ts) {
     const _beamZ = scanLine.position.z;
     const _cardCenterZ = activeCard.position.z;
     const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
-    // Pass 343: scan beam reveal spike — Pass 575: 4.0→6.5 — Pass 845: →9.5 — Pass 1286: →13.5 for stronger beam pop at lock-on
-    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 13.5 : 0;
-    // Pass 599: beam base 3.0→4.5 — Pass 844: →6.5 + prox boost 3.5→5.5 for brighter scan lines
-    scanLineMat.emissiveIntensity = 6.5 + _beamProxZ * 5.5 + _beamRevealSpike343;
-    // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5
-    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 8.5 : 0;
-    scanLineMat2.emissiveIntensity = 5.0 + _beam2Reveal345;
+    // Pass 343: scan beam reveal spike — Pass 575: 4.0→6.5 — Pass 845: →9.5 — Pass 1286: →13.5 — Pass 1422: →18.0 for stronger beam pop at lock-on
+    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 18.0 : 0;
+    // Pass 599: beam base 3.0→4.5 — Pass 844: →6.5 + prox boost 3.5→5.5 — Pass 1423: base →9.0, prox →7.5 for brighter scan lines
+    scanLineMat.emissiveIntensity = 9.0 + _beamProxZ * 7.5 + _beamRevealSpike343;
+    // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5 — Pass 1424: base →7.0, reveal →12.0
+    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 12.0 : 0;
+    scanLineMat2.emissiveIntensity = 7.0 + _beam2Reveal345;
     // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 — Pass 1290: →17.0 — Pass 1376: →24.0 for even more dramatic beam pivot
     const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 24.0;
     scanLineMat.emissiveIntensity += _revFlare;
@@ -3556,10 +3556,10 @@ function animate(ts) {
     // Pre-reveal it was spoiling the destination — machine shouldn't "know" yet
     scanTargetLight.color.setHex(ct.hex);
     // Pass 348: target light reveal spike — Pass 547: spike 4.5→6.5, base 3.2→4.2
-    // Pass 913: spike 6.5→10.0 for bigger destination spotlight flash at lock-on
-    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 10.0 : 0;
-    // Pass 912: base 4.2→6.0 for stronger destination spotlight during scan
-    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 6.0 + _tgtRevealSpike348 : 0;
+    // Pass 913: spike 6.5→10.0 — Pass 1425: →14.0 for bigger destination spotlight flash at lock-on
+    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 14.0 : 0;
+    // Pass 912: base 4.2→6.0 — Pass 1425: →8.5 for stronger destination spotlight during scan
+    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 8.5 + _tgtRevealSpike348 : 0;
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
     // Fill bar also only brightens after reveal
     // Pass 550: fill bar post-reveal 0.4+1.2 → 0.6+1.6 — Pass 910: →0.80+2.2 for stronger slot pre-announce
