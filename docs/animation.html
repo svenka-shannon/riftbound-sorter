@@ -4626,16 +4626,16 @@ function animate(ts) {
     // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 — Pass 1083: →0.92 — Pass 1380: →1.25 — Pass 1612: →1.70
     const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 2.30 : 0; // Pass 1988: scan ambient boost 1.70→2.30
     // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy — Pass 1614: →0.38
-    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.38 : 0;
+    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.51 : 0; // Pass 1989: grab ambient boost 0.38→0.51
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response — Pass 1615: ceiling 0.40→0.55, mult 0.05→0.07
-    const _shakeBoost   = _cameraShake > 2 ? Math.min(0.55, _cameraShake * 0.07) : 0;
+    const _shakeBoost   = _cameraShake > 2 ? Math.min(0.74, _cameraShake * 0.095) : 0; // Pass 1990: shake boost ceiling 0.55→0.74 mult 0.07→0.095
     // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 — Pass 1607: →1.05
-    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 1.05 : 0;
+    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 1.42 : 0; // Pass 1991: slotDrop ambient 1.05→1.42
     // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response — Pass 1610: →0.84
-    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.84 : 0;
+    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 1.13 : 0; // Pass 1992: deflect ambient 0.84→1.13
     // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 — Pass 1611: →1.35
-    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 1.35 : 0;
-    const _ambTarget = 0.62 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1613: base 0.45→0.62 richer fill light
+    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 1.82 : 0; // Pass 1993: reveal ambient peak 1.35→1.82
+    const _ambTarget = 0.84 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84
     ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
     // Tint ambient toward domain color during scan or slotDrop
     if (_scanAmbBoost > 0.02 || _dropAmbBoost > 0.02) {
@@ -4651,10 +4651,10 @@ function animate(ts) {
       convBodyMat.emissive.setHex(ct.hex);
       // Pass 263: conveyor body scanner-approach boost — Pass 692: 0.06→0.10 — Pass 934: →0.18 — Pass 1452: →0.26 for brighter approach
       const _bodyApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.80
-        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 0.26 : 0;
+        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 0.35 : 0; // Pass 1995: body approach 0.26→0.35
       // Pass 279: scanner-exit echo — Pass 522: 0.12→0.20 — Pass 933: →0.35 — Pass 1453: →0.50 for stronger departure flash
       const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
-        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 0.50 : 0;
+        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 0.68 : 0; // Pass 1996: body exit echo 0.50→0.68
       // Pass 932: conveyor body base glow 0.08→0.14 — Pass 1454: →0.20, pulse amp 0.08→0.12 for more vivid presence
       const _bodyTarget = 0.20 + 0.12 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho;
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
