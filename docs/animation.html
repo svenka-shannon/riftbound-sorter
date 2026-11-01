@@ -3735,7 +3735,7 @@ function animate(ts) {
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 — Pass 1221: →10.0 for brighter gate approach signal
-      const _target = _isTarget ? (33.2 * ot) * _ledUrgencyPulse : 0.1; // Pass 2357: gate LED target max 24.6→33.2
+      const _target = _isTarget ? (44.8 * ot) * _ledUrgencyPulse : 0.1; // Pass 2357: gate LED target max 24.6→33.2 — Pass 2573: 33.2→44.8
       gm.color.setHex(_isTarget ? ct.hex : 0x224466);
       gm.emissive.setHex(_isTarget ? ct.hex : 0x112233);
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
@@ -3744,7 +3744,7 @@ function animate(ts) {
     // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 — Pass 1369: →30.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (139.5 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2358: gate col tracking light 103.3→139.5
+    gateColLight.intensity += (188.3 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2358: gate col tracking light 103.3→139.5 — Pass 2574: 139.5→188.3
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -3756,7 +3756,7 @@ function animate(ts) {
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     // Pass 312: conveyorOut Z bank amplifier — outer columns lean harder to reinforce routing
     // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit — Pass 1593: →0.88
-    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 1.19; // Pass 2067: outer column bank amp 0.88→1.19
+    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 1.61; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
     // Pass 140: blend lean from 0 (scan end) to belt lean over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
@@ -3766,7 +3766,7 @@ function animate(ts) {
     // Pass 232: belt acceleration pitch kick — belt surges from scan crawl (0.02) to full
     // speed at conveyorOut start, briefly pitching card nose-up by inertia.
     // Pass 640: belt launch pitch kick 0.06→0.10 — Pass 776: 0.10→0.16 — Pass 970: →0.22 for stronger card-lurch at scan exit — Pass 1594: →0.30; Pass 1595: decay 22→16 longer kick
-    const _beltKickPitch = Math.exp(-ot * 16) * 0.74; // Pass 2359: belt launch kick pitch 0.55→0.74
+    const _beltKickPitch = Math.exp(-ot * 16) * 1.00; // Pass 2359: belt launch kick pitch 0.55→0.74 — Pass 2576: 0.74→1.00
     activeCard.rotation.set(_exitLean + _beltKickPitch, 0, zBank); // forward lean + kick + bank
     // Pass 174: continue belt Z-wobble during conveyorOut — fades in over first 5% and out
     // over last 30% so card arrives stable at gate (no Z snap at scan→out or out→deflect)
@@ -3774,10 +3774,10 @@ function animate(ts) {
       const _oFadeIn  = Math.min(1, ot / 0.05);
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
       // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 — Pass 969: →3.2 — Pass 1299: →4.2 for more lateral belt weave on exit — Pass 1596: →5.7
-      const _oWobbleZ = 14.0 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0
+      const _oWobbleZ = 18.9 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
       // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview — Pass 1597: →0.68
-      const _z268drift = ct.slotZ * 1.24 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24
+      const _z268drift = ct.slotZ * 1.67 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67
       activeCard.position.set(
         THREE.MathUtils.lerp(-40, GATE_X, ot),
         CONV_Y_TOP + CARD_T/2 + 2, _oWobbleZ + _z268drift
@@ -3798,11 +3798,11 @@ function animate(ts) {
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
     // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 — Pass 1364: →50.0 — Pass 1556: →68.0 for stronger pre-gate glow
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 167.4, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 226.0, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
     // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 — Pass 1557: primary →4.80, secondary →1.70 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
-      ? (11.8 * Math.sin(ts * 6 * Math.PI * 2) + 4.20 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 2362: flicker primary 8.75→11.8, secondary 3.11→4.20
+      ? (15.9 * Math.sin(ts * 6 * Math.PI * 2) + 5.67 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 2362: flicker primary 8.75→11.8, secondary 3.11→4.20 — Pass 2580: 11.8→15.9, 4.20→5.67
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
