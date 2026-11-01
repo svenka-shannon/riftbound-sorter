@@ -2697,7 +2697,7 @@ function animate(ts) {
               const _cpY = PIV_Y - 83 * Math.cos(_cfRot);
               _cp.mesh.position.set(_cpX + (Math.random()-0.5)*10, _cpY - 4, (Math.random()-0.5)*8);
               _cp.mesh.visible = true;
-              _cp.vx = (Math.random() - 0.5) * 52; // Pass 1130: 28→38 — Pass 1314: →52 wider burst
+              _cp.vx = (Math.random() - 0.5) * 70; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 wider pick burst
               _cp.vy = 42 + Math.random() * 58;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 higher-flying pick dust
               _cp.vz = (Math.random() - 0.5) * 20;
               _cp.mat.color.setRGB(0.85, 0.88, 0.92); // cool pale grey (displaced air)
@@ -2996,13 +2996,13 @@ function animate(ts) {
         for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 12; _di++) {
           const _dp = GRAB_PARTICLES[_di];
           if (_dp.active) continue;
-          _dp.active = true; _dp.age = 0; _dp.life = 0.22 + Math.random() * 0.12;
+          _dp.active = true; _dp.age = 0; _dp.life = 0.30 + Math.random() * 0.16; // Pass 1487: 0.22+0.12→0.30+0.16 longer-lived
           _dp.mesh.position.set(-111 + (Math.random()-0.5)*8, CONV_Y_TOP + 4, (Math.random()-0.5)*7);
           _dp.mesh.visible = true;
           const _side = Math.random() < 0.5 ? 1 : -1;
-          _dp.vx = _side * (22 + Math.random() * 38); // Pass 1096: 18+30→22+38 wider dust burst
-          _dp.vy = 18 + Math.random() * 24; // Pass 1096: 12+18→18+24 higher-flying dust
-          _dp.vz = (Math.random() - 0.5) * 16;
+          _dp.vx = _side * (30 + Math.random() * 50); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 wider dust burst
+          _dp.vy = 25 + Math.random() * 32; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 higher-flying dust
+          _dp.vz = (Math.random() - 0.5) * 22; // Pass 1486: 16→22 wider Z scatter
           // Pale domain-tinted dust: 35% domain + 65% white
           _dp.mat.color.setRGB(
             Math.min(1, _rr / 255 * 0.35 + 0.65),
@@ -4240,16 +4240,16 @@ function animate(ts) {
       for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 10; _pi++) {
         const _pp = GRAB_PARTICLES[_pi];
         if (_pp.active) continue;
-        _pp.active = true; _pp.age = 0; _pp.life = 0.40 + Math.random() * 0.20;
+        _pp.active = true; _pp.age = 0; _pp.life = 0.52 + Math.random() * 0.28; // Pass 1490: 0.40+0.20→0.52+0.28
         _pp.mesh.position.set(
           _puffX + (Math.random() - 0.5) * 10,
           _puffY + Math.random() * 4,
           _puffZ + (Math.random() - 0.5) * 12
         );
         _pp.mesh.visible = true;
-        _pp.vx = (Math.random() - 0.5) * 20;
-        _pp.vy = 62 + Math.random() * 55; // shoot upward — Pass 1120: 45+40→62+55 higher slot entry puff
-        _pp.vz = (Math.random() - 0.5) * 22;
+        _pp.vx = (Math.random() - 0.5) * 28; // Pass 1489: 20→28 wider spread
+        _pp.vy = 82 + Math.random() * 72; // shoot upward — Pass 1120: 45+40→62+55 — Pass 1488: →82+72 higher slot entry puff
+        _pp.vz = (Math.random() - 0.5) * 30; // Pass 1489: 22→30 wider Z spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
           Math.min(1, _rr / 255 * 0.45 + 0.55),
