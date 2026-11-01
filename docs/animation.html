@@ -2750,12 +2750,12 @@ function animate(ts) {
         const _vacBaseScale = THREE.MathUtils.lerp(1.5, 0.25, _vt);
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
-        // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 — Pass 1249: surge →0.92 for stronger pump surge
-        const _vacSurge = pt > 0.85 ? 0.92 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
-        vacuumRingMat.opacity = Math.sin(_vt * Math.PI) * 0.95 + _vacSurge; // Pass 1092: opacity 0.75→0.95
+        // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 — Pass 1249: surge →0.92 — Pass 1361: →1.20 for stronger pump surge
+        const _vacSurge = pt > 0.85 ? 1.20 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0;
+        vacuumRingMat.opacity = Math.min(1, Math.sin(_vt * Math.PI) * 0.95 + _vacSurge); // Pass 1092: opacity 0.75→0.95
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
-        // Pass 1250: elongation scale 0.55→0.82 — Pass 1275: →1.10 for stronger suction pull visualization
-        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 1.10), _vacBaseScale);
+        // Pass 1250: elongation scale 0.55→0.82 — Pass 1275: →1.10 — Pass 1360: →1.50 for stronger suction pull visualization
+        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 1.50), _vacBaseScale);
       } else {
         vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       }
@@ -2763,19 +2763,19 @@ function animate(ts) {
       vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
-      // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 for stronger suction-break strain
-      const _ltLurch = lt < 0.18 ? -0.34 * Math.sin((lt / 0.18) * Math.PI) : 0;
+      // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 — Pass 1356: →-0.48 for stronger suction-break strain
+      const _ltLurch = lt < 0.18 ? -0.48 * Math.sin((lt / 0.18) * Math.PI) : 0;
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt) + _ltLurch;
-      // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 more dramatic dip
+      // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 more dramatic dip
       if (lt < 0.22) {
-        const _yDip = -3.8 * Math.sin((lt / 0.22) * Math.PI);
+        const _yDip = -5.2 * Math.sin((lt / 0.22) * Math.PI);
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
-        // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 for stronger suction-break feel
-        const _pickStutter = lt < 0.12 ? 5.00 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
+        // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 — Pass 1358: →7.00 for stronger suction-break feel
+        const _pickStutter = lt < 0.12 ? 7.00 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0;
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
-      // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 for more dramatic peel-off sway
-      const _peelZ291 = lt < 0.28 ? 11.0 * Math.sin(lt / 0.28 * Math.PI) : 0;
+      // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 — Pass 1359: →15.0 for more dramatic peel-off sway
+      const _peelZ291 = lt < 0.28 ? 15.0 * Math.sin(lt / 0.28 * Math.PI) : 0;
       suctionPivot.position.z = _peelZ291;
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
@@ -4781,9 +4781,9 @@ function animate(ts) {
     const _armSwingT = inPhase(PH.armSwing) ? 1.0 : 0;
     const _convInT  = inPhase(PH.conveyorIn) ? Math.max(0, 1 - phaseRaw(PH.conveyorIn) * 5) : 0;
     // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
-    // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0
-    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 1.80 : 0;
-    const _rodGlow = Math.max(_armDescT * 0.18, _armLiftT * 0.42 + _liftPickSpike, _armSwingT * 1.0, _convInT * 0.25);
+    // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35
+    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 2.50 : 0;
+    const _rodGlow = Math.max(_armDescT * 0.18, _armLiftT * 0.42 + _liftPickSpike, _armSwingT * 1.35, _convInT * 0.25);
     armRod.material.emissive.setHex(ct.hex);
     armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 6);
   }
