@@ -3196,7 +3196,7 @@ function animate(ts) {
     {
       const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.10) : 1.0;
       // Pass 1152: hood sway primary 1.20→1.65, secondary 0.42→0.60 — Pass 1420: primary →2.20, secondary →0.82 for more resonant scanner oscillation
-      scannerHood.position.z = (2.20 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.82 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp;
+      scannerHood.position.z = (2.97 * Math.sin(ts * 2.8 * Math.PI * 2) + 1.10 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10
     }
     // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 — Pass 1236: →1.30 — Pass 1421: →1.75 for more dramatic iris breathing
     const _irisScale = 0.75 + flashIntensity * 2.36; // Pass 1745: iris scale amplitude 1.75→2.36
@@ -3209,7 +3209,7 @@ function animate(ts) {
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 — Pass 1374: →19.0 — Pass 1519: →26.0 bigger lens pop
     const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 35.1 : 0; // Pass 1747: lens reveal spike 26.0→35.1
     // Pass 793: lens flash base 3.5→4.8 — Pass 1518: →6.5 for brighter scanner lens during scan
-    lensMat.emissiveIntensity = 0.4 + flashIntensity * 6.5 + _lensReveal370;
+    lensMat.emissiveIntensity = 0.4 + flashIntensity * 8.78 + _lensReveal370; // Pass 1774: lens emissive flash contribution 6.5→8.78
     // Wide bloom soft halo around scanner
     // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 — Pass 1082: →16.0 — Pass 1285: →22.0 — Pass 1375: →30.0 — Pass 1522: →40.0 for bigger bloom burst at lock-on
     const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 54.0 : 0; // Pass 1748: bloom reveal surge 40.0→54.0
@@ -4156,7 +4156,7 @@ function animate(ts) {
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
     // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 — Pass 1197: →0.65+(dt3/0.88)*2.20 — Pass 1404: →0.65+(dt3/0.88)*3.00 — Pass 1547: →0.65+(dt3/0.88)*4.00 brighter fall glow
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.65 + (dt3 / 0.88) * 4.00; // Pass 1547: peaks at ~4.65 just before bounce flash
+      const _fallRamp = 0.65 + (dt3 / 0.88) * 5.40; // Pass 1775: fall ramp peak 4.00→5.40
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
@@ -4165,12 +4165,12 @@ function animate(ts) {
     // Pass 751: peak 3.8→5.2, decay 8.5→11 — Pass 975: peak 5.2→7.5, decay 11→14 — Pass 1111: →11.0 — Pass 1198: →16.0 — Pass 1405: →22.0 — Pass 1548: →30.0 for bigger landing flash
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 30.0 * Math.exp(-_bFlashT * 14));
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 40.5 * Math.exp(-_bFlashT * 14)); // Pass 1776: bounce flash 30.0→40.5
     }
     // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: 1.2→1.8, decay 30→25 — Pass 754: 1.8→3.0, decay 25→22
     // Pass 976: impact glow spike 3.0→4.8, decay 22→18 — Pass 1112: →7.5 — Pass 1199: →11.5 — Pass 1406: →16.0 — Pass 1549: →22.0 for stronger slot impact glow
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
-      ? Math.exp(-(dt3 - 0.88) * 18) * 22.0 : 0;
+      ? Math.exp(-(dt3 - 0.88) * 18) * 29.7 : 0; // Pass 1777: impact glow spike 22.0→29.7
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     // Pass 979: start from 2.8 — Pass 1550: →4.0 for brighter slot target spotlight at drop entry
@@ -4184,8 +4184,8 @@ function animate(ts) {
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 28.0, dt3 / 0.35)
-                                             : THREE.MathUtils.lerp(20.0, 0, (dt3 - 0.35) / 0.65);
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 37.8, dt3 / 0.35)
+                                             : THREE.MathUtils.lerp(27.0, 0, (dt3 - 0.35) / 0.65); // Pass 1778: sweep peak 28.0→37.8, Pass 1779: sweep tail 20.0→27.0
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
