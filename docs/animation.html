@@ -4656,7 +4656,7 @@ function animate(ts) {
       const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
         ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 0.92 : 0; // Pass 2171: body exit echo 0.68→0.92
       // Pass 932: conveyor body base glow 0.08→0.14 — Pass 1454: →0.20, pulse amp 0.08→0.12 for more vivid presence
-      const _bodyTarget = 0.20 + 0.12 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho;
+      const _bodyTarget = 0.27 + 0.16 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho; // Pass 2179: body base 0.20→0.27, pulse 0.12→0.16
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
     } else {
       convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
@@ -4674,7 +4674,7 @@ function animate(ts) {
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
       beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 1.5));
       // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14 — Pass 1455: →0.28+0.20
-      const _bsTarget = 0.28 + 0.20 * Math.sin(cycleT * 6);
+      const _bsTarget = 0.38 + 0.27 * Math.sin(cycleT * 6); // Pass 2180: belt active emissive base 0.28→0.38, pulse 0.20→0.27
       beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2);
     } else {
       beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 1.5));
@@ -4691,7 +4691,7 @@ function animate(ts) {
       // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 — Pass 1456: →0.28+1.80 for dramatic heat-up
       const _warmTarget = 0.28 + _warmT * 3.28; // Pass 2172: hood warm-up ceiling 2.43→3.28
       // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 — Pass 1457: →0.14 for more visible heat flicker
-      const _hoodShimmer = 0.19 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 1998: hood shimmer amp 0.14→0.19
+      const _hoodShimmer = 0.26 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2173: hood shimmer amp 0.19→0.26
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 4);
     } else {
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
@@ -4702,7 +4702,7 @@ function animate(ts) {
     // resting scale (peaks at +0.22 extra) then settles, mirroring the pass 162 snap-open.
     if (inPhase(PH.conveyorOut)) {
       const _ot2 = phaseRaw(PH.conveyorOut);
-      const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 0.30 : 0; // Pass 1999: iris snap-close overshoot 0.22→0.30
+      const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 0.41 : 0; // Pass 2174: iris snap-close overshoot 0.30→0.41
       lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 10);
       lens.scale.z = lens.scale.x;
     } else {
@@ -4710,7 +4710,7 @@ function animate(ts) {
       lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 4);
     }
     lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 3));
-    lensMat.emissiveIntensity += (0.54 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2000: lens idle emissive 0.4→0.54
+    lensMat.emissiveIntensity += (0.73 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2175: lens idle emissive 0.54→0.73
     // Pass 197: hood settles back to Z=0 after scan ends
     scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 8);
   }
@@ -4733,8 +4733,8 @@ function animate(ts) {
     const _cardX = activeCard.visible ? activeCard.position.x : 9999;
     rollerMats.forEach((rm, ri) => {
       const _dist = Math.abs(_cardX - _rollerXs[ri]);
-      const _prox = Math.max(0, 1 - _dist / 51); // Pass 2001: proximity radius 38→51
-      const _targetI = _prox * 3.78;              // Pass 2002: roller max intensity 2.8→3.78
+      const _prox = Math.max(0, 1 - _dist / 69); // Pass 2176: proximity radius 51→69
+      const _targetI = _prox * 5.10;              // Pass 2177: roller max intensity 3.78→5.10
       rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 5));
       rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 6);
     });
@@ -4742,7 +4742,7 @@ function animate(ts) {
 
   // Pass 70: belt shimmer stripe sweeps left→right while belt moves
   if (!paused && _beltScrollSpeed > 0.005) {
-    _beltShimmerX += dt * _beltScrollSpeed * 3780 * speedMult; // Pass 2003: shimmer speed 2800→3780
+    _beltShimmerX += dt * _beltScrollSpeed * 5103 * speedMult; // Pass 2178: shimmer speed 3780→5103
     if (_beltShimmerX > 68) _beltShimmerX = -148; // wrap: just past right roller → just before left
     beltShimmerMesh.visible = true;
     beltShimmerMesh.position.x = _beltShimmerX;
