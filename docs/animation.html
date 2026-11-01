@@ -3083,9 +3083,9 @@ function animate(ts) {
     if (!_scanFlashFired) {
       _scanFlashFired = true;
       // Pass 418: scan start shake 3.5→5.0 — Pass 740: →7.2 — Pass 1147: →10.5 — Pass 1307: →15.0 for bigger scan-start jolt
-      _cameraShake = 20.25; // Pass 1860: scan start camera shake 15.0→20.25
+      _cameraShake = 27.3; // Pass 2293: scan start camera shake 20.25→27.3
       // Pass 889: scan start FOV punch 3.5° — Pass 1148: →6.0° — Pass 1623: →8.5° broader zoom-in at scanner activation
-      _fovBump = Math.max(_fovBump, 11.5); // Pass 1861: scan start FOV punch 8.5→11.5
+      _fovBump = Math.max(_fovBump, 15.5); // Pass 2294: scan start FOV punch 11.5→15.5
       const flashEl = document.getElementById('scan-flash-overlay');
       if (flashEl) {
         flashEl.style.background = ct.css;
@@ -3106,18 +3106,18 @@ function animate(ts) {
     // Pass 172: scan-field levitation — card floats on 0.8Hz sine during scan (peaks at midpoint)
     // Pass 658: levitate 0.30→0.55 + secondary 0.15 — Pass 788: primary 0.55→0.75, secondary 0.15→0.24 — Pass 1076: primary 0.75→1.05, secondary 0.24→0.35 — Pass 1208: primary 1.05→1.50, secondary 0.35→0.55 — Pass 1276: primary 1.50→2.10, secondary 0.55→0.78
     const ft = phaseRaw(PH.scan);
-    const _levitate = (2.85 * Math.sin(ts * 0.8 * Math.PI * 2) + 1.06 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI); // Pass 1704: primary 2.10→2.85, Pass 1705: secondary 0.78→1.06
+    const _levitate = (3.85 * Math.sin(ts * 0.8 * Math.PI * 2) + 1.43 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI); // Pass 2295: levitate primary 2.85→3.85, secondary 1.06→1.43
     // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
     // confirmed (ft 0.85→1.0), giving a subtle "recognition" gesture.
     // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 — Pass 1077: →12.0 — Pass 1209: →17.0 — Pass 1277: →24.0 for more prominent "recognized!" rise
-    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 32.0 : 0; // Pass 1708: reveal lift 24.0→32.0
+    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 43.2 : 0; // Pass 2296: reveal lift 32.0→43.2
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's belt lean into the reveal bell curve over first 10%
     // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
     // Pass 1235: starting lean -0.18→-0.05 to match belt lean bugfix
     // Pass 659: tilt peak -0.40→-0.52 — Pass 749: -0.52→-0.64 — Pass 1078: →-0.82 — Pass 1278: →-1.05 for even more face-toward-camera during scan
-    const _bellTilt = -1.42 * Math.sin(ft * Math.PI); // Pass 1709: tilt peak -1.05→-1.42
+    const _bellTilt = -1.92 * Math.sin(ft * Math.PI); // Pass 2297: tilt peak -1.42→-1.92
     const _blendInT = Math.min(1, ft / 0.10); // 0→1 over first 10% of scan phase
     const _revealTilt = THREE.MathUtils.lerp(-0.05, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
@@ -3137,8 +3137,8 @@ function animate(ts) {
     const flashIntensity = Math.sin(ft * Math.PI);
     // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
     // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 — Pass 1373: →23.0 — Pass 1517: →32.0 for bigger scan flash and lock-on pop
-    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 43.2 : 0; // Pass 1862: scan flash reveal spike 32.0→43.2
-    scanFlash.intensity = flashIntensity * 27 + _flashRevealSpike350; // Pass 1516: base 15→20 — Pass 1863: →27
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 58.3 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3
+    scanFlash.intensity = flashIntensity * 36.5 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.54 : 0; // Pass 1864: scan flash Z drift 0.40→0.54
     scanFlash.position.set(-40, CONV_Y_TOP + 10, _flashZ351);
@@ -3160,7 +3160,7 @@ function animate(ts) {
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 3.38 + _scanStrobe + _revOsc; // Pass 1739: scan card emissive base 2.50→3.38
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
-    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 37.8 : 0; // Pass 1741: reveal glow surge 28.0→37.8
+    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 51.0 : 0; // Pass 2300: reveal glow surge 37.8→51.0
     cardGlow.intensity = 4.4 + flashIntensity * 4.32 + _revealGlowSurge; // Pass 1742: card glow flash contribution 3.2→4.32
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
