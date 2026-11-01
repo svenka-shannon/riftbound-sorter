@@ -2023,9 +2023,9 @@ function fireCelebration() {
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: _cfl, age: 0, peak: _cfl.intensity });
-  // Pass 150: rainbow tray burst — Pass 423: 5.5→8.0 — Pass 727: →12.0 — Pass 898: →18.0 — Pass 1008: →26.0, dist →300 — Pass 1105: →38.0, dist→400
+  // Pass 150: rainbow tray burst — Pass 423: 5.5→8.0 — Pass 727: →12.0 — Pass 898: →18.0 — Pass 1008: →26.0, dist →300 — Pass 1105: →38.0, dist→400 — Pass 1451: →52.0, dist→520
   CARD_TYPES.forEach(dct => {
-    const _dfl = new THREE.PointLight(dct.hex, 38.0, 400);
+    const _dfl = new THREE.PointLight(dct.hex, 52.0, 520);
     _dfl.position.set(TX_MID, dct.slotFloorY + 55, dct.slotZ);
     scene.add(_dfl);
     window._flashLights.push({ light: _dfl, age: 0, peak: _dfl.intensity });
@@ -3672,19 +3672,19 @@ function animate(ts) {
       // Mirror card tilt so shimmer stays flush with card surface (pass 90 + 164)
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
-      // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 — Pass 1069: →3.4 for wider flash
-      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 3.4 : 1.0;
+      // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 — Pass 1069: →3.4 — Pass 1447: →4.8 for wider flash
+      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 4.8 : 1.0;
       cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
       cardShimmerMat.color.copy(_shimColor);
-      // Opacity: standard bell + extra brightness after reveal — Pass 403: 0.18→0.28 — Pass 816: →0.42
-      const _shimBoost = _identityRevealed ? 0.42 : 0;
-      // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75 — Pass 815: →1.0 — Pass 1070: →1.40 for brighter shimmer at reveal
-      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 1.40 : 0;
-      // Pass 626: base bell 0.52→0.62 — Pass 816: →0.75 for brighter shimmer throughout scan
-      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (0.75 + _shimBoost) + _shimRevealSpike349;
+      // Opacity: standard bell + extra brightness after reveal — Pass 403: 0.18→0.28 — Pass 816: →0.42 — Pass 1448: →0.60
+      const _shimBoost = _identityRevealed ? 0.60 : 0;
+      // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75 — Pass 815: →1.0 — Pass 1070: →1.40 — Pass 1449: →1.90 for brighter shimmer at reveal
+      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 1.90 : 0;
+      // Pass 626: base bell 0.52→0.62 — Pass 816: →0.75 — Pass 1450: →1.0 for brighter shimmer throughout scan
+      cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (1.0 + _shimBoost) + _shimRevealSpike349;
     }
     // World-to-screen projection for scan overlay (clamped to visible area)
     const _sv = activeCard.position.clone().project(camera);
@@ -5125,13 +5125,13 @@ function animate(ts) {
     const _hBase = 0.3 + _depthRatio * 0.35; // 0.3 (empty) → 0.65 (full)
     if (pickOn) {
       hopperLight.color.setHex(ct.hex);
-      // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 brighter during arm cycle
-      const _hTarget = _hBase + 3.20; // Pass 1038: 2.10→3.20
+      // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 — Pass 1444: →4.50 brighter during arm cycle
+      const _hTarget = _hBase + 4.50; // Pass 1444: 3.20→4.50
       hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 4);
-      // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 light follows arm deeper
-      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 42 : 0;
-      // Pass 360: X-drift during armSwing — Pass 1043: drift 55→80 light tracks wider card arc
-      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 80 : 0;
+      // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 — Pass 1445: →58 light follows arm deeper
+      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 58 : 0;
+      // Pass 360: X-drift during armSwing — Pass 1043: drift 55→80 — Pass 1446: →110 light tracks wider card arc
+      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 110 : 0;
       hopperLight.position.set(HOPPER_X + 33 + _hXDrift360, 200 - _hYTrack359, 0);
     } else if (inPhase(PH.pause)) {
       // Pass 233: hopper LED domain pre-charge — in the final 40% of pause, hopper light
