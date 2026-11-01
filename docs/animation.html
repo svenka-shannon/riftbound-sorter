@@ -3156,9 +3156,9 @@ function animate(ts) {
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 — Pass 1514: →dt*2.8 (longer burst visibility)
     if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 2.8);
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
-    const _revOsc = _cardRevealBurst * (0.65 + 0.60 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)));
+    const _revOsc = _cardRevealBurst * (0.88 + 0.81 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 2.50 + _scanStrobe + _revOsc;
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 3.38 + _scanStrobe + _revOsc; // Pass 1739: scan card emissive base 2.50→3.38
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
     const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 28.0 : 0;
     cardGlow.intensity = 4.4 + flashIntensity * 3.2 + _revealGlowSurge; // Pass 1512: base 3.2→4.4, flash 2.4→3.2
@@ -3183,7 +3183,7 @@ function animate(ts) {
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 3.8);
       // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5 — Pass 1151: →6.5 — Pass 1413: →9.0
-      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 9.0;
+      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 12.1; // Pass 1734: hood reveal strobe 9.0→12.1
       hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.35 + _revStrobe; // Pass 738: 1.10→1.35
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
@@ -3386,15 +3386,15 @@ function animate(ts) {
         // Pass 121: destination fill bar spikes at identity reveal — pre-announces incoming card
         // Pass 565: fill bar reveal spike 2.2→4.0 — Pass 735: →5.8 for bigger reveal announcement
         if (fillBars[ct.slot] && fillBars[ct.slot].material) {
-          fillBars[ct.slot].material.emissiveIntensity = 5.8;
+          fillBars[ct.slot].material.emissiveIntensity = 7.8; // Pass 1736: fill bar reveal spike 5.8→7.8
         }
         // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
         _hoodRevealFlash = 0.001; // just above 0 to activate
         // Pass 125: card face emissive burst at identity reveal — card "powers up"
         // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 — Pass 1131: →16.0 — Pass 1412: →22.0 for bigger face power-up flash
-        _cardRevealBurst = 30.0; // Pass 1412: 16.0→22.0 — Pass 1509: →30.0
+        _cardRevealBurst = 40.5; // Pass 1735: reveal burst 30.0→40.5
         // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 — Pass 1415: →7.0 for stronger pop
-        if (ct.stripMat) ct.stripMat.emissiveIntensity = 7.0;
+        if (ct.stripMat) ct.stripMat.emissiveIntensity = 9.5; // Pass 1737: strip pre-announce flash 7.0→9.5
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
         // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 — Pass 1323: →12.0 — Pass 1416: →17.0 for prominent lock-on jolt
@@ -5076,7 +5076,7 @@ function animate(ts) {
   if (_confirmRingT >= 0) {
     _confirmRingT = Math.min(1, _confirmRingT + dt * 2.6); // Pass 1432: slower for longer visible duration
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
-    const _crs = 1.0 + easeOut(_confirmRingT) * 68.0;
+    const _crs = 1.0 + easeOut(_confirmRingT) * 91.8; // Pass 1732: confirm ring scale 68.0→91.8
     confirmRing.scale.setScalar(_crs);
     confirmRingMat.opacity = (1 - _confirmRingT) * 1.0; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0
     if (_confirmRingT >= 1) {
@@ -5092,7 +5092,7 @@ function animate(ts) {
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
       // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 — Pass 1533: →30.0 for wider second burst
-      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 30.0;
+      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 40.5; // Pass 1733: second confirm ring scale 30.0→40.5
       confirmRing2.scale.setScalar(_crs2);
       confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 1.0); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0
       if (_confirmRingT2 >= 1) {
