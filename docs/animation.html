@@ -2411,8 +2411,8 @@ function animate(ts) {
     if (a.glowAge < 1.2) {
       a.glowAge += dt;
       if (a.mesh.material) {
-        // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 for brighter landing flash
-        a.mesh.material.emissiveIntensity = 0.15 + 20.0 * Math.exp(-a.glowAge * 5.0);
+        // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8
+        a.mesh.material.emissiveIntensity = 0.15 + 28.0 * Math.exp(-a.glowAge * 3.8);
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2429,11 +2429,11 @@ function animate(ts) {
         if (!inFlight && mesh.material) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 1.23;
-          // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48
-          mesh.material.emissiveIntensity = 0.30 + 0.48 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
-          // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 more visible rocking
+          // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65
+          mesh.material.emissiveIntensity = 0.42 + 0.65 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
+          // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking
           const _swayPhase = _globalCardIdx * 1.83;
-          mesh.rotation.z = 0.020 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
+          mesh.rotation.z = 0.028 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
         }
         _globalCardIdx++;
       });
@@ -5466,16 +5466,17 @@ function animate(ts) {
     // Fixed to 0.3Hz per slot, each slot phase-offset so cards breathe independently.
     // Pass 493: breathe amplitude boost 0.08→0.14 — Pass 544: 0.14→0.20 for more tray card life
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
-    const _breathe = 0.22 + 0.16 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5)
-                         + 0.05 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5));
+    // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
+    const _breathe = 0.30 + 0.22 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5)
+                         + 0.08 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5));
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
         // Arrival pulse still decaying — let it fall toward breathe target
-        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 2.2);
+        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 1.6); // Pass 1658: 2.2→1.6 slower arrival decay
       } else {
         // At idle — gently track the breathing target
-        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 1.2);
+        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 1.8); // Pass 1659: tracking 1.2→1.8
       }
     });
   });
