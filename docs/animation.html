@@ -3498,7 +3498,7 @@ function animate(ts) {
           const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 2.00 : 0;
           p.mesh.position.z = _pingZ311;
           // Pass 274: post-reveal ping scale — Pass 400: 8.5→11.0 — Pass 716: →14.0 — Pass 797: →19.0 — Pass 1165: →26.0 — Pass 1410: →36.0 — Pass 1524: →50.0 (wider confirm rings)
-          const _pingMaxScale = _identityRevealed ? 50.0 : 5.5;
+          const _pingMaxScale = _identityRevealed ? 67.5 : 5.5; // Pass 1756: post-reveal ping scale 50.0→67.5
           const s = 1 + localFt * _pingMaxScale;
           p.mesh.scale.setScalar(s);
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
@@ -3507,9 +3507,9 @@ function animate(ts) {
           const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
           // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 — Pass 1411: →4.5 — Pass 1525: →6.5 for brighter confirm ring flash
-          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 6.5 : 0;
+          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 8.77 : 0; // Pass 1757: ping reveal spike 6.5→8.77
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
-          const _pingBoost = ft >= 0.85 ? 15.0 + _pingRevealSpike337 : 1.0;
+          const _pingBoost = ft >= 0.85 ? 20.25 + _pingRevealSpike337 : 1.0; // Pass 1758: ping post-reveal boost 15.0→20.25
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
           p.mat.opacity = _pingFade * flashIntensity * 1.0 * _pingBoost;
         } else {
@@ -3530,7 +3530,7 @@ function animate(ts) {
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 — Pass 1384: →15.0 for more vivid pre-reveal LED cycling
-          const _cTarget = gi === _chaseIdx ? 15.0 : 0.1;
+          const _cTarget = gi === _chaseIdx ? 20.25 : 0.1; // Pass 1759: gate LED chase peak 15.0→20.25
           gm.color.setHex(0x0088cc);
           gm.emissive.setHex(0x003366);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 22);
@@ -3710,7 +3710,7 @@ function animate(ts) {
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
       // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0 — Pass 1139: →32.0 — Pass 1219: →45.0 — Pass 1292: →62.0
-      const _cofl = new THREE.PointLight(ct.hex, 62.0, 160);
+      const _cofl = new THREE.PointLight(ct.hex, 83.7, 160); // Pass 1763: scanner exit flash 62.0→83.7
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
@@ -3731,11 +3731,11 @@ function animate(ts) {
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
     // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
     const _ledUrgencyHz = 8 + ot * 22; // 8→30Hz
-    const _ledUrgencyPulse = 0.18 + 1.10 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 1294: deeper throb
+    const _ledUrgencyPulse = 0.18 + 1.49 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 1761: urgency pulse depth 1.10→1.49
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 — Pass 1221: →10.0 for brighter gate approach signal
-      const _target = _isTarget ? (10.0 * ot) * _ledUrgencyPulse : 0.1;
+      const _target = _isTarget ? (13.5 * ot) * _ledUrgencyPulse : 0.1; // Pass 1760: gate LED target max 10.0→13.5
       gm.color.setHex(_isTarget ? ct.hex : 0x224466);
       gm.emissive.setHex(_isTarget ? ct.hex : 0x112233);
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
@@ -3744,7 +3744,7 @@ function animate(ts) {
     // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 — Pass 1369: →30.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (42.0 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 1369: 22.0→30.0 — Pass 1560: →42.0
+    gateColLight.intensity += (56.7 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 1762: gate col tracking light 42.0→56.7
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
