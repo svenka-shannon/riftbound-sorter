@@ -4784,10 +4784,10 @@ function animate(ts) {
     // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
     // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35 — Pass 1458: armDesc 0.18→0.26, convIn 0.25→0.35
     // Pass 1662: spike 2.50→3.40; Pass 1663: swing 1.35→1.80; Pass 1664: lift base 0.42→0.58
-    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 3.40 : 0;
-    const _rodGlow = Math.max(_armDescT * 0.26, _armLiftT * 0.58 + _liftPickSpike, _armSwingT * 1.80, _convInT * 0.35);
+    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 4.59 : 0; // Pass 2005: lift spike 3.40→4.59
+    const _rodGlow = Math.max(_armDescT * 0.26, _armLiftT * 0.58 + _liftPickSpike, _armSwingT * 2.43, _convInT * 0.35); // Pass 2006: swing rod 1.80→2.43
     armRod.material.emissive.setHex(ct.hex);
-    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 8); // Pass 1665: tracking 6→8
+    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 2007: arm rod tracking 8→10.8
   }
 
   // ── Suction cup domain glow ──
@@ -4797,15 +4797,15 @@ function animate(ts) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
                      inPhase(PH.armLift)    ? 1.0 : 0.5;
     suctionCupMat.emissive.setHex(ct.hex);
-    suctionCupMat.emissiveIntensity = cupGlowT * 3.4; // Pass 991: peak 1.2→1.8 — Pass 1459: →2.5 — Pass 1675: →3.4 stronger cup glow
+    suctionCupMat.emissiveIntensity = cupGlowT * 4.59; // Pass 2008: cup peak glow 3.4→4.59
   } else if (inPhase(PH.armReturn)) {
     // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
     // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
     const _arMemT = phaseRaw(PH.armReturn);
-    const _memFade = Math.max(0, 1 - _arMemT / 0.30); // 1→0 in first 30%
+    const _memFade = Math.max(0, 1 - _arMemT / 0.41); // Pass 2009: cup memory window 0.30→0.41
     if (_memFade > 0.01) {
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (_memFade * 0.55 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 992: memory boost 0.35→0.55
+      suctionCupMat.emissiveIntensity += (_memFade * 0.74 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2010: cup memory intensity 0.55→0.74
     } else {
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.15;
     }
@@ -4830,7 +4830,7 @@ function animate(ts) {
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
     // Pass 996: scan orbit 600→530 for tighter close-up during identity scan, armSwing 680→620 — Pass 1354: scan→470, armSwing→560
-    const orbitRBase = inPhase(PH.scan) ? 470 : inPhase(PH.armSwing) ? 560 : inPhase(PH.deflect) ? 700 : 750;
+    const orbitRBase = inPhase(PH.scan) ? 420 : inPhase(PH.armSwing) ? 560 : inPhase(PH.deflect) ? 700 : 750; // Pass 2011: scan orbit 470→420
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.02; // smooth zoom
     const orbitR = controls._orbitR;
@@ -4869,7 +4869,7 @@ function animate(ts) {
       ? { x: TX_MID, y: 60 }
       // Pass 258: slotDrop camera floor-0 pan — camera dips for floor-0 fall, stays up for floor-1 guide
       : inPhase(PH.slotDrop)
-      ? { x: TX_MID, y: ct.floor === 0 ? 48 : 60 }
+      ? { x: TX_MID, y: ct.floor === 0 ? 43 : 60 } // Pass 2012: floor-0 slotDrop cam Y 48→43
       : { x: -30, y: 30 }; // default: machine center
 
     if(!controls._camTgt) controls._camTgt = { x: -30, y: 30 };
