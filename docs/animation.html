@@ -3883,30 +3883,30 @@ function animate(ts) {
     // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 — Pass 916: →19.0 — Pass 1074: →27.0 — Pass 1179: →38.0 — Pass 1564: →52.0, dist→150 for bigger paddle hit
     if (!_gateFlashFired) {
       _gateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 52.0, 150);
+      const _gfl = new THREE.PointLight(ct.hex, 70.2, 150); // Pass 1804: gate contact flash 52.0→70.2
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _gfl, age: 0, peak: _gfl.intensity });
       // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 — Pass 917: →12.0 — Pass 1180: →17.0 — Pass 1565: →24.0
-      paddleMat.emissiveIntensity = 24.0;
+      paddleMat.emissiveIntensity = 32.4; // Pass 1805: paddle emissive spike 24.0→32.4
       // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 — Pass 781: →10.0 — Pass 1181: →15.0 — Pass 1566: →22.0 hotter blaze
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 22.0);
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 29.7); // Pass 1806: gate-contact card flash 22.0→29.7
       // Pass 298: gate-contact camera shake — Pass 588: 1.8→3.0 for more physical paddle impact
       _cameraShake = 3.0;
       // Pass 369: gate-contact camera shake — Pass 782: →6.5 — Pass 923: →9.5 — Pass 1182: →14.0 — Pass 1567: →20.0 for bigger paddle hit feel
-      _cameraShake = Math.max(_cameraShake, 20.0);
+      _cameraShake = Math.max(_cameraShake, 27.0); // Pass 1807: gate contact shake 20.0→27.0
       // Pass 369: gate-contact FOV punch — Pass 783: 3.2°→5.0° — Pass 923: →7.5° — Pass 1183: →11.0° — Pass 1568: →16.0° — Pass 1625: →22.0°
-      _fovBump = Math.max(_fovBump, 22.0);
+      _fovBump = Math.max(_fovBump, 29.7); // Pass 1808: gate contact FOV punch 22.0→29.7
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
       // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 — Pass 1194: →0.88 — Pass 1569: →1.20 for harder paddle whack feel
-      _paddleRecoil = 1.20 * Math.sign(ct.slotZ);
+      _paddleRecoil = 1.62 * Math.sign(ct.slotZ); // Pass 1809: paddle recoil kick 1.20→1.62
       // Pass 216: solenoid jitter — Pass 591: 0.85→1.30 — Pass 1570: →1.80 for stronger lateral vibration
-      _paddleJitterAmt = 1.80;
+      _paddleJitterAmt = 2.43; // Pass 1810: solenoid jitter 1.80→2.43
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
       // decays into the normal tumble over ~0.12s, simulating the paddle "whacking" the card sideways.
-      _gateZKick = bankSign * 0.55; // Pass 1571: 0.38→0.55
+      _gateZKick = bankSign * 0.74; // Pass 1811: gate Z-kick 0.55→0.74
       // Pass 92: gate impact sparks — micro-burst from paddle contact point
       {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
