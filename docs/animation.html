@@ -3674,16 +3674,16 @@ function animate(ts) {
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
       // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 — Pass 1069: →3.4 — Pass 1447: →4.8 for wider flash
-      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 6.5 : 1.0; // Pass 1725: shimmer bloom 4.8→6.5
+      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 8.78 : 1.0; // Pass 2349: shimmer bloom 6.5→8.78
       cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
       cardShimmerMat.color.copy(_shimColor);
       // Opacity: standard bell + extra brightness after reveal — Pass 403: 0.18→0.28 — Pass 816: →0.42 — Pass 1448: →0.60
-      const _shimBoost = _identityRevealed ? 0.81 : 0; // Pass 1726: shimmer post-reveal boost 0.60→0.81
+      const _shimBoost = _identityRevealed ? 1.09 : 0; // Pass 2350: shimmer post-reveal boost 0.81→1.09
       // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75 — Pass 815: →1.0 — Pass 1070: →1.40 — Pass 1449: →1.90 for brighter shimmer at reveal
-      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 2.56 : 0; // Pass 1727: shimmer reveal spike 1.90→2.56
+      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 3.46 : 0; // Pass 2351: shimmer reveal spike 2.56→3.46
       // Pass 626: base bell 0.52→0.62 — Pass 816: →0.75 — Pass 1450: →1.0 for brighter shimmer throughout scan
       cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (1.0 + _shimBoost) + _shimRevealSpike349;
     }
@@ -3710,18 +3710,18 @@ function animate(ts) {
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
       // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0 — Pass 1139: →32.0 — Pass 1219: →45.0 — Pass 1292: →62.0
-      const _cofl = new THREE.PointLight(ct.hex, 113.0, 160); // Pass 1763: scanner exit flash 62.0→83.7 — Pass 1868: →113.0
+      const _cofl = new THREE.PointLight(ct.hex, 152.6, 160); // Pass 2352: scanner exit flash 113.0→152.6
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
       // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 — Pass 1140: →14.0 — Pass 1220: →20.0 — Pass 1293: →28.0 hotter blaze
-      activeCardMat.emissiveIntensity = 51.0; // Pass 2061: card blaze at conveyorOut start 37.8→51.0
+      activeCardMat.emissiveIntensity = 68.9; // Pass 2353: card blaze at conveyorOut start 51.0→68.9
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
-      lensMat.emissiveIntensity = 16.4; // Pass 2062: lens spike 12.15→16.4
+      lensMat.emissiveIntensity = 22.1; // Pass 2354: lens spike at conveyorOut 16.4→22.1
       lensMat.emissive.setHex(ct.hex);
       // Pass 478: scan-confirm LED flashbang — scanner LED briefly goes white-hot at scan complete
-      scanLEDMat.emissiveIntensity = 14.6; // Pass 2063: scan LED flashbang 10.8→14.6
+      scanLEDMat.emissiveIntensity = 19.7; // Pass 2355: scan LED flashbang 14.6→19.7
       scanLEDMat.color.set(0xffffff);
       scanLEDMat.emissive.set(0xffffff);
     }
@@ -3731,7 +3731,7 @@ function animate(ts) {
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
     // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
     const _ledUrgencyHz = 8 + ot * 22; // 8→30Hz
-    const _ledUrgencyPulse = 0.18 + 2.71 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2064: urgency pulse depth 2.01→2.71
+    const _ledUrgencyPulse = 0.18 + 3.66 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 — Pass 1221: →10.0 for brighter gate approach signal
