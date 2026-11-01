@@ -3279,7 +3279,7 @@ function animate(ts) {
       // Each dot switches ft=0.85 + di*0.014 — wave of domain color spreading across grid
       // Brief brightness spike at reveal moment
       // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 — Pass 849: →1.90 — Pass 1316: →2.60 — Pass 1418: →3.60 — Pass 1692: →4.80
-      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 4.80 : 0;
+      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 6.48 : 0; // Pass 2548: dot reveal burst 4.80→6.48
       SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
         const stagger = di * 0.06; // 60ms stagger per dot (0..0.48s)
         const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
@@ -3465,7 +3465,7 @@ function animate(ts) {
     // Reuses TRAIL_PARTICLES (idle during scan since no arm-swing/deflect overlap).
     // Pass 535: 0.14→0.10s — Pass 722: →0.07s — Pass 842: →0.048s for denser exhaust
     _scanExhaustAcc += dt;
-    if (_scanExhaustAcc >= 0.048 && flashIntensity > 0.15) {
+    if (_scanExhaustAcc >= 0.030 && flashIntensity > 0.15) { // Pass 2541: exhaust interval 0.048→0.030 denser
       _scanExhaustAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -3479,8 +3479,8 @@ function animate(ts) {
       const _exColor = ft < 0.85 ? 0xccddff : ct.hex;
       tp.mat.color.setHex(_exColor); // pre-confirm: cool blue-white; post-confirm: domain
       // Pass 723: exhaust opacity 0.18+0.15→0.26+0.20 — Pass 843: →0.40+0.32 — Pass 1328: →0.55+0.42 for more vivid scanner exhaust
-      tp.mat.opacity = 0.55 + Math.random() * 0.42;
-      tp.age = 0; tp.life = 0.55 + Math.random() * 0.4;
+      tp.mat.opacity = 0.74 + Math.random() * 0.57; // Pass 2542: exhaust opacity 0.55+0.42→0.74+0.57
+      tp.age = 0; tp.life = 0.74 + Math.random() * 0.54; // Pass 2543: exhaust life 0.55+0.40→0.74+0.54
       tp.active = true; tp.mesh.visible = true;
     }
     // Pass 63: scanner sonar ping rings expand horizontally from scanner during scan
@@ -3495,10 +3495,10 @@ function animate(ts) {
         if (localFt < 0.85) {
           p.mesh.visible = true;
           // Pass 311: scan ping Z drift — Pass 717: 0.38→0.55 — Pass 803: →0.78 — Pass 1164: →1.10 — Pass 1409: →1.50 — Pass 1527: →2.00 for more distinct destination lean
-          const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 2.00 : 0;
+          const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 2.70 : 0; // Pass 2546: ping Z drift 2.00→2.70
           p.mesh.position.z = _pingZ311;
           // Pass 274: post-reveal ping scale — Pass 400: 8.5→11.0 — Pass 716: →14.0 — Pass 797: →19.0 — Pass 1165: →26.0 — Pass 1410: →36.0 — Pass 1524: →50.0 (wider confirm rings)
-          const _pingMaxScale = _identityRevealed ? 67.5 : 5.5; // Pass 1756: post-reveal ping scale 50.0→67.5
+          const _pingMaxScale = _identityRevealed ? 91.1 : 7.4; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4
           const s = 1 + localFt * _pingMaxScale;
           p.mesh.scale.setScalar(s);
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
@@ -3509,7 +3509,7 @@ function animate(ts) {
           // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 — Pass 1411: →4.5 — Pass 1525: →6.5 for brighter confirm ring flash
           const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 11.84 : 0; // Pass 2333: ping reveal spike 8.77→11.84
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
-          const _pingBoost = ft >= 0.85 ? 27.3 + _pingRevealSpike337 : 1.0; // Pass 2334: ping post-reveal boost 20.25→27.3
+          const _pingBoost = ft >= 0.85 ? 36.9 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
           p.mat.opacity = _pingFade * flashIntensity * 1.0 * _pingBoost;
         } else {
