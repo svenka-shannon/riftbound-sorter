@@ -3906,7 +3906,7 @@ function animate(ts) {
       _paddleJitterAmt = 2.43; // Pass 1810: solenoid jitter 1.80→2.43
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
       // decays into the normal tumble over ~0.12s, simulating the paddle "whacking" the card sideways.
-      _gateZKick = bankSign * 0.74; // Pass 1811: gate Z-kick 0.55→0.74
+      _gateZKick = bankSign * 1.00; // Pass 2085: gate Z-kick 0.74→1.00
       // Pass 92: gate impact sparks — micro-burst from paddle contact point
       {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
@@ -3920,9 +3920,9 @@ function animate(ts) {
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 216 + Math.random() * 250; // Pass 1812: gate spark speed 160+185→216+250
+          const _spd = 292 + Math.random() * 338; // Pass 2086: gate spark speed 216+250→292+338
           _sp.vx = Math.cos(_ang) * _spd * 0.7;
-          _sp.vy = 148 + Math.random() * 162; // Pass 1813: gate spark vy 110+120→148+162
+          _sp.vy = 200 + Math.random() * 219; // Pass 2087: gate spark vy 148+162→200+219
           _sp.vz = Math.sin(_ang) * _spd * 0.5 + Math.sign(ct.slotZ || 1) * 15;
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
@@ -3939,7 +3939,7 @@ function animate(ts) {
     // Pass 526: 6.5→9.0 — Pass 636: →12.5 — Pass 784: →18.0 — Pass 918: →26.0 — Pass 1184: →36.0 — Pass 1353: →68.0 for bigger arc apex pop
     if (!_arcPeakFlashFired && dt2 >= 0.46) {
       _arcPeakFlashFired = true;
-      const _apfl = new THREE.PointLight(ct.hex, 167.7, 230); // Pass 1796: arc-peak flash 92.0→124.2 — Pass 1886: →167.7
+      const _apfl = new THREE.PointLight(ct.hex, 226.4, 230); // Pass 2088: arc-peak flash 167.7→226.4
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3951,14 +3951,14 @@ function animate(ts) {
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
     // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 — Pass 1559: floor-0 →38, floor-1 →40 for even higher card flight arc during deflect
-    const _arcBump = (ct.floor === 1 ? 73 : 69) * Math.sin(dt2 * Math.PI); // Pass 1797: arc height floor-0 38→51, floor-1 40→54 — Pass 1887: floor-0 →69, floor-1 →73
+    const _arcBump = (ct.floor === 1 ? 99 : 93) * Math.sin(dt2 * Math.PI); // Pass 2089: arc height floor-0 69→93 floor-1 73→99
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
-    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 19.2 // Pass 1798: Z tremor primary 10.5→14.2 — Pass 1888: →19.2
+    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 25.9 // Pass 2090: Z tremor 19.2→25.9
       + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 2.2;
     // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 — Pass 1072: →3.2 — Pass 1253: →4.4 for more 3D turbulence in deflect arc
-    const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 7.97; // Pass 1799: Y tremor 4.4→5.9 — Pass 1889: →7.97
+    const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 10.76; // Pass 2091: Y tremor 7.97→10.76
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
     const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
@@ -3970,7 +3970,7 @@ function animate(ts) {
       const _defEntryT = Math.min(1, dt2 / 0.14);
       const _normTilt = THREE.MathUtils.lerp(0, floorTilt, dt2);
       // Pass 763: launch kick 0.28→0.40 — Pass 1186: →0.58 for more dramatic gate-exit nose-up
-      const _launchKick = 1.05 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 1818: launch kick 0.58→0.78 — Pass 1890: →1.05
+      const _launchKick = 1.42 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 2092: launch kick 1.05→1.42
       activeCard.rotation.x = THREE.MathUtils.lerp(-0.05, _normTilt, easeOut(_defEntryT)) + _launchKick;
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
