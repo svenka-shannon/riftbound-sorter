@@ -2790,12 +2790,12 @@ function animate(ts) {
       // Pass 181: cup holds bright domain glow while actively carrying the card (armLift)
       // Pass 501: cup pick glow boost 1.5→2.0 — Pass 1173: →3.0 for more vivid suction-hold visualization
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (3.0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8);
+      suctionCupMat.emissiveIntensity += (4.05 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 1828: cup hold glow 3.0→4.05
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
         // Pass 524: grab pulse light intensity 6.0→7.5 — Pass 625: →10.0 — Pass 877: →14.0 — Pass 1174: →20.0 — Pass 1669: →28.0, dist→150
-        const grabLight = new THREE.PointLight(ct.hex, 28.0, 150);
+        const grabLight = new THREE.PointLight(ct.hex, 37.8, 150); // Pass 1829: grab pulse light 28.0→37.8
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -2805,7 +2805,7 @@ function animate(ts) {
       // Pass 34/49: scatter domain particles from grab point; pass 49 adds grab micro-shake
       if (!_grabBurstFired && lt < 0.12) {
         _grabBurstFired = true;
-        _cameraShake = Math.max(_cameraShake, 2.8); // pass 49: grab lurch — Pass 876: 0.8→1.5 — Pass 1175: →2.8
+        _cameraShake = Math.max(_cameraShake, 3.78); // pass 49: grab lurch — Pass 876: 0.8→1.5 — Pass 1175: →2.8 — Pass 1830: →3.78
         // Cup starts at armDescend end position (rot ≈ -0.036 from vertical)
         const _bx = PIV_X + 83 * Math.sin(-0.036);
         const _by = PIV_Y - 83 * Math.cos(-0.036);
@@ -2819,7 +2819,7 @@ function animate(ts) {
         GRAB_PARTICLES.forEach((p, _gi) => {
           const angle = Math.random() * Math.PI * 2;
           // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 — Pass 1098: →40+90 — Pass 1218: →55+115 for more energetic burst
-          const spd = 55 + Math.random() * 115; // Pass 1218: 40+90→55+115
+          const spd = 74 + Math.random() * 155; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.15;
           p.vx = Math.cos(angle) * spd * 0.55;
@@ -2840,7 +2840,7 @@ function animate(ts) {
           p.mat.color.setHex(_pc);
           p.mat.opacity = 0.85 + Math.random() * 0.15; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst
           p.age = 0;
-          p.life = 0.62 + Math.random() * 0.48; // Pass 1097: 0.48+0.36→0.62+0.48 for longer-lived scatter
+          p.life = 0.84 + Math.random() * 0.65; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65
           p.active = true;
           p.mesh.visible = true;
         });
@@ -2851,13 +2851,13 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(0.80, 1.57, st);
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
       // Pass 676: Z-depth arc 14→17 — Pass 764: →23 — Pass 1176: →32 — Pass 1244: →44 — Pass 1340: →60 for even more dramatic 3D depth sweep
-      suctionPivot.position.z = Math.sin(st * Math.PI) * 60;
+      suctionPivot.position.z = Math.sin(st * Math.PI) * 81; // Pass 1833: armSwing Z-depth arc 60→81
       // Pass 234: arm pivot Y sag — pivot slightly droops under card weight at swing midpoint
       // Pass 282: end-of-swing Y bounce — brief upward over-correction as arm decelerates at deposit
       // Pass 677: deposit bounce 0.55→0.85 — Pass 765: →1.25 — Pass 1177: →1.80 — Pass 1245: →2.60 — Pass 1341: →3.60 for stronger spring at belt handoff
       // Pass 770: pivot Y sag 2.2→3.2 — Pass 1178: →4.5 — Pass 1246: →6.2 — Pass 1342: →8.5 for more weight feel during swing
-      const _swingEndBounce = st > 0.88 ? 3.60 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0;
-      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 8.5 + _swingEndBounce;
+      const _swingEndBounce = st > 0.88 ? 4.86 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0; // Pass 1834: armSwing end bounce 3.60→4.86
+      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 11.5 + _swingEndBounce; // Pass 1835: armSwing Y sag 8.5→11.5
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 4);
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
