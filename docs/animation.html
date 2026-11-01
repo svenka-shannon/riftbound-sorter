@@ -3597,21 +3597,21 @@ function animate(ts) {
       scanBeamMat.color.setHex(_beamHex2);
     }
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
-    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 2.20 : 0;
+    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 2.97 : 0; // Pass 1716: cone reveal flash 2.20→2.97
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
     scanCone.position.z = 18 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5);
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
-    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 1.05 : 0);
+    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 1.42 : 0); // Pass 1717: cone Y scale punch 1.05→1.42
     // Pass 515: scan cone base opacity boost 0.09→0.14 — Pass 1159: →0.22 for more visible beam cone during scan
-    scanConeMat.opacity = flashIntensity * 0.22 + _strobe * 0.5 + _coneRevealBoost;
+    scanConeMat.opacity = flashIntensity * 0.30 + _strobe * 0.5 + _coneRevealBoost; // Pass 1718: cone base opacity 0.22→0.30
     // Pass 287: scan beam strength scales with bar fill — Pass 1160: boost 0.20→0.35 for more data-accumulation feel
-    const _beamFillBoost = barFill * 0.35;
+    const _beamFillBoost = barFill * 0.47; // Pass 1719: beam fill boost 0.35→0.47
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
     // Pass 549: beam reveal boost 0.55→0.80 — Pass 1161: →1.20 for more vivid beam flare at lock-on
-    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 1.20 : 0;
+    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 1.62 : 0; // Pass 1720: beam reveal boost 1.20→1.62
     // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 — Pass 1162: →1.10 — Pass 1289: →1.45 — Pass 1378: →1.90 for stronger scan column
-    scanBeamMat.opacity = flashIntensity * 1.90 + _strobe + _beamFillBoost + _beamRevealBoost389;
+    scanBeamMat.opacity = flashIntensity * 2.56 + _strobe + _beamFillBoost + _beamRevealBoost389; // Pass 1721: beam base opacity 1.90→2.56
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
@@ -3644,7 +3644,7 @@ function animate(ts) {
       // Pass 854: strobe amplitude 0.12→0.20 for stronger urgency flicker pre-reveal
       const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.20 * flashIntensity;
       // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 — Pass 855: →1.40 — Pass 1438: →2.00 for bolder arc flash at lock-on
-      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 2.00 : 0;
+      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 2.70 : 0; // Pass 1722: arc reveal spike 2.00→2.70
       // Pass 644: post-reveal arc opacity 0.35→0.50 — Pass 856: →0.80 — Pass 1075: →1.10 — Pass 1439: →1.55 for more solid confirmed-route arc
       routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 1.55 : 0)) + _arcStrobeMod + _arcRevealSpike;
       // Target sphere pulses at destination
@@ -3652,7 +3652,7 @@ function animate(ts) {
       routeTargetMat.color.copy(_arcColor);
       routeTargetMat.emissive.copy(_arcColor);
       // Pass 339: target emissive reveal spike — Pass 564: boost 2.5→4.0 — Pass 857: →6.5 — Pass 1440: →9.0 — Pass 1536: →13.0 for bigger sphere flare at lock-on
-      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 13.0 : 0;
+      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 17.5 : 0; // Pass 1723: target reveal spike 13.0→17.5
       // Pass 858: post-reveal emissive add 1.2→2.0 — Pass 1441: →3.0 — Pass 1537: base 2.0→2.8, boost 3.0→4.2 for more vivid destination glow
       routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 4.2 : 0)) + _tgtRevealSpike339;
       routeTargetMat.opacity = flashIntensity * 1.0; // Pass 1538: 0.9→1.0
