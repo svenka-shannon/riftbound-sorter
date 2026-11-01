@@ -2014,9 +2014,9 @@ function fireCelebration() {
     flashEl.classList.add('scan-flash-on');
   }
   // Camera shake: Pass 421: 5.5→7.5 — Pass 724: →10.5 — Pass 818: →15.0 — Pass 1005: →22.0 — Pass 1102: →32.0 — Pass 1345: →46.0 — Pass 1620: →62.0
-  _cameraShake = Math.max(_cameraShake, 62.0);
+  _cameraShake = Math.max(_cameraShake, 83.7); // Pass 1938: celebration camera shake 62.0→83.7
   // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° — Pass 1006: →26° — Pass 1103: →36° — Pass 1346: →50° — Pass 1621: →68°
-  _fovBump = 68;
+  _fovBump = 92; // Pass 1939: celebration FOV punch 68→92
   // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0 — Pass 897: →20.0 — Pass 1007: →30.0, dist →500 — Pass 1104: →45.0, dist→650 — Pass 1347: →64.0, dist→800 — Pass 1631: →86.0, dist→1050
   const _cfl = new THREE.PointLight(0xffffff, 86.0, 1050);
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
@@ -3398,12 +3398,12 @@ function animate(ts) {
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
         // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 — Pass 1323: →12.0 — Pass 1416: →17.0 for prominent lock-on jolt
-        _cameraShake = Math.max(_cameraShake, 17.0);
+        _cameraShake = Math.max(_cameraShake, 22.95); // Pass 1932: reveal camera shake 17.0→22.95
         // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° — Pass 538: →5.5° — Pass 812: →8.5° — Pass 1133: →13.0 — Pass 1417: →18.0 — Pass 1624: →24.0
-        _fovBump = Math.max(_fovBump, 24.0);
+        _fovBump = Math.max(_fovBump, 32.4); // Pass 1933: reveal FOV zoom-punch 24.0→32.4
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm.
         // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 — Pass 1134: →13.0 — Pass 1386: →18.0 for brighter lock-on flash
-        scanLEDMat.emissiveIntensity = 18.0;
+        scanLEDMat.emissiveIntensity = 24.3; // Pass 1934: reveal LED intensity spike 18.0→24.3
         _scanLEDRevealT = 0;
         // Pass 235: scanner confirmation particle burst — Pass 532: speed 38+42→55+55, vy 20+35→30+50
         // Pass 956: burst count 6→12 — Pass 957: speed 55+55→80+75, vy 30+50→50+70 — Pass 1324: count →18, Pass 1325: speed →145+130, Pass 1326: vy →95+120 for bigger reveal pop
@@ -3414,13 +3414,13 @@ function animate(ts) {
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
             // Pass 958: burst life 0.36+0.24→0.52+0.32 for longer-lived reveal particles
-            _bp.active = true; _bp.age = 0; _bp.life = 0.52 + Math.random() * 0.32;
+            _bp.active = true; _bp.age = 0; _bp.life = 0.70 + Math.random() * 0.43; // Pass 1935: confirm burst life 0.52+0.32→0.70+0.43
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 18) * Math.PI * 2 + Math.random() * 0.8;
-            const _spd = 190 + Math.random() * 175; // Pass 1325: 110+100→145+130 — Pass 1468: →190+175 faster reveal burst
+            const _spd = 257 + Math.random() * 236; // Pass 1325: 110+100→145+130 — Pass 1468: →190+175 — Pass 1936: →257+236 faster reveal burst
             _bp.vx = Math.cos(_ang) * _spd * 0.55;
-            _bp.vy = 125 + Math.random() * 155; // Pass 1326: 70+90→95+120 — Pass 1469: →125+155 higher reveal burst
+            _bp.vy = 169 + Math.random() * 209; // Pass 1326: 70+90→95+120 — Pass 1469: →125+155 — Pass 1937: →169+209 higher reveal burst
             _bp.vz = Math.sin(_ang) * _spd * 0.55;
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
