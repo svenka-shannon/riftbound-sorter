@@ -3293,9 +3293,9 @@ function animate(ts) {
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
           // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 — Pass 1240: →1.40 — Pass 1317: →1.90 — Pass 1419: →2.60 — Pass 1693: →3.50
-          const _dotFloat = _identityRevealed ? 0 : 3.50 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
+          const _dotFloat = _identityRevealed ? 0 : 4.73 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp; // Pass 2533: grid dot float amp 3.50→4.73
           // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 — Pass 1318: →2.60 — Pass 1694: →3.50
-          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 3.50 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
+          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 4.73 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0; // Pass 2534: dot lock jitter 3.50→4.73
           // Pass 366: post-reveal dots Z drift toward destination slot — Pass 1699: 0.20→0.28
           const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.28 : 0;
           mesh.position.set(
@@ -3308,10 +3308,10 @@ function animate(ts) {
           // crosses its Z position, creating a sweep highlight that travels with the beam.
           // Pass 577: dot beam-proximity brightening 0.60→0.95 — Pass 1695: →1.30 for more vivid sweep highlight
           const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 11);
-          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 1.30));
+          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 1.76)); // Pass 2535: dot beam proximity 1.30→1.76
           // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× — Pass 1319: →3.2× — Pass 1696: →3.0× harder pop
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
-            ? 1.0 + 3.00 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0;
+            ? 1.0 + 4.05 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0; // Pass 2536: dot pop scale 3.00×→4.05×
           mesh.scale.setScalar(_dotRevealScale);
         } else {
           mesh.visible = false;
@@ -4830,7 +4830,7 @@ function animate(ts) {
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
     // Pass 996: scan orbit 600→530 for tighter close-up during identity scan, armSwing 680→620 — Pass 1354: scan→470, armSwing→560
-    const orbitRBase = inPhase(PH.scan) ? 420 : inPhase(PH.armSwing) ? 560 : inPhase(PH.deflect) ? 700 : 750; // Pass 2011: scan orbit 470→420
+    const orbitRBase = inPhase(PH.scan) ? 310 : inPhase(PH.armSwing) ? 420 : inPhase(PH.deflect) ? 560 : 620; // Pass 2538: orbit tighten scan 420→310 armSwing 560→420 deflect 700→560 base 750→620
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.02; // smooth zoom
     const orbitR = controls._orbitR;
@@ -4839,12 +4839,12 @@ function animate(ts) {
     // Slight vertical bob for cinematic feel; lower elevation during scan to see belt better
     // Pass 295: armLift camera Y dip — lower target during pickup for better card-peel view
     // Pass 1020: scan Y 260→240 for deeper camera dive into scanner, armLift 290→270 for peel view
-    const yTarget = inPhase(PH.scan) ? 240 : inPhase(PH.armLift) ? 270 : 320;
+    const yTarget = inPhase(PH.scan) ? 200 : inPhase(PH.armLift) ? 230 : 280; // Pass 2539: camera Y scan 240→200 armLift 270→230 rest 320→280
     if(!controls._camY) controls._camY = yTarget;
     controls._camY += (yTarget - controls._camY) * 0.02;
     // Pass 185: fix camera Y bob — was ts*0.00008 (~21h period = invisible).
     // Fixed to ts*0.05 (~126s = 2-minute slow breathing bob, cinematic and gentle).
-    camera.position.y = controls._camY + 18 * Math.sin(ts * 0.05);
+    camera.position.y = controls._camY + 24 * Math.sin(ts * 0.05); // Pass 2537: camera Y bob 18→24
 
     // Phase-aware lookAt: gently drift target toward the active machine area
     // Belt phases track card X position for smooth card-following
@@ -4879,7 +4879,7 @@ function animate(ts) {
     // Pass 221: stronger Z pre-roll in last 20% of conveyorOut — card commits to its lane,
     // camera follows more eagerly (ramps from 0.25 → 0.65 of slotZ in the final stretch).
     const _coRaw = inPhase(PH.conveyorOut) ? phaseRaw(PH.conveyorOut) : 0;
-    const _coZBoost = inPhase(PH.conveyorOut) ? 0.40 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0;
+    const _coZBoost = inPhase(PH.conveyorOut) ? 0.54 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0; // Pass 2540: conveyorOut Z lean boost 0.40→0.54
     // Pass 297: slotDrop Z camera lead boost — camera leans further into destination column as card falls — Pass 1608: 0.20→0.28
     const _sdZBoost = inPhase(PH.slotDrop) ? 0.38 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
