@@ -4262,10 +4262,10 @@ function animate(ts) {
     // Pass 127: slot entry strip build-up — strip glows brighter as card descends into slot
     // Pass 491: pre-landing urgency pulse — strip flickers at 8Hz in dt3 0.55-0.86 to sell approach
     if (ct.stripMat && dt3 < 0.86) {
-      const _stripApproach = Math.max(0.15, 0.15 + 5.40 * (dt3 / 0.86)); // Pass 1793: strip approach 4.00→5.40
+      const _stripApproach = Math.max(0.15, 0.15 + 7.29 * (dt3 / 0.86)); // Pass 2125: strip approach 5.40→7.29
       // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 — Pass 1201: →0.90 — Pass 1262: →1.20 — Pass 1546: →1.60 for more urgent pre-landing flicker
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
-        ? (dt3 - 0.55) / 0.31 * 2.16 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 1794: urgency pulse amplitude 1.60→2.16
+        ? (dt3 - 0.55) / 0.31 * 2.92 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
         ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 5);
       }
@@ -4280,11 +4280,11 @@ function animate(ts) {
       impactRing.scale.setScalar(1.0);
       impactRing.visible = true;
       // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 — Pass 1263: →18.0 — Pass 1366: →26.0 — Pass 1542: →36.0 for bigger floor thud
-      _cameraShake = Math.max(_cameraShake, 65.6); // Pass 1788: floor landing shake 36.0→48.6 — Pass 1912: →65.6
+      _cameraShake = Math.max(_cameraShake, 88.6); // Pass 2127: floor landing shake 65.6→88.6
       // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 — Pass 1367: →50.0 — Pass 1543: →68.0 vivid landing pop
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 124.0; // Pass 1789: strip flash at landing 68.0→91.8 — Pass 1913: →124.0
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 167.4; // Pass 2128: strip flash at landing 124.0→167.4
       // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 — Pass 1368: →56.0 — Pass 1544: →75.0 vivid count
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 136.4; // Pass 1790: fill bar landing spark 75.0→101 — Pass 1914: →136.4
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 184.1; // Pass 2129: fill bar landing spark 136.4→184.1
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
@@ -4295,7 +4295,7 @@ function animate(ts) {
         for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 18; _li++) {
           const _lp = GRAB_PARTICLES[_li];
           if (_lp.active) continue;
-          _lp.active = true; _lp.age = 0; _lp.life = 0.50 + Math.random() * 0.32; // Pass 983: life 0.32+0.20→0.38+0.24 — Pass 1482: →0.50+0.32 longer-lived landing dust
+          _lp.active = true; _lp.age = 0; _lp.life = 0.68 + Math.random() * 0.43; // Pass 2132: landing dust life 0.50+0.32→0.68+0.43
           _lp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 10,
             ct.slotFloorY + 2,
@@ -4303,9 +4303,9 @@ function animate(ts) {
           );
           _lp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 346 + Math.random() * 392; // Pass 1795: impact dust speed 190+215→256+290 — Pass 1915: →346+392
+          const _spd = 467 + Math.random() * 529; // Pass 2130: impact dust speed 346+392→467+529
           _lp.vx = Math.cos(_ang) * _spd * 0.45;
-          _lp.vy = 19 + Math.random() * 43; // Pass 984: 6+16→10+24 — Pass 1481: →14+32 — Pass 1916: →19+43 more dust loft
+          _lp.vy = 25 + Math.random() * 58; // Pass 2131: dust loft vy 19+43→25+58
           _lp.vz = Math.sin(_ang) * _spd;
           _lp.mat.color.setRGB(
             Math.min(1, _rr2 / 255 * 0.55 + 0.45),
