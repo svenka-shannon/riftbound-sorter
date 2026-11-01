@@ -4108,7 +4108,7 @@ function animate(ts) {
         // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
         // Pass 971: bounce 16→22 — Pass 1108: →30 — Pass 1195: →40 — Pass 1257: →52 for even bigger card-slap landing bounce
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 52 * Math.sin(bT * Math.PI) * (1 - bT * 0.32);
+        cy = targetY + 70 * Math.sin(bT * Math.PI) * (1 - bT * 0.32); // Pass 1787: landing bounce height 52→70
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4117,7 +4117,7 @@ function animate(ts) {
     // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
     // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
     // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 — Pass 1114: primary 5.5→7.5, secondary 1.5→2.2 — Pass 1200: primary →10.5, secondary →3.2 — Pass 1258: primary →13.5, secondary →4.2 — Pass 1408: primary →18.0, secondary →5.6 for even more pronounced slot wall bounce
-    const _slotWallZ = ct.slotZ + (18.0 * Math.sin(dt3 * Math.PI * 4) + 5.6 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4);
+    const _slotWallZ = ct.slotZ + (24.3 * Math.sin(dt3 * Math.PI * 4) + 7.56 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4); // Pass 1784: wall Z primary 18.0→24.3, Pass 1785: secondary 5.6→7.56
     activeCard.position.set(TRAY_X_START + 20, cy, _slotWallZ);
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
@@ -4151,7 +4151,7 @@ function animate(ts) {
     // Pass 669: pre-impact shake ramp 0.4+1.0→0.55+1.6 — Pass 752: →0.70+2.5 — Pass 978: →0.90+3.5 — Pass 1109: →1.20+5.0 — Pass 1196: →1.80+7.5 — Pass 1259: →2.20+9.5 — Pass 1407: →3.00+13.0 for even bigger pre-impact tension buildup
     if (ct.floor === 0 && dt3 >= 0.72 && dt3 < 0.88) {
       const _preImpactT = (dt3 - 0.72) / 0.16; // 0→1 in approach window
-      _cameraShake = Math.max(_cameraShake, 3.00 + _preImpactT * 13.0);
+      _cameraShake = Math.max(_cameraShake, 4.05 + _preImpactT * 17.55); // Pass 1786: pre-impact shake 3.00+13.0→4.05+17.55
     }
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
     // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 — Pass 1197: →0.65+(dt3/0.88)*2.20 — Pass 1404: →0.65+(dt3/0.88)*3.00 — Pass 1547: →0.65+(dt3/0.88)*4.00 brighter fall glow
@@ -4174,7 +4174,7 @@ function animate(ts) {
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     // Pass 979: start from 2.8 — Pass 1550: →4.0 for brighter slot target spotlight at drop entry
-    scanTargetLight.intensity = THREE.MathUtils.lerp(4.0, 0, easeInOut(dt3));
+    scanTargetLight.intensity = THREE.MathUtils.lerp(5.4, 0, easeInOut(dt3)); // Pass 1783: slot target spotlight entry 4.0→5.4
     // Pass 81: slot sweep light travels from entrance to back wall as card inserts
     {
       const _sweepX = THREE.MathUtils.lerp(TRAY_X_START + 5, TRAY_X_END - 5, easeInOut(dt3));
@@ -4193,9 +4193,9 @@ function animate(ts) {
     // Pass 470: target LED hold-then-snap — holds at 3.5 for first 22%, then snaps to 0.15 quickly
     // Pass 530: sympathetic flash amplitude 0.55→0.75; target LED spike 1.8→2.6 for stronger confirm flash
     // Pass 963: sympathetic flash 0.75→1.20, target spike 2.6→4.0 — Pass 1390: sympath →1.70, target →5.5
-    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 1.70 : 0;
+    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 2.30 : 0; // Pass 1780: sympathetic flash 1.70→2.30
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 5.5 : _sympFlash278;
+      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 7.42 : _sympFlash278; // Pass 1781: target LED spike 5.5→7.42
       const _ledDrop = dt3 < 0.22 ? 3.5 : THREE.MathUtils.lerp(3.5, 0.15, (dt3 - 0.22) / 0.78); // Pass 470
       const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.15 + _sympFlash278;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
@@ -4206,7 +4206,7 @@ function animate(ts) {
     if (!_slotGateFlashFired && dt3 >= 0.06) {
       _slotGateFlashFired = true;
       // Pass 537: slot gate flash 8.0→11.0 — Pass 960: →17.0 — Pass 1119: →26.0 — Pass 1260: →36.0 for brighter tray entry burst
-      const _gfl = new THREE.PointLight(ct.hex, 36.0, 120); // Pass 1260: 26.0→36.0
+      const _gfl = new THREE.PointLight(ct.hex, 48.6, 120); // Pass 1782: slot gate flash 36.0→48.6
       _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
