@@ -5168,7 +5168,7 @@ function animate(ts) {
       // Pass 158: domain-colored pulse during active pick — LED "reacts" to arm
       // Pass 618: LED pick pulse amplitude 0.8→1.4, base 2.5→3.2 — Pass 1040: base 3.2→5.0, amp 1.4→2.2
       _ledColor = ct.hex;
-      _ledGlow = 6.75 + 2.97 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2044: pick pulse 5.0+2.2→6.75+2.97
+      _ledGlow = 9.11 + 4.01 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2221: pick pulse base 6.75→9.11 Pass 2222: amp 2.97→4.01
     } else if (_visibleCards >= 5) {
       _ledColor = 0x00ff44; _ledGlow = 2.0; // green: full
     } else if (_visibleCards >= 3) {
@@ -5197,7 +5197,7 @@ function animate(ts) {
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
       // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5 — Pass 1443: out →13.5, in →6.0
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 24.6 : 10.9; // Pass 2045: revealed-out 18.2→24.6 Pass 2046: in 8.1→10.9
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 33.2 : 14.7; // Pass 2223: revealed-out 24.6→33.2 Pass 2224: in 10.9→14.7
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
     } else {
       // Fade card-tracking mode out
@@ -5220,7 +5220,7 @@ function animate(ts) {
         _beltTrackLight.position.set(shimmerX, CONV_Y_TOP + 5, 0);
         // Pulse the shimmer brightness — brighter at belt midpoint, softer at ends
         const midT = 1 - Math.abs((_beltIdlePhase % 1) - 0.5) * 2;
-        _beltTrackLight.intensity = 0.82 + midT * 1.19; // Pass 2047: idle shimmer base 0.61→0.82 Pass 2048: peak 0.88→1.19
+        _beltTrackLight.intensity = 1.11 + midT * 1.61; // Pass 2225: idle shimmer base 0.82→1.11 Pass 2226: peak 1.19→1.61
       }
     }
   }
@@ -5231,8 +5231,8 @@ function animate(ts) {
     const _onBelt = (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))
                      && activeCard.visible;
     // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
-    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 0.15 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2049: shadow scan pulse 0.11→0.15
-    const _shadowTarget = _onBelt ? 0.69 + _shadowScanPulse : 0; // Pass 2050: shadow opacity 0.51→0.69
+    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 0.20 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2227: shadow scan pulse 0.15→0.20
+    const _shadowTarget = _onBelt ? 0.93 + _shadowScanPulse : 0; // Pass 2228: shadow opacity 0.69→0.93
     _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 8);
     if (_onBelt) {
       _shadowMesh.position.set(activeCard.position.x, CONV_Y_TOP + 0.4, activeCard.position.z);
