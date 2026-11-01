@@ -4648,14 +4648,14 @@ function animate(ts) {
     const _bodyActive = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     if (_bodyActive) {
       convBodyMat.emissive.setHex(ct.hex);
-      // Pass 263: conveyor body scanner-approach boost — Pass 692: 0.06→0.10 — Pass 934: →0.18 for brighter approach
+      // Pass 263: conveyor body scanner-approach boost — Pass 692: 0.06→0.10 — Pass 934: →0.18 — Pass 1452: →0.26 for brighter approach
       const _bodyApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.80
-        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 0.18 : 0;
-      // Pass 279: scanner-exit echo — Pass 522: 0.12→0.20 — Pass 933: →0.35 for stronger departure flash
+        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 0.26 : 0;
+      // Pass 279: scanner-exit echo — Pass 522: 0.12→0.20 — Pass 933: →0.35 — Pass 1453: →0.50 for stronger departure flash
       const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
-        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 0.35 : 0;
-      // Pass 932: conveyor body base glow 0.08→0.14, pulse amp 0.04→0.08 for more vivid presence
-      const _bodyTarget = 0.14 + 0.08 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho;
+        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 0.50 : 0;
+      // Pass 932: conveyor body base glow 0.08→0.14 — Pass 1454: →0.20, pulse amp 0.08→0.12 for more vivid presence
+      const _bodyTarget = 0.20 + 0.12 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho;
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
     } else {
       convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
@@ -4672,8 +4672,8 @@ function animate(ts) {
       const _beltRevealedOrPost = _identityRevealed || inPhase(PH.conveyorOut);
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
       beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 1.5));
-      // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14
-      const _bsTarget = 0.20 + 0.14 * Math.sin(cycleT * 6);
+      // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14 — Pass 1455: →0.28+0.20
+      const _bsTarget = 0.28 + 0.20 * Math.sin(cycleT * 6);
       beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2);
     } else {
       beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 1.5));
@@ -4687,10 +4687,10 @@ function animate(ts) {
     if (_inApproach) {
       const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
       hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 3));
-      // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 for dramatic heat-up
-      const _warmTarget = 0.28 + _warmT * 1.30;
-      // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 for more visible heat flicker
-      const _hoodShimmer = 0.10 * Math.sin(ts * 17 * Math.PI * 2) * _warmT;
+      // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 — Pass 1456: →0.28+1.80 for dramatic heat-up
+      const _warmTarget = 0.28 + _warmT * 1.80;
+      // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 — Pass 1457: →0.14 for more visible heat flicker
+      const _hoodShimmer = 0.14 * Math.sin(ts * 17 * Math.PI * 2) * _warmT;
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 4);
     } else {
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
@@ -4781,9 +4781,9 @@ function animate(ts) {
     const _armSwingT = inPhase(PH.armSwing) ? 1.0 : 0;
     const _convInT  = inPhase(PH.conveyorIn) ? Math.max(0, 1 - phaseRaw(PH.conveyorIn) * 5) : 0;
     // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
-    // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35
+    // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35 — Pass 1458: armDesc 0.18→0.26, convIn 0.25→0.35
     const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 2.50 : 0;
-    const _rodGlow = Math.max(_armDescT * 0.18, _armLiftT * 0.42 + _liftPickSpike, _armSwingT * 1.35, _convInT * 0.25);
+    const _rodGlow = Math.max(_armDescT * 0.26, _armLiftT * 0.42 + _liftPickSpike, _armSwingT * 1.35, _convInT * 0.35);
     armRod.material.emissive.setHex(ct.hex);
     armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 6);
   }
@@ -4795,7 +4795,7 @@ function animate(ts) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
                      inPhase(PH.armLift)    ? 1.0 : 0.5;
     suctionCupMat.emissive.setHex(ct.hex);
-    suctionCupMat.emissiveIntensity = cupGlowT * 1.8; // Pass 991: peak 1.2→1.8 stronger cup glow
+    suctionCupMat.emissiveIntensity = cupGlowT * 2.5; // Pass 991: peak 1.2→1.8 — Pass 1459: →2.5 stronger cup glow
   } else if (inPhase(PH.armReturn)) {
     // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
     // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
