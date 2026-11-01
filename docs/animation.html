@@ -1971,7 +1971,7 @@ function fireCelebration() {
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
     p.vx = Math.cos(angle) * spd * 0.75;
     // Pass 729: upward bias 0.6+0.6→0.75+0.70 — Pass 893: →0.90+0.85 — Pass 1010: →1.10+1.00 — Pass 1634: →1.40+1.30 stronger launch
-    p.vy = spd * (1.40 + Math.random() * 1.30); // Pass 1634: 1.10+1.00→1.40+1.30
+    p.vy = spd * (1.89 + Math.random() * 1.76); // Pass 2501: celeb launch bias 1.40+1.30→1.89+1.76
     p.vz = Math.sin(angle) * spd * 0.65;
     // Pass 652: randomize spawn position within ±25 units of tray center for wider burst area
     p.mesh.position.set(TX_MID + (Math.random()-0.5)*25, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*20);
@@ -1981,9 +1981,9 @@ function fireCelebration() {
     p.life = 2.6 + Math.random() * 2.0; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98
-    p.rx = (Math.random() - 0.5) * 65;
-    p.ry = (Math.random() - 0.5) * 78;
-    p.rz = (Math.random() - 0.5) * 98;
+    p.rx = (Math.random() - 0.5) * 88; // Pass 2502: tumble rx 65→88
+    p.ry = (Math.random() - 0.5) * 105; // Pass 2503: tumble ry 78→105
+    p.rz = (Math.random() - 0.5) * 132; // Pass 2504: tumble rz 98→132
     p.active = true;
     p.mesh.visible = true;
   });
@@ -1993,15 +1993,15 @@ function fireCelebration() {
   for (let _mi = 0; _mi < 16; _mi++) { // Pass 896: 12→16 shimmer pieces
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
     _mp.vx = (Math.random() - 0.5) * 280; // Pass 1011: 165→210 — Pass 1476: →280 faster shimmer burst
-    _mp.vy = 155 + Math.random() * 130; // Pass 1011: 95+80→120+100 — Pass 1477: →155+130 higher shimmer loft
+    _mp.vy = 209 + Math.random() * 176; // Pass 2505: shimmer loft 155+130→209+176
     _mp.vz = (Math.random() - 0.5) * 110; // Pass 1478: 80→110 wider shimmer spread
     _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*30, FLOOR_Y[0] + 85, (Math.random()-0.5)*40);
     _mp.mat.color.setHex(_shimmerColors[_mi]);
     _mp.mat.opacity = 1.0;
     _mp.age = 0; _mp.life = 1.10 + Math.random() * 0.80; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 longer shimmer life
-    _mp.rx = (Math.random() - 0.5) * 50; // Pass 1629: 36→50 fast tumble
-    _mp.ry = (Math.random() - 0.5) * 60; // Pass 1629: 44→60
-    _mp.rz = (Math.random() - 0.5) * 70; // Pass 1629: 52→70
+    _mp.rx = (Math.random() - 0.5) * 68; // Pass 2506: shimmer rx 50→68
+    _mp.ry = (Math.random() - 0.5) * 81; // Pass 2507: shimmer ry 60→81
+    _mp.rz = (Math.random() - 0.5) * 95; // Pass 2508: shimmer rz 70→95
     _mp.active = true; _mp.mesh.visible = true;
   }
   // Pass 54: full-scene celebration enhancement
