@@ -3743,7 +3743,7 @@ function animate(ts) {
     // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 — Pass 1369: →30.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (30.0 * ot - gateColLight.intensity) * Math.min(1, dt * 7);
+    gateColLight.intensity += (42.0 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 1369: 22.0→30.0 — Pass 1560: →42.0
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -3796,12 +3796,12 @@ function animate(ts) {
     // Pass 72: smooth charge-up ramp as card approaches (ot 0→1 = charge 0.18→3.8)
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
-    // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 — Pass 1364: →50.0 for stronger pre-gate glow
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 50.0, easeInOut(ot));
+    // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 — Pass 1364: →50.0 — Pass 1556: →68.0 for stronger pre-gate glow
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 68.0, easeInOut(ot));
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
-    // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 for more chaotic electromagnetic charging
+    // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 — Pass 1557: primary →4.80, secondary →1.70 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
-      ? (3.50 * Math.sin(ts * 6 * Math.PI * 2) + 1.25 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30)
+      ? (4.80 * Math.sin(ts * 6 * Math.PI * 2) + 1.70 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30)
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
@@ -3820,10 +3820,10 @@ function animate(ts) {
           Math.sin(_coronaAng * 0.7) * _coronaR * 0.3
         );
         tp.mat.color.setHex(ct.hex);
-        // Pass 489: corona opacity 0.15+0.12→0.22+0.18 — Pass 713: →0.30+0.24 — Pass 951: →0.42+0.32 — Pass 1226: →0.58+0.44 — Pass 1298: →0.75+0.55 for denser charge aura
-        tp.mat.opacity = 0.75 + Math.random() * 0.55;
-        // Pass 952: corona particle life 0.22+0.18→0.30+0.24 for longer-lived charge aura
-        tp.age = 0; tp.life = 0.30 + Math.random() * 0.24;
+        // Pass 489: corona opacity 0.15+0.12→0.22+0.18 — Pass 713: →0.30+0.24 — Pass 951: →0.42+0.32 — Pass 1226: →0.58+0.44 — Pass 1298: →0.75+0.55 — Pass 1562: opacity capped at 1.0
+        tp.mat.opacity = Math.min(1.0, 0.75 + Math.random() * 0.55);
+        // Pass 952: corona particle life 0.22+0.18→0.30+0.24 — Pass 1563: →0.42+0.32 for longer-lived charge aura
+        tp.age = 0; tp.life = 0.42 + Math.random() * 0.32;
         tp.active = true; tp.mesh.visible = true;
       }
     }
@@ -3938,7 +3938,7 @@ function animate(ts) {
     // Pass 526: 6.5→9.0 — Pass 636: →12.5 — Pass 784: →18.0 — Pass 918: →26.0 — Pass 1184: →36.0 — Pass 1353: →68.0 for bigger arc apex pop
     if (!_arcPeakFlashFired && dt2 >= 0.46) {
       _arcPeakFlashFired = true;
-      const _apfl = new THREE.PointLight(ct.hex, 68.0, 175); // Pass 1184: 26.0→36.0 — Pass 1243: →50.0 — Pass 1353: →68.0 for bigger arc-apex domain burst
+      const _apfl = new THREE.PointLight(ct.hex, 92.0, 230); // Pass 1184: 26.0→36.0 — Pass 1243: →50.0 — Pass 1353: →68.0 — Pass 1558: →92.0, dist→230 for bigger arc-apex domain burst
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3949,8 +3949,8 @@ function animate(ts) {
     // Pass 147: parabolic arc — Pass 416: arc height boost floor-0 10→13, floor-1 18→22
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
-    // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 for even higher card flight arc during deflect
-    const _arcBump = (ct.floor === 1 ? 30 : 29) * Math.sin(dt2 * Math.PI);
+    // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 — Pass 1559: floor-0 →38, floor-1 →40 for even higher card flight arc during deflect
+    const _arcBump = (ct.floor === 1 ? 40 : 38) * Math.sin(dt2 * Math.PI);
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
@@ -4045,7 +4045,7 @@ function animate(ts) {
     // Pass 649: deflect column light max 3.0→4.5 — Pass 1193: →6.5 brighter gate column during arc flight
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (6.5 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6);
+    gateColLight.intensity += (9.0 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 1561: 6.5→9.0 deflect gate approach light
     _beltScrollSpeed = 0.04; // half speed while card arcs off belt
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
