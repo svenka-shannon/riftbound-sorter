@@ -4891,11 +4891,11 @@ function animate(ts) {
   // Pass 200: scan camera Z sympathetic oscillation — hood's 2.8Hz micro-sway felt by camera.
   // Pass 570: Z amplitude 1.8→2.8; add 0.6-unit Y component for fuller resonance feel.
   // Pass 642: Z→3.5, Y→0.9; add secondary 4.1Hz hood harmonic (matching pass 607 hood sway)
-  // Pass 995: Z→4.5, Y→1.2 for deeper camera resonance with scanner hood during scan
+  // Pass 995: Z→4.5, Y→1.2 — Pass 1428: Z→6.0, Y→1.6 for deeper camera resonance with scanner hood during scan
   if (inPhase(PH.scan) && !controls._userInteracted) {
     const _scanSinEnv = Math.sin(phaseRaw(PH.scan) * Math.PI);
-    camera.position.z += (4.5 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.90 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv;
-    camera.position.y += 1.2 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv;
+    camera.position.z += (6.0 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.90 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv;
+    camera.position.y += 1.6 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv;
   }
 
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
@@ -4916,21 +4916,21 @@ function animate(ts) {
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
     const _h2 = Math.sin(_shakePhase2) * 0.70;           // Pass 1026: second harmonic 0.55→0.70 (richer rattle)
-    // Pass 568: shake amplitude 0.30→0.45/0.62/0.38 — Pass 700: →0.55/0.78/0.50 — Pass 906: →0.65/0.90/0.60 — Pass 1336: →0.75/1.10/0.75 richer rattle
-    const _shakeX = (_n * 0.75 + _h1 * 1.10 + _h2 * 0.75) * _cameraShake;
-    const _shakeY = (_n * 0.75 + Math.cos(_shakePhase1) * 1.10 + Math.cos(_shakePhase2) * 0.75 * 0.55) * _cameraShake;
+    // Pass 568: shake amplitude 0.30→0.45/0.62/0.38 — Pass 700: →0.55/0.78/0.50 — Pass 906: →0.65/0.90/0.60 — Pass 1336: →0.75/1.10/0.75 — Pass 1429: →0.85/1.40/0.90 richer rattle
+    const _shakeX = (_n * 0.85 + _h1 * 1.40 + _h2 * 0.90) * _cameraShake;
+    const _shakeY = (_n * 0.85 + Math.cos(_shakePhase1) * 1.40 + Math.cos(_shakePhase2) * 0.90 * 0.55) * _cameraShake;
     camera.position.x += _shakeX;
     camera.position.y += _shakeY;
-    // Pass 569: shake decay 0.78→0.72 — Pass 701: →0.69 — Pass 1027: →0.66 — Pass 1337: →0.63 for longer lingering feel
-    _cameraShake *= 0.63; // decay: Pass 1337
+    // Pass 569: shake decay 0.78→0.72 — Pass 701: →0.69 — Pass 1027: →0.66 — Pass 1337: →0.63 — Pass 1430: →0.60 for longer lingering feel
+    _cameraShake *= 0.60; // decay: Pass 1430
   } else {
     _cameraShake = 0;
     _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
   }
 
-  // Pass 106: FOV zoom-punch decay — slowly return to nominal 55° after celebration
+  // Pass 106: FOV zoom-punch decay — slowly return to nominal 55° after celebration — Pass 1431: decay rate 1.1→0.75 (longer zoom hold)
   if (_fovBump > 0.05) {
-    _fovBump *= Math.max(0, 1 - dt * 1.1); // decay at 1.1/s → reaches ~0 in ~2s
+    _fovBump *= Math.max(0, 1 - dt * 0.75); // decay at 0.75/s → reaches ~0 in ~3s (Pass 1431)
     camera.fov = 55 - _fovBump;
     camera.updateProjectionMatrix();
   } else if (_fovBump > 0) {
@@ -5069,11 +5069,11 @@ function animate(ts) {
   }
 
   // Pass 100: confirm ring expands from scanner center at identity reveal
-  // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 — Pass 944: →dt*3.5 for longer ring
+  // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 — Pass 944: →dt*3.5 — Pass 1432: →dt*2.6 for longer ring
   if (_confirmRingT >= 0) {
-    _confirmRingT = Math.min(1, _confirmRingT + dt * 3.5); // Pass 944: slower for longer visible duration
-    // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 wider confirm ring
-    const _crs = 1.0 + easeOut(_confirmRingT) * 36.0;
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 2.6); // Pass 1432: slower for longer visible duration
+    // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 wider confirm ring
+    const _crs = 1.0 + easeOut(_confirmRingT) * 50.0;
     confirmRing.scale.setScalar(_crs);
     confirmRingMat.opacity = (1 - _confirmRingT) * 0.95; // Pass 1034: opacity 0.90→0.95
     if (_confirmRingT >= 1) {
@@ -5084,12 +5084,12 @@ function animate(ts) {
   }
   // Pass 184: second confirm ring — fires 0.12s after first, smaller and faster
   if (_confirmRingT2 > -1) {
-    // Pass 945: second ring speed dt*2.2→dt*2.8 for snappier second wave
-    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 2.8);
+    // Pass 945: second ring speed dt*2.2→dt*2.8 — Pass 1434: →dt*2.2 for longer second ring duration
+    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 2.2);
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
-      // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 for wider second burst
-      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 16.0;
+      // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 for wider second burst
+      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 22.0;
       confirmRing2.scale.setScalar(_crs2);
       confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 0.90); // Pass 1035: 0.75→0.90
       if (_confirmRingT2 >= 1) {
