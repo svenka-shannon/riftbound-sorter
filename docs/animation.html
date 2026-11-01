@@ -3034,11 +3034,11 @@ function animate(ts) {
     // Pass 1235: lean -0.18→-0.05 (bugfix: at -0.18 the card front edge was 4.9u below belt; safe max ≈0.05rad)
     const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
     const _beltLean = THREE.MathUtils.lerp(0, -0.05, easeOut(_leanT));
-    // Pass 116: belt micro-vibration — tiny noise jitter in rotation.z simulates belt roughness
-    const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015;
+    // Pass 116: belt micro-vibration — tiny noise jitter in rotation.z simulates belt roughness — Pass 1589: 0.0025→0.0034, 0.0015→0.0020
+    const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0034 + Math.sin(ts * 73 * Math.PI * 2) * 0.0020;
     // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
-    // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 — Pass 1303: →0.45 for more physical card-slap
-    const _beltFlopY309 = 0.45 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5);
+    // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 — Pass 1303: →0.45 for more physical card-slap — Pass 1588: →0.62
+    const _beltFlopY309 = 0.62 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5);
     activeCard.rotation.set(_beltLean, _beltFlopY309, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
@@ -3046,17 +3046,17 @@ function animate(ts) {
     gateColLight.intensity *= Math.max(0, 1 - dt * 4); // pass 141: fade gate column light on belt entry
     // Pass 144: scan anticipation — card brightens in final 15% of conveyorIn as scanner looms
     const _approachT = Math.max(0, (ct2 - 0.85) / 0.15); // 0→1 in last 15%
-    // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap)
-    const _entryBoost = Math.exp(-ct2 * 20) * 1.4;
+    // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap) — Pass 1592: →1.9
+    const _entryBoost = Math.exp(-ct2 * 20) * 1.9;
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
-    // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension
+    // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 20;
-    activeCardMat.emissiveIntensity = 0.55 + _approachT * 0.85 // Pass 874: 0.65→0.85
-      + _approachT * 0.90 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1145: 0.45→0.65 — Pass 1305: →0.90 stronger scanner-approach tension
+    activeCardMat.emissiveIntensity = 0.55 + _approachT * 1.15 // Pass 1590: 0.85→1.15
+      + _approachT * 1.22 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1590: 0.90→1.22
       + _approachT * 0.10 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat
       + _entryBoost;
-    // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 — Pass 1304: →12.0 for stronger tension glow
-    cardGlow.intensity = 1.4 + _approachT * 12.0; // Pass 1304: 8.5→12.0
+    // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 — Pass 1304: →12.0 for stronger tension glow — Pass 1591: →16.0
+    cardGlow.intensity = 1.4 + _approachT * 16.0; // Pass 1591: 12.0→16.0
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     // Pass 468: early detection ripple — at ct2=0.60-0.80, LED flickers at 10Hz (card entering field)
     // Pass 888: early detect amplitude 0.5→0.8 for stronger card-entering-field detection
@@ -3755,8 +3755,8 @@ function animate(ts) {
     // Card banks in Z direction during exit — previews which column it's heading to
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     // Pass 312: conveyorOut Z bank amplifier — outer columns lean harder to reinforce routing
-    // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit
-    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 0.65;
+    // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit — Pass 1593: →0.88
+    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 0.88;
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
     // Pass 140: blend lean from 0 (scan end) to belt lean over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
@@ -3765,8 +3765,8 @@ function animate(ts) {
     const _exitLean = THREE.MathUtils.lerp(0, -0.05, easeOut(_exitBlendT));
     // Pass 232: belt acceleration pitch kick — belt surges from scan crawl (0.02) to full
     // speed at conveyorOut start, briefly pitching card nose-up by inertia.
-    // Pass 640: belt launch pitch kick 0.06→0.10 — Pass 776: 0.10→0.16 — Pass 970: →0.22 for stronger card-lurch at scan exit
-    const _beltKickPitch = Math.exp(-ot * 22) * 0.22;
+    // Pass 640: belt launch pitch kick 0.06→0.10 — Pass 776: 0.10→0.16 — Pass 970: →0.22 for stronger card-lurch at scan exit — Pass 1594: →0.30; Pass 1595: decay 22→16 longer kick
+    const _beltKickPitch = Math.exp(-ot * 16) * 0.30;
     activeCard.rotation.set(_exitLean + _beltKickPitch, 0, zBank); // forward lean + kick + bank
     // Pass 174: continue belt Z-wobble during conveyorOut — fades in over first 5% and out
     // over last 30% so card arrives stable at gate (no Z snap at scan→out or out→deflect)
