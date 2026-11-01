@@ -5476,7 +5476,7 @@ function animate(ts) {
         m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 2.16); // Pass 2251: tray arrival decay 1.6→2.16
       } else {
         // At idle — gently track the breathing target
-        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 1.8); // Pass 1659: tracking 1.2→1.8
+        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 2.43); // Pass 2260: tray idle tracking 1.8→2.43
       }
     });
   });
@@ -5485,16 +5485,16 @@ function animate(ts) {
   {
     // Pass 540: scan background boost 0.055→0.080 — Pass 662: 0.080→0.105 for deeper domain atmosphere — Pass 1616: →0.14
     const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.26 : 0; // Pass 2252: scan bg boost 0.19→0.26
-    const _celebBoost = _cameraShake > 3 ? Math.min(0.16, _cameraShake * 0.024) : 0; // Pass 1966: ceiling 0.12→0.16 Pass 1967: mult 0.018→0.024
+    const _celebBoost = _cameraShake > 3 ? Math.min(0.22, _cameraShake * 0.032) : 0; // Pass 2253: ceiling 0.16→0.22 Pass 2254: mult 0.024→0.032
     // Pass 152: brief domain tint on slotDrop — card joins the tray, background echoes domain — Pass 1609: 0.028→0.040
-    const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.054 : 0; // Pass 1968: drop tint 0.040→0.054
+    const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.073 : 0; // Pass 2255: drop tint 0.054→0.073
     // Pass 328: reveal background flash — brief domain flood at identity lock-on moment
     // Pass 539: reveal flood 0.09→0.14 for bigger background domain surge at lock-on — Pass 1617: →0.19
-    const _revealTintBoost328 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 20) * 0.26 : 0; // Pass 1969: reveal flood 0.19→0.26
+    const _revealTintBoost328 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 20) * 0.35 : 0; // Pass 2256: reveal flood 0.26→0.35
     // Pass 329: deflect background tint — background echoes domain as card arcs through air — Pass 1466: 0.022→0.032
-    const _deflectTintBoost329 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.043 : 0; // Pass 1970: deflect tint 0.032→0.043
+    const _deflectTintBoost329 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.058 : 0; // Pass 2257: deflect tint 0.043→0.058
     // Pass 330: armSwing background echo — brief tint at arc midpoint as card swings closest — Pass 1467: 0.018→0.026
-    const _swingTintBoost330 = inPhase(PH.armSwing) ? Math.sin(phaseRaw(PH.armSwing) * Math.PI) * 0.035 : 0; // Pass 1971: swing tint 0.026→0.035
+    const _swingTintBoost330 = inPhase(PH.armSwing) ? Math.sin(phaseRaw(PH.armSwing) * Math.PI) * 0.047 : 0; // Pass 2258: swing tint 0.035→0.047
     if (_scanBoost > 0.002 || _celebBoost > 0.002 || _dropTintBoost > 0.002
         || _revealTintBoost328 > 0.002 || _deflectTintBoost329 > 0.002 || _swingTintBoost330 > 0.002) {
       const _tintR = ((ct.hex >> 16) & 0xff) / 255;
@@ -5505,7 +5505,7 @@ function animate(ts) {
       _clearCurrent.g = _clearBase.g + (_tintG - _clearBase.g) * _strength;
       _clearCurrent.b = _clearBase.b + (_tintB - _clearBase.b) * _strength;
     } else {
-      _clearCurrent.lerp(_clearBase, Math.min(1, dt * 4.05)); // Pass 1972: clear decay 3→4.05
+      _clearCurrent.lerp(_clearBase, Math.min(1, dt * 5.47)); // Pass 2259: clear decay 4.05→5.47
     }
     renderer.setClearColor(_clearCurrent, 1);
   }
