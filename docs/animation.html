@@ -2543,7 +2543,7 @@ function animate(ts) {
       ? 4.73 + 2.43 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
-    const _haloScale332 = beltActive ? 1.0 + 0.06 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0;
+    const _haloScale332 = beltActive ? 1.0 + 0.081 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
     const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 1.49 : 0; // Pass 2524: halo gate pulse 1.10→1.49
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
@@ -4628,7 +4628,7 @@ function animate(ts) {
     // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy — Pass 1614: →0.38
     const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.93 : 0; // Pass 2422: grab ambient boost 0.69→0.93
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response — Pass 1615: ceiling 0.40→0.55, mult 0.05→0.07
-    const _shakeBoost   = _cameraShake > 2 ? Math.min(1.00, _cameraShake * 0.128) : 0; // Pass 2166: shake boost ceiling 0.74→1.00, mult 0.095→0.128
+    const _shakeBoost   = _cameraShake > 2 ? Math.min(1.35, _cameraShake * 0.173) : 0; // Pass 2530: shake boost ceiling 1.00→1.35, mult 0.128→0.173
     // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 — Pass 1607: →1.05
     const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 2.59 : 0; // Pass 2423: slotDrop ambient 1.92→2.59
     // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response — Pass 1610: →0.84
@@ -4862,7 +4862,7 @@ function animate(ts) {
       // Pass 194: scan camera lean — lookAt dips toward belt at scan midpoint for drama.
       // Pass 473: reveal camera dip — extra 5-unit dip at identity lock-on for dramatic focus.
       // Pass 707: scan lean dip 18→25 — Pass 1019: →35 for deeper camera dive + reveal dip 5→8
-      ? { x: -40, y: 60 - 35 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 8 : 0) }
+      ? { x: -40, y: 60 - 47 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 11 : 0) } // Pass 2528: scan lean 35→47 Pass 2529: reveal dip 8→11
       : inPhase(PH.conveyorOut)
       ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
       : inPhase(PH.deflect)
@@ -4881,7 +4881,7 @@ function animate(ts) {
     const _coRaw = inPhase(PH.conveyorOut) ? phaseRaw(PH.conveyorOut) : 0;
     const _coZBoost = inPhase(PH.conveyorOut) ? 0.40 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0;
     // Pass 297: slotDrop Z camera lead boost — camera leans further into destination column as card falls — Pass 1608: 0.20→0.28
-    const _sdZBoost = inPhase(PH.slotDrop) ? 0.28 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0;
+    const _sdZBoost = inPhase(PH.slotDrop) ? 0.38 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
       ? ct.slotZ * (0.25 + _coZBoost + _sdZBoost) : 0;
     if (!controls._camTgtZ) controls._camTgtZ = 0;
@@ -4896,8 +4896,8 @@ function animate(ts) {
   // Pass 995: Z→4.5, Y→1.2 — Pass 1428: Z→6.0, Y→1.6 for deeper camera resonance with scanner hood during scan
   if (inPhase(PH.scan) && !controls._userInteracted) {
     const _scanSinEnv = Math.sin(phaseRaw(PH.scan) * Math.PI);
-    camera.position.z += (10.9 * Math.sin(ts * 2.8 * Math.PI * 2) + 1.22 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv; // Pass 2189: Z resonance 8.1→10.9
-    camera.position.y += 2.92 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv; // Pass 2190: Y resonance 2.16→2.92
+    camera.position.z += (14.7 * Math.sin(ts * 2.8 * Math.PI * 2) + 1.65 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv; // Pass 2525: Z resonance 10.9→14.7
+    camera.position.y += 3.94 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv; // Pass 2526: Y resonance 2.92→3.94
   }
 
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
@@ -4917,7 +4917,7 @@ function animate(ts) {
     _shakePhase2 += dt * 239; // ~38Hz
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
-    const _h2 = Math.sin(_shakePhase2) * 1.28;            // Pass 2191: second harmonic 0.945→1.28
+    const _h2 = Math.sin(_shakePhase2) * 1.73;            // Pass 2531: second harmonic 1.28→1.73
     // Pass 568: shake amplitude 0.30→0.45/0.62/0.38 — Pass 700: →0.55/0.78/0.50 — Pass 906: →0.65/0.90/0.60 — Pass 1336: →0.75/1.10/0.75 — Pass 1429: →0.85/1.40/0.90 — Pass 1618: →1.15/1.85/0.90 harder rattle
     const _shakeX = (_n * 2.82 + _h1 * 4.56 + _h2 * 0.90) * _cameraShake; // Pass 2473: shake noise 2.09→2.82 Pass 2474: h1 3.38→4.56
     const _shakeY = (_n * 2.09 + Math.cos(_shakePhase1) * 3.38 + Math.cos(_shakePhase2) * 0.90 * 0.55) * _cameraShake;
