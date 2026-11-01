@@ -3650,13 +3650,13 @@ function animate(ts) {
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
       routeTargetMat.emissive.copy(_arcColor);
-      // Pass 339: target emissive reveal spike — Pass 564: boost 2.5→4.0 — Pass 857: →6.5 — Pass 1440: →9.0 for bigger sphere flare at lock-on
-      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 9.0 : 0;
-      // Pass 858: post-reveal emissive add 1.2→2.0 — Pass 1441: →3.0 for more vivid destination glow
-      routeTargetMat.emissiveIntensity = flashIntensity * (2.0 + (_identityRevealed ? 3.0 : 0)) + _tgtRevealSpike339;
-      routeTargetMat.opacity = flashIntensity * 0.9;
-      // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 — Pass 858: →1.20 — Pass 1068: →1.55 — Pass 1442: →2.10 for bigger destination sphere pulse
-      const _tgtScale304 = 1.0 + flashIntensity * 2.10 * Math.sin(ts * 4 * Math.PI * 2);
+      // Pass 339: target emissive reveal spike — Pass 564: boost 2.5→4.0 — Pass 857: →6.5 — Pass 1440: →9.0 — Pass 1536: →13.0 for bigger sphere flare at lock-on
+      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 13.0 : 0;
+      // Pass 858: post-reveal emissive add 1.2→2.0 — Pass 1441: →3.0 — Pass 1537: base 2.0→2.8, boost 3.0→4.2 for more vivid destination glow
+      routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 4.2 : 0)) + _tgtRevealSpike339;
+      routeTargetMat.opacity = flashIntensity * 1.0; // Pass 1538: 0.9→1.0
+      // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 — Pass 858: →1.20 — Pass 1068: →1.55 — Pass 1442: →2.10 — Pass 1539: →2.80 for bigger destination sphere pulse
+      const _tgtScale304 = 1.0 + flashIntensity * 2.80 * Math.sin(ts * 4 * Math.PI * 2);
       routeTarget.scale.setScalar(Math.max(0.1, _tgtScale304));
     }
     // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
@@ -5072,10 +5072,10 @@ function animate(ts) {
   // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 — Pass 944: →dt*3.5 — Pass 1432: →dt*2.6 for longer ring
   if (_confirmRingT >= 0) {
     _confirmRingT = Math.min(1, _confirmRingT + dt * 2.6); // Pass 1432: slower for longer visible duration
-    // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 wider confirm ring
-    const _crs = 1.0 + easeOut(_confirmRingT) * 50.0;
+    // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
+    const _crs = 1.0 + easeOut(_confirmRingT) * 68.0;
     confirmRing.scale.setScalar(_crs);
-    confirmRingMat.opacity = (1 - _confirmRingT) * 0.95; // Pass 1034: opacity 0.90→0.95
+    confirmRingMat.opacity = (1 - _confirmRingT) * 1.0; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0
     if (_confirmRingT >= 1) {
       _confirmRingT = -1;
       confirmRing.visible = false;
@@ -5088,10 +5088,10 @@ function animate(ts) {
     _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 2.2);
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
-      // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 for wider second burst
-      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 22.0;
+      // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 — Pass 1533: →30.0 for wider second burst
+      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 30.0;
       confirmRing2.scale.setScalar(_crs2);
-      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 0.90); // Pass 1035: 0.75→0.90
+      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 1.0); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0
       if (_confirmRingT2 >= 1) {
         _confirmRingT2 = -1;
         confirmRing2.visible = false;
