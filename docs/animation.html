@@ -4153,9 +4153,9 @@ function animate(ts) {
       _cameraShake = Math.max(_cameraShake, 3.00 + _preImpactT * 13.0);
     }
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
-    // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 — Pass 1197: →0.65+(dt3/0.88)*2.20 — Pass 1404: →0.65+(dt3/0.88)*3.00 brighter fall glow
+    // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 — Pass 1197: →0.65+(dt3/0.88)*2.20 — Pass 1404: →0.65+(dt3/0.88)*3.00 — Pass 1547: →0.65+(dt3/0.88)*4.00 brighter fall glow
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.65 + (dt3 / 0.88) * 3.00; // Pass 1404: peaks at ~3.65 just before bounce flash
+      const _fallRamp = 0.65 + (dt3 / 0.88) * 4.00; // Pass 1547: peaks at ~4.65 just before bounce flash
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
@@ -4262,10 +4262,10 @@ function animate(ts) {
     // Pass 127: slot entry strip build-up — strip glows brighter as card descends into slot
     // Pass 491: pre-landing urgency pulse — strip flickers at 8Hz in dt3 0.55-0.86 to sell approach
     if (ct.stripMat && dt3 < 0.86) {
-      const _stripApproach = Math.max(0.15, 0.15 + 3.00 * (dt3 / 0.86)); // Pass 1121: 1.65→2.30 — Pass 1261: →3.00 brighter strip approach build
-      // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 — Pass 1201: →0.90 — Pass 1262: →1.20 for more urgent pre-landing flicker
+      const _stripApproach = Math.max(0.15, 0.15 + 4.00 * (dt3 / 0.86)); // Pass 1121: 1.65→2.30 — Pass 1261: →3.00 — Pass 1545: →4.00 brighter strip approach build
+      // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 — Pass 1201: →0.90 — Pass 1262: →1.20 — Pass 1546: →1.60 for more urgent pre-landing flicker
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
-        ? (dt3 - 0.55) / 0.31 * 1.20 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0;
+        ? (dt3 - 0.55) / 0.31 * 1.60 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0;
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
         ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 5);
       }
@@ -4279,12 +4279,12 @@ function animate(ts) {
       impactRingMat.color.setHex(ct.hex);
       impactRing.scale.setScalar(1.0);
       impactRing.visible = true;
-      // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 — Pass 1263: →18.0 — Pass 1366: →26.0 for bigger floor thud
-      _cameraShake = Math.max(_cameraShake, 26.0);
-      // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 — Pass 1367: →50.0 vivid landing pop
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 50.0;
-      // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 — Pass 1368: →56.0 vivid count
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 56.0;
+      // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 — Pass 1263: →18.0 — Pass 1366: →26.0 — Pass 1542: →36.0 for bigger floor thud
+      _cameraShake = Math.max(_cameraShake, 36.0);
+      // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 — Pass 1367: →50.0 — Pass 1543: →68.0 vivid landing pop
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 68.0;
+      // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 — Pass 1368: →56.0 — Pass 1544: →75.0 vivid count
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 75.0;
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
@@ -5105,11 +5105,11 @@ function animate(ts) {
   if (_grabRingT >= 0) {
     // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 — Pass 1037: →dt*2.6 — Pass 1436: →dt*2.0 for longer visible ring
     _grabRingT = Math.min(1, _grabRingT + dt * 2.0);
-    // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 — Pass 1437: →18.0 for wider domain ring burst at pick
-    const _grs = 1.0 + easeOut(_grabRingT) * 18.0;
+    // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 — Pass 1437: →18.0 — Pass 1540: →25.0 for wider domain ring burst at pick
+    const _grs = 1.0 + easeOut(_grabRingT) * 25.0;
     grabRing.scale.setScalar(_grs);
-    // Pass 938: grab ring opacity 0.6→0.85 — Pass 1036: →0.95 for more vivid ring
-    grabRingMat.opacity = (1 - _grabRingT) * 0.95;
+    // Pass 938: grab ring opacity 0.6→0.85 — Pass 1036: →0.95 — Pass 1541: →1.0 for more vivid ring
+    grabRingMat.opacity = (1 - _grabRingT) * 1.0;
     if (_grabRingT >= 1) {
       _grabRingT = -1;
       grabRing.visible = false;
