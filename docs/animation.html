@@ -2538,14 +2538,14 @@ function animate(ts) {
     const _haloHex = (_identityRevealed || !inPhase(PH.conveyorIn)) ? ct.hex : 0x3388ff;
     cardHaloMat.color.setHex(_haloHex);
     cardHaloMat.emissive.setHex(_haloHex);
-    // Pass 331: halo emissive 1.2+0.50→1.4+0.70 — Pass 710: →1.8+0.90 — Pass 831: →2.6+1.3 for brighter halo
+    // Pass 331: halo emissive 1.2+0.50→1.4+0.70 — Pass 710: →1.8+0.90 — Pass 831: →2.6+1.3 — Pass 1460: →3.5+1.8 for brighter halo
     const _haloEmissive331 = (_identityRevealed && (beltActive || airActive))
-      ? 2.6 + 1.3 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60;
+      ? 3.5 + 1.8 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60;
     cardHaloMat.emissiveIntensity = _haloEmissive331;
-    // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases
-    const _haloScale332 = beltActive ? 1.0 + 0.04 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0;
-    // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80
-    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 0.80 : 0;
+    // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
+    const _haloScale332 = beltActive ? 1.0 + 0.06 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0;
+    // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
+    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 1.10 : 0;
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
   }
 
@@ -5294,16 +5294,16 @@ function animate(ts) {
   _domFillClr.setHex(ct.hex);
   _domainFillLight.color.lerp(_domFillClr, dt * 0.45);
   const _fillTgt = activeCard.visible ? 0.15 : 0.05;
-  // Pass 498: deflect domain fill boost — domain fill light surges during card arc (peaks at midpoint)
-  const _deflectFill498 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.22 : 0;
+  // Pass 498: deflect domain fill boost — domain fill light surges during card arc (peaks at midpoint) — Pass 1463: 0.22→0.32
+  const _deflectFill498 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.32 : 0;
   // Pass 519: scan phase domain fill boost — scanner chamber glows stronger with domain color at scan peak
-  // Pass 664: scan fill boost 0.18→0.26 for more vivid scanner chamber domain wash
-  const _scanFill519 = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.26 : 0;
+  // Pass 664: scan fill boost 0.18→0.26 — Pass 1464: →0.36 for more vivid scanner chamber domain wash
+  const _scanFill519 = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.36 : 0;
   // Pass 99: decay boost (set at 85% identity reveal), adds scene-wide domain color wash
   if (_domainFillBoost > 0.005) {
-    // Pass 542: reveal fill boost decay 2.2→1.6 (longer wash ~0.35s) + max cap 0.90→1.10
+    // Pass 542: reveal fill boost decay 2.2→1.6 (longer wash ~0.35s) + max cap 0.90→1.10 — Pass 1465: cap →1.50
     _domainFillBoost = Math.max(0, _domainFillBoost - dt * 1.6); // ~0.35s decay
-    _domainFillLight.intensity = Math.min(1.10, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 542: max 0.90→1.10
+    _domainFillLight.intensity = Math.min(1.50, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 1465: max 1.10→1.50
   } else {
     _domainFillLight.intensity += (_fillTgt + _deflectFill498 + _scanFill519 - _domainFillLight.intensity) * dt * 1.8;
   }
@@ -5488,10 +5488,10 @@ function animate(ts) {
     // Pass 328: reveal background flash — brief domain flood at identity lock-on moment
     // Pass 539: reveal flood 0.09→0.14 for bigger background domain surge at lock-on
     const _revealTintBoost328 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 20) * 0.14 : 0;
-    // Pass 329: deflect background tint — background echoes domain as card arcs through air
-    const _deflectTintBoost329 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.022 : 0;
-    // Pass 330: armSwing background echo — brief tint at arc midpoint as card swings closest
-    const _swingTintBoost330 = inPhase(PH.armSwing) ? Math.sin(phaseRaw(PH.armSwing) * Math.PI) * 0.018 : 0;
+    // Pass 329: deflect background tint — background echoes domain as card arcs through air — Pass 1466: 0.022→0.032
+    const _deflectTintBoost329 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.032 : 0;
+    // Pass 330: armSwing background echo — brief tint at arc midpoint as card swings closest — Pass 1467: 0.018→0.026
+    const _swingTintBoost330 = inPhase(PH.armSwing) ? Math.sin(phaseRaw(PH.armSwing) * Math.PI) * 0.026 : 0;
     if (_scanBoost > 0.002 || _celebBoost > 0.002 || _dropTintBoost > 0.002
         || _revealTintBoost328 > 0.002 || _deflectTintBoost329 > 0.002 || _swingTintBoost330 > 0.002) {
       const _tintR = ((ct.hex >> 16) & 0xff) / 255;
