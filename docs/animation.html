@@ -5197,7 +5197,7 @@ function animate(ts) {
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
       // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5 — Pass 1443: out →13.5, in →6.0
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 18.2 : 8.1; // Pass 1931: belt track light revealed-out 13.5→18.2, in 6.0→8.1
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 24.6 : 10.9; // Pass 2045: revealed-out 18.2→24.6 Pass 2046: in 8.1→10.9
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
     } else {
       // Fade card-tracking mode out
@@ -5220,7 +5220,7 @@ function animate(ts) {
         _beltTrackLight.position.set(shimmerX, CONV_Y_TOP + 5, 0);
         // Pulse the shimmer brightness — brighter at belt midpoint, softer at ends
         const midT = 1 - Math.abs((_beltIdlePhase % 1) - 0.5) * 2;
-        _beltTrackLight.intensity = 0.61 + midT * 0.88; // Pass 362: idle shimmer brightness boost (max 1.10) — Pass 1942: base 0.45→0.61, peak 0.65→0.88
+        _beltTrackLight.intensity = 0.82 + midT * 1.19; // Pass 2047: idle shimmer base 0.61→0.82 Pass 2048: peak 0.88→1.19
       }
     }
   }
@@ -5231,8 +5231,8 @@ function animate(ts) {
     const _onBelt = (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))
                      && activeCard.visible;
     // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
-    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 0.11 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 1945: shadow scan pulse 0.08→0.11
-    const _shadowTarget = _onBelt ? 0.51 + _shadowScanPulse : 0; // Pass 1946: shadow opacity target 0.38→0.51
+    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 0.15 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2049: shadow scan pulse 0.11→0.15
+    const _shadowTarget = _onBelt ? 0.69 + _shadowScanPulse : 0; // Pass 2050: shadow opacity 0.51→0.69
     _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 8);
     if (_onBelt) {
       _shadowMesh.position.set(activeCard.position.x, CONV_Y_TOP + 0.4, activeCard.position.z);
@@ -5241,7 +5241,7 @@ function animate(ts) {
       // Pass 198: shadow speed-stretch — shadow elongates forward along belt when card is moving.
       // conveyorIn/Out → stretch up to ~7 extra units; scan (stationary) → compress back to base.
       const _beltMoving = (_onBelt && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)));
-      const _stretchTarget = _beltMoving ? CARD_H * 0.55 + _beltScrollSpeed * 350 : CARD_H * 0.55;
+      const _stretchTarget = _beltMoving ? CARD_H * 0.74 + _beltScrollSpeed * 473 : CARD_H * 0.74; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473
       _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 6);
     }
     _shadowMesh.visible = _shadowMat.opacity > 0.01;
