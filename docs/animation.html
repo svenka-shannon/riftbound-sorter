@@ -3026,7 +3026,7 @@ function animate(ts) {
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
-    const _beltWobbleZ = (5.7 * Math.sin(ts * 4.7 * Math.PI * 2) + 1.75 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut;
+    const _beltWobbleZ = (7.7 * Math.sin(ts * 4.7 * Math.PI * 2) + 2.36 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 1852: belt wobble Z primary 5.7→7.7, Pass 1853: secondary 1.75→2.36
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
     const _beltYBump = 2.03 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 1851: belt Y micro-bump 1.50→2.03
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
@@ -3038,7 +3038,7 @@ function animate(ts) {
     const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0034 + Math.sin(ts * 73 * Math.PI * 2) * 0.0020;
     // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
     // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 — Pass 1303: →0.45 for more physical card-slap — Pass 1588: →0.62
-    const _beltFlopY309 = 0.62 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5);
+    const _beltFlopY309 = 0.84 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5); // Pass 1854: belt flop Y 0.62→0.84
     activeCard.rotation.set(_beltLean, _beltFlopY309, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
@@ -3047,16 +3047,16 @@ function animate(ts) {
     // Pass 144: scan anticipation — card brightens in final 15% of conveyorIn as scanner looms
     const _approachT = Math.max(0, (ct2 - 0.85) / 0.15); // 0→1 in last 15%
     // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap) — Pass 1592: →1.9
-    const _entryBoost = Math.exp(-ct2 * 20) * 1.9;
+    const _entryBoost = Math.exp(-ct2 * 20) * 2.57; // Pass 1855: belt entry boost 1.9→2.57
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 20;
-    activeCardMat.emissiveIntensity = 0.55 + _approachT * 1.15 // Pass 1590: 0.85→1.15
-      + _approachT * 1.22 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1590: 0.90→1.22
+    activeCardMat.emissiveIntensity = 0.55 + _approachT * 1.55 // Pass 1856: approach emissive ramp 1.15→1.55
+      + _approachT * 1.65 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65
       + _approachT * 0.10 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat
       + _entryBoost;
     // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 — Pass 1304: →12.0 for stronger tension glow — Pass 1591: →16.0
-    cardGlow.intensity = 1.4 + _approachT * 16.0; // Pass 1591: 12.0→16.0
+    cardGlow.intensity = 1.4 + _approachT * 21.6; // Pass 1858: approach glow ramp 16.0→21.6
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     // Pass 468: early detection ripple — at ct2=0.60-0.80, LED flickers at 10Hz (card entering field)
     // Pass 888: early detect amplitude 0.5→0.8 for stronger card-entering-field detection
@@ -3064,7 +3064,7 @@ function animate(ts) {
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
       ? (ct2 - 0.60) / 0.20 * 1.10 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10
     // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 — Pass 1306: →10.5 for more vivid warmup before scan
-    const _ledWarmTarget = 0.3 + _warmupT * 10.5 + _earlyDetect; // Pass 1306: 7.5→10.5
+    const _ledWarmTarget = 0.3 + _warmupT * 14.2 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
