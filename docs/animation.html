@@ -3773,11 +3773,11 @@ function animate(ts) {
     {
       const _oFadeIn  = Math.min(1, ot / 0.05);
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
-      // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 — Pass 969: →3.2 — Pass 1299: →4.2 for more lateral belt weave on exit
-      const _oWobbleZ = 4.2 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut;
+      // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 — Pass 969: →3.2 — Pass 1299: →4.2 for more lateral belt weave on exit — Pass 1596: →5.7
+      const _oWobbleZ = 5.7 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut;
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
-      // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview
-      const _z268drift = ct.slotZ * 0.50 * easeInOut(Math.min(1, ot / 0.85));
+      // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview — Pass 1597: →0.68
+      const _z268drift = ct.slotZ * 0.68 * easeInOut(Math.min(1, ot / 0.85));
       activeCard.position.set(
         THREE.MathUtils.lerp(-40, GATE_X, ot),
         CONV_Y_TOP + CARD_T/2 + 2, _oWobbleZ + _z268drift
@@ -3788,9 +3788,9 @@ function animate(ts) {
     const paddleT = Math.min(1, easeOut(ot * 2));
     paddlePivot.rotation.y = THREE.MathUtils.lerp(0, targetAngle, paddleT); // accuracy: Y-axis for Z-column routing
     // Pass 111: servo micro-vibration — paddle hunts at target angle (servo hold jitter)
-    // Pass 954: amplitude 0.009→0.015, secondary 0.005→0.008 for more realistic servo hunting
+    // Pass 954: amplitude 0.009→0.015, secondary 0.005→0.008 for more realistic servo hunting — Pass 1598: →0.021/0.011
     if (paddleT >= 0.98) {
-      const _hunt = Math.sin(ts * 76 * Math.PI * 2) * 0.015 + Math.sin(ts * 53 * Math.PI * 2) * 0.008;
+      const _hunt = Math.sin(ts * 76 * Math.PI * 2) * 0.021 + Math.sin(ts * 53 * Math.PI * 2) * 0.011;
       paddlePivot.rotation.y += _hunt; // accuracy: Y-axis hunt jitter
     }
     // Gate glows in DOMAIN color while routing (shows which path is active)
@@ -4534,16 +4534,17 @@ function animate(ts) {
       // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 — Pass 643: extend wisp to 45%; boost 0.48+0.22→0.62+0.28
       // Pass 865: domain wisp opacity 0.62+0.28→0.80+0.40 — Pass 1052: →0.90+0.48 richer memory trail
       const _arT245 = phaseRaw(PH.armReturn);
-      if (_arT245 < 0.55) { // Pass 643: 0.30→0.45 — Pass 1507: →0.55 (longer domain memory on return)
+      if (_arT245 < 0.65) { // Pass 643: 0.30→0.45 — Pass 1507: →0.55 — Pass 1602: →0.65 even longer domain memory on return
         tp.mat.color.setHex(ct.hex);
-        tp.mat.opacity = 0.90 + Math.random() * 0.10; // Pass 1052: 0.80+0.40→0.90+0.10
+        // Pass 1599: domain wisp opacity 0.90+0.10→1.0 (max brightness)
+        tp.mat.opacity = Math.min(1.0, 0.95 + Math.random() * 0.10);
       } else {
-        // Pass 674: mechanical return trail — Pass 866: →0.58+0.26 — Pass 1053: →0.72+0.30
+        // Pass 674: mechanical return trail — Pass 866: →0.58+0.26 — Pass 1053: →0.72+0.28 — Pass 1600: →0.88+0.35
         tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
-        tp.mat.opacity = 0.72 + Math.random() * 0.28; // Pass 1053: 0.58+0.26→0.72+0.28
+        tp.mat.opacity = 0.88 + Math.random() * 0.35;
       }
-      // Pass 867: trail life 0.32+0.12→0.46+0.18 — Pass 1054: →0.62+0.24 — Pass 1506: →0.80+0.32 for longer-lived contrail
-      tp.age = 0; tp.life = 0.80 + Math.random() * 0.32;
+      // Pass 867: trail life 0.32+0.12→0.46+0.18 — Pass 1054: →0.62+0.24 — Pass 1506: →0.80+0.32 — Pass 1601: →1.05+0.42 longer-lived contrail
+      tp.age = 0; tp.life = 1.05 + Math.random() * 0.42;
       tp.active = true; tp.mesh.visible = true;
     }
   }
@@ -4557,9 +4558,9 @@ function animate(ts) {
       + 0.004 * Math.sin(ts * 1.43 * Math.PI * 2);  // ~1.43 Hz higher tremor
     // Pass 492: gate LED domain afterglow — during pause, active column retains a faint 0.4Hz
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
-    // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory
+    // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory — Pass 1603: base 0.14→0.20, amp 0.12→0.18
     {
-      const _pausePulse492 = 0.14 + 0.12 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2));
+      const _pausePulse492 = 0.20 + 0.18 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2));
       GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
         if (gi === ct.col) {
           gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
