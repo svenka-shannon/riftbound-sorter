@@ -4896,8 +4896,8 @@ function animate(ts) {
   // Pass 995: Z→4.5, Y→1.2 — Pass 1428: Z→6.0, Y→1.6 for deeper camera resonance with scanner hood during scan
   if (inPhase(PH.scan) && !controls._userInteracted) {
     const _scanSinEnv = Math.sin(phaseRaw(PH.scan) * Math.PI);
-    camera.position.z += (8.1 * Math.sin(ts * 2.8 * Math.PI * 2) + 1.22 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv; // Pass 2013: Z resonance 6.0→8.1
-    camera.position.y += 2.16 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv; // Pass 2014: Y resonance 1.6→2.16
+    camera.position.z += (10.9 * Math.sin(ts * 2.8 * Math.PI * 2) + 1.22 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv; // Pass 2189: Z resonance 8.1→10.9
+    camera.position.y += 2.92 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv; // Pass 2190: Y resonance 2.16→2.92
   }
 
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
@@ -4917,14 +4917,14 @@ function animate(ts) {
     _shakePhase2 += dt * 239; // ~38Hz
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
-    const _h2 = Math.sin(_shakePhase2) * 0.945;           // Pass 2015: second harmonic 0.70→0.945
+    const _h2 = Math.sin(_shakePhase2) * 1.28;            // Pass 2191: second harmonic 0.945→1.28
     // Pass 568: shake amplitude 0.30→0.45/0.62/0.38 — Pass 700: →0.55/0.78/0.50 — Pass 906: →0.65/0.90/0.60 — Pass 1336: →0.75/1.10/0.75 — Pass 1429: →0.85/1.40/0.90 — Pass 1618: →1.15/1.85/0.90 harder rattle
-    const _shakeX = (_n * 1.55 + _h1 * 2.50 + _h2 * 0.90) * _cameraShake; // Pass 2016: noise 1.15→1.55 Pass 2017: h1 1.85→2.50
-    const _shakeY = (_n * 1.55 + Math.cos(_shakePhase1) * 2.50 + Math.cos(_shakePhase2) * 0.90 * 0.55) * _cameraShake;
+    const _shakeX = (_n * 2.09 + _h1 * 3.38 + _h2 * 0.90) * _cameraShake; // Pass 2192: noise 1.55→2.09 Pass 2193: h1 2.50→3.38
+    const _shakeY = (_n * 2.09 + Math.cos(_shakePhase1) * 3.38 + Math.cos(_shakePhase2) * 0.90 * 0.55) * _cameraShake;
     camera.position.x += _shakeX;
     camera.position.y += _shakeY;
     // Pass 569: shake decay 0.78→0.72 — Pass 701: →0.69 — Pass 1027: →0.66 — Pass 1337: →0.63 — Pass 1430: →0.60 — Pass 1619: →0.65 even longer lingering shake
-    _cameraShake *= 0.70; // Pass 2018: shake decay 0.65→0.70 longer linger
+    _cameraShake *= 0.74; // Pass 2194: shake decay 0.70→0.74 longer linger
   } else {
     _cameraShake = 0;
     _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
@@ -4950,9 +4950,9 @@ function animate(ts) {
       floorDiscMat.color.setHex(ct.hex);
       // Altitude = card Y above belt surface; belt at CONV_Y_TOP+2
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
-      const _altFrac = Math.min(1, _altitude / 67); // Pass 2020: floor disc altitude 50→67
+      const _altFrac = Math.min(1, _altitude / 90); // Pass 2195: floor disc altitude 67→90
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
-      const _fdScale = 1.0 + _altFrac * 4.73; // Pass 2021: floor disc expansion 3.5→4.73
+      const _fdScale = 1.0 + _altFrac * 6.39; // Pass 2196: floor disc expansion 4.73→6.39
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
       const _fdPulse514 = (1 - _altFrac) * 0.057 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
