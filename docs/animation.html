@@ -3740,10 +3740,10 @@ function animate(ts) {
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
     });
     // Pass 141: gate column tracking light — colored pool on tray at active LED column
-    // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 for stronger domain pool
+    // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 — Pass 1369: →30.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (22.0 * ot - gateColLight.intensity) * Math.min(1, dt * 7);
+    gateColLight.intensity += (30.0 * ot - gateColLight.intensity) * Math.min(1, dt * 7);
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -3796,12 +3796,12 @@ function animate(ts) {
     // Pass 72: smooth charge-up ramp as card approaches (ot 0→1 = charge 0.18→3.8)
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
-    // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 for stronger pre-gate glow
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 36.0, easeInOut(ot));
+    // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 — Pass 1364: →50.0 for stronger pre-gate glow
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 50.0, easeInOut(ot));
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
-    // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 for more chaotic electromagnetic charging
+    // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
-      ? (2.50 * Math.sin(ts * 6 * Math.PI * 2) + 0.90 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30)
+      ? (3.50 * Math.sin(ts * 6 * Math.PI * 2) + 1.25 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30)
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
@@ -4279,20 +4279,20 @@ function animate(ts) {
       impactRingMat.color.setHex(ct.hex);
       impactRing.scale.setScalar(1.0);
       impactRing.visible = true;
-      // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 — Pass 1263: →18.0 for bigger floor thud
-      _cameraShake = Math.max(_cameraShake, 18.0);
-      // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 vivid landing pop
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 36.0;
-      // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 vivid count
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 40.0;
+      // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 — Pass 1263: →18.0 — Pass 1366: →26.0 for bigger floor thud
+      _cameraShake = Math.max(_cameraShake, 26.0);
+      // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 — Pass 1367: →50.0 vivid landing pop
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 50.0;
+      // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 — Pass 1368: →56.0 vivid count
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 56.0;
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
         const _rr2 = (ct.hex >> 16) & 0xff, _gg2 = (ct.hex >> 8) & 0xff, _bb2 = ct.hex & 0xff;
         // Pass 583: landing scatter count 5→8 — Pass 584: speed 22+32→35+50 — Pass 807: speed →60+80
-        // Pass 983: count 8→12 for bigger floor impact dust cloud
+        // Pass 983: count 8→12 — Pass 1370: →18 for bigger floor impact dust cloud
         let _landScattered = 0;
-        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 12; _li++) {
+        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 18; _li++) {
           const _lp = GRAB_PARTICLES[_li];
           if (_lp.active) continue;
           _lp.active = true; _lp.age = 0; _lp.life = 0.38 + Math.random() * 0.24; // Pass 983: life 0.32+0.20→0.38+0.24
@@ -4329,10 +4329,10 @@ function animate(ts) {
       impactRing.scale.setScalar(0.55);
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
-      // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 — Pass 1267: →22.0 for stronger floor-1 arrival
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 22.0;
-      // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 — Pass 986: →11.0 — Pass 1107: →18.0 vivid arrival
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 18.0;
+      // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 — Pass 1267: →22.0 — Pass 1371: →32.0 for stronger floor-1 arrival
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 32.0;
+      // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 — Pass 986: →11.0 — Pass 1107: →18.0 — Pass 1371: →26.0 vivid arrival
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 26.0;
       // Pass 224: upper floor arrival glow particles — 3 gentle domain-tinted motes that
       // drift upward softly (upper floor is a guided arrival, no hard impact scatter).
       {
