@@ -3841,12 +3841,12 @@ function animate(ts) {
     scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
     // Pass 129: brief acceleration surge emissive at exit start — Pass 953: 0.5→0.9 — Pass 972: →1.4 brighter launch surge
-    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 1.89 : 0; // Pass 1879: exit surge 1.4→1.89
+    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 2.55 : 0; // Pass 2077: exit surge 1.89→2.55
     activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
     // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 — Pass 1372: →*3.8 for bigger gate approach glow
-    const _coGlowSurge = ot > 0.80 ? 4.73 + (ot - 0.80) / 0.20 * 5.13 : 4.73; // Pass 1880: gate approach glow base 3.5→4.73, Pass 1881: surge 3.8→5.13
+    const _coGlowSurge = ot > 0.80 ? 6.39 + (ot - 0.80) / 0.20 * 6.93 : 6.39; // Pass 2078: glow base 4.73→6.39 Pass 2079: surge 5.13→6.93
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
@@ -3856,7 +3856,7 @@ function animate(ts) {
     // Pass 459: final-approach trail density boost — last 35% of conveyorOut spawns at 38ms
     // instead of 70ms, creating a denser contrail "surge" as card punches toward the gate.
     // Pass 459: final-approach density — Pass 823: early 0.07→0.05, final 0.038→0.026 for denser contrail
-    const _convTrailRate = ot > 0.65 ? 0.026 : 0.05;
+    const _convTrailRate = ot > 0.65 ? 0.026 : 0.038; // Pass 2080: early trail density 0.05→0.038
     _trailSpawnAcc += dt;
     if (_trailSpawnAcc >= _convTrailRate) {
       _trailSpawnAcc = 0;
@@ -3883,15 +3883,15 @@ function animate(ts) {
     // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 — Pass 916: →19.0 — Pass 1074: →27.0 — Pass 1179: →38.0 — Pass 1564: →52.0, dist→150 for bigger paddle hit
     if (!_gateFlashFired) {
       _gateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 70.2, 150); // Pass 1804: gate contact flash 52.0→70.2
+      const _gfl = new THREE.PointLight(ct.hex, 94.8, 150); // Pass 2081: gate contact flash 70.2→94.8
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _gfl, age: 0, peak: _gfl.intensity });
       // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 — Pass 917: →12.0 — Pass 1180: →17.0 — Pass 1565: →24.0
-      paddleMat.emissiveIntensity = 32.4; // Pass 1805: paddle emissive spike 24.0→32.4
+      paddleMat.emissiveIntensity = 43.7; // Pass 2082: paddle spike 32.4→43.7
       // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 — Pass 781: →10.0 — Pass 1181: →15.0 — Pass 1566: →22.0 hotter blaze
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 29.7); // Pass 1806: gate-contact card flash 22.0→29.7
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 40.1); // Pass 2083: gate-contact card flash 29.7→40.1
       // Pass 298: gate-contact camera shake — Pass 588: 1.8→3.0 for more physical paddle impact
       _cameraShake = 3.0;
       // Pass 369: gate-contact camera shake — Pass 782: →6.5 — Pass 923: →9.5 — Pass 1182: →14.0 — Pass 1567: →20.0 for bigger paddle hit feel
@@ -3901,7 +3901,7 @@ function animate(ts) {
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
       // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 — Pass 1194: →0.88 — Pass 1569: →1.20 for harder paddle whack feel
-      _paddleRecoil = 1.62 * Math.sign(ct.slotZ); // Pass 1809: paddle recoil kick 1.20→1.62
+      _paddleRecoil = 2.19 * Math.sign(ct.slotZ); // Pass 2084: paddle recoil kick 1.62→2.19
       // Pass 216: solenoid jitter — Pass 591: 0.85→1.30 — Pass 1570: →1.80 for stronger lateral vibration
       _paddleJitterAmt = 2.43; // Pass 1810: solenoid jitter 1.80→2.43
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
