@@ -3152,7 +3152,7 @@ function animate(ts) {
     }
     // Pass 105/448: scan strobe — Pass 604: amplitude 0.18→0.28 — Pass 621: add 7Hz secondary beat — Pass 1239: primary 0.28→0.42 — Pass 1508: →0.58 for more vivid scanner strobe flicker
     // Two-frequency scan strobe: primary 12Hz + secondary 7Hz creates interference pattern
-    const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 0.58 + Math.sin(ts * 7 * Math.PI * 2) * 0.10) * flashIntensity;
+    const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 0.78 + Math.sin(ts * 7 * Math.PI * 2) * 0.14) * flashIntensity; // Pass 1764: primary 0.58→0.78, Pass 1765: secondary 0.10→0.14
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 — Pass 1514: →dt*2.8 (longer burst visibility)
     if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 2.1); // Pass 1740: burst decay 2.8→2.1 (longer visible burst)
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
@@ -3188,7 +3188,7 @@ function animate(ts) {
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
       // Pass 500: scanner hood scan intensity 0.35+1.10→0.40+1.40 — Pass 739: →0.45+1.70 — Pass 1414: →0.45+2.30
-      hoodMat.emissiveIntensity = 0.45 + flashIntensity * 2.30; // Pass 1414: stronger hood presence
+      hoodMat.emissiveIntensity = 0.45 + flashIntensity * 3.11; // Pass 1771: hood scan intensity 2.30→3.11
     }
     // Pass 197: scanner hood micro-sway — Z oscillation simulates emitter/receiver resonance.
     // Pass 607: amplitude 0.5→0.85 + secondary 4.1Hz harmonic — Pass 948: primary 0.85→1.20, secondary 0.28→0.42
@@ -3444,7 +3444,7 @@ function animate(ts) {
           scanBarMat.color.copy(_blendC);
           scanBarMat.emissive.copy(_blendC);
           // Pass 497: scan bar 65-85% tension base 1.5→1.8 — Pass 838: post-reveal base 2.2→3.0, peak 2.5→3.5
-          const _baseI = barFill >= 0.85 ? 3.0 + flashIntensity * 3.5 : 1.8 + flashIntensity * 2.8;
+          const _baseI = barFill >= 0.85 ? 4.05 + flashIntensity * 3.5 : 2.43 + flashIntensity * 2.8; // Pass 1766: post-reveal base 3.0→4.05, Pass 1767: tension base 1.8→2.43
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75 — Pass 1343: →1.05
           const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 1.42 : 0; // Pass 1713: post-reveal breathing 1.05→1.42
           // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 — Pass 1327: →20.0 for bigger climax
@@ -3716,12 +3716,12 @@ function animate(ts) {
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
       // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 — Pass 1140: →14.0 — Pass 1220: →20.0 — Pass 1293: →28.0 hotter blaze
-      activeCardMat.emissiveIntensity = 28.0;
+      activeCardMat.emissiveIntensity = 37.8; // Pass 1768: card blaze at conveyorOut start 28.0→37.8
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
-      lensMat.emissiveIntensity = 9.0;
+      lensMat.emissiveIntensity = 12.15; // Pass 1769: lens domain persistence spike 9.0→12.15
       lensMat.emissive.setHex(ct.hex);
       // Pass 478: scan-confirm LED flashbang — scanner LED briefly goes white-hot at scan complete
-      scanLEDMat.emissiveIntensity = 8.0;
+      scanLEDMat.emissiveIntensity = 10.8; // Pass 1770: scan LED flashbang 8.0→10.8
       scanLEDMat.color.set(0xffffff);
       scanLEDMat.emissive.set(0xffffff);
     }
