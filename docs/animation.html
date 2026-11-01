@@ -2340,8 +2340,8 @@ function animate(ts) {
         stackCards.forEach((c, i) => {
           c.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
         });
-        // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 for bigger batch-loaded burst
-        const _rfl = new THREE.PointLight(0xfff0cc, 9.5, 180);
+        // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 — Pass 1393: →14.0 for bigger batch-loaded burst
+        const _rfl = new THREE.PointLight(0xfff0cc, 14.0, 220);
         _rfl.position.set(HOPPER_X + 33, 160, 0);
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
@@ -2381,8 +2381,8 @@ function animate(ts) {
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 for more vivid deck charge wave
         const _waveAmp301 = inPhase(PH.armDescend) ? 0.35 + phaseRaw(PH.armDescend) * 0.55 : 0.35;
-        // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 for brighter deck energy
-        sc.material.emissiveIntensity = 0.18 + _wave * _waveAmp301;
+        // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 for brighter deck energy
+        sc.material.emissiveIntensity = 0.26 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
         sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 3);
@@ -2411,8 +2411,8 @@ function animate(ts) {
     if (a.glowAge < 1.2) {
       a.glowAge += dt;
       if (a.mesh.material) {
-        // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 for brighter landing flash
-        a.mesh.material.emissiveIntensity = 0.15 + 14.0 * Math.exp(-a.glowAge * 5.0);
+        // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 for brighter landing flash
+        a.mesh.material.emissiveIntensity = 0.15 + 20.0 * Math.exp(-a.glowAge * 5.0);
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -4182,19 +4182,19 @@ function animate(ts) {
       const _sweepZOsc315 = 5 * Math.sin(dt3 * Math.PI * 3) * Math.max(0, 1 - dt3 * 1.5);
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
-      // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 for brighter domain spotlight in slot interior
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 20.0, dt3 / 0.35)
-                                             : THREE.MathUtils.lerp(14.0, 0, (dt3 - 0.35) / 0.65);
+      // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 28.0, dt3 / 0.35)
+                                             : THREE.MathUtils.lerp(20.0, 0, (dt3 - 0.35) / 0.65);
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
     // Pass 278: sympathetic flicker — all columns briefly flash at slot entry crossing
     // Pass 470: target LED hold-then-snap — holds at 3.5 for first 22%, then snaps to 0.15 quickly
     // Pass 530: sympathetic flash amplitude 0.55→0.75; target LED spike 1.8→2.6 for stronger confirm flash
-    // Pass 963: sympathetic flash 0.75→1.20, target spike 2.6→4.0
-    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 1.20 : 0;
+    // Pass 963: sympathetic flash 0.75→1.20, target spike 2.6→4.0 — Pass 1390: sympath →1.70, target →5.5
+    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 1.70 : 0;
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 4.0 : _sympFlash278;
+      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 5.5 : _sympFlash278;
       const _ledDrop = dt3 < 0.22 ? 3.5 : THREE.MathUtils.lerp(3.5, 0.15, (dt3 - 0.22) / 0.78); // Pass 470
       const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.15 + _sympFlash278;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
@@ -5360,14 +5360,14 @@ function animate(ts) {
     activeCardEdgeMat.color.setHex(_identityRevealed ? ct.hex : 0x3388ff);
     // Pass 460: edge reveal white flash — at identity lock-on the outline briefly blooms white
     // before settling to domain color. Uses _confirmRingT [0..1] as a proxy timing signal.
-    // Pass 628: edge reveal flash window 0.18→0.24 for longer white bloom at identity lock-on
-    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 0.24) ? (1.0 - _confirmRingT / 0.24) : 0;
+    // Pass 628: edge reveal flash window 0.18→0.24 — Pass 1391: →0.34 for longer white bloom at identity lock-on
+    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 0.34) ? (1.0 - _confirmRingT / 0.34) : 0;
     if (_edgeRvl > 0.05) activeCardEdgeMat.color.lerp(new THREE.Color(0xffffff), _edgeRvl);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     // Pass 477: deflect arc edge boost — outline more visible as card arcs through air (0.45→0.65)
-    // Pass 512: armSwing edge boost 0.45→0.58 — Pass 629: scan/conveyor edge 0.85→0.95; deflect 0.65→0.78
-    const edgeTarget = edgeFull ? 0.95 : inPhase(PH.deflect) ? 0.78 : inPhase(PH.armSwing) ? 0.58 : 0.45;
+    // Pass 512: armSwing edge boost 0.45→0.58 — Pass 629: scan/conveyor edge 0.85→0.95; deflect 0.65→0.78 — Pass 1392: scan 0.95→1.0, deflect 0.78→0.90, swing 0.58→0.72
+    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 0.90 : inPhase(PH.armSwing) ? 0.72 : 0.45;
     activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
