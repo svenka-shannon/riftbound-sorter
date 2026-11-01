@@ -2881,11 +2881,11 @@ function animate(ts) {
         // Pass 482: Z-apex trail opacity boost — brightest at arc midpoint (closest to viewer)
         // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: →0.85+0.62 — Pass 1060: →0.95+0.80 — Pass 1247: apex →1.15 for brighter arc midpoint
         const _swT482 = phaseRaw(PH.armSwing);
-        // Pass 482: trail opacity peak — Pass 1352: 0.95+1.15→0.95+1.55
-        tp.mat.opacity = Math.min(1, 0.95 + 1.55 * Math.sin(_swT482 * Math.PI));
+        // Pass 482: trail opacity peak — Pass 1352: 0.95+1.15→0.95+1.55 — Pass 1500: apex →2.00 for brighter arc peak
+        tp.mat.opacity = Math.min(1, 0.95 + 2.00 * Math.sin(_swT482 * Math.PI));
         tp.age = 0;
-        // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 for longer arc trail
-        tp.life = 0.88 + Math.random() * 0.42;
+        // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 — Pass 1501: →1.10+0.55 longer arc trail
+        tp.life = 1.10 + Math.random() * 0.55;
         tp.active = true;
         tp.mesh.visible = true;
       }
@@ -2895,7 +2895,7 @@ function animate(ts) {
     if(inPhase(PH.armLift) && stackCards[stackTopIdx]) {
       const lt = phaseRaw(PH.armLift);
       const baseY = CARD_T/2 + 6 + stackTopIdx * (CARD_T + 0.5);
-      stackCards[stackTopIdx].position.y = baseY + lt * 30; // Pass 1067: lt*20→lt*30 higher card elevation during lift
+      stackCards[stackTopIdx].position.y = baseY + lt * 42; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 higher card elevation during lift
     }
 
     // Card tracks suction cup (pass 154: Z follows pivot during arm phases)
@@ -4062,12 +4062,12 @@ function animate(ts) {
       const _arcMid = 1 - Math.abs(dt2 - 0.5) * 2; // 1 at peak, 0 at start/end
       tp.mat.color.setHex(ct.hex);
       // Pass 385: opacity boost — base 0.45→0.60, peak multiplier 0.38→0.45
-      // Pass 965: base 0.60→0.75, peak 0.45→0.60 — Pass 1116: base 0.75→0.88, peak 0.60→0.78 for denser deflect arc contrail
-      tp.mat.opacity = Math.min(0.98, 0.88 + _arcMid * 0.78);
+      // Pass 965: base 0.60→0.75, peak 0.45→0.60 — Pass 1116: base 0.75→0.88, peak 0.60→0.78 — Pass 1503: base 0.92, peak 1.00 for denser deflect arc contrail
+      tp.mat.opacity = Math.min(1.0, 0.92 + _arcMid * 1.00);
       tp.age = 0;
       // Pass 387: life boost — 0.38-0.52 → 0.45-0.65s — Pass 506: extend 0.45-0.65 → 0.55-0.75s
-      // Pass 527: deflect trail life 0.55+0.20 → 0.65+0.25 — Pass 966: →0.82+0.32 — Pass 1117: →1.05+0.42 for longer hang on arc contrail
-      tp.life = 1.05 + Math.random() * 0.42;
+      // Pass 527: deflect trail life 0.55+0.20 → 0.65+0.25 — Pass 966: →0.82+0.32 — Pass 1117: →1.05+0.42 — Pass 1504: →1.35+0.55 longer hang
+      tp.life = 1.35 + Math.random() * 0.55;
       tp.active = true;
       tp.mesh.visible = true;
     }
@@ -4078,7 +4078,7 @@ function animate(ts) {
       _btp.mesh.position.set(GATE_X + (Math.random()-0.5)*8, CONV_Y_TOP + 8 + Math.random()*8, ct.slotZ * 0.12 + (Math.random()-0.5)*5);
       _btp.mat.color.setHex(ct.hex);
       _btp.mat.opacity = 0.92 + Math.random() * 0.08; // Pass 1118: 0.80+0.18→0.92+0.08 for brighter gate-contact burst
-      _btp.age = 0; _btp.life = 0.28 + Math.random() * 0.16;
+      _btp.age = 0; _btp.life = 0.40 + Math.random() * 0.22; // Pass 1505: 0.28+0.16→0.40+0.22 longer gate burst
       _btp.active = true; _btp.mesh.visible = true;
     }
   }
@@ -4533,7 +4533,7 @@ function animate(ts) {
       // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 — Pass 643: extend wisp to 45%; boost 0.48+0.22→0.62+0.28
       // Pass 865: domain wisp opacity 0.62+0.28→0.80+0.40 — Pass 1052: →0.90+0.48 richer memory trail
       const _arT245 = phaseRaw(PH.armReturn);
-      if (_arT245 < 0.45) { // Pass 643: 0.30→0.45 (longer domain memory on return)
+      if (_arT245 < 0.55) { // Pass 643: 0.30→0.45 — Pass 1507: →0.55 (longer domain memory on return)
         tp.mat.color.setHex(ct.hex);
         tp.mat.opacity = 0.90 + Math.random() * 0.10; // Pass 1052: 0.80+0.40→0.90+0.10
       } else {
@@ -4541,8 +4541,8 @@ function animate(ts) {
         tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
         tp.mat.opacity = 0.72 + Math.random() * 0.28; // Pass 1053: 0.58+0.26→0.72+0.28
       }
-      // Pass 867: trail life 0.32+0.12→0.46+0.18 — Pass 1054: →0.62+0.24 for longer-lived contrail
-      tp.age = 0; tp.life = 0.62 + Math.random() * 0.24;
+      // Pass 867: trail life 0.32+0.12→0.46+0.18 — Pass 1054: →0.62+0.24 — Pass 1506: →0.80+0.32 for longer-lived contrail
+      tp.age = 0; tp.life = 0.80 + Math.random() * 0.32;
       tp.active = true; tp.mesh.visible = true;
     }
   }
