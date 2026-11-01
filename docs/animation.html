@@ -4305,7 +4305,7 @@ function animate(ts) {
           const _ang = Math.random() * Math.PI * 2;
           const _spd = 346 + Math.random() * 392; // Pass 1795: impact dust speed 190+215→256+290 — Pass 1915: →346+392
           _lp.vx = Math.cos(_ang) * _spd * 0.45;
-          _lp.vy = 14 + Math.random() * 32; // Pass 984: 6+16→10+24 — Pass 1481: →14+32 more dust loft
+          _lp.vy = 19 + Math.random() * 43; // Pass 984: 6+16→10+24 — Pass 1481: →14+32 — Pass 1916: →19+43 more dust loft
           _lp.vz = Math.sin(_ang) * _spd;
           _lp.mat.color.setRGB(
             Math.min(1, _rr2 / 255 * 0.55 + 0.45),
@@ -4330,9 +4330,9 @@ function animate(ts) {
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
       // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 — Pass 1267: →22.0 — Pass 1371: →32.0 — Pass 1553: →45.0 for stronger floor-1 arrival
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 60.75; // Pass 1791: upper floor strip flash 45.0→60.75
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 82.0; // Pass 1791: upper floor strip flash 45.0→60.75 — Pass 1917: →82.0
       // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 — Pass 986: →11.0 — Pass 1107: →18.0 — Pass 1371: →26.0 — Pass 1554: →36.0 vivid arrival
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 48.6; // Pass 1792: upper floor fill bar spark 36.0→48.6
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 65.6; // Pass 1792: upper floor fill bar spark 36.0→48.6 — Pass 1918: →65.6
       // Pass 224: upper floor arrival glow particles — 3 gentle domain-tinted motes that
       // drift upward softly (upper floor is a guided arrival, no hard impact scatter).
       {
@@ -4342,7 +4342,7 @@ function animate(ts) {
         for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 8; _mi++) {
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
-          _mp.active = true; _mp.age = 0; _mp.life = 0.50 + Math.random() * 0.25;
+          _mp.active = true; _mp.age = 0; _mp.life = 0.68 + Math.random() * 0.34; // Pass 1919: upper floor mote life 0.50+0.25→0.68+0.34
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 8,
             ct.slotFloorY + 30 + Math.random() * 6,
@@ -4380,7 +4380,7 @@ function animate(ts) {
         window._flashLights.push({ light: _wl, age: 0, peak: _wl.intensity });
       });
       // Extra camera shake for "rejected" — Pass 452: 2.2→3.5 — Pass 651: →5.5 — Pass 1044: →9.5 — Pass 1398: →14.0 bigger alarm jolt
-      _cameraShake = Math.max(_cameraShake, 14.0);
+      _cameraShake = Math.max(_cameraShake, 18.9); // Pass 1920: reject alarm shake 14.0→18.9
       // Pass 65: reject spark fountain — upward burst of red/orange trail particles
       // Pass 651: reject spark count 14→20 — Pass 1046: →30 — Pass 1399: →42 for bigger alarm fountain
       for (let _ri = 0; _ri < 42; _ri++) {
@@ -4394,7 +4394,7 @@ function animate(ts) {
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
         tp.mat.opacity = 0.90 + Math.random() * 0.10; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks
-        tp.age = 0; tp.life = 0.60 + Math.random() * 0.35; // Pass 1047: 0.45+0.30→0.60+0.35 longer sparks
+        tp.age = 0; tp.life = 0.81 + Math.random() * 0.47; // Pass 1047: 0.45+0.30→0.60+0.35 — Pass 1921: →0.81+0.47 longer reject sparks
         tp.active = true; tp.mesh.visible = true;
       }
     }
@@ -4415,12 +4415,12 @@ function animate(ts) {
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
         tp2.mat.opacity = 0.85 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2
-        tp2.age = 0; tp2.life = 0.42 + Math.random() * 0.28; // Pass 1049: 0.30+0.22→0.42+0.28 longer
+        tp2.age = 0; tp2.life = 0.57 + Math.random() * 0.38; // Pass 1049: 0.30+0.22→0.42+0.28 — Pass 1922: →0.57+0.38 longer reject burst2
         tp2.active = true; tp2.mesh.visible = true;
         _rb2++;
       }
       // Smaller secondary amber light — Pass 1048: 4.5→9.0 for brighter second alarm pulse
-      const _ral2 = new THREE.PointLight(0xff6600, 9.0, 100);
+      const _ral2 = new THREE.PointLight(0xff6600, 12.2, 100); // Pass 1923: reject secondary amber light 9.0→12.2
       _ral2.position.set(TRAY_X_START + 20, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_ral2);
       if (!window._flashLights) window._flashLights = [];
