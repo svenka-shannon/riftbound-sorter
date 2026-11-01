@@ -1978,7 +1978,7 @@ function fireCelebration() {
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
-    p.life = 2.0 + Math.random() * 1.5; // Pass 1106: 1.4+1.0→2.0+1.5 for longer celebration confetti
+    p.life = 2.6 + Math.random() * 2.0; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72
     p.rx = (Math.random() - 0.5) * 48;
@@ -2013,10 +2013,10 @@ function fireCelebration() {
     void flashEl.offsetWidth;
     flashEl.classList.add('scan-flash-on');
   }
-  // Camera shake: Pass 421: 5.5→7.5 — Pass 724: →10.5 — Pass 818: →15.0 — Pass 1005: →22.0 — Pass 1102: →32.0 — Pass 1345: →46.0 bigger celebratory jolt
-  _cameraShake = Math.max(_cameraShake, 46.0);
-  // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° — Pass 1006: →26° — Pass 1103: →36° — Pass 1346: →50°
-  _fovBump = 50;
+  // Camera shake: Pass 421: 5.5→7.5 — Pass 724: →10.5 — Pass 818: →15.0 — Pass 1005: →22.0 — Pass 1102: →32.0 — Pass 1345: →46.0 — Pass 1620: →62.0
+  _cameraShake = Math.max(_cameraShake, 62.0);
+  // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° — Pass 1006: →26° — Pass 1103: →36° — Pass 1346: →50° — Pass 1621: →68°
+  _fovBump = 68;
   // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0 — Pass 897: →20.0 — Pass 1007: →30.0, dist →500 — Pass 1104: →45.0, dist→650 — Pass 1347: →64.0, dist→800
   const _cfl = new THREE.PointLight(0xffffff, 64.0, 800);
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
@@ -3084,8 +3084,8 @@ function animate(ts) {
       _scanFlashFired = true;
       // Pass 418: scan start shake 3.5→5.0 — Pass 740: →7.2 — Pass 1147: →10.5 — Pass 1307: →15.0 for bigger scan-start jolt
       _cameraShake = 15.0;
-      // Pass 889: scan start FOV punch 3.5° — Pass 1148: →6.0° broader zoom-in at scanner activation
-      _fovBump = Math.max(_fovBump, 6.0);
+      // Pass 889: scan start FOV punch 3.5° — Pass 1148: →6.0° — Pass 1623: →8.5° broader zoom-in at scanner activation
+      _fovBump = Math.max(_fovBump, 8.5);
       const flashEl = document.getElementById('scan-flash-overlay');
       if (flashEl) {
         flashEl.style.background = ct.css;
@@ -3399,8 +3399,8 @@ function animate(ts) {
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
         // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 — Pass 1323: →12.0 — Pass 1416: →17.0 for prominent lock-on jolt
         _cameraShake = Math.max(_cameraShake, 17.0);
-        // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° — Pass 538: →5.5° — Pass 812: →8.5° — Pass 1133: →13.0 — Pass 1417: →18.0 for bigger snap
-        _fovBump = Math.max(_fovBump, 18.0);
+        // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° — Pass 538: →5.5° — Pass 812: →8.5° — Pass 1133: →13.0 — Pass 1417: →18.0 — Pass 1624: →24.0
+        _fovBump = Math.max(_fovBump, 24.0);
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm.
         // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 — Pass 1134: →13.0 — Pass 1386: →18.0 for brighter lock-on flash
         scanLEDMat.emissiveIntensity = 18.0;
@@ -3896,8 +3896,8 @@ function animate(ts) {
       _cameraShake = 3.0;
       // Pass 369: gate-contact camera shake — Pass 782: →6.5 — Pass 923: →9.5 — Pass 1182: →14.0 — Pass 1567: →20.0 for bigger paddle hit feel
       _cameraShake = Math.max(_cameraShake, 20.0);
-      // Pass 369: gate-contact FOV punch — Pass 783: 3.2°→5.0° — Pass 923: →7.5° — Pass 1183: →11.0° — Pass 1568: →16.0° for bigger gate hit feel
-      _fovBump = Math.max(_fovBump, 16.0);
+      // Pass 369: gate-contact FOV punch — Pass 783: 3.2°→5.0° — Pass 923: →7.5° — Pass 1183: →11.0° — Pass 1568: →16.0° — Pass 1625: →22.0°
+      _fovBump = Math.max(_fovBump, 22.0);
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
       // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 — Pass 1194: →0.88 — Pass 1569: →1.20 for harder paddle whack feel
@@ -4930,9 +4930,9 @@ function animate(ts) {
     _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
   }
 
-  // Pass 106: FOV zoom-punch decay — slowly return to nominal 55° after celebration — Pass 1431: decay rate 1.1→0.75 (longer zoom hold)
+  // Pass 106: FOV zoom-punch decay — slowly return to nominal 55° after celebration — Pass 1431: decay rate 1.1→0.75 — Pass 1622: →0.58 even longer hold
   if (_fovBump > 0.05) {
-    _fovBump *= Math.max(0, 1 - dt * 0.75); // decay at 0.75/s → reaches ~0 in ~3s (Pass 1431)
+    _fovBump *= Math.max(0, 1 - dt * 0.58); // decay at 0.58/s → reaches ~0 in ~4s (Pass 1622)
     camera.fov = 55 - _fovBump;
     camera.updateProjectionMatrix();
   } else if (_fovBump > 0) {
@@ -5484,7 +5484,7 @@ function animate(ts) {
   {
     // Pass 540: scan background boost 0.055→0.080 — Pass 662: 0.080→0.105 for deeper domain atmosphere — Pass 1616: →0.14
     const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.14 : 0;
-    const _celebBoost = _cameraShake > 3 ? Math.min(0.08, _cameraShake * 0.012) : 0;
+    const _celebBoost = _cameraShake > 3 ? Math.min(0.12, _cameraShake * 0.018) : 0; // Pass 1626: ceiling 0.08→0.12, mult 0.012→0.018
     // Pass 152: brief domain tint on slotDrop — card joins the tray, background echoes domain — Pass 1609: 0.028→0.040
     const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.040 : 0;
     // Pass 328: reveal background flash — brief domain flood at identity lock-on moment
