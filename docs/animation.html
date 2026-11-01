@@ -3019,8 +3019,8 @@ function animate(ts) {
     activeCardMat.opacity = Math.min(1, ct2 * 5); // fade in over first 0.2s
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
-    // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5 — Pass 1203: →11.0 — Pass 1301: →16.0 bigger card-slap settle
-    const _settleY = 16.0 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
+    // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5 — Pass 1203: →11.0 — Pass 1301: →16.0 — Pass 1387: →22.0 bigger card-slap settle
+    const _settleY = 22.0 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
     // Pass 173: belt lateral wobble — fades in (0→5%) and out (90→100%)
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
@@ -3401,8 +3401,8 @@ function animate(ts) {
         // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° — Pass 538: →5.5° — Pass 812: →8.5° — Pass 1133: →13.0 for bigger snap
         _fovBump = Math.max(_fovBump, 13.0);
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm.
-        // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 — Pass 1134: →13.0 for brighter lock-on flash
-        scanLEDMat.emissiveIntensity = 13.0;
+        // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 — Pass 1134: →13.0 — Pass 1386: →18.0 for brighter lock-on flash
+        scanLEDMat.emissiveIntensity = 18.0;
         _scanLEDRevealT = 0;
         // Pass 235: scanner confirmation particle burst — Pass 532: speed 38+42→55+55, vy 20+35→30+50
         // Pass 956: burst count 6→12 — Pass 957: speed 55+55→80+75, vy 30+50→50+70 — Pass 1324: count →18, Pass 1325: speed →145+130, Pass 1326: vy →95+120 for bigger reveal pop
@@ -3528,8 +3528,8 @@ function animate(ts) {
         const _chaseHz = 10 + barFill * 16; // Pass 802: 9+9 → 10+16 (10→26Hz)
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-          // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 for more vivid pre-reveal LED cycling
-          const _cTarget = gi === _chaseIdx ? 11.0 : 0.1;
+          // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 — Pass 1384: →15.0 for more vivid pre-reveal LED cycling
+          const _cTarget = gi === _chaseIdx ? 15.0 : 0.1;
           gm.color.setHex(0x0088cc);
           gm.emissive.setHex(0x003366);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 22);
@@ -4622,18 +4622,18 @@ function animate(ts) {
   {
     // Scan phase: flash ambient up with the domain color
     // Celebration (impactRing or camera shake): spike ambient white briefly
-    // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 — Pass 1083: →0.92 for stronger domain atmosphere
-    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.92 : 0;
+    // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 — Pass 1083: →0.92 — Pass 1380: →1.25 for stronger domain atmosphere
+    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 1.25 : 0;
     // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy
     const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.28 : 0;
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response
     const _shakeBoost   = _cameraShake > 2 ? Math.min(0.40, _cameraShake * 0.05) : 0;
-    // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 for bigger scene response
-    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.56 : 0;
-    // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 for stronger card flight response
-    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.44 : 0;
-    // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 for stronger lock-on flood
-    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 0.72 : 0;
+    // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 for bigger scene response
+    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.78 : 0;
+    // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response
+    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.62 : 0;
+    // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 for stronger lock-on flood
+    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 1.00 : 0;
     const _ambTarget = 0.45 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324;
     ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
     // Tint ambient toward domain color during scan or slotDrop
@@ -5335,9 +5335,9 @@ function animate(ts) {
     const domainRGB = new THREE.Color(ct.hex);
     const baseFog   = new THREE.Color(0x0a0a0f);
     // Context: scan and deflect get a stronger tint boost
-    // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 for more immersive domain atmosphere
-    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.18 : 0;
-    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.11 : 0;
+    // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 — Pass 1385: scan →0.26, deflect →0.16 for more immersive domain atmosphere
+    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 0.26 : 0;
+    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.16 : 0;
     // Pass 474: reject alarm fog — when slot-7 card is in slotDrop alarm state, background deepens
     // toward red-orange for a brief warning atmosphere (0.12 → 0 over 0.6s after alarm fires).
     const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
