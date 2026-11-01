@@ -4784,10 +4784,10 @@ function animate(ts) {
     // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
     // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35 — Pass 1458: armDesc 0.18→0.26, convIn 0.25→0.35
     // Pass 1662: spike 2.50→3.40; Pass 1663: swing 1.35→1.80; Pass 1664: lift base 0.42→0.58
-    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 4.59 : 0; // Pass 2005: lift spike 3.40→4.59
-    const _rodGlow = Math.max(_armDescT * 0.26, _armLiftT * 0.58 + _liftPickSpike, _armSwingT * 2.43, _convInT * 0.35); // Pass 2006: swing rod 1.80→2.43
+    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 6.20 : 0; // Pass 2181: lift spike 4.59→6.20
+    const _rodGlow = Math.max(_armDescT * 0.35, _armLiftT * 0.58 + _liftPickSpike, _armSwingT * 3.28, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47
     armRod.material.emissive.setHex(ct.hex);
-    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 2007: arm rod tracking 8→10.8
+    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 14.6); // Pass 2183: arm rod tracking 10.8→14.6
   }
 
   // ── Suction cup domain glow ──
@@ -4797,15 +4797,15 @@ function animate(ts) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
                      inPhase(PH.armLift)    ? 1.0 : 0.5;
     suctionCupMat.emissive.setHex(ct.hex);
-    suctionCupMat.emissiveIntensity = cupGlowT * 4.59; // Pass 2008: cup peak glow 3.4→4.59
+    suctionCupMat.emissiveIntensity = cupGlowT * 6.20; // Pass 2184: cup peak glow 4.59→6.20
   } else if (inPhase(PH.armReturn)) {
     // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
     // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
     const _arMemT = phaseRaw(PH.armReturn);
-    const _memFade = Math.max(0, 1 - _arMemT / 0.41); // Pass 2009: cup memory window 0.30→0.41
+    const _memFade = Math.max(0, 1 - _arMemT / 0.55); // Pass 2185: cup memory window 0.41→0.55
     if (_memFade > 0.01) {
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (_memFade * 0.74 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2010: cup memory intensity 0.55→0.74
+      suctionCupMat.emissiveIntensity += (_memFade * 1.00 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2186: cup memory intensity 0.74→1.00
     } else {
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.15;
     }
