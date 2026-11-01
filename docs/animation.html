@@ -5363,13 +5363,13 @@ function animate(ts) {
     // Pass 460: edge reveal white flash — at identity lock-on the outline briefly blooms white
     // before settling to domain color. Uses _confirmRingT [0..1] as a proxy timing signal.
     // Pass 628: edge reveal flash window 0.18→0.24 — Pass 1391: →0.34 for longer white bloom at identity lock-on
-    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 0.34) ? (1.0 - _confirmRingT / 0.34) : 0;
+    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 0.46) ? (1.0 - _confirmRingT / 0.46) : 0; // Pass 1956: edge reveal window 0.34→0.46
     if (_edgeRvl > 0.05) activeCardEdgeMat.color.lerp(new THREE.Color(0xffffff), _edgeRvl);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     // Pass 477: deflect arc edge boost — outline more visible as card arcs through air (0.45→0.65)
     // Pass 512: armSwing edge boost 0.45→0.58 — Pass 629: scan/conveyor edge 0.85→0.95; deflect 0.65→0.78 — Pass 1392: scan 0.95→1.0, deflect 0.78→0.90, swing 0.58→0.72
-    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 0.90 : inPhase(PH.armSwing) ? 0.72 : 0.45;
+    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 1.22 : inPhase(PH.armSwing) ? 0.97 : 0.61; // Pass 1957: deflect 0.90→1.22 Pass 1958: swing 0.72→0.97 Pass 1959: rest 0.45→0.61
     activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
@@ -5430,8 +5430,8 @@ function animate(ts) {
   // Target set per-phase above; phases not setting it (arm phases, pause) leave it at 0.
   // Lerp rate: 0..target in ~0.15s (dt*7 per frame @ 60fps)
   {
-    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 0.08
-                      : inPhase(PH.scan) ? 0.02
+    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 0.108 // Pass 1960: conveyor belt speed 0.08→0.108
+                      : inPhase(PH.scan) ? 0.027 // Pass 1961: scan creep 0.02→0.027
                       : (inPhase(PH.deflect) || inPhase(PH.slotDrop)) ? 0.04
                       : 0; // arm phases + pause: belt decelerates to stop
     _beltScrollSpeed += (_beltTarget - _beltScrollSpeed) * Math.min(1, dt * 7);
@@ -5452,7 +5452,7 @@ function animate(ts) {
         t.stripMat.emissiveIntensity = Math.min(0.15, t.stripMat.emissiveIntensity + dt * 2.0);
       } else if (t.stripMat.emissiveIntensity > 0.15) {
         // Pass 69: decay from flash
-        t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 5.5);
+        t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 7.4); // Pass 1962: strip flash decay 5.5→7.4
       }
     });
   }
@@ -5467,7 +5467,7 @@ function animate(ts) {
     // Pass 493: breathe amplitude boost 0.08→0.14 — Pass 544: 0.14→0.20 for more tray card life
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
     // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
-    const _breathe = 0.30 + 0.22 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5)
+    const _breathe = 0.41 + 0.30 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 1963: tray breathe base 0.30→0.41 Pass 1964: primary amp 0.22→0.30
                          + 0.08 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5));
     slotArr.forEach(m => {
       if (!m.material) return;
