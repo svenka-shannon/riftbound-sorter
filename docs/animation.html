@@ -3716,12 +3716,12 @@ function animate(ts) {
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
       // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 — Pass 1140: →14.0 — Pass 1220: →20.0 — Pass 1293: →28.0 hotter blaze
-      activeCardMat.emissiveIntensity = 37.8; // Pass 1768: card blaze at conveyorOut start 28.0→37.8
+      activeCardMat.emissiveIntensity = 51.0; // Pass 2061: card blaze at conveyorOut start 37.8→51.0
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
-      lensMat.emissiveIntensity = 12.15; // Pass 1769: lens domain persistence spike 9.0→12.15
+      lensMat.emissiveIntensity = 16.4; // Pass 2062: lens spike 12.15→16.4
       lensMat.emissive.setHex(ct.hex);
       // Pass 478: scan-confirm LED flashbang — scanner LED briefly goes white-hot at scan complete
-      scanLEDMat.emissiveIntensity = 10.8; // Pass 1770: scan LED flashbang 8.0→10.8
+      scanLEDMat.emissiveIntensity = 14.6; // Pass 2063: scan LED flashbang 10.8→14.6
       scanLEDMat.color.set(0xffffff);
       scanLEDMat.emissive.set(0xffffff);
     }
@@ -3731,11 +3731,11 @@ function animate(ts) {
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
     // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
     const _ledUrgencyHz = 8 + ot * 22; // 8→30Hz
-    const _ledUrgencyPulse = 0.18 + 2.01 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 1761: urgency pulse depth 1.10→1.49 — Pass 1869: →2.01
+    const _ledUrgencyPulse = 0.18 + 2.71 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2064: urgency pulse depth 2.01→2.71
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 — Pass 1221: →10.0 for brighter gate approach signal
-      const _target = _isTarget ? (18.2 * ot) * _ledUrgencyPulse : 0.1; // Pass 1760: gate LED target max 10.0→13.5 — Pass 1870: →18.2
+      const _target = _isTarget ? (24.6 * ot) * _ledUrgencyPulse : 0.1; // Pass 2065: gate LED target max 18.2→24.6
       gm.color.setHex(_isTarget ? ct.hex : 0x224466);
       gm.emissive.setHex(_isTarget ? ct.hex : 0x112233);
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
@@ -3744,7 +3744,7 @@ function animate(ts) {
     // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 — Pass 1369: →30.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (76.5 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 1762: gate col tracking light 42.0→56.7 — Pass 1871: →76.5
+    gateColLight.intensity += (103.3 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2066: gate col tracking light 76.5→103.3
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -3756,7 +3756,7 @@ function animate(ts) {
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     // Pass 312: conveyorOut Z bank amplifier — outer columns lean harder to reinforce routing
     // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit — Pass 1593: →0.88
-    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 0.88;
+    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 1.19; // Pass 2067: outer column bank amp 0.88→1.19
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
     // Pass 140: blend lean from 0 (scan end) to belt lean over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
@@ -3766,7 +3766,7 @@ function animate(ts) {
     // Pass 232: belt acceleration pitch kick — belt surges from scan crawl (0.02) to full
     // speed at conveyorOut start, briefly pitching card nose-up by inertia.
     // Pass 640: belt launch pitch kick 0.06→0.10 — Pass 776: 0.10→0.16 — Pass 970: →0.22 for stronger card-lurch at scan exit — Pass 1594: →0.30; Pass 1595: decay 22→16 longer kick
-    const _beltKickPitch = Math.exp(-ot * 16) * 0.41; // Pass 1872: belt launch kick pitch 0.30→0.41
+    const _beltKickPitch = Math.exp(-ot * 16) * 0.55; // Pass 2068: belt launch kick pitch 0.41→0.55
     activeCard.rotation.set(_exitLean + _beltKickPitch, 0, zBank); // forward lean + kick + bank
     // Pass 174: continue belt Z-wobble during conveyorOut — fades in over first 5% and out
     // over last 30% so card arrives stable at gate (no Z snap at scan→out or out→deflect)
