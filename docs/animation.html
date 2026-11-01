@@ -4624,19 +4624,19 @@ function animate(ts) {
   {
     // Scan phase: flash ambient up with the domain color
     // Celebration (impactRing or camera shake): spike ambient white briefly
-    // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 — Pass 1083: →0.92 — Pass 1380: →1.25 for stronger domain atmosphere
-    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 1.25 : 0;
-    // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy
-    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.28 : 0;
-    // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response
-    const _shakeBoost   = _cameraShake > 2 ? Math.min(0.40, _cameraShake * 0.05) : 0;
+    // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 — Pass 1083: →0.92 — Pass 1380: →1.25 — Pass 1612: →1.70
+    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 1.70 : 0;
+    // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy — Pass 1614: →0.38
+    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 0.38 : 0;
+    // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response — Pass 1615: ceiling 0.40→0.55, mult 0.05→0.07
+    const _shakeBoost   = _cameraShake > 2 ? Math.min(0.55, _cameraShake * 0.07) : 0;
     // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 — Pass 1607: →1.05
     const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 1.05 : 0;
     // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response — Pass 1610: →0.84
     const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.84 : 0;
     // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 — Pass 1611: →1.35
     const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 1.35 : 0;
-    const _ambTarget = 0.45 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324;
+    const _ambTarget = 0.62 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1613: base 0.45→0.62 richer fill light
     ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
     // Tint ambient toward domain color during scan or slotDrop
     if (_scanAmbBoost > 0.02 || _dropAmbBoost > 0.02) {
@@ -4918,13 +4918,13 @@ function animate(ts) {
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
     const _h2 = Math.sin(_shakePhase2) * 0.70;           // Pass 1026: second harmonic 0.55→0.70 (richer rattle)
-    // Pass 568: shake amplitude 0.30→0.45/0.62/0.38 — Pass 700: →0.55/0.78/0.50 — Pass 906: →0.65/0.90/0.60 — Pass 1336: →0.75/1.10/0.75 — Pass 1429: →0.85/1.40/0.90 richer rattle
-    const _shakeX = (_n * 0.85 + _h1 * 1.40 + _h2 * 0.90) * _cameraShake;
-    const _shakeY = (_n * 0.85 + Math.cos(_shakePhase1) * 1.40 + Math.cos(_shakePhase2) * 0.90 * 0.55) * _cameraShake;
+    // Pass 568: shake amplitude 0.30→0.45/0.62/0.38 — Pass 700: →0.55/0.78/0.50 — Pass 906: →0.65/0.90/0.60 — Pass 1336: →0.75/1.10/0.75 — Pass 1429: →0.85/1.40/0.90 — Pass 1618: →1.15/1.85/0.90 harder rattle
+    const _shakeX = (_n * 1.15 + _h1 * 1.85 + _h2 * 0.90) * _cameraShake;
+    const _shakeY = (_n * 1.15 + Math.cos(_shakePhase1) * 1.85 + Math.cos(_shakePhase2) * 0.90 * 0.55) * _cameraShake;
     camera.position.x += _shakeX;
     camera.position.y += _shakeY;
-    // Pass 569: shake decay 0.78→0.72 — Pass 701: →0.69 — Pass 1027: →0.66 — Pass 1337: →0.63 — Pass 1430: →0.60 for longer lingering feel
-    _cameraShake *= 0.60; // decay: Pass 1430
+    // Pass 569: shake decay 0.78→0.72 — Pass 701: →0.69 — Pass 1027: →0.66 — Pass 1337: →0.63 — Pass 1430: →0.60 — Pass 1619: →0.65 even longer lingering shake
+    _cameraShake *= 0.65; // decay: Pass 1619
   } else {
     _cameraShake = 0;
     _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
@@ -5482,14 +5482,14 @@ function animate(ts) {
 
   // Pass 67: clear color tints faintly toward domain during scan; brief warm flash on celebration
   {
-    // Pass 540: scan background boost 0.055→0.080 — Pass 662: 0.080→0.105 for deeper domain atmosphere
-    const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.105 : 0;
+    // Pass 540: scan background boost 0.055→0.080 — Pass 662: 0.080→0.105 for deeper domain atmosphere — Pass 1616: →0.14
+    const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.14 : 0;
     const _celebBoost = _cameraShake > 3 ? Math.min(0.08, _cameraShake * 0.012) : 0;
     // Pass 152: brief domain tint on slotDrop — card joins the tray, background echoes domain — Pass 1609: 0.028→0.040
     const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.040 : 0;
     // Pass 328: reveal background flash — brief domain flood at identity lock-on moment
-    // Pass 539: reveal flood 0.09→0.14 for bigger background domain surge at lock-on
-    const _revealTintBoost328 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 20) * 0.14 : 0;
+    // Pass 539: reveal flood 0.09→0.14 for bigger background domain surge at lock-on — Pass 1617: →0.19
+    const _revealTintBoost328 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 20) * 0.19 : 0;
     // Pass 329: deflect background tint — background echoes domain as card arcs through air — Pass 1466: 0.022→0.032
     const _deflectTintBoost329 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.032 : 0;
     // Pass 330: armSwing background echo — brief tint at arc midpoint as card swings closest — Pass 1467: 0.018→0.026
