@@ -3507,9 +3507,9 @@ function animate(ts) {
           const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
           // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 — Pass 1411: →4.5 — Pass 1525: →6.5 for brighter confirm ring flash
-          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 8.77 : 0; // Pass 1757: ping reveal spike 6.5→8.77
+          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 11.84 : 0; // Pass 2333: ping reveal spike 8.77→11.84
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
-          const _pingBoost = ft >= 0.85 ? 20.25 + _pingRevealSpike337 : 1.0; // Pass 1758: ping post-reveal boost 15.0→20.25
+          const _pingBoost = ft >= 0.85 ? 27.3 + _pingRevealSpike337 : 1.0; // Pass 2334: ping post-reveal boost 20.25→27.3
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
           p.mat.opacity = _pingFade * flashIntensity * 1.0 * _pingBoost;
         } else {
@@ -3530,7 +3530,7 @@ function animate(ts) {
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 — Pass 1384: →15.0 for more vivid pre-reveal LED cycling
-          const _cTarget = gi === _chaseIdx ? 20.25 : 0.1; // Pass 1759: gate LED chase peak 15.0→20.25
+          const _cTarget = gi === _chaseIdx ? 27.3 : 0.1; // Pass 2335: gate LED chase peak 20.25→27.3
           gm.color.setHex(0x0088cc);
           gm.emissive.setHex(0x003366);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 22);
@@ -3540,14 +3540,14 @@ function animate(ts) {
           // Pass 320: non-target LEDs fade to 0 post-reveal — spotlight narrows to destination
           const _nonTargetDim = Math.max(0, 0.10 - Math.min(1, (ft - 0.85) / 0.05) * 0.10);
           // Pass 545: target LED emissive 4.5→6.0 — Pass 801: →9.0 — Pass 1169: →13.0 — Pass 1344: →18.0 for stronger destination lock-on glow
-          const _cTarget = gi === ct.col ? 18.0 : _nonTargetDim; // Pass 1344: 13.0 → 18.0
+          const _cTarget = gi === ct.col ? 24.3 : _nonTargetDim; // Pass 2336: target LED post-reveal 18.0→24.3
           gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
           gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 20);
         });
         // Pass 321: target gate LED scale pop at reveal — Pass 402: balloon boost 0.85 → 1.30
         // Pass 546: LED scale pop balloon 1.30→1.70 for bigger LED bloat at reveal
-        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 2.30 : 1.0; // Pass 1729: gate LED scale pop 1.70→2.30
+        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 3.11 : 1.0; // Pass 2337: gate LED scale pop 2.30→3.11
         GATE_COL_LEDS.forEach(({ mesh: gMesh }, gi) => {
           gMesh.scale.setScalar(gi === ct.col ? _ledRevealScale : 1.0);
         });
@@ -3558,14 +3558,14 @@ function animate(ts) {
     scanTargetLight.color.setHex(ct.hex);
     // Pass 348: target light reveal spike — Pass 547: spike 4.5→6.5, base 3.2→4.2
     // Pass 913: spike 6.5→10.0 — Pass 1425: →14.0 for bigger destination spotlight flash at lock-on
-    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 18.9 : 0; // Pass 1730: target spotlight spike 14.0→18.9
+    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 25.5 : 0; // Pass 2338: target spotlight spike 18.9→25.5
     // Pass 912: base 4.2→6.0 — Pass 1425: →8.5 for stronger destination spotlight during scan
-    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 8.5 + _tgtRevealSpike348 : 0;
+    scanTargetLight.intensity = _identityRevealed ? flashIntensity * 11.5 + _tgtRevealSpike348 : 0; // Pass 2339: target spotlight base flash 8.5→11.5
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
     // Fill bar also only brightens after reveal
     // Pass 550: fill bar post-reveal 0.4+1.2 → 0.6+1.6 — Pass 910: →0.80+2.2 for stronger slot pre-announce
     if(fillBars[ct.slot]) {
-      const _fbTarget = _identityRevealed ? (0.80 + flashIntensity * 2.2) : 0.12;
+      const _fbTarget = _identityRevealed ? (1.08 + flashIntensity * 2.97) : 0.12; // Pass 2340: fill bar scan flash base 0.80→1.08, contribution 2.2→2.97
       fillBars[ct.slot].material.emissiveIntensity += (_fbTarget - fillBars[ct.slot].material.emissiveIntensity) * Math.min(1, dt * 5);
     }
     // Pass 204: paddle pre-aim — after identity reveal, paddle very subtly pre-positions
