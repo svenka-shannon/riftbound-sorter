@@ -3916,13 +3916,13 @@ function animate(ts) {
           const _sp = GRAB_PARTICLES[_si];
           if (_sp.active) continue;
           // Pass 922: gate spark life 0.28+0.22→0.38+0.28 for longer-lived sparks
-          _sp.active = true; _sp.age = 0; _sp.life = 0.38 + Math.random() * 0.28;
+          _sp.active = true; _sp.age = 0; _sp.life = 0.51 + Math.random() * 0.38; // Pass 1814: gate spark life 0.38+0.28→0.51+0.38
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 160 + Math.random() * 185; // Pass 921: 95+110 → 120+140 — Pass 1470: →160+185 faster gate sparks
+          const _spd = 216 + Math.random() * 250; // Pass 1812: gate spark speed 160+185→216+250
           _sp.vx = Math.cos(_ang) * _spd * 0.7;
-          _sp.vy = 110 + Math.random() * 120;  // Pass 920: 65+70→85+90 — Pass 1471: →110+120 higher flying sparks
+          _sp.vy = 148 + Math.random() * 162; // Pass 1813: gate spark vy 110+120→148+162
           _sp.vz = Math.sin(_ang) * _spd * 0.5 + Math.sign(ct.slotZ || 1) * 15;
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
@@ -3970,7 +3970,7 @@ function animate(ts) {
       const _defEntryT = Math.min(1, dt2 / 0.14);
       const _normTilt = THREE.MathUtils.lerp(0, floorTilt, dt2);
       // Pass 763: launch kick 0.28→0.40 — Pass 1186: →0.58 for more dramatic gate-exit nose-up
-      const _launchKick = 0.58 * Math.exp(-dt2 * 13) * (1 - _defEntryT);
+      const _launchKick = 0.78 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 1818: launch kick 0.58→0.78
       activeCard.rotation.x = THREE.MathUtils.lerp(-0.05, _normTilt, easeOut(_defEntryT)) + _launchKick;
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
@@ -4001,7 +4001,7 @@ function animate(ts) {
       : THREE.MathUtils.lerp(activeCard.position.z, ct.slotZ, (dt2 - 0.5) / 0.5);
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, _lightZ318);
     // Pass 354: deflect target light easeOut + intensity boost (1.8 → 2.6) — Pass 964: →4.0 — Pass 1191: →6.0
-    scanTargetLight.intensity = easeOut(dt2) * 6.0;
+    scanTargetLight.intensity = easeOut(dt2) * 8.1; // Pass 1815: deflect target light 6.0→8.1
     // Keep gate paddle colored while card is deflecting
     // Pass 248: paddle domain-to-orange afterglow — domain color during peak window, then fades
     // to orange-red after dt2=0.18, giving a visible cool-down transition on the paddle face.
@@ -4036,7 +4036,7 @@ function animate(ts) {
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       if (gi === ct.col) {
         gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
-        gm.emissiveIntensity += (7.5 - gm.emissiveIntensity) * Math.min(1, dt * 10);
+        gm.emissiveIntensity += (10.1 - gm.emissiveIntensity) * Math.min(1, dt * 10); // Pass 1816: deflect LED target 7.5→10.1
       } else {
         gm.emissiveIntensity += (0.15 - gm.emissiveIntensity) * Math.min(1, dt * 5);
       }
@@ -4045,7 +4045,7 @@ function animate(ts) {
     // Pass 649: deflect column light max 3.0→4.5 — Pass 1193: →6.5 brighter gate column during arc flight
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (9.0 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 1561: 6.5→9.0 deflect gate approach light
+    gateColLight.intensity += (12.15 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 1817: deflect col tracking light 9.0→12.15
     _beltScrollSpeed = 0.04; // half speed while card arcs off belt
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
@@ -4067,7 +4067,7 @@ function animate(ts) {
       tp.age = 0;
       // Pass 387: life boost — 0.38-0.52 → 0.45-0.65s — Pass 506: extend 0.45-0.65 → 0.55-0.75s
       // Pass 527: deflect trail life 0.55+0.20 → 0.65+0.25 — Pass 966: →0.82+0.32 — Pass 1117: →1.05+0.42 — Pass 1504: →1.35+0.55 longer hang
-      tp.life = 1.35 + Math.random() * 0.55;
+      tp.life = 1.82 + Math.random() * 0.74; // Pass 1819: deflect trail life 1.35+0.55→1.82+0.74
       tp.active = true;
       tp.mesh.visible = true;
     }
