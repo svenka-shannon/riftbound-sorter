@@ -2379,8 +2379,8 @@ function animate(ts) {
       if (_prePickT) {
         const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
-        // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 for more vivid deck charge wave
-        const _waveAmp301 = inPhase(PH.armDescend) ? 0.35 + phaseRaw(PH.armDescend) * 0.55 : 0.35;
+        // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 for more vivid deck charge wave
+        const _waveAmp301 = inPhase(PH.armDescend) ? 0.35 + phaseRaw(PH.armDescend) * 0.75 : 0.35;
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 for brighter deck energy
         sc.material.emissiveIntensity = 0.26 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
@@ -2403,8 +2403,8 @@ function animate(ts) {
       _yPos = THREE.MathUtils.lerp(a.startY, a.targetY, easeOut(a.t / 0.80));
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
-      // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 for more physical slot landing
-      _yPos = a.targetY + 23 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
+      // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 for more physical slot landing
+      _yPos = a.targetY + 32 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
@@ -2446,9 +2446,9 @@ function animate(ts) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
       const _fPeak = f.peak || 3.0; // use stored creation intensity; fallback 3.0
-      // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s for longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 1.20));
-      if(f.age > 1.20) { scene.remove(f.light); return false; }
+      // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s for longer flash persistence
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 1.65));
+      if(f.age > 1.65) { scene.remove(f.light); return false; }
       return true;
     });
   }
@@ -4371,19 +4371,19 @@ function animate(ts) {
         void _ral.offsetWidth; // force reflow
         _ral.classList.add('reject-alarm-on');
       }
-      // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90
-      [[0xff6600, 14.0, 150], [0xff1a00, 7.0, 90]].forEach(([c, i, d], fi) => {
+      // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90 — Pass 1397: amber →20.0/200, red →10.0/120
+      [[0xff6600, 20.0, 200], [0xff1a00, 10.0, 120]].forEach(([c, i, d], fi) => {
         const _wl = new THREE.PointLight(c, i, d);
         _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 8 : -8));
         scene.add(_wl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _wl, age: 0, peak: _wl.intensity });
       });
-      // Extra camera shake for "rejected" — Pass 452: 2.2→3.5 — Pass 651: →5.5 — Pass 1044: →9.5 bigger alarm jolt
-      _cameraShake = Math.max(_cameraShake, 9.5);
+      // Extra camera shake for "rejected" — Pass 452: 2.2→3.5 — Pass 651: →5.5 — Pass 1044: →9.5 — Pass 1398: →14.0 bigger alarm jolt
+      _cameraShake = Math.max(_cameraShake, 14.0);
       // Pass 65: reject spark fountain — upward burst of red/orange trail particles
-      // Pass 651: reject spark count 14→20 — Pass 1046: →30 for bigger alarm fountain
-      for (let _ri = 0; _ri < 30; _ri++) {
+      // Pass 651: reject spark count 14→20 — Pass 1046: →30 — Pass 1399: →42 for bigger alarm fountain
+      for (let _ri = 0; _ri < 42; _ri++) {
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         tp.mesh.position.set(
@@ -4749,8 +4749,8 @@ function animate(ts) {
     const _belFrac = (_beltShimmerX + 140) / 200; // 0=left edge, 1=right edge
     const _edgeFade = Math.sin(_belFrac * Math.PI); // 0→1→0
     beltShimmerMat.color.set(beltSurfMat.emissive); // tint to belt emissive (domain color)
-    // Pass 472: shimmer opacity 0.38→0.50 — Pass 696: →0.65 — Pass 993: →0.85 for stronger belt shimmer stripe
-    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 0.85;
+    // Pass 472: shimmer opacity 0.38→0.50 — Pass 696: →0.65 — Pass 993: →0.85 — Pass 1401: →1.0 for stronger belt shimmer stripe
+    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 1.0;
   } else {
     beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 4);
     if (beltShimmerMat.opacity < 0.01) beltShimmerMesh.visible = false;
@@ -4969,12 +4969,12 @@ function animate(ts) {
   if (activeCard.visible && beltShimmerMesh.visible &&
       (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))) {
     const _glintDist = Math.abs(beltShimmerMesh.position.x - activeCard.position.x);
-    // Pass 479: glint 0.22→0.32 — Pass 704: →0.45 — Pass 1023: →0.65 stronger stripe-under-card flash
-    const _glint = Math.max(0, 1 - _glintDist / 18) * 0.65;
+    // Pass 479: glint 0.22→0.32 — Pass 704: →0.45 — Pass 1023: →0.65 — Pass 1403: →0.88 stronger stripe-under-card flash
+    const _glint = Math.max(0, 1 - _glintDist / 18) * 0.88;
     if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
-    // Pass 163: shimmer pressure lift — Pass 1023: lift 5.5→8.0 higher card float under stripe
+    // Pass 163: shimmer pressure lift — Pass 1023: lift 5.5→8.0 — Pass 1403: →11.0 higher card float under stripe
     if (_glint > 0.005 && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)))
-      activeCard.position.y += _glint * 8.0; // Pass 1023: 5.5→8.0
+      activeCard.position.y += _glint * 11.0; // Pass 1403: 8.0→11.0
   }
 
   // ── Hopper top card domain preview ──────────────────────────────────────────
