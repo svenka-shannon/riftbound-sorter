@@ -3414,13 +3414,13 @@ function animate(ts) {
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
             // Pass 958: burst life 0.36+0.24→0.52+0.32 for longer-lived reveal particles
-            _bp.active = true; _bp.age = 0; _bp.life = 0.70 + Math.random() * 0.43; // Pass 1935: confirm burst life 0.52+0.32→0.70+0.43
+            _bp.active = true; _bp.age = 0; _bp.life = 0.95 + Math.random() * 0.58; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 18) * Math.PI * 2 + Math.random() * 0.8;
-            const _spd = 257 + Math.random() * 236; // Pass 1325: 110+100→145+130 — Pass 1468: →190+175 — Pass 1936: →257+236 faster reveal burst
+            const _spd = 347 + Math.random() * 319; // Pass 2326: confirm burst speed 257+236→347+319
             _bp.vx = Math.cos(_ang) * _spd * 0.55;
-            _bp.vy = 169 + Math.random() * 209; // Pass 1326: 70+90→95+120 — Pass 1469: →125+155 — Pass 1937: →169+209 higher reveal burst
+            _bp.vy = 228 + Math.random() * 282; // Pass 2327: confirm burst vy 169+209→228+282
             _bp.vz = Math.sin(_ang) * _spd * 0.55;
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
@@ -3438,17 +3438,17 @@ function animate(ts) {
           scanBarMat.color.set(0xffffff);
           scanBarMat.emissive.set(0xaaddff);
           // Pass 326: pre-reveal urgency breath — Pass 836: 0.35→0.58 — Pass 1137: →0.85 for more vivid scan bar pulse
-          const _preBreath326 = barFill * 1.15 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)); // Pass 1712: urgency breath 0.85→1.15
+          const _preBreath326 = barFill * 1.55 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)); // Pass 2328: urgency breath 1.15→1.55
           scanBarMat.emissiveIntensity = 1.2 + flashIntensity * 2.4 + _preBreath326; // Pass 1715: pre-reveal flash contribution 1.8→2.4
         } else {
           scanBarMat.color.copy(_blendC);
           scanBarMat.emissive.copy(_blendC);
           // Pass 497: scan bar 65-85% tension base 1.5→1.8 — Pass 838: post-reveal base 2.2→3.0, peak 2.5→3.5
-          const _baseI = barFill >= 0.85 ? 4.05 + flashIntensity * 3.5 : 2.43 + flashIntensity * 2.8; // Pass 1766: post-reveal base 3.0→4.05, Pass 1767: tension base 1.8→2.43
+          const _baseI = barFill >= 0.85 ? 5.47 + flashIntensity * 4.73 : 3.28 + flashIntensity * 3.78; // Pass 2329: post-reveal base 4.05→5.47, flash 3.5→4.73; Pass 2330: tension base 2.43→3.28, flash 2.8→3.78
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75 — Pass 1343: →1.05
-          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 1.42 : 0; // Pass 1713: post-reveal breathing 1.05→1.42
+          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 1.92 : 0; // Pass 2331: post-reveal breathing 1.42→1.92
           // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 — Pass 1327: →20.0 for bigger climax
-          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 27.0 : 0; // Pass 1714: completion superflash 20.0→27.0
+          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 36.5 : 0; // Pass 2332: completion superflash 27.0→36.5
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
         }
       }
