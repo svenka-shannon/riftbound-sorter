@@ -3903,7 +3903,7 @@ function animate(ts) {
       // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 — Pass 1194: →0.88 — Pass 1569: →1.20 for harder paddle whack feel
       _paddleRecoil = 2.19 * Math.sign(ct.slotZ); // Pass 2084: paddle recoil kick 1.62→2.19
       // Pass 216: solenoid jitter — Pass 591: 0.85→1.30 — Pass 1570: →1.80 for stronger lateral vibration
-      _paddleJitterAmt = 2.43; // Pass 1810: solenoid jitter 1.80→2.43
+      _paddleJitterAmt = 3.28; // Pass 2108: solenoid jitter 2.43→3.28
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
       // decays into the normal tumble over ~0.12s, simulating the paddle "whacking" the card sideways.
       _gateZKick = bankSign * 1.00; // Pass 2085: gate Z-kick 0.74→1.00
@@ -3956,7 +3956,7 @@ function animate(ts) {
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
     const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 25.9 // Pass 2090: Z tremor 19.2→25.9
-      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 2.2;
+      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 2.97; // Pass 2107: Z tremor tertiary 2.2→2.97
     // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 — Pass 1072: →3.2 — Pass 1253: →4.4 for more 3D turbulence in deflect arc
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 10.76; // Pass 2091: Y tremor 7.97→10.76
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
@@ -4045,11 +4045,11 @@ function animate(ts) {
     // Pass 649: deflect column light max 3.0→4.5 — Pass 1193: →6.5 brighter gate column during arc flight
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (16.4 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 1817: deflect col tracking light 9.0→12.15 — Pass 1897: →16.4
+    gateColLight.intensity += (22.1 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2101: deflect col tracking light 16.4→22.1
     _beltScrollSpeed = 0.04; // half speed while card arcs off belt
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.040) { // Pass 386: spawn rate boost — 55ms → 40ms for denser trail
+    if (_trailSpawnAcc >= 0.030) { // Pass 2102: deflect trail spawn 0.040→0.030 denser
       _trailSpawnAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -4067,7 +4067,7 @@ function animate(ts) {
       tp.age = 0;
       // Pass 387: life boost — 0.38-0.52 → 0.45-0.65s — Pass 506: extend 0.45-0.65 → 0.55-0.75s
       // Pass 527: deflect trail life 0.55+0.20 → 0.65+0.25 — Pass 966: →0.82+0.32 — Pass 1117: →1.05+0.42 — Pass 1504: →1.35+0.55 longer hang
-      tp.life = 2.46 + Math.random() * 1.00; // Pass 1819: deflect trail life 1.35+0.55→1.82+0.74 — Pass 1898: →2.46+1.00
+      tp.life = 3.32 + Math.random() * 1.35; // Pass 2103: deflect trail life 2.46+1.00→3.32+1.35
       tp.active = true;
       tp.mesh.visible = true;
     }
@@ -4078,7 +4078,7 @@ function animate(ts) {
       _btp.mesh.position.set(GATE_X + (Math.random()-0.5)*8, CONV_Y_TOP + 8 + Math.random()*8, ct.slotZ * 0.12 + (Math.random()-0.5)*5);
       _btp.mat.color.setHex(ct.hex);
       _btp.mat.opacity = 0.92 + Math.random() * 0.08; // Pass 1118: 0.80+0.18→0.92+0.08 for brighter gate-contact burst
-      _btp.age = 0; _btp.life = 0.54 + Math.random() * 0.30; // Pass 1505: 0.28+0.16→0.40+0.22 — Pass 1899: →0.54+0.30 longer gate-contact burst
+      _btp.age = 0; _btp.life = 0.73 + Math.random() * 0.41; // Pass 2104: gate burst life 0.54+0.30→0.73+0.41
       _btp.active = true; _btp.mesh.visible = true;
     }
   }
@@ -4107,7 +4107,7 @@ function animate(ts) {
         // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
         // Pass 971: bounce 16→22 — Pass 1108: →30 — Pass 1195: →40 — Pass 1257: →52 for even bigger card-slap landing bounce
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 94.5 * Math.sin(bT * Math.PI) * (1 - bT * 0.32); // Pass 1787: landing bounce height 52→70 — Pass 1900: →94.5
+        cy = targetY + 127.6 * Math.sin(bT * Math.PI) * (1 - bT * 0.24); // Pass 2105: bounce height 94.5→127.6 Pass 2106: damp 0.32→0.24
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
