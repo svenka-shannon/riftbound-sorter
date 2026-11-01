@@ -3278,8 +3278,8 @@ function animate(ts) {
       // Pass 148 + 171: dots cascade to domain color one by one starting at ft=0.85 reveal
       // Each dot switches ft=0.85 + di*0.014 — wave of domain color spreading across grid
       // Brief brightness spike at reveal moment
-      // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 — Pass 849: →1.90 — Pass 1316: →2.60 — Pass 1418: →3.60 for bigger dot cascade flash
-      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 3.60 : 0;
+      // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 — Pass 849: →1.90 — Pass 1316: →2.60 — Pass 1418: →3.60 — Pass 1692: →4.80
+      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 4.80 : 0;
       SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
         const stagger = di * 0.06; // 60ms stagger per dot (0..0.48s)
         const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
@@ -3292,12 +3292,12 @@ function animate(ts) {
           // Pass 211: scan grid dots float — pre-reveal dots oscillate in Y at 3Hz with
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
-          // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 — Pass 1240: →1.40 — Pass 1317: →1.90 — Pass 1419: →2.60 for even more dramatic dot hover
-          const _dotFloat = _identityRevealed ? 0 : 2.60 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
-          // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 — Pass 1318: →2.60 for sharper lock-on recoil
-          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 2.60 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
-          // Pass 366: post-reveal dots Z drift toward destination slot (20% of slotZ over 0.12s)
-          const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.20 : 0;
+          // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 — Pass 1240: →1.40 — Pass 1317: →1.90 — Pass 1419: →2.60 — Pass 1693: →3.50
+          const _dotFloat = _identityRevealed ? 0 : 3.50 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp;
+          // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 — Pass 1318: →2.60 — Pass 1694: →3.50
+          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 3.50 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0;
+          // Pass 366: post-reveal dots Z drift toward destination slot — Pass 1699: 0.20→0.28
+          const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.28 : 0;
           mesh.position.set(
             activeCard.position.x + SCAN_DOT_OFFSETS[di].x + _dotLockJitter,
             CONV_Y_TOP + CARD_T + 3.5 + _dotFloat,
@@ -3306,12 +3306,12 @@ function animate(ts) {
           mat.color.setHex(dotColor);
           // Pass 215: beam-proximity brightening — each dot brightens as the Z-sweep beam
           // crosses its Z position, creating a sweep highlight that travels with the beam.
-          // Pass 577: dot beam-proximity brightening 0.60→0.95 for more vivid sweep highlight
+          // Pass 577: dot beam-proximity brightening 0.60→0.95 — Pass 1695: →1.30 for more vivid sweep highlight
           const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 11);
-          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 0.95));
-          // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× — Pass 1319: →3.2× harder pop
+          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 1.30));
+          // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× — Pass 1319: →3.2× — Pass 1696: →3.0× harder pop
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
-            ? 1.0 + 2.20 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0;
+            ? 1.0 + 3.00 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0;
           mesh.scale.setScalar(_dotRevealScale);
         } else {
           mesh.visible = false;
@@ -3320,14 +3320,14 @@ function animate(ts) {
       });
     }
     // Pass 55: scan progress LED bar — fills left-to-right as ft 0→1
-    // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 — Pass 1320: →8.0 for bigger scanner power-on test
-    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 8.0 : 0;
+    // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 — Pass 1320: →8.0 — Pass 1697: →11.0 for bigger scanner power-on test
+    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 11.0 : 0;
     {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
-      // Pass 247: reveal overshoot — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 — Pass 733: →0.68 — Pass 1321: →0.95 for more dramatic reveal overshoot
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 0.95 : 0; // Pass 1321: 0.68→0.95
+      // Pass 247: reveal overshoot — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 — Pass 733: →0.68 — Pass 1321: →0.95 — Pass 1698: →1.30
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 1.30 : 0; // Pass 1698: 0.95→1.30
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
