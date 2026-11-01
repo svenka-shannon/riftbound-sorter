@@ -5430,8 +5430,8 @@ function animate(ts) {
   // Target set per-phase above; phases not setting it (arm phases, pause) leave it at 0.
   // Lerp rate: 0..target in ~0.15s (dt*7 per frame @ 60fps)
   {
-    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 0.108 // Pass 1960: conveyor belt speed 0.08→0.108
-                      : inPhase(PH.scan) ? 0.027 // Pass 1961: scan creep 0.02→0.027
+    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 0.146 // Pass 2245: conveyor belt speed 0.108→0.146
+                      : inPhase(PH.scan) ? 0.036 // Pass 2246: scan creep 0.027→0.036
                       : (inPhase(PH.deflect) || inPhase(PH.slotDrop)) ? 0.04
                       : 0; // arm phases + pause: belt decelerates to stop
     _beltScrollSpeed += (_beltTarget - _beltScrollSpeed) * Math.min(1, dt * 7);
@@ -5452,7 +5452,7 @@ function animate(ts) {
         t.stripMat.emissiveIntensity = Math.min(0.15, t.stripMat.emissiveIntensity + dt * 2.0);
       } else if (t.stripMat.emissiveIntensity > 0.15) {
         // Pass 69: decay from flash
-        t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 7.4); // Pass 1962: strip flash decay 5.5→7.4
+        t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 10.0); // Pass 2247: strip flash decay 7.4→10.0
       }
     });
   }
@@ -5467,13 +5467,13 @@ function animate(ts) {
     // Pass 493: breathe amplitude boost 0.08→0.14 — Pass 544: 0.14→0.20 for more tray card life
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
     // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
-    const _breathe = 0.41 + 0.30 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 1963: tray breathe base 0.30→0.41 Pass 1964: primary amp 0.22→0.30
-                         + 0.08 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5));
+    const _breathe = 0.55 + 0.41 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2248: tray breathe base 0.41→0.55 Pass 2249: primary amp 0.30→0.41
+                         + 0.11 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2250: tray breathe secondary 0.08→0.11
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
         // Arrival pulse still decaying — let it fall toward breathe target
-        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 1.6); // Pass 1658: 2.2→1.6 slower arrival decay
+        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 2.16); // Pass 2251: tray arrival decay 1.6→2.16
       } else {
         // At idle — gently track the breathing target
         m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 1.8); // Pass 1659: tracking 1.2→1.8
@@ -5484,7 +5484,7 @@ function animate(ts) {
   // Pass 67: clear color tints faintly toward domain during scan; brief warm flash on celebration
   {
     // Pass 540: scan background boost 0.055→0.080 — Pass 662: 0.080→0.105 for deeper domain atmosphere — Pass 1616: →0.14
-    const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.19 : 0; // Pass 1965: scan bg boost 0.14→0.19
+    const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 0.26 : 0; // Pass 2252: scan bg boost 0.19→0.26
     const _celebBoost = _cameraShake > 3 ? Math.min(0.16, _cameraShake * 0.024) : 0; // Pass 1966: ceiling 0.12→0.16 Pass 1967: mult 0.018→0.024
     // Pass 152: brief domain tint on slotDrop — card joins the tray, background echoes domain — Pass 1609: 0.028→0.040
     const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.054 : 0; // Pass 1968: drop tint 0.040→0.054
