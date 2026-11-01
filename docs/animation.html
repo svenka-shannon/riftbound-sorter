@@ -3154,18 +3154,18 @@ function animate(ts) {
     // Two-frequency scan strobe: primary 12Hz + secondary 7Hz creates interference pattern
     const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 0.58 + Math.sin(ts * 7 * Math.PI * 2) * 0.10) * flashIntensity;
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 — Pass 1514: →dt*2.8 (longer burst visibility)
-    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 2.8);
+    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 2.1); // Pass 1740: burst decay 2.8→2.1 (longer visible burst)
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
     const _revOsc = _cardRevealBurst * (0.88 + 0.81 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 3.38 + _scanStrobe + _revOsc; // Pass 1739: scan card emissive base 2.50→3.38
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
-    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 28.0 : 0;
-    cardGlow.intensity = 4.4 + flashIntensity * 3.2 + _revealGlowSurge; // Pass 1512: base 3.2→4.4, flash 2.4→3.2
+    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 37.8 : 0; // Pass 1741: reveal glow surge 28.0→37.8
+    cardGlow.intensity = 4.4 + flashIntensity * 4.32 + _revealGlowSurge; // Pass 1742: card glow flash contribution 3.2→4.32
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Pass 372: scanner LED boost 2.0→2.5 — Pass 603: 2.5→3.5 + flashIntensity 3.0→4.5 — Pass 1513: base 3.5→5.0, flash 4.5→6.0
-    scanLEDMat.emissiveIntensity = 5.0 + flashIntensity * 6.0;
+    scanLEDMat.emissiveIntensity = 6.75 + flashIntensity * 8.1; // Pass 1743: LED base 5.0→6.75, Pass 1744: flash contribution 6.0→8.1
     // Pass 222: scanner LED domain flash — at identity reveal, LED color switches to domain
     // Pass 270: hold domain color 0.12s before fading (was immediate fade) — more visual lock-on impact
     if (_scanLEDRevealT >= 0) {
@@ -3199,15 +3199,15 @@ function animate(ts) {
       scannerHood.position.z = (2.20 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.82 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp;
     }
     // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 — Pass 1236: →1.30 — Pass 1421: →1.75 for more dramatic iris breathing
-    const _irisScale = 0.75 + flashIntensity * 1.75;
+    const _irisScale = 0.75 + flashIntensity * 2.36; // Pass 1745: iris scale amplitude 1.75→2.36
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.07 ? easeOut(ft / 0.07) : 1.0;
     // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 — Pass 1237: →2.20 — Pass 1288: →3.00 for even bigger iris pop at reveal
-    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 4.20 : 0; // Pass 1520: 3.00→4.20
+    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 5.67 : 0; // Pass 1746: iris reveal pulse 4.20→5.67
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 — Pass 1374: →19.0 — Pass 1519: →26.0 bigger lens pop
-    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 26.0 : 0;
+    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 35.1 : 0; // Pass 1747: lens reveal spike 26.0→35.1
     // Pass 793: lens flash base 3.5→4.8 — Pass 1518: →6.5 for brighter scanner lens during scan
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 6.5 + _lensReveal370;
     // Wide bloom soft halo around scanner
