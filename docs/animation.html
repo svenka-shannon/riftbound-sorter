@@ -2014,18 +2014,18 @@ function fireCelebration() {
     flashEl.classList.add('scan-flash-on');
   }
   // Camera shake: Pass 421: 5.5→7.5 — Pass 724: →10.5 — Pass 818: →15.0 — Pass 1005: →22.0 — Pass 1102: →32.0 — Pass 1345: →46.0 — Pass 1620: →62.0
-  _cameraShake = Math.max(_cameraShake, 113.0); // Pass 2261: celebration camera shake 83.7→113.0
+  _cameraShake = Math.max(_cameraShake, 152.6); // Pass 2493: celebration camera shake 113.0→152.6
   // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° — Pass 1006: →26° — Pass 1103: →36° — Pass 1346: →50° — Pass 1621: →68°
-  _fovBump = 124; // Pass 2262: celebration FOV punch 92→124
+  _fovBump = 167; // Pass 2494: celebration FOV punch 124→167
   // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0 — Pass 897: →20.0 — Pass 1007: →30.0, dist →500 — Pass 1104: →45.0, dist→650 — Pass 1347: →64.0, dist→800 — Pass 1631: →86.0, dist→1050
-  const _cfl = new THREE.PointLight(0xffffff, 156.7, 1050); // Pass 2263: celebration white burst 116.1→156.7
+  const _cfl = new THREE.PointLight(0xffffff, 211.6, 1050); // Pass 2495: celebration white burst 156.7→211.6
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: _cfl, age: 0, peak: _cfl.intensity });
   // Pass 150: rainbow tray burst — Pass 423: 5.5→8.0 — Pass 727: →12.0 — Pass 898: →18.0 — Pass 1008: →26.0, dist →300 — Pass 1105: →38.0, dist→400 — Pass 1451: →52.0, dist→520 — Pass 1635: →70.0, dist→690
   CARD_TYPES.forEach(dct => {
-    const _dfl = new THREE.PointLight(dct.hex, 127.6, 690); // Pass 2264: celebration rainbow burst 94.5→127.6
+    const _dfl = new THREE.PointLight(dct.hex, 172.3, 690); // Pass 2496: celebration rainbow burst 127.6→172.3
     _dfl.position.set(TX_MID, dct.slotFloorY + 55, dct.slotZ);
     scene.add(_dfl);
     window._flashLights.push({ light: _dfl, age: 0, peak: _dfl.intensity });
@@ -5051,7 +5051,7 @@ function animate(ts) {
   // ── Impact ring: expansion animation ─────────────────────────────────────────
   if (_impactRingT >= 0) {
     // Pass 384: expansion speed boost 0.4s→0.31s — Pass 809: dt*3.2→dt*4.8 — Pass 942: →dt*3.5 — Pass 1033: →dt*2.8 — Pass 1333: →dt*2.2 — Pass 1552: →dt*1.8 longer ring
-    _impactRingT = Math.min(1, _impactRingT + dt * 3.28); // Pass 2207: impact ring speed 2.43→3.28
+    _impactRingT = Math.min(1, _impactRingT + dt * 4.43); // Pass 2498: impact ring speed 3.28→4.43
     // scale0: floor-0 starts at 1.0 (big bang), floor-1 starts at 0.55 (gentle glide)
     // Pass 284: easeOut expansion + floor-0 scale boost — ring punches out hard then decelerates
     // Pass 382: floor-0 max scale 6.0→7.5 — Pass 808: →11.0 — Pass 940: →16.0 — Pass 1032: →22.0 — Pass 1332: →30.0 — Pass 1551: →42.0 wider shockwave
@@ -5073,7 +5073,7 @@ function animate(ts) {
   // Pass 100: confirm ring expands from scanner center at identity reveal
   // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 — Pass 944: →dt*3.5 — Pass 1432: →dt*2.6 for longer ring
   if (_confirmRingT >= 0) {
-    _confirmRingT = Math.min(1, _confirmRingT + dt * 4.73); // Pass 2210: confirm ring speed 3.5→4.73
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 6.39); // Pass 2499: confirm ring speed 4.73→6.39
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
     const _crs = 1.0 + easeOut(_confirmRingT) * 226.0; // Pass 2490: confirm ring scale 167.4→226.0
     confirmRing.scale.setScalar(_crs);
@@ -5087,7 +5087,7 @@ function animate(ts) {
   // Pass 184: second confirm ring — fires 0.12s after first, smaller and faster
   if (_confirmRingT2 > -1) {
     // Pass 945: second ring speed dt*2.2→dt*2.8 — Pass 1434: →dt*2.2 for longer second ring duration
-    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 4.01); // Pass 2212: second confirm ring speed 2.97→4.01
+    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 5.41); // Pass 2500: second confirm ring speed 4.01→5.41
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
       // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 — Pass 1533: →30.0 for wider second burst
@@ -5106,7 +5106,7 @@ function animate(ts) {
   // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
     // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 — Pass 1037: →dt*2.6 — Pass 1436: →dt*2.0 for longer visible ring
-    _grabRingT = Math.min(1, _grabRingT + dt * 3.65); // Pass 2214: grab ring speed 2.7→3.65
+    _grabRingT = Math.min(1, _grabRingT + dt * 4.93); // Pass 2497: grab ring speed 3.65→4.93
     // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 — Pass 1437: →18.0 — Pass 1540: →25.0 for wider domain ring burst at pick
     const _grs = 1.0 + easeOut(_grabRingT) * 61.6; // Pass 2492: grab ring max scale 45.6→61.6
     grabRing.scale.setScalar(_grs);
