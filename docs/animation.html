@@ -2340,8 +2340,8 @@ function animate(ts) {
         stackCards.forEach((c, i) => {
           c.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
         });
-        // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 — Pass 1393: →14.0 for bigger batch-loaded burst
-        const _rfl = new THREE.PointLight(0xfff0cc, 14.0, 220);
+        // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 — Pass 1393: →14.0 for bigger batch-loaded burst — Pass 1583: →20.0, dist→300
+        const _rfl = new THREE.PointLight(0xfff0cc, 20.0, 300);
         _rfl.position.set(HOPPER_X + 33, 160, 0);
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
@@ -2939,12 +2939,12 @@ function animate(ts) {
     activeCardMat.emissiveIntensity = _armCardEmissive;
     // Pass 467: arm-swing arc-peak domain flash — at arm's fastest midpoint, spawn a brief domain
     // point light at card position, syncing with the emissive peak (pass 466).
-    // Pass 536: armSwing arc-peak flash 5.5→8.0, dist 85→105 — Pass 1062: →13.0, dist→140 — Pass 1348: →18.0, dist→190 stronger apex pop
+    // Pass 536: armSwing arc-peak flash 5.5→8.0, dist 85→105 — Pass 1062: →13.0, dist→140 — Pass 1348: →18.0, dist→190 stronger apex pop — Pass 1580: →24.0, dist→255
     if (inPhase(PH.armSwing)) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 18.0, 190);
+        const _spfl = new THREE.PointLight(ct.hex, 24.0, 255);
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
@@ -2952,12 +2952,12 @@ function animate(ts) {
       }
     }
     // Pass 299: armSwing Z-apex glow boost — cardGlow peaks as arm swings closest to viewer at Z apex
-    // Pass 1063: apex boost 1.20→1.65 — Pass 1349: →2.20 for brighter cardGlow at swing closest-point
+    // Pass 1063: apex boost 1.20→1.65 — Pass 1349: →2.20 for brighter cardGlow at swing closest-point — Pass 1581: →3.00; Pass 1582: base 1.85→2.50
     if (inPhase(PH.armSwing)) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
-      cardGlow.intensity = _armCardEmissive * (1.85 + _swZ299 * 2.20);
+      cardGlow.intensity = _armCardEmissive * (2.50 + _swZ299 * 3.00);
     } else {
-      cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 1.85 : 0;
+      cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 2.50 : 0;
     }
     // Pass 242: arm-phase cardGlow domain pre-tint — point light during arc shines domain color
     if (_armCardEmissive > 0) cardGlow.color.setHex(ct.hex);
@@ -3020,15 +3020,15 @@ function animate(ts) {
     activeCardMat.opacity = Math.min(1, ct2 * 5); // fade in over first 0.2s
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
-    // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5 — Pass 1203: →11.0 — Pass 1301: →16.0 — Pass 1387: →22.0 bigger card-slap settle
-    const _settleY = 22.0 * Math.exp(-ct2 * 16) * Math.abs(Math.sin(ct2 * Math.PI * 5));
+    // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5 — Pass 1203: →11.0 — Pass 1301: →16.0 — Pass 1387: →22.0 bigger card-slap settle — Pass 1586: →30.0; Pass 1587: decay 16→12 longer tail
+    const _settleY = 30.0 * Math.exp(-ct2 * 12) * Math.abs(Math.sin(ct2 * Math.PI * 5));
     // Pass 173: belt lateral wobble — fades in (0→5%) and out (90→100%)
-    // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave
+    // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
-    const _beltWobbleZ = (4.2 * Math.sin(ts * 4.7 * Math.PI * 2) + 1.30 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut;
-    // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel
-    const _beltYBump = 1.10 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
+    const _beltWobbleZ = (5.7 * Math.sin(ts * 4.7 * Math.PI * 2) + 1.75 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut;
+    // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
+    const _beltYBump = 1.50 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut;
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     // Pass 1235: lean -0.18→-0.05 (bugfix: at -0.18 the card front edge was 4.9u below belt; safe max ≈0.05rad)
