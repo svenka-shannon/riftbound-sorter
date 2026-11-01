@@ -2983,8 +2983,8 @@ function animate(ts) {
     // Pass 39: belt deposit flash — domain burst when card first touches the belt
     if (!_depositFired) {
       _depositFired = true;
-      // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 — Pass 1300: →34.0 — Pass 1379: →46.0 for bigger card-on-belt impact
-      const _dfl = new THREE.PointLight(ct.hex, 46.0, 130);
+      // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 — Pass 1300: →34.0 — Pass 1379: →46.0 — Pass 1684: →62.0, dist→175
+      const _dfl = new THREE.PointLight(ct.hex, 62.0, 175);
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
@@ -2992,18 +2992,18 @@ function animate(ts) {
       // Pass 95: belt entry dust puff — air blast from card slapping onto belt
       {
         const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
-        // Pass 679: belt entry dust puff count 5→8 — Pass 869: →12, velocity 22→30 for bigger card-on-belt burst
+        // Pass 679: belt entry dust puff count 5→8 — Pass 869: →12 — Pass 1685: →18 for bigger card-on-belt burst
         let _dpSpawned = 0;
-        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 12; _di++) {
+        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 18; _di++) {
           const _dp = GRAB_PARTICLES[_di];
           if (_dp.active) continue;
-          _dp.active = true; _dp.age = 0; _dp.life = 0.30 + Math.random() * 0.16; // Pass 1487: 0.22+0.12→0.30+0.16 longer-lived
+          _dp.active = true; _dp.age = 0; _dp.life = 0.42 + Math.random() * 0.22; // Pass 1487: 0.22+0.12→0.30+0.16 — Pass 1686: →0.42+0.22
           _dp.mesh.position.set(-111 + (Math.random()-0.5)*8, CONV_Y_TOP + 4, (Math.random()-0.5)*7);
           _dp.mesh.visible = true;
           const _side = Math.random() < 0.5 ? 1 : -1;
-          _dp.vx = _side * (30 + Math.random() * 50); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 wider dust burst
-          _dp.vy = 25 + Math.random() * 32; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 higher-flying dust
-          _dp.vz = (Math.random() - 0.5) * 22; // Pass 1486: 16→22 wider Z scatter
+          _dp.vx = _side * (40 + Math.random() * 65); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 — Pass 1687: →40+65
+          _dp.vy = 34 + Math.random() * 42; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 — Pass 1688: →34+42
+          _dp.vz = (Math.random() - 0.5) * 30; // Pass 1486: 16→22 — Pass 1689: →30
           // Pale domain-tinted dust: 35% domain + 65% white
           _dp.mat.color.setRGB(
             Math.min(1, _rr / 255 * 0.35 + 0.65),
@@ -3259,15 +3259,15 @@ function animate(ts) {
     // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5 — Pass 1424: base →7.0, reveal →12.0 — Pass 1530: base →9.5, reveal →17.0
     const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 17.0 : 0;
     scanLineMat2.emissiveIntensity = 9.5 + _beam2Reveal345;
-    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 — Pass 1290: →17.0 — Pass 1376: →24.0 — Pass 1531: →33.0 for even more dramatic beam pivot
-    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 33.0;
+    // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 — Pass 1290: →17.0 — Pass 1376: →24.0 — Pass 1531: →33.0 — Pass 1691: →44.0
+    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 44.0;
     scanLineMat.emissiveIntensity += _revFlare;
     // Pass 611: beam reversal point light — at ft≈0.5 scan midpoint, brief white point light fires
     // at the scanner to mark the beam direction flip moment with a physical light burst.
-    // Pass 848: reversal flash intensity 5.5→9.0 for bigger physical beam reversal burst
+    // Pass 848: reversal flash intensity 5.5→9.0 — Pass 1690: →12.0, dist 80→110
     if (!_beamReversalFlashFired && ft >= 0.50 && !_identityRevealed) {
       _beamReversalFlashFired = true;
-      const _brfl = new THREE.PointLight(0xaaddff, 9.0, 80);
+      const _brfl = new THREE.PointLight(0xaaddff, 12.0, 110);
       _brfl.position.set(-40, CONV_Y_TOP + 20, 0);
       scene.add(_brfl);
       if (!window._flashLights) window._flashLights = [];
