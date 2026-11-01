@@ -4455,16 +4455,16 @@ function animate(ts) {
     } else {
       const _osT = (art - 0.82) / 0.18;
       // Pass 673: arm overshoot spring 0.06→0.10 — Pass 862: →0.16 — Pass 1050: →0.26 — Pass 1268: →0.36 more dramatic rebound
-      suctionPivot.rotation.z = -0.35 - 0.36 * Math.sin(_osT * Math.PI);
+      suctionPivot.rotation.z = -0.35 - 0.49 * Math.sin(_osT * Math.PI); // Pass 1924: arm overshoot spring 0.36→0.49
       // Pass 196: arm end-stop mechanical clunk — tiny camera shake when arm hits its rest stop.
       // Fires once at art=0.82 (first frame of overshoot), very small so it's felt not seen.
       if (!_armReturnThunkFired) {
         _armReturnThunkFired = true;
         // Pass 556: arm end-stop camera shake 0.28→0.55 — Pass 863: →1.0 — Pass 1051: →2.0 — Pass 1269: →3.2 better clunk
-        _cameraShake = Math.max(_cameraShake, 3.2);
+        _cameraShake = Math.max(_cameraShake, 4.32); // Pass 1925: arm end-stop camera shake 3.2→4.32
         // Pass 267: cup end-stop emissive spike — Pass 864: 2.8→4.5 — Pass 1051: →7.5 — Pass 1270: →12.0 brighter hard stop flash
         suctionCupMat.emissive.set(1, 1, 1);
-        suctionCupMat.emissiveIntensity = 12.0;
+        suctionCupMat.emissiveIntensity = 16.2; // Pass 1926: cup end-stop emissive spike 12.0→16.2
         // Pass 260: cup arrival dust puff — 3 pale particles burst from cup as arm hits stopper
         const _arRot = suctionPivot.rotation.z;
         const _arCupX = PIV_X + 83 * Math.sin(_arRot);
@@ -4473,10 +4473,10 @@ function animate(ts) {
         for (let _di = 0; _di < GRAB_PARTICLES.length && _dustCount < 3; _di++) {
           const _dp2 = GRAB_PARTICLES[_di];
           if (_dp2.active) continue;
-          _dp2.active = true; _dp2.age = 0; _dp2.life = 0.32 + Math.random() * 0.16; // Pass 1493: 0.22+0.12→0.32+0.16 longer-lived deposit dust
+          _dp2.active = true; _dp2.age = 0; _dp2.life = 0.43 + Math.random() * 0.22; // Pass 1493: 0.22+0.12→0.32+0.16 — Pass 1927: →0.43+0.22 longer-lived deposit dust
           _dp2.mesh.position.set(_arCupX + (Math.random()-0.5)*6, _arCupY + (Math.random()-0.5)*4, (Math.random()-0.5)*8);
           _dp2.mesh.visible = true;
-          _dp2.vx = (Math.random()-0.5) * 18; _dp2.vy = 9 + Math.random() * 14; _dp2.vz = (Math.random()-0.5) * 20; // Pass 1492: vx 12→18, vy 6+10→9+14, vz 14→20
+          _dp2.vx = (Math.random()-0.5) * 24; _dp2.vy = 12 + Math.random() * 19; _dp2.vz = (Math.random()-0.5) * 27; // Pass 1492: vx 12→18, vy 6+10→9+14, vz 14→20 — Pass 1928: vx 18→24, vy 9+14→12+19, vz 20→27
           _dp2.mat.color.setRGB(0.82, 0.86, 0.90);
           _dustCount++;
         }
@@ -4485,8 +4485,8 @@ function animate(ts) {
     // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154) — Pass 860: 10→15 — Pass 1350: →22 for more 3D sweep
     // Arm dips toward viewer at midpoint of return sweep for 3-D parabolic path
     // Pass 288: final Z ring oscillation — Pass 861: 0.50→0.80 — Pass 1271: →1.10 — Pass 1351: →1.55 for bigger settling ring
-    const _artZRing = art > 0.88 ? 1.55 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0;
-    suctionPivot.position.z = Math.sin(art * Math.PI) * 22 + _artZRing;
+    const _artZRing = art > 0.88 ? 2.09 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0; // Pass 1929: arm return Z ring 1.55→2.09
+    suctionPivot.position.z = Math.sin(art * Math.PI) * 29.7 + _artZRing; // Pass 1930: arm return Z-depth arc 22→29.7
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 4.5); // accuracy: Y-axis
     // Return floor diverter to flat (lower floor default) during arm return
@@ -5197,7 +5197,7 @@ function animate(ts) {
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
       // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5 — Pass 1443: out →13.5, in →6.0
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 13.5 : 6.0;
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 18.2 : 8.1; // Pass 1931: belt track light revealed-out 13.5→18.2, in 6.0→8.1
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 6);
     } else {
       // Fade card-tracking mode out
