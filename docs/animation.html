@@ -4240,7 +4240,7 @@ function animate(ts) {
       for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 10; _pi++) {
         const _pp = GRAB_PARTICLES[_pi];
         if (_pp.active) continue;
-        _pp.active = true; _pp.age = 0; _pp.life = 0.95 + Math.random() * 0.51; // Pass 2390: puff life 0.70+0.38→0.95+0.51
+        _pp.active = true; _pp.age = 0; _pp.life = 1.28 + Math.random() * 0.69; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69
         _pp.mesh.position.set(
           _puffX + (Math.random() - 0.5) * 10,
           _puffY + Math.random() * 4,
@@ -4248,7 +4248,7 @@ function animate(ts) {
         );
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 28; // Pass 1489: 20→28 wider spread
-        _pp.vy = 149 + Math.random() * 131; // Pass 2391: puff vy 110+97→149+131
+        _pp.vy = 201 + Math.random() * 177; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177
         _pp.vz = (Math.random() - 0.5) * 40; // Pass 2124: puff vz spread 30→40
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
@@ -4262,10 +4262,10 @@ function animate(ts) {
     // Pass 127: slot entry strip build-up — strip glows brighter as card descends into slot
     // Pass 491: pre-landing urgency pulse — strip flickers at 8Hz in dt3 0.55-0.86 to sell approach
     if (ct.stripMat && dt3 < 0.86) {
-      const _stripApproach = Math.max(0.15, 0.15 + 9.84 * (dt3 / 0.86)); // Pass 2392: strip approach 7.29→9.84
+      const _stripApproach = Math.max(0.15, 0.15 + 13.3 * (dt3 / 0.86)); // Pass 2392: strip approach 7.29→9.84 — Pass 2623: 9.84→13.3
       // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 — Pass 1201: →0.90 — Pass 1262: →1.20 — Pass 1546: →1.60 for more urgent pre-landing flicker
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
-        ? (dt3 - 0.55) / 0.31 * 2.92 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92
+        ? (dt3 - 0.55) / 0.31 * 3.94 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92 — Pass 2624: 2.92→3.94
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
         ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 5);
       }
@@ -4280,11 +4280,11 @@ function animate(ts) {
       impactRing.scale.setScalar(1.0);
       impactRing.visible = true;
       // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 — Pass 1263: →18.0 — Pass 1366: →26.0 — Pass 1542: →36.0 for bigger floor thud
-      _cameraShake = Math.max(_cameraShake, 119.6); // Pass 2393: floor landing shake 88.6→119.6
+      _cameraShake = Math.max(_cameraShake, 161.5); // Pass 2393: floor landing shake 88.6→119.6 — Pass 2625: 119.6→161.5
       // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 — Pass 1367: →50.0 — Pass 1543: →68.0 vivid landing pop
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 226.0; // Pass 2394: strip flash at landing 167.4→226.0
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 305.1; // Pass 2394: strip flash at landing 167.4→226.0 — Pass 2626: 226.0→305.1
       // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 — Pass 1368: →56.0 — Pass 1544: →75.0 vivid count
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 248.5; // Pass 2395: fill bar landing spark 184.1→248.5
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 335.5; // Pass 2395: fill bar landing spark 184.1→248.5 — Pass 2627: 248.5→335.5
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
@@ -4295,7 +4295,7 @@ function animate(ts) {
         for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 18; _li++) {
           const _lp = GRAB_PARTICLES[_li];
           if (_lp.active) continue;
-          _lp.active = true; _lp.age = 0; _lp.life = 0.92 + Math.random() * 0.58; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58
+          _lp.active = true; _lp.age = 0; _lp.life = 1.24 + Math.random() * 0.78; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58 — Pass 2628: 0.92+0.58→1.24+0.78
           _lp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 10,
             ct.slotFloorY + 2,
