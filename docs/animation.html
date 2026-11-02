@@ -3756,7 +3756,7 @@ function animate(ts) {
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     // Pass 312: conveyorOut Z bank amplifier — outer columns lean harder to reinforce routing
     // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit — Pass 1593: →0.88
-    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 1.61; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61
+    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 2.17; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61 — Pass 3013: 1.61→2.17
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
     // Pass 140: blend lean from 0 (scan end) to belt lean over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
@@ -3766,7 +3766,7 @@ function animate(ts) {
     // Pass 232: belt acceleration pitch kick — belt surges from scan crawl (0.02) to full
     // speed at conveyorOut start, briefly pitching card nose-up by inertia.
     // Pass 640: belt launch pitch kick 0.06→0.10 — Pass 776: 0.10→0.16 — Pass 970: →0.22 for stronger card-lurch at scan exit — Pass 1594: →0.30; Pass 1595: decay 22→16 longer kick
-    const _beltKickPitch = Math.exp(-ot * 16) * 1.00; // Pass 2359: belt launch kick pitch 0.55→0.74 — Pass 2576: 0.74→1.00
+    const _beltKickPitch = Math.exp(-ot * 16) * 1.35; // Pass 2359: belt launch kick pitch 0.55→0.74 — Pass 2576: 0.74→1.00 — Pass 3014: 1.00→1.35
     activeCard.rotation.set(_exitLean + _beltKickPitch, 0, zBank); // forward lean + kick + bank
     // Pass 174: continue belt Z-wobble during conveyorOut — fades in over first 5% and out
     // over last 30% so card arrives stable at gate (no Z snap at scan→out or out→deflect)
@@ -3774,10 +3774,10 @@ function animate(ts) {
       const _oFadeIn  = Math.min(1, ot / 0.05);
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
       // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 — Pass 969: →3.2 — Pass 1299: →4.2 for more lateral belt weave on exit — Pass 1596: →5.7
-      const _oWobbleZ = 18.9 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9
+      const _oWobbleZ = 25.5 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
       // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview — Pass 1597: →0.68
-      const _z268drift = ct.slotZ * 1.67 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67
+      const _z268drift = ct.slotZ * 2.25 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25
       activeCard.position.set(
         THREE.MathUtils.lerp(-40, GATE_X, ot),
         CONV_Y_TOP + CARD_T/2 + 2, _oWobbleZ + _z268drift
@@ -3790,7 +3790,7 @@ function animate(ts) {
     // Pass 111: servo micro-vibration — paddle hunts at target angle (servo hold jitter)
     // Pass 954: amplitude 0.009→0.015, secondary 0.005→0.008 for more realistic servo hunting — Pass 1598: →0.021/0.011
     if (paddleT >= 0.98) {
-      const _hunt = Math.sin(ts * 76 * Math.PI * 2) * 0.028 + Math.sin(ts * 53 * Math.PI * 2) * 0.015; // Pass 2071: servo hunt 0.021+0.011→0.028+0.015
+      const _hunt = Math.sin(ts * 76 * Math.PI * 2) * 0.038 + Math.sin(ts * 53 * Math.PI * 2) * 0.020; // Pass 2071: servo hunt 0.021+0.011→0.028+0.015 — Pass 3020: 0.028+0.015→0.038+0.020
       paddlePivot.rotation.y += _hunt; // accuracy: Y-axis hunt jitter
     }
     // Gate glows in DOMAIN color while routing (shows which path is active)
@@ -3798,11 +3798,11 @@ function animate(ts) {
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
     // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 — Pass 1364: →50.0 — Pass 1556: →68.0 for stronger pre-gate glow
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 226.0, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 305.1, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0 — Pass 3017: 226.0→305.1
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
     // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 — Pass 1557: primary →4.80, secondary →1.70 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
-      ? (15.9 * Math.sin(ts * 6 * Math.PI * 2) + 5.67 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 2362: flicker primary 8.75→11.8, secondary 3.11→4.20 — Pass 2580: 11.8→15.9, 4.20→5.67
+      ? (21.5 * Math.sin(ts * 6 * Math.PI * 2) + 7.65 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 2362: flicker primary 8.75→11.8, secondary 3.11→4.20 — Pass 2580: 11.8→15.9, 4.20→5.67 — Pass 3018: 15.9→21.5, 5.67→7.65
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
@@ -3824,7 +3824,7 @@ function animate(ts) {
         // Pass 489: corona opacity 0.15+0.12→0.22+0.18 — Pass 713: →0.30+0.24 — Pass 951: →0.42+0.32 — Pass 1226: →0.58+0.44 — Pass 1298: →0.75+0.55 — Pass 1562: opacity capped at 1.0
         tp.mat.opacity = Math.min(1.0, 0.75 + Math.random() * 0.55);
         // Pass 952: corona particle life 0.22+0.18→0.30+0.24 — Pass 1563: →0.42+0.32 for longer-lived charge aura
-        tp.age = 0; tp.life = 1.04 + Math.random() * 0.78; // Pass 2363: gate corona particle life 0.57+0.43→0.77+0.58 — Pass 2581: 0.77+0.58→1.04+0.78
+        tp.age = 0; tp.life = 1.40 + Math.random() * 1.05; // Pass 2363: gate corona particle life 0.57+0.43→0.77+0.58 — Pass 2581: 0.77+0.58→1.04+0.78 — Pass 3019: 1.04+0.78→1.40+1.05
         tp.active = true; tp.mesh.visible = true;
       }
     }
