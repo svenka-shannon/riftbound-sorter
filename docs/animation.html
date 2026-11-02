@@ -5345,7 +5345,7 @@ function animate(ts) {
     const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
       ? Math.max(0, 0.30 - phaseRaw(PH.slotDrop) * 0.41) : 0; // Pass 2726: reject fog max 0.22→0.30 — Pass 2732: decay slope 0.30→0.41
     const _rejectFogRGB = new THREE.Color(0xff3300);
-    const _tintStr = 0.740 + _scanBoost + _deflectBoost; // Pass 2447: base fog tint 0.165→0.223 — Pass 2727: 0.223→0.301 — Pass 2959: 0.301→0.406 — Pass 3163: 0.406→0.548 — Pass 3332: 0.548→0.740
+    const _tintStr = 0.548 + _scanBoost + _deflectBoost; // Pass 2447: base fog tint 0.165→0.223 — Pass 2727: 0.223→0.301 — Pass 2959: 0.301→0.406 — Pass 3163: 0.406→0.548 [REVERTED Pass 3332: 0.740 was too heavy, scene washed out]
     const targetTint = baseFog.clone().lerp(domainRGB, _tintStr).lerp(_rejectFogRGB, _rejectFogBoost);
     _fogTint.lerp(targetTint, Math.min(1, dt * 5.40)); // Pass 2448: fog tracking 2.19→2.96 — Pass 2728: 2.96→4.00 — Pass 2960: 4.00→5.40
     scene.fog.color.copy(_fogTint);
