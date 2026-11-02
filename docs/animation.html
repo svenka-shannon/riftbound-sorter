@@ -2190,8 +2190,9 @@ function updateStatsUI(cardType) {
 }
 
 function showScanOverlay(cardType, visible, routeText) {
+  // Hotfix 3333f: scan overlay removed per user request ("dumb ass scan animations where it says like calm")
   const el = document.getElementById('scan-overlay');
-  el.style.opacity = visible ? '1' : '0';
+  el.style.opacity = '0';
   if(visible && cardType) {
     document.getElementById('scan-type').textContent = cardType.name;
     document.getElementById('scan-type').style.color = cardType.css;
@@ -4844,7 +4845,7 @@ function animate(ts) {
     controls._camY += (yTarget - controls._camY) * 0.02;
     // Pass 185: fix camera Y bob — was ts*0.00008 (~21h period = invisible).
     // Fixed to ts*0.05 (~126s = 2-minute slow breathing bob, cinematic and gentle).
-    camera.position.y = controls._camY + 105.7 * Math.sin(ts * 0.05); // Pass 2537: camera Y bob 18→24 — Pass 2677: 24→32 — Pass 2773: 32→43 — Pass 2909: 43→58 — Pass 3118: 58→78.3 — Pass 3290: 78.3→105.7
+    camera.position.y = controls._camY + 15 * Math.sin(ts * 0.05); // Hotfix 3333f: Y bob rolled back 105.7→15 (was boosted 18→105.7 across passes 2537→3290)
 
     // Phase-aware lookAt: gently drift target toward the active machine area
     // Belt phases track card X position for smooth card-following
@@ -4896,12 +4897,9 @@ function animate(ts) {
   // Pass 995: Z→4.5, Y→1.2 — Pass 1428: Z→6.0, Y→1.6 for deeper camera resonance with scanner hood during scan
   if (inPhase(PH.scan) && !controls._userInteracted) {
     const _scanSinEnv = Math.sin(phaseRaw(PH.scan) * Math.PI);
-    // Hotfix 3333c: scan Z resonance rolled back 65.6→10.0 (primary) and 4.06→0.80 (secondary harmonic)
-    // Values were individually boosted in passes 2525→3294 without accounting for combined visual effect.
-    // At 65.6 world-units × 2.8 Hz the scan phase looked like wild shaking even with _cameraShake clamped.
-    camera.position.z += (10.0 * Math.sin(ts * 2.8 * Math.PI * 2) + 0.80 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv;
-    // Hotfix 3333c: scan Y resonance rolled back 17.7→3.0 (same pass-cascade issue)
-    camera.position.y += 3.0 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv;
+    // Hotfix 3333f: scan camera Z/Y resonance removed entirely.
+    // Even at 10/3 units, 2.8 Hz = 168 oscillations/min — visibly jittery during every scan phase.
+    // (camera.position.z += ... and camera.position.y += ... intentionally omitted)
   }
 
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
@@ -4942,20 +4940,16 @@ function animate(ts) {
     _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
   }
 
-  // Pass 106: FOV zoom-punch decay — slowly return to nominal 55° after celebration
-  // Hotfix 3333e: clamp _fovBump so camera.fov never goes below 10°.
-  // _fovBump was boosted to 167 (celebration), 98.6 (gate), 79.7 (reveal) over many passes.
-  // camera.fov = 55 - 167 = -112°; Three.js does NOT clamp FOV; negative FOV inverts the
-  // projection matrix entirely — producing the "disco" distortion Eric reported.
+  // Hotfix 3333f: FOV bump disabled entirely.
+  // Values boosted to 167/98.6/79.7 over many passes — even clamped at 10° min, the slow
+  // recovery from 10°→55° looks like persistent "jiggling" as perspective scales change.
+  // _fovBump decay still runs (keeps the variable consistent) but is never applied to camera.fov.
   if (_fovBump > 0.05) {
-    _fovBump *= Math.max(0, 1 - dt * 0.30);
-    camera.fov = Math.max(10, 55 - _fovBump); // clamp: FOV ≥ 10° always
-    camera.updateProjectionMatrix();
-  } else if (_fovBump > 0) {
+    _fovBump *= Math.max(0, 1 - dt * 0.30); // decay only — not applied
+  } else {
     _fovBump = 0;
-    camera.fov = 55;
-    camera.updateProjectionMatrix();
   }
+  // camera.fov stays at nominal 55° always
 
   // ── Floor halo disc: domain-colored glow circle on floor below active card ───
   // Pass 75: disc expands and dims as card rises (altitude-based contact shadow effect)
