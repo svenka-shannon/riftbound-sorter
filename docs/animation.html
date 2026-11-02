@@ -4593,7 +4593,7 @@ function animate(ts) {
     // ~0.35Hz (2.2 rad/s) so one full breath spans ~2.9s (6× the 0.5s pause — natural)
     // Pass 1058: breathing base 0.12→0.20, amp 0.07→0.14 for more visible scanner idle pulse
     {
-      const _breathe = 0.89 + 0.63 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63
+      const _breathe = 1.20 + 0.85 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85
       scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 2.5);
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 1.5));
       hoodMat.emissiveIntensity += (_breathe * 1.4 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2);
@@ -4606,7 +4606,7 @@ function animate(ts) {
   const _beltStrobeFreq = 3 + _beltScrollSpeed * 75;
   // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 — Pass 1059: →0.10 reactive belt
   const _beltSpeedGlow = _beltScrollSpeed > 0.005
-    ? 0.332 * (_beltScrollSpeed / 0.108) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0; // Pass 2163: belt speed glow amp 0.135→0.182 — Pass 2656: 0.182→0.246 — Pass 2887: 0.246→0.332
+    ? 0.448 * (_beltScrollSpeed / 0.108) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0; // Pass 2163: belt speed glow amp 0.135→0.182 — Pass 2656: 0.182→0.246 — Pass 2887: 0.246→0.332 — Pass 3094: 0.332→0.448
   beltSurfMat.emissiveIntensity = beltBase + 0.03 * Math.sin(cycleT * 10) + _beltSpeedGlow;
   // Belt surface tints subtly toward domain color when active card rides on it
   {
@@ -4624,17 +4624,17 @@ function animate(ts) {
     // Scan phase: flash ambient up with the domain color
     // Celebration (impactRing or camera shake): spike ambient white briefly
     // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 — Pass 1083: →0.92 — Pass 1380: →1.25 — Pass 1612: →1.70
-    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 7.65 : 0; // Pass 2421: scan ambient boost 3.11→4.20 — Pass 2657: 4.20→5.67 — Pass 2888: 5.67→7.65
+    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 10.3 : 0; // Pass 2421: scan ambient boost 3.11→4.20 — Pass 2657: 4.20→5.67 — Pass 2888: 5.67→7.65 — Pass 3095: 7.65→10.3
     // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy — Pass 1614: →0.38
-    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 1.70 : 0; // Pass 2422: grab ambient boost 0.69→0.93 — Pass 2658: 0.93→1.26 — Pass 2889: 1.26→1.70
+    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 2.30 : 0; // Pass 2422: grab ambient boost 0.69→0.93 — Pass 2658: 0.93→1.26 — Pass 2889: 1.26→1.70 — Pass 3096: 1.70→2.30
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response — Pass 1615: ceiling 0.40→0.55, mult 0.05→0.07
     const _shakeBoost   = _cameraShake > 2 ? Math.min(1.82, _cameraShake * 0.234) : 0; // Pass 2530: shake boost ceiling 1.00→1.35, mult 0.128→0.173 — Pass 2748: ceiling 1.35→1.82, mult 0.173→0.234
     // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 — Pass 1607: →1.05
-    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 6.39 : 0; // Pass 2423: slotDrop ambient 1.92→2.59 — Pass 2659: 2.59→3.50 — Pass 2749: 3.50→4.73 — Pass 2890: 4.73→6.39
+    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 8.63 : 0; // Pass 2423: slotDrop ambient 1.92→2.59 — Pass 2659: 2.59→3.50 — Pass 2749: 3.50→4.73 — Pass 2890: 4.73→6.39 — Pass 3097: 6.39→8.63
     // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response — Pass 1610: →0.84
-    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 5.09 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09
+    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 6.87 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09 — Pass 3098: 5.09→6.87
     // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 — Pass 1611: →1.35
-    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 8.17 : 0; // Pass 2425: reveal ambient peak 2.46→3.32 — Pass 2661: 3.32→4.48 — Pass 2751: 4.48→6.05 — Pass 2892: 6.05→8.17
+    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 11.0 : 0; // Pass 2425: reveal ambient peak 2.46→3.32 — Pass 2661: 3.32→4.48 — Pass 2751: 4.48→6.05 — Pass 2892: 6.05→8.17 — Pass 3099: 8.17→11.0
     const _ambTarget = 0.84 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84
     ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
     // Tint ambient toward domain color during scan or slotDrop
@@ -4656,7 +4656,7 @@ function animate(ts) {
       const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
         ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 2.25 : 0; // Pass 2427: body exit echo 0.92→1.24 — Pass 2663: 1.24→1.67 — Pass 2753: 1.67→2.25
       // Pass 932: conveyor body base glow 0.08→0.14 — Pass 1454: →0.20, pulse amp 0.08→0.12 for more vivid presence
-      const _bodyTarget = 0.66 + 0.41 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho; // Pass 2435: body base 0.27→0.36, pulse 0.16→0.22 — Pass 2664: 0.36→0.49, 0.22→0.30 — Pass 2754: base 0.49→0.66 Pass 2755: pulse 0.30→0.41
+      const _bodyTarget = 0.89 + 0.55 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho; // Pass 2435: body base 0.27→0.36, pulse 0.16→0.22 — Pass 2664: 0.36→0.49, 0.22→0.30 — Pass 2754: base 0.49→0.66 Pass 2755: pulse 0.30→0.41 — Pass 3100: base 0.66→0.89, pulse 0.41→0.55
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
     } else {
       convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
