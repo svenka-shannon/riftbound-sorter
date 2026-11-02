@@ -4942,10 +4942,14 @@ function animate(ts) {
     _shakePhase1 = 0; _shakePhase2 = 0; // reset phases so next impact starts clean
   }
 
-  // Pass 106: FOV zoom-punch decay — slowly return to nominal 55° after celebration — Pass 1431: decay rate 1.1→0.75 — Pass 1622: →0.58 even longer hold
+  // Pass 106: FOV zoom-punch decay — slowly return to nominal 55° after celebration
+  // Hotfix 3333e: clamp _fovBump so camera.fov never goes below 10°.
+  // _fovBump was boosted to 167 (celebration), 98.6 (gate), 79.7 (reveal) over many passes.
+  // camera.fov = 55 - 167 = -112°; Three.js does NOT clamp FOV; negative FOV inverts the
+  // projection matrix entirely — producing the "disco" distortion Eric reported.
   if (_fovBump > 0.05) {
-    _fovBump *= Math.max(0, 1 - dt * 0.30); // Pass 2476: FOV decay 0.45→0.30 even longer hold
-    camera.fov = 55 - _fovBump;
+    _fovBump *= Math.max(0, 1 - dt * 0.30);
+    camera.fov = Math.max(10, 55 - _fovBump); // clamp: FOV ≥ 10° always
     camera.updateProjectionMatrix();
   } else if (_fovBump > 0) {
     _fovBump = 0;
