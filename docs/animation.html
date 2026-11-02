@@ -5220,7 +5220,7 @@ function animate(ts) {
         _beltTrackLight.position.set(shimmerX, CONV_Y_TOP + 5, 0);
         // Pulse the shimmer brightness — brighter at belt midpoint, softer at ends
         const midT = 1 - Math.abs((_beltIdlePhase % 1) - 0.5) * 2;
-        _beltTrackLight.intensity = 3.70 + midT * 5.35; // Pass 2469: idle shimmer base 1.11→1.50 Pass 2470: peak 1.61→2.17 — Pass 2713: 1.50→2.03, 2.17→2.93 — Pass 2810: 2.03→2.74 Pass 2811: 2.93→3.96 — Pass 2943: 2.74→3.70 Pass 2944: 3.96→5.35
+        _beltTrackLight.intensity = 5.00 + midT * 7.22; // Pass 2469: idle shimmer base 1.11→1.50 Pass 2470: peak 1.61→2.17 — Pass 2713: 1.50→2.03, 2.17→2.93 — Pass 2810: 2.03→2.74 Pass 2811: 2.93→3.96 — Pass 2943: 2.74→3.70 Pass 2944: 3.96→5.35 — Pass 3149: base 3.70→5.00 Pass 3150: peak 5.35→7.22
       }
     }
   }
@@ -5231,7 +5231,7 @@ function animate(ts) {
     const _onBelt = (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))
                      && activeCard.visible;
     // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
-    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 0.66 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66
+    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 0.89 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89
     const _shadowTarget = _onBelt ? 1.0 + _shadowScanPulse : 0; // Pass 2472: shadow opacity 0.93→1.0
     _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 8);
     if (_onBelt) {
@@ -5241,7 +5241,7 @@ function animate(ts) {
       // Pass 198: shadow speed-stretch — shadow elongates forward along belt when card is moving.
       // conveyorIn/Out → stretch up to ~7 extra units; scan (stationary) → compress back to base.
       const _beltMoving = (_onBelt && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)));
-      const _stretchTarget = _beltMoving ? CARD_H * 0.74 + _beltScrollSpeed * 863 : CARD_H * 0.74; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863
+      const _stretchTarget = _beltMoving ? CARD_H * 0.74 + _beltScrollSpeed * 1165 : CARD_H * 0.74; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863 — Pass 3152: 863→1165
       _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 6);
     }
     _shadowMesh.visible = _shadowMat.opacity > 0.01;
@@ -5258,9 +5258,9 @@ function animate(ts) {
     tp.age += dt;
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
-    tp.mesh.position.y += dt * (18.1 + _tt * 26.7); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7
+    tp.mesh.position.y += dt * (24.4 + _tt * 36.0); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0
     tp.mat.opacity = (1 - _tt) * 0.88; // Pass 1944: contrail particle opacity lifetime 0.65→0.88
-    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 2.48)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48
+    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 3.35)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
     // then bleach normally — so the arc trail stays vivid near the arm and fades away.
@@ -5284,7 +5284,7 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= 246.6 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6
+    p.vy -= 332.9 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9
     p.vx *= 1 - dt * 12.6; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6
     p.vz *= 1 - dt * 12.6;
     p.mat.opacity = (1 - _pt * _pt) * 1.00; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00
