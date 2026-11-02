@@ -4710,7 +4710,7 @@ function animate(ts) {
       lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 4);
     }
     lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 3));
-    lensMat.emissiveIntensity += (0.99 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99
+    lensMat.emissiveIntensity += (1.34 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99 — Pass 2669: 0.99→1.34
     // Pass 197: hood settles back to Z=0 after scan ends
     scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 8);
   }
@@ -4733,8 +4733,8 @@ function animate(ts) {
     const _cardX = activeCard.visible ? activeCard.position.x : 9999;
     rollerMats.forEach((rm, ri) => {
       const _dist = Math.abs(_cardX - _rollerXs[ri]);
-      const _prox = Math.max(0, 1 - _dist / 93); // Pass 2432: proximity radius 69→93
-      const _targetI = _prox * 6.89;              // Pass 2433: roller max intensity 5.10→6.89
+      const _prox = Math.max(0, 1 - _dist / 125); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125
+      const _targetI = _prox * 9.30;              // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30
       rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 5));
       rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 6);
     });
@@ -4742,7 +4742,7 @@ function animate(ts) {
 
   // Pass 70: belt shimmer stripe sweeps left→right while belt moves
   if (!paused && _beltScrollSpeed > 0.005) {
-    _beltShimmerX += dt * _beltScrollSpeed * 6889 * speedMult; // Pass 2434: shimmer speed 5103→6889
+    _beltShimmerX += dt * _beltScrollSpeed * 9300 * speedMult; // Pass 2434: shimmer speed 5103→6889 — Pass 2672: 6889→9300
     if (_beltShimmerX > 68) _beltShimmerX = -148; // wrap: just past right roller → just before left
     beltShimmerMesh.visible = true;
     beltShimmerMesh.position.x = _beltShimmerX;
@@ -4784,10 +4784,10 @@ function animate(ts) {
     // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
     // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35 — Pass 1458: armDesc 0.18→0.26, convIn 0.25→0.35
     // Pass 1662: spike 2.50→3.40; Pass 1663: swing 1.35→1.80; Pass 1664: lift base 0.42→0.58
-    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 6.20 : 0; // Pass 2181: lift spike 4.59→6.20
-    const _rodGlow = Math.max(_armDescT * 0.35, _armLiftT * 0.58 + _liftPickSpike, _armSwingT * 3.28, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47
+    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 8.37 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37
+    const _rodGlow = Math.max(_armDescT * 0.35, _armLiftT * 0.58 + _liftPickSpike, _armSwingT * 4.43, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43
     armRod.material.emissive.setHex(ct.hex);
-    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 14.6); // Pass 2183: arm rod tracking 10.8→14.6
+    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 19.7); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7
   }
 
   // ── Suction cup domain glow ──
@@ -4797,7 +4797,7 @@ function animate(ts) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
                      inPhase(PH.armLift)    ? 1.0 : 0.5;
     suctionCupMat.emissive.setHex(ct.hex);
-    suctionCupMat.emissiveIntensity = cupGlowT * 6.20; // Pass 2184: cup peak glow 4.59→6.20
+    suctionCupMat.emissiveIntensity = cupGlowT * 8.37; // Pass 2184: cup peak glow 4.59→6.20 — Pass 2676: 6.20→8.37
   } else if (inPhase(PH.armReturn)) {
     // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
     // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
