@@ -3479,8 +3479,8 @@ function animate(ts) {
       const _exColor = ft < 0.85 ? 0xccddff : ct.hex;
       tp.mat.color.setHex(_exColor); // pre-confirm: cool blue-white; post-confirm: domain
       // Pass 723: exhaust opacity 0.18+0.15→0.26+0.20 — Pass 843: →0.40+0.32 — Pass 1328: →0.55+0.42 for more vivid scanner exhaust
-      tp.mat.opacity = 1.00 + Math.random() * 0.77; // Pass 2542: exhaust opacity 0.55+0.42→0.74+0.57 — Pass 2982: 0.74+0.57→1.00+0.77
-      tp.age = 0; tp.life = 1.00 + Math.random() * 0.73; // Pass 2543: exhaust life 0.55+0.40→0.74+0.54 — Pass 2983: 0.74+0.54→1.00+0.73
+      tp.mat.opacity = 1.35 + Math.random() * 1.04; // Pass 2542: exhaust opacity 0.55+0.42→0.74+0.57 — Pass 2982: 0.74+0.57→1.00+0.77 — Pass 3181: 1.00+0.77→1.35+1.04
+      tp.age = 0; tp.life = 1.35 + Math.random() * 0.99; // Pass 2543: exhaust life 0.55+0.40→0.74+0.54 — Pass 2983: 0.74+0.54→1.00+0.73 — Pass 3182: 1.00+0.73→1.35+0.99
       tp.active = true; tp.mesh.visible = true;
     }
     // Pass 63: scanner sonar ping rings expand horizontally from scanner during scan
@@ -3495,10 +3495,10 @@ function animate(ts) {
         if (localFt < 0.85) {
           p.mesh.visible = true;
           // Pass 311: scan ping Z drift — Pass 717: 0.38→0.55 — Pass 803: →0.78 — Pass 1164: →1.10 — Pass 1409: →1.50 — Pass 1527: →2.00 for more distinct destination lean
-          const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 4.93 : 0; // Pass 2546: ping Z drift 2.00→2.70 — Pass 2837: 2.70→3.65 — Pass 2984: 3.65→4.93
+          const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 6.66 : 0; // Pass 2546: ping Z drift 2.00→2.70 — Pass 2837: 2.70→3.65 — Pass 2984: 3.65→4.93 — Pass 3183: 4.93→6.66
           p.mesh.position.z = _pingZ311;
           // Pass 274: post-reveal ping scale — Pass 400: 8.5→11.0 — Pass 716: →14.0 — Pass 797: →19.0 — Pass 1165: →26.0 — Pass 1410: →36.0 — Pass 1524: →50.0 (wider confirm rings)
-          const _pingMaxScale = _identityRevealed ? 166.1 : 10.0; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1
+          const _pingMaxScale = _identityRevealed ? 224.2 : 10.0; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1 — Pass 3184: 166.1→224.2
           const s = 1 + localFt * _pingMaxScale;
           p.mesh.scale.setScalar(s);
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
@@ -3507,9 +3507,9 @@ function animate(ts) {
           const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
           // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 — Pass 1411: →4.5 — Pass 1525: →6.5 for brighter confirm ring flash
-          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 29.2 : 0; // Pass 2549: ping reveal spike 11.84→15.98 — Pass 2840: 15.98→21.6 — Pass 2986: 21.6→29.2
+          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 39.4 : 0; // Pass 2549: ping reveal spike 11.84→15.98 — Pass 2840: 15.98→21.6 — Pass 2986: 21.6→29.2 — Pass 3185: 29.2→39.4
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
-          const _pingBoost = ft >= 0.85 ? 67.2 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2
+          const _pingBoost = ft >= 0.85 ? 90.7 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
           p.mat.opacity = _pingFade * flashIntensity * 1.0 * _pingBoost;
         } else {
@@ -3530,10 +3530,10 @@ function animate(ts) {
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 — Pass 1384: →15.0 for more vivid pre-reveal LED cycling
-          const _cTarget = gi === _chaseIdx ? 67.2 : 0.1; // Pass 2550: gate LED chase peak 27.3→36.9 — Pass 2842: 36.9→49.8 — Pass 2989: 49.8→67.2
+          const _cTarget = gi === _chaseIdx ? 90.7 : 0.1; // Pass 2550: gate LED chase peak 27.3→36.9 — Pass 2842: 36.9→49.8 — Pass 2989: 49.8→67.2 — Pass 3187: 67.2→90.7
           gm.color.setHex(0x0088cc);
           gm.emissive.setHex(0x003366);
-          gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 22);
+          gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 29.7); // Pass 3188: gate LED chase rate 22→29.7
         });
       } else {
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
