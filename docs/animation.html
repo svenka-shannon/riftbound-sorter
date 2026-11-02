@@ -5268,8 +5268,8 @@ function animate(ts) {
       tp.mat.color.setHex(tp._birthHex); // hold domain color fresh near the arm
     } else {
       tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 3.28); // Pass 2815: bleach R rate 1.8→2.43 — Pass 3324: 2.43→3.28
-      tp.mat.color.g += (1.0 - tp.mat.color.g) * Math.min(1, dt * 2.43); // Pass 2815b: bleach G rate 1.8→2.43
-      tp.mat.color.b = Math.min(1, tp.mat.color.b + dt * 3.24); // blue channel rises fastest → cool white — Pass 2816: 2.4→3.24
+      tp.mat.color.g += (1.0 - tp.mat.color.g) * Math.min(1, dt * 3.28); // Pass 2815b: bleach G rate 1.8→2.43 — Pass 3325: 2.43→3.28
+      tp.mat.color.b = Math.min(1, tp.mat.color.b + dt * 4.37); // blue channel rises fastest → cool white — Pass 2816: 2.4→3.24 — Pass 3326: 3.24→4.37
       if (tp._birthHex) tp._birthHex = undefined; // allow normal bleach in second half
     }
   });
@@ -5284,9 +5284,9 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= 332.9 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9
-    p.vx *= 1 - dt * 12.6; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6
-    p.vz *= 1 - dt * 12.6;
+    p.vy -= 449.4 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4
+    p.vx *= 1 - dt * 17.0; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0
+    p.vz *= 1 - dt * 17.0;
     p.mat.opacity = (1 - _pt * _pt) * 1.00; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00
     p.mesh.scale.setScalar(Math.max(0.05, 1.0 - _pt * 0.95)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95
   });
@@ -5294,7 +5294,7 @@ function animate(ts) {
   // ── Pass 34: Domain fill light — overhead tint shifts to current domain color ─
   // Creates a large-radius, dim color wash that transitions with each domain.
   _domFillClr.setHex(ct.hex);
-  _domainFillLight.color.lerp(_domFillClr, dt * 3.70); // Pass 2455: fill color tracking 0.82→1.11 — Pass 2720: 1.11→1.50 — Pass 2817: 1.50→2.03 — Pass 2953: 2.03→2.74 — Pass 3157: 2.74→3.70
+  _domainFillLight.color.lerp(_domFillClr, dt * 5.00); // Pass 2455: fill color tracking 0.82→1.11 — Pass 2720: 1.11→1.50 — Pass 2817: 1.50→2.03 — Pass 2953: 2.03→2.74 — Pass 3157: 2.74→3.70 — Pass 3329: 3.70→5.00
   const _fillTgt = activeCard.visible ? 1.20 : 0.05; // Pass 2456: fill active card target 0.27→0.36 — Pass 2721: 0.36→0.49 — Pass 2818: 0.49→0.66 — Pass 2954: 0.66→0.89 — Pass 3158: 0.89→1.20
   // Pass 498: deflect domain fill boost — domain fill light surges during card arc (peaks at midpoint) — Pass 1463: 0.22→0.32
   const _deflectFill498 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 2.59 : 0; // Pass 2457: deflect domain fill 0.58→0.78 — Pass 2722: 0.78→1.05 — Pass 2819: 1.05→1.42 — Pass 2955: 1.42→1.92 — Pass 3159: 1.92→2.59
@@ -5319,7 +5319,7 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= (p.grav || 169.6) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6
+    p.vy -= (p.grav || 229.0) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0
     p.vx *= 1 - dt * 0.9; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter)
     p.vz *= 1 - dt * 0.9;
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
@@ -5338,14 +5338,14 @@ function animate(ts) {
     const baseFog   = new THREE.Color(0x0a0a0f);
     // Context: scan and deflect get a stronger tint boost
     // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 — Pass 1385: scan →0.26, deflect →0.16 — Pass 1474: scan →0.36, Pass 1475: deflect →0.22 — Pass 1639: scan →0.48, Pass 1640: deflect →0.30
-    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 2.17 : 0; // Pass 2445: scan fog boost 0.88→1.19 — Pass 2957: 1.19→1.61 — Pass 3162: 1.61→2.17
+    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 2.93 : 0; // Pass 2445: scan fog boost 0.88→1.19 — Pass 2957: 1.19→1.61 — Pass 3162: 1.61→2.17 — Pass 3331: 2.17→2.93
     const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 1.00 : 0; // Pass 2446: deflect fog boost 0.55→0.74 — Pass 2958: 0.74→1.00
     // Pass 474: reject alarm fog — when slot-7 card is in slotDrop alarm state, background deepens
     // toward red-orange for a brief warning atmosphere — Pass 1642: 0.14→0.22 stronger alarm fog
     const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
       ? Math.max(0, 0.30 - phaseRaw(PH.slotDrop) * 0.41) : 0; // Pass 2726: reject fog max 0.22→0.30 — Pass 2732: decay slope 0.30→0.41
     const _rejectFogRGB = new THREE.Color(0xff3300);
-    const _tintStr = 0.548 + _scanBoost + _deflectBoost; // Pass 2447: base fog tint 0.165→0.223 — Pass 2727: 0.223→0.301 — Pass 2959: 0.301→0.406 — Pass 3163: 0.406→0.548
+    const _tintStr = 0.740 + _scanBoost + _deflectBoost; // Pass 2447: base fog tint 0.165→0.223 — Pass 2727: 0.223→0.301 — Pass 2959: 0.301→0.406 — Pass 3163: 0.406→0.548 — Pass 3332: 0.548→0.740
     const targetTint = baseFog.clone().lerp(domainRGB, _tintStr).lerp(_rejectFogRGB, _rejectFogBoost);
     _fogTint.lerp(targetTint, Math.min(1, dt * 5.40)); // Pass 2448: fog tracking 2.19→2.96 — Pass 2728: 2.96→4.00 — Pass 2960: 4.00→5.40
     scene.fog.color.copy(_fogTint);
