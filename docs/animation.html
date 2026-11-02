@@ -5106,9 +5106,9 @@ function animate(ts) {
   // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
     // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 — Pass 1037: →dt*2.6 — Pass 1436: →dt*2.0 for longer visible ring
-    _grabRingT = Math.min(1, _grabRingT + dt * 8.99); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99
+    _grabRingT = Math.min(1, _grabRingT + dt * 12.1); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1
     // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 — Pass 1437: →18.0 — Pass 1540: →25.0 for wider domain ring burst at pick
-    const _grs = 1.0 + easeOut(_grabRingT) * 112.3; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3
+    const _grs = 1.0 + easeOut(_grabRingT) * 151.6; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6
     grabRing.scale.setScalar(_grs);
     // Pass 938: grab ring opacity 0.6→0.85 — Pass 1036: →0.95 — Pass 1541: →1.0 for more vivid ring
     grabRingMat.opacity = (1 - _grabRingT) * 1.0;
@@ -5128,12 +5128,12 @@ function animate(ts) {
     if (pickOn) {
       hopperLight.color.setHex(ct.hex);
       // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 — Pass 1444: →4.50 brighter during arm cycle
-      const _hTarget = _hBase + 20.3; // Pass 2461: hopper pick intensity 8.21→11.1 — Pass 2707: 11.1→15.0 — Pass 2803: 15.0→20.3
+      const _hTarget = _hBase + 27.4; // Pass 2461: hopper pick intensity 8.21→11.1 — Pass 2707: 11.1→15.0 — Pass 2803: 15.0→20.3 — Pass 2935: 20.3→27.4
       hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 4);
       // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 — Pass 1445: →58 light follows arm deeper
-      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 259 : 0; // Pass 2462: descent Y-track 105→142 — Pass 2708: 142→192 — Pass 2804: 192→259
+      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 350 : 0; // Pass 2462: descent Y-track 105→142 — Pass 2708: 142→192 — Pass 2804: 192→259 — Pass 2936: 259→350
       // Pass 360: X-drift during armSwing — Pass 1043: drift 55→80 — Pass 1446: →110 light tracks wider card arc
-      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 366 : 0; // Pass 2463: swing X-drift 201→271 — Pass 2709: 271→366
+      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 494 : 0; // Pass 2463: swing X-drift 201→271 — Pass 2709: 271→366 — Pass 2937: 366→494
       hopperLight.position.set(HOPPER_X + 33 + _hXDrift360, 200 - _hYTrack359, 0);
     } else if (inPhase(PH.pause)) {
       // Pass 233: hopper LED domain pre-charge — in the final 40% of pause, hopper light
@@ -5144,7 +5144,7 @@ function animate(ts) {
         const _preT = (_pauseRaw - 0.60) / 0.40; // 0→1 in last 40% of pause
         // Pass 635: pre-charge tint blend 0.32→0.52 — Pass 1041: →0.75 + intensity delta 0.55→0.90 stronger herald
         hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 0.75);
-        hopperLight.intensity += (_hBase + _preT * 3.01 - hopperLight.intensity) * Math.min(1, dt * 2.5); // Pass 2464: pre-charge delta 1.65→2.23 — Pass 2710: 2.23→3.01
+        hopperLight.intensity += (_hBase + _preT * 4.06 - hopperLight.intensity) * Math.min(1, dt * 2.5); // Pass 2464: pre-charge delta 1.65→2.23 — Pass 2710: 2.23→3.01 — Pass 2938: 3.01→4.06
       } else {
         hopperLight.color.set(0xffeedd);
         hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
@@ -5168,7 +5168,7 @@ function animate(ts) {
       // Pass 158: domain-colored pulse during active pick — LED "reacts" to arm
       // Pass 618: LED pick pulse amplitude 0.8→1.4, base 2.5→3.2 — Pass 1040: base 3.2→5.0, amp 1.4→2.2
       _ledColor = ct.hex;
-      _ledGlow = 22.4 + 9.86 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2466: pick pulse base 9.11→12.3 Pass 2467: amp 4.01→5.41 — Pass 2711: 12.3→16.6, 5.41→7.30 — Pass 2805: 16.6→22.4 Pass 2806: 7.30→9.86
+      _ledGlow = 30.2 + 13.3 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2466: pick pulse base 9.11→12.3 Pass 2467: amp 4.01→5.41 — Pass 2711: 12.3→16.6, 5.41→7.30 — Pass 2805: 16.6→22.4 Pass 2806: 7.30→9.86 — Pass 2939/2940: 22.4+9.86→30.2+13.3
     } else if (_visibleCards >= 5) {
       _ledColor = 0x00ff44; _ledGlow = 2.0; // green: full
     } else if (_visibleCards >= 3) {
