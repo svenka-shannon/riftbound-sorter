@@ -4415,12 +4415,12 @@ function animate(ts) {
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
         tp2.mat.opacity = 0.85 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2
-        tp2.age = 0; tp2.life = 1.40 + Math.random() * 0.93; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93
+        tp2.age = 0; tp2.life = 1.89 + Math.random() * 1.26; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26
         tp2.active = true; tp2.mesh.visible = true;
         _rb2++;
       }
       // Smaller secondary amber light — Pass 1048: 4.5→9.0 for brighter second alarm pulse
-      const _ral2 = new THREE.PointLight(0xff6600, 30.1, 100); // Pass 2406: reject secondary amber light 16.5→22.3 — Pass 2640: 22.3→30.1
+      const _ral2 = new THREE.PointLight(0xff6600, 40.6, 100); // Pass 2406: reject secondary amber light 16.5→22.3 — Pass 2640: 22.3→30.1 — Pass 3078: 30.1→40.6
       _ral2.position.set(TRAY_X_START + 20, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_ral2);
       if (!window._flashLights) window._flashLights = [];
@@ -4455,16 +4455,16 @@ function animate(ts) {
     } else {
       const _osT = (art - 0.82) / 0.18;
       // Pass 673: arm overshoot spring 0.06→0.10 — Pass 862: →0.16 — Pass 1050: →0.26 — Pass 1268: →0.36 more dramatic rebound
-      suctionPivot.rotation.z = -0.35 - 1.62 * Math.sin(_osT * Math.PI); // Pass 2407: arm overshoot spring 0.66→0.89 — Pass 2641: 0.89→1.20 — Pass 2869: 1.20→1.62
+      suctionPivot.rotation.z = -0.35 - 2.19 * Math.sin(_osT * Math.PI); // Pass 2407: arm overshoot spring 0.66→0.89 — Pass 2641: 0.89→1.20 — Pass 2869: 1.20→1.62 — Pass 3079: 1.62→2.19
       // Pass 196: arm end-stop mechanical clunk — tiny camera shake when arm hits its rest stop.
       // Fires once at art=0.82 (first frame of overshoot), very small so it's felt not seen.
       if (!_armReturnThunkFired) {
         _armReturnThunkFired = true;
         // Pass 556: arm end-stop camera shake 0.28→0.55 — Pass 863: →1.0 — Pass 1051: →2.0 — Pass 1269: →3.2 better clunk
-        _cameraShake = Math.max(_cameraShake, 14.3); // Pass 2408: arm end-stop camera shake 5.83→7.87 — Pass 2642: 7.87→10.6 — Pass 2870: 10.6→14.3
+        _cameraShake = Math.max(_cameraShake, 19.3); // Pass 2408: arm end-stop camera shake 5.83→7.87 — Pass 2642: 7.87→10.6 — Pass 2870: 10.6→14.3 — Pass 3080: 14.3→19.3
         // Pass 267: cup end-stop emissive spike — Pass 864: 2.8→4.5 — Pass 1051: →7.5 — Pass 1270: →12.0 brighter hard stop flash
         suctionCupMat.emissive.set(1, 1, 1);
-        suctionCupMat.emissiveIntensity = 54.0; // Pass 2409: cup end-stop emissive spike 21.9→29.6 — Pass 2643: 29.6→40.0 — Pass 2871: 40.0→54.0
+        suctionCupMat.emissiveIntensity = 72.9; // Pass 2409: cup end-stop emissive spike 21.9→29.6 — Pass 2643: 29.6→40.0 — Pass 2871: 40.0→54.0 — Pass 3081: 54.0→72.9
         // Pass 260: cup arrival dust puff — 3 pale particles burst from cup as arm hits stopper
         const _arRot = suctionPivot.rotation.z;
         const _arCupX = PIV_X + 83 * Math.sin(_arRot);
@@ -4473,10 +4473,10 @@ function animate(ts) {
         for (let _di = 0; _di < GRAB_PARTICLES.length && _dustCount < 3; _di++) {
           const _dp2 = GRAB_PARTICLES[_di];
           if (_dp2.active) continue;
-          _dp2.active = true; _dp2.age = 0; _dp2.life = 1.42 + Math.random() * 0.74; // Pass 2410: cup arrival dust life 0.58+0.30→0.78+0.41 — Pass 2651: 0.78+0.41→1.05+0.55 — Pass 2872: 1.05+0.55→1.42+0.74
+          _dp2.active = true; _dp2.age = 0; _dp2.life = 1.92 + Math.random() * 1.00; // Pass 2410: cup arrival dust life 0.58+0.30→0.78+0.41 — Pass 2651: 0.78+0.41→1.05+0.55 — Pass 2872: 1.05+0.55→1.42+0.74 — Pass 3082: 1.42+0.74→1.92+1.00
           _dp2.mesh.position.set(_arCupX + (Math.random()-0.5)*6, _arCupY + (Math.random()-0.5)*4, (Math.random()-0.5)*8);
           _dp2.mesh.visible = true;
-          _dp2.vx = (Math.random()-0.5) * 58; _dp2.vy = 29.2 + Math.random() * 45.6; _dp2.vz = (Math.random()-0.5) * 65.6; // Pass 2154: cup dust vx 24→32, vy 12+19→16+25, vz 27→36 — Pass 2652: 32→43, 16+25→21.6+33.8, 36→48.6 — Pass 2873/2874: 43→58, 21.6+33.8→29.2+45.6, 48.6→65.6
+          _dp2.vx = (Math.random()-0.5) * 78.3; _dp2.vy = 39.4 + Math.random() * 61.6; _dp2.vz = (Math.random()-0.5) * 88.6; // Pass 2154: cup dust vx 24→32, vy 12+19→16+25, vz 27→36 — Pass 2652: 32→43, 16+25→21.6+33.8, 36→48.6 — Pass 2873/2874: 43→58, 21.6+33.8→29.2+45.6, 48.6→65.6 — Pass 3083: vx 58→78.3 Pass 3084: vy 29.2+45.6→39.4+61.6, vz 65.6→88.6
           _dp2.mat.color.setRGB(0.82, 0.86, 0.90);
           _dustCount++;
         }
