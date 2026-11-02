@@ -4559,7 +4559,7 @@ function animate(ts) {
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
     // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory — Pass 1603: base 0.14→0.20, amp 0.12→0.18
     {
-      const _pausePulse492 = 0.89 + 0.78 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2)); // Pass 2415: afterglow base 0.36→0.49 Pass 2416: amp 0.32→0.43 — Pass 2650: 0.49→0.66, 0.43→0.58 — Pass 2881/2882: 0.66→0.89, 0.58→0.78
+      const _pausePulse492 = 1.20 + 1.05 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2)); // Pass 2415: afterglow base 0.36→0.49 Pass 2416: amp 0.32→0.43 — Pass 2650: 0.49→0.66, 0.43→0.58 — Pass 2881/2882: 0.66→0.89, 0.58→0.78 — Pass 3108: 0.89→1.20, 0.78→1.05
       GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
         if (gi === ct.col) {
           gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
@@ -4651,10 +4651,10 @@ function animate(ts) {
       convBodyMat.emissive.setHex(ct.hex);
       // Pass 263: conveyor body scanner-approach boost — Pass 692: 0.06→0.10 — Pass 934: →0.18 — Pass 1452: →0.26 for brighter approach
       const _bodyApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.80
-        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 1.15 : 0; // Pass 2426: body approach 0.47→0.63 — Pass 2662: 0.63→0.85 — Pass 2752: 0.85→1.15
+        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 1.55 : 0; // Pass 2426: body approach 0.47→0.63 — Pass 2662: 0.63→0.85 — Pass 2752: 0.85→1.15 — Pass 3101: 1.15→1.55
       // Pass 279: scanner-exit echo — Pass 522: 0.12→0.20 — Pass 933: →0.35 — Pass 1453: →0.50 for stronger departure flash
       const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
-        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 2.25 : 0; // Pass 2427: body exit echo 0.92→1.24 — Pass 2663: 1.24→1.67 — Pass 2753: 1.67→2.25
+        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 3.04 : 0; // Pass 2427: body exit echo 0.92→1.24 — Pass 2663: 1.24→1.67 — Pass 2753: 1.67→2.25 — Pass 3102: 2.25→3.04
       // Pass 932: conveyor body base glow 0.08→0.14 — Pass 1454: →0.20, pulse amp 0.08→0.12 for more vivid presence
       const _bodyTarget = 0.89 + 0.55 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho; // Pass 2435: body base 0.27→0.36, pulse 0.16→0.22 — Pass 2664: 0.36→0.49, 0.22→0.30 — Pass 2754: base 0.49→0.66 Pass 2755: pulse 0.30→0.41 — Pass 3100: base 0.66→0.89, pulse 0.41→0.55
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
@@ -4674,7 +4674,7 @@ function animate(ts) {
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
       beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 1.5));
       // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14 — Pass 1455: →0.28+0.20
-      const _bsTarget = 1.26 + 0.66 * Math.sin(cycleT * 6); // Pass 2436: belt active emissive base 0.38→0.51, pulse 0.27→0.36 — Pass 2665: 0.51→0.69, 0.36→0.49 — Pass 2756: base 0.69→0.93 — Pass 2893/2894: 0.93+0.49→1.26+0.66
+      const _bsTarget = 1.70 + 0.89 * Math.sin(cycleT * 6); // Pass 2436: belt active emissive base 0.38→0.51, pulse 0.27→0.36 — Pass 2665: 0.51→0.69, 0.36→0.49 — Pass 2756: base 0.69→0.93 — Pass 2893/2894: 0.93+0.49→1.26+0.66 — Pass 3103: 1.26→1.70, 0.66→0.89
       beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2);
     } else {
       beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 1.5));
@@ -4689,9 +4689,9 @@ function animate(ts) {
       const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
       hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 3));
       // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 — Pass 1456: →0.28+1.80 for dramatic heat-up
-      const _warmTarget = 0.28 + _warmT * 10.9; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9
+      const _warmTarget = 0.28 + _warmT * 14.7; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7
       // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 — Pass 1457: →0.14 for more visible heat flicker
-      const _hoodShimmer = 0.85 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85
+      const _hoodShimmer = 1.15 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 4);
     } else {
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
@@ -4702,7 +4702,7 @@ function animate(ts) {
     // resting scale (peaks at +0.22 extra) then settles, mirroring the pass 162 snap-open.
     if (inPhase(PH.conveyorOut)) {
       const _ot2 = phaseRaw(PH.conveyorOut);
-      const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 1.35 : 0; // Pass 2430: iris snap-close overshoot 0.41→0.55 — Pass 2668: 0.55→0.74 — Pass 2759: 0.74→1.00 — Pass 2897: 1.00→1.35
+      const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 1.82 : 0; // Pass 2430: iris snap-close overshoot 0.41→0.55 — Pass 2668: 0.55→0.74 — Pass 2759: 0.74→1.00 — Pass 2897: 1.00→1.35 — Pass 3106: 1.35→1.82
       lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 10);
       lens.scale.z = lens.scale.x;
     } else {
@@ -4710,7 +4710,7 @@ function animate(ts) {
       lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 4);
     }
     lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 3));
-    lensMat.emissiveIntensity += (2.44 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99 — Pass 2669: 0.99→1.34 — Pass 2760: 1.34→1.81 — Pass 2898: 1.81→2.44
+    lensMat.emissiveIntensity += (3.29 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99 — Pass 2669: 0.99→1.34 — Pass 2760: 1.34→1.81 — Pass 2898: 1.81→2.44 — Pass 3107: 2.44→3.29
     // Pass 197: hood settles back to Z=0 after scan ends
     scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 8);
   }
