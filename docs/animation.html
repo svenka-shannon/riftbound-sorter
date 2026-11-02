@@ -3137,8 +3137,8 @@ function animate(ts) {
     const flashIntensity = Math.sin(ft * Math.PI);
     // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
     // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 — Pass 1373: →23.0 — Pass 1517: →32.0 for bigger scan flash and lock-on pop
-    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 58.3 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3
-    scanFlash.intensity = flashIntensity * 36.5 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 78.7 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7
+    scanFlash.intensity = flashIntensity * 49.3 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.54 : 0; // Pass 1864: scan flash Z drift 0.40→0.54
     scanFlash.position.set(-40, CONV_Y_TOP + 10, _flashZ351);
@@ -3158,14 +3158,14 @@ function animate(ts) {
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
     const _revOsc = _cardRevealBurst * (1.19 + 1.09 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81 — Pass 1867: →1.19+1.09
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 4.56 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 6.16 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
-    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 51.0 : 0; // Pass 2300: reveal glow surge 37.8→51.0
-    cardGlow.intensity = 4.4 + flashIntensity * 5.83 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83
+    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 68.9 : 0; // Pass 2300: reveal glow surge 37.8→51.0 — Pass 3376: 51.0→68.9
+    cardGlow.intensity = 5.9 + flashIntensity * 7.87 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83 — Pass 3377: base 4.4→5.9 Pass 3378: flash 5.83→7.87
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Pass 372: scanner LED boost 2.0→2.5 — Pass 603: 2.5→3.5 + flashIntensity 3.0→4.5 — Pass 1513: base 3.5→5.0, flash 4.5→6.0
-    scanLEDMat.emissiveIntensity = 9.11 + flashIntensity * 10.9; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9
+    scanLEDMat.emissiveIntensity = 12.3 + flashIntensity * 14.7; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7
     // Pass 222: scanner LED domain flash — at identity reveal, LED color switches to domain
     // Pass 270: hold domain color 0.12s before fading (was immediate fade) — more visual lock-on impact
     if (_scanLEDRevealT >= 0) {
