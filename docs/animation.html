@@ -4733,8 +4733,8 @@ function animate(ts) {
     const _cardX = activeCard.visible ? activeCard.position.x : 9999;
     rollerMats.forEach((rm, ri) => {
       const _dist = Math.abs(_cardX - _rollerXs[ri]);
-      const _prox = Math.max(0, 1 - _dist / 228); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228
-      const _targetI = _prox * 17.0;              // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30 — Pass 2762: 9.30→12.6 — Pass 2900: 12.6→17.0
+      const _prox = Math.max(0, 1 - _dist / 308); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228 — Pass 3109: 228→308
+      const _targetI = _prox * 23.0;              // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30 — Pass 2762: 9.30→12.6 — Pass 2900: 12.6→17.0 — Pass 3110: 17.0→23.0
       rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 5));
       rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 6);
     });
@@ -4742,7 +4742,7 @@ function animate(ts) {
 
   // Pass 70: belt shimmer stripe sweeps left→right while belt moves
   if (!paused && _beltScrollSpeed > 0.005) {
-    _beltShimmerX += dt * _beltScrollSpeed * 16950 * speedMult; // Pass 2434: shimmer speed 5103→6889 — Pass 2672: 6889→9300 — Pass 2763: 9300→12555 — Pass 2901: 12555→16950
+    _beltShimmerX += dt * _beltScrollSpeed * 22883 * speedMult; // Pass 2434: shimmer speed 5103→6889 — Pass 2672: 6889→9300 — Pass 2763: 9300→12555 — Pass 2901: 12555→16950 — Pass 3111: 16950→22883
     if (_beltShimmerX > 68) _beltShimmerX = -148; // wrap: just past right roller → just before left
     beltShimmerMesh.visible = true;
     beltShimmerMesh.position.x = _beltShimmerX;
@@ -4753,7 +4753,7 @@ function animate(ts) {
     // Pass 472: shimmer opacity 0.38→0.50 — Pass 696: →0.65 — Pass 993: →0.85 — Pass 1401: →1.0 for stronger belt shimmer stripe
     beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 1.0;
   } else {
-    beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 9.84); // Pass 2004: shimmer fade 4→5.4 — Pass 2764: 5.4→7.29 — Pass 2902: 7.29→9.84
+    beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 13.3); // Pass 2004: shimmer fade 4→5.4 — Pass 2764: 5.4→7.29 — Pass 2902: 7.29→9.84 — Pass 3112: 9.84→13.3
     if (beltShimmerMat.opacity < 0.01) beltShimmerMesh.visible = false;
   }
 
@@ -4784,10 +4784,10 @@ function animate(ts) {
     // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
     // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35 — Pass 1458: armDesc 0.18→0.26, convIn 0.25→0.35
     // Pass 1662: spike 2.50→3.40; Pass 1663: swing 1.35→1.80; Pass 1664: lift base 0.42→0.58
-    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 15.3 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3
-    const _rodGlow = Math.max(_armDescT * 0.47, _armLiftT * 0.78 + _liftPickSpike, _armSwingT * 8.07, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07
+    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 20.7 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7
+    const _rodGlow = Math.max(_armDescT * 0.47, _armLiftT * 0.78 + _liftPickSpike, _armSwingT * 10.9, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07 — Pass 3114: 8.07→10.9
     armRod.material.emissive.setHex(ct.hex);
-    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 35.9); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9
+    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 48.5); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5
   }
 
   // ── Suction cup domain glow ──
@@ -4797,7 +4797,7 @@ function animate(ts) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
                      inPhase(PH.armLift)    ? 1.0 : 0.5;
     suctionCupMat.emissive.setHex(ct.hex);
-    suctionCupMat.emissiveIntensity = cupGlowT * 15.3; // Pass 2184: cup peak glow 4.59→6.20 — Pass 2676: 6.20→8.37 — Pass 2768: 8.37→11.3 — Pass 2906: 11.3→15.3
+    suctionCupMat.emissiveIntensity = cupGlowT * 20.7; // Pass 2184: cup peak glow 4.59→6.20 — Pass 2676: 6.20→8.37 — Pass 2768: 8.37→11.3 — Pass 2906: 11.3→15.3 — Pass 3116: 15.3→20.7
   } else if (inPhase(PH.armReturn)) {
     // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
     // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
