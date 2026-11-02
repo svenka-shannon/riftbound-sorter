@@ -4515,7 +4515,7 @@ function animate(ts) {
       const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 0.85; // dampens in first ~45% of phase
       const _flickVal = 1.2 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp
                             + (Math.random() - 0.5) * _flickAmp * 0.35;
-      scanLEDMat.emissiveIntensity = Math.max(0.30, Math.min(8.63, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63
+      scanLEDMat.emissiveIntensity = Math.max(0.30, Math.min(11.7, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
@@ -4543,7 +4543,7 @@ function animate(ts) {
         tp.mat.opacity = 1.0 + Math.random() * 0.47; // Pass 1977: mech trail opacity 0.88+0.35→1.0+0.47
       }
       // Pass 867: trail life 0.32+0.12→0.46+0.18 — Pass 1054: →0.62+0.24 — Pass 1506: →0.80+0.32 — Pass 1601: →1.05+0.42 longer-lived contrail
-      tp.age = 0; tp.life = 2.59 + Math.random() * 1.04; // Pass 2152: armReturn trail life 1.42+0.57→1.92+0.77 — Pass 2647: 1.92+0.77→2.59+1.04
+      tp.age = 0; tp.life = 3.50 + Math.random() * 1.40; // Pass 2152: armReturn trail life 1.42+0.57→1.92+0.77 — Pass 2647: 1.92+0.77→2.59+1.04 — Pass 2878: 2.59+1.04→3.50+1.40
       tp.active = true; tp.mesh.visible = true;
     }
   }
@@ -4553,13 +4553,13 @@ function animate(ts) {
     // Pass 136: arm holds home position with realistic multi-frequency servo tremor
     // Two overlapping sine waves at different frequencies simulate motor holding dither — Pass 1605: 0.009→0.013, 0.004→0.006
     suctionPivot.rotation.z = -0.35
-      + 0.043 * Math.sin(ts * 0.58 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043
-      + 0.020 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020
+      + 0.058 * Math.sin(ts * 0.58 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043 — Pass 2879: 0.043→0.058
+      + 0.027 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020 — Pass 2880: 0.020→0.027
     // Pass 492: gate LED domain afterglow — during pause, active column retains a faint 0.4Hz
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
     // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory — Pass 1603: base 0.14→0.20, amp 0.12→0.18
     {
-      const _pausePulse492 = 0.66 + 0.58 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2)); // Pass 2415: afterglow base 0.36→0.49 Pass 2416: amp 0.32→0.43 — Pass 2650: 0.49→0.66, 0.43→0.58
+      const _pausePulse492 = 0.89 + 0.78 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2)); // Pass 2415: afterglow base 0.36→0.49 Pass 2416: amp 0.32→0.43 — Pass 2650: 0.49→0.66, 0.43→0.58 — Pass 2881/2882: 0.66→0.89, 0.58→0.78
       GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
         if (gi === ct.col) {
           gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
@@ -4568,11 +4568,11 @@ function animate(ts) {
       });
     }
     // Pass 246: pause arm hover Y float — soft PID hold oscillation — Pass 1056: ±0.6→±1.4 more visible hover — Pass 1604: →±2.0
-    suctionPivot.position.y = 108 + 6.66 * Math.sin(ts * 0.30 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66
+    suctionPivot.position.y = 108 + 8.99 * Math.sin(ts * 0.30 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99
     // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
     // on the scanner hood emissive, as if it's slowly cooling down between cycles. — Pass 1606: 0.04→0.06
     {
-      const _hoodEmber = 0.198 * Math.sin(ts * 0.4 * Math.PI * 2) * Math.sin(ts * 1.3 * Math.PI * 2); // Pass 2418: hood ember amp 0.109→0.147 — Pass 2654: 0.147→0.198
+      const _hoodEmber = 0.267 * Math.sin(ts * 0.4 * Math.PI * 2) * Math.sin(ts * 1.3 * Math.PI * 2); // Pass 2418: hood ember amp 0.109→0.147 — Pass 2654: 0.147→0.198 — Pass 2884: 0.198→0.267
       hoodMat.emissiveIntensity = Math.max(0.10, hoodMat.emissiveIntensity + _hoodEmber * dt * 3.5);
     }
     activeCard.visible = false;
