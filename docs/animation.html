@@ -3392,18 +3392,18 @@ function animate(ts) {
         _hoodRevealFlash = 0.001; // just above 0 to activate
         // Pass 125: card face emissive burst at identity reveal — card "powers up"
         // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 — Pass 1131: →16.0 — Pass 1412: →22.0 for bigger face power-up flash
-        _cardRevealBurst = 54.7; // Pass 2320: reveal burst 40.5→54.7
+        _cardRevealBurst = 73.8; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8
         // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 — Pass 1415: →7.0 for stronger pop
-        if (ct.stripMat) ct.stripMat.emissiveIntensity = 12.8; // Pass 2321: strip pre-announce flash 9.5→12.8
+        if (ct.stripMat) ct.stripMat.emissiveIntensity = 17.3; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
         // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 — Pass 1323: →12.0 — Pass 1416: →17.0 for prominent lock-on jolt
-        _cameraShake = Math.max(_cameraShake, 41.9); // Pass 2322: reveal camera shake 22.95→31.0 — Pass 2829: 31.0→41.9
+        _cameraShake = Math.max(_cameraShake, 56.6); // Pass 2322: reveal camera shake 22.95→31.0 — Pass 2829: 31.0→41.9 — Pass 2975: 41.9→56.6
         // Pass 368: FOV reveal zoom-punch — briefly zoom in 3.5° — Pass 538: →5.5° — Pass 812: →8.5° — Pass 1133: →13.0 — Pass 1417: →18.0 — Pass 1624: →24.0
-        _fovBump = Math.max(_fovBump, 59.0); // Pass 2323: reveal FOV zoom-punch 32.4→43.7 — Pass 2830: 43.7→59.0
+        _fovBump = Math.max(_fovBump, 79.7); // Pass 2323: reveal FOV zoom-punch 32.4→43.7 — Pass 2830: 43.7→59.0 — Pass 2976: 59.0→79.7
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm.
         // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 — Pass 1134: →13.0 — Pass 1386: →18.0 for brighter lock-on flash
-        scanLEDMat.emissiveIntensity = 44.3; // Pass 2324: reveal LED intensity spike 24.3→32.8 — Pass 2831: 32.8→44.3
+        scanLEDMat.emissiveIntensity = 59.8; // Pass 2324: reveal LED intensity spike 24.3→32.8 — Pass 2831: 32.8→44.3 — Pass 2977: 44.3→59.8
         _scanLEDRevealT = 0;
         // Pass 235: scanner confirmation particle burst — Pass 532: speed 38+42→55+55, vy 20+35→30+50
         // Pass 956: burst count 6→12 — Pass 957: speed 55+55→80+75, vy 30+50→50+70 — Pass 1324: count →18, Pass 1325: speed →145+130, Pass 1326: vy →95+120 for bigger reveal pop
@@ -3418,9 +3418,9 @@ function animate(ts) {
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 18) * Math.PI * 2 + Math.random() * 0.8;
-            const _spd = 468 + Math.random() * 431; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431
+            const _spd = 632 + Math.random() * 582; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582
             _bp.vx = Math.cos(_ang) * _spd * 0.55;
-            _bp.vy = 308 + Math.random() * 282; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308
+            _bp.vy = 416 + Math.random() * 282; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416
             _bp.vz = Math.sin(_ang) * _spd * 0.55;
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
@@ -3446,7 +3446,7 @@ function animate(ts) {
           // Pass 497: scan bar 65-85% tension base 1.5→1.8 — Pass 838: post-reveal base 2.2→3.0, peak 2.5→3.5
           const _baseI = barFill >= 0.85 ? 5.47 + flashIntensity * 4.73 : 3.28 + flashIntensity * 3.78; // Pass 2329: post-reveal base 4.05→5.47, flash 3.5→4.73; Pass 2330: tension base 2.43→3.28, flash 2.8→3.78
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75 — Pass 1343: →1.05
-          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 2.59 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59
+          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 3.50 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50
           // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 — Pass 1327: →20.0 for bigger climax
           const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 49.3 : 0; // Pass 2332: completion superflash 27.0→36.5 — Pass 2836: 36.5→49.3
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
