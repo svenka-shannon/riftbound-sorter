@@ -5319,7 +5319,7 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= (p.grav || 68.9) * dt; // Pass 2460: celeb particle gravity 51.0→68.9
+    p.vy -= (p.grav || 93.0) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0
     p.vx *= 1 - dt * 0.9; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter)
     p.vz *= 1 - dt * 0.9;
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
@@ -5343,11 +5343,11 @@ function animate(ts) {
     // Pass 474: reject alarm fog — when slot-7 card is in slotDrop alarm state, background deepens
     // toward red-orange for a brief warning atmosphere — Pass 1642: 0.14→0.22 stronger alarm fog
     const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
-      ? Math.max(0, 0.22 - phaseRaw(PH.slotDrop) * 0.30) : 0;
+      ? Math.max(0, 0.30 - phaseRaw(PH.slotDrop) * 0.41) : 0; // Pass 2726: reject fog max 0.22→0.30 — Pass 2732: decay slope 0.30→0.41
     const _rejectFogRGB = new THREE.Color(0xff3300);
-    const _tintStr = 0.223 + _scanBoost + _deflectBoost; // Pass 2447: base fog tint 0.165→0.223
+    const _tintStr = 0.301 + _scanBoost + _deflectBoost; // Pass 2447: base fog tint 0.165→0.223 — Pass 2727: 0.223→0.301
     const targetTint = baseFog.clone().lerp(domainRGB, _tintStr).lerp(_rejectFogRGB, _rejectFogBoost);
-    _fogTint.lerp(targetTint, Math.min(1, dt * 2.96)); // Pass 2448: fog tracking 2.19→2.96
+    _fogTint.lerp(targetTint, Math.min(1, dt * 4.00)); // Pass 2448: fog tracking 2.19→2.96 — Pass 2728: 2.96→4.00
     scene.fog.color.copy(_fogTint);
     scene.background.copy(_fogTint);
   }
@@ -5369,7 +5369,7 @@ function animate(ts) {
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     // Pass 477: deflect arc edge boost — outline more visible as card arcs through air (0.45→0.65)
     // Pass 512: armSwing edge boost 0.45→0.58 — Pass 629: scan/conveyor edge 0.85→0.95; deflect 0.65→0.78 — Pass 1392: scan 0.95→1.0, deflect 0.78→0.90, swing 0.58→0.72
-    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 2.23 : inPhase(PH.armSwing) ? 1.77 : 1.11; // Pass 2450: deflect 1.65→2.23 Pass 2451: swing 1.31→1.77 Pass 2452: rest 0.82→1.11
+    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 3.01 : inPhase(PH.armSwing) ? 2.39 : 1.50; // Pass 2450: deflect 1.65→2.23 Pass 2451: swing 1.31→1.77 Pass 2452: rest 0.82→1.11 — Pass 2729: deflect 2.23→3.01 Pass 2730: swing 1.77→2.39 Pass 2731: rest 1.11→1.50
     activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
