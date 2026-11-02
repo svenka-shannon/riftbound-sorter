@@ -5319,7 +5319,7 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= (p.grav || 93.0) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0
+    p.vy -= (p.grav || 125.6) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6
     p.vx *= 1 - dt * 0.9; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter)
     p.vz *= 1 - dt * 0.9;
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
@@ -5338,16 +5338,16 @@ function animate(ts) {
     const baseFog   = new THREE.Color(0x0a0a0f);
     // Context: scan and deflect get a stronger tint boost
     // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 — Pass 1385: scan →0.26, deflect →0.16 — Pass 1474: scan →0.36, Pass 1475: deflect →0.22 — Pass 1639: scan →0.48, Pass 1640: deflect →0.30
-    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 1.19 : 0; // Pass 2445: scan fog boost 0.88→1.19
-    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.74 : 0; // Pass 2446: deflect fog boost 0.55→0.74
+    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 1.61 : 0; // Pass 2445: scan fog boost 0.88→1.19 — Pass 2957: 1.19→1.61
+    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 1.00 : 0; // Pass 2446: deflect fog boost 0.55→0.74 — Pass 2958: 0.74→1.00
     // Pass 474: reject alarm fog — when slot-7 card is in slotDrop alarm state, background deepens
     // toward red-orange for a brief warning atmosphere — Pass 1642: 0.14→0.22 stronger alarm fog
     const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
       ? Math.max(0, 0.30 - phaseRaw(PH.slotDrop) * 0.41) : 0; // Pass 2726: reject fog max 0.22→0.30 — Pass 2732: decay slope 0.30→0.41
     const _rejectFogRGB = new THREE.Color(0xff3300);
-    const _tintStr = 0.301 + _scanBoost + _deflectBoost; // Pass 2447: base fog tint 0.165→0.223 — Pass 2727: 0.223→0.301
+    const _tintStr = 0.406 + _scanBoost + _deflectBoost; // Pass 2447: base fog tint 0.165→0.223 — Pass 2727: 0.223→0.301 — Pass 2959: 0.301→0.406
     const targetTint = baseFog.clone().lerp(domainRGB, _tintStr).lerp(_rejectFogRGB, _rejectFogBoost);
-    _fogTint.lerp(targetTint, Math.min(1, dt * 4.00)); // Pass 2448: fog tracking 2.19→2.96 — Pass 2728: 2.96→4.00
+    _fogTint.lerp(targetTint, Math.min(1, dt * 5.40)); // Pass 2448: fog tracking 2.19→2.96 — Pass 2728: 2.96→4.00 — Pass 2960: 4.00→5.40
     scene.fog.color.copy(_fogTint);
     scene.background.copy(_fogTint);
   }
@@ -5369,7 +5369,7 @@ function animate(ts) {
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     // Pass 477: deflect arc edge boost — outline more visible as card arcs through air (0.45→0.65)
     // Pass 512: armSwing edge boost 0.45→0.58 — Pass 629: scan/conveyor edge 0.85→0.95; deflect 0.65→0.78 — Pass 1392: scan 0.95→1.0, deflect 0.78→0.90, swing 0.58→0.72
-    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 3.01 : inPhase(PH.armSwing) ? 2.39 : 1.50; // Pass 2450: deflect 1.65→2.23 Pass 2451: swing 1.31→1.77 Pass 2452: rest 0.82→1.11 — Pass 2729: deflect 2.23→3.01 Pass 2730: swing 1.77→2.39 Pass 2731: rest 1.11→1.50
+    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 4.06 : inPhase(PH.armSwing) ? 3.23 : 2.03; // Pass 2450: deflect 1.65→2.23 Pass 2451: swing 1.31→1.77 Pass 2452: rest 0.82→1.11 — Pass 2729: deflect 2.23→3.01 Pass 2730: swing 1.77→2.39 Pass 2731: rest 1.11→1.50 — Pass 2961: 3.01→4.06 Pass 2962: 2.39→3.23 Pass 2963: 1.50→2.03
     activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
