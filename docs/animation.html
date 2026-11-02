@@ -4805,7 +4805,7 @@ function animate(ts) {
     const _memFade = Math.max(0, 1 - _arMemT / 1.00); // Pass 2185: cup memory window 0.41→0.55 — Pass 2769: 0.55→0.74 — Pass 2907: 0.74→1.00
     if (_memFade > 0.01) {
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (_memFade * 1.82 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2186: cup memory intensity 0.74→1.00 — Pass 2770: 1.00→1.35 — Pass 2908: 1.35→1.82
+      suctionCupMat.emissiveIntensity += (_memFade * 2.46 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2186: cup memory intensity 0.74→1.00 — Pass 2770: 1.00→1.35 — Pass 2908: 1.35→1.82 — Pass 3117: 1.82→2.46
     } else {
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.15;
     }
@@ -4844,7 +4844,7 @@ function animate(ts) {
     controls._camY += (yTarget - controls._camY) * 0.02;
     // Pass 185: fix camera Y bob — was ts*0.00008 (~21h period = invisible).
     // Fixed to ts*0.05 (~126s = 2-minute slow breathing bob, cinematic and gentle).
-    camera.position.y = controls._camY + 58 * Math.sin(ts * 0.05); // Pass 2537: camera Y bob 18→24 — Pass 2677: 24→32 — Pass 2773: 32→43 — Pass 2909: 43→58
+    camera.position.y = controls._camY + 78.3 * Math.sin(ts * 0.05); // Pass 2537: camera Y bob 18→24 — Pass 2677: 24→32 — Pass 2773: 32→43 — Pass 2909: 43→58 — Pass 3118: 58→78.3
 
     // Phase-aware lookAt: gently drift target toward the active machine area
     // Belt phases track card X position for smooth card-following
@@ -4862,7 +4862,7 @@ function animate(ts) {
       // Pass 194: scan camera lean — lookAt dips toward belt at scan midpoint for drama.
       // Pass 473: reveal camera dip — extra 5-unit dip at identity lock-on for dramatic focus.
       // Pass 707: scan lean dip 18→25 — Pass 1019: →35 for deeper camera dive + reveal dip 5→8
-      ? { x: -40, y: 60 - 85 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 20.1 : 0) } // Pass 2528: scan lean 35→47 Pass 2529: reveal dip 8→11 — Pass 2678: 47→63, Pass 2679: 11→14.9 — Pass 2774: 63→85 Pass 2775: 14.9→20.1
+      ? { x: -40, y: 60 - 115 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 27.1 : 0) } // Pass 2528: scan lean 35→47 Pass 2529: reveal dip 8→11 — Pass 2678: 47→63, Pass 2679: 11→14.9 — Pass 2774: 63→85 Pass 2775: 14.9→20.1 — Pass 3119: 85→115 Pass 3120: 20.1→27.1
       : inPhase(PH.conveyorOut)
       ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
       : inPhase(PH.deflect)
@@ -4879,9 +4879,9 @@ function animate(ts) {
     // Pass 221: stronger Z pre-roll in last 20% of conveyorOut — card commits to its lane,
     // camera follows more eagerly (ramps from 0.25 → 0.65 of slotZ in the final stretch).
     const _coRaw = inPhase(PH.conveyorOut) ? phaseRaw(PH.conveyorOut) : 0;
-    const _coZBoost = inPhase(PH.conveyorOut) ? 1.34 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0; // Pass 2540: conveyorOut Z lean boost 0.40→0.54 — Pass 2680: 0.54→0.73 — Pass 2776: 0.73→0.99 — Pass 2910: 0.99→1.34
+    const _coZBoost = inPhase(PH.conveyorOut) ? 1.81 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0; // Pass 2540: conveyorOut Z lean boost 0.40→0.54 — Pass 2680: 0.54→0.73 — Pass 2776: 0.73→0.99 — Pass 2910: 0.99→1.34 — Pass 3121: 1.34→1.81
     // Pass 297: slotDrop Z camera lead boost — camera leans further into destination column as card falls — Pass 1608: 0.20→0.28
-    const _sdZBoost = inPhase(PH.slotDrop) ? 0.93 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38 — Pass 2681: 0.38→0.51 — Pass 2777: 0.51→0.69 — Pass 2911: 0.69→0.93
+    const _sdZBoost = inPhase(PH.slotDrop) ? 1.26 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38 — Pass 2681: 0.38→0.51 — Pass 2777: 0.51→0.69 — Pass 2911: 0.69→0.93 — Pass 3122: 0.93→1.26
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
       ? ct.slotZ * (0.25 + _coZBoost + _sdZBoost) : 0;
     if (!controls._camTgtZ) controls._camTgtZ = 0;
@@ -4896,8 +4896,8 @@ function animate(ts) {
   // Pass 995: Z→4.5, Y→1.2 — Pass 1428: Z→6.0, Y→1.6 for deeper camera resonance with scanner hood during scan
   if (inPhase(PH.scan) && !controls._userInteracted) {
     const _scanSinEnv = Math.sin(phaseRaw(PH.scan) * Math.PI);
-    camera.position.z += (36.0 * Math.sin(ts * 2.8 * Math.PI * 2) + 4.06 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv; // Pass 2525: Z resonance 10.9→14.7 — Pass 2682: 14.7→19.8, Pass 2683: 1.65→2.23 — Pass 2778: 19.8→26.7 Pass 2779: 2.23→3.01 — Pass 2912: 26.7→36.0 Pass 2913: 3.01→4.06
-    camera.position.y += 9.69 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv; // Pass 2526: Y resonance 2.92→3.94 — Pass 2684: 3.94→5.32 — Pass 2780: 5.32→7.18 — Pass 2914: 7.18→9.69
+    camera.position.z += (48.6 * Math.sin(ts * 2.8 * Math.PI * 2) + 4.06 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _scanSinEnv; // Pass 2525: Z resonance 10.9→14.7 — Pass 2682: 14.7→19.8, Pass 2683: 1.65→2.23 — Pass 2778: 19.8→26.7 Pass 2779: 2.23→3.01 — Pass 2912: 26.7→36.0 Pass 2913: 3.01→4.06 — Pass 3123: 36.0→48.6
+    camera.position.y += 13.1 * Math.sin(ts * 2.8 * Math.PI * 2 + 1.2) * _scanSinEnv; // Pass 2526: Y resonance 2.92→3.94 — Pass 2684: 3.94→5.32 — Pass 2780: 5.32→7.18 — Pass 2914: 7.18→9.69 — Pass 3124: 9.69→13.1
   }
 
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
