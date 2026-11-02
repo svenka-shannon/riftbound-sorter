@@ -5341,16 +5341,16 @@ function animate(ts) {
     const baseFog   = new THREE.Color(0x0a0a0f);
     // Context: scan and deflect get a stronger tint boost
     // Pass 630: scan fog tint 0.12→0.18, deflect tint 0.07→0.11 — Pass 1385: scan →0.26, deflect →0.16 — Pass 1474: scan →0.36, Pass 1475: deflect →0.22 — Pass 1639: scan →0.48, Pass 1640: deflect →0.30
-    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 2.93 : 0; // Pass 2445: scan fog boost 0.88→1.19 — Pass 2957: 1.19→1.61 — Pass 3162: 1.61→2.17 — Pass 3331: 2.17→2.93
-    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 1.00 : 0; // Pass 2446: deflect fog boost 0.55→0.74 — Pass 2958: 0.74→1.00
+    const _scanBoost = inPhase(PH.scan) ? phaseRaw(PH.scan) * 3.96 : 0; // Pass 2445: scan fog boost 0.88→1.19 — Pass 2957: 1.19→1.61 — Pass 3162: 1.61→2.17 — Pass 3331: 2.17→2.93 — Pass 3342: 2.93→3.96
+    const _deflectBoost = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 1.35 : 0; // Pass 2446: deflect fog boost 0.55→0.74 — Pass 2958: 0.74→1.00 — Pass 3343: 1.00→1.35
     // Pass 474: reject alarm fog — when slot-7 card is in slotDrop alarm state, background deepens
     // toward red-orange for a brief warning atmosphere — Pass 1642: 0.14→0.22 stronger alarm fog
     const _rejectFogBoost = (ct.slot === 7 && _rejectAlarmFired && inPhase(PH.slotDrop))
-      ? Math.max(0, 0.30 - phaseRaw(PH.slotDrop) * 0.41) : 0; // Pass 2726: reject fog max 0.22→0.30 — Pass 2732: decay slope 0.30→0.41
+      ? Math.max(0, 0.41 - phaseRaw(PH.slotDrop) * 0.41) : 0; // Pass 2726: reject fog max 0.22→0.30 — Pass 2732: decay slope 0.30→0.41 — Pass 3344: max 0.30→0.41
     const _rejectFogRGB = new THREE.Color(0xff3300);
     const _tintStr = 0.548 + _scanBoost + _deflectBoost; // Pass 2447: base fog tint 0.165→0.223 — Pass 2727: 0.223→0.301 — Pass 2959: 0.301→0.406 — Pass 3163: 0.406→0.548 [REVERTED Pass 3332: 0.740 was too heavy, scene washed out]
     const targetTint = baseFog.clone().lerp(domainRGB, _tintStr).lerp(_rejectFogRGB, _rejectFogBoost);
-    _fogTint.lerp(targetTint, Math.min(1, dt * 5.40)); // Pass 2448: fog tracking 2.19→2.96 — Pass 2728: 2.96→4.00 — Pass 2960: 4.00→5.40
+    _fogTint.lerp(targetTint, Math.min(1, dt * 7.29)); // Pass 2448: fog tracking 2.19→2.96 — Pass 2728: 2.96→4.00 — Pass 2960: 4.00→5.40 — Pass 3341: 5.40→7.29
     scene.fog.color.copy(_fogTint);
     scene.background.copy(_fogTint);
   }
@@ -5490,14 +5490,14 @@ function animate(ts) {
     const _scanBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 1.15 : 0; // Pass 2440: scan bg boost 0.26→0.35 — Pass 2740: 0.35→0.47 — Pass 2971: 0.47→0.63 — Pass 3171: 0.63→0.85 — Pass 3339: 0.85→1.15
     const _celebBoost = _cameraShake > 3 ? Math.min(0.30, _cameraShake * 0.043) : 0; // Pass 2253: ceiling 0.16→0.22 Pass 2254: mult 0.024→0.032 — Pass 2742: ceiling 0.22→0.30 Pass 2743: mult 0.032→0.043
     // Pass 152: brief domain tint on slotDrop — card joins the tray, background echoes domain — Pass 1609: 0.028→0.040
-    const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.099 : 0; // Pass 2255: drop tint 0.054→0.073 — Pass 2744: 0.073→0.099
+    const _dropTintBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 0.134 : 0; // Pass 2255: drop tint 0.054→0.073 — Pass 2744: 0.073→0.099 — Pass 3345: 0.099→0.134
     // Pass 328: reveal background flash — brief domain flood at identity lock-on moment
     // Pass 539: reveal flood 0.09→0.14 for bigger background domain surge at lock-on — Pass 1617: →0.19
     const _revealTintBoost328 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 20) * 1.15 : 0; // Pass 2441: reveal flood 0.35→0.47 — Pass 2745: 0.47→0.63 — Pass 3172: 0.63→0.85 — Pass 3340: 0.85→1.15
     // Pass 329: deflect background tint — background echoes domain as card arcs through air — Pass 1466: 0.022→0.032
-    const _deflectTintBoost329 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.078 : 0; // Pass 2257: deflect tint 0.043→0.058 — Pass 2746: 0.058→0.078
+    const _deflectTintBoost329 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 0.105 : 0; // Pass 2257: deflect tint 0.043→0.058 — Pass 2746: 0.058→0.078 — Pass 3346: 0.078→0.105
     // Pass 330: armSwing background echo — brief tint at arc midpoint as card swings closest — Pass 1467: 0.018→0.026
-    const _swingTintBoost330 = inPhase(PH.armSwing) ? Math.sin(phaseRaw(PH.armSwing) * Math.PI) * 0.063 : 0; // Pass 2258: swing tint 0.035→0.047 — Pass 2747: 0.047→0.063
+    const _swingTintBoost330 = inPhase(PH.armSwing) ? Math.sin(phaseRaw(PH.armSwing) * Math.PI) * 0.085 : 0; // Pass 2258: swing tint 0.035→0.047 — Pass 2747: 0.047→0.063 — Pass 3347: 0.063→0.085
     if (_scanBoost > 0.002 || _celebBoost > 0.002 || _dropTintBoost > 0.002
         || _revealTintBoost328 > 0.002 || _deflectTintBoost329 > 0.002 || _swingTintBoost330 > 0.002) {
       const _tintR = ((ct.hex >> 16) & 0xff) / 255;
@@ -5508,7 +5508,7 @@ function animate(ts) {
       _clearCurrent.g = _clearBase.g + (_tintG - _clearBase.g) * _strength;
       _clearCurrent.b = _clearBase.b + (_tintB - _clearBase.b) * _strength;
     } else {
-      _clearCurrent.lerp(_clearBase, Math.min(1, dt * 13.4)); // Pass 2442: clear decay 5.47→7.38 — Pass 2741: 7.38→9.96 — Pass 2972: 9.96→13.4
+      _clearCurrent.lerp(_clearBase, Math.min(1, dt * 18.1)); // Pass 2442: clear decay 5.47→7.38 — Pass 2741: 7.38→9.96 — Pass 2972: 9.96→13.4 — Pass 3348: 13.4→18.1
     }
     renderer.setClearColor(_clearCurrent, 1);
   }
