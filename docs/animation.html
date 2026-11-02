@@ -4840,7 +4840,7 @@ function animate(ts) {
     // Slight vertical bob for cinematic feel; lower elevation during scan to see belt better
     // Pass 295: armLift camera Y dip — lower target during pickup for better card-peel view
     // Pass 1020: scan Y 260→240 for deeper camera dive into scanner, armLift 290→270 for peel view
-    const yTarget = inPhase(PH.scan) ? 200 : inPhase(PH.armLift) ? 230 : 280; // Pass 2539: camera Y scan 240→200 armLift 270→230 rest 320→280
+    const yTarget = 270; // Hotfix 3333g: unified camera Y — was scan=200/armLift=230/rest=280 (80-unit phase-dependent swings caused "jiggling up and down")
     if(!controls._camY) controls._camY = yTarget;
     controls._camY += (yTarget - controls._camY) * 0.02;
     // Pass 185: fix camera Y bob — was ts*0.00008 (~21h period = invisible).
