@@ -5268,18 +5268,18 @@ function animate(ts) {
     tp.age += dt;
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
-    tp.mesh.position.y += dt * (32.9 + _tt * 48.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6
+    tp.mesh.position.y += dt * (44.4 + _tt * 65.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6
     tp.mat.opacity = (1 - _tt) * 0.88; // Pass 1944: contrail particle opacity lifetime 0.65→0.88
-    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 4.52)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52
+    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 6.10)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
     // then bleach normally — so the arc trail stays vivid near the arm and fades away.
     if (tp._birthHex && _tt < 0.99) { // Pass 2513: domain color hold 0.54→0.73 — Pass 2950: 0.73→0.99
       tp.mat.color.setHex(tp._birthHex); // hold domain color fresh near the arm
     } else {
-      tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 3.28); // Pass 2815: bleach R rate 1.8→2.43 — Pass 3324: 2.43→3.28
-      tp.mat.color.g += (1.0 - tp.mat.color.g) * Math.min(1, dt * 3.28); // Pass 2815b: bleach G rate 1.8→2.43 — Pass 3325: 2.43→3.28
-      tp.mat.color.b = Math.min(1, tp.mat.color.b + dt * 4.37); // blue channel rises fastest → cool white — Pass 2816: 2.4→3.24 — Pass 3326: 3.24→4.37
+      tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 4.43); // Pass 2815: bleach R rate 1.8→2.43 — Pass 3324: 2.43→3.28 — Pass 3498: 3.28→4.43
+      tp.mat.color.g += (1.0 - tp.mat.color.g) * Math.min(1, dt * 4.43); // Pass 2815b: bleach G rate 1.8→2.43 — Pass 3325: 2.43→3.28 — Pass 3498b: 3.28→4.43
+      tp.mat.color.b = Math.min(1, tp.mat.color.b + dt * 5.90); // blue channel rises fastest → cool white — Pass 2816: 2.4→3.24 — Pass 3326: 3.24→4.37 — Pass 3499: 4.37→5.90
       if (tp._birthHex) tp._birthHex = undefined; // allow normal bleach in second half
     }
   });
@@ -5294,8 +5294,8 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= 449.4 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4
-    p.vx *= 1 - dt * 17.0; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0
+    p.vy -= 607 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4 — Pass 3493: 449.4→607
+    p.vx *= 1 - dt * 22.9; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9
     p.vz *= 1 - dt * 17.0;
     p.mat.opacity = (1 - _pt * _pt) * 1.00; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00
     p.mesh.scale.setScalar(Math.max(0.05, 1.0 - _pt * 0.95)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95
@@ -5329,7 +5329,7 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= (p.grav || 229.0) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0
+    p.vy -= (p.grav || 309.2) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2
     p.vx *= 1 - dt * 0.9; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter)
     p.vz *= 1 - dt * 0.9;
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
