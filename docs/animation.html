@@ -2381,7 +2381,7 @@ function animate(ts) {
         const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
-        const _waveAmp301 = inPhase(PH.armDescend) ? 0.35 + phaseRaw(PH.armDescend) * 1.00 : 0.35;
+        const _waveAmp301 = inPhase(PH.armDescend) ? 0.47 + phaseRaw(PH.armDescend) * 1.35 : 0.47; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 for brighter deck energy
         sc.material.emissiveIntensity = 0.36 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
@@ -2511,7 +2511,7 @@ function animate(ts) {
       const afterT = _ledCooloff[_li] / 3.8; // Pass 1650: updated to match new cooloff duration
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity = 2.03 + afterT * 6.75; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75
+      mat.emissiveIntensity = 2.74 + afterT * 9.11; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11
     } else {
       // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 — Pass 1651: →1.9 brighter resting LEDs
       mat.color.setHex(slotCt.hex);
@@ -2995,7 +2995,7 @@ function animate(ts) {
         const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
         // Pass 679: belt entry dust puff count 5→8 — Pass 869: →12 — Pass 1685: →18 for bigger card-on-belt burst
         let _dpSpawned = 0;
-        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 18; _di++) {
+        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 24; _di++) { // Pass 3438: belt dust puff count 18→24
           const _dp = GRAB_PARTICLES[_di];
           if (_dp.active) continue;
           _dp.active = true; _dp.age = 0; _dp.life = 0.57 + Math.random() * 0.30; // Pass 1487: 0.22+0.12→0.30+0.16 — Pass 1686: →0.42+0.22 — Pass 1847: →0.57+0.30
@@ -3003,7 +3003,7 @@ function animate(ts) {
           _dp.mesh.visible = true;
           const _side = Math.random() < 0.5 ? 1 : -1;
           _dp.vx = _side * (54 + Math.random() * 88); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 — Pass 1687: →40+65 — Pass 1848: →54+88
-          _dp.vy = 46 + Math.random() * 57; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 — Pass 1688: →34+42 — Pass 1849: →46+57
+          _dp.vy = 62 + Math.random() * 77; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 — Pass 1688: →34+42 — Pass 1849: →46+57 — Pass 3437: →62+77
           _dp.vz = (Math.random() - 0.5) * 30; // Pass 1486: 16→22 — Pass 1689: →30
           // Pale domain-tinted dust: 35% domain + 65% white
           _dp.mat.color.setRGB(
@@ -3675,14 +3675,14 @@ function animate(ts) {
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
       // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 — Pass 1069: →3.4 — Pass 1447: →4.8 for wider flash
-      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 21.7 : 1.0; // Pass 2565: shimmer bloom 8.78→11.9 — Pass 3005: 11.9→16.1 — Pass 3201: 16.1→21.7
+      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 29.3 : 1.0; // Pass 2565: shimmer bloom 8.78→11.9 — Pass 3005: 11.9→16.1 — Pass 3201: 16.1→21.7 — Pass 3439: 21.7→29.3
       cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
       cardShimmerMat.color.copy(_shimColor);
       // Opacity: standard bell + extra brightness after reveal — Pass 403: 0.18→0.28 — Pass 816: →0.42 — Pass 1448: →0.60
-      const _shimBoost = _identityRevealed ? 2.67 : 0; // Pass 2566: shimmer post-reveal boost 1.09→1.47 — Pass 3006: 1.47→1.98 — Pass 3202: 1.98→2.67
+      const _shimBoost = _identityRevealed ? 3.60 : 0; // Pass 2566: shimmer post-reveal boost 1.09→1.47 — Pass 3006: 1.47→1.98 — Pass 3202: 1.98→2.67 — Pass 3440: 2.67→3.60
       // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75 — Pass 815: →1.0 — Pass 1070: →1.40 — Pass 1449: →1.90 for brighter shimmer at reveal
       const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 8.51 : 0; // Pass 2567: shimmer reveal spike 3.46→4.67 — Pass 3007: 4.67→6.30 — Pass 3203: 6.30→8.51
       // Pass 626: base bell 0.52→0.62 — Pass 816: →0.75 — Pass 1450: →1.0 for brighter shimmer throughout scan
