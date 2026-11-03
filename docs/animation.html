@@ -3884,15 +3884,15 @@ function animate(ts) {
     // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 — Pass 916: →19.0 — Pass 1074: →27.0 — Pass 1179: →38.0 — Pass 1564: →52.0, dist→150 for bigger paddle hit
     if (!_gateFlashFired) {
       _gateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 574.2, 150); // Pass 2367: gate contact flash 94.8→128.0 — Pass 2584: 128.0→172.8 — Pass 2845: 172.8→233.3 — Pass 3024: 233.3→315.0 — Pass 3217: 315.0→425.3 — Pass 3386: 425.3→574.2
+      const _gfl = new THREE.PointLight(ct.hex, 775, 150); // Pass 2367: gate contact flash 94.8→128.0 — Pass 2584: 128.0→172.8 — Pass 2845: 172.8→233.3 — Pass 3024: 233.3→315.0 — Pass 3217: 315.0→425.3 — Pass 3386: 425.3→574.2 — Pass 3517: 574.2→775
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _gfl, age: 0, peak: _gfl.intensity });
       // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 — Pass 917: →12.0 — Pass 1180: →17.0 — Pass 1565: →24.0
-      paddleMat.emissiveIntensity = 264.9; // Pass 2368: paddle spike 43.7→59.0 — Pass 2585: 59.0→79.7 — Pass 2846: 79.7→107.6 — Pass 3025: 107.6→145.3 — Pass 3218: 145.3→196.2 — Pass 3387: 196.2→264.9
+      paddleMat.emissiveIntensity = 358; // Pass 2368: paddle spike 43.7→59.0 — Pass 2585: 59.0→79.7 — Pass 2846: 79.7→107.6 — Pass 3025: 107.6→145.3 — Pass 3218: 145.3→196.2 — Pass 3387: 196.2→264.9 — Pass 3518: 264.9→358
       // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 — Pass 781: →10.0 — Pass 1181: →15.0 — Pass 1566: →22.0 hotter blaze
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 242.6); // Pass 2369: gate-contact card flash 40.1→54.1 — Pass 2586: 54.1→73.0 — Pass 2847: 73.0→98.6 — Pass 3026: 98.6→133.1 — Pass 3219: 133.1→179.7 — Pass 3388: 179.7→242.6
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 328); // Pass 2369: gate-contact card flash 40.1→54.1 — Pass 2586: 54.1→73.0 — Pass 2847: 73.0→98.6 — Pass 3026: 98.6→133.1 — Pass 3219: 133.1→179.7 — Pass 3388: 179.7→242.6 — Pass 3519: 242.6→328
       // Pass 298: gate-contact camera shake — Pass 588: 1.8→3.0 for more physical paddle impact
       _cameraShake = 3.0;
       // Pass 369: gate-contact camera shake — Pass 782: →6.5 — Pass 923: →9.5 — Pass 1182: →14.0 — Pass 1567: →20.0 for bigger paddle hit feel
@@ -3940,7 +3940,7 @@ function animate(ts) {
     // Pass 526: 6.5→9.0 — Pass 636: →12.5 — Pass 784: →18.0 — Pass 918: →26.0 — Pass 1184: →36.0 — Pass 1353: →68.0 for bigger arc apex pop
     if (!_arcPeakFlashFired && dt2 >= 0.46) {
       _arcPeakFlashFired = true;
-      const _apfl = new THREE.PointLight(ct.hex, 1370.5, 230); // Pass 2373: arc-peak flash 226.4→305.6 — Pass 2593: 305.6→412.6 — Pass 2853: 412.6→557.0 — Pass 3032: 557.0→752.0 — Pass 3221: 752.0→1015.2 — Pass 3389: 1015.2→1370.5
+      const _apfl = new THREE.PointLight(ct.hex, 1850, 230); // Pass 2373: arc-peak flash 226.4→305.6 — Pass 2593: 305.6→412.6 — Pass 2853: 412.6→557.0 — Pass 3032: 557.0→752.0 — Pass 3221: 752.0→1015.2 — Pass 3389: 1015.2→1370.5 — Pass 3520: 1370.5→1850
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3981,7 +3981,7 @@ function animate(ts) {
     const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
     // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020 — Pass 1188: primary →0.062, secondary →0.032 — Pass 1256: primary →0.082, secondary →0.042 for more flutter micro-wobble
-    const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 0.900 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 0.465) * Math.sin(dt2 * Math.PI); // Pass 2379: flutter primary 0.201→0.271, secondary 0.104→0.140 — Pass 2599: 0.271→0.366, 0.140→0.189 — Pass 3037: 0.366→0.494, 0.189→0.255 — Pass 3227: primary 0.494→0.667, secondary 0.255→0.344 — Pass 3393: 0.667→0.900, 0.344→0.465
+    const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 1.215 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 0.628) * Math.sin(dt2 * Math.PI); // Pass 2379: flutter primary 0.201→0.271, secondary 0.104→0.140 — Pass 2599: 0.271→0.366, 0.140→0.189 — Pass 3037: 0.366→0.494, 0.189→0.255 — Pass 3227: primary 0.494→0.667, secondary 0.255→0.344 — Pass 3393: 0.667→0.900, 0.344→0.465 — Pass 3521: primary 0.900→1.215, secondary 0.465→0.628
     // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
     if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 11);
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
@@ -3992,7 +3992,7 @@ function animate(ts) {
     // Pass 250: deflect tumble emissive — Pass 415: 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
     // Pass 762: base 0.55→0.45, peak 0.72→0.95 for more dynamic emissive swing during tumble
     // Pass 968: base 0.45→0.55, peak 0.95→1.25 — Pass 1190: peak 1.25→1.65 — Pass 1255: peak 1.65→2.10 for even brighter deflect tumble arc glow
-    const _tumbleEmissive = 0.55 + 42.1 * Math.max(0, Math.cos(2 * activeCard.rotation.z)); // Pass 2381: tumble emissive peak 5.17→6.98 — Pass 2601: 6.98→9.42 — Pass 2860: 9.42→12.7 — Pass 3040: 12.7→17.1 — Pass 3228: 17.1→23.1 — Pass 3394: 23.1→31.2 — Pass 3459: 31.2→42.1
+    const _tumbleEmissive = 0.55 + 56.8 * Math.max(0, Math.cos(2 * activeCard.rotation.z)); // Pass 2381: tumble emissive peak 5.17→6.98 — Pass 2601: 6.98→9.42 — Pass 2860: 9.42→12.7 — Pass 3040: 12.7→17.1 — Pass 3228: 17.1→23.1 — Pass 3394: 23.1→31.2 — Pass 3459: 31.2→42.1 — Pass 3522: 42.1→56.8
     activeCardMat.emissiveIntensity += (_tumbleEmissive - activeCardMat.emissiveIntensity) * Math.min(1, dt * 7);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
     // Pass 126: color warms from neutral white to domain color as card approaches
@@ -4079,7 +4079,7 @@ function animate(ts) {
       _btp.mesh.position.set(GATE_X + (Math.random()-0.5)*8, CONV_Y_TOP + 8 + Math.random()*8, ct.slotZ * 0.12 + (Math.random()-0.5)*5);
       _btp.mat.color.setHex(ct.hex);
       _btp.mat.opacity = 0.92 + Math.random() * 0.08; // Pass 1118: 0.80+0.18→0.92+0.08 for brighter gate-contact burst
-      _btp.age = 0; _btp.life = 3.29 + Math.random() * 1.82; // Pass 2386: gate burst life 0.73+0.41→0.99+0.55 — Pass 2608: 0.99+0.55→1.34+0.74 — Pass 3046: 1.34+0.74→1.81+1.00 — Pass 3231: 1.81+1.00→2.44+1.35 — Pass 3398: 2.44+1.35→3.29+1.82
+      _btp.age = 0; _btp.life = 4.44 + Math.random() * 2.46; // Pass 2386: gate burst life 0.73+0.41→0.99+0.55 — Pass 2608: 0.99+0.55→1.34+0.74 — Pass 3046: 1.34+0.74→1.81+1.00 — Pass 3231: 1.81+1.00→2.44+1.35 — Pass 3398: 2.44+1.35→3.29+1.82 — Pass 3523: 3.29+1.82→4.44+2.46
       _btp.active = true; _btp.mesh.visible = true;
     }
   }
@@ -4108,7 +4108,7 @@ function animate(ts) {
         // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
         // Pass 971: bounce 16→22 — Pass 1108: →30 — Pass 1195: →40 — Pass 1257: →52 for even bigger card-slap landing bounce
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 572.0 * Math.sin(bT * Math.PI) * (1 - bT * 0.24); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0
+        cy = targetY + 772 * Math.sin(bT * Math.PI) * (1 - bT * 0.24); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
