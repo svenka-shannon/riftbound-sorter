@@ -3208,7 +3208,7 @@ function animate(ts) {
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 — Pass 1374: →19.0 — Pass 1519: →26.0 bigger lens pop
-    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 86.4 : 0; // Pass 2307: lens reveal spike 35.1→47.4 — Pass 3371: 47.4→64.0 — Pass 3479: 64.0→86.4
+    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 116.6 : 0; // Pass 2307: lens reveal spike 35.1→47.4 — Pass 3371: 47.4→64.0 — Pass 3479: 64.0→86.4 — Pass 3545: 86.4→116.6
     // Pass 793: lens flash base 3.5→4.8 — Pass 1518: →6.5 for brighter scanner lens during scan
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 21.7 + _lensReveal370; // Pass 2315: lens emissive flash contribution 8.78→11.9 — Pass 3384: 11.9→16.1 — Pass 3515: 16.1→21.7
     // Wide bloom soft halo around scanner
@@ -3254,7 +3254,7 @@ function animate(ts) {
     const _cardCenterZ = activeCard.position.z;
     const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
     // Pass 343: scan beam reveal spike — Pass 575: 4.0→6.5 — Pass 845: →9.5 — Pass 1286: →13.5 — Pass 1422: →18.0 — Pass 1528: →25.0 for stronger beam pop at lock-on
-    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 61.6 : 0; // Pass 2309: beam reveal spike 33.75→45.6 — Pass 3480: 45.6→61.6
+    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 83.2 : 0; // Pass 2309: beam reveal spike 33.75→45.6 — Pass 3480: 45.6→61.6 — Pass 3546: 61.6→83.2
     // Pass 599: beam base 3.0→4.5 — Pass 844: →6.5 + prox boost 3.5→5.5 — Pass 1423: base →9.0, prox →7.5 — Pass 1529: base →12.0, prox →10.0 for brighter scan lines
     scanLineMat.emissiveIntensity = 29.6 + _beamProxZ * 24.6 + _beamRevealSpike343; // Pass 2310: beam base 16.2→21.9, Pass 2311: prox boost 13.5→18.2 — Pass 3463: base 21.9→29.6 — Pass 3464: prox boost 18.2→24.6
     // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5 — Pass 1424: base →7.0, reveal →12.0 — Pass 1530: base →9.5, reveal →17.0
@@ -3393,7 +3393,7 @@ function animate(ts) {
         _hoodRevealFlash = 0.001; // just above 0 to activate
         // Pass 125: card face emissive burst at identity reveal — card "powers up"
         // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 — Pass 1131: →16.0 — Pass 1412: →22.0 for bigger face power-up flash
-        _cardRevealBurst = 134.5; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8 — Pass 3431: 73.8→99.6 — Pass 3472: 99.6→134.5
+        _cardRevealBurst = 182; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8 — Pass 3431: 73.8→99.6 — Pass 3472: 99.6→134.5 — Pass 3548: 134.5→182
         // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 — Pass 1415: →7.0 for stronger pop
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 23.4; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3 — Pass 3428: 17.3→23.4
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
@@ -3510,7 +3510,7 @@ function animate(ts) {
           // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 — Pass 1411: →4.5 — Pass 1525: →6.5 for brighter confirm ring flash
           const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 39.4 : 0; // Pass 2549: ping reveal spike 11.84→15.98 — Pass 2840: 15.98→21.6 — Pass 2986: 21.6→29.2 — Pass 3185: 29.2→39.4
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
-          const _pingBoost = ft >= 0.85 ? 165.2 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2
+          const _pingBoost = ft >= 0.85 ? 223 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2 — Pass 3547: 165.2→223
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
           p.mat.opacity = _pingFade * flashIntensity * 1.0 * _pingBoost;
         } else {
@@ -3757,7 +3757,7 @@ function animate(ts) {
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     // Pass 312: conveyorOut Z bank amplifier — outer columns lean harder to reinforce routing
     // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit — Pass 1593: →0.88
-    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 2.93; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61 — Pass 3013: 1.61→2.17 — Pass 3476: 2.17→2.93
+    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 3.96; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61 — Pass 3013: 1.61→2.17 — Pass 3476: 2.17→2.93 — Pass 3544: 2.93→3.96
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
     // Pass 140: blend lean from 0 (scan end) to belt lean over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
@@ -3775,7 +3775,7 @@ function animate(ts) {
       const _oFadeIn  = Math.min(1, ot / 0.05);
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
       // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 — Pass 969: →3.2 — Pass 1299: →4.2 for more lateral belt weave on exit — Pass 1596: →5.7
-      const _oWobbleZ = 34.4 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5 — Pass 3475: 25.5→34.4
+      const _oWobbleZ = 46.4 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5 — Pass 3475: 25.5→34.4 — Pass 3543: 34.4→46.4
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
       // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview — Pass 1597: →0.68
       const _z268drift = ct.slotZ * 2.25 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25
@@ -4306,7 +4306,7 @@ function animate(ts) {
           const _ang = Math.random() * Math.PI * 2;
           const _spd = 1551 + Math.random() * 1757; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757
           _lp.vx = Math.cos(_ang) * _spd * 0.45;
-          _lp.vy = 61.6 + Math.random() * 142.7; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7
+          _lp.vy = 83.2 + Math.random() * 192.6; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6
           _lp.vz = Math.sin(_ang) * _spd;
           _lp.mat.color.setRGB(
             Math.min(1, _rr2 / 255 * 0.55 + 0.45),
@@ -4351,7 +4351,7 @@ function animate(ts) {
           );
           _mp.mesh.visible = true;
           _mp.vx = (Math.random() - 0.5) * 10;
-          _mp.vy = 30.2 + Math.random() * 60.5; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5
+          _mp.vy = 40.8 + Math.random() * 81.7; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7
           _mp.vz = (Math.random() - 0.5) * 12;
           _mp.mat.color.setRGB(
             Math.min(1, _rr3 / 255 * 0.50 + 0.50),
