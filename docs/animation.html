@@ -3610,9 +3610,9 @@ function animate(ts) {
     const _beamFillBoost = barFill * 0.63; // Pass 1719: beam fill boost 0.35→0.47 — Pass 3000: 0.47→0.63
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
     // Pass 549: beam reveal boost 0.55→0.80 — Pass 1161: →1.20 for more vivid beam flare at lock-on
-    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 4.00 : 0; // Pass 2344: beam reveal boost 1.62→2.19 — Pass 2827: 2.19→2.96 — Pass 3001: 2.96→4.00
+    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 5.40 : 0; // Pass 2344: beam reveal boost 1.62→2.19 — Pass 2827: 2.19→2.96 — Pass 3001: 2.96→4.00 — Pass 3565: 4.00→5.40
     // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 — Pass 1162: →1.10 — Pass 1289: →1.45 — Pass 1378: →1.90 for stronger scan column
-    scanBeamMat.opacity = flashIntensity * 6.30 + _strobe + _beamFillBoost + _beamRevealBoost389; // Pass 2345: beam base opacity 2.56→3.46 — Pass 2828: 3.46→4.67 — Pass 3002: 4.67→6.30
+    scanBeamMat.opacity = flashIntensity * 8.51 + _strobe + _beamFillBoost + _beamRevealBoost389; // Pass 2345: beam base opacity 2.56→3.46 — Pass 2828: 3.46→4.67 — Pass 3002: 4.67→6.30 — Pass 3566: 6.30→8.51
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
@@ -3921,9 +3921,9 @@ function animate(ts) {
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 532 + Math.random() * 616; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616
+          const _spd = 718 + Math.random() * 832; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832
           _sp.vx = Math.cos(_ang) * _spd * 0.7;
-          _sp.vy = 365 + Math.random() * 400; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400
+          _sp.vy = 493 + Math.random() * 540; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540
           _sp.vz = Math.sin(_ang) * _spd * 0.5 + Math.sign(ct.slotZ || 1) * 15;
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
@@ -4037,7 +4037,7 @@ function animate(ts) {
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       if (gi === ct.col) {
         gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
-        gm.emissiveIntensity += (45.2 - gm.emissiveIntensity) * Math.min(1, dt * 10); // Pass 2383: deflect LED target 18.4→24.8 — Pass 2605: 24.8→33.5 — Pass 3042: 33.5→45.2
+        gm.emissiveIntensity += (61.0 - gm.emissiveIntensity) * Math.min(1, dt * 10); // Pass 2383: deflect LED target 18.4→24.8 — Pass 2605: 24.8→33.5 — Pass 3042: 33.5→45.2 — Pass 3569: 45.2→61.0
       } else {
         gm.emissiveIntensity += (0.15 - gm.emissiveIntensity) * Math.min(1, dt * 5);
       }
@@ -4195,7 +4195,7 @@ function animate(ts) {
     // Pass 963: sympathetic flash 0.75→1.20, target spike 2.6→4.0 — Pass 1390: sympath →1.70, target →5.5
     const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 10.3 : 0; // Pass 2119: sympathetic flash 3.11→4.20 — Pass 2616: 4.20→5.67 — Pass 3057: 5.67→7.65 — Pass 3244: 7.65→10.3
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 24.6 : _sympFlash278; // Pass 2120: target LED spike 10.0→13.5 — Pass 2617: 13.5→18.2 — Pass 3058: 18.2→24.6
+      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 33.2 : _sympFlash278; // Pass 2120: target LED spike 10.0→13.5 — Pass 2617: 13.5→18.2 — Pass 3058: 18.2→24.6 — Pass 3570: 24.6→33.2
       const _ledDrop = dt3 < 0.22 ? 3.5 : THREE.MathUtils.lerp(3.5, 0.15, (dt3 - 0.22) / 0.78); // Pass 470
       const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.15 + _sympFlash278;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
@@ -4206,7 +4206,7 @@ function animate(ts) {
     if (!_slotGateFlashFired && dt3 >= 0.06) {
       _slotGateFlashFired = true;
       // Pass 537: slot gate flash 8.0→11.0 — Pass 960: →17.0 — Pass 1119: →26.0 — Pass 1260: →36.0 for brighter tray entry burst
-      const _gfl = new THREE.PointLight(ct.hex, 294.3, 120); // Pass 2389: slot gate flash 88.6→119.6 — Pass 2618: 119.6→161.5 — Pass 2861: 161.5→218.0 — Pass 3059: 218.0→294.3
+      const _gfl = new THREE.PointLight(ct.hex, 397, 120); // Pass 2389: slot gate flash 88.6→119.6 — Pass 2618: 119.6→161.5 — Pass 2861: 161.5→218.0 — Pass 3059: 218.0→294.3 — Pass 3571: 294.3→397
       _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4249,7 +4249,7 @@ function animate(ts) {
         );
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 28; // Pass 1489: 20→28 wider spread
-        _pp.vy = 366 + Math.random() * 323; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323
+        _pp.vy = 494 + Math.random() * 436; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436
         _pp.vz = (Math.random() - 0.5) * 40; // Pass 2124: puff vz spread 30→40
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
