@@ -3138,7 +3138,7 @@ function animate(ts) {
     const flashIntensity = Math.sin(ft * Math.PI);
     // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
     // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 — Pass 1373: →23.0 — Pass 1517: →32.0 for bigger scan flash and lock-on pop
-    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 78.7 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 106.2 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2
     scanFlash.intensity = flashIntensity * 49.3 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.54 : 0; // Pass 1864: scan flash Z drift 0.40→0.54
@@ -3349,7 +3349,7 @@ function animate(ts) {
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
       const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.25 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25
       const _cursorScale290 = _identityRevealed && ft < 0.91
-        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 4.8 // Pass 1702: reveal scale punch 3.5→4.8
+        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 6.48 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48
         : _cursorPreScale300;
       scanBarCursor.scale.setScalar(_cursorScale290);
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
@@ -4139,7 +4139,7 @@ function animate(ts) {
     }
     // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
     // Pass 647: wall lean 0.032→0.055 — Pass 974: →0.082 — Pass 1115: →0.12 for more physical lateral tilt at each wall contact
-    const _wallLean = 0.55 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0); // Pass 2111: wall lean 0.12→0.16 — Pass 2620: 0.16→0.22 — Pass 3050: 0.22→0.30 — Pass 3235: 0.30→0.41 — Pass 3402: 0.41→0.55
+    const _wallLean = 0.74 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0); // Pass 2111: wall lean 0.12→0.16 — Pass 2620: 0.16→0.22 — Pass 3050: 0.22→0.30 — Pass 3235: 0.30→0.41 — Pass 3402: 0.41→0.55 — Pass 3447: 0.55→0.74
     activeCard.rotation.z = _wallLean;
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
@@ -4156,7 +4156,7 @@ function animate(ts) {
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
     // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 — Pass 1197: →0.65+(dt3/0.88)*2.20 — Pass 1404: →0.65+(dt3/0.88)*3.00 — Pass 1547: →0.65+(dt3/0.88)*4.00 brighter fall glow
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.65 + (dt3 / 0.88) * 44.3; // Pass 2114: fall ramp peak 7.29→9.84 — Pass 2611: 9.84→13.3 — Pass 3052: 13.3→18.0 — Pass 3239: 18.0→24.3 — Pass 3403: 24.3→32.8 — Pass 3408: 32.8→44.3
+      const _fallRamp = 0.65 + (dt3 / 0.88) * 59.8; // Pass 2114: fall ramp peak 7.29→9.84 — Pass 2611: 9.84→13.3 — Pass 3052: 13.3→18.0 — Pass 3239: 18.0→24.3 — Pass 3403: 24.3→32.8 — Pass 3408: 32.8→44.3 — Pass 3446: 44.3→59.8
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
@@ -4283,7 +4283,7 @@ function animate(ts) {
       // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 — Pass 1263: →18.0 — Pass 1366: →26.0 — Pass 1542: →36.0 for bigger floor thud
       _cameraShake = Math.max(_cameraShake, 397.3); // Pass 2393: floor landing shake 88.6→119.6 — Pass 2625: 119.6→161.5 — Pass 2866: 161.5→218.0 — Pass 3064: 218.0→294.3 — Pass 3247: 294.3→397.3
       // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 — Pass 1367: →50.0 — Pass 1543: →68.0 vivid landing pop
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 750.7; // Pass 2394: strip flash at landing 167.4→226.0 — Pass 2626: 226.0→305.1 — Pass 3065: 305.1→411.9 — Pass 3248: 411.9→556.1 — Pass 3404: 556.1→750.7
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 1013; // Pass 2394: strip flash at landing 167.4→226.0 — Pass 2626: 226.0→305.1 — Pass 3065: 305.1→411.9 — Pass 3248: 411.9→556.1 — Pass 3404: 556.1→750.7 — Pass 3445: 750.7→1013
       // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 — Pass 1368: →56.0 — Pass 1544: →75.0 vivid count
       if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 825.7; // Pass 2395: fill bar landing spark 184.1→248.5 — Pass 2627: 248.5→335.5 — Pass 3066: 335.5→453.0 — Pass 3249: 453.0→611.6 — Pass 3409: 611.6→825.7
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
@@ -4351,7 +4351,7 @@ function animate(ts) {
           );
           _mp.mesh.visible = true;
           _mp.vx = (Math.random() - 0.5) * 10;
-          _mp.vy = 22.4 + Math.random() * 44.8; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8
+          _mp.vy = 30.2 + Math.random() * 60.5; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5
           _mp.vz = (Math.random() - 0.5) * 12;
           _mp.mat.color.setRGB(
             Math.min(1, _rr3 / 255 * 0.50 + 0.50),
@@ -4373,7 +4373,7 @@ function animate(ts) {
         _ral.classList.add('reject-alarm-on');
       }
       // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90 — Pass 1397: amber →20.0/200, red →10.0/120
-      [[0xff6600, 89.9, 200], [0xff1a00, 44.8, 120]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8
+      [[0xff6600, 121.4, 200], [0xff1a00, 60.5, 120]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5
         const _wl = new THREE.PointLight(c, i, d);
         _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 8 : -8));
         scene.add(_wl);
