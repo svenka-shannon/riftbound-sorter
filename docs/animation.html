@@ -3161,12 +3161,12 @@ function animate(ts) {
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 8.32 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16 — Pass 3412: 6.16→8.32
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
-    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 93.0 : 0; // Pass 2300: reveal glow surge 37.8→51.0 — Pass 3376: 51.0→68.9 — Pass 3509: 68.9→93.0
-    cardGlow.intensity = 5.9 + flashIntensity * 10.6 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83 — Pass 3377: base 4.4→5.9 Pass 3378: flash 5.83→7.87 — Pass 3510: flash 7.87→10.6
+    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 126 : 0; // Pass 2300: reveal glow surge 37.8→51.0 — Pass 3376: 51.0→68.9 — Pass 3509: 68.9→93.0 — Pass 3648: 93.0→126
+    cardGlow.intensity = 5.9 + flashIntensity * 14.3 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83 — Pass 3377: base 4.4→5.9 Pass 3378: flash 5.83→7.87 — Pass 3510: flash 7.87→10.6 — Pass 3649: flash 10.6→14.3
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Pass 372: scanner LED boost 2.0→2.5 — Pass 603: 2.5→3.5 + flashIntensity 3.0→4.5 — Pass 1513: base 3.5→5.0, flash 4.5→6.0
-    scanLEDMat.emissiveIntensity = 16.6 + flashIntensity * 19.8; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7 — Pass 3511: base 12.3→16.6 Pass 3512: flash 14.7→19.8
+    scanLEDMat.emissiveIntensity = 22.4 + flashIntensity * 26.7; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7 — Pass 3511: base 12.3→16.6 Pass 3512: flash 14.7→19.8 — Pass 3646: base 16.6→22.4 — Pass 3647: flash 19.8→26.7
     // Pass 222: scanner LED domain flash — at identity reveal, LED color switches to domain
     // Pass 270: hold domain color 0.12s before fading (was immediate fade) — more visual lock-on impact
     if (_scanLEDRevealT >= 0) {
@@ -3184,12 +3184,12 @@ function animate(ts) {
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 3.8);
       // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5 — Pass 1151: →6.5 — Pass 1413: →9.0
-      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 40.1; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0 — Pass 3432: 22.0→29.7 — Pass 3455: 29.7→40.1
+      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 54.1; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0 — Pass 3432: 22.0→29.7 — Pass 3455: 29.7→40.1 — Pass 3645: 40.1→54.1
       hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.35 + _revStrobe; // Pass 738: 1.10→1.35
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
       // Pass 500: scanner hood scan intensity 0.35+1.10→0.40+1.40 — Pass 739: →0.45+1.70 — Pass 1414: →0.45+2.30
-      hoodMat.emissiveIntensity = 0.45 + flashIntensity * 7.65; // Pass 2305: hood scan intensity 3.11→4.20 — Pass 3382: 4.20→5.67 — Pass 3513: 5.67→7.65
+      hoodMat.emissiveIntensity = 0.45 + flashIntensity * 10.3; // Pass 2305: hood scan intensity 3.11→4.20 — Pass 3382: 4.20→5.67 — Pass 3513: 5.67→7.65 — Pass 3650: 7.65→10.3
     }
     // Pass 197: scanner hood micro-sway — Z oscillation simulates emitter/receiver resonance.
     // Pass 607: amplitude 0.5→0.85 + secondary 4.1Hz harmonic — Pass 948: primary 0.85→1.20, secondary 0.28→0.42
@@ -3200,7 +3200,7 @@ function animate(ts) {
       scannerHood.position.z = (2.97 * Math.sin(ts * 2.8 * Math.PI * 2) + 1.10 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10
     }
     // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 — Pass 1236: →1.30 — Pass 1421: →1.75 for more dramatic iris breathing
-    const _irisScale = 0.75 + flashIntensity * 4.31; // Pass 1745: iris scale amplitude 1.75→2.36 — Pass 3383: 2.36→3.19 — Pass 3514: 3.19→4.31
+    const _irisScale = 0.75 + flashIntensity * 5.82; // Pass 1745: iris scale amplitude 1.75→2.36 — Pass 3383: 2.36→3.19 — Pass 3514: 3.19→4.31 — Pass 3651: 4.31→5.82
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.07 ? easeOut(ft / 0.07) : 1.0;
     // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 — Pass 1237: →2.20 — Pass 1288: →3.00 for even bigger iris pop at reveal
@@ -3210,7 +3210,7 @@ function animate(ts) {
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 — Pass 1374: →19.0 — Pass 1519: →26.0 bigger lens pop
     const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 116.6 : 0; // Pass 2307: lens reveal spike 35.1→47.4 — Pass 3371: 47.4→64.0 — Pass 3479: 64.0→86.4 — Pass 3545: 86.4→116.6
     // Pass 793: lens flash base 3.5→4.8 — Pass 1518: →6.5 for brighter scanner lens during scan
-    lensMat.emissiveIntensity = 0.4 + flashIntensity * 21.7 + _lensReveal370; // Pass 2315: lens emissive flash contribution 8.78→11.9 — Pass 3384: 11.9→16.1 — Pass 3515: 16.1→21.7
+    lensMat.emissiveIntensity = 0.4 + flashIntensity * 29.3 + _lensReveal370; // Pass 2315: lens emissive flash contribution 8.78→11.9 — Pass 3384: 11.9→16.1 — Pass 3515: 16.1→21.7 — Pass 3652: 21.7→29.3
     // Wide bloom soft halo around scanner
     // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 — Pass 1082: →16.0 — Pass 1285: →22.0 — Pass 1375: →30.0 — Pass 1522: →40.0 for bigger bloom burst at lock-on
     const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 98.4 : 0; // Pass 2308: bloom reveal surge 54.0→72.9 — Pass 3372: 72.9→98.4
