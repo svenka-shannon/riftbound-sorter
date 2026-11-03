@@ -908,7 +908,7 @@ scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
-const scanBloom = new THREE.PointLight(0x0088ff, 0, 300);
+const scanBloom = new THREE.PointLight(0x0088ff, 0, 405); // Pass 3632: bloom reach 300→405
 scanBloom.decay = 2;
 scene.add(scanBloom);
 
@@ -1981,9 +1981,9 @@ function fireCelebration() {
     p.life = 2.6 + Math.random() * 2.0; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98
-    p.rx = (Math.random() - 0.5) * 119; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119
-    p.ry = (Math.random() - 0.5) * 142; // Pass 2503: tumble ry 78→105 — Pass 3551: 105→142
-    p.rz = (Math.random() - 0.5) * 178; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178
+    p.rx = (Math.random() - 0.5) * 161; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161
+    p.ry = (Math.random() - 0.5) * 192; // Pass 2503: tumble ry 78→105 — Pass 3551: 105→142 — Pass 3634: 142→192
+    p.rz = (Math.random() - 0.5) * 240; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178 — Pass 3635: 178→240
     p.active = true;
     p.mesh.visible = true;
   });
@@ -1999,9 +1999,9 @@ function fireCelebration() {
     _mp.mat.color.setHex(_shimmerColors[_mi]);
     _mp.mat.opacity = 1.0;
     _mp.age = 0; _mp.life = 1.10 + Math.random() * 0.80; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 longer shimmer life
-    _mp.rx = (Math.random() - 0.5) * 68; // Pass 2506: shimmer rx 50→68
-    _mp.ry = (Math.random() - 0.5) * 81; // Pass 2507: shimmer ry 60→81
-    _mp.rz = (Math.random() - 0.5) * 95; // Pass 2508: shimmer rz 70→95
+    _mp.rx = (Math.random() - 0.5) * 92; // Pass 2506: shimmer rx 50→68 — Pass 3629: 68→92
+    _mp.ry = (Math.random() - 0.5) * 109; // Pass 2507: shimmer ry 60→81 — Pass 3630: 81→109
+    _mp.rz = (Math.random() - 0.5) * 128; // Pass 2508: shimmer rz 70→95 — Pass 3631: 95→128
     _mp.active = true; _mp.mesh.visible = true;
   }
   // Pass 54: full-scene celebration enhancement
@@ -4597,7 +4597,7 @@ function animate(ts) {
       const _breathe = 2.19 + 1.55 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55
       scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 2.5);
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 1.5));
-      hoodMat.emissiveIntensity += (_breathe * 1.4 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2);
+      hoodMat.emissiveIntensity += (_breathe * 1.89 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2); // Pass 3636: hood breathe multiplier 1.4→1.89
     }
   }
 
