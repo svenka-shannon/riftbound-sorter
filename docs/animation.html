@@ -3216,7 +3216,7 @@ function animate(ts) {
     const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 98.4 : 0; // Pass 2308: bloom reveal surge 54.0→72.9 — Pass 3372: 72.9→98.4
     scanBloom.color.setHex(_identityRevealed ? ct.hex : 0x0088ff);
     // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 — Pass 1238: →2.8 — Pass 1521: →3.8 for stronger soft scan halo
-    scanBloom.intensity = flashIntensity * 12.6 + _bloomRevealSurge; // Pass 2316: bloom flash contribution 5.13→6.93 — Pass 3385: 6.93→9.36 — Pass 3516: 9.36→12.6
+    scanBloom.intensity = flashIntensity * 17.0 + _bloomRevealSurge; // Pass 2316: bloom flash contribution 5.13→6.93 — Pass 3385: 6.93→9.36 — Pass 3516: 9.36→12.6 — Pass 3656: 12.6→17.0
     // Pass 347: bloom Z drift toward destination slot after identity reveal
     const _bloomZ347 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.20) * 0.30 : 0;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, _bloomZ347);
@@ -3254,9 +3254,9 @@ function animate(ts) {
     const _cardCenterZ = activeCard.position.z;
     const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
     // Pass 343: scan beam reveal spike — Pass 575: 4.0→6.5 — Pass 845: →9.5 — Pass 1286: →13.5 — Pass 1422: →18.0 — Pass 1528: →25.0 for stronger beam pop at lock-on
-    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 83.2 : 0; // Pass 2309: beam reveal spike 33.75→45.6 — Pass 3480: 45.6→61.6 — Pass 3546: 61.6→83.2
+    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 112 : 0; // Pass 2309: beam reveal spike 33.75→45.6 — Pass 3480: 45.6→61.6 — Pass 3546: 61.6→83.2 — Pass 3659: 83.2→112
     // Pass 599: beam base 3.0→4.5 — Pass 844: →6.5 + prox boost 3.5→5.5 — Pass 1423: base →9.0, prox →7.5 — Pass 1529: base →12.0, prox →10.0 for brighter scan lines
-    scanLineMat.emissiveIntensity = 29.6 + _beamProxZ * 24.6 + _beamRevealSpike343; // Pass 2310: beam base 16.2→21.9, Pass 2311: prox boost 13.5→18.2 — Pass 3463: base 21.9→29.6 — Pass 3464: prox boost 18.2→24.6
+    scanLineMat.emissiveIntensity = 39.9 + _beamProxZ * 33.2 + _beamRevealSpike343; // Pass 2310: beam base 16.2→21.9, Pass 2311: prox boost 13.5→18.2 — Pass 3463: base 21.9→29.6 — Pass 3464: prox boost 18.2→24.6 — Pass 3657: base 29.6→39.9 — Pass 3658: prox 24.6→33.2
     // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5 — Pass 1424: base →7.0, reveal →12.0 — Pass 1530: base →9.5, reveal →17.0
     const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 30.98 : 0; // Pass 2312: beam2 reveal 22.95→30.98
     scanLineMat2.emissiveIntensity = 17.3 + _beam2Reveal345; // Pass 2313: beam2 base 12.8→17.3
@@ -3349,13 +3349,13 @@ function animate(ts) {
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
       const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.25 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25
       const _cursorScale290 = _identityRevealed && ft < 0.91
-        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 6.48 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48
+        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 8.75 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75
         : _cursorPreScale300;
       scanBarCursor.scale.setScalar(_cursorScale290);
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
       if (barFill >= 0.85 && !_identityRevealed) {
         _identityRevealed = true;
-        _domainFillBoost = 1.55; // Pass 439: reveal domain fill boost 0.55→0.85 — Pass 3435: 0.85→1.15 — Pass 3489: 1.15→1.55
+        _domainFillBoost = 2.09; // Pass 439: reveal domain fill boost 0.55→0.85 — Pass 3435: 0.85→1.15 — Pass 3489: 1.15→1.55 — Pass 3655: 1.55→2.09
         // Pass 100: launch confirm ring expansion from scanner center
         _confirmRingT = 0;
         confirmRing.position.set(-40, CONV_Y_TOP + CARD_T + 1, 0);
@@ -3395,7 +3395,7 @@ function animate(ts) {
         // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 — Pass 1131: →16.0 — Pass 1412: →22.0 for bigger face power-up flash
         _cardRevealBurst = 182; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8 — Pass 3431: 73.8→99.6 — Pass 3472: 99.6→134.5 — Pass 3548: 134.5→182
         // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 — Pass 1415: →7.0 for stronger pop
-        if (ct.stripMat) ct.stripMat.emissiveIntensity = 23.4; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3 — Pass 3428: 17.3→23.4
+        if (ct.stripMat) ct.stripMat.emissiveIntensity = 31.6; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3 — Pass 3428: 17.3→23.4 — Pass 3653: 23.4→31.6
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
         // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 — Pass 1323: →12.0 — Pass 1416: →17.0 for prominent lock-on jolt
@@ -3404,7 +3404,7 @@ function animate(ts) {
         _fovBump = Math.max(_fovBump, 79.7); // Pass 2323: reveal FOV zoom-punch 32.4→43.7 — Pass 2830: 43.7→59.0 — Pass 2976: 59.0→79.7
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm.
         // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 — Pass 1134: →13.0 — Pass 1386: →18.0 for brighter lock-on flash
-        scanLEDMat.emissiveIntensity = 109; // Pass 2324: reveal LED intensity spike 24.3→32.8 — Pass 2831: 32.8→44.3 — Pass 2977: 44.3→59.8 — Pass 3415: 59.8→80.7 — Pass 3527: 80.7→109
+        scanLEDMat.emissiveIntensity = 147; // Pass 2324: reveal LED intensity spike 24.3→32.8 — Pass 2831: 32.8→44.3 — Pass 2977: 44.3→59.8 — Pass 3415: 59.8→80.7 — Pass 3527: 80.7→109 — Pass 3660: 109→147
         _scanLEDRevealT = 0;
         // Pass 235: scanner confirmation particle burst — Pass 532: speed 38+42→55+55, vy 20+35→30+50
         // Pass 956: burst count 6→12 — Pass 957: speed 55+55→80+75, vy 30+50→50+70 — Pass 1324: count →18, Pass 1325: speed →145+130, Pass 1326: vy →95+120 for bigger reveal pop
