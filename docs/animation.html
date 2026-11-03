@@ -3395,7 +3395,7 @@ function animate(ts) {
         // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 — Pass 1131: →16.0 — Pass 1412: →22.0 for bigger face power-up flash
         _cardRevealBurst = 73.8; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8
         // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 — Pass 1415: →7.0 for stronger pop
-        if (ct.stripMat) ct.stripMat.emissiveIntensity = 17.3; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3
+        if (ct.stripMat) ct.stripMat.emissiveIntensity = 23.4; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3 — Pass 3428: 17.3→23.4
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
         // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 — Pass 1323: →12.0 — Pass 1416: →17.0 for prominent lock-on jolt
@@ -3496,7 +3496,7 @@ function animate(ts) {
         if (localFt < 0.85) {
           p.mesh.visible = true;
           // Pass 311: scan ping Z drift — Pass 717: 0.38→0.55 — Pass 803: →0.78 — Pass 1164: →1.10 — Pass 1409: →1.50 — Pass 1527: →2.00 for more distinct destination lean
-          const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 6.66 : 0; // Pass 2546: ping Z drift 2.00→2.70 — Pass 2837: 2.70→3.65 — Pass 2984: 3.65→4.93 — Pass 3183: 4.93→6.66
+          const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 8.99 : 0; // Pass 2546: ping Z drift 2.00→2.70 — Pass 2837: 2.70→3.65 — Pass 2984: 3.65→4.93 — Pass 3183: 4.93→6.66 — Pass 3424: 6.66→8.99
           p.mesh.position.z = _pingZ311;
           // Pass 274: post-reveal ping scale — Pass 400: 8.5→11.0 — Pass 716: →14.0 — Pass 797: →19.0 — Pass 1165: →26.0 — Pass 1410: →36.0 — Pass 1524: →50.0 (wider confirm rings)
           const _pingMaxScale = _identityRevealed ? 224.2 : 10.0; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1 — Pass 3184: 166.1→224.2
@@ -3510,7 +3510,7 @@ function animate(ts) {
           // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 — Pass 1411: →4.5 — Pass 1525: →6.5 for brighter confirm ring flash
           const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 39.4 : 0; // Pass 2549: ping reveal spike 11.84→15.98 — Pass 2840: 15.98→21.6 — Pass 2986: 21.6→29.2 — Pass 3185: 29.2→39.4
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
-          const _pingBoost = ft >= 0.85 ? 90.7 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7
+          const _pingBoost = ft >= 0.85 ? 122.4 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
           p.mat.opacity = _pingFade * flashIntensity * 1.0 * _pingBoost;
         } else {
@@ -3645,7 +3645,7 @@ function animate(ts) {
       // Pass 854: strobe amplitude 0.12→0.20 for stronger urgency flicker pre-reveal
       const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.20 * flashIntensity;
       // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 — Pass 855: →1.40 — Pass 1438: →2.00 for bolder arc flash at lock-on
-      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 8.99 : 0; // Pass 2562: arc reveal spike 3.65→4.93 — Pass 3003: 4.93→6.66 — Pass 3197: 6.66→8.99
+      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 12.1 : 0; // Pass 2562: arc reveal spike 3.65→4.93 — Pass 3003: 4.93→6.66 — Pass 3197: 6.66→8.99 — Pass 3425: 8.99→12.1
       // Pass 644: post-reveal arc opacity 0.35→0.50 — Pass 856: →0.80 — Pass 1075: →1.10 — Pass 1439: →1.55 for more solid confirmed-route arc
       routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 2.09 : 0)) + _arcStrobeMod + _arcRevealSpike; // Pass 1731: arc post-reveal opacity 1.55→2.09
       // Target sphere pulses at destination
@@ -3653,7 +3653,7 @@ function animate(ts) {
       routeTargetMat.color.copy(_arcColor);
       routeTargetMat.emissive.copy(_arcColor);
       // Pass 339: target emissive reveal spike — Pass 564: boost 2.5→4.0 — Pass 857: →6.5 — Pass 1440: →9.0 — Pass 1536: →13.0 for bigger sphere flare at lock-on
-      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 58.2 : 0; // Pass 2563: target reveal spike 23.6→31.9 — Pass 3004: 31.9→43.1 — Pass 3198: 43.1→58.2
+      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 78.6 : 0; // Pass 2563: target reveal spike 23.6→31.9 — Pass 3004: 31.9→43.1 — Pass 3198: 43.1→58.2 — Pass 3426: 58.2→78.6
       // Pass 858: post-reveal emissive add 1.2→2.0 — Pass 1441: →3.0 — Pass 1537: base 2.0→2.8, boost 3.0→4.2 for more vivid destination glow
       routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 7.65 : 0)) + _tgtRevealSpike339; // Pass 1728: post-reveal emissive boost 4.2→5.67 — Pass 3199: 5.67→7.65
       routeTargetMat.opacity = flashIntensity * 1.0; // Pass 1538: 0.9→1.0
@@ -4395,7 +4395,7 @@ function animate(ts) {
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
         tp.mat.opacity = 0.90 + Math.random() * 0.10; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks
-        tp.age = 0; tp.life = 2.67 + Math.random() * 1.55; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55
+        tp.age = 0; tp.life = 3.60 + Math.random() * 2.09; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09
         tp.active = true; tp.mesh.visible = true;
       }
     }
@@ -5116,9 +5116,9 @@ function animate(ts) {
   // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
     // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 — Pass 1037: →dt*2.6 — Pass 1436: →dt*2.0 for longer visible ring
-    _grabRingT = Math.min(1, _grabRingT + dt * 16.3); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3
+    _grabRingT = Math.min(1, _grabRingT + dt * 22.0); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0
     // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 — Pass 1437: →18.0 — Pass 1540: →25.0 for wider domain ring burst at pick
-    const _grs = 1.0 + easeOut(_grabRingT) * 276.3; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6 — Pass 3141: 151.6→204.7 — Pass 3313: 204.7→276.3
+    const _grs = 1.0 + easeOut(_grabRingT) * 373.0; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6 — Pass 3141: 151.6→204.7 — Pass 3313: 204.7→276.3 — Pass 3422: 276.3→373.0
     grabRing.scale.setScalar(_grs);
     // Pass 938: grab ring opacity 0.6→0.85 — Pass 1036: →0.95 — Pass 1541: →1.0 for more vivid ring
     grabRingMat.opacity = (1 - _grabRingT) * 1.0;
