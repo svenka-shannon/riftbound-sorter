@@ -3258,10 +3258,10 @@ function animate(ts) {
     // Pass 599: beam base 3.0→4.5 — Pass 844: →6.5 + prox boost 3.5→5.5 — Pass 1423: base →9.0, prox →7.5 — Pass 1529: base →12.0, prox →10.0 for brighter scan lines
     scanLineMat.emissiveIntensity = 39.9 + _beamProxZ * 33.2 + _beamRevealSpike343; // Pass 2310: beam base 16.2→21.9, Pass 2311: prox boost 13.5→18.2 — Pass 3463: base 21.9→29.6 — Pass 3464: prox boost 18.2→24.6 — Pass 3657: base 29.6→39.9 — Pass 3658: prox 24.6→33.2
     // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5 — Pass 1424: base →7.0, reveal →12.0 — Pass 1530: base →9.5, reveal →17.0
-    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 30.98 : 0; // Pass 2312: beam2 reveal 22.95→30.98
-    scanLineMat2.emissiveIntensity = 17.3 + _beam2Reveal345; // Pass 2313: beam2 base 12.8→17.3
+    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 41.8 : 0; // Pass 2312: beam2 reveal 22.95→30.98 — Pass 3749: 30.98→41.8
+    scanLineMat2.emissiveIntensity = 23.4 + _beam2Reveal345; // Pass 2313: beam2 base 12.8→17.3 — Pass 3750: 17.3→23.4
     // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 — Pass 1290: →17.0 — Pass 1376: →24.0 — Pass 1531: →33.0 — Pass 1691: →44.0
-    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 80.2; // Pass 2314: beam reversal flare 59.4→80.2
+    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 108.3; // Pass 2314: beam reversal flare 59.4→80.2 — Pass 3751: 80.2→108.3
     scanLineMat.emissiveIntensity += _revFlare;
     // Pass 611: beam reversal point light — at ft≈0.5 scan midpoint, brief white point light fires
     // at the scanner to mark the beam direction flip moment with a physical light burst.
@@ -3322,13 +3322,13 @@ function animate(ts) {
     }
     // Pass 55: scan progress LED bar — fills left-to-right as ft 0→1
     // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 — Pass 1320: →8.0 — Pass 1697: →11.0 for bigger scanner power-on test
-    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 14.9 : 0; // Pass 2317: scan bar init flash 11.0→14.9
+    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 20.1 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1
     {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
       // Pass 247: reveal overshoot — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 — Pass 733: →0.68 — Pass 1321: →0.95 — Pass 1698: →1.30
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 1.76 : 0; // Pass 2318: bar overshoot 1.30→1.76
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 2.38 : 0; // Pass 2318: bar overshoot 1.30→1.76 — Pass 3753: 1.76→2.38
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
@@ -3387,7 +3387,7 @@ function animate(ts) {
         // Pass 121: destination fill bar spikes at identity reveal — pre-announces incoming card
         // Pass 565: fill bar reveal spike 2.2→4.0 — Pass 735: →5.8 for bigger reveal announcement
         if (fillBars[ct.slot] && fillBars[ct.slot].material) {
-          fillBars[ct.slot].material.emissiveIntensity = 10.5; // Pass 2319: fill bar reveal spike 7.8→10.5
+          fillBars[ct.slot].material.emissiveIntensity = 14.2; // Pass 2319: fill bar reveal spike 7.8→10.5 — Pass 3754: 10.5→14.2
         }
         // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
         _hoodRevealFlash = 0.001; // just above 0 to activate
@@ -3575,7 +3575,7 @@ function animate(ts) {
     if (_identityRevealed) {
       const _preAimT = Math.min(1, (ft - 0.85) / 0.15); // 0→1 in window after reveal
       // Pass 609: paddle pre-aim coefficient 0.15→0.28 — machine visibly commits to lane post-reveal
-      const _preAimAngle = paddleAngleForSlot(ct.slotZ) * 0.38 * _preAimT; // Pass 2558: paddle pre-aim coefficient 0.28→0.38
+      const _preAimAngle = paddleAngleForSlot(ct.slotZ) * 0.51 * _preAimT; // Pass 2558: paddle pre-aim coefficient 0.28→0.38 — Pass 3756: 0.38→0.51
       paddlePivot.rotation.y += (_preAimAngle - paddlePivot.rotation.y) * Math.min(1, dt * 2); // accuracy: Y-axis
       // Pre-position floor diverter: start moving to target floor during identity reveal
       const _diverterTarget = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
@@ -3904,7 +3904,7 @@ function animate(ts) {
       // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 — Pass 1194: →0.88 — Pass 1569: →1.20 for harder paddle whack feel
       _paddleRecoil = 13.3 * Math.sign(ct.slotZ); // Pass 2372: paddle recoil kick 2.19→2.96 — Pass 2589: 2.96→4.00 — Pass 2850: 4.00→5.40 — Pass 3028: 5.40→7.29 — Pass 3471: 7.29→9.84 — Pass 3706: 9.84→13.3
       // Pass 216: solenoid jitter — Pass 591: 0.85→1.30 — Pass 1570: →1.80 for stronger lateral vibration
-      _paddleJitterAmt = 5.98; // Pass 2108: solenoid jitter 2.43→3.28 — Pass 2590: 3.28→4.43 — Pass 2851: 4.43→5.98
+      _paddleJitterAmt = 8.07; // Pass 2108: solenoid jitter 2.43→3.28 — Pass 2590: 3.28→4.43 — Pass 2851: 4.43→5.98 — Pass 3755: 5.98→8.07
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
       // decays into the normal tumble over ~0.12s, simulating the paddle "whacking" the card sideways.
       _gateZKick = bankSign * 2.46; // Pass 2085: gate Z-kick 0.74→1.00 — Pass 2604: 1.00→1.35 — Pass 2852: 1.35→1.82 — Pass 3029: 1.82→2.46
