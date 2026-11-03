@@ -2765,7 +2765,7 @@ function animate(ts) {
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 — Pass 1356: →-0.48 — Pass 1681: →-0.65
-      const _ltLurch = lt < 0.18 ? -2.17 * Math.sin((lt / 0.18) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17
+      const _ltLurch = lt < 0.18 ? -2.93 * Math.sin((lt / 0.18) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt) + _ltLurch;
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 — Pass 1682: →7.0 more dramatic dip
       if (lt < 0.22) {
@@ -2857,8 +2857,8 @@ function animate(ts) {
       // Pass 282: end-of-swing Y bounce — brief upward over-correction as arm decelerates at deposit
       // Pass 677: deposit bounce 0.55→0.85 — Pass 765: →1.25 — Pass 1177: →1.80 — Pass 1245: →2.60 — Pass 1341: →3.60 for stronger spring at belt handoff
       // Pass 770: pivot Y sag 2.2→3.2 — Pass 1178: →4.5 — Pass 1246: →6.2 — Pass 1342: →8.5 for more weight feel during swing
-      const _swingEndBounce = st > 0.88 ? 12.0 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0; // Pass 2276: armSwing end bounce 4.86→6.56 — Pass 3176: 6.56→8.86 — Pass 3575: 8.86→12.0
-      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 28.2 + _swingEndBounce; // Pass 2277: armSwing Y sag 11.5→15.5 — Pass 3177: 15.5→20.9 — Pass 3576: 20.9→28.2
+      const _swingEndBounce = st > 0.88 ? 16.2 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0; // Pass 2276: armSwing end bounce 4.86→6.56 — Pass 3176: 6.56→8.86 — Pass 3575: 8.86→12.0 — Pass 3670: 12.0→16.2
+      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 38.1 + _swingEndBounce; // Pass 2277: armSwing Y sag 11.5→15.5 — Pass 3177: 15.5→20.9 — Pass 3576: 20.9→28.2 — Pass 3671: 28.2→38.1
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 4);
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
@@ -2886,7 +2886,7 @@ function animate(ts) {
         tp.mat.opacity = Math.min(1, 0.95 + 3.65 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65
         tp.age = 0;
         // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 — Pass 1501: →1.10+0.55 longer arc trail
-        tp.life = 3.66 + Math.random() * 1.82; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82
+        tp.life = 4.94 + Math.random() * 2.46; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82 — Pass 3672: 3.66+1.82→4.94+2.46
         tp.active = true;
         tp.mesh.visible = true;
       }
@@ -3480,7 +3480,7 @@ function animate(ts) {
       const _exColor = ft < 0.85 ? 0xccddff : ct.hex;
       tp.mat.color.setHex(_exColor); // pre-confirm: cool blue-white; post-confirm: domain
       // Pass 723: exhaust opacity 0.18+0.15→0.26+0.20 — Pass 843: →0.40+0.32 — Pass 1328: →0.55+0.42 for more vivid scanner exhaust
-      tp.mat.opacity = 1.82 + Math.random() * 1.40; // Pass 2542: exhaust opacity 0.55+0.42→0.74+0.57 — Pass 2982: 0.74+0.57→1.00+0.77 — Pass 3181: 1.00+0.77→1.35+1.04 — Pass 3578: 1.35+1.04→1.82+1.40
+      tp.mat.opacity = 2.46 + Math.random() * 1.89; // Pass 2542: exhaust opacity 0.55+0.42→0.74+0.57 — Pass 2982: 0.74+0.57→1.00+0.77 — Pass 3181: 1.00+0.77→1.35+1.04 — Pass 3578: 1.35+1.04→1.82+1.40 — Pass 3673: 1.82+1.40→2.46+1.89
       tp.age = 0; tp.life = 1.35 + Math.random() * 0.99; // Pass 2543: exhaust life 0.55+0.40→0.74+0.54 — Pass 2983: 0.74+0.54→1.00+0.73 — Pass 3182: 1.00+0.73→1.35+0.99
       tp.active = true; tp.mesh.visible = true;
     }
@@ -3598,12 +3598,12 @@ function animate(ts) {
       scanBeamMat.color.setHex(_beamHex2);
     }
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
-    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 18.0 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3 — Pass 3579: 13.3→18.0
+    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 24.3 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3 — Pass 3579: 13.3→18.0 — Pass 3674: 18.0→24.3
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
     scanCone.position.z = 32.8 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
-    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 8.63 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63
+    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 11.65 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65
     // Pass 515: scan cone base opacity boost 0.09→0.14 — Pass 1159: →0.22 for more visible beam cone during scan
     scanConeMat.opacity = flashIntensity * 1.00 + _strobe * 0.5 + _coneRevealBoost; // Pass 2561: cone base opacity 0.41→0.55 — Pass 2826: 0.55→0.74 — Pass 2999: 0.74→1.00
     // Pass 287: scan beam strength scales with bar fill — Pass 1160: boost 0.20→0.35 for more data-accumulation feel
@@ -3711,7 +3711,7 @@ function animate(ts) {
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
       // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0 — Pass 1139: →32.0 — Pass 1219: →45.0 — Pass 1292: →62.0
-      const _cofl = new THREE.PointLight(ct.hex, 507, 160); // Pass 2568: scanner exit flash 152.6→206.0 — Pass 3008: 206.0→278.1 — Pass 3204: 278.1→375.4 — Pass 3581: 375.4→507
+      const _cofl = new THREE.PointLight(ct.hex, 684, 160); // Pass 2568: scanner exit flash 152.6→206.0 — Pass 3008: 206.0→278.1 — Pass 3204: 278.1→375.4 — Pass 3581: 375.4→507 — Pass 3676: 507→684
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
