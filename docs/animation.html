@@ -2680,7 +2680,7 @@ function animate(ts) {
           _contactFlashFired = true;
           const _cfRot = suctionPivot.rotation.z;
           // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5 — Pass 884: →13.0 — Pass 1129: →20.0 — Pass 1215: →30.0 — Pass 1312: →42.0 — Pass 1668: →58.0, dist→150
-          const _cfL = new THREE.PointLight(0xffffff, 58.0, 150);
+          const _cfL = new THREE.PointLight(0xffffff, 78.3, 150); // Pass 3430: suction contact flash 58.0→78.3
           _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
@@ -2945,7 +2945,7 @@ function animate(ts) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 43.7, 255); // Pass 2285: armSwing arc-peak flash 32.4→43.7
+        const _spfl = new THREE.PointLight(ct.hex, 59.0, 255); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
@@ -3153,7 +3153,7 @@ function animate(ts) {
     }
     // Pass 105/448: scan strobe — Pass 604: amplitude 0.18→0.28 — Pass 621: add 7Hz secondary beat — Pass 1239: primary 0.28→0.42 — Pass 1508: →0.58 for more vivid scanner strobe flicker
     // Two-frequency scan strobe: primary 12Hz + secondary 7Hz creates interference pattern
-    const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 1.05 + Math.sin(ts * 7 * Math.PI * 2) * 0.19) * flashIntensity; // Pass 1764: primary 0.58→0.78 — Pass 1865: →1.05; Pass 1765: secondary 0.10→0.14 — Pass 1866: →0.19
+    const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 1.42 + Math.sin(ts * 7 * Math.PI * 2) * 0.26) * flashIntensity; // Pass 1764: primary 0.58→0.78 — Pass 1865: →1.05; Pass 1765: secondary 0.10→0.14 — Pass 1866: →0.19 — Pass 3433: primary 1.05→1.42 Pass 3434: secondary 0.19→0.26
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 — Pass 1514: →dt*2.8 (longer burst visibility)
     if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 2.1); // Pass 1740: burst decay 2.8→2.1 (longer visible burst)
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
@@ -3184,7 +3184,7 @@ function animate(ts) {
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 3.8);
       // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5 — Pass 1151: →6.5 — Pass 1413: →9.0
-      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 22.0; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0
+      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 29.7; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0 — Pass 3432: 22.0→29.7
       hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.35 + _revStrobe; // Pass 738: 1.10→1.35
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
@@ -3355,7 +3355,7 @@ function animate(ts) {
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
       if (barFill >= 0.85 && !_identityRevealed) {
         _identityRevealed = true;
-        _domainFillBoost = 0.85; // Pass 439: reveal domain fill boost 0.55→0.85
+        _domainFillBoost = 1.15; // Pass 439: reveal domain fill boost 0.55→0.85 — Pass 3435: 0.85→1.15
         // Pass 100: launch confirm ring expansion from scanner center
         _confirmRingT = 0;
         confirmRing.position.set(-40, CONV_Y_TOP + CARD_T + 1, 0);
@@ -3393,7 +3393,7 @@ function animate(ts) {
         _hoodRevealFlash = 0.001; // just above 0 to activate
         // Pass 125: card face emissive burst at identity reveal — card "powers up"
         // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 — Pass 1131: →16.0 — Pass 1412: →22.0 for bigger face power-up flash
-        _cardRevealBurst = 73.8; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8
+        _cardRevealBurst = 99.6; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8 — Pass 3431: 73.8→99.6
         // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 — Pass 1415: →7.0 for stronger pop
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 23.4; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3 — Pass 3428: 17.3→23.4
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
@@ -5315,7 +5315,7 @@ function animate(ts) {
   if (_domainFillBoost > 0.005) {
     // Pass 542: reveal fill boost decay 2.2→1.6 (longer wash ~0.35s) + max cap 0.90→1.10 — Pass 1465: cap →1.50
     _domainFillBoost = Math.max(0, _domainFillBoost - dt * 1.6); // ~0.35s decay
-    _domainFillLight.intensity = Math.min(5.00, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 2459: reveal fill cap 2.74→3.70 — Pass 2724: 3.70→5.00
+    _domainFillLight.intensity = Math.min(6.75, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 2459: reveal fill cap 2.74→3.70 — Pass 2724: 3.70→5.00 — Pass 3436: 5.00→6.75
   } else {
     _domainFillLight.intensity += (_fillTgt + _deflectFill498 + _scanFill519 - _domainFillLight.intensity) * dt * 1.8;
   }
