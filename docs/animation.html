@@ -3842,12 +3842,12 @@ function animate(ts) {
     scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
     // Pass 129: brief acceleration surge emissive at exit start — Pass 953: 0.5→0.9 — Pass 972: →1.4 brighter launch surge
-    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 11.4 : 0; // Pass 2365: exit surge 2.55→3.44 — Pass 2582: 3.44→4.64 — Pass 3022: 4.64→6.26 — Pass 3214: 6.26→8.45 — Pass 3590: 8.45→11.4
+    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 15.4 : 0; // Pass 2365: exit surge 2.55→3.44 — Pass 2582: 3.44→4.64 — Pass 3022: 4.64→6.26 — Pass 3214: 6.26→8.45 — Pass 3590: 8.45→11.4 — Pass 3685: 11.4→15.4
     activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
     // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 — Pass 1372: →*3.8 for bigger gate approach glow
-    const _coGlowSurge = ot > 0.80 ? 28.6 + (ot - 0.80) / 0.20 * 30.9 : 28.6; // Pass 2366: glow base 6.39→8.63, surge 6.93→9.36 — Pass 2583: 8.63→11.6, 9.36→12.6 — Pass 3023: 11.6→15.7, 12.6→17.0 — Pass 3215: base 15.7→21.2 Pass 3216: surge 17.0→22.9 — Pass 3591: base 21.2→28.6, surge 22.9→30.9
+    const _coGlowSurge = ot > 0.80 ? 38.6 + (ot - 0.80) / 0.20 * 41.7 : 38.6; // Pass 2366: glow base 6.39→8.63, surge 6.93→9.36 — Pass 2583: 8.63→11.6, 9.36→12.6 — Pass 3023: 11.6→15.7, 12.6→17.0 — Pass 3215: base 15.7→21.2 Pass 3216: surge 17.0→22.9 — Pass 3591: base 21.2→28.6, surge 22.9→30.9 — Pass 3686: base 28.6→38.6 — Pass 3687: surge 30.9→41.7
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
@@ -3952,7 +3952,7 @@ function animate(ts) {
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
     // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 — Pass 1559: floor-0 →38, floor-1 →40 for even higher card flight arc during deflect
-    const _arcBump = (ct.floor === 1 ? 599 : 567) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599
+    const _arcBump = (ct.floor === 1 ? 809 : 765) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599 — Pass 3688: floor-0 567→765, floor-1 599→809
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
@@ -4046,7 +4046,7 @@ function animate(ts) {
     // Pass 649: deflect column light max 3.0→4.5 — Pass 1193: →6.5 brighter gate column during arc flight
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (99.0 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0
+    gateColLight.intensity += (134 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0 — Pass 3689: 99.0→134
     _beltScrollSpeed = 0.04; // half speed while card arcs off belt
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
@@ -4165,12 +4165,12 @@ function animate(ts) {
     // Pass 751: peak 3.8→5.2, decay 8.5→11 — Pass 975: peak 5.2→7.5, decay 11→14 — Pass 1111: →11.0 — Pass 1198: →16.0 — Pass 1405: →22.0 — Pass 1548: →30.0 for bigger landing flash
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 245 * Math.exp(-_bFlashT * 14)); // Pass 2115: bounce flash 54.7→73.8 — Pass 2612: 73.8→99.6 — Pass 3053: 99.6→134.5 — Pass 3240: 134.5→181.6 — Pass 3594: 181.6→245
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 331 * Math.exp(-_bFlashT * 14)); // Pass 2115: bounce flash 54.7→73.8 — Pass 2612: 73.8→99.6 — Pass 3053: 99.6→134.5 — Pass 3240: 134.5→181.6 — Pass 3594: 181.6→245 — Pass 3690: 245→331
     }
     // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: 1.2→1.8, decay 30→25 — Pass 754: 1.8→3.0, decay 25→22
     // Pass 976: impact glow spike 3.0→4.8, decay 22→18 — Pass 1112: →7.5 — Pass 1199: →11.5 — Pass 1406: →16.0 — Pass 1549: →22.0 for stronger slot impact glow
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
-      ? Math.exp(-(dt3 - 0.88) * 18) * 180 : 0; // Pass 2116: impact glow spike 40.1→54.1 — Pass 2613: 54.1→73.0 — Pass 3054: 73.0→98.6 — Pass 3241: 98.6→133.1 — Pass 3595: 133.1→180
+      ? Math.exp(-(dt3 - 0.88) * 18) * 243 : 0; // Pass 2116: impact glow spike 40.1→54.1 — Pass 2613: 54.1→73.0 — Pass 3054: 73.0→98.6 — Pass 3241: 98.6→133.1 — Pass 3595: 133.1→180 — Pass 3691: 180→243
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     // Pass 979: start from 2.8 — Pass 1550: →4.0 for brighter slot target spotlight at drop entry
@@ -4193,7 +4193,7 @@ function animate(ts) {
     // Pass 470: target LED hold-then-snap — holds at 3.5 for first 22%, then snaps to 0.15 quickly
     // Pass 530: sympathetic flash amplitude 0.55→0.75; target LED spike 1.8→2.6 for stronger confirm flash
     // Pass 963: sympathetic flash 0.75→1.20, target spike 2.6→4.0 — Pass 1390: sympath →1.70, target →5.5
-    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 13.9 : 0; // Pass 2119: sympathetic flash 3.11→4.20 — Pass 2616: 4.20→5.67 — Pass 3057: 5.67→7.65 — Pass 3244: 7.65→10.3 — Pass 3596: 10.3→13.9
+    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 18.8 : 0; // Pass 2119: sympathetic flash 3.11→4.20 — Pass 2616: 4.20→5.67 — Pass 3057: 5.67→7.65 — Pass 3244: 7.65→10.3 — Pass 3596: 10.3→13.9 — Pass 3692: 13.9→18.8
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 33.2 : _sympFlash278; // Pass 2120: target LED spike 10.0→13.5 — Pass 2617: 13.5→18.2 — Pass 3058: 18.2→24.6 — Pass 3570: 24.6→33.2
       const _ledDrop = dt3 < 0.22 ? 3.5 : THREE.MathUtils.lerp(3.5, 0.15, (dt3 - 0.22) / 0.78); // Pass 470
