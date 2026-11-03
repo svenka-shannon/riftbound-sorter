@@ -916,7 +916,7 @@ scene.add(scanBloom);
 // Fills left→right as scan progresses; flashes domain color on completion
 const SCAN_BAR_MAX_W = 72; // matches hood width minus margins
 const scanBarMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 2.5, // Pass 441: 1.5→2.5
+  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 3.4, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
@@ -2381,7 +2381,7 @@ function animate(ts) {
         const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
-        const _waveAmp301 = inPhase(PH.armDescend) ? 0.47 + phaseRaw(PH.armDescend) * 1.35 : 0.47; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35
+        const _waveAmp301 = inPhase(PH.armDescend) ? 0.63 + phaseRaw(PH.armDescend) * 1.82 : 0.63; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 for brighter deck energy
         sc.material.emissiveIntensity = 0.36 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
@@ -2404,8 +2404,8 @@ function animate(ts) {
       _yPos = THREE.MathUtils.lerp(a.startY, a.targetY, easeOut(a.t / 0.80));
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
-      // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 for more physical slot landing
-      _yPos = a.targetY + 43 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
+      // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 for more physical slot landing
+      _yPos = a.targetY + 58 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
@@ -2448,8 +2448,8 @@ function animate(ts) {
       f.age += dt;
       const _fPeak = f.peak || 3.0; // use stored creation intensity; fallback 3.0
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 4.01)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 longer glow persistence
-      if(f.age > 4.01) { scene.remove(f.light); return false; }
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 5.41)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence
+      if(f.age > 5.41) { scene.remove(f.light); return false; }
       return true;
     });
   }
@@ -2503,7 +2503,7 @@ function animate(ts) {
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
-      const pulse = 0.5 + 4.01 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.5)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01
+      const pulse = 0.5 + 5.41 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.5)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41
       // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 — Pass 1647: →7.0 brighter active slot LED
       mat.emissiveIntensity = 9.45 + pulse; // Pass 2518: slot LED active base 7.0→9.45
     } else if (_ledCooloff[_li] > 0) {
@@ -2945,7 +2945,7 @@ function animate(ts) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 59.0, 255); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0
+        const _spfl = new THREE.PointLight(ct.hex, 79.7, 255); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
@@ -3138,7 +3138,7 @@ function animate(ts) {
     const flashIntensity = Math.sin(ft * Math.PI);
     // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
     // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 — Pass 1373: →23.0 — Pass 1517: →32.0 for bigger scan flash and lock-on pop
-    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 106.2 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 143 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143
     scanFlash.intensity = flashIntensity * 49.3 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.54 : 0; // Pass 1864: scan flash Z drift 0.40→0.54
