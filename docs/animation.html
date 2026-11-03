@@ -4263,10 +4263,10 @@ function animate(ts) {
     // Pass 127: slot entry strip build-up — strip glows brighter as card descends into slot
     // Pass 491: pre-landing urgency pulse — strip flickers at 8Hz in dt3 0.55-0.86 to sell approach
     if (ct.stripMat && dt3 < 0.86) {
-      const _stripApproach = Math.max(0.15, 0.15 + 44.3 * (dt3 / 0.86)); // Pass 2392: strip approach 7.29→9.84 — Pass 2623: 9.84→13.3 — Pass 2864: 13.3→18.0 — Pass 3062: 18.0→24.3 — Pass 3245: 24.3→32.8 — Pass 3597: 32.8→44.3
+      const _stripApproach = Math.max(0.15, 0.15 + 59.8 * (dt3 / 0.86)); // Pass 2392: strip approach 7.29→9.84 — Pass 2623: 9.84→13.3 — Pass 2864: 13.3→18.0 — Pass 3062: 18.0→24.3 — Pass 3245: 24.3→32.8 — Pass 3597: 32.8→44.3 — Pass 3693: 44.3→59.8
       // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 — Pass 1201: →0.90 — Pass 1262: →1.20 — Pass 1546: →1.60 for more urgent pre-landing flicker
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
-        ? (dt3 - 0.55) / 0.31 * 13.1 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92 — Pass 2624: 2.92→3.94 — Pass 2865: 3.94→5.32 — Pass 3063: 5.32→7.18 — Pass 3246: 7.18→9.69 — Pass 3598: 9.69→13.1
+        ? (dt3 - 0.55) / 0.31 * 17.7 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92 — Pass 2624: 2.92→3.94 — Pass 2865: 3.94→5.32 — Pass 3063: 5.32→7.18 — Pass 3246: 7.18→9.69 — Pass 3598: 9.69→13.1 — Pass 3694: 13.1→17.7
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
         ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 5);
       }
@@ -4331,9 +4331,9 @@ function animate(ts) {
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
       // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 — Pass 1267: →22.0 — Pass 1371: →32.0 — Pass 1553: →45.0 for stronger floor-1 arrival
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 496; // Pass 2397: upper floor strip flash 110.7→149.4 — Pass 2631: 149.4→201.7 — Pass 3069: 201.7→272.3 — Pass 3252: 272.3→367.6 — Pass 3599: 367.6→496
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 669; // Pass 2397: upper floor strip flash 110.7→149.4 — Pass 2631: 149.4→201.7 — Pass 3069: 201.7→272.3 — Pass 3252: 272.3→367.6 — Pass 3599: 367.6→496 — Pass 3695: 496→669
       // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 — Pass 986: →11.0 — Pass 1107: →18.0 — Pass 1371: →26.0 — Pass 1554: →36.0 vivid arrival
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 536; // Pass 2398: upper floor fill bar spark 88.6→119.6 — Pass 2632: 119.6→161.5 — Pass 2868: 161.5→218.0 — Pass 3070: 218.0→294.3 — Pass 3253: 294.3→397.3 — Pass 3600: 397.3→536
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 724; // Pass 2398: upper floor fill bar spark 88.6→119.6 — Pass 2632: 119.6→161.5 — Pass 2868: 161.5→218.0 — Pass 3070: 218.0→294.3 — Pass 3253: 294.3→397.3 — Pass 3600: 397.3→536 — Pass 3696: 536→724
       // Pass 224: upper floor arrival glow particles — 3 gentle domain-tinted motes that
       // drift upward softly (upper floor is a guided arrival, no hard impact scatter).
       {
@@ -4343,7 +4343,7 @@ function animate(ts) {
         for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 8; _mi++) {
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
-          _mp.active = true; _mp.age = 0; _mp.life = 4.10 + Math.random() * 2.07; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07
+          _mp.active = true; _mp.age = 0; _mp.life = 5.54 + Math.random() * 2.79; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 8,
             ct.slotFloorY + 30 + Math.random() * 6,
@@ -4486,8 +4486,8 @@ function animate(ts) {
     // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154) — Pass 860: 10→15 — Pass 1350: →22 for more 3D sweep
     // Arm dips toward viewer at midpoint of return sweep for 3-D parabolic path
     // Pass 288: final Z ring oscillation — Pass 861: 0.50→0.80 — Pass 1271: →1.10 — Pass 1351: →1.55 for bigger settling ring
-    const _artZRing = art > 0.88 ? 17.0 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0; // Pass 2411: arm return Z ring 2.82→3.81 — Pass 2644: 3.81→5.14 — Pass 2875: 5.14→6.94 — Pass 3085: 6.94→9.37 — Pass 3261: 9.37→12.6 — Pass 3602: 12.6→17.0
-    suctionPivot.position.z = Math.sin(art * Math.PI) * 243 + _artZRing; // Pass 2412: arm return Z-depth arc 40.1→54.1 — Pass 2645: 54.1→73.0 — Pass 2876: 73.0→98.6 — Pass 3086: 98.6→133.1 — Pass 3262: 133.1→179.7 — Pass 3603: 179.7→243
+    const _artZRing = art > 0.88 ? 22.9 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0; // Pass 2411: arm return Z ring 2.82→3.81 — Pass 2644: 3.81→5.14 — Pass 2875: 5.14→6.94 — Pass 3085: 6.94→9.37 — Pass 3261: 9.37→12.6 — Pass 3602: 12.6→17.0 — Pass 3698: 17.0→22.9
+    suctionPivot.position.z = Math.sin(art * Math.PI) * 328 + _artZRing; // Pass 2412: arm return Z-depth arc 40.1→54.1 — Pass 2645: 54.1→73.0 — Pass 2876: 73.0→98.6 — Pass 3086: 98.6→133.1 — Pass 3262: 133.1→179.7 — Pass 3603: 179.7→243 — Pass 3699: 243→328
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 6.1); // Pass 1973: paddle return 4.5→6.1
     // Return floor diverter to flat (lower floor default) during arm return
@@ -4516,7 +4516,7 @@ function animate(ts) {
       const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 0.85; // dampens in first ~45% of phase
       const _flickVal = 1.2 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp
                             + (Math.random() - 0.5) * _flickAmp * 0.35;
-      scanLEDMat.emissiveIntensity = Math.max(0.30, Math.min(28.8, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8
+      scanLEDMat.emissiveIntensity = Math.max(0.30, Math.min(38.9, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
