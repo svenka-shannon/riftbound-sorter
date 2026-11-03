@@ -3280,7 +3280,7 @@ function animate(ts) {
       // Each dot switches ft=0.85 + di*0.014 — wave of domain color spreading across grid
       // Brief brightness spike at reveal moment
       // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 — Pass 849: →1.90 — Pass 1316: →2.60 — Pass 1418: →3.60 — Pass 1692: →4.80
-      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 6.48 : 0; // Pass 2548: dot reveal burst 4.80→6.48
+      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 8.75 : 0; // Pass 2548: dot reveal burst 4.80→6.48 — Pass 3557: 6.48→8.75
       SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
         const stagger = di * 0.06; // 60ms stagger per dot (0..0.48s)
         const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
@@ -3309,7 +3309,7 @@ function animate(ts) {
           // crosses its Z position, creating a sweep highlight that travels with the beam.
           // Pass 577: dot beam-proximity brightening 0.60→0.95 — Pass 1695: →1.30 for more vivid sweep highlight
           const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 11);
-          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 1.76)); // Pass 2535: dot beam proximity 1.30→1.76
+          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 2.38)); // Pass 2535: dot beam proximity 1.30→1.76 — Pass 3558: 1.76→2.38
           // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× — Pass 1319: →3.2× — Pass 1696: →3.0× harder pop
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
             ? 1.0 + 4.05 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0; // Pass 2536: dot pop scale 3.00×→4.05×
@@ -3419,9 +3419,9 @@ function animate(ts) {
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 18) * Math.PI * 2 + Math.random() * 0.8;
-            const _spd = 632 + Math.random() * 582; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582
+            const _spd = 853 + Math.random() * 786; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582 — Pass 3561: base 632→853, range 582→786
             _bp.vx = Math.cos(_ang) * _spd * 0.55;
-            _bp.vy = 416 + Math.random() * 282; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416
+            _bp.vy = 562 + Math.random() * 381; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416 — Pass 3560: base 416→562, rand 282→381
             _bp.vz = Math.sin(_ang) * _spd * 0.55;
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
@@ -3447,7 +3447,7 @@ function animate(ts) {
           // Pass 497: scan bar 65-85% tension base 1.5→1.8 — Pass 838: post-reveal base 2.2→3.0, peak 2.5→3.5
           const _baseI = barFill >= 0.85 ? 5.47 + flashIntensity * 4.73 : 3.28 + flashIntensity * 3.78; // Pass 2329: post-reveal base 4.05→5.47, flash 3.5→4.73; Pass 2330: tension base 2.43→3.28, flash 2.8→3.78
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75 — Pass 1343: →1.05
-          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 3.50 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50
+          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 4.73 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50 — Pass 3559: 3.50→4.73
           // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 — Pass 1327: →20.0 for bigger climax
           const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 89.9 : 0; // Pass 2332: completion superflash 27.0→36.5 — Pass 2836: 36.5→49.3 — Pass 2981: 49.3→66.6 — Pass 3492: 66.6→89.9
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
@@ -5444,10 +5444,10 @@ function animate(ts) {
       if (!t.stripMat) return;
       if (_inSlotDrop && t !== ct) {
         // Non-active strip fades to 0.05 (spotlight yields)
-        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 4.73); // Pass 2735: strip spotlight dim 3.5→4.73
+        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 6.39); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39
       } else if (!_inSlotDrop && t.stripMat.emissiveIntensity < 0.15) {
         // Recovery to normal idle after spotlight
-        t.stripMat.emissiveIntensity = Math.min(0.15, t.stripMat.emissiveIntensity + dt * 2.70); // Pass 2736: strip recovery 2.0→2.70
+        t.stripMat.emissiveIntensity = Math.min(0.15, t.stripMat.emissiveIntensity + dt * 3.65); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65
       } else if (t.stripMat.emissiveIntensity > 0.15) {
         // Pass 69: decay from flash
         t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 33.2); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2
@@ -5474,7 +5474,7 @@ function animate(ts) {
         m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 9.69); // Pass 2443: tray arrival decay 2.16→2.92 — Pass 2738: 2.92→3.94 — Pass 2970: 3.94→5.32 — Pass 3170: 5.32→7.18 — Pass 3338: 7.18→9.69
       } else {
         // At idle — gently track the breathing target
-        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 4.43); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43
+        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 5.98); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98
       }
     });
   });
