@@ -1971,7 +1971,7 @@ function fireCelebration() {
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
     p.vx = Math.cos(angle) * spd * 0.75;
     // Pass 729: upward bias 0.6+0.6→0.75+0.70 — Pass 893: →0.90+0.85 — Pass 1010: →1.10+1.00 — Pass 1634: →1.40+1.30 stronger launch
-    p.vy = spd * (1.89 + Math.random() * 1.76); // Pass 2501: celeb launch bias 1.40+1.30→1.89+1.76
+    p.vy = spd * (2.55 + Math.random() * 2.38); // Pass 2501: celeb launch bias 1.40+1.30→1.89+1.76 — Pass 3549: 1.89+1.76→2.55+2.38
     p.vz = Math.sin(angle) * spd * 0.65;
     // Pass 652: randomize spawn position within ±25 units of tray center for wider burst area
     p.mesh.position.set(TX_MID + (Math.random()-0.5)*25, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*20);
@@ -1981,8 +1981,8 @@ function fireCelebration() {
     p.life = 2.6 + Math.random() * 2.0; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98
-    p.rx = (Math.random() - 0.5) * 88; // Pass 2502: tumble rx 65→88
-    p.ry = (Math.random() - 0.5) * 105; // Pass 2503: tumble ry 78→105
+    p.rx = (Math.random() - 0.5) * 119; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119
+    p.ry = (Math.random() - 0.5) * 142; // Pass 2503: tumble ry 78→105 — Pass 3551: 105→142
     p.rz = (Math.random() - 0.5) * 132; // Pass 2504: tumble rz 98→132
     p.active = true;
     p.mesh.visible = true;
@@ -1993,7 +1993,7 @@ function fireCelebration() {
   for (let _mi = 0; _mi < 16; _mi++) { // Pass 896: 12→16 shimmer pieces
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
     _mp.vx = (Math.random() - 0.5) * 280; // Pass 1011: 165→210 — Pass 1476: →280 faster shimmer burst
-    _mp.vy = 209 + Math.random() * 176; // Pass 2505: shimmer loft 155+130→209+176
+    _mp.vy = 282 + Math.random() * 238; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238
     _mp.vz = (Math.random() - 0.5) * 110; // Pass 1478: 80→110 wider shimmer spread
     _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*30, FLOOR_Y[0] + 85, (Math.random()-0.5)*40);
     _mp.mat.color.setHex(_shimmerColors[_mi]);
@@ -2468,7 +2468,7 @@ function animate(ts) {
     bar.scale.y = Math.max(0.01, Math.min(1.18, bar.scale.y + bar._springVel));
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
-    const _fbRest = 1.08 + 0.51 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51
+    const _fbRest = 1.46 + 0.69 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69
     if(bar.material.emissiveIntensity > _fbRest + 0.06) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
@@ -2541,7 +2541,7 @@ function animate(ts) {
     cardHaloMat.emissive.setHex(_haloHex);
     // Pass 331: halo emissive 1.2+0.50→1.4+0.70 — Pass 710: →1.8+0.90 — Pass 831: →2.6+1.3 — Pass 1460: →3.5+1.8 for brighter halo
     const _haloEmissive331 = (_identityRevealed && (beltActive || airActive))
-      ? 4.73 + 2.43 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43
+      ? 6.39 + 3.28 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
     const _haloScale332 = beltActive ? 1.0 + 0.081 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081
@@ -3294,9 +3294,9 @@ function animate(ts) {
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
           // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 — Pass 1240: →1.40 — Pass 1317: →1.90 — Pass 1419: →2.60 — Pass 1693: →3.50
-          const _dotFloat = _identityRevealed ? 0 : 4.73 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp; // Pass 2533: grid dot float amp 3.50→4.73
+          const _dotFloat = _identityRevealed ? 0 : 6.39 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp; // Pass 2533: grid dot float amp 3.50→4.73 — Pass 3555: 4.73→6.39
           // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 — Pass 1318: →2.60 — Pass 1694: →3.50
-          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 4.73 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0; // Pass 2534: dot lock jitter 3.50→4.73
+          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 6.39 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0; // Pass 2534: dot lock jitter 3.50→4.73 — Pass 3556: 4.73→6.39
           // Pass 366: post-reveal dots Z drift toward destination slot — Pass 1699: 0.20→0.28
           const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.28 : 0;
           mesh.position.set(
