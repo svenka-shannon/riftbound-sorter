@@ -2820,7 +2820,7 @@ function animate(ts) {
         GRAB_PARTICLES.forEach((p, _gi) => {
           const angle = Math.random() * Math.PI * 2;
           // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 — Pass 1098: →40+90 — Pass 1218: →55+115 for more energetic burst
-          const spd = 74 + Math.random() * 155; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155
+          const spd = 100 + Math.random() * 155; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.15;
           p.vx = Math.cos(angle) * spd * 0.55;
@@ -3184,7 +3184,7 @@ function animate(ts) {
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 3.8);
       // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5 — Pass 1151: →6.5 — Pass 1413: →9.0
-      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 29.7; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0 — Pass 3432: 22.0→29.7
+      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 40.1; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0 — Pass 3432: 22.0→29.7 — Pass 3455: 29.7→40.1
       hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.35 + _revStrobe; // Pass 738: 1.10→1.35
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
@@ -3600,7 +3600,7 @@ function animate(ts) {
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
     const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 13.3 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
-    scanCone.position.z = 24.3 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5); // Pass 2997: scan cone Z sweep 18→24.3
+    scanCone.position.z = 32.8 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
     scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 6.39 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39
@@ -3987,12 +3987,12 @@ function animate(ts) {
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     // Pass 226: tumble-correlated glow — Pass 417: 0.28→0.40 — Pass 465: base+peak 0.80+0.60
     // Pass 761: base 0.80→1.05, peak 0.60→0.80 — Pass 980: base 1.05→1.35, peak 0.80→1.10 — Pass 1189: base 1.35→1.80, peak 1.10→1.55 for brighter arc glow
-    cardGlow.intensity = (14.7 + 12.6 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z)); // Pass 2380: glow base 4.43→5.98, peak 3.81→5.14 — Pass 2600: 5.98→8.07, 5.14→6.94 — Pass 3039: 8.07→10.9, 6.94→9.37 — Pass 3396: base 10.9→14.7 peak 9.37→12.6
+    cardGlow.intensity = (19.8 + 12.6 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z)); // Pass 2380: glow base 4.43→5.98, peak 3.81→5.14 — Pass 2600: 5.98→8.07, 5.14→6.94 — Pass 3039: 8.07→10.9, 6.94→9.37 — Pass 3396: base 10.9→14.7 peak 9.37→12.6 — Pass 3458: base 14.7→19.8
     cardGlow.position.copy(activeCard.position);
     // Pass 250: deflect tumble emissive — Pass 415: 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
     // Pass 762: base 0.55→0.45, peak 0.72→0.95 for more dynamic emissive swing during tumble
     // Pass 968: base 0.45→0.55, peak 0.95→1.25 — Pass 1190: peak 1.25→1.65 — Pass 1255: peak 1.65→2.10 for even brighter deflect tumble arc glow
-    const _tumbleEmissive = 0.55 + 31.2 * Math.max(0, Math.cos(2 * activeCard.rotation.z)); // Pass 2381: tumble emissive peak 5.17→6.98 — Pass 2601: 6.98→9.42 — Pass 2860: 9.42→12.7 — Pass 3040: 12.7→17.1 — Pass 3228: 17.1→23.1 — Pass 3394: 23.1→31.2
+    const _tumbleEmissive = 0.55 + 42.1 * Math.max(0, Math.cos(2 * activeCard.rotation.z)); // Pass 2381: tumble emissive peak 5.17→6.98 — Pass 2601: 6.98→9.42 — Pass 2860: 9.42→12.7 — Pass 3040: 12.7→17.1 — Pass 3228: 17.1→23.1 — Pass 3394: 23.1→31.2 — Pass 3459: 31.2→42.1
     activeCardMat.emissiveIntensity += (_tumbleEmissive - activeCardMat.emissiveIntensity) * Math.min(1, dt * 7);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
     // Pass 126: color warms from neutral white to domain color as card approaches
@@ -4002,7 +4002,7 @@ function animate(ts) {
       : THREE.MathUtils.lerp(activeCard.position.z, ct.slotZ, (dt2 - 0.5) / 0.5);
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, _lightZ318);
     // Pass 354: deflect target light easeOut + intensity boost (1.8 → 2.6) — Pass 964: →4.0 — Pass 1191: →6.0
-    scanTargetLight.intensity = easeOut(dt2) * 65.7; // Pass 2382: deflect target light 14.7→19.8 — Pass 2602: 19.8→26.7 — Pass 3041: 26.7→36.1 — Pass 3236: 36.1→48.7 — Pass 3395: 48.7→65.7
+    scanTargetLight.intensity = easeOut(dt2) * 88.7; // Pass 2382: deflect target light 14.7→19.8 — Pass 2602: 19.8→26.7 — Pass 3041: 26.7→36.1 — Pass 3236: 36.1→48.7 — Pass 3395: 48.7→65.7 — Pass 3460: 65.7→88.7
     // Keep gate paddle colored while card is deflecting
     // Pass 248: paddle domain-to-orange afterglow — domain color during peak window, then fades
     // to orange-red after dt2=0.18, giving a visible cool-down transition on the paddle face.
@@ -5207,7 +5207,7 @@ function animate(ts) {
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
       // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5 — Pass 1443: out →13.5, in →6.0
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 201.0 : 88.6; // Pass 2468: revealed-out 33.2→44.8 Pass 2468b: in 14.7→19.8 — Pass 2712: 44.8→60.5, 19.8→26.7 — Pass 2807: 60.5→81.7 Pass 2808: 26.7→36.0 — Pass 2941: 81.7→110.3 Pass 2942: 36.0→48.6 — Pass 3148: out 110.3→148.9, in 48.6→65.6 — Pass 3318: 148.9+65.6→201.0+88.6
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 271.4 : 119.6; // Pass 2468: revealed-out 33.2→44.8 Pass 2468b: in 14.7→19.8 — Pass 2712: 44.8→60.5, 19.8→26.7 — Pass 2807: 60.5→81.7 Pass 2808: 26.7→36.0 — Pass 2941: 81.7→110.3 Pass 2942: 36.0→48.6 — Pass 3148: out 110.3→148.9, in 48.6→65.6 — Pass 3318: 148.9+65.6→201.0+88.6 — Pass 3456: out 201.0→271.4 — Pass 3457: in 88.6→119.6
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 8.1); // Pass 2809: tracking rate 6→8.1
     } else {
       // Fade card-tracking mode out
