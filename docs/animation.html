@@ -3159,7 +3159,7 @@ function animate(ts) {
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
     const _revOsc = _cardRevealBurst * (1.19 + 1.09 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81 — Pass 1867: →1.19+1.09
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 6.16 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 8.32 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16 — Pass 3412: 6.16→8.32
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
     const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 68.9 : 0; // Pass 2300: reveal glow surge 37.8→51.0 — Pass 3376: 51.0→68.9
     cardGlow.intensity = 5.9 + flashIntensity * 7.87 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83 — Pass 3377: base 4.4→5.9 Pass 3378: flash 5.83→7.87
@@ -4156,7 +4156,7 @@ function animate(ts) {
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
     // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 — Pass 1197: →0.65+(dt3/0.88)*2.20 — Pass 1404: →0.65+(dt3/0.88)*3.00 — Pass 1547: →0.65+(dt3/0.88)*4.00 brighter fall glow
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.65 + (dt3 / 0.88) * 32.8; // Pass 2114: fall ramp peak 7.29→9.84 — Pass 2611: 9.84→13.3 — Pass 3052: 13.3→18.0 — Pass 3239: 18.0→24.3 — Pass 3403: 24.3→32.8
+      const _fallRamp = 0.65 + (dt3 / 0.88) * 44.3; // Pass 2114: fall ramp peak 7.29→9.84 — Pass 2611: 9.84→13.3 — Pass 3052: 13.3→18.0 — Pass 3239: 18.0→24.3 — Pass 3403: 24.3→32.8 — Pass 3408: 32.8→44.3
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
@@ -4184,8 +4184,8 @@ function animate(ts) {
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 169.6, dt3 / 0.35)
-                                             : THREE.MathUtils.lerp(121.4, 0, (dt3 - 0.35) / 0.65); // Pass 2117: sweep peak 51.0→68.9 Pass 2118: sweep tail 36.5→49.3 — Pass 2615: 68.9→93.0, 49.3→66.6 — Pass 3056: 93.0→125.6, 66.6→89.9 — Pass 3243: peak 125.6→169.6, tail 89.9→121.4
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 228.9, dt3 / 0.35)
+                                             : THREE.MathUtils.lerp(163.9, 0, (dt3 - 0.35) / 0.65); // Pass 2117: sweep peak 51.0→68.9 Pass 2118: sweep tail 36.5→49.3 — Pass 2615: 68.9→93.0, 49.3→66.6 — Pass 3056: 93.0→125.6, 66.6→89.9 — Pass 3243: peak 125.6→169.6, tail 89.9→121.4 — Pass 3410: peak 169.6→228.9 Pass 3411: tail 121.4→163.9
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
@@ -4285,7 +4285,7 @@ function animate(ts) {
       // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 — Pass 1367: →50.0 — Pass 1543: →68.0 vivid landing pop
       if (ct.stripMat) ct.stripMat.emissiveIntensity = 750.7; // Pass 2394: strip flash at landing 167.4→226.0 — Pass 2626: 226.0→305.1 — Pass 3065: 305.1→411.9 — Pass 3248: 411.9→556.1 — Pass 3404: 556.1→750.7
       // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 — Pass 1368: →56.0 — Pass 1544: →75.0 vivid count
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 611.6; // Pass 2395: fill bar landing spark 184.1→248.5 — Pass 2627: 248.5→335.5 — Pass 3066: 335.5→453.0 — Pass 3249: 453.0→611.6
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 825.7; // Pass 2395: fill bar landing spark 184.1→248.5 — Pass 2627: 248.5→335.5 — Pass 3066: 335.5→453.0 — Pass 3249: 453.0→611.6 — Pass 3409: 611.6→825.7
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
@@ -5061,12 +5061,12 @@ function animate(ts) {
   // ── Impact ring: expansion animation ─────────────────────────────────────────
   if (_impactRingT >= 0) {
     // Pass 384: expansion speed boost 0.4s→0.31s — Pass 809: dt*3.2→dt*4.8 — Pass 942: →dt*3.5 — Pass 1033: →dt*2.8 — Pass 1333: →dt*2.2 — Pass 1552: →dt*1.8 longer ring
-    _impactRingT = Math.min(1, _impactRingT + dt * 19.8); // Pass 2498: impact ring speed 3.28→4.43 — Pass 2699: 4.43→5.98 — Pass 2794: 5.98→8.07 — Pass 2927: 8.07→10.9 — Pass 3138: 10.9→14.7 — Pass 3306: 14.7→19.8
+    _impactRingT = Math.min(1, _impactRingT + dt * 26.7); // Pass 2498: impact ring speed 3.28→4.43 — Pass 2699: 4.43→5.98 — Pass 2794: 5.98→8.07 — Pass 2927: 8.07→10.9 — Pass 3138: 10.9→14.7 — Pass 3306: 14.7→19.8 — Pass 3405: 19.8→26.7
     // scale0: floor-0 starts at 1.0 (big bang), floor-1 starts at 0.55 (gentle glide)
     // Pass 284: easeOut expansion + floor-0 scale boost — ring punches out hard then decelerates
     // Pass 382: floor-0 max scale 6.0→7.5 — Pass 808: →11.0 — Pass 940: →16.0 — Pass 1032: →22.0 — Pass 1332: →30.0 — Pass 1551: →42.0 wider shockwave
     // Pass 941: floor-1 max scale 4.5→7.5 — Pass 1555: →10.5 for more visible gentle landing ring
-    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 343.2 : 85.9; // Pass 2488: floor-0 scale 76.5→103.3 Pass 2489: floor-1 scale 19.2→25.9 — Pass 2700: 103.3→139.5, 25.9→34.9 — Pass 2795: 139.5→188.3 Pass 2796: 34.9→47.1 — Pass 2928: floor-0 188.3→254.2 Pass 2929: floor-1 47.1→63.6 — Pass 3307: floor-0 254.2→343.2, floor-1 63.6→85.9
+    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 463.3 : 116.0; // Pass 2488: floor-0 scale 76.5→103.3 Pass 2489: floor-1 scale 19.2→25.9 — Pass 2700: 103.3→139.5, 25.9→34.9 — Pass 2795: 139.5→188.3 Pass 2796: 34.9→47.1 — Pass 2928: floor-0 188.3→254.2 Pass 2929: floor-1 47.1→63.6 — Pass 3307: floor-0 254.2→343.2, floor-1 63.6→85.9 — Pass 3406: floor-0 343.2→463.3 Pass 3407: floor-1 85.9→116.0
     const irs = _impactRingScale0 + easeOut(_impactRingT) * (_impactMaxScale - _impactRingScale0);
     impactRing.scale.setScalar(irs);
     // Pass 383: floor-0 peak opacity boost 0.88 → 1.0
