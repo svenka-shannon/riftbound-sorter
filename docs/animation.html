@@ -857,7 +857,7 @@ for (let _ri = 0; _ri < 2; _ri++) {
 // --- Scanner hood --- dedicated matte-black material
 const hoodMat = new THREE.MeshStandardMaterial({
   color: 0x111118, roughness: 0.85, metalness: 0.15,
-  emissive: new THREE.Color(0x001122), emissiveIntensity: 0.738 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow — Pass 5051: 0.547→0.738 stronger scanner hood glow
+  emissive: new THREE.Color(0x001122), emissiveIntensity: 0.997 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow — Pass 5051: 0.547→0.738 stronger scanner hood glow — Pass 5129: 0.738→0.997 stronger scanner hood glow
 });
 const scannerHood = new THREE.Mesh(new THREE.BoxGeometry(80, 65, 100), hoodMat);
 scannerHood.castShadow = true;
@@ -869,7 +869,7 @@ scene.add(scannerHood);
 const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 27); // Pass 4953: lens radial segments 20→27 smoother camera aperture
 const lensMat = new THREE.MeshStandardMaterial({
   color: 0x001122, roughness: 0.05, metalness: 0.9,
-  emissive: new THREE.Color(0x002244), emissiveIntensity: 0.729 // Pass 4761: camera lens base emissive 0.4→0.54 — Pass 4969: 0.54→0.729 brighter camera lens aperture
+  emissive: new THREE.Color(0x002244), emissiveIntensity: 0.984 // Pass 4761: camera lens base emissive 0.4→0.54 — Pass 4969: 0.54→0.729 brighter camera lens aperture — Pass 5130: 0.729→0.984 brighter camera lens aperture
 });
 const lens = new THREE.Mesh(lensGeo, lensMat);
 lens.rotation.x = Math.PI / 2;
@@ -1050,7 +1050,7 @@ scene.add(gateBase);
 // Pass 60: Sort gate column indicator LEDs — 4 small spheres showing destination Z column
 const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x224466, emissive: 0x112233, emissiveIntensity: 0.996, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs
+    color: 0x224466, emissive: 0x112233, emissiveIntensity: 1.34, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs — Pass 5132: 0.996→1.34 brighter gate col width indicator LEDs
     roughness: 0.05, metalness: 0.0,
   });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 14, 14), mat); // Pass 4988: gate column LED sphere segments 10→14 smoother gate indicators
@@ -1753,7 +1753,7 @@ function addCardToTray(ct) {
   trayArrivals.push({ mesh, startY, targetY, t: 0, glowAge: 0 });
 
   // Pass 45: pulse ALL existing cards in this slot — "stack reacts to new member" ripple
-  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 2.09; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash
+  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 2.82; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash — Pass 5134: 2.09→2.82 stronger stack ripple flash
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 7.87; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow — Pass 4768: →9.3s even longer afterglow
@@ -2633,7 +2633,7 @@ function animate(ts) {
     if(inPhase(PH.armDescend)) {
       // Gravity-assisted descent: ease-in; end at -0.036 rad to center cup over card stack
       const pt = phaseT(PH.armDescend, easeIn);
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.47, -0.049, pt); // Pass 4437: arm descend start angle -0.35→-0.47 wider descent arc — Pass 4566: arm descent servo end angle -0.036→-0.049 more precise pickup tilt
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.635, -0.049, pt); // Pass 4437: arm descend start angle -0.35→-0.47 wider descent arc — Pass 4566: arm descent servo end angle -0.036→-0.049 more precise pickup tilt — Pass 5128: -0.47→-0.635 wider arm descent arc
       // Pass 182: servo hunt jitter — was ts*0.055 (114-second period = invisible).
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
@@ -2681,7 +2681,7 @@ function animate(ts) {
           _contactFlashFired = true;
           const _cfRot = suctionPivot.rotation.z;
           // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5 — Pass 884: →13.0 — Pass 1129: →20.0 — Pass 1215: →30.0 — Pass 1312: →42.0 — Pass 1668: →58.0, dist→150
-          const _cfL = new THREE.PointLight(0xffffff, 475, 150); // Pass 3430: suction contact flash 58.0→78.3 — Pass 3536: 78.3→106 — Pass 3771: 106→143 — Pass 3878: 143→193 — Pass 4336: 193→261 brighter suction contact flash — Pass 5025: 261→352 brighter suction contact flash — Pass 5096: 352→475 brighter suction contact flash peak
+          const _cfL = new THREE.PointLight(0xffffff, 641, 150); // Pass 3430: suction contact flash 58.0→78.3 — Pass 3536: 78.3→106 — Pass 3771: 106→143 — Pass 3878: 143→193 — Pass 4336: 193→261 brighter suction contact flash — Pass 5025: 261→352 brighter suction contact flash — Pass 5096: 352→475 brighter suction contact flash peak — Pass 5128: 475→641 brighter suction contact flash peak
           _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
@@ -3053,7 +3053,7 @@ function animate(ts) {
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 36.5; // Pass 4764: approach flicker ramp 20→27 more nervous pre-pick tension — Pass 5107: approach flicker ramp 27→36.5 more nervous pre-pick tension
-    activeCardMat.emissiveIntensity = 0.74 + _approachT * 3.81 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card — Pass 5125: 2.82→3.81 stronger gate charge buildup emissive ramp
+    activeCardMat.emissiveIntensity = 0.74 + _approachT * 5.14 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card — Pass 5125: 2.82→3.81 stronger gate charge buildup emissive ramp — Pass 5135: 3.81→5.14 stronger gate charge buildup emissive ramp
       + _approachT * 3.01 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65 — Pass 3961: 1.65→2.23 — Pass 4214: 2.23→3.01 more vivid approach pulse
       + _approachT * 0.14 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat — Pass 4269: secondary amplitude 0.10→0.14 stronger interference beat
       + _entryBoost;
@@ -4570,7 +4570,7 @@ function animate(ts) {
       });
     }
     // Pass 246: pause arm hover Y float — soft PID hold oscillation — Pass 1056: ±0.6→±1.4 more visible hover — Pass 1604: →±2.0
-    suctionPivot.position.y = 108 + 54.1 * Math.sin(ts * 0.405 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 — Pass 4706: 29.7→40.1 more dramatic arm hover float // Pass 4485: hover freq 0.30→0.405 livelier hover bob — Pass 5119: 40.1→54.1 more dramatic idle arm oscillation amplitude
+    suctionPivot.position.y = 108 + 73.0 * Math.sin(ts * 0.405 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 — Pass 4706: 29.7→40.1 more dramatic arm hover float // Pass 4485: hover freq 0.30→0.405 livelier hover bob — Pass 5119: 40.1→54.1 more dramatic idle arm oscillation amplitude — Pass 5131: 54.1→73.0 more dramatic idle arm hover float
     // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
     // on the scanner hood emissive, as if it's slowly cooling down between cycles. — Pass 1606: 0.04→0.06
     {
@@ -4609,7 +4609,7 @@ function animate(ts) {
   // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 — Pass 1059: →0.10 reactive belt
   const _beltSpeedGlow = _beltScrollSpeed > 0.005
     ? 1.10 * (_beltScrollSpeed / 0.108) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0; // Pass 2163: belt speed glow amp 0.135→0.182 — Pass 2656: 0.182→0.246 — Pass 2887: 0.246→0.332 — Pass 3094: 0.332→0.448 — Pass 3270: 0.448→0.605 — Pass 3610: 0.605→0.817 — Pass 4432: 0.817→1.10 brighter belt speed glow
-  beltSurfMat.emissiveIntensity = beltBase + 0.041 * Math.sin(cycleT * 13.5) + _beltSpeedGlow; // Pass 4547: belt idle strobe amplitude 0.03→0.041 livelier idle belt flicker — Pass 4629: belt idle strobe cycle frequency 10→13.5 livelier idle belt animation
+  beltSurfMat.emissiveIntensity = beltBase + 0.0554 * Math.sin(cycleT * 13.5) + _beltSpeedGlow; // Pass 4547: belt idle strobe amplitude 0.03→0.041 livelier idle belt flicker — Pass 4629: belt idle strobe cycle frequency 10→13.5 livelier idle belt animation — Pass 5133: 0.041→0.0554 livelier idle belt flicker amplitude
   // Belt surface tints subtly toward domain color when active card rides on it
   {
     const onBelt = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
