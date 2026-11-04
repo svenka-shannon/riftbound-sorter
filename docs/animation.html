@@ -612,7 +612,7 @@ for (let i = 0; i < DUST_COUNT; i++) {
   dustPositions[i*3+1] = THREE.MathUtils.randFloat(0, 200);     // Y
   dustPositions[i*3+2] = THREE.MathUtils.randFloat(-200, 200);  // Z
   dustPhases[i] = Math.random() * Math.PI * 2;
-  dustSpeeds[i] = THREE.MathUtils.randFloat(0.04, 0.12); // Pass 4785: dust particle speed 0.03→0.04, 0.09→0.12 livelier ambient drift
+  dustSpeeds[i] = THREE.MathUtils.randFloat(0.054, 0.162); // Pass 4785: dust particle speed 0.03→0.04, 0.09→0.12 livelier ambient drift — Pass 5008: 0.04→0.054, 0.12→0.162 livelier ambient drift
 }
 const dustGeo = new THREE.BufferGeometry();
 dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
@@ -982,7 +982,7 @@ const scanLineMat = new THREE.MeshStandardMaterial({
   emissiveIntensity: 7.38, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair
   transparent: true, opacity: 0.95 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam
 });
-const scanLine = new THREE.Mesh(new THREE.BoxGeometry(98.6, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span
+const scanLine = new THREE.Mesh(new THREE.BoxGeometry(133, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span
 scanLine.visible = false;
 scene.add(scanLine);
 // Secondary bar (spans Z=88, sweeps in X) — slightly warmer teal to differentiate
@@ -1587,7 +1587,7 @@ const vacuumRingMat = new THREE.MeshBasicMaterial({
   color: 0xaaccff, transparent: true, opacity: 0, side: THREE.DoubleSide,
 });
 const vacuumRing = new THREE.Mesh(
-  new THREE.TorusGeometry(16.2, 2.03, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep
+  new THREE.TorusGeometry(16.2, 2.74, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep — Pass 5011: 2.03→2.74 chunkier suction ring tube
   vacuumRingMat
 );
 vacuumRing.rotation.x = -Math.PI / 2; // flat (XZ plane)
@@ -1600,7 +1600,7 @@ const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
   });
-  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 1.35, 8, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 1.82, 8, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings
   mesh.visible = false;
   // Oriented flat (XZ plane) at card level, centered on scanner X
   mesh.rotation.x = -Math.PI / 2;
@@ -1910,7 +1910,7 @@ const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 const GRAB_PARTICLES = [];
 for (let _gpi = 0; _gpi < 16; _gpi++) {
   const _gpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(1.89, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst
+  const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(2.55, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst
   _gpMesh.visible = false;
   scene.add(_gpMesh);
   GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 0.5, active: false });
@@ -4239,7 +4239,7 @@ function animate(ts) {
       const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
       let _puffSpawned = 0;
       // Pass 961: puff count 6→10, vy 32+28→45+40; Pass 962: life 0.28+0.15→0.40+0.20
-      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 14; _pi++) { // Pass 4582: landing puff particle count 10→14 denser slot entry air puff
+      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 19; _pi++) { // Pass 4582: landing puff particle count 10→14 denser slot entry air puff — Pass 5013: 14→19 denser slot entry air puff
         const _pp = GRAB_PARTICLES[_pi];
         if (_pp.active) continue;
         _pp.active = true; _pp.age = 0; _pp.life = 2.34 + Math.random() * 1.26; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69 — Pass 3060: 1.28+0.69→1.73+0.93 — Pass 4323: 1.73+0.93→2.34+1.26 longer landing puff cloud
@@ -5155,7 +5155,7 @@ function animate(ts) {
         const _preT = (_pauseRaw - 0.60) / 0.40; // 0→1 in last 40% of pause
         // Pass 635: pre-charge tint blend 0.32→0.52 — Pass 1041: →0.75 + intensity delta 0.55→0.90 stronger herald
         hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 1.01); // Pass 4920: pre-charge tint blend 0.75→1.01 richer domain herald
-        hopperLight.intensity += (_hBase + _preT * 9.99 - hopperLight.intensity) * Math.min(1, dt * 2.5); // Pass 2464: pre-charge delta 1.65→2.23 — Pass 2710: 2.23→3.01 — Pass 2938: 3.01→4.06 — Pass 3145: 4.06→5.48 — Pass 3627: 5.48→7.40 — Pass 4170: 7.40→9.99 richer domain herald
+        hopperLight.intensity += (_hBase + _preT * 13.5 - hopperLight.intensity) * Math.min(1, dt * 2.5); // Pass 2464: pre-charge delta 1.65→2.23 — Pass 2710: 2.23→3.01 — Pass 2938: 3.01→4.06 — Pass 3145: 4.06→5.48 — Pass 3627: 5.48→7.40 — Pass 4170: 7.40→9.99 richer domain herald — Pass 5014: 9.99→13.5 brighter pre-charge intensity
       } else {
         hopperLight.color.set(0xffeedd);
         hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2.70); // Pass 4846: hopper pause-mode light tracking rate 2→2.70 snappier idle light settle
@@ -5368,7 +5368,7 @@ function animate(ts) {
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     // Pass 477: deflect arc edge boost — outline more visible as card arcs through air (0.45→0.65)
     // Pass 512: armSwing edge boost 0.45→0.58 — Pass 629: scan/conveyor edge 0.85→0.95; deflect 0.65→0.78 — Pass 1392: scan 0.95→1.0, deflect 0.78→0.90, swing 0.58→0.72
-    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 9.99 : inPhase(PH.armSwing) ? 7.95 : 5.00; // Pass 2450: deflect 1.65→2.23 Pass 2451: swing 1.31→1.77 Pass 2452: rest 0.82→1.11 — Pass 2729: deflect 2.23→3.01 Pass 2730: swing 1.77→2.39 Pass 2731: rest 1.11→1.50 — Pass 2961: 3.01→4.06 Pass 2962: 2.39→3.23 Pass 2963: 1.50→2.03 — Pass 3164: deflect 4.06→5.48, swing 3.23→4.36, rest 2.03→2.74 — Pass 3333: rest 2.74→3.70 — Pass 3481: deflect 5.48→7.40 — Pass 3482: swing 4.36→5.89 — Pass 4564: deflect 7.40→9.99 swing 5.89→7.95 rest 3.70→5.00 deeper approach card trailing vignette
+    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 13.5 : inPhase(PH.armSwing) ? 10.7 : 6.75; // Pass 2450: deflect 1.65→2.23 Pass 2451: swing 1.31→1.77 Pass 2452: rest 0.82→1.11 — Pass 2729: deflect 2.23→3.01 Pass 2730: swing 1.77→2.39 Pass 2731: rest 1.11→1.50 — Pass 2961: 3.01→4.06 Pass 2962: 2.39→3.23 Pass 2963: 1.50→2.03 — Pass 3164: deflect 4.06→5.48, swing 3.23→4.36, rest 2.03→2.74 — Pass 3333: rest 2.74→3.70 — Pass 3481: deflect 5.48→7.40 — Pass 3482: swing 4.36→5.89 — Pass 4564: deflect 7.40→9.99 swing 5.89→7.95 rest 3.70→5.00 deeper approach card trailing vignette — Pass 5015: deflect 9.99→13.5 swing 7.95→10.7 rest 5.00→6.75 brighter card outline
     activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
