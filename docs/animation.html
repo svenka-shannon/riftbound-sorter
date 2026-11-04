@@ -704,7 +704,7 @@ scene.add(baseMesh);
 const HOPPER_X = -230;
 
 // Point light above hopper to spotlight the pick-up action
-const hopperLight = new THREE.PointLight(0xffeedd, 5.56, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight — Pass 5930: 2.26→3.05 stronger hopper pick spotlight intensity — Pass 5955: 3.05→4.12 stronger hopper pick spotlight intensity — Pass 6053: 4.12→5.56 stronger hopper pick spotlight intensity
+const hopperLight = new THREE.PointLight(0xffeedd, 7.51, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight — Pass 5930: 2.26→3.05 stronger hopper pick spotlight intensity — Pass 5955: 3.05→4.12 stronger hopper pick spotlight intensity — Pass 6053: 4.12→5.56 stronger hopper pick spotlight intensity — Pass 6493: 5.56→7.51 stronger hopper pick spotlight intensity
 hopperLight.position.set(HOPPER_X + 33, 200, 0);
 scene.add(hopperLight);
 
@@ -759,7 +759,7 @@ scene.add(hopperWire);
 // Pass 59: Hopper status LED — small indicator sphere on hopper front face
 // Color: green (full) → yellow (half) → red (low) → fast-blink when empty+refilling
 const hopperLEDMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 40.1, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED — Pass 5066: 6.66→8.99 brighter hopper LED — Pass 5303: 8.99→12.1 brighter slot wall LED color urgency — Pass 5739: 12.1→16.3 brighter hopper status LED emissive — Pass 5931: 16.3→22.0 brighter hopper status LED emissive — Pass 5970: 22.0→29.7 brighter hopper status LED emissive — Pass 6054: 29.7→40.1 brighter hopper status LED emissive
+  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 54.1, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED — Pass 5066: 6.66→8.99 brighter hopper LED — Pass 5303: 8.99→12.1 brighter slot wall LED color urgency — Pass 5739: 12.1→16.3 brighter hopper status LED emissive — Pass 5931: 16.3→22.0 brighter hopper status LED emissive — Pass 5970: 22.0→29.7 brighter hopper status LED emissive — Pass 6054: 29.7→40.1 brighter hopper status LED emissive — Pass 6494: 40.1→54.1 brighter hopper status LED emissive
   roughness: 0.05, metalness: 0.0,
 });
 const hopperLED = new THREE.Mesh(new THREE.SphereGeometry(3.5, 19, 19), hopperLEDMat); // Pass 4984: hopper LED sphere segments 10→14 smoother status indicator — Pass 5823: 14→19 smoother hopper LED sphere
@@ -806,7 +806,7 @@ beltTex.wrapS = THREE.RepeatWrapping;
 beltTex.repeat.set(4, 1); // fewer repeats for wider visible pattern
 const beltSurfMat = new THREE.MeshStandardMaterial({
   map: beltTex, roughness: 0.55, metalness: 0.1,
-  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 1.77 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline — Pass 5723: 0.532→0.719 brighter belt surface baseline emissive — Pass 5932: 0.719→0.971 brighter belt surface baseline emissive — Pass 5971: 0.971→1.31 brighter belt surface baseline emissive — Pass 6055: 1.31→1.77 brighter belt surface baseline emissive
+  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 2.39 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline — Pass 5723: 0.532→0.719 brighter belt surface baseline emissive — Pass 5932: 0.719→0.971 brighter belt surface baseline emissive — Pass 5971: 0.971→1.31 brighter belt surface baseline emissive — Pass 6055: 1.31→1.77 brighter belt surface baseline emissive — Pass 6495: 1.77→2.39 brighter belt surface baseline emissive
 });
 const beltSurf = new THREE.Mesh(new THREE.BoxGeometry(248, 2, 76), beltSurfMat);
 beltSurf.position.set(-40, CONV_Y_TOP + 1, 0);
@@ -819,7 +819,7 @@ const beltShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide,
 });
 const beltShimmerMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(25.7, 1, 78), // Pass 4985: belt shimmer stripe width 10→14 wider belt sheen — Pass 5161: 14→19 wider belt shimmer stripe — Pass 6338: 19→25.7 wider belt shimmer stripe
+  new THREE.BoxGeometry(34.7, 1, 78), // Pass 4985: belt shimmer stripe width 10→14 wider belt sheen — Pass 5161: 14→19 wider belt shimmer stripe — Pass 6338: 19→25.7 wider belt shimmer stripe — Pass 6496: 25.7→34.7 wider belt shimmer stripe
   beltShimmerMat
 );
 beltShimmerMesh.position.set(-140, CONV_Y_TOP + 2.6, 0);
@@ -893,12 +893,12 @@ const scanLEDMat = new THREE.MeshStandardMaterial({
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
-const scanLED = new THREE.Mesh(new THREE.BoxGeometry(78, 7.38, 7.38), scanLEDMat); // Pass 4986: scanner LED strip cross-section 3→4.05 chunkier scanner LED — Pass 5824: 4.05→5.47 chunkier scanner LED strip — Pass 6312: 5.47→7.38 chunkier scanner LED strip cross-section
+const scanLED = new THREE.Mesh(new THREE.BoxGeometry(78, 9.96, 9.96), scanLEDMat); // Pass 4986: scanner LED strip cross-section 3→4.05 chunkier scanner LED — Pass 5824: 4.05→5.47 chunkier scanner LED strip — Pass 6312: 5.47→7.38 chunkier scanner LED strip cross-section — Pass 6497: 7.38→9.96 chunkier scanner LED strip cross-section
 scanLED.position.set(-40, CONV_Y_TOP + 0.5, 20);
 scene.add(scanLED);
 
 // Scanner opening slot
-const scanSlot = makeBox(2, 14.7, 80, 0x222233); // Pass 4987: scanner slot aperture height 6→8.1 taller scanner slot — Pass 5833: 8.1→10.9 taller scanner slot aperture — Pass 6315: 10.9→14.7 taller scanner slot aperture
+const scanSlot = makeBox(2, 19.8, 80, 0x222233); // Pass 4987: scanner slot aperture height 6→8.1 taller scanner slot — Pass 5833: 8.1→10.9 taller scanner slot aperture — Pass 6315: 10.9→14.7 taller scanner slot aperture — Pass 6498: 14.7→19.8 taller scanner slot aperture
 scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
@@ -1033,7 +1033,7 @@ scene.add(scanLine2);
   const _nTex = new THREE.CanvasTexture(_nc);
   const _nMat = new THREE.MeshStandardMaterial({
     map: _nTex, roughness: 0.4, metalness: 0.3,
-    emissive: new THREE.Color(0x203060), emissiveIntensity: 2.04, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow — Pass 5753: 0.832→1.12 more vivid scanner nameplate emissive — Pass 6303: 1.12→1.51 more vivid scanner nameplate emissive — Pass 6343: 1.51→2.04 more vivid scanner nameplate emissive
+    emissive: new THREE.Color(0x203060), emissiveIntensity: 2.75, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow — Pass 5753: 0.832→1.12 more vivid scanner nameplate emissive — Pass 6303: 1.12→1.51 more vivid scanner nameplate emissive — Pass 6343: 1.51→2.04 more vivid scanner nameplate emissive — Pass 6499: 2.04→2.75 more vivid scanner nameplate emissive
   });
   const _nMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 18), _nMat);
   // Front face of scanner hood: hood center is (-40, CONV_Y_TOP+32.5, 0), depth=100, front at Z=+50
