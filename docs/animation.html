@@ -1519,7 +1519,7 @@ scene.add(routeArcLine);
 const routeTargetMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0, roughness: 0.3, transparent: true, opacity: 0
 });
-const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(32.8, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb — Pass 5458: 7.29→9.84 even larger slot destination indicator orb — Pass 5749: 9.84→13.3 larger slot destination indicator orb — Pass 6648: 13.3→18.0 larger slot destination indicator orb — Pass 6702: 18.0→24.3 larger slot destination indicator orb — Pass 6769: 24.3→32.8 larger slot destination indicator orb
+const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(44.3, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb — Pass 5458: 7.29→9.84 even larger slot destination indicator orb — Pass 5749: 9.84→13.3 larger slot destination indicator orb — Pass 6648: 13.3→18.0 larger slot destination indicator orb — Pass 6702: 18.0→24.3 larger slot destination indicator orb — Pass 6769: 24.3→32.8 larger slot destination indicator orb — Pass 6896: 32.8→44.3 larger slot destination indicator orb
 scene.add(routeTarget);
 
 // ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
@@ -1557,7 +1557,7 @@ let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.
 const confirmRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 5.40, 6, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring — Pass 5365: 2.19→2.96 chunkier identity confirm ring — Pass 5736: 2.96→4.00 chunkier identity confirm ring tube — Pass 5831: tube segments 4→6 smoother identity confirm ring cross-section — Pass 6649: 4.00→5.40 chunkier identity confirm ring tube
+const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 7.29, 6, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring — Pass 5365: 2.19→2.96 chunkier identity confirm ring — Pass 5736: 2.96→4.00 chunkier identity confirm ring tube — Pass 5831: tube segments 4→6 smoother identity confirm ring cross-section — Pass 6649: 4.00→5.40 chunkier identity confirm ring tube — Pass 6892: 5.40→7.29 chunkier identity confirm ring tube
 confirmRing.rotation.x = -Math.PI / 2; // lie flat (XZ plane)
 confirmRing.visible = false;
 scene.add(confirmRing);
@@ -1566,7 +1566,7 @@ let _confirmRingT = -1; // -1=idle; 0..1=animation progress
 const confirmRing2Mat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 3.59, 6, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring — Pass 5366: 1.46→1.97 chunkier double-ripple ring — Pass 5737: 1.97→2.66 chunkier double-ripple ring tube — Pass 5832: tube segments 4→6 smoother double-ripple ring cross-section — Pass 6786: confirm ring 2 tube radius 2.66→3.59 chunkier identity double-ripple ring
+const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 4.85, 6, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring — Pass 5366: 1.46→1.97 chunkier double-ripple ring — Pass 5737: 1.97→2.66 chunkier double-ripple ring tube — Pass 5832: tube segments 4→6 smoother double-ripple ring cross-section — Pass 6786: confirm ring 2 tube radius 2.66→3.59 chunkier identity double-ripple ring — Pass 6893: 3.59→4.85 chunkier identity double-ripple ring tube
 confirmRing2.rotation.x = -Math.PI / 2;
 confirmRing2.visible = false;
 scene.add(confirmRing2);
@@ -1600,7 +1600,7 @@ const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
   });
-  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 3.32, 11, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube — Pass 5829: tube segments 8→11 smoother sonar ring cross-section — Pass 6647: 2.46→3.32 fatter sonar ping ring tube
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 4.48, 11, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube — Pass 5829: tube segments 8→11 smoother sonar ring cross-section — Pass 6647: 2.46→3.32 fatter sonar ping ring tube — Pass 6894: 3.32→4.48 fatter sonar ping ring tube
   mesh.visible = false;
   // Oriented flat (XZ plane) at card level, centered on scanner X
   mesh.rotation.x = -Math.PI / 2;
@@ -1617,7 +1617,7 @@ for (let _gdi = 0; _gdi < 9; _gdi++) {
   const _gdMat = new THREE.MeshBasicMaterial({
     color: 0x00ffcc, transparent: true, opacity: 0,
   });
-  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(20.8, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius — Pass 6452: 6.26→8.45 even fatter scan grid mote dot radius — Pass 6504: 8.45→11.4 even fatter scan grid mote dot radius — Pass 6702: 11.4→15.4 even fatter scan grid mote dot radius — Pass 6766: 15.4→20.8 even fatter scan grid mote dot radius
+  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(28.1, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius — Pass 6452: 6.26→8.45 even fatter scan grid mote dot radius — Pass 6504: 8.45→11.4 even fatter scan grid mote dot radius — Pass 6702: 11.4→15.4 even fatter scan grid mote dot radius — Pass 6766: 15.4→20.8 even fatter scan grid mote dot radius — Pass 6895: 20.8→28.1 even fatter scan grid mote dot radius
   _gdMesh.visible = false;
   scene.add(_gdMesh);
   SCAN_GRID_DOTS.push({ mesh: _gdMesh, mat: _gdMat });
@@ -1760,7 +1760,7 @@ function addCardToTray(ct) {
   _ledCooloff[ct.slot] = 103; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5299: slot LED afterglow 12.6→17.0s even longer slot domain glow — Pass 5882: 17.0→23.0 even longer slot LED afterglow duration — Pass 6195: 23.0→31.1 even longer slot LED afterglow duration — Pass 6455: 31.1→42.0 even longer slot LED afterglow duration — Pass 6579: 42.0→56.7 even longer slot LED afterglow duration — Pass 6712: 56.7→76.5 even longer slot LED afterglow duration — Pass 6715: 76.5→103 even longer slot LED afterglow duration
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
-  const flashLight = new THREE.PointLight(ct.hex, 135.5, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst — Pass 5410: 22.4→30.2 brighter card deal slot arrival burst flash — Pass 5534: 30.2→40.8 brighter card deal slot arrival burst flash peak — Pass 5854: 40.8→55.1 brighter card deal slot arrival burst flash peak — Pass 6197: 55.1→74.4 brighter slot arrival burst flash peak intensity — Pass 6504: 74.4→100.4 brighter slot arrival burst flash peak intensity — Pass 6658: 100.4→135.5 brighter slot arrival burst flash peak intensity
+  const flashLight = new THREE.PointLight(ct.hex, 183, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst — Pass 5410: 22.4→30.2 brighter card deal slot arrival burst flash — Pass 5534: 30.2→40.8 brighter card deal slot arrival burst flash peak — Pass 5854: 40.8→55.1 brighter card deal slot arrival burst flash peak — Pass 6197: 55.1→74.4 brighter slot arrival burst flash peak intensity — Pass 6504: 74.4→100.4 brighter slot arrival burst flash peak intensity — Pass 6658: 100.4→135.5 brighter slot arrival burst flash peak intensity — Pass 6890: 135.5→183 brighter slot arrival burst flash peak intensity
   flashLight.position.copy(mesh.position);
   scene.add(flashLight);
   if(!window._flashLights) window._flashLights = [];
@@ -1806,9 +1806,9 @@ function addCardToTray(ct) {
 // They pulse domain color when a card is being routed to that slot.
 const slotLEDs = [];
 CARD_TYPES.forEach(ct => {
-  const geo = new THREE.SphereGeometry(18.1, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators — Pass 4981: 4.05→5.47 larger slot LED spheres — Pass 5449: 5.47→7.38 larger slot domain LED spheres — Pass 5855: 7.38→9.96 larger slot domain LED indicator spheres — Pass 6529: 9.96→13.4 larger slot domain LED indicator spheres — Pass 6713: 13.4→18.1 larger slot domain LED indicator spheres
+  const geo = new THREE.SphereGeometry(24.4, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators — Pass 4981: 4.05→5.47 larger slot LED spheres — Pass 5449: 5.47→7.38 larger slot domain LED spheres — Pass 5855: 7.38→9.96 larger slot domain LED indicator spheres — Pass 6529: 9.96→13.4 larger slot domain LED indicator spheres — Pass 6713: 13.4→18.1 larger slot domain LED indicator spheres — Pass 6891: 18.1→24.4 larger slot domain LED indicator spheres
   const mat = new THREE.MeshStandardMaterial({
-    color: ct.hex, emissive: ct.hex, emissiveIntensity: 9.99, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs — Pass 5061: 1.65→2.23 brighter slot domain LEDs — Pass 5305: 2.23→3.01 brighter slot wall LED color urgency — Pass 5450: 3.01→4.06 brighter slot domain LED emissive — Pass 5865: 4.06→5.48 brighter slot domain LED emissive — Pass 6387: 5.48→7.40 brighter slot domain LED emissive — Pass 6860: 7.40→9.99 brighter slot domain LED emissive
+    color: ct.hex, emissive: ct.hex, emissiveIntensity: 13.5, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs — Pass 5061: 1.65→2.23 brighter slot domain LEDs — Pass 5305: 2.23→3.01 brighter slot wall LED color urgency — Pass 5450: 3.01→4.06 brighter slot domain LED emissive — Pass 5865: 4.06→5.48 brighter slot domain LED emissive — Pass 6387: 5.48→7.40 brighter slot domain LED emissive — Pass 6860: 7.40→9.99 brighter slot domain LED emissive — Pass 6897: 9.99→13.5 brighter slot domain LED emissive
     roughness: 0.2, metalness: 0.0
   });
   const led = new THREE.Mesh(geo, mat);
