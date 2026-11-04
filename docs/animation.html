@@ -3028,7 +3028,7 @@ function animate(ts) {
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.092); // Pass 4855: belt wobble fade-in window 0.05→0.068 softer wobble entry — Pass 5543: 0.068→0.092 softer belt wobble fade-in window
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
-    const _beltWobbleZ = (25.5 * Math.sin(ts * 4.7 * Math.PI * 2) + 10.6 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave — Pass 5089: primary 18.9→25.5 deeper card belt Z weave — Pass 5103: secondary 5.82→7.86 deeper card Z spacing on belt weave — Pass 5151: secondary 7.86→10.6 deeper belt wobble secondary amplitude
+    const _beltWobbleZ = (34.4 * Math.sin(ts * 4.7 * Math.PI * 2) + 14.3 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave — Pass 5089: primary 18.9→25.5 deeper card belt Z weave — Pass 5103: secondary 5.82→7.86 deeper card Z spacing on belt weave — Pass 5151: secondary 7.86→10.6 deeper belt wobble secondary amplitude — Pass 6280: primary 25.5→34.4 deeper card belt Z wobble primary amplitude — Pass 6281: secondary 10.6→14.3 deeper card belt Z wobble secondary amplitude
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
     const _beltYBump = 12.3 * Math.sin(ts * 29.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 — Pass 4208: 3.70→5.00 more tactile belt feel — Pass 4505: belt Y micro-bump freq 22→29.7 livelier tactile bump — Pass 5183: 5.00→6.75 more tactile belt Y bump — Pass 5988: 6.75→9.11 more tactile belt Y micro-bump amplitude — Pass 6182: 9.11→12.3 more tactile belt Y micro-bump amplitude
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 3.65 + _settleY + _beltYBump, _beltWobbleZ); // Pass 4542: card-on-belt height above belt surface 2→2.70 higher card float — Pass 5387: 2.70→3.65 higher card float
@@ -3419,7 +3419,7 @@ function animate(ts) {
             _bp.active = true; _bp.age = 0; _bp.life = 2.34 + Math.random() * 1.427; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58 — Pass 3965: 0.95+0.58→1.28+0.783 — Pass 4119: 1.28+0.783→1.73+1.057 longer reveal burst — Pass 5280: 1.73→2.34 — Pass 5281: 1.057→1.427 longer confirm burst
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
-            const _ang = (_burstSpawned / 24) * Math.PI * 2 + Math.random() * 0.8; // Pass 5021: confirm burst angular divisor 18→24 fuller radial coverage per burst
+            const _ang = (_burstSpawned / 32) * Math.PI * 2 + Math.random() * 0.8; // Pass 5021: confirm burst angular divisor 18→24 fuller radial coverage per burst — Pass 6282: 24→32 fuller confirm burst radial angular coverage
             const _spd = 2098 + Math.random() * 1933; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582 — Pass 3561: base 632→853, range 582→786 — Pass 3720: 853+786→1151+1061 — Pass 4116: 1151+1061→1554+1432 explosive confirm burst — Pass 5282: 1554→2098 — Pass 5283: 1432→1933 more explosive confirm burst
             _bp.vx = Math.cos(_ang) * _spd * 1.35; // Pass 4792: confirm burst vx spread 0.55→0.743 — Pass 5082: 0.743→1.00 wider confirm burst vx — Pass 5780: 1.00→1.35 wider confirm burst vx spread
             _bp.vy = 1384 + Math.random() * 938; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416 — Pass 3560: base 416→562, rand 282→381 — Pass 3721: 562+381→759+515 — Pass 4117: base 759→1025 — Pass 4118: rand 515→695 higher burst — Pass 5284: 1025→1384 — Pass 5285: 695→938 higher confirm burst vy
@@ -4145,7 +4145,7 @@ function animate(ts) {
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
       const _wallOsc = Math.abs(Math.sin(dt3 * Math.PI * 4)) * Math.max(0, 1 - dt3 * 2.55); // Pass 4884: slot wall oscillation decay rate 1.4→1.89 snappier wall bounce fade — Pass 5609: 1.89→2.55 snappier slot wall oscillation decay
-      if (_wallOsc > 0.72) ct.stripMat.emissiveIntensity = Math.max(ct.stripMat.emissiveIntensity, 0.203 + (_wallOsc - 0.72) / 0.28 * 1.65); // Pass 4499: slot wall LED bounce peak 0.90→1.22 brighter wall contact flash — Pass 4530: slot wall LED emissive floor 0.15→0.203 brighter wall-contact baseline — Pass 5141: 1.22→1.65 brighter slot wall approach emissive flash
+      if (_wallOsc > 0.72) ct.stripMat.emissiveIntensity = Math.max(ct.stripMat.emissiveIntensity, 0.203 + (_wallOsc - 0.72) / 0.28 * 2.23); // Pass 4499: slot wall LED bounce peak 0.90→1.22 brighter wall contact flash — Pass 4530: slot wall LED emissive floor 0.15→0.203 brighter wall-contact baseline — Pass 5141: 1.22→1.65 brighter slot wall approach emissive flash — Pass 6279: 1.65→2.23 brighter slot wall LED bounce peak emissive
     }
     // Pass 456: pre-impact micro-shake ramp — for floor-0, subtle increasing camera tremor
     // from dt3=0.72→0.88 builds tension before the big landing shake at 0.88.
@@ -4185,7 +4185,7 @@ function animate(ts) {
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 52.9, ct.slotZ + _sweepZOsc315); // Pass 4853: slot sweep light Y height 29→39.2 higher slot entry spotlight — Pass 5630: 39.2→52.9 higher slot entry sweep spotlight
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 760, dt3 / 0.35) // Pass 4488: slot sweep peak 228.9→309.0 brighter slot entry spotlight — Pass 5028: 309.0→417 brighter slot entry spotlight — Pass 5092: 417→563 brighter slot entry sweep peak — Pass 5101: 563→760 brighter slot entry sweep peak
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 1026, dt3 / 0.35) // Pass 4488: slot sweep peak 228.9→309.0 brighter slot entry spotlight — Pass 5028: 309.0→417 brighter slot entry spotlight — Pass 5092: 417→563 brighter slot entry sweep peak — Pass 5101: 563→760 brighter slot entry sweep peak — Pass 6283: 760→1026 brighter slot entry sweep peak intensity
                                              : THREE.MathUtils.lerp(298, 0, (dt3 - 0.35) / 0.65); // Pass 2117: sweep peak 51.0→68.9 Pass 2118: sweep tail 36.5→49.3 — Pass 2615: 68.9→93.0, 49.3→66.6 — Pass 3056: 93.0→125.6, 66.6→89.9 — Pass 3243: peak 125.6→169.6, tail 89.9→121.4 — Pass 3410: peak 169.6→228.9 Pass 3411: tail 121.4→163.9 — Pass 4743: tail 163.9→221 brighter slot sweep tail — Pass 5631: 221→298 brighter slot entry sweep tail intensity
     }
     // Pass 60: gate column LED holds then fades as card lands
@@ -4351,9 +4351,9 @@ function animate(ts) {
             ct.slotZ + (Math.random() - 0.5) * 21.9 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint — Pass 5456: 16.2→21.9 wider landing mote Z footprint
           );
           _mp.mesh.visible = true;
-          _mp.vx = (Math.random() - 0.5) * 24.6; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst — Pass 5079: 13.5→18.2 wider arrival mote burst — Pass 5147: 18.2→24.6 wider arrival mote X burst
+          _mp.vx = (Math.random() - 0.5) * 33.2; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst — Pass 5079: 13.5→18.2 wider arrival mote burst — Pass 5147: 18.2→24.6 wider arrival mote X burst — Pass 6276: 24.6→33.2 wider upper floor mote vx burst spread
           _mp.vy = 135 + Math.random() * 271; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7 — Pass 3915: 40.8+81.7→55.1+110.3 — Pass 4407: 55.1+110.3→74.4+148.9 taller mote fountain — Pass 5146: 74.4+148.9→100+201 taller arrival mote fountain — Pass 6273: 100+201→135+271 taller upper floor mote vy fountain
-          _mp.vz = (Math.random() - 0.5) * 29.6; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread — Pass 5086: 16.2→21.9 wider arrival mote Z spread — Pass 5148: 21.9→29.6 wider arrival mote Z spread
+          _mp.vz = (Math.random() - 0.5) * 40.0; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread — Pass 5086: 16.2→21.9 wider arrival mote Z spread — Pass 5148: 21.9→29.6 wider arrival mote Z spread — Pass 6277: 29.6→40.0 wider upper floor mote vz burst spread
           _mp.mat.color.setRGB(
             Math.min(1, _rr3 / 255 * 0.918 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint
             Math.min(1, _gg3 / 255 * 0.918 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint
@@ -4609,7 +4609,7 @@ function animate(ts) {
   // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 — Pass 1059: →0.10 reactive belt
   const _beltSpeedGlow = _beltScrollSpeed > 0.005
     ? 1.49 * (_beltScrollSpeed / 0.108) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0; // Pass 2163: belt speed glow amp 0.135→0.182 — Pass 2656: 0.182→0.246 — Pass 2887: 0.246→0.332 — Pass 3094: 0.332→0.448 — Pass 3270: 0.448→0.605 — Pass 3610: 0.605→0.817 — Pass 4432: 0.817→1.10 brighter belt speed glow — Pass 5564: 1.10→1.49 brighter belt speed glow amplitude
-  beltSurfMat.emissiveIntensity = beltBase + 0.0554 * Math.sin(cycleT * 13.5) + _beltSpeedGlow; // Pass 4547: belt idle strobe amplitude 0.03→0.041 livelier idle belt flicker — Pass 4629: belt idle strobe cycle frequency 10→13.5 livelier idle belt animation — Pass 5133: 0.041→0.0554 livelier idle belt flicker amplitude
+  beltSurfMat.emissiveIntensity = beltBase + 0.0748 * Math.sin(cycleT * 13.5) + _beltSpeedGlow; // Pass 4547: belt idle strobe amplitude 0.03→0.041 livelier idle belt flicker — Pass 4629: belt idle strobe cycle frequency 10→13.5 livelier idle belt animation — Pass 5133: 0.041→0.0554 livelier idle belt flicker amplitude — Pass 6278: 0.0554→0.0748 livelier idle belt surface strobe amplitude
   // Belt surface tints subtly toward domain color when active card rides on it
   {
     const onBelt = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
