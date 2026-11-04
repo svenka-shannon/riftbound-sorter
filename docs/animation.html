@@ -1033,7 +1033,7 @@ scene.add(scanLine2);
   const _nTex = new THREE.CanvasTexture(_nc);
   const _nMat = new THREE.MeshStandardMaterial({
     map: _nTex, roughness: 0.4, metalness: 0.3,
-    emissive: new THREE.Color(0x203060), emissiveIntensity: 3.71, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow — Pass 5753: 0.832→1.12 more vivid scanner nameplate emissive — Pass 6303: 1.12→1.51 more vivid scanner nameplate emissive — Pass 6343: 1.51→2.04 more vivid scanner nameplate emissive — Pass 6499: 2.04→2.75 more vivid scanner nameplate emissive — Pass 6700: 2.75→3.71 more vivid scanner nameplate emissive
+    emissive: new THREE.Color(0x203060), emissiveIntensity: 5.01, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow — Pass 5753: 0.832→1.12 more vivid scanner nameplate emissive — Pass 6303: 1.12→1.51 more vivid scanner nameplate emissive — Pass 6343: 1.51→2.04 more vivid scanner nameplate emissive — Pass 6499: 2.04→2.75 more vivid scanner nameplate emissive — Pass 6700: 2.75→3.71 more vivid scanner nameplate emissive — Pass 6714: 3.71→5.01 more vivid scanner nameplate emissive
   });
   const _nMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 18), _nMat);
   // Front face of scanner hood: hood center is (-40, CONV_Y_TOP+32.5, 0), depth=100, front at Z=+50
@@ -1050,7 +1050,7 @@ scene.add(gateBase);
 // Pass 60: Sort gate column indicator LEDs — 4 small spheres showing destination Z column
 const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x224466, emissive: 0x112233, emissiveIntensity: 5.99, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs — Pass 5132: 0.996→1.34 brighter gate col width indicator LEDs — Pass 5189: 1.34→1.81 brighter gate column width indicator LEDs — Pass 5746: 1.81→2.44 brighter gate column LED emissive — Pass 6304: 2.44→3.29 brighter gate column LED emissive — Pass 6500: 3.29→4.44 brighter gate column LED emissive — Pass 6698: 4.44→5.99 brighter gate column LED emissive
+    color: 0x224466, emissive: 0x112233, emissiveIntensity: 8.09, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs — Pass 5132: 0.996→1.34 brighter gate col width indicator LEDs — Pass 5189: 1.34→1.81 brighter gate column width indicator LEDs — Pass 5746: 1.81→2.44 brighter gate column LED emissive — Pass 6304: 2.44→3.29 brighter gate column LED emissive — Pass 6500: 3.29→4.44 brighter gate column LED emissive — Pass 6698: 4.44→5.99 brighter gate column LED emissive — Pass 6715: 5.99→8.09 brighter gate column LED emissive
     roughness: 0.05, metalness: 0.0,
   });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 19, 19), mat); // Pass 4988: gate column LED sphere segments 10→14 smoother gate indicators — Pass 5826: 14→19 smoother gate column LED sphere
@@ -1528,7 +1528,7 @@ const GHOST_COUNT = 5; // Pass 4989: ghost trail card count 3→4 richer motion 
 const ghostCards = [];
 for (let _gi = 0; _gi < GHOST_COUNT; _gi++) {
   const _gMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 3.28, // Pass 4029: ghost card emissive 0.4→0.54 brighter motion-blur wake — Pass 4892: 0.54→0.73 brighter ghost trail — Pass 5470: 0.73→0.986 brighter ghost trail motion-blur cards — Pass 5752: 0.986→1.33 brighter ghost trail motion-blur card emissive — Pass 6303: 1.33→1.80 brighter ghost trail motion-blur card emissive — Pass 6502: 1.80→2.43 brighter ghost trail motion-blur card emissive — Pass 6699: 2.43→3.28 brighter ghost trail motion-blur card emissive
+    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 4.43, // Pass 4029: ghost card emissive 0.4→0.54 brighter motion-blur wake — Pass 4892: 0.54→0.73 brighter ghost trail — Pass 5470: 0.73→0.986 brighter ghost trail motion-blur cards — Pass 5752: 0.986→1.33 brighter ghost trail motion-blur card emissive — Pass 6303: 1.33→1.80 brighter ghost trail motion-blur card emissive — Pass 6502: 1.80→2.43 brighter ghost trail motion-blur card emissive — Pass 6699: 2.43→3.28 brighter ghost trail motion-blur card emissive — Pass 6716: 3.28→4.43 brighter ghost trail motion-blur card emissive
     transparent: true, opacity: 0,
     roughness: 0.6, metalness: 0.0, depthWrite: false,
   });
@@ -1967,7 +1967,7 @@ function fireCelebration() {
     const domCt = CARD_TYPES[pi % CARD_TYPES.length];
     const angle = (pi / CELEB_COUNT) * Math.PI * 2;
     // Pass 594: confetti burst speed 60+90 — Pass 652: →80+120 — Pass 728: →100+150 — Pass 755: →125+180 — Pass 892: →155+220 — Pass 1009: →190+260 — Pass 1633: →255+350 — Pass 3461: base 255→344 — Pass 3462: rand 350→473
-    const spd = 2807 + Math.random() * 1162; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638 — Pass 4096: base 464→626 — Pass 4097: rand 638→861 faster burst — Pass 4943: base 626→845 faster celebration burst — Pass 5039: base 845→1140 faster celebration burst — Pass 5994: 1140→1540 faster confetti base burst speed — Pass 6285: rand 861→1162 wider celebration confetti burst speed spread — Pass 6511: base 1540→2079 faster celebration confetti burst speed — Pass 6692: base 2079→2807 faster celebration confetti burst speed
+    const spd = 3789 + Math.random() * 1162; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638 — Pass 4096: base 464→626 — Pass 4097: rand 638→861 faster burst — Pass 4943: base 626→845 faster celebration burst — Pass 5039: base 845→1140 faster celebration burst — Pass 5994: 1140→1540 faster confetti base burst speed — Pass 6285: rand 861→1162 wider celebration confetti burst speed spread — Pass 6511: base 1540→2079 faster celebration confetti burst speed — Pass 6692: base 2079→2807 faster celebration confetti burst speed — Pass 6717: base 2807→3789 faster celebration confetti burst speed
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
     p.vx = Math.cos(angle) * spd * 3.35; // Pass 4069: confetti vx spread 0.75→1.01 wider horizontal burst — Pass 5018: 1.01→1.36 wider confetti horizontal burst — Pass 5891: 1.36→1.84 wider confetti horizontal burst spread — Pass 6292: 1.84→2.48 wider confetti horizontal burst spread — Pass 6317: 2.48→3.35 wider confetti horizontal burst spread
     // Pass 729: upward bias 0.6+0.6→0.75+0.70 — Pass 893: →0.90+0.85 — Pass 1010: →1.10+1.00 — Pass 1634: →1.40+1.30 stronger launch
@@ -1978,7 +1978,7 @@ function fireCelebration() {
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
-    p.life = 21.3 + Math.random() * 6.66; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 — Pass 4100: 3.5+2.7→4.73+3.65 even longer airtime — Pass 4680: base 4.73→6.39 — Pass 4681: rand 3.65→4.93 even longer confetti airtime — Pass 5073: base 6.39→8.63 longer confetti lifespan — Pass 5884: base 8.63→11.7 longer celebration confetti lifespan base — Pass 6295: base 11.7→15.8 rand 4.93→6.66 longer celebration confetti lifespan — Pass 6693: base 15.8→21.3 longer celebration confetti lifespan base
+    p.life = 28.8 + Math.random() * 6.66; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 — Pass 4100: 3.5+2.7→4.73+3.65 even longer airtime — Pass 4680: base 4.73→6.39 — Pass 4681: rand 3.65→4.93 even longer confetti airtime — Pass 5073: base 6.39→8.63 longer confetti lifespan — Pass 5884: base 8.63→11.7 longer celebration confetti lifespan base — Pass 6295: base 11.7→15.8 rand 4.93→6.66 longer celebration confetti lifespan — Pass 6693: base 15.8→21.3 longer celebration confetti lifespan base — Pass 6718: base 21.3→28.8 longer celebration confetti lifespan base
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98
     p.rx = (Math.random() - 0.5) * 722; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161 — Pass 4093: 161→217 wilder tumble — Pass 4682: 217→293 even wilder tumble — Pass 5020: 293→396 wilder confetti rotation — Pass 5885: 396→535 wilder confetti tumble X rotation — Pass 6296: 535→722 wilder confetti tumble X rotation
@@ -2221,7 +2221,7 @@ function showScanOverlay(cardType, visible, routeText) {
 // Paddle rotates around Y axis (vertical) to deflect cards in the Z direction (column routing).
 // slotZ ∈ {-97.5, -32.5, 32.5, 97.5}  →  angles ±0.73 rad outer, ±0.24 rad inner
 function paddleAngleForSlot(slotZ) {
-  return -(slotZ / 160) * 2.96; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing — Pass 5074: 1.62→2.19 more dramatic gate swing — Pass 5745: 2.19→2.96 more dramatic gate paddle deflect angle
+  return -(slotZ / 160) * 4.00; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing — Pass 5074: 1.62→2.19 more dramatic gate swing — Pass 5745: 2.19→2.96 more dramatic gate paddle deflect angle — Pass 6714: 2.96→4.00 more dramatic gate paddle deflect angle
 }
 
 // ─── Hopper stack (dynamic — shrinks each cycle, refills after 6 cards) ───────
@@ -2495,7 +2495,7 @@ function animate(ts) {
       const _warnPulse = 1.47 + 0.73 * Math.sin(ts * 1.08 * Math.PI * 2); // Pass 4461: slot overflow pulse amplitude 0.4→0.54 stronger overflow flash // Pass 4482: overflow ripple freq 0.8→1.08 more urgent overflow flash — Pass 4655: slot overflow indicator pulse intensity base 0.6→0.81 brighter warning floor — Pass 5097: 0.81→1.09 brighter overflow warning floor — Pass 5784: base 1.09→1.47 amp 0.54→0.73 stronger slot overflow urgency pulse
       mat.color.setHex(0xffaa00);
       mat.emissive.setHex(0xffaa00);
-      mat.emissiveIntensity = 7.97 + _warnPulse * 4.93; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70 — Pass 4045: base 3.24→4.37, amp 2.70→3.65 brighter slot overflow warning — Pass 5003: base 4.37→5.90 more vivid overflow warning — Pass 5785: base 5.90→7.97 amp 3.65→4.93 more vivid slot overflow warning flash
+      mat.emissiveIntensity = 10.8 + _warnPulse * 4.93; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70 — Pass 4045: base 3.24→4.37, amp 2.70→3.65 brighter slot overflow warning — Pass 5003: base 4.37→5.90 more vivid overflow warning — Pass 5785: base 5.90→7.97 amp 3.65→4.93 more vivid slot overflow warning flash — Pass 6717: base 7.97→10.8 brighter slot overflow warning floor
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
       // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
@@ -2511,12 +2511,12 @@ function animate(ts) {
       const afterT = _ledCooloff[_li] / 9.30; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration — Pass 4428: updated to match 6.89s cooloff — Pass 5931: 6.89→9.30 deeper LED afterglow divisor
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity = 9.11 + afterT * 55.1; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor — Pass 4687: ramp 22.4→30.2 brighter slot LED afterglow peak — Pass 4997: ramp 30.2→40.8 blazing slot LED afterglow peak — Pass 5189: ramp 40.8→55.1 brighter slot LED afterglow ramp — Pass 5939: base 6.75→9.11 brighter slot LED afterglow floor
+      mat.emissiveIntensity = 9.11 + afterT * 74.4; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor — Pass 4687: ramp 22.4→30.2 brighter slot LED afterglow peak — Pass 4997: ramp 30.2→40.8 blazing slot LED afterglow peak — Pass 5189: ramp 40.8→55.1 brighter slot LED afterglow ramp — Pass 5939: base 6.75→9.11 brighter slot LED afterglow floor — Pass 6715: ramp 55.1→74.4 brighter slot LED afterglow ramp
     } else {
       // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 — Pass 1651: →1.9 brighter resting LEDs
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity += (6.32 - mat.emissiveIntensity) * 0.219; // Pass 2520: slot LED idle 1.9→2.57 — Pass 4047: 2.57→3.47 warmer slot LED idle glow — Pass 4610: tracking rate 0.12→0.162 snappier LED settle — Pass 5005: 3.47→4.68 warmer slot LED idle glow — Pass 5190: 4.68→6.32 warmer slot LED idle glow — Pass 5940: tracking rate 0.162→0.219 snappier slot LED idle tracking
+      mat.emissiveIntensity += (8.53 - mat.emissiveIntensity) * 0.219; // Pass 2520: slot LED idle 1.9→2.57 — Pass 4047: 2.57→3.47 warmer slot LED idle glow — Pass 4610: tracking rate 0.12→0.162 snappier LED settle — Pass 5005: 3.47→4.68 warmer slot LED idle glow — Pass 5190: 4.68→6.32 warmer slot LED idle glow — Pass 5940: tracking rate 0.162→0.219 snappier slot LED idle tracking — Pass 6716: 6.32→8.53 warmer slot LED idle glow
     }
   });
 
@@ -2675,7 +2675,7 @@ function animate(ts) {
         const _cupApproach = _sq;
         suctionCupMat.emissive.setHex(ct.hex);
         // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 — Pass 1214: →3.6 — Pass 1311: →5.2 — Pass 1427: →7.0 — Pass 3959: 7.0→9.45 more vivid suction warmup — Pass 4774: 12.76→17.2 more vivid suction warmup
-        suctionCupMat.emissiveIntensity += (31.3 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10); // Pass 4223: cup approach emissive 9.45→12.76 more vivid suction warmup — Pass 4774: emissive 12.76→17.2 more vivid suction warmup — Pass 5071: 17.2→23.2 more vivid suction warmup — Pass 5772: 23.2→31.3 more vivid suction cup pre-contact glow
+        suctionCupMat.emissiveIntensity += (42.3 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10); // Pass 4223: cup approach emissive 9.45→12.76 more vivid suction warmup — Pass 4774: emissive 12.76→17.2 more vivid suction warmup — Pass 5071: 17.2→23.2 more vivid suction warmup — Pass 5772: 23.2→31.3 more vivid suction cup pre-contact glow — Pass 6718: 31.3→42.3 more vivid suction cup pre-contact glow
         // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
         if (!_contactFlashFired) {
           _contactFlashFired = true;
@@ -2700,7 +2700,7 @@ function animate(ts) {
               _cp.mesh.position.set(_cpX + (Math.random()-0.5)*10, _cpY - 4, (Math.random()-0.5)*8);
               _cp.mesh.visible = true;
               _cp.vx = (Math.random() - 0.5) * 427; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 — Pass 1672: →95 — Pass 3910: 95→128.3 wider pick burst — Pass 4375: 128.3→173.2 even wider suction puff — Pass 5123: 173.2→233.8 even wider pick dust spread — Pass 6006: 233.8→316 wider pick dust horizontal spread — Pass 6610: 316→427 wider pick dust horizontal spread
-              _cp.vy = 137.8 + Math.random() * 187.0;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 — Pass 1673: →56+76 — Pass 3909: 56+76→75.6+102.6 higher pick dust loft — Pass 4376: base 75.6→102.1 — Pass 4377: rand 102.6→138.5 more forceful pick dust launch — Pass 5130: 102.1→137.8 higher pick dust loft base — Pass 5932: rand 138.5→187.0 more forceful pick dust vy launch rand
+              _cp.vy = 186.0 + Math.random() * 187.0;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 — Pass 1673: →56+76 — Pass 3909: 56+76→75.6+102.6 higher pick dust loft — Pass 4376: base 75.6→102.1 — Pass 4377: rand 102.6→138.5 more forceful pick dust launch — Pass 5130: 102.1→137.8 higher pick dust loft base — Pass 5932: rand 138.5→187.0 more forceful pick dust vy launch rand — Pass 6719: base 137.8→186.0 higher pick dust loft base
               _cp.vz = (Math.random() - 0.5) * 126; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread — Pass 4378: 37.8→51.0 even wider pick dust Z — Pass 5124: 51.0→68.9 even wider pick dust Z spread — Pass 6007: 68.9→93.0 wider pick dust Z spread — Pass 6611: 93.0→126 wider pick dust Z spread
               _cp.mat.color.setRGB(0.85, 0.88, 0.92); // cool pale grey (displaced air)
               _cpSpawned++;
@@ -3500,7 +3500,7 @@ function animate(ts) {
           const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 54.1 : 0; // Pass 2546: ping Z drift 2.00→2.70 — Pass 2837: 2.70→3.65 — Pass 2984: 3.65→4.93 — Pass 3183: 4.93→6.66 — Pass 3424: 6.66→8.99 — Pass 3532: 8.99→12.1 — Pass 3770: 12.1→16.3 — Pass 3877: 16.3→22.0 — Pass 4242: 22.0→29.7 more pronounced destination lean — Pass 5386: 29.7→40.1 more pronounced destination lean — Pass 6490: 40.1→54.1 more pronounced destination lean
           p.mesh.position.z = _pingZ311;
           // Pass 274: post-reveal ping scale — Pass 400: 8.5→11.0 — Pass 716: →14.0 — Pass 797: →19.0 — Pass 1165: →26.0 — Pass 1410: →36.0 — Pass 1524: →50.0 (wider confirm rings)
-          const _pingMaxScale = _identityRevealed ? 552 : 44.8; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1 — Pass 3184: 166.1→224.2 — Pass 3470: pre-reveal 10.0→13.5 — Pass 3769: 13.5→18.2 — Pass 4243: pre-reveal 18.2→24.6 wider pre-reveal ping rings — Pass 5432: pre-reveal 24.6→33.2 wider pre-reveal ping rings — Pass 5825: post-reveal 224.2→303 wider post-reveal ping rings — Pass 6347: pre-reveal 33.2→44.8 wider pre-reveal ping rings — Pass 6496: post-reveal 303→409 wider post-reveal ping rings — Pass 6697: post-reveal 409→552 wider post-reveal ping rings
+          const _pingMaxScale = _identityRevealed ? 745 : 44.8; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1 — Pass 3184: 166.1→224.2 — Pass 3470: pre-reveal 10.0→13.5 — Pass 3769: 13.5→18.2 — Pass 4243: pre-reveal 18.2→24.6 wider pre-reveal ping rings — Pass 5432: pre-reveal 24.6→33.2 wider pre-reveal ping rings — Pass 5825: post-reveal 224.2→303 wider post-reveal ping rings — Pass 6347: pre-reveal 33.2→44.8 wider pre-reveal ping rings — Pass 6496: post-reveal 303→409 wider post-reveal ping rings — Pass 6697: post-reveal 409→552 wider post-reveal ping rings — Pass 6719: post-reveal 552→745 wider post-reveal ping rings
           const s = 1 + localFt * _pingMaxScale;
           p.mesh.scale.setScalar(s);
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
@@ -3513,7 +3513,7 @@ function animate(ts) {
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
           const _pingBoost = ft >= 0.85 ? 999 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2 — Pass 3547: 165.2→223 — Pass 3731: 223→301 — Pass 3837: 301→406 — Pass 4223: 406→548 blazing confirm rings — Pass 5269: 548→740 blazing confirm ring ping boost — Pass 6471: 740→999 blazing confirm ring post-reveal ping boost
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
-          p.mat.opacity = _pingFade * flashIntensity * 4.48 * _pingBoost; // Pass 4601: scan ring opacity multiplier 1.0→1.35 brighter off-peak ring fade — Pass 5379: 1.35→1.82 brighter scan ring opacity multiplier — Pass 5524: 1.82→2.46 brighter slot ring opacity fade-out multiplier — Pass 6629: 2.46→3.32 brighter scan ring opacity multiplier — Pass 6696: 3.32→4.48 brighter scan ring opacity multiplier
+          p.mat.opacity = _pingFade * flashIntensity * 6.05 * _pingBoost; // Pass 4601: scan ring opacity multiplier 1.0→1.35 brighter off-peak ring fade — Pass 5379: 1.35→1.82 brighter scan ring opacity multiplier — Pass 5524: 1.82→2.46 brighter slot ring opacity fade-out multiplier — Pass 6629: 2.46→3.32 brighter scan ring opacity multiplier — Pass 6696: 3.32→4.48 brighter scan ring opacity multiplier — Pass 6720: 4.48→6.05 brighter scan ring opacity multiplier
         } else {
           p.mesh.visible = false;
           p.mat.opacity = 0;
@@ -4653,7 +4653,7 @@ function animate(ts) {
       convBodyMat.emissive.setHex(ct.hex);
       // Pass 263: conveyor body scanner-approach boost — Pass 692: 0.06→0.10 — Pass 934: →0.18 — Pass 1452: →0.26 for brighter approach
       const _bodyApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.80
-        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 6.94 : 0; // Pass 2426: body approach 0.47→0.63 — Pass 2662: 0.63→0.85 — Pass 2752: 0.85→1.15 — Pass 3101: 1.15→1.55 — Pass 3354: 1.55→2.09 — Pass 4380: 2.09→2.82 — Pass 4718: 2.82→3.81 brighter conveyor body approach glow — Pass 5597: 3.81→5.14 brighter conveyor body scanner approach glow peak — Pass 6695: 5.14→6.94 brighter conveyor body scanner approach glow peak
+        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 9.37 : 0; // Pass 2426: body approach 0.47→0.63 — Pass 2662: 0.63→0.85 — Pass 2752: 0.85→1.15 — Pass 3101: 1.15→1.55 — Pass 3354: 1.55→2.09 — Pass 4380: 2.09→2.82 — Pass 4718: 2.82→3.81 brighter conveyor body approach glow — Pass 5597: 3.81→5.14 brighter conveyor body scanner approach glow peak — Pass 6695: 5.14→6.94 brighter conveyor body scanner approach glow peak — Pass 6721: 6.94→9.37 brighter conveyor body scanner approach glow peak
       // Pass 279: scanner-exit echo — Pass 522: 0.12→0.20 — Pass 933: →0.35 — Pass 1453: →0.50 for stronger departure flash
       const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
         ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 13.6 : 0; // Pass 2427: body exit echo 0.92→1.24 — Pass 2663: 1.24→1.67 — Pass 2753: 1.67→2.25 — Pass 3102: 2.25→3.04 — Pass 3355: 3.04→4.10 — Pass 4381: 4.10→5.54 — Pass 4719: 5.54→7.48 stronger scanner exit echo — Pass 5598: 7.48→10.1 stronger conveyor body scanner exit echo flash — Pass 6696: 10.1→13.6 stronger conveyor body scanner exit echo flash
