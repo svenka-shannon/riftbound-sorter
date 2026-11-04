@@ -3003,8 +3003,8 @@ function animate(ts) {
           _dp.mesh.position.set(-111 + (Math.random()-0.5)*8, CONV_Y_TOP + 4, (Math.random()-0.5)*7);
           _dp.mesh.visible = true;
           const _side = Math.random() < 0.5 ? 1 : -1;
-          _dp.vx = _side * (72.9 + Math.random() * 118.8); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 — Pass 1687: →40+65 — Pass 1848: →54+88 — Pass 3934: 54+88→72.9+118.8 wider slot drop burst
-          _dp.vy = 83.7 + Math.random() * 104.0; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 — Pass 1688: →34+42 — Pass 1849: →46+57 — Pass 3437: →62+77 — Pass 3916: 62+77→83.7+104.0 higher slot drop dust
+          _dp.vx = _side * (98.4 + Math.random() * 160); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 — Pass 1687: →40+65 — Pass 1848: →54+88 — Pass 3934: 54+88→72.9+118.8 — Pass 4205: base 72.9→98.4 — Pass 4212: rand 118.8→160 wider belt deposit burst
+          _dp.vy = 113.0 + Math.random() * 140.4; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 — Pass 1688: →34+42 — Pass 1849: →46+57 — Pass 3437: →62+77 — Pass 3916: 62+77→83.7+104.0 — Pass 4206: base 83.7→113.0, rand 104.0→140.4 higher belt deposit dust
           _dp.vz = (Math.random() - 0.5) * 40.5; // Pass 1486: 16→22 — Pass 1689: →30 — Pass 3953: 30→40.5 wider slot drop Z spread
           // Pale domain-tinted dust: 35% domain + 65% white
           _dp.mat.color.setRGB(
@@ -3028,9 +3028,9 @@ function animate(ts) {
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
-    const _beltWobbleZ = (14.0 * Math.sin(ts * 4.7 * Math.PI * 2) + 4.31 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 more vivid belt weave
+    const _beltWobbleZ = (18.9 * Math.sin(ts * 4.7 * Math.PI * 2) + 5.82 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
-    const _beltYBump = 3.70 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 more tactile belt feel
+    const _beltYBump = 5.00 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 — Pass 4208: 3.70→5.00 more tactile belt feel
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     // Pass 1235: lean -0.18→-0.05 (bugfix: at -0.18 the card front edge was 4.9u below belt; safe max ≈0.05rad)
@@ -3040,7 +3040,7 @@ function animate(ts) {
     const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0034 + Math.sin(ts * 73 * Math.PI * 2) * 0.0020;
     // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
     // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 — Pass 1303: →0.45 for more physical card-slap — Pass 1588: →0.62
-    const _beltFlopY309 = 1.53 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5); // Pass 2291: belt flop Y 0.84→1.13 — Pass 3931: 1.13→1.53 more physical card-slap sideways
+    const _beltFlopY309 = 2.07 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5); // Pass 2291: belt flop Y 0.84→1.13 — Pass 3931: 1.13→1.53 — Pass 4210: 1.53→2.07 more physical card-slap sideways
     activeCard.rotation.set(_beltLean, _beltFlopY309, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
@@ -3049,7 +3049,7 @@ function animate(ts) {
     // Pass 144: scan anticipation — card brightens in final 15% of conveyorIn as scanner looms
     const _approachT = Math.max(0, (ct2 - 0.85) / 0.15); // 0→1 in last 15%
     // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap) — Pass 1592: →1.9
-    const _entryBoost = Math.exp(-ct2 * 20) * 4.68; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 bigger entry flash
+    const _entryBoost = Math.exp(-ct2 * 20) * 6.32; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 — Pass 4209: 4.68→6.32 bigger entry flash
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 20;
