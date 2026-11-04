@@ -2633,7 +2633,7 @@ function animate(ts) {
     if(inPhase(PH.armDescend)) {
       // Gravity-assisted descent: ease-in; end at -0.036 rad to center cup over card stack
       const pt = phaseT(PH.armDescend, easeIn);
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.47, -0.036, pt); // Pass 4437: arm descend start angle -0.35→-0.47 wider descent arc
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.47, -0.049, pt); // Pass 4437: arm descend start angle -0.35→-0.47 wider descent arc — Pass 4566: arm descent servo end angle -0.036→-0.049 more precise pickup tilt
       // Pass 182: servo hunt jitter — was ts*0.055 (114-second period = invisible).
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
@@ -2767,7 +2767,7 @@ function animate(ts) {
       const lt = phaseT(PH.armLift, easeOut);
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 — Pass 1356: →-0.48 — Pass 1681: →-0.65
       const _ltLurch = lt < 0.18 ? -3.96 * Math.sin((lt / 0.18) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93 — Pass 4224: -2.93→-3.96 more dramatic suction-break strain
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 1.08, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.049, 1.08, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position — Pass 4566: arm lift start matches descent end -0.036→-0.049
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 — Pass 1682: →7.0 more dramatic dip
       if (lt < 0.22) {
         const _yDip = -23.2 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip
@@ -3646,7 +3646,7 @@ function animate(ts) {
       // Pass 854: strobe amplitude 0.12→0.20 for stronger urgency flicker pre-reveal
       const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.20 * flashIntensity;
       // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 — Pass 855: →1.40 — Pass 1438: →2.00 for bolder arc flash at lock-on
-      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 22.0 : 0; // Pass 2562: arc reveal spike 3.65→4.93 — Pass 3003: 4.93→6.66 — Pass 3197: 6.66→8.99 — Pass 3425: 8.99→12.1 — Pass 3539: 12.1→16.3 — Pass 3993: 16.3→22.0
+      const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 29.7 : 0; // Pass 2562: arc reveal spike 3.65→4.93 — Pass 3003: 4.93→6.66 — Pass 3197: 6.66→8.99 — Pass 3425: 8.99→12.1 — Pass 3539: 12.1→16.3 — Pass 3993: 16.3→22.0 — Pass 4561: 22.0→29.7 bolder scan arc at identity lock-on
       // Pass 644: post-reveal arc opacity 0.35→0.50 — Pass 856: →0.80 — Pass 1075: →1.10 — Pass 1439: →1.55 for more solid confirmed-route arc
       routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 3.81 : 0)) + _arcStrobeMod + _arcRevealSpike; // Pass 1731: arc post-reveal opacity 1.55→2.09 — Pass 3946: 2.09→2.82 bolder confirmed-route arc — Pass 4050: 2.82→3.81 brighter route arc after identity lock
       // Target sphere pulses at destination
@@ -3676,7 +3676,7 @@ function animate(ts) {
       cardShimmerMesh.rotation.x = activeCard.rotation.x;
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
       // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 — Pass 1069: →3.4 — Pass 1447: →4.8 for wider flash
-      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 14) * 71.9 : 1.0; // Pass 2565: shimmer bloom 8.78→11.9 — Pass 3005: 11.9→16.1 — Pass 3201: 16.1→21.7 — Pass 3439: 21.7→29.3 — Pass 3703: 29.3→39.5 — Pass 3817: 39.5→53.3 — Pass 4245: 53.3→71.9 bigger shimmer bloom at reveal
+      const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18.9) * 71.9 : 1.0; // Pass 2565: shimmer bloom 8.78→11.9 — Pass 3005: 11.9→16.1 — Pass 3201: 16.1→21.7 — Pass 3439: 21.7→29.3 — Pass 3703: 29.3→39.5 — Pass 3817: 39.5→53.3 — Pass 4245: 53.3→71.9 bigger shimmer bloom at reveal — Pass 4562: shimmer bloom decay 14→18.9 crisper reveal bloom taper
       cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
@@ -3782,7 +3782,7 @@ function animate(ts) {
       const _z268drift = ct.slotZ * 3.04 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25 — Pass 4320: 2.25→3.04 stronger lane-change preview drift
       activeCard.position.set(
         THREE.MathUtils.lerp(-40, GATE_X, ot),
-        CONV_Y_TOP + CARD_T/2 + 2, _oWobbleZ + _z268drift
+        CONV_Y_TOP + CARD_T/2 + 2.70, _oWobbleZ + _z268drift // Pass 4567: conveyorOut card belt Y 2→2.70 higher card float on exit belt
       );
     }
     // Paddle snaps early: covers ~70% travel in first half, holds before card arrives
@@ -3953,7 +3953,7 @@ function animate(ts) {
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
     // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 — Pass 1559: floor-0 →38, floor-1 →40 for even higher card flight arc during deflect
-    const _arcBump = (ct.floor === 1 ? 1092 : 1033) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599 — Pass 3688: floor-0 567→765, floor-1 599→809 — Pass 3799: floor-0 765→1033 — Pass 3800: floor-1 809→1092
+    const _arcBump = (ct.floor === 1 ? 1474 : 1395) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599 — Pass 3688: floor-0 567→765, floor-1 599→809 — Pass 3799: floor-0 765→1033 — Pass 3800: floor-1 809→1092 — Pass 4560: floor-0 1033→1395 floor-1 1092→1474 higher slot entry arc
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
@@ -4098,7 +4098,7 @@ function animate(ts) {
       floorDiverterPivot.rotation.z = -_diverterAngle;
     }
     // startY must match where deflect phase ended (arcY)
-    const startY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
+    const startY = ct.floor === 1 ? CONV_Y_TOP + 40.5 : CONV_Y_TOP + 27; // Pass 4563: slot drop fall start height floor-0 20→27 floor-1 30→40.5 longer gravity drop arc
     let cy;
     if (ct.floor === 0) {
       // Gravity fall: quadratic easeIn (slow start, accelerates down — realistic)
@@ -4478,7 +4478,7 @@ function animate(ts) {
           _dp2.active = true; _dp2.age = 0; _dp2.life = 2.59 + Math.random() * 1.35; // Pass 2410: cup arrival dust life 0.58+0.30→0.78+0.41 — Pass 2651: 0.78+0.41→1.05+0.55 — Pass 2872: 1.05+0.55→1.42+0.74 — Pass 3082: 1.42+0.74→1.92+1.00 — Pass 4355: 1.92+1.00→2.59+1.35 longer arm end-stop dust
           _dp2.mesh.position.set(_arCupX + (Math.random()-0.5)*6, _arCupY + (Math.random()-0.5)*4, (Math.random()-0.5)*8);
           _dp2.mesh.visible = true;
-          _dp2.vx = (Math.random()-0.5) * 105.7; _dp2.vy = 53.2 + Math.random() * 83.2; _dp2.vz = (Math.random()-0.5) * 119.6; // Pass 2154: cup dust vx 24→32, vy 12+19→16+25, vz 27→36 — Pass 2652: 32→43, 16+25→21.6+33.8, 36→48.6 — Pass 2873/2874: 43→58, 21.6+33.8→29.2+45.6, 48.6→65.6 — Pass 3083: vx 58→78.3 Pass 3084: vy 29.2+45.6→39.4+61.6, vz 65.6→88.6 — Pass 3468: vx 78.3→105.7, vy 39.4+61.6→53.2+83.2, vz 88.6→119.6
+          _dp2.vx = (Math.random()-0.5) * 142.7; _dp2.vy = 71.8 + Math.random() * 112.3; _dp2.vz = (Math.random()-0.5) * 161.5; // Pass 2154: cup dust vx 24→32, vy 12+19→16+25, vz 27→36 — Pass 2652: 32→43, 16+25→21.6+33.8, 36→48.6 — Pass 2873/2874: 43→58, 21.6+33.8→29.2+45.6, 48.6→65.6 — Pass 3083: vx 58→78.3 Pass 3084: vy 29.2+45.6→39.4+61.6, vz 65.6→88.6 — Pass 3468: vx 78.3→105.7, vy 39.4+61.6→53.2+83.2, vz 88.6→119.6 — Pass 4565: vx 105.7→142.7 vy 53.2→71.8 rand 83.2→112.3 vz 119.6→161.5 bigger pick suction dust cloud
           _dp2.mat.color.setRGB(0.82, 0.86, 0.90);
           _dustCount++;
         }
@@ -5368,7 +5368,7 @@ function animate(ts) {
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
     // Pass 477: deflect arc edge boost — outline more visible as card arcs through air (0.45→0.65)
     // Pass 512: armSwing edge boost 0.45→0.58 — Pass 629: scan/conveyor edge 0.85→0.95; deflect 0.65→0.78 — Pass 1392: scan 0.95→1.0, deflect 0.78→0.90, swing 0.58→0.72
-    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 7.40 : inPhase(PH.armSwing) ? 5.89 : 3.70; // Pass 2450: deflect 1.65→2.23 Pass 2451: swing 1.31→1.77 Pass 2452: rest 0.82→1.11 — Pass 2729: deflect 2.23→3.01 Pass 2730: swing 1.77→2.39 Pass 2731: rest 1.11→1.50 — Pass 2961: 3.01→4.06 Pass 2962: 2.39→3.23 Pass 2963: 1.50→2.03 — Pass 3164: deflect 4.06→5.48, swing 3.23→4.36, rest 2.03→2.74 — Pass 3333: rest 2.74→3.70 — Pass 3481: deflect 5.48→7.40 — Pass 3482: swing 4.36→5.89
+    const edgeTarget = edgeFull ? 1.0 : inPhase(PH.deflect) ? 9.99 : inPhase(PH.armSwing) ? 7.95 : 5.00; // Pass 2450: deflect 1.65→2.23 Pass 2451: swing 1.31→1.77 Pass 2452: rest 0.82→1.11 — Pass 2729: deflect 2.23→3.01 Pass 2730: swing 1.77→2.39 Pass 2731: rest 1.11→1.50 — Pass 2961: 3.01→4.06 Pass 2962: 2.39→3.23 Pass 2963: 1.50→2.03 — Pass 3164: deflect 4.06→5.48, swing 3.23→4.36, rest 2.03→2.74 — Pass 3333: rest 2.74→3.70 — Pass 3481: deflect 5.48→7.40 — Pass 3482: swing 4.36→5.89 — Pass 4564: deflect 7.40→9.99 swing 5.89→7.95 rest 3.70→5.00 deeper approach card trailing vignette
     activeCardEdgeMat.opacity = edgeTarget * (activeCardMat.opacity || 1);
   }
 
