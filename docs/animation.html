@@ -1740,7 +1740,7 @@ function addCardToTray(ct) {
   mesh.castShadow = true;
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 40.5; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5
-  const zJitter    = (Math.random() - 0.5) * 4.93;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle
+  const zJitter    = (Math.random() - 0.5) * 6.66;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle — Pass 5423: 4.93→6.66 wider card Z spread during belt idle
   const yRotJitter = (Math.random() - 0.5) * 0.729;  // ±0.365 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter — Pass 5409: 0.540→0.729 wilder slot entry guided arc card tilt range
   mesh.position.set(
     TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
@@ -2361,8 +2361,8 @@ function animate(ts) {
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
     const _jPhase = i * 3.60; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync — Pass 5332: 2.67→3.60 more organic slot ring initial color saturation desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
-    const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 4.20 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter — Pass 5313: 2.30→3.11 livelier pre-pick stack jitter primary amplitude — Pass 5334: 3.11→4.20 livelier pre-pick stack jitter primary amplitude
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 2.82; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary — Pass 5326: 1.15→1.55 livelier arm descent oscillation secondary amplitude — Pass 5335: 1.55→2.09 livelier idle arm sway Y secondary amplitude — Pass 5345: 2.09→2.82 livelier card Y jitter hold secondary amplitude
+    const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 5.67 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter — Pass 5313: 2.30→3.11 livelier pre-pick stack jitter primary amplitude — Pass 5334: 3.11→4.20 livelier pre-pick stack jitter primary amplitude — Pass 5424: 4.20→5.67 livelier card hold oscillation primary amplitude
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 3.81; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary — Pass 5326: 1.15→1.55 livelier arm descent oscillation secondary amplitude — Pass 5335: 1.55→2.09 livelier idle arm sway Y secondary amplitude — Pass 5345: 2.09→2.82 livelier card Y jitter hold secondary amplitude — Pass 5425: 2.82→3.81 livelier card hold oscillation secondary amplitude
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2381,7 +2381,7 @@ function animate(ts) {
         const _wave = Math.sin(ts * 1.47 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5; // Pass 4513: deck shimmer wave frequency 0.6→0.81 livelier deck charge ripple — Pass 5023: 0.81→1.09 livelier deck charge ripple — Pass 5165: 1.09→1.47 faster shimmer stripe animation speed
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
-        const _waveAmp301 = inPhase(PH.armDescend) ? 2.82 + phaseRaw(PH.armDescend) * 6.05 : 2.82; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp // Pass 4493: deck shimmer wave base 1.15→1.55 richer deck energy floor — Pass 4896: base 1.55→2.09 — Pass 4897: ramp 3.32→4.48 brighter deck charge surge — Pass 5208: base 2.09→2.82 — Pass 5209: ramp 4.48→6.05 brighter deck charge surge
+        const _waveAmp301 = inPhase(PH.armDescend) ? 3.81 + phaseRaw(PH.armDescend) * 8.17 : 3.81; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp // Pass 4493: deck shimmer wave base 1.15→1.55 richer deck energy floor — Pass 4896: base 1.55→2.09 — Pass 4897: ramp 3.32→4.48 brighter deck charge surge — Pass 5208: base 2.09→2.82 — Pass 5209: ramp 4.48→6.05 brighter deck charge surge — Pass 5429: base 2.82→3.81, ramp 6.05→8.17 brighter deck charge buildup wave
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 — Pass 4061: →0.49 richer deck energy base
         sc.material.emissiveIntensity = 1.62 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor — Pass 5096: 0.66→0.891 richer deck shimmer base glow — Pass 5210: 0.891→1.20 richer deck shimmer base emissive — Pass 5315: 1.20→1.62 richer deck shimmer base emissive
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
@@ -3440,7 +3440,7 @@ function animate(ts) {
           scanBarMat.color.set(0xffffff);
           scanBarMat.emissive.set(0xaaddff);
           // Pass 326: pre-reveal urgency breath — Pass 836: 0.35→0.58 — Pass 1137: →0.85 for more vivid scan bar pulse
-          const _preBreath326 = barFill * 3.81 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)); // Pass 2328: urgency breath 1.15→1.55 — Pass 2988: 1.55→2.09 — Pass 4071: 2.09→2.82 more vivid pre-reveal urgency pulse — Pass 5286: 2.82→3.81 more vivid pre-reveal urgency pulse
+          const _preBreath326 = barFill * 5.14 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)); // Pass 2328: urgency breath 1.15→1.55 — Pass 2988: 1.55→2.09 — Pass 4071: 2.09→2.82 more vivid pre-reveal urgency pulse — Pass 5286: 2.82→3.81 more vivid pre-reveal urgency pulse — Pass 5426: 3.81→5.14 more vivid pre-reveal LED urgency pulse
           scanBarMat.emissiveIntensity = 1.62 + flashIntensity * 7.97 + _preBreath326; // Pass 1715: pre-reveal flash contribution 1.8→2.4 — Pass 3964: 2.4→3.24 brighter scan bar flash — Pass 4049: base 1.2→1.62, flash 3.24→4.37 more vivid pre-reveal scan bar — Pass 4996: flash 4.37→5.90 brighter scan bar flash contribution — Pass 5287: 5.90→7.97 brighter scan bar pre-reveal flash
         } else {
           scanBarMat.color.copy(_blendC);
@@ -3589,7 +3589,7 @@ function animate(ts) {
     const _prevT = barFill < 0.65 ? 0 : barFill > 0.85 ? 0 : (barFill - 0.65) / 0.20;
     const _strobeFreq = 5 + _prevT * 51.0; // Pass 442: ramps 5→23Hz — Pass 1170: →33Hz for more frenetic pre-reveal urgency — Pass 4280: 28→37.8 even more frenetic urgency strobe — Pass 5294: 37.8→51.0 more frenetic pre-reveal urgency strobe
     // Pass 573: strobe amplitude 0.10→0.16 — Pass 620: →0.22 — Pass 1155: →0.35 — Pass 1291: →0.50 for stronger urgency strobe pre-reveal
-    const _strobeAmp  = _prevT * 5.54;  // Pass 2557: strobe amp 0.50→0.68 — Pass 2823: 0.68→0.92 — Pass 2995: 0.92→1.24 — Pass 3488: 1.24→1.67 — Pass 3707: 1.67→2.25 — Pass 3991: 2.25→3.04 — Pass 4131: 3.04→4.10 stronger urgency strobe — Pass 5384: 4.10→5.54 stronger urgency strobe
+    const _strobeAmp  = _prevT * 7.48;  // Pass 2557: strobe amp 0.50→0.68 — Pass 2823: 0.68→0.92 — Pass 2995: 0.92→1.24 — Pass 3488: 1.24→1.67 — Pass 3707: 1.67→2.25 — Pass 3991: 2.25→3.04 — Pass 4131: 3.04→4.10 stronger urgency strobe — Pass 5384: 4.10→5.54 stronger urgency strobe — Pass 5427: 5.54→7.48 stronger slot sweep arc urgency strobe amplitude
     const _strobe = Math.sin(ts * _strobeFreq * Math.PI * 2) * _strobeAmp;
     // Pass 189: cone + beam switch from scan-blue to domain color at identity reveal
     {
@@ -3733,7 +3733,7 @@ function animate(ts) {
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
     // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
     const _ledUrgencyHz = 8 + ot * 29.7; // 8→30Hz // Pass 4763: LED urgency Hz ramp 22→29.7 more frantic gate pulse
-    const _ledUrgencyPulse = 0.18 + 30.1 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5 — Pass 4373: 16.5→22.3 deeper gate LED urgency throb — Pass 5291: 22.3→30.1 deeper gate LED urgency pulse
+    const _ledUrgencyPulse = 0.18 + 40.6 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5 — Pass 4373: 16.5→22.3 deeper gate LED urgency throb — Pass 5291: 22.3→30.1 deeper gate LED urgency pulse — Pass 5428: 30.1→40.6 deeper gate LED urgency pulse depth
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 — Pass 1221: →10.0 for brighter gate approach signal
@@ -3800,7 +3800,7 @@ function animate(ts) {
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
     // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 — Pass 1364: →50.0 — Pass 1556: →68.0 for stronger pre-gate glow
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 3366, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0 — Pass 3017: 226.0→305.1 — Pass 3212: 305.1→411.9 — Pass 3588: 411.9→556 — Pass 3683: 556→751 — Pass 3794: 751→1013 — Pass 3897: 1013→1368 // Pass 4495: gate open emissive max 1368→1847 more intense gate charge bloom — Pass 5030: 1847→2493 more intense gate charge bloom — Pass 5250: gate charge buildup particle emissive max 2493→3366 more intense gate charge bloom
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 4544, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0 — Pass 3017: 226.0→305.1 — Pass 3212: 305.1→411.9 — Pass 3588: 411.9→556 — Pass 3683: 556→751 — Pass 3794: 751→1013 — Pass 3897: 1013→1368 // Pass 4495: gate open emissive max 1368→1847 more intense gate charge bloom — Pass 5030: 1847→2493 more intense gate charge bloom — Pass 5250: gate charge buildup particle emissive max 2493→3366 more intense gate charge bloom — Pass 5422: 3366→4544 more intense gate charge buildup emissive final peak
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
     // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 — Pass 1557: primary →4.80, secondary →1.70 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
