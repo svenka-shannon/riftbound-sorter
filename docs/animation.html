@@ -2167,7 +2167,7 @@ function updateStatsUI(cardType) {
   CARD_TYPES.forEach(t => {
     const count = domainCounts[t.name] || 0;
     if(count > 0) {
-      const barW = Math.min(80, count * 8); // 8px per card, cap at 80px
+      const barW = Math.min(80, count * 11); // Pass 4603: slot fill bar width per card 8→11px wider domain count bars
       breakdownHtml +=
         `<div style="display:flex;align-items:center;gap:4px">` +
         `<span style="color:${t.css}">●</span> ` +
@@ -3513,7 +3513,7 @@ function animate(ts) {
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
           const _pingBoost = ft >= 0.85 ? 548 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2 — Pass 3547: 165.2→223 — Pass 3731: 223→301 — Pass 3837: 301→406 — Pass 4223: 406→548 blazing confirm rings
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
-          p.mat.opacity = _pingFade * flashIntensity * 1.0 * _pingBoost;
+          p.mat.opacity = _pingFade * flashIntensity * 1.35 * _pingBoost; // Pass 4601: scan ring opacity multiplier 1.0→1.35 brighter off-peak ring fade
         } else {
           p.mesh.visible = false;
           p.mat.opacity = 0;
@@ -3914,7 +3914,7 @@ function animate(ts) {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
         let _spawned = 0;
         // Pass 592: gate sparks 12→18 — Pass 785: 18→16 faster — Pass 919: →24, Pass 921: speed 95+110→120+140, Pass 920: vy 65+70→85+90
-        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 24; _si++) {
+        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 32; _si++) { // Pass 4607: grab particle count per gate event 24→32 bigger gate impact burst
           const _sp = GRAB_PARTICLES[_si];
           if (_sp.active) continue;
           // Pass 922: gate spark life 0.28+0.22→0.38+0.28 for longer-lived sparks
@@ -4123,7 +4123,7 @@ function animate(ts) {
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
     const _bankSign = Math.sign(ct.slotZ || 0);
-    const _bankStart = -0.5 * _bankSign;
+    const _bankStart = -0.68 * _bankSign; // Pass 4602: card tumble outer settle bank angle 0.5→0.68 wider slotDrop entry lean
     const _ySettleT = Math.min(1, dt3 / 0.5); // 0→1 over first half of slotDrop
     activeCard.rotation.y = THREE.MathUtils.lerp(_bankStart, 0, easeOut(_ySettleT));
     // Pass 161: landing pitch — card tips forward at bounce impact, springs back
@@ -4299,7 +4299,7 @@ function animate(ts) {
           if (_lp.active) continue;
           _lp.active = true; _lp.age = 0; _lp.life = 2.26 + Math.random() * 1.42; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58 — Pass 2628: 0.92+0.58→1.24+0.78 — Pass 3067: 1.24+0.78→1.67+1.05 — Pass 4356: 1.67+1.05→2.26+1.42 longer floor impact dust cloud
           _lp.mesh.position.set(
-            TRAY_X_START + 20 + (Math.random() - 0.5) * 10,
+            TRAY_X_START + 20 + (Math.random() - 0.5) * 13.5, // Pass 4600: slot entry landing dust X jitter 10→13.5 wider X scatter
             ct.slotFloorY + 2.7, // Pass 4586: slot entry dust Y offset 2→2.7 more airborne impact dust
             ct.slotZ + (Math.random() - 0.5) * 24.3 // Pass 4569: slot landing dust Z spread 18→24.3 wider impact footprint
           );
@@ -4341,7 +4341,7 @@ function animate(ts) {
         const _rr3 = (ct.hex >> 16) & 0xff, _gg3 = (ct.hex >> 8) & 0xff, _bb3 = ct.hex & 0xff;
         // Pass 586: upper floor arrival motes 3→5 — Pass 987: →8, life 0.35+0.18→0.50+0.25
         let _upMotes = 0;
-        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 8; _mi++) {
+        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 11; _mi++) { // Pass 4606: landing mote particle count 8→11 denser upper-floor arrival fountain
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
           _mp.active = true; _mp.age = 0; _mp.life = 7.48 + Math.random() * 3.77; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77
@@ -4674,10 +4674,10 @@ function animate(ts) {
       // After reveal (or in conveyorOut which follows scan), switch to domain color.
       const _beltRevealedOrPost = _identityRevealed || inPhase(PH.conveyorOut);
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
-      beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 1.5));
+      beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 2.03)); // Pass 4604: belt scan emissive color lerp rate 1.5→2.03 snappier domain tint adoption
       // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14 — Pass 1455: →0.28+0.20
       const _bsTarget = 4.20 + 2.19 * Math.sin(cycleT * 6); // Pass 2436: belt active emissive base 0.38→0.51, pulse 0.27→0.36 — Pass 2665: 0.51→0.69, 0.36→0.49 — Pass 2756: base 0.69→0.93 — Pass 2893/2894: 0.93+0.49→1.26+0.66 — Pass 3103: 1.26→1.70, 0.66→0.89 — Pass 3276: 1.70+0.89→2.30+1.20 — Pass 3356: 2.30+1.20→3.11+1.62 — Pass 4382: base 3.11→4.20, pulse 1.62→2.19 richer belt active glow
-      beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2);
+      beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 4605: belt scan emissive intensity tracking 2→2.70 crisper active belt glow response
     } else {
       beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 1.5));
       beltSurfMat.emissiveIntensity += (0.16 - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2.70); // belt idle emissive 0.12→0.16 brighter resting belt (Pass 4034 group) — Pass 4441: idle lerp rate 2→2.70 snappier belt surface idle return
