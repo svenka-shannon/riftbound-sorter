@@ -2998,11 +2998,11 @@ function animate(ts) {
         for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 24; _di++) { // Pass 3438: belt dust puff count 18→24
           const _dp = GRAB_PARTICLES[_di];
           if (_dp.active) continue;
-          _dp.active = true; _dp.age = 0; _dp.life = 0.57 + Math.random() * 0.30; // Pass 1487: 0.22+0.12→0.30+0.16 — Pass 1686: →0.42+0.22 — Pass 1847: →0.57+0.30
+          _dp.active = true; _dp.age = 0; _dp.life = 0.769 + Math.random() * 0.405; // Pass 1487: 0.22+0.12→0.30+0.16 — Pass 1686: →0.42+0.22 — Pass 1847: →0.57+0.30 — Pass 3933: 0.57+0.30→0.769+0.405 longer slot drop dust
           _dp.mesh.position.set(-111 + (Math.random()-0.5)*8, CONV_Y_TOP + 4, (Math.random()-0.5)*7);
           _dp.mesh.visible = true;
           const _side = Math.random() < 0.5 ? 1 : -1;
-          _dp.vx = _side * (54 + Math.random() * 88); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 — Pass 1687: →40+65 — Pass 1848: →54+88
+          _dp.vx = _side * (72.9 + Math.random() * 118.8); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 — Pass 1687: →40+65 — Pass 1848: →54+88 — Pass 3934: 54+88→72.9+118.8 wider slot drop burst
           _dp.vy = 83.7 + Math.random() * 104.0; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 — Pass 1688: →34+42 — Pass 1849: →46+57 — Pass 3437: →62+77 — Pass 3916: 62+77→83.7+104.0 higher slot drop dust
           _dp.vz = (Math.random() - 0.5) * 30; // Pass 1486: 16→22 — Pass 1689: →30
           // Pale domain-tinted dust: 35% domain + 65% white
@@ -3057,7 +3057,7 @@ function animate(ts) {
       + _approachT * 0.10 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat
       + _entryBoost;
     // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 — Pass 1304: →12.0 for stronger tension glow — Pass 1591: →16.0
-    cardGlow.intensity = 1.4 + _approachT * 21.6; // Pass 1858: approach glow ramp 16.0→21.6
+    cardGlow.intensity = 1.4 + _approachT * 29.2; // Pass 1858: approach glow ramp 16.0→21.6 — Pass 3940: 21.6→29.2 stronger approach tension glow
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     // Pass 468: early detection ripple — at ct2=0.60-0.80, LED flickers at 10Hz (card entering field)
     // Pass 888: early detect amplitude 0.5→0.8 for stronger card-entering-field detection
@@ -3123,12 +3123,12 @@ function animate(ts) {
     const _revealTilt = THREE.MathUtils.lerp(-0.05, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
     // Pass 746: pre-reveal vibration scale 0.8→1.3 for more visible scanner tremor buildup
-    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 1.75; // Pass 1707: pre-reveal vibration scale 1.3→1.75
+    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 2.36; // Pass 1707: pre-reveal vibration scale 1.3→1.75 — Pass 3937: 1.75→2.36 more visible scanner tremor
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015) * _scanVibScale;
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
     // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 — Pass 1279: →0.62 for sharper card-edge flash at identity reveal
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
-    const _yTilt = _identityRevealed ? 0.84 * Math.sin(_yTiltT * Math.PI) : 0; // Pass 1710: Y-tilt 0.62→0.84
+    const _yTilt = _identityRevealed ? 1.13 * Math.sin(_yTiltT * Math.PI) : 0; // Pass 1710: Y-tilt 0.62→0.84 — Pass 3938: 0.84→1.13 sharper card-edge flash at reveal
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
     // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 — Pass 1150: →0.085 — Pass 1280: →0.120 for sharper scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
@@ -3141,7 +3141,7 @@ function animate(ts) {
     const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 143 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143
     scanFlash.intensity = flashIntensity * 89.9 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3 — Pass 3759: 49.3→66.6 — Pass 3867: 66.6→89.9
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
-    const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.54 : 0; // Pass 1864: scan flash Z drift 0.40→0.54
+    const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.729 : 0; // Pass 1864: scan flash Z drift 0.40→0.54 — Pass 3939: 0.54→0.729 further Z drift toward slot
     scanFlash.position.set(-40, CONV_Y_TOP + 10, _flashZ351);
     // Pass 257: scanFlash domain color snap — scan light shifts to domain color at identity reveal
     scanFlash.color.setHex(_identityRevealed ? ct.hex : 0xffffff);
@@ -3157,7 +3157,7 @@ function animate(ts) {
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 — Pass 1514: →dt*2.8 (longer burst visibility)
     if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 2.1); // Pass 1740: burst decay 2.8→2.1 (longer visible burst)
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
-    const _revOsc = _cardRevealBurst * (1.19 + 1.09 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81 — Pass 1867: →1.19+1.09
+    const _revOsc = _cardRevealBurst * (1.61 + 1.47 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81 — Pass 1867: →1.19+1.09 — Pass 3935: 1.19+1.09→1.61+1.47 more vivid reveal pulse
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 15.1 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16 — Pass 3412: 6.16→8.32 — Pass 3768: 8.32→11.2 — Pass 3876: 11.2→15.1
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
@@ -3197,7 +3197,7 @@ function animate(ts) {
     {
       const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.10) : 1.0;
       // Pass 1152: hood sway primary 1.20→1.65, secondary 0.42→0.60 — Pass 1420: primary →2.20, secondary →0.82 for more resonant scanner oscillation
-      scannerHood.position.z = (2.97 * Math.sin(ts * 2.8 * Math.PI * 2) + 1.10 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10
+      scannerHood.position.z = (4.01 * Math.sin(ts * 2.8 * Math.PI * 2) + 1.49 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10 — Pass 3936: 2.97+1.10→4.01+1.49 deeper scanner hood sway
     }
     // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 — Pass 1236: →1.30 — Pass 1421: →1.75 for more dramatic iris breathing
     const _irisScale = 0.75 + flashIntensity * 5.82; // Pass 1745: iris scale amplitude 1.75→2.36 — Pass 3383: 2.36→3.19 — Pass 3514: 3.19→4.31 — Pass 3651: 4.31→5.82
