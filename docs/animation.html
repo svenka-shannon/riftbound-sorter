@@ -745,11 +745,11 @@ scene.add(hopperGroup);
 // Angled inner guide walls inside hopper (funnel shape to direct cards to exit)
 const guideL = makeBox(6, 172.3, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry — Pass 6387: 94.5→127.6 taller slot tray guide rail geometry — Pass 7370: 127.6→172.3 taller hopper guide rail geometry
 guideL.position.set(HOPPER_X + 15, 40, -30);
-guideL.rotation.z = 0.832; // Pass 4868: hopper guide L tilt angle 0.25→0.338 steeper funnel — Pass 5471: 0.338→0.456 steeper hopper left guide funnel angle — Pass 6341: 0.456→0.616 steeper hopper left guide funnel angle — Pass 7137: 0.616→0.832 steeper hopper left guide funnel angle
+guideL.rotation.z = 1.123; // Pass 4868: hopper guide L tilt angle 0.25→0.338 steeper funnel — Pass 5471: 0.338→0.456 steeper hopper left guide funnel angle — Pass 6341: 0.456→0.616 steeper hopper left guide funnel angle — Pass 7137: 0.616→0.832 steeper hopper left guide funnel angle — Pass 7856: 0.832→1.123 steeper hopper left guide funnel angle
 scene.add(guideL);
 const guideR = makeBox(6, 172.3, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry — Pass 6387: 94.5→127.6 taller slot tray guide rail geometry — Pass 7370: 127.6→172.3 taller hopper guide rail geometry
 guideR.position.set(HOPPER_X + 15, 40, 30);
-guideR.rotation.z = 0.832; // Pass 4868: hopper guide R tilt angle 0.25→0.338 steeper funnel — Pass 5472: 0.338→0.456 steeper hopper right guide funnel angle — Pass 6342: 0.456→0.616 steeper hopper right guide funnel angle — Pass 7138: 0.616→0.832 steeper hopper right guide funnel angle
+guideR.rotation.z = 1.123; // Pass 4868: hopper guide R tilt angle 0.25→0.338 steeper funnel — Pass 5472: 0.338→0.456 steeper hopper right guide funnel angle — Pass 6342: 0.456→0.616 steeper hopper right guide funnel angle — Pass 7138: 0.616→0.832 steeper hopper right guide funnel angle — Pass 7857: 0.832→1.123 steeper hopper right guide funnel angle
 scene.add(guideR);
 
 const hopperWire = makeWireBox(72, 108, 80, 0x444466);
@@ -925,14 +925,14 @@ const scanBarMesh = new THREE.Mesh(
 );
 // Positioned on front face of scanner hood (Z=-50 is front edge of 100-deep hood)
 // Hood centre X=-40, top Y=CONV_Y_TOP+65; bar sits 3u below top on front face
-scanBarMesh.position.set(-40, CONV_Y_TOP + 375, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 higher scan bar mount — Pass 5056: 83.7→113.0 higher scan bar mount — Pass 6350: 113.0→152.6 higher scan bar mount — Pass 6513: 152.6→206 higher scan bar mount — Pass 7411: 206→278 higher scan bar mount — Pass 7429: 278→375 higher scan bar mount
+scanBarMesh.position.set(-40, CONV_Y_TOP + 506, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 higher scan bar mount — Pass 5056: 83.7→113.0 higher scan bar mount — Pass 6350: 113.0→152.6 higher scan bar mount — Pass 6513: 152.6→206 higher scan bar mount — Pass 7411: 206→278 higher scan bar mount — Pass 7429: 278→375 higher scan bar mount — Pass 7852: 375→506 higher scan bar mount
 scanBarMesh.visible = false;
 scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
 const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(70.9, 70.9, 70.9), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block — Pass 5744: 8.63→11.7 larger scan bar leading-edge cursor block — Pass 6437: 11.7→15.8 larger scan bar leading-edge cursor block — Pass 6884: 15.8→21.3 larger scan bar leading-edge cursor block — Pass 7435: 21.3→28.8 larger scan bar leading-edge cursor block — Pass 7672: 28.8→38.9 larger scan bar leading-edge cursor block — Pass 7712: 38.9→52.5 larger scan bar leading-edge cursor block — Pass 7809: 52.5→70.9 larger scan bar leading-edge cursor block
-scanBarCursor.position.set(-40, CONV_Y_TOP + 375, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount — Pass 6351: 113.0→152.6 higher scan bar cursor mount — Pass 6513: 152.6→206 higher scan bar cursor mount — Pass 7411: 206→278 higher scan bar cursor mount — Pass 7429: 278→375 higher scan bar cursor mount
+scanBarCursor.position.set(-40, CONV_Y_TOP + 506, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount — Pass 6351: 113.0→152.6 higher scan bar cursor mount — Pass 6513: 152.6→206 higher scan bar cursor mount — Pass 7411: 206→278 higher scan bar cursor mount — Pass 7429: 278→375 higher scan bar cursor mount — Pass 7853: 375→506 higher scan bar cursor mount
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
 
@@ -982,7 +982,7 @@ const scanLineMat = new THREE.MeshStandardMaterial({
   emissiveIntensity: 360, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive — Pass 5969: 18.1→24.4 brighter scan crosshair primary beam emissive — Pass 6060: 24.4→32.9 brighter scan crosshair primary beam emissive — Pass 6307: 32.9→44.4 brighter scan crosshair primary beam emissive — Pass 6439: 44.4→59.9 brighter scan crosshair primary beam emissive — Pass 6659: 59.9→80.9 brighter scan crosshair primary beam emissive — Pass 6848: 80.9→109 brighter scan crosshair primary beam emissive — Pass 7074: 109→147 brighter scan crosshair primary beam emissive — Pass 7218: 147→198 brighter scan crosshair primary beam emissive — Pass 7559: 198→267 brighter scan crosshair primary beam emissive — Pass 7829: 267→360 brighter scan crosshair primary beam emissive
   transparent: true, opacity: 4.27 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam — Pass 5879: 1.28→1.73 overdrive scan crosshair primary beam opacity — Pass 6307: 1.73→2.34 overdrive scan crosshair primary beam opacity — Pass 6440: 2.34→3.16 overdrive scan crosshair primary beam opacity — Pass 7235: 3.16→4.27 overdrive scan crosshair primary beam opacity
 });
-const scanLine = new THREE.Mesh(new THREE.BoxGeometry(328, 5.47, 2.70), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span — Pass 5914: 133→180 wider scan crosshair primary beam span — Pass 6228: 180→243 wider scan crosshair primary beam span — Pass 6309: height 4.05→5.47 depth 2→2.70 chunkier scan crosshair primary beam — Pass 7201: 243→328 wider scan crosshair primary beam span
+const scanLine = new THREE.Mesh(new THREE.BoxGeometry(443, 5.47, 2.70), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span — Pass 5914: 133→180 wider scan crosshair primary beam span — Pass 6228: 180→243 wider scan crosshair primary beam span — Pass 6309: height 4.05→5.47 depth 2→2.70 chunkier scan crosshair primary beam — Pass 7201: 243→328 wider scan crosshair primary beam span — Pass 7858: 328→443 wider scan crosshair primary beam span
 scanLine.visible = false;
 scene.add(scanLine);
 // Secondary bar (spans Z=88, sweeps in X) — slightly warmer teal to differentiate
@@ -1491,13 +1491,13 @@ const _shadowMat = new THREE.MeshBasicMaterial({
 const _shadowMesh = new THREE.Mesh(new THREE.CircleGeometry(1, 32), _shadowMat);
 _shadowMesh.rotation.x = -Math.PI / 2; // lie flat on belt surface
 _shadowMesh.scale.set(CARD_H * 1.35, 1, CARD_W * 1.35); // elongated card-proportioned ellipse — Pass 4917: card contact shadow ellipse scale 0.55→0.74 larger belt shadow — Pass 5532: 0.74→1.00 full-card contact shadow ellipse scale — Pass 7289: 1.00→1.35 wider card contact shadow ellipse overscale
-_shadowMesh.position.set(-40, CONV_Y_TOP + 1.33, 0); // Pass 4926: shadow Y offset 0.4→0.54 more elevated belt shadow — Pass 5469: 0.54→0.729 more elevated card contact shadow — Pass 6344: 0.729→0.984 more elevated card contact shadow — Pass 7145: 0.984→1.33 more elevated card contact shadow
+_shadowMesh.position.set(-40, CONV_Y_TOP + 1.80, 0); // Pass 4926: shadow Y offset 0.4→0.54 more elevated belt shadow — Pass 5469: 0.54→0.729 more elevated card contact shadow — Pass 6344: 0.729→0.984 more elevated card contact shadow — Pass 7145: 0.984→1.33 more elevated card contact shadow — Pass 7855: 1.33→1.80 more elevated card contact shadow
 scene.add(_shadowMesh);
 
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
 // Narrow bright band swept across the card face during scan — simulates specular
 // reflection of the scanner beam reading the card surface (X=fullwidth, thin Z=7).
-const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 5.48, 42.3); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band — Pass 5115: Z width 12.76→17.2 wider card Z spread during scan — Pass 5710: stripe height 1.65→2.23 bolder card shimmer stripe band — Pass 5750: Z width 17.2→23.2 wider card shimmer Z spread during scan — Pass 6320: 23.2→31.3 wider card shimmer Z spread during scan — Pass 6337: stripe height 2.23→3.01 bolder card shimmer stripe band — Pass 6859: stripe height 3.01→4.06 bolder card shimmer stripe band — Pass 7240: stripe height 4.06→5.48 bolder card shimmer stripe band — Pass 7380: 31.3→42.3 wider card shimmer Z spread during scan
+const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 5.48, 57.1); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band — Pass 5115: Z width 12.76→17.2 wider card Z spread during scan — Pass 5710: stripe height 1.65→2.23 bolder card shimmer stripe band — Pass 5750: Z width 17.2→23.2 wider card shimmer Z spread during scan — Pass 6320: 23.2→31.3 wider card shimmer Z spread during scan — Pass 6337: stripe height 2.23→3.01 bolder card shimmer stripe band — Pass 6859: stripe height 3.01→4.06 bolder card shimmer stripe band — Pass 7240: stripe height 4.06→5.48 bolder card shimmer stripe band — Pass 7380: 31.3→42.3 wider card shimmer Z spread during scan — Pass 7859: 42.3→57.1 wider card shimmer Z spread during scan
 const cardShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false,
 });
@@ -2221,7 +2221,7 @@ function showScanOverlay(cardType, visible, routeText) {
 // Paddle rotates around Y axis (vertical) to deflect cards in the Z direction (column routing).
 // slotZ ∈ {-97.5, -32.5, 32.5, 97.5}  →  angles ±0.73 rad outer, ±0.24 rad inner
 function paddleAngleForSlot(slotZ) {
-  return -(slotZ / 160) * 7.29; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing — Pass 5074: 1.62→2.19 more dramatic gate swing — Pass 5745: 2.19→2.96 more dramatic gate paddle deflect angle — Pass 6714: 2.96→4.00 more dramatic gate paddle deflect angle — Pass 7437: 4.00→5.40 more dramatic gate paddle deflect angle — Pass 7466: 5.40→7.29 more dramatic gate paddle deflect angle
+  return -(slotZ / 160) * 9.84; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing — Pass 5074: 1.62→2.19 more dramatic gate swing — Pass 5745: 2.19→2.96 more dramatic gate paddle deflect angle — Pass 6714: 2.96→4.00 more dramatic gate paddle deflect angle — Pass 7437: 4.00→5.40 more dramatic gate paddle deflect angle — Pass 7466: 5.40→7.29 more dramatic gate paddle deflect angle — Pass 7854: 7.29→9.84 more dramatic gate paddle deflect angle
 }
 
 // ─── Hopper stack (dynamic — shrinks each cycle, refills after 6 cards) ───────
@@ -2850,7 +2850,7 @@ function animate(ts) {
     } else if(inPhase(PH.armSwing)) {
       // Servo swing toward belt deposit position (+1.57 = horizontal right)
       const st = phaseT(PH.armSwing);
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(1.46, 1.57, st); // Pass 4487: arm swing start 0.80→1.08 matches lift endpoint — Pass 5532: 1.08→1.46 arm swings from deeper pre-cocked angle
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(1.97, 1.57, st); // Pass 4487: arm swing start 0.80→1.08 matches lift endpoint — Pass 5532: 1.08→1.46 arm swings from deeper pre-cocked angle — Pass 7853: 1.46→1.97 deeper arm swing pre-cocked start angle
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
       // Pass 676: Z-depth arc 14→17 — Pass 764: →23 — Pass 1176: →32 — Pass 1244: →44 — Pass 1340: →60 for even more dramatic 3D depth sweep
       suctionPivot.position.z = Math.sin(st * Math.PI) * 1196; // Pass 2275: armSwing Z-depth arc 81→109 — Pass 3957: 109→147 — Pass 4189: 147→198 — Pass 4916: 198→267 deeper 3D sweep — Pass 5192: 267→360 deeper arm swing 3D arc — Pass 5982: 360→486 deeper arm swing Z-depth 3D arc — Pass 6620: 486→656 deeper arm swing Z-depth 3D arc — Pass 6834: 656→886 deeper arm swing Z-depth 3D arc — Pass 7343: 886→1196 deeper arm swing Z-depth 3D arc
@@ -3180,12 +3180,12 @@ function animate(ts) {
       scanLEDMat.emissive.setHex(0x0055cc);
     }
     // Pass 74/438: scanner hood deep pulse — Pass 438: domain lerp dt*2→dt*3, flashIntensity 0.8→1.2
-    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 3 + flashIntensity * 4.00)); // Pass 4796: scanner hood emissive lerp flash contribution 1.2→1.62 — Pass 5094: 1.62→2.19 more vivid scanner hood domain flash — Pass 5255: 2.19→2.96 more vivid scanner hood domain flash — Pass 6213: 2.96→4.00 more vivid scanner hood domain color flash
+    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 3 + flashIntensity * 5.40)); // Pass 4796: scanner hood emissive lerp flash contribution 1.2→1.62 — Pass 5094: 1.62→2.19 more vivid scanner hood domain flash — Pass 5255: 2.19→2.96 more vivid scanner hood domain flash — Pass 6213: 2.96→4.00 more vivid scanner hood domain color flash — Pass 7855: 4.00→5.40 more vivid scanner hood domain color flash
     // Pass 123: hood reveal strobe — Pass 437: duration dt*5.5→dt*3.8 (longer visible strobe)
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 9.36); // Pass 4787: hood reveal flash progression rate 3.8→5.13 snappier reveal strobe — Pass 5374: 5.13→6.93 snappier hood reveal flash progression — Pass 6411: 6.93→9.36 snappier hood reveal flash progression
       // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5 — Pass 1151: →6.5 — Pass 1413: →9.0
-      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 133; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0 — Pass 3432: 22.0→29.7 — Pass 3455: 29.7→40.1 — Pass 3645: 40.1→54.1 — Pass 4340: 54.1→73.0 brighter hood reveal strobe — Pass 5248: 73.0→98.6 brighter hood reveal strobe — Pass 6429: 98.6→133 brighter hood reveal strobe peak
+      const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 180; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0 — Pass 3432: 22.0→29.7 — Pass 3455: 29.7→40.1 — Pass 3645: 40.1→54.1 — Pass 4340: 54.1→73.0 brighter hood reveal strobe — Pass 5248: 73.0→98.6 brighter hood reveal strobe — Pass 6429: 98.6→133 brighter hood reveal strobe peak — Pass 7858: 133→180 brighter hood reveal strobe peak
       hoodMat.emissiveIntensity = 0.635 + flashIntensity * 3.32 + _revStrobe; // Pass 738: 1.10→1.35 — Pass 3980: flash multiplier 1.35→1.82 — Pass 4364: base 0.35→0.47 brighter hood reveal base — Pass 5369: 0.47→0.635 brighter hood reveal strobe base — Pass 5798: flash multiplier 1.82→2.46 stronger hood reveal strobe flash — Pass 6972: 2.46→3.32 stronger hood reveal strobe flash multiplier
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
@@ -3201,7 +3201,7 @@ function animate(ts) {
       scannerHood.position.z = (9.86 * Math.sin(ts * 3.78 * Math.PI * 2) + 40.6 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10 — Pass 3936: 2.97+1.10→4.01+1.49 deeper scanner hood sway — Pass 4221: primary 4.01→5.41 — Pass 4222: secondary 1.49→2.01 wilder hood resonance — Pass 5158: primary 5.41→7.30 deeper scanner body X sway — Pass 5166: sway frequency 2.8→3.78 faster scanner body forward bob — Pass 5250: secondary 2.01→2.71 wilder scanner hood forward bob secondary — Pass 5489: 2.71→3.66 wilder scanner body Z bob frequency secondary amplitude — Pass 5539: 3.66→4.94 wilder scanner hood idle hover secondary sway amplitude — Pass 5573: 4.94→6.67 wilder scanner hood idle Z secondary sway amplitude — Pass 5587: 6.67→9.00 wilder scanner hood idle Z secondary sway amplitude — Pass 5604: 9.00→12.2 wilder scanner body X lean amplitude secondary idle sway — Pass 5614: 12.2→16.5 wilder scanner body lean angle limit secondary idle sway amplitude — Pass 5629: 16.5→22.3 wilder scanner Z lean during approach secondary sway amplitude — Pass 5636: 22.3→30.1 wilder scanner forward bob peak secondary sway amplitude — Pass 6959: primary 7.30→9.86 deeper scanner hood primary sway — Pass 6960: secondary 30.1→40.6 deeper scanner hood secondary sway
     }
     // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 — Pass 1236: →1.30 — Pass 1421: →1.75 for more dramatic iris breathing
-    const _irisScale = 0.75 + flashIntensity * 26.1; // Pass 1745: iris scale amplitude 1.75→2.36 — Pass 3383: 2.36→3.19 — Pass 3514: 3.19→4.31 — Pass 3651: 4.31→5.82 — Pass 3982: 5.82→7.86 — Pass 4110: 7.86→10.6 bigger iris throb — Pass 5251: 10.6→14.3 bigger iris throb amplitude — Pass 6347: 14.3→19.3 bigger lens iris throb amplitude — Pass 6432: 19.3→26.1 bigger lens iris throb amplitude
+    const _irisScale = 0.75 + flashIntensity * 35.2; // Pass 1745: iris scale amplitude 1.75→2.36 — Pass 3383: 2.36→3.19 — Pass 3514: 3.19→4.31 — Pass 3651: 4.31→5.82 — Pass 3982: 5.82→7.86 — Pass 4110: 7.86→10.6 bigger iris throb — Pass 5251: 10.6→14.3 bigger iris throb amplitude — Pass 6347: 14.3→19.3 bigger lens iris throb amplitude — Pass 6432: 19.3→26.1 bigger lens iris throb amplitude — Pass 7859: 26.1→35.2 bigger lens iris throb amplitude
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.234 ? easeOut(ft / 0.234) : 1.0; // Pass 4926: iris snap-open window 0.07→0.095 longer lens open sweep — Pass 5552: 0.095→0.128 longer iris snap-open sweep window — Pass 6662: 0.128→0.173 longer iris snap-open sweep window — Pass 6776: 0.173→0.234 longer iris snap-open sweep window
     // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 — Pass 1237: →2.20 — Pass 1288: →3.00 for even bigger iris pop at reveal
@@ -3963,7 +3963,7 @@ function animate(ts) {
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 396; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161 — Pass 4084: 161→217 — Pass 5562: 217→293 stronger deflect Y tremor — Pass 6648: 293→396 stronger deflect Y tremor amplitude
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
-    const floorTilt = ct.floor === 1 ? 0.365 : -0.135; // upper: nose up; lower: nose down // Pass 4893: floor-1 guided deflect arc nose-up tilt 0.20→0.27 — Pass 5559: 0.27→0.365 steeper floor-1 nose-up tilt — Pass 5941: -0.1→-0.135 steeper floor-0 nose-down deflect tilt
+    const floorTilt = ct.floor === 1 ? 0.493 : -0.182; // upper: nose up; lower: nose down // Pass 4893: floor-1 guided deflect arc nose-up tilt 0.20→0.27 — Pass 5559: 0.27→0.365 steeper floor-1 nose-up tilt — Pass 5941: -0.1→-0.135 steeper floor-0 nose-down deflect tilt — Pass 7854: floor-1 0.365→0.493, floor-0 -0.135→-0.182 steeper deflect arc nose tilts
     activeCard.rotation.y = THREE.MathUtils.lerp(0, -1.24 * bankSign, dt2); // Pass 4695: deflect flight bank angle 0.5→0.68 harder card lean during arc — Pass 5560: 0.68→0.918 harder card lean during deflect arc — Pass 6670: 0.918→1.24 harder card lean bank angle during deflect arc
     // Pass 159: smooth conveyorOut exit lean → floorTilt + brief nose-up launch kick
     // Eliminates the snap at the conveyorOut/deflect rotation.x boundary
@@ -4963,7 +4963,7 @@ function animate(ts) {
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
       const _altFrac = Math.min(1, _altitude / 740); // Pass 2195: floor disc altitude 67→90 — Pass 2784: 90→122 — Pass 2917: 122→165 — Pass 3127: 165→223 — Pass 3297: 223→301 — Pass 4159: 301→406 disc follows higher lifts — Pass 5792: 406→548 disc follows higher lifts — Pass 6570: 548→740 disc follows even higher lifts
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
-      const _fdScale = 1.0 + _altFrac * 128; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo — Pass 5406: 70.3→94.9 bigger domain halo altitude expansion — Pass 6238: 94.9→128 bigger domain halo altitude expansion scale
+      const _fdScale = 1.0 + _altFrac * 173; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo — Pass 5406: 70.3→94.9 bigger domain halo altitude expansion — Pass 6238: 94.9→128 bigger domain halo altitude expansion scale — Pass 7856: 128→173 bigger domain halo altitude expansion scale
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
       const _fdPulse514 = (1 - _altFrac) * 0.255 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe — Pass 4558: 0.077→0.104 stronger floor disc breathe — Pass 5407: 0.104→0.140 stronger floor disc breathe pulse — Pass 6239: 0.140→0.189 stronger floor disc breathe pulse amplitude — Pass 7257: 0.189→0.255 stronger floor disc breathe pulse amplitude
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
@@ -5025,11 +5025,11 @@ function animate(ts) {
     const _speedFactor = Math.min(1, _beltScrollSpeed / 0.08); // 0 idle → 1 at full speed
     // Pass 376: ghost opacity boost — more visible trail effect
     // Pass 661: ghost opacity 0.42/0.22/0.10 → 0.52/0.28/0.14 — Pass 820: →0.68/0.40/0.22 — Pass 1028: →0.85/0.55/0.32
-    const ghostOpacities = [1.00 * _speedFactor, 1.00 * _speedFactor, 1.00 * _speedFactor]; // Pass 2484: ghost opacity mid/tail 0.68/0.41→0.92/0.55 — Pass 2695: 0.92→1.00, 0.55→0.74 — Pass 4032: tail 0.74→1.00 full-opacity ghost trail
+    const ghostOpacities = [1.35 * _speedFactor, 1.35 * _speedFactor, 1.35 * _speedFactor]; // Pass 2484: ghost opacity mid/tail 0.68/0.41→0.92/0.55 — Pass 2695: 0.92→1.00, 0.55→0.74 — Pass 4032: tail 0.74→1.00 full-opacity ghost trail — Pass 7852: 1.00→1.35 brighter full-opacity ghost trail
     ghostCards.forEach(({ mesh, mat }, gi) => {
       if (beltTrail && activeCard.visible) {
         // Pass 377: lag spacing 9→12 — Pass 660: →15 — Pass 822: →19 — Pass 1031: →24 for wider motion-blur spread
-        const lag = (gi + 1) * 1570; // Pass 2485: ghost trail lag spacing 43→58 — Pass 2696: 58→78 — Pass 2791: 78→105 — Pass 2924: 105→142 — Pass 3135: 142→192 — Pass 3303: 192→259 — Pass 3625: 259→350 — Pass 4033: 350→473 wider motion-blur trail spread — Pass 5367: 473→638 wider motion-blur trail spread — Pass 5411: 638→861 wider ghost trail lag spacing — Pass 6010: 861→1163 wider ghost trail motion-blur lag spacing — Pass 6254: 1163→1570 wider ghost trail motion-blur lag spacing
+        const lag = (gi + 1) * 2120; // Pass 2485: ghost trail lag spacing 43→58 — Pass 2696: 58→78 — Pass 2791: 78→105 — Pass 2924: 105→142 — Pass 3135: 142→192 — Pass 3303: 192→259 — Pass 3625: 259→350 — Pass 4033: 350→473 wider motion-blur trail spread — Pass 5367: 473→638 wider motion-blur trail spread — Pass 5411: 638→861 wider ghost trail lag spacing — Pass 6010: 861→1163 wider ghost trail motion-blur lag spacing — Pass 6254: 1163→1570 wider ghost trail motion-blur lag spacing — Pass 7857: 1570→2120 wider ghost trail motion-blur lag spacing
         mesh.visible = true;
         mesh.position.copy(activeCard.position);
         mesh.position.x -= lag;
