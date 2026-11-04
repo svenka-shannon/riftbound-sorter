@@ -704,7 +704,7 @@ scene.add(baseMesh);
 const HOPPER_X = -230;
 
 // Point light above hopper to spotlight the pick-up action
-const hopperLight = new THREE.PointLight(0xffeedd, 2.26, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight
+const hopperLight = new THREE.PointLight(0xffeedd, 3.05, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight — Pass 5930: 2.26→3.05 stronger hopper pick spotlight intensity
 hopperLight.position.set(HOPPER_X + 33, 200, 0);
 scene.add(hopperLight);
 
@@ -759,7 +759,7 @@ scene.add(hopperWire);
 // Pass 59: Hopper status LED — small indicator sphere on hopper front face
 // Color: green (full) → yellow (half) → red (low) → fast-blink when empty+refilling
 const hopperLEDMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 16.3, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED — Pass 5066: 6.66→8.99 brighter hopper LED — Pass 5303: 8.99→12.1 brighter slot wall LED color urgency — Pass 5739: 12.1→16.3 brighter hopper status LED emissive
+  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 22.0, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED — Pass 5066: 6.66→8.99 brighter hopper LED — Pass 5303: 8.99→12.1 brighter slot wall LED color urgency — Pass 5739: 12.1→16.3 brighter hopper status LED emissive — Pass 5931: 16.3→22.0 brighter hopper status LED emissive
   roughness: 0.05, metalness: 0.0,
 });
 const hopperLED = new THREE.Mesh(new THREE.SphereGeometry(3.5, 19, 19), hopperLEDMat); // Pass 4984: hopper LED sphere segments 10→14 smoother status indicator — Pass 5823: 14→19 smoother hopper LED sphere
@@ -806,7 +806,7 @@ beltTex.wrapS = THREE.RepeatWrapping;
 beltTex.repeat.set(4, 1); // fewer repeats for wider visible pattern
 const beltSurfMat = new THREE.MeshStandardMaterial({
   map: beltTex, roughness: 0.55, metalness: 0.1,
-  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.719 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline — Pass 5723: 0.532→0.719 brighter belt surface baseline emissive
+  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.971 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline — Pass 5723: 0.532→0.719 brighter belt surface baseline emissive — Pass 5932: 0.719→0.971 brighter belt surface baseline emissive
 });
 const beltSurf = new THREE.Mesh(new THREE.BoxGeometry(248, 2, 76), beltSurfMat);
 beltSurf.position.set(-40, CONV_Y_TOP + 1, 0);
@@ -2637,7 +2637,7 @@ function animate(ts) {
       // Pass 182: servo hunt jitter — was ts*0.055 (114-second period = invisible).
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
-      const jitter = 12.8 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting
+      const jitter = 17.3 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting — Pass 5826: 12.8→17.3 more frantic pre-pick hunting
         Math.sin(ts * 19.7 * Math.PI * 2) * 7.78 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter — Pass 5087: 10.8→14.6 Hz crisper arm tremor oscillation — Pass 5109: arm descent servo hunt frequency 14.6→19.7 Hz crisper pre-pick tremor — Pass 5319: 0.945→1.28 stronger arm extension tremor primary amplitude — Pass 5399: 1.28→1.73 stronger arm approach jitter buildup primary amplitude — Pass 5520: 1.73→2.34 stronger arm tremor tertiary frequency primary amplitude — Pass 5578: 2.34→3.16 stronger arm descent servo hunt primary amplitude — Pass 5582: 3.16→4.27 stronger arm descent servo hunt primary amplitude — Pass 5611: 4.27→5.76 stronger arm descent servo hunt primary oscillation amplitude — Pass 5619: 5.76→7.78 stronger pre-pick scan arm descent servo hunt primary amplitude
         Math.sin(ts * 17.6 * Math.PI * 2) * 8.17 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone — Pass 5112: 0.405→0.547 richer descent overtone texture — Pass 5254: scanner arm extension descent overtone amp 0.547→0.739 richer arm tremor texture — Pass 5327: 0.739→1.00 richer arm tremor overtone frequency amplitude — Pass 5392: 1.00→1.35 richer arm approach jitter buildup overtone amplitude — Pass 5493: 1.35→1.82 richer arm descent oscillation tertiary overtone secondary amplitude — Pass 5521: 1.82→2.46 richer arm tremor tertiary overtone amplitude — Pass 5579: 2.46→3.32 richer arm descent overtone jitter amplitude — Pass 5583: 3.32→4.48 richer arm descent overtone jitter amplitude — Pass 5612: 4.48→6.05 richer arm descent servo hunt secondary overtone amplitude — Pass 5620: 6.05→8.17 richer pre-pick scan LED Z spread arm descent servo hunt secondary overtone amplitude
       );
@@ -2655,7 +2655,7 @@ function animate(ts) {
         scanTargetLight.position.set(PIV_X, CONV_Y_TOP + 8, 0);
         // Pass 276: rangefinder lock-on flicker — 22Hz strobe in final 12% as arm locks on
         // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 — Pass 4063: sine amp 0.52→0.70 more nervous lock-on hunting
-        const _lockFlicker = pt > 0.88 ? (0.875 + 0.945 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0; // Pass 4590: rangefinder flicker floor 0.48→0.648 brighter suction lock-on baseline — Pass 5144: 0.648→0.875 brighter suction lock-on baseline — Pass 5786: flicker amplitude 0.70→0.945 more nervous lock-on hunting
+        const _lockFlicker = pt > 0.88 ? (0.875 + 1.28 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0; // Pass 4590: rangefinder flicker floor 0.48→0.648 brighter suction lock-on baseline — Pass 5144: 0.648→0.875 brighter suction lock-on baseline — Pass 5786: flicker amplitude 0.70→0.945 more nervous lock-on hunting — Pass 5830: flicker amplitude 0.945→1.28 more nervous lock-on hunting
         // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 — Pass 1310: →7.5 — Pass 1426: →10.5 — Pass 3913: 10.5→14.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight
         scanTargetLight.intensity = _pickTgtT * 47.3 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker; // Pass 4416: 14.2→19.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight — Pass 5070: 25.9→35.0 brighter lock-on spotlight — Pass 5771: 35.0→47.3 brighter lock-on targeting spotlight
       }
@@ -2666,7 +2666,7 @@ function animate(ts) {
         const _earlyT = (pt - 0.50) / 0.30; // 0→1 in early warmup window
         suctionCupMat.emissive.setHex(ct.hex);
         // Pass 1315: early vacuum warmup emissive 0.25→0.40 — Pass 3958: 0.40→0.540 more visible vacuum build — Pass 4290: 0.540→0.729 brighter vacuum warmup
-        suctionCupMat.emissiveIntensity += (0.984 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4616: suction cup descent emissive track rate 5→6.75 faster warmup tracking — Pass 5095: vacuum warmup emissive 0.729→0.984 brighter gate pre-glow warmup — Pass 5523: track rate 6.75→9.11 faster suction cup warmup tracking
+        suctionCupMat.emissiveIntensity += (1.33 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4616: suction cup descent emissive track rate 5→6.75 faster warmup tracking — Pass 5095: vacuum warmup emissive 0.729→0.984 brighter gate pre-glow warmup — Pass 5523: track rate 6.75→9.11 faster suction cup warmup tracking — Pass 5827: vacuum warmup emissive 0.984→1.33 brighter gate pre-glow warmup
       }
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
@@ -3190,7 +3190,7 @@ function animate(ts) {
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
       // Pass 500: scanner hood scan intensity 0.35+1.10→0.40+1.40 — Pass 739: →0.45+1.70 — Pass 1414: →0.45+2.30
-      hoodMat.emissiveIntensity = 0.61 + flashIntensity * 25.4; // Pass 2305: hood scan intensity 3.11→4.20 — Pass 3382: 4.20→5.67 — Pass 3513: 5.67→7.65 — Pass 3650: 7.65→10.3 — Pass 3981: 10.3→13.9 — Pass 4109: 13.9→18.8 — Pass 4365: base 0.45→0.61 warmer hood idle glow — Pass 5249: 18.8→25.4 brighter scanner hood scan flash
+      hoodMat.emissiveIntensity = 0.823 + flashIntensity * 25.4; // Pass 2305: hood scan intensity 3.11→4.20 — Pass 3382: 4.20→5.67 — Pass 3513: 5.67→7.65 — Pass 3650: 7.65→10.3 — Pass 3981: 10.3→13.9 — Pass 4109: 13.9→18.8 — Pass 4365: base 0.45→0.61 warmer hood idle glow — Pass 5249: 18.8→25.4 brighter scanner hood scan flash — Pass 5832: base 0.61→0.823 warmer hood idle glow
     }
     // Pass 197: scanner hood micro-sway — Z oscillation simulates emitter/receiver resonance.
     // Pass 607: amplitude 0.5→0.85 + secondary 4.1Hz harmonic — Pass 948: primary 0.85→1.20, secondary 0.28→0.42
@@ -3219,7 +3219,7 @@ function animate(ts) {
     // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 — Pass 1238: →2.8 — Pass 1521: →3.8 for stronger soft scan halo
     scanBloom.intensity = flashIntensity * 42.0 + _bloomRevealSurge; // Pass 2316: bloom flash contribution 5.13→6.93 — Pass 3385: 6.93→9.36 — Pass 3516: 9.36→12.6 — Pass 3656: 12.6→17.0 — Pass 3984: 17.0→23.0 — Pass 4124: 23.0→31.1 brighter bloom — Pass 5257: 31.1→42.0 brighter bloom flash contribution
     // Pass 347: bloom Z drift toward destination slot after identity reveal — Pass 4068: drift multiplier 0.30→0.41 further bloom Z drift
-    const _bloomZ347 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.20) * 0.554 : 0; // Pass 5271: bloom Z drift 0.41→0.554 deeper bloom Z drift toward slot
+    const _bloomZ347 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.20) * 0.748 : 0; // Pass 5271: bloom Z drift 0.41→0.554 deeper bloom Z drift toward slot — Pass 5828: 0.554→0.748 deeper bloom Z drift toward slot
     scanBloom.position.set(-40, CONV_Y_TOP + 15, _bloomZ347);
     // Crosshair scan lines sweep across the card
     scanLine.visible = true;
@@ -3269,7 +3269,7 @@ function animate(ts) {
     // Pass 848: reversal flash intensity 5.5→9.0 — Pass 1690: →12.0, dist 80→110 — Pass 4005: 12.0→16.2 brighter beam direction-flip flash
     if (!_beamReversalFlashFired && ft >= 0.50 && !_identityRevealed) {
       _beamReversalFlashFired = true;
-      const _brfl = new THREE.PointLight(0xaaddff, 29.6, 149); // Pass 4005: beam reversal flash 12.0→16.2 — Pass 5365: intensity 16.2→21.9, range 110→149 brighter beam reversal flash — Pass 5840: 21.9→29.6 brighter beam direction-flip flash
+      const _brfl = new THREE.PointLight(0xaaddff, 40.0, 149); // Pass 4005: beam reversal flash 12.0→16.2 — Pass 5365: intensity 16.2→21.9, range 110→149 brighter beam reversal flash — Pass 5840: 21.9→29.6 brighter beam direction-flip flash — Pass 5829: 29.6→40.0 brighter beam reversal flash
       _brfl.position.set(-40, CONV_Y_TOP + 20, 0);
       scene.add(_brfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3623,7 +3623,7 @@ function animate(ts) {
       const arcMid   = new THREE.Vector3(
         (arcStart.x + arcEnd.x) / 2 + 18.2, // Pass 4572: routing arc X midpoint bias 10→13.5 deeper slot arc lean — Pass 5491: 13.5→18.2 deeper routing arc X lean
         // Pass 685: route arc loft 55→68 for more dramatic predicted-path arc — Pass 4077: 68→91.8 taller arc
-        Math.max(arcStart.y, arcEnd.y) + 167,  // loft the arc well above the machine — Pass 4919: route arc loft 91.8→124 higher predicted-path arc — Pass 5579: 124→167 higher predicted-path arc loft
+        Math.max(arcStart.y, arcEnd.y) + 225,  // loft the arc well above the machine — Pass 4919: route arc loft 91.8→124 higher predicted-path arc — Pass 5579: 124→167 higher predicted-path arc loft — Pass 5833: 167→225 higher predicted-path arc loft
         arcEnd.z * _arcZBias305                // bias midpoint toward destination Z
       );
       const arcPts = routeArcGeo.attributes.position.array;
@@ -4691,7 +4691,7 @@ function animate(ts) {
       const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
       hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 5.47)); // Pass 4827: hood approach warm-up color tracking 3→4.05 — Pass 5682: 4.05→5.47 snappier scanner hood approach color tracking
       // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 — Pass 1456: →0.28+1.80 for dramatic heat-up
-      const _warmTarget = 0.378 + _warmT * 161.5; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7 — Pass 3277: 14.7→19.8 — Pass 3363: 19.8→26.7 — Pass 3501: 26.7→36.0 — Pass 3742: 36.0→48.6 — Pass 3850: 48.6→65.6 — Pass 4386: 65.6→88.6 — Pass 4712: 88.6→119.6 brighter scanner hood warm-up — Pass 4804: warm-up base 0.28→0.378 brighter hood warm-up floor — Pass 5593: 119.6→161.5 brighter scanner hood approach warm-up ceiling
+      const _warmTarget = 0.510 + _warmT * 161.5; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7 — Pass 3277: 14.7→19.8 — Pass 3363: 19.8→26.7 — Pass 3501: 26.7→36.0 — Pass 3742: 36.0→48.6 — Pass 3850: 48.6→65.6 — Pass 4386: 65.6→88.6 — Pass 4712: 88.6→119.6 brighter scanner hood warm-up — Pass 4804: warm-up base 0.28→0.378 brighter hood warm-up floor — Pass 5593: 119.6→161.5 brighter scanner hood approach warm-up ceiling — Pass 5831: warm-up base 0.378→0.510 brighter hood warm-up floor
       // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 — Pass 1457: →0.14 for more visible heat flicker
       const _hoodShimmer = 23.0 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15 — Pass 3278: 1.15→1.55 — Pass 3364: 1.55→2.09 — Pass 3502: 2.09→2.82 — Pass 3743: 2.82→3.81 — Pass 3851: 3.81→5.14 — Pass 4387: 5.14→6.94 — Pass 4713: 6.94→9.37 more vivid hood shimmer — Pass 5460: 9.37→12.6 more vivid scanner hood shimmer amplitude — Pass 5601: 12.6→17.0 more vivid scanner hood approach thermal shimmer — Pass 5630: 17.0→23.0 more vivid pre-pick scan dome ring thermal shimmer amplitude
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 7.29); // Pass 4791: hood warm-up emissive tracking rate 4→5.40 snappier scanner heat-up response — Pass 5641: 5.40→7.29 snappier scanner hood warm-up emissive tracking
