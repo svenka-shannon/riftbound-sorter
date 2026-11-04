@@ -3826,7 +3826,7 @@ function animate(ts) {
         // Pass 489: corona opacity 0.15+0.12→0.22+0.18 — Pass 713: →0.30+0.24 — Pass 951: →0.42+0.32 — Pass 1226: →0.58+0.44 — Pass 1298: →0.75+0.55 — Pass 1562: opacity capped at 1.0
         tp.mat.opacity = Math.min(1.0, 0.75 + Math.random() * 0.55);
         // Pass 952: corona particle life 0.22+0.18→0.30+0.24 — Pass 1563: →0.42+0.32 for longer-lived charge aura
-        tp.age = 0; tp.life = 6.26 + Math.random() * 4.73; // Pass 2363: gate corona particle life 0.57+0.43→0.77+0.58 — Pass 2581: 0.77+0.58→1.04+0.78 — Pass 3019: 1.04+0.78→1.40+1.05 — Pass 3213: 1.40+1.05→1.89+1.42 — Pass 3589: 1.89+1.42→2.55+1.92 — Pass 3684: 2.55+1.92→3.44+2.59 — Pass 3795: base 3.44→4.64 — Pass 3796: rand 2.59→3.50 — Pass 3898: base 4.64→6.26 — Pass 3899: rand 3.50→4.73
+        tp.age = 0; tp.life = 8.45 + Math.random() * 6.39; // Pass 2363: gate corona particle life 0.57+0.43→0.77+0.58 — Pass 2581: 0.77+0.58→1.04+0.78 — Pass 3019: 1.04+0.78→1.40+1.05 — Pass 3213: 1.40+1.05→1.89+1.42 — Pass 3589: 1.89+1.42→2.55+1.92 — Pass 3684: 2.55+1.92→3.44+2.59 — Pass 3795: base 3.44→4.64 — Pass 3796: rand 2.59→3.50 — Pass 3898: base 4.64→6.26 — Pass 3899: rand 3.50→4.73 — Pass 4736: base 6.26→8.45 longer corona aura — Pass 4737: rand 4.73→6.39
         tp.active = true; tp.mesh.visible = true;
       }
     }
@@ -3843,7 +3843,7 @@ function animate(ts) {
     scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
     // Pass 129: brief acceleration surge emissive at exit start — Pass 953: 0.5→0.9 — Pass 972: →1.4 brighter launch surge
-    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 20.8 : 0; // Pass 2365: exit surge 2.55→3.44 — Pass 2582: 3.44→4.64 — Pass 3022: 4.64→6.26 — Pass 3214: 6.26→8.45 — Pass 3590: 8.45→11.4 — Pass 3685: 11.4→15.4 — Pass 3998: 15.4→20.8
+    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 28.1 : 0; // Pass 2365: exit surge 2.55→3.44 — Pass 2582: 3.44→4.64 — Pass 3022: 4.64→6.26 — Pass 3214: 6.26→8.45 — Pass 3590: 8.45→11.4 — Pass 3685: 11.4→15.4 — Pass 3998: 15.4→20.8 — Pass 4738: 20.8→28.1 stronger ConveyorOut flash
     activeCardMat.emissiveIntensity = Math.max(0.74 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5); // Pass 4644: belt entry card emissive hold 0.55→0.74 brighter belt cruise glow floor
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
@@ -4047,7 +4047,7 @@ function animate(ts) {
     // Pass 649: deflect column light max 3.0→4.5 — Pass 1193: →6.5 brighter gate column during arc flight
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (244 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0 — Pass 3689: 99.0→134 — Pass 3801: 134→181 — Pass 3901: 181→244
+    gateColLight.intensity += (329 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0 — Pass 3689: 99.0→134 — Pass 3801: 134→181 — Pass 3901: 181→244 — Pass 4741: 244→329 brighter gate column tracking
     _beltScrollSpeed = 0.04; // half speed while card arcs off belt
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
@@ -4186,7 +4186,7 @@ function animate(ts) {
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
       slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 309.0, dt3 / 0.35) // Pass 4488: slot sweep peak 228.9→309.0 brighter slot entry spotlight
-                                             : THREE.MathUtils.lerp(163.9, 0, (dt3 - 0.35) / 0.65); // Pass 2117: sweep peak 51.0→68.9 Pass 2118: sweep tail 36.5→49.3 — Pass 2615: 68.9→93.0, 49.3→66.6 — Pass 3056: 93.0→125.6, 66.6→89.9 — Pass 3243: peak 125.6→169.6, tail 89.9→121.4 — Pass 3410: peak 169.6→228.9 Pass 3411: tail 121.4→163.9
+                                             : THREE.MathUtils.lerp(221, 0, (dt3 - 0.35) / 0.65); // Pass 2117: sweep peak 51.0→68.9 Pass 2118: sweep tail 36.5→49.3 — Pass 2615: 68.9→93.0, 49.3→66.6 — Pass 3056: 93.0→125.6, 66.6→89.9 — Pass 3243: peak 125.6→169.6, tail 89.9→121.4 — Pass 3410: peak 169.6→228.9 Pass 3411: tail 121.4→163.9 — Pass 4743: tail 163.9→221 brighter slot sweep tail
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
@@ -4344,7 +4344,7 @@ function animate(ts) {
         for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 11; _mi++) { // Pass 4606: landing mote particle count 8→11 denser upper-floor arrival fountain
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
-          _mp.active = true; _mp.age = 0; _mp.life = 7.48 + Math.random() * 3.77; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77
+          _mp.active = true; _mp.age = 0; _mp.life = 10.1 + Math.random() * 5.09; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 8,
             ct.slotFloorY + 40.5 + Math.random() * 6, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain
@@ -4735,7 +4735,7 @@ function animate(ts) {
     const _cardX = activeCard.visible ? activeCard.position.x : 9999;
     rollerMats.forEach((rm, ri) => {
       const _dist = Math.abs(_cardX - _rollerXs[ri]);
-      const _prox = Math.max(0, 1 - _dist / 562); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228 — Pass 3109: 228→308 — Pass 3281: 308→416 — Pass 3359: 416→562
+      const _prox = Math.max(0, 1 - _dist / 759); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228 — Pass 3109: 228→308 — Pass 3281: 308→416 — Pass 3359: 416→562 — Pass 4742: 562→759 wider conveyor roller glow range
       const _targetI = _prox * 56.7;              // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30 — Pass 2762: 9.30→12.6 — Pass 2900: 12.6→17.0 — Pass 3110: 17.0→23.0 — Pass 3282: 23.0→31.1 — Pass 3360: 31.1→42.0 — Pass 4389: 42.0→56.7 brighter conveyor roller proximity glow
       rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 5));
       rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 8.1); // Pass 4465: roller emissive tracking rate 6→8.1 snappier proximity glow
