@@ -1543,7 +1543,7 @@ const impactRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0,
 });
 const impactRing = new THREE.Mesh(
-  new THREE.TorusGeometry(18, 2.2, 6, 24),
+  new THREE.TorusGeometry(18, 2.97, 6, 24), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave
   impactRingMat
 );
 impactRing.visible = false;
@@ -1576,7 +1576,7 @@ let _confirmRingT2 = -1; // -1=idle; 0..1=animation progress (fires 0.12s after 
 const grabRingMat = new THREE.MeshBasicMaterial({
   color: 0xccddff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 1.0, 4, 32), grabRingMat);
+const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 1.35, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring
 grabRing.rotation.x = -Math.PI / 2; // lie flat in the belt plane
 grabRing.visible = false;
 scene.add(grabRing);
@@ -3023,7 +3023,7 @@ function animate(ts) {
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
     // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5 — Pass 1203: →11.0 — Pass 1301: →16.0 — Pass 1387: →22.0 bigger card-slap settle — Pass 1586: →30.0; Pass 1587: decay 16→12 longer tail
-    const _settleY = 73.8 * Math.exp(-ct2 * 12) * Math.abs(Math.sin(ct2 * Math.PI * 5)); // Pass 2288: conveyor settle bounce 40.5→54.7 — Pass 3922: 54.7→73.8 bigger card-slap bounce
+    const _settleY = 99.6 * Math.exp(-ct2 * 12) * Math.abs(Math.sin(ct2 * Math.PI * 5)); // Pass 2288: conveyor settle bounce 40.5→54.7 — Pass 3922: 54.7→73.8 — Pass 4080: 73.8→99.6 punchier card-slap
     // Pass 173: belt lateral wobble — fades in (0→5%) and out (90→100%)
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
@@ -3622,8 +3622,8 @@ function animate(ts) {
       const _arcZBias305 = _identityRevealed ? 0.65 : 0.40;
       const arcMid   = new THREE.Vector3(
         (arcStart.x + arcEnd.x) / 2 + 10,
-        // Pass 685: route arc loft 55→68 for more dramatic predicted-path arc
-        Math.max(arcStart.y, arcEnd.y) + 68,  // loft the arc well above the machine
+        // Pass 685: route arc loft 55→68 for more dramatic predicted-path arc — Pass 4077: 68→91.8 taller arc
+        Math.max(arcStart.y, arcEnd.y) + 91.8,  // loft the arc well above the machine
         arcEnd.z * _arcZBias305                // bias midpoint toward destination Z
       );
       const arcPts = routeArcGeo.attributes.position.array;
@@ -3776,7 +3776,7 @@ function animate(ts) {
       const _oFadeIn  = Math.min(1, ot / 0.05);
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
       // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 — Pass 969: →3.2 — Pass 1299: →4.2 for more lateral belt weave on exit — Pass 1596: →5.7
-      const _oWobbleZ = 84.5 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5 — Pass 3475: 25.5→34.4 — Pass 3543: 34.4→46.4 — Pass 3740: 46.4→62.6 — Pass 3848: 62.6→84.5
+      const _oWobbleZ = 114.1 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5 — Pass 3475: 25.5→34.4 — Pass 3543: 34.4→46.4 — Pass 3740: 46.4→62.6 — Pass 3848: 62.6→84.5 — Pass 4081: 84.5→114.1
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
       // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview — Pass 1597: →0.68
       const _z268drift = ct.slotZ * 2.25 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25
@@ -3960,7 +3960,7 @@ function animate(ts) {
     const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 387 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387
       + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 4.01; // Pass 2107: Z tremor tertiary 2.2→2.97 — Pass 3941: 2.97→4.01 stronger deflect air buffet
     // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 — Pass 1072: →3.2 — Pass 1253: →4.4 for more 3D turbulence in deflect arc
-    const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 161; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161
+    const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 217; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161 — Pass 4084: 161→217
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
     const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
@@ -4069,7 +4069,7 @@ function animate(ts) {
       tp.age = 0;
       // Pass 387: life boost — 0.38-0.52 → 0.45-0.65s — Pass 506: extend 0.45-0.65 → 0.55-0.75s
       // Pass 527: deflect trail life 0.55+0.20 → 0.65+0.25 — Pass 966: →0.82+0.32 — Pass 1117: →1.05+0.42 — Pass 1504: →1.35+0.55 longer hang
-      tp.life = 14.85 + Math.random() * 6.05; // Pass 2385: deflect trail life 3.32+1.35→4.48+1.82 — Pass 2607: 4.48+1.82→6.05+2.46 — Pass 3045: 6.05+2.46→8.17+3.32 — Pass 3230: 8.17+3.32→11.0+4.48 — Pass 3397: 11.0+4.48→14.85+6.05
+      tp.life = 20.0 + Math.random() * 8.17; // Pass 2385: deflect trail life 3.32+1.35→4.48+1.82 — Pass 2607: 4.48+1.82→6.05+2.46 — Pass 3045: 6.05+2.46→8.17+3.32 — Pass 3230: 8.17+3.32→11.0+4.48 — Pass 3397: 11.0+4.48→14.85+6.05 — Pass 4082: 14.85+6.05→20.0+8.17
       tp.active = true;
       tp.mesh.visible = true;
     }
@@ -4080,7 +4080,7 @@ function animate(ts) {
       _btp.mesh.position.set(GATE_X + (Math.random()-0.5)*8, CONV_Y_TOP + 8 + Math.random()*8, ct.slotZ * 0.12 + (Math.random()-0.5)*5);
       _btp.mat.color.setHex(ct.hex);
       _btp.mat.opacity = 0.92 + Math.random() * 0.08; // Pass 1118: 0.80+0.18→0.92+0.08 for brighter gate-contact burst
-      _btp.age = 0; _btp.life = 8.09 + Math.random() * 4.48; // Pass 2386: gate burst life 0.73+0.41→0.99+0.55 — Pass 2608: 0.99+0.55→1.34+0.74 — Pass 3046: 1.34+0.74→1.81+1.00 — Pass 3231: 1.81+1.00→2.44+1.35 — Pass 3398: 2.44+1.35→3.29+1.82 — Pass 3523: 3.29+1.82→4.44+2.46 — Pass 3736: 4.44+2.46→5.99+3.32 — Pass 3843: base 5.99→8.09 — Pass 3844: rand 3.32→4.48
+      _btp.age = 0; _btp.life = 10.9 + Math.random() * 6.05; // Pass 2386: gate burst life 0.73+0.41→0.99+0.55 — Pass 2608: 0.99+0.55→1.34+0.74 — Pass 3046: 1.34+0.74→1.81+1.00 — Pass 3231: 1.81+1.00→2.44+1.35 — Pass 3398: 2.44+1.35→3.29+1.82 — Pass 3523: 3.29+1.82→4.44+2.46 — Pass 3736: 4.44+2.46→5.99+3.32 — Pass 3843: base 5.99→8.09 — Pass 3844: rand 3.32→4.48 — Pass 4083: 8.09+4.48→10.9+6.05
       _btp.active = true; _btp.mesh.visible = true;
     }
   }
