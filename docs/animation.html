@@ -182,7 +182,7 @@
 
   @keyframes fadeUp {
     0%   { transform: translateY(0) scale(1);   opacity: 1; }
-    30%  { transform: translateY(-10px) scale(5.40); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop — Pass 5034: 1.62→2.19 more emphatic +1 pop — Pass 5852: 2.19→2.96 more emphatic slot score popup peak scale — Pass 5940: 2.96→4.00 more emphatic slot score popup peak scale — Pass 6221: 4.00→5.40 more emphatic slot score popup peak scale */
+    30%  { transform: translateY(-10px) scale(7.29); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop — Pass 5034: 1.62→2.19 more emphatic +1 pop — Pass 5852: 2.19→2.96 more emphatic slot score popup peak scale — Pass 5940: 2.96→4.00 more emphatic slot score popup peak scale — Pass 6221: 4.00→5.40 more emphatic slot score popup peak scale — Pass 6406: 5.40→7.29 more emphatic slot score popup peak scale */
     100% { transform: translateY(-45px) scale(0.8); opacity: 0; }
   }
   .slot-plusone {
@@ -212,7 +212,7 @@
   /* ── Stats count bounce ─────────────────────────────────────────────── */
   @keyframes countBounce {
     0%   { transform: scale(1); }
-    35%  { transform: scale(8.99); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop — Pass 5802: 3.65→4.93 more dramatic stats count bounce peak scale — Pass 5942: 4.93→6.66 more dramatic stats count bounce peak scale — Pass 6000: 6.66→8.99 more dramatic stats count bounce peak scale */
+    35%  { transform: scale(12.1); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop — Pass 5802: 3.65→4.93 more dramatic stats count bounce peak scale — Pass 5942: 4.93→6.66 more dramatic stats count bounce peak scale — Pass 6000: 6.66→8.99 more dramatic stats count bounce peak scale — Pass 6407: 8.99→12.1 more dramatic stats count bounce peak scale */
     65%  { transform: scale(0.92); }
     100% { transform: scale(1); }
   }
@@ -603,7 +603,7 @@ gridHelper.position.y = -2;
 scene.add(gridHelper);
 
 // ─── Ambient Dust Particles ───────────────────────────────────────────────────
-const DUST_COUNT = 1843; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count — Pass 5517: 411→555 denser ambient mote spawn count — Pass 5956: 555→749 denser ambient dust mote count — Pass 6034: 749→1011 denser ambient dust mote count — Pass 6316: 1011→1365 denser ambient dust mote count — Pass 6340: 1365→1843 denser ambient dust mote count
+const DUST_COUNT = 2487; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count — Pass 5517: 411→555 denser ambient mote spawn count — Pass 5956: 555→749 denser ambient dust mote count — Pass 6034: 749→1011 denser ambient dust mote count — Pass 6316: 1011→1365 denser ambient dust mote count — Pass 6340: 1365→1843 denser ambient dust mote count — Pass 6404: 1843→2487 denser ambient dust mote count
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
 const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
@@ -612,7 +612,7 @@ for (let i = 0; i < DUST_COUNT; i++) {
   dustPositions[i*3+1] = THREE.MathUtils.randFloat(0, 200);     // Y
   dustPositions[i*3+2] = THREE.MathUtils.randFloat(-200, 200);  // Z
   dustPhases[i] = Math.random() * Math.PI * 2;
-  dustSpeeds[i] = THREE.MathUtils.randFloat(0.181, 0.540); // Pass 4785: dust particle speed 0.03→0.04, 0.09→0.12 livelier ambient drift — Pass 5008: 0.04→0.054, 0.12→0.162 livelier ambient drift — Pass 5722: 0.054→0.073, 0.162→0.219 livelier ambient dust drift speed — Pass 5992: 0.073→0.099, 0.219→0.296 livelier ambient dust mote drift speed — Pass 6225: 0.099→0.134, 0.296→0.400 livelier ambient dust mote drift speed — Pass 6300: 0.134→0.181, 0.400→0.540 livelier ambient dust mote drift speed
+  dustSpeeds[i] = THREE.MathUtils.randFloat(0.244, 0.729); // Pass 4785: dust particle speed 0.03→0.04, 0.09→0.12 livelier ambient drift — Pass 5008: 0.04→0.054, 0.12→0.162 livelier ambient drift — Pass 5722: 0.054→0.073, 0.162→0.219 livelier ambient dust drift speed — Pass 5992: 0.073→0.099, 0.219→0.296 livelier ambient dust mote drift speed — Pass 6225: 0.099→0.134, 0.296→0.400 livelier ambient dust mote drift speed — Pass 6300: 0.134→0.181, 0.400→0.540 livelier ambient dust mote drift speed — Pass 6405: 0.181→0.244, 0.540→0.729 livelier ambient dust mote drift speed
 }
 const dustGeo = new THREE.BufferGeometry();
 dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
@@ -2449,7 +2449,7 @@ function animate(ts) {
       const _fPeak = f.peak || 7.38; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash — Pass 5529: 4.05→5.47 brighter arrival flash fallback peak — Pass 6338: 5.47→7.38 brighter arrival flash fallback peak
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
       f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 17.9)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence — Pass 6339: 13.3→17.9 longer slot arrival flash glow persistence
-      if(f.age > 9.86) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window
+      if(f.age > 13.3) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window — Pass 6396: 9.86→13.3 longer flash light removal threshold
       return true;
     });
   }
@@ -2528,7 +2528,7 @@ function animate(ts) {
   const haloTargetOpacity = beltActive ? 0.97 : airActive ? 0.93 : 0; // Pass 2521: halo belt 0.72→0.97 Pass 2522: air 0.38→0.51 — Pass 4247: air 0.51→0.69 brighter airborne halo — Pass 5079: air 0.69→0.93 brighter airborne halo
   // Pass 833: airborne spin rate 0.003→0.006 for faster spinning when card is airborne
   // Pass 4053: halo belt-active spin rate 0.0012→0.00162 — Pass 4054: halo airborne spin rate 0.006→0.0081 — Pass 5334: belt-active 0.00162→0.00219 faster belt halo spin — Pass 5335: airborne 0.0081→0.01094 faster airborne halo spin
-  const haloSpinRate = beltActive ? 0.00219 : 0.01094;
+  const haloSpinRate = beltActive ? 0.00296 : 0.01477; // Pass 6397: belt 0.00219→0.00296 faster belt halo spin — Pass 6398: airborne 0.01094→0.01477 faster airborne halo spin
   cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.365; // Pass 4782: halo opacity tracking rate 0.15→0.20 snappier halo fade in/out — Pass 5098: 0.20→0.27 snappier halo fade tracking — Pass 6002: 0.27→0.365 snappier card halo opacity fade tracking
   if (cardHaloMat.opacity > 0.01) {
     cardHalo.position.copy(activeCard.position);
@@ -2545,9 +2545,9 @@ function animate(ts) {
       ? 28.6 + 10.9 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo — Pass 5062: base 15.7→21.2 brighter card halo — Pass 5196: 21.2→28.6 brighter card halo base emissive — Pass 6025: amp 8.07→10.9 brighter card halo pulse amplitude
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
-    const _haloScale332 = beltActive ? 1.0 + 0.490 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5480: 0.269→0.363 bigger card halo breathe rate — Pass 5836: 0.363→0.490 bigger card halo breathe amplitude
+    const _haloScale332 = beltActive ? 1.0 + 0.662 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5480: 0.269→0.363 bigger card halo breathe rate — Pass 5836: 0.363→0.490 bigger card halo breathe amplitude — Pass 6399: 0.490→0.662 bigger belt halo breathe amplitude
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
-    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 6.67 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo — Pass 4951: 2.71→3.66 more dramatic gate slam halo burst — Pass 5198: 3.66→4.94 more dramatic gate slam halo burst — Pass 5713: 4.94→6.67 more dramatic gate slam halo scale burst
+    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 9.00 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo — Pass 4951: 2.71→3.66 more dramatic gate slam halo burst — Pass 5198: 3.66→4.94 more dramatic gate slam halo burst — Pass 5713: 4.94→6.67 more dramatic gate slam halo scale burst — Pass 6400: 6.67→9.00 more dramatic gate slam halo burst
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
   }
 
@@ -2887,7 +2887,7 @@ function animate(ts) {
         tp.mat.opacity = Math.min(1, 0.95 + 16.3 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65 — Pass 3950: 3.65→4.93 — Pass 4192: 4.93→6.66 brighter arc-apex trail — Pass 5024: 6.66→8.99 brighter arc apex trail — Pass 5205: 8.99→12.1 brighter arc apex trail opacity — Pass 5984: 12.1→16.3 brighter arc apex trail opacity multiplier
         tp.age = 0;
         // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 — Pass 1501: →1.10+0.55 longer arc trail
-        tp.life = 74.0 + Math.random() * 6.05; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82 — Pass 3672: 3.66+1.82→4.94+2.46 — Pass 4193: base 4.94→6.67 — Pass 4194: rand 2.46→3.32 — Pass 4917: base 6.67→9.00 — Pass 4918: rand 3.32→4.48 longer arc trail — Pass 5206: 9.00→12.2 longer arc trail base life — Pass 5221: rand 4.48→6.05 longer arc trail rand life — Pass 5393: 12.2→16.5 longer card deal arc trail base life — Pass 5575: 16.5→22.3 longer card deal arc trail base life — Pass 5584: 22.3→30.1 longer card deal arc trail base life — Pass 5607: 30.1→40.6 longer slot entry arc card spin trail base life — Pass 5615: 40.6→54.8 longer slot tray secondary bounce energy arc trail base life — Pass 5622: 54.8→74.0 longer slot approach landing flare arc trail base life
+        tp.life = 99.9 + Math.random() * 6.05; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82 — Pass 3672: 3.66+1.82→4.94+2.46 — Pass 4193: base 4.94→6.67 — Pass 4194: rand 2.46→3.32 — Pass 4917: base 6.67→9.00 — Pass 4918: rand 3.32→4.48 longer arc trail — Pass 5206: 9.00→12.2 longer arc trail base life — Pass 5221: rand 4.48→6.05 longer arc trail rand life — Pass 5393: 12.2→16.5 longer card deal arc trail base life — Pass 5575: 16.5→22.3 longer card deal arc trail base life — Pass 5584: 22.3→30.1 longer card deal arc trail base life — Pass 5607: 30.1→40.6 longer slot entry arc card spin trail base life — Pass 5615: 40.6→54.8 longer slot tray secondary bounce energy arc trail base life — Pass 5622: 54.8→74.0 longer slot approach landing flare arc trail base life — Pass 6401: 74.0→99.9 longer arc trail particle base life
         tp.active = true;
         tp.mesh.visible = true;
       }
@@ -2957,7 +2957,7 @@ function animate(ts) {
     // Pass 1063: apex boost 1.20→1.65 — Pass 1349: →2.20 for brighter cardGlow at swing closest-point — Pass 1581: →3.00; Pass 1582: base 1.85→2.50
     if (inPhase(PH.armSwing)) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
-      cardGlow.intensity = _armCardEmissive * (27.5 + _swZ299 * 24.4); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96 — Pass 4201: base 11.2→15.1 — Pass 4202: boost 9.96→13.4 — Pass 4946: base 15.1→20.4 — Pass 4947: boost 13.4→18.1 brighter arc apex card glow — Pass 5530: base 20.4→27.5 brighter arc apex card glow base — Pass 5531: boost 18.1→24.4 brighter arc apex card glow boost
+      cardGlow.intensity = _armCardEmissive * (37.1 + _swZ299 * 32.9); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96 — Pass 4201: base 11.2→15.1 — Pass 4202: boost 9.96→13.4 — Pass 4946: base 15.1→20.4 — Pass 4947: boost 13.4→18.1 brighter arc apex card glow — Pass 5530: base 20.4→27.5 brighter arc apex card glow base — Pass 5531: boost 18.1→24.4 brighter arc apex card glow boost — Pass 6402: base 27.5→37.1 brighter arc apex card glow base — Pass 6403: boost 24.4→32.9 brighter arc apex card glow boost
     } else {
       cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 8.32 : 0; // Pass 4363: resting cardGlow multiplier 2.50→3.38 brighter card glow outside swing — Pass 5175: 3.38→4.56 brighter card glow outside swing — Pass 5372: 4.56→6.16 brighter arm rest card glow emissive — Pass 5986: 6.16→8.32 brighter arm rest card glow multiplier
     }
