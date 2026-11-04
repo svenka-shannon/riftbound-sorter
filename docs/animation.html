@@ -4496,8 +4496,8 @@ function animate(ts) {
     floorDiverterPivot.rotation.z = -_diverterAngle;
     // Pass 72: decay paddle back to resting orange glow after charge discharge
     paddleMat.emissive.lerp(new THREE.Color(0xff3300), Math.min(1, dt * 7.38)); // Pass 1974: paddle emissive decay 3→4.05 — Pass 4075: 4.05→5.47 faster paddle glow return — Pass 5652: 5.47→7.38 faster paddle emissive return
-    paddleMat.color.lerp(new THREE.Color(0xff6600), Math.min(1, dt * 5.47)); // Pass 4587: arm return paddle color spring 4.05→5.47 snappier return
-    paddleMat.emissiveIntensity += (0.18 - paddleMat.emissiveIntensity) * Math.min(1, dt * 5.47); // Pass 4790: paddle emissive intensity tracking rate 4.05→5.47 snappier paddle glow settle
+    paddleMat.color.lerp(new THREE.Color(0xff6600), Math.min(1, dt * 7.38)); // Pass 4587: arm return paddle color spring 4.05→5.47 snappier return — Pass 5653: 5.47→7.38 snappier paddle color return
+    paddleMat.emissiveIntensity += (0.18 - paddleMat.emissiveIntensity) * Math.min(1, dt * 7.38); // Pass 4790: paddle emissive intensity tracking rate 4.05→5.47 snappier paddle glow settle — Pass 5654: 5.47→7.38 snappier paddle emissive intensity settle
     activeCard.visible = false;
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
@@ -4597,15 +4597,15 @@ function animate(ts) {
     {
       const _breathe = 5.40 + 6.94 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe — Pass 5296: scanner idle rotation breathe amplitude 2.82→3.81 deeper standby pulse — Pass 5316: base 4.00→5.40 brighter scanner standby breathe base — Pass 5337: amp 3.81→5.14 deeper scanner standby breathe amplitude — Pass 5349: 5.14→6.94 deeper scanner idle hover breathe amplitude
       scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6.16); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse — Pass 5394: 3.38→4.56 snappier scanner idle LED breathe tracking — Pass 5483: 4.56→6.16 snappier idle scan LED breathe tracking rate
-      hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.03)); // Pass 4824: hood standby emissive color tracking rate 1.5→2.03
-      hoodMat.emissiveIntensity += (_breathe * 6.26 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 — Pass 4711: 2.55→3.44 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe — Pass 5142: 3.44→4.64 brighter scanner head idle emissive breathe — Pass 5395: 4.64→6.26 brighter scanner hood idle breathe multiplier
+      hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.74)); // Pass 4824: hood standby emissive color tracking rate 1.5→2.03 — Pass 5667: 2.03→2.74 snappier scanner hood standby color tracking
+      hoodMat.emissiveIntensity += (_breathe * 6.26 - hoodMat.emissiveIntensity) * Math.min(1, dt * 3.65); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 — Pass 4711: 2.55→3.44 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe — Pass 5142: 3.44→4.64 brighter scanner head idle emissive breathe — Pass 5395: 4.64→6.26 brighter scanner hood idle breathe multiplier — Pass 5666: tracking 2.70→3.65 snappier scanner hood idle breathe tracking
     }
   }
 
   // Belt emissive flicker implies motion throughout the cycle (base scales with speed)
   const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.0918; // Pass 4463: belt idle emissive base 0.05→0.068 stronger belt idle glow — Pass 5665: 0.068→0.0918 stronger belt idle emissive base glow
   // Pass 143: speed-proportional strobe frequency (3 Hz idle → 9 Hz at full belt speed)
-  const _beltStrobeFreq = 5.47 + _beltScrollSpeed * 101; // Pass 4248: belt idle strobe freq 3→4.05 — Pass 4249: speed mult 75→101 busier belt strobe — Pass 5563: 4.05→5.47 busier belt idle strobe frequency
+  const _beltStrobeFreq = 5.47 + _beltScrollSpeed * 136; // Pass 4248: belt idle strobe freq 3→4.05 — Pass 4249: speed mult 75→101 busier belt strobe — Pass 5563: 4.05→5.47 busier belt idle strobe frequency — Pass 5668: speed mult 101→136 busier belt speed-proportional strobe
   // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 — Pass 1059: →0.10 reactive belt
   const _beltSpeedGlow = _beltScrollSpeed > 0.005
     ? 1.49 * (_beltScrollSpeed / 0.108) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0; // Pass 2163: belt speed glow amp 0.135→0.182 — Pass 2656: 0.182→0.246 — Pass 2887: 0.246→0.332 — Pass 3094: 0.332→0.448 — Pass 3270: 0.448→0.605 — Pass 3610: 0.605→0.817 — Pass 4432: 0.817→1.10 brighter belt speed glow — Pass 5564: 1.10→1.49 brighter belt speed glow amplitude
@@ -4616,9 +4616,9 @@ function animate(ts) {
     if (onBelt) {
       _beltDomainRGB.setHex(ct.hex);
       // Pass 929: belt domain tint blend rate dt*1.8→dt*2.8 for faster color adoption
-      beltSurfMat.emissive.lerp(_beltDomainRGB, Math.min(1, dt * 3.78)); // Pass 4836: belt domain tint tracking rate 2.8→3.78 faster belt color adoption
+      beltSurfMat.emissive.lerp(_beltDomainRGB, Math.min(1, dt * 5.10)); // Pass 4836: belt domain tint tracking rate 2.8→3.78 faster belt color adoption — Pass 5669: 3.78→5.10 faster belt domain tint tracking
     } else {
-      beltSurfMat.emissive.lerp(_beltBaseRGB, Math.min(1, dt * 1.22)); // Pass 4825: belt idle return color tracking rate 0.9→1.22
+      beltSurfMat.emissive.lerp(_beltBaseRGB, Math.min(1, dt * 1.65)); // Pass 4825: belt idle return color tracking rate 0.9→1.22 — Pass 5670: 1.22→1.65 faster belt idle color return tracking
     }
   }
   // Pass 61: Ambient light intensity responds to machine phase for dramatic contrast
@@ -4674,13 +4674,13 @@ function animate(ts) {
       // After reveal (or in conveyorOut which follows scan), switch to domain color.
       const _beltRevealedOrPost = _identityRevealed || inPhase(PH.conveyorOut);
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
-      beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 2.03)); // Pass 4604: belt scan emissive color lerp rate 1.5→2.03 snappier domain tint adoption
+      beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 2.74)); // Pass 4604: belt scan emissive color lerp rate 1.5→2.03 snappier domain tint adoption — Pass 5655: 2.03→2.74 snappier belt scan color adoption
       // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14 — Pass 1455: →0.28+0.20
       const _bsTarget = 7.65 + 4.00 * Math.sin(cycleT * 6); // Pass 2436: belt active emissive base 0.38→0.51, pulse 0.27→0.36 — Pass 2665: 0.51→0.69, 0.36→0.49 — Pass 2756: base 0.69→0.93 — Pass 2893/2894: 0.93+0.49→1.26+0.66 — Pass 3103: 1.26→1.70, 0.66→0.89 — Pass 3276: 1.70+0.89→2.30+1.20 — Pass 3356: 2.30+1.20→3.11+1.62 — Pass 4382: base 3.11→4.20, pulse 1.62→2.19 — Pass 4716: base 4.20→5.67 — Pass 4717: pulse 2.19→2.96 richer belt active glow — Pass 5461: base 5.67→7.65 pulse 2.96→4.00 richer belt active emissive
-      beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 4605: belt scan emissive intensity tracking 2→2.70 crisper active belt glow response
+      beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 3.65); // Pass 4605: belt scan emissive intensity tracking 2→2.70 crisper active belt glow response — Pass 5672: 2.70→3.65 crisper belt scan emissive intensity tracking
     } else {
-      beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 2.03)); // Pass 4826: belt scan-idle color return tracking 1.5→2.03
-      beltSurfMat.emissiveIntensity += (0.16 - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2.70); // belt idle emissive 0.12→0.16 brighter resting belt (Pass 4034 group) — Pass 4441: idle lerp rate 2→2.70 snappier belt surface idle return
+      beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 2.74)); // Pass 4826: belt scan-idle color return tracking 1.5→2.03 — Pass 5671: 2.03→2.74 faster belt scan-idle color return tracking
+      beltSurfMat.emissiveIntensity += (0.216 - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2.70); // belt idle emissive 0.12→0.16 brighter resting belt (Pass 4034 group) — Pass 4441: idle lerp rate 2→2.70 snappier belt surface idle return — Pass 5673: idle target 0.16→0.216 brighter belt surface idle emissive
     }
   }
   // Pass 74/80: scanner hood + lens decay to resting after scan ends
@@ -4789,7 +4789,7 @@ function animate(ts) {
     const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 169.0 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7 — Pass 3285: 20.7→27.9 — Pass 3365: 27.9→37.7 — Pass 3503: 37.7→50.9 — Pass 3744: 50.9→68.7 — Pass 3852: 68.7→92.7 — Pass 4661: 92.7→125.1 bigger suction-break energy spike — Pass 5392: 125.1→169.0 bigger suction-break energy spike
     const _rodGlow = Math.max(_armDescT * 0.63, _armLiftT * 1.05 + _liftPickSpike, _armSwingT * 88.6, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07 — Pass 3114: 8.07→10.9 — Pass 3286: 10.9→14.7 — Pass 3366: 14.7→19.8 — Pass 3504: 19.8→26.7 — Pass 3745: 26.7→36.0 — Pass 3853: 36.0→48.6 — Pass 4252: armDesc 0.47→0.63 — Pass 4253: armLift 0.78→1.05 brighter arm rod during descend/lift — Pass 4662: swing 48.6→65.6 brighter arm rod swing glow — Pass 5393: swing 65.6→88.6 brighter arm rod swing glow
     armRod.material.emissive.setHex(ct.hex);
-    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 293); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161 — Pass 3854: 161→217 — Pass 4663: 217→293 snappier arm rod emissive response
+    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 396); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161 — Pass 3854: 161→217 — Pass 4663: 217→293 snappier arm rod emissive response — Pass 5656: 293→396 snappier arm rod emissive response
   }
 
   // ── Suction cup domain glow ──
@@ -5187,7 +5187,7 @@ function animate(ts) {
     } else if (_visibleCards >= 1) {
       // Red: low — fast 4Hz blink for urgency (fix: was ts*0.012, far too slow)
       const _blinkOn = Math.sin(ts * Math.PI * 2 * 7.29) > 0; // Pass 4887: hopper LED low-stack blink frequency 4→5.4 more urgent warning flash — Pass 5429: 5.4→7.29 more urgent low-stack blink
-      _ledColor = 0xff2200; _ledGlow = _blinkOn ? 3.78 : 0.54; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink
+      _ledColor = 0xff2200; _ledGlow = _blinkOn ? 5.10 : 0.73; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink — Pass 5657: on 3.78→5.10, off 0.54→0.73 brighter low-stack red blink
     } else {
       _ledColor = 0xff6600; _ledGlow = 2.19; // orange: empty (refilling) — Pass 4395: 1.2→1.62 brighter empty/refilling LED — Pass 5421: 1.62→2.19 brighter empty/refilling LED
     }
