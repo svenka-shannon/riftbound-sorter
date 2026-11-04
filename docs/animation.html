@@ -889,7 +889,7 @@ scene.add(lensRing);
 const scanLEDMat = new THREE.MeshStandardMaterial({
   color: 0x00aaff,
   emissive: new THREE.Color(0x0055cc),
-  emissiveIntensity: 13.3, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor
+  emissiveIntensity: 18.0, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor — Pass 5862: 13.3→18.0 brighter scanner body idle LED emissive floor
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
@@ -1134,7 +1134,7 @@ function makeTrayFloor(yBase, colorHex) {
     const capMat = new THREE.MeshStandardMaterial({
       color: capColor,
       emissive: new THREE.Color(capColor),
-      emissiveIntensity: 3.59, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest — Pass 5407: 2.66→3.59 brighter slot tray floor cap guide rail emissive
+      emissiveIntensity: 4.85, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest — Pass 5407: 2.66→3.59 brighter slot tray floor cap guide rail emissive — Pass 5863: 3.59→4.85 brighter slot tray floor cap guide rail emissive
       roughness: 0.3,
       metalness: 0.2
     });
@@ -1192,7 +1192,7 @@ CARD_TYPES.forEach(ct => {
   const stripGeo = new THREE.BoxGeometry(2, 60, 2);
   const stripMat = new THREE.MeshStandardMaterial({
     color: ct.hex, roughness: 0.4, metalness: 0.2,
-    emissive: ct.hex, emissiveIntensity: 0.666 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips — Pass 4890: 0.20→0.27 more vivid tray entry strips — Pass 5056: 0.27→0.365 richer tray entry strip glow — Pass 5325: 0.365→0.493 richer slot tray emissive at rest — Pass 5408: 0.493→0.666 richer slot entry guide rail emissive
+    emissive: ct.hex, emissiveIntensity: 0.899 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips — Pass 4890: 0.20→0.27 more vivid tray entry strips — Pass 5056: 0.27→0.365 richer tray entry strip glow — Pass 5325: 0.365→0.493 richer slot tray emissive at rest — Pass 5408: 0.493→0.666 richer slot entry guide rail emissive — Pass 5864: 0.666→0.899 richer slot entry guide rail domain emissive
   });
   const stripMesh = new THREE.Mesh(stripGeo, stripMat);
   stripMesh.position.set(TRAY_X_START, ct.slotFloorY + 1, ct.slotZ);
@@ -1627,8 +1627,8 @@ const SCAN_DOT_OFFSETS = [];
 for (let _dr = 0; _dr < 3; _dr++) {
   for (let _dc = 0; _dc < 3; _dc++) {
     SCAN_DOT_OFFSETS.push({
-      x: THREE.MathUtils.lerp(-CARD_W * 0.583, CARD_W * 0.583, _dc / 2), // Pass 4865: scan grid X spread 0.32→0.432 wider dot array — Pass 5447: 0.432→0.583 wider scan grid X span
-      z: THREE.MathUtils.lerp(-CARD_H * 0.547, CARD_H * 0.547, _dr / 2), // Pass 4866: scan grid Z spread 0.3→0.405 deeper dot array — Pass 5448: 0.405→0.547 deeper scan grid Z span
+      x: THREE.MathUtils.lerp(-CARD_W * 0.787, CARD_W * 0.787, _dc / 2), // Pass 4865: scan grid X spread 0.32→0.432 wider dot array — Pass 5447: 0.432→0.583 wider scan grid X span — Pass 5860: 0.583→0.787 wider scan grid dot array X span
+      z: THREE.MathUtils.lerp(-CARD_H * 0.738, CARD_H * 0.738, _dr / 2), // Pass 4866: scan grid Z spread 0.3→0.405 deeper dot array — Pass 5448: 0.405→0.547 deeper scan grid Z span — Pass 5861: 0.547→0.738 deeper scan grid dot array Z span
     });
   }
 }
@@ -1808,7 +1808,7 @@ const slotLEDs = [];
 CARD_TYPES.forEach(ct => {
   const geo = new THREE.SphereGeometry(9.96, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators — Pass 4981: 4.05→5.47 larger slot LED spheres — Pass 5449: 5.47→7.38 larger slot domain LED spheres — Pass 5855: 7.38→9.96 larger slot domain LED indicator spheres
   const mat = new THREE.MeshStandardMaterial({
-    color: ct.hex, emissive: ct.hex, emissiveIntensity: 4.06, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs — Pass 5061: 1.65→2.23 brighter slot domain LEDs — Pass 5305: 2.23→3.01 brighter slot wall LED color urgency — Pass 5450: 3.01→4.06 brighter slot domain LED emissive
+    color: ct.hex, emissive: ct.hex, emissiveIntensity: 5.48, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs — Pass 5061: 1.65→2.23 brighter slot domain LEDs — Pass 5305: 2.23→3.01 brighter slot wall LED color urgency — Pass 5450: 3.01→4.06 brighter slot domain LED emissive — Pass 5865: 4.06→5.48 brighter slot domain LED emissive
     roughness: 0.2, metalness: 0.0
   });
   const led = new THREE.Mesh(geo, mat);
@@ -1935,7 +1935,7 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 43; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool
+const TRAIL_PARTICLE_COUNT = 58; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(7.30, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius
@@ -1950,7 +1950,7 @@ let _trailSpawnAcc = 0;    // time accumulator for spawn rate
 // 32 spheres in all 8 domain colors fire upward from above the tray when
 // a complete sort round (all 8 domains) finishes. Each domain gets 4 particles.
 const CELEB_PARTICLES = [];
-const CELEB_COUNT = 78; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst
+const CELEB_COUNT = 105; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
