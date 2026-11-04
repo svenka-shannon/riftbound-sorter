@@ -1972,7 +1972,7 @@ function fireCelebration() {
     p.vx = Math.cos(angle) * spd * 1.01; // Pass 4069: confetti vx spread 0.75→1.01 wider horizontal burst
     // Pass 729: upward bias 0.6+0.6→0.75+0.70 — Pass 893: →0.90+0.85 — Pass 1010: →1.10+1.00 — Pass 1634: →1.40+1.30 stronger launch
     p.vy = spd * (4.64 + Math.random() * 4.33); // Pass 2501: celeb launch bias 1.40+1.30→1.89+1.76 — Pass 3549: 1.89+1.76→2.55+2.38 — Pass 3664: 2.55+2.38→3.44+3.21 — Pass 4098: base 3.44→4.64 — Pass 4099: rand 3.21→4.33 higher loft
-    p.vz = Math.sin(angle) * spd * 0.88; // Pass 3903: confetti vz spread 0.65→0.88 wider Z burst
+    p.vz = Math.sin(angle) * spd * 1.19; // Pass 3903: confetti vz spread 0.65→0.88 wider Z burst — Pass 4286: 0.88→1.19 wider confetti Z burst
     // Pass 652: randomize spawn position within ±25 units of tray center for wider burst area
     p.mesh.position.set(TX_MID + (Math.random()-0.5)*25, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*20);
     p.mat.color.setHex(domCt.hex);
@@ -2503,7 +2503,7 @@ function animate(ts) {
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
-      const pulse = 0.5 + 5.41 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.5)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41
+      const pulse = 0.5 + 7.30 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.5)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41 — Pass 4287: 5.41→7.30 wider slot LED swing
       // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 — Pass 1647: →7.0 brighter active slot LED
       mat.emissiveIntensity = 12.76 + pulse; // Pass 2518: slot LED active base 7.0→9.45 — Pass 4046: 9.45→12.76 brighter active routing LED
     } else if (_ledCooloff[_li] > 0) {
@@ -2511,7 +2511,7 @@ function animate(ts) {
       const afterT = _ledCooloff[_li] / 5.1; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity = 5.00 + afterT * 22.4; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 brighter slot arrival afterglow
+      mat.emissiveIntensity = 6.75 + afterT * 22.4; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor
     } else {
       // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 — Pass 1651: →1.9 brighter resting LEDs
       mat.color.setHex(slotCt.hex);
@@ -2547,7 +2547,7 @@ function animate(ts) {
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
     const _haloScale332 = beltActive ? 1.0 + 0.147 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
-    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 2.01 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst
+    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 2.71 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
   }
 
@@ -2665,8 +2665,8 @@ function animate(ts) {
       if (pt > 0.50 && pt <= 0.80) {
         const _earlyT = (pt - 0.50) / 0.30; // 0→1 in early warmup window
         suctionCupMat.emissive.setHex(ct.hex);
-        // Pass 1315: early vacuum warmup emissive 0.25→0.40 — Pass 3958: 0.40→0.540 more visible vacuum build
-        suctionCupMat.emissiveIntensity += (0.540 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 5);
+        // Pass 1315: early vacuum warmup emissive 0.25→0.40 — Pass 3958: 0.40→0.540 more visible vacuum build — Pass 4290: 0.540→0.729 brighter vacuum warmup
+        suctionCupMat.emissiveIntensity += (0.729 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 5);
       }
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
@@ -2747,7 +2747,7 @@ function animate(ts) {
         vacuumRing.position.set(_cupX, _cupY + 1, 0);
         // Pass 307: vacuum ring spin — ring rotates on its local axis, accelerating as cup descends
         if (!controls._vacRingAngle) controls._vacRingAngle = 0;
-        controls._vacRingAngle += dt * (21.2 + _vt * 56.4); // Pass 2265: vacuum ring spin 4.7+22.95→6.35+30.98 — Pass 3173: base 6.35→8.57 Pass 3174: ramp 30.98→41.8 — Pass 3573: base 8.57→11.6, ramp 41.8→56.4 — Pass 3668: base 11.6→15.7 — Pass 3975: base 15.7→21.2
+        controls._vacRingAngle += dt * (28.6 + _vt * 56.4); // Pass 2265: vacuum ring spin 4.7+22.95→6.35+30.98 — Pass 3173: base 6.35→8.57 Pass 3174: ramp 30.98→41.8 — Pass 3573: base 8.57→11.6, ramp 41.8→56.4 — Pass 3668: base 11.6→15.7 — Pass 3975: base 15.7→21.2 — Pass 4291: 21.2→28.6 faster vacuum ring base spin
         vacuumRing.rotation.z = controls._vacRingAngle;
         const _vacBaseScale = THREE.MathUtils.lerp(16.3, 0.25, _vt); // Pass 2266: vacuum ring max scale 2.70→3.65 — Pass 3417: 3.65→4.93 — Pass 3529: 4.93→6.66 — Pass 3713: 6.66→8.99 — Pass 3821: 8.99→12.1 — Pass 4222: 12.1→16.3 larger vacuum ring sweep
         vacuumRingMat.color.setHex(ct.hex);
@@ -2842,7 +2842,7 @@ function animate(ts) {
           p.mat.color.setHex(_pc);
           p.mat.opacity = 0.85 + Math.random() * 0.15; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst
           p.age = 0;
-          p.life = 1.134 + Math.random() * 0.878; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles
+          p.life = 1.531 + Math.random() * 1.185; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles — Pass 4292: 1.134+0.878→1.531+1.185 longer arc trail persistence
           p.active = true;
           p.mesh.visible = true;
         });
@@ -2925,7 +2925,7 @@ function animate(ts) {
       // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter — Pass 1575: →0.20 primary, 0.032→0.044 secondary
       if (_lt3 < 0.30) {
         const _env605 = Math.exp(-_lt3 * 6);
-        _liftHoverX = (0.486 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.108 * Math.sin(_lt3 / 0.30 * Math.PI * 3.8 + 0.9)) * _env605; // Pass 2282: lift hover X 0.27→0.36, secondary 0.059→0.080 — Pass 3926: 0.36+0.080→0.486+0.108 more stack separation chatter
+        _liftHoverX = (0.656 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.146 * Math.sin(_lt3 / 0.30 * Math.PI * 3.8 + 0.9)) * _env605; // Pass 2282: lift hover X 0.27→0.36, secondary 0.059→0.080 — Pass 3926: 0.36+0.080→0.486+0.108 more stack separation chatter — Pass 4293: 0.486+0.108→0.656+0.146 bigger lift hover chatter
       }
     }
     activeCard.rotation.set(_swingDragX + _liftHoverX, 0, armRot - Math.PI / 2 + _swingWobble);
