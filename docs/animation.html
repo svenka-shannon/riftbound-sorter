@@ -1753,7 +1753,7 @@ function addCardToTray(ct) {
   trayArrivals.push({ mesh, startY, targetY, t: 0, glowAge: 0 });
 
   // Pass 45: pulse ALL existing cards in this slot — "stack reacts to new member" ripple
-  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 3.81; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash — Pass 5134: 2.09→2.82 stronger stack ripple flash — Pass 5711: 2.82→3.81 stronger stack ripple emissive flash
+  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 5.14; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash — Pass 5134: 2.09→2.82 stronger stack ripple flash — Pass 5711: 2.82→3.81 stronger stack ripple emissive flash — Pass 5937: 3.81→5.14 stronger stack ripple emissive flash
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 10.6; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop — Pass 5774: 7.87→10.6 brighter new card arrival emissive flash
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow — Pass 4768: →9.3s even longer afterglow
@@ -1919,7 +1919,7 @@ for (let _gpi = 0; _gpi < 22; _gpi++) { // Pass 5016: grab particle pool size 16
 const _domFillClr = new THREE.Color();
 // Overhead fill light: large-radius, dim, slowly tinted toward current domain color.
 // Creates a subtle room-level color cast that shifts with each domain.
-const _domainFillLight = new THREE.PointLight(0xffffff, 0.469, 700); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash — Pass 5358: 0.257→0.347 stronger ambient color wash — Pass 5725: 0.347→0.469 stronger ambient domain color wash
+const _domainFillLight = new THREE.PointLight(0xffffff, 0.633, 700); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash — Pass 5358: 0.257→0.347 stronger ambient color wash — Pass 5725: 0.347→0.469 stronger ambient domain color wash — Pass 5933: 0.469→0.633 stronger ambient domain color wash intensity
 _domainFillLight.position.set(-30, 280, 0); // centered above the belt, high up
 scene.add(_domainFillLight);
 
@@ -1927,7 +1927,7 @@ scene.add(_domainFillLight);
 // Domain-colored point light that follows the card along the belt surface
 // during conveyorIn and conveyorOut phases, casting a moving pool of color
 // on the belt texture beneath the card. Fades to zero outside belt phases.
-const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 316); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach — Pass 5726: 234→316 wider belt track light reach
+const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 427); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach — Pass 5726: 234→316 wider belt track light reach — Pass 5934: 316→427 wider belt track light reach
 _beltTrackLight.position.set(-40, CONV_Y_TOP + 6, 0);
 scene.add(_beltTrackLight);
 
@@ -1941,7 +1941,7 @@ for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(7.30, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius
   _tpMesh.visible = false;
   scene.add(_tpMesh);
-  TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 1.80, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence — Pass 5076: 0.73→0.986 even longer contrail persistence — Pass 5366: 0.986→1.33 longer idle scan emit trail particle persistence — Pass 5733: 1.33→1.80 longer deflect trail particle lifetime
+  TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 2.43, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence — Pass 5076: 0.73→0.986 even longer contrail persistence — Pass 5366: 0.986→1.33 longer idle scan emit trail particle persistence — Pass 5733: 1.33→1.80 longer deflect trail particle lifetime — Pass 5935: 1.80→2.43 longer deflect trail particle lifetime
 }
 let _trailHead = 0;        // ring-buffer head for trail particles
 let _trailSpawnAcc = 0;    // time accumulator for spawn rate
@@ -2433,7 +2433,7 @@ function animate(ts) {
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61 — Pass 4771: amp 2.17→2.93 richer settled breathing
           mesh.material.emissiveIntensity = 2.55 + 5.35 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing — Pass 5067: base 1.40→1.89 richer settled card glow — Pass 5068: amp 2.93→3.96 richer settled card breathing — Pass 5314: base 1.89→2.55 richer settled card breathe base glow — Pass 5347: amp 3.96→5.35 richer card emissive breathe amplitude
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway — Pass 4772: 0.051→0.069 deeper deck sway
-          const _swayPhase = _globalCardIdx * 6.08; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync — Pass 5077: 2.47→3.33 more organic sway desync — Pass 5155: 3.33→4.50 more organic settled card sway desync — Pass 5712: 4.50→6.08 more organic settled card sway phase desync
+          const _swayPhase = _globalCardIdx * 8.21; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync — Pass 5077: 2.47→3.33 more organic sway desync — Pass 5155: 3.33→4.50 more organic settled card sway desync — Pass 5712: 4.50→6.08 more organic settled card sway phase desync — Pass 5936: 6.08→8.21 more organic settled card sway phase desync
           mesh.rotation.z = 0.170 * Math.sin(ts * 0.693 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway — Pass 5069: 0.069→0.093 deeper deck sway — Pass 5156: 0.093→0.126 deeper settled card Z micro-rocking — Pass 5336: 0.126→0.170 deeper settled card Z sway amplitude — Pass 5648: 0.513→0.693 livelier settled card Z sway frequency
         }
         _globalCardIdx++;
