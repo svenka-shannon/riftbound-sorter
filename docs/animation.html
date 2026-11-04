@@ -4119,7 +4119,7 @@ function animate(ts) {
     // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
     // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 — Pass 1114: primary 5.5→7.5, secondary 1.5→2.2 — Pass 1200: primary →10.5, secondary →3.2 — Pass 1258: primary →13.5, secondary →4.2 — Pass 1408: primary →18.0, secondary →5.6 for even more pronounced slot wall bounce
     const _slotWallZ = ct.slotZ + (489 * Math.sin(dt3 * Math.PI * 5.4) + 112.6 * Math.sin(dt3 * Math.PI * 8.78 + 0.5)) * Math.max(0, 1 - dt3 * 3.44); // Pass 4620: slot wall bounce decay rate 1.4→1.89 snappier confetti bounce damping — Pass 2109: wall Z primary 32.8→44.3 Pass 2110: secondary 10.2→13.8 — Pass 2610: 44.3→59.8, 13.8→18.6 — Pass 3048: 59.8→80.7 Pass 3049: 18.6→25.1 — Pass 3233: 80.7→108.9 Pass 3234: 25.1→33.9 — Pass 3400: 108.9→147.0 Pass 3401: 33.9→45.8 — Pass 4303: primary 147.0→198.5 — Pass 4304: secondary 45.8→61.8 wilder slot wall bounce — Pass 4580: wall bounce oscillation count 4→5.4 more slot drop bounces — Pass 4626: slot wall bounce secondary frequency 6.5→8.78 faster secondary rattle — Pass 5098: primary 198.5→268 stronger slot wall collision rebound energy — Pass 5099: secondary 61.8→83.4 stronger slot wall secondary rebound energy — Pass 5140: primary 268→362 stronger slot wall approach rebound energy — Pass 5433: slot wall spring decay rate 1.89→2.55 snappier slot wall spring rate — Pass 6674: primary 362→489 stronger slot wall primary bounce energy — Pass 6675: secondary 83.4→112.6 stronger slot wall secondary bounce energy — Pass 6676: decay 2.55→3.44 snappier slot wall spring decay rate
-    activeCard.position.set(TRAY_X_START + 36.5, cy, _slotWallZ); // Pass 4520: slot drop card X drift 20→27.0 wider lateral fall offset — Pass 5650: 27.0→36.5 wider slot drop card lateral fall offset
+    activeCard.position.set(TRAY_X_START + 49.3, cy, _slotWallZ); // Pass 4520: slot drop card X drift 20→27.0 wider lateral fall offset — Pass 5650: 27.0→36.5 wider slot drop card lateral fall offset — Pass 7161: 36.5→49.3 wider slot drop card lateral fall offset
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
     const _bankSign = Math.sign(ct.slotZ || 0);
@@ -4254,9 +4254,9 @@ function animate(ts) {
         _pp.vz = (Math.random() - 0.5) * 243; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread — Pass 5482: 98.4→133 wider landing puff vz spread — Pass 5490: 133→180 wider landing puff vy decay rate Z spread — Pass 6494: 180→243 wider landing puff vz spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
-          Math.min(1, _rr / 255 * 0.824 + 0.55), // Pass 4860: landing puff domain tint 0.45→0.61 — Pass 5760: 0.61→0.824 stronger landing puff domain tint
-          Math.min(1, _gg / 255 * 0.824 + 0.55), // Pass 4860: landing puff domain tint 0.45→0.61 — Pass 5760: 0.61→0.824 stronger landing puff domain tint
-          Math.min(1, _bb / 255 * 0.824 + 0.55) // Pass 4860: landing puff domain tint 0.45→0.61 — Pass 5760: 0.61→0.824 stronger landing puff domain tint
+          Math.min(1, _rr / 255 * 1.11 + 0.74), // Pass 4860: landing puff domain tint 0.45→0.61 — Pass 5760: 0.61→0.824 stronger landing puff domain tint — Pass 7164: blend 0.824→1.11 offset 0.55→0.74 stronger landing puff domain tint
+          Math.min(1, _gg / 255 * 1.11 + 0.74), // Pass 4860: landing puff domain tint 0.45→0.61 — Pass 5760: 0.61→0.824 stronger landing puff domain tint — Pass 7164: blend 0.824→1.11 offset 0.55→0.74 stronger landing puff domain tint
+          Math.min(1, _bb / 255 * 1.11 + 0.74) // Pass 4860: landing puff domain tint 0.45→0.61 — Pass 5760: 0.61→0.824 stronger landing puff domain tint — Pass 7164: blend 0.824→1.11 offset 0.55→0.74 stronger landing puff domain tint
         );
         _puffSpawned++;
       }
@@ -4310,9 +4310,9 @@ function animate(ts) {
           _lp.vy = 277 + Math.random() * 474; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft — Pass 4621: base 112.3→151.6 bigger landing puff vy spread — Pass 5611: 151.6+351.0→205+474 more explosive slot-impact dust loft — Pass 6659: base 205→277 more explosive landing dust loft base
           _lp.vz = Math.sin(_ang) * _spd * 2.46; // Pass 4358: landing dust vz factor 1.0→1.35 deeper Z floor spray — Pass 5620: 1.35→1.82 deeper Z floor spray — Pass 6801: landing dust vz factor 1.82→2.46 deeper Z floor spray
           _lp.mat.color.setRGB(
-            Math.min(1, _rr2 / 255 * 1.00 + 0.45), // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint
-            Math.min(1, _gg2 / 255 * 1.00 + 0.45), // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint
-            Math.min(1, _bb2 / 255 * 1.00 + 0.45) // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint
+            Math.min(1, _rr2 / 255 * 1.00 + 0.61), // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint — Pass 7166: offset 0.45→0.61 brighter lower floor scatter domain tint
+            Math.min(1, _gg2 / 255 * 1.00 + 0.61), // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint — Pass 7166: offset 0.45→0.61 brighter lower floor scatter domain tint
+            Math.min(1, _bb2 / 255 * 1.00 + 0.61) // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint — Pass 7166: offset 0.45→0.61 brighter lower floor scatter domain tint
           );
           _landScattered++;
         }
@@ -4355,9 +4355,9 @@ function animate(ts) {
           _mp.vy = 135 + Math.random() * 271; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7 — Pass 3915: 40.8+81.7→55.1+110.3 — Pass 4407: 55.1+110.3→74.4+148.9 taller mote fountain — Pass 5146: 74.4+148.9→100+201 taller arrival mote fountain — Pass 6273: 100+201→135+271 taller upper floor mote vy fountain
           _mp.vz = (Math.random() - 0.5) * 40.0; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread — Pass 5086: 16.2→21.9 wider arrival mote Z spread — Pass 5148: 21.9→29.6 wider arrival mote Z spread — Pass 6277: 29.6→40.0 wider upper floor mote vz burst spread
           _mp.mat.color.setRGB(
-            Math.min(1, _rr3 / 255 * 0.918 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint
-            Math.min(1, _gg3 / 255 * 0.918 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint
-            Math.min(1, _bb3 / 255 * 0.918 + 0.50) // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint
+            Math.min(1, _rr3 / 255 * 1.24 + 0.68), // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint — Pass 7165: blend 0.918→1.24 offset 0.50→0.68 richer upper floor motes domain tint
+            Math.min(1, _gg3 / 255 * 1.24 + 0.68), // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint — Pass 7165: blend 0.918→1.24 offset 0.50→0.68 richer upper floor motes domain tint
+            Math.min(1, _bb3 / 255 * 1.24 + 0.68) // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint — Pass 7165: blend 0.918→1.24 offset 0.50→0.68 richer upper floor motes domain tint
           );
           _upMotes++;
         }
@@ -4374,9 +4374,9 @@ function animate(ts) {
         _ral.classList.add('reject-alarm-on');
       }
       // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90 — Pass 1397: amber →20.0/200, red →10.0/120
-      [[0xff6600, 221, 270], [0xff1a00, 110, 162]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5 — Pass 4005: amber 121.4→163.9 — Pass 4006: red 60.5→81.7 — Pass 4305: amber dist 200→270 — Pass 4306: red dist 120→162 wider reject alarm reach — Pass 5688: amber 163.9→221 brighter reject alarm amber — Pass 5689: red 81.7→110 brighter reject alarm red
+      [[0xff6600, 298, 365], [0xff1a00, 149, 219]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5 — Pass 4005: amber 121.4→163.9 — Pass 4006: red 60.5→81.7 — Pass 4305: amber dist 200→270 — Pass 4306: red dist 120→162 wider reject alarm reach — Pass 5688: amber 163.9→221 brighter reject alarm amber — Pass 5689: red 81.7→110 brighter reject alarm red — Pass 7163: amber 221→298 dist 270→365 red 110→149 dist 162→219 brighter reject alarm lights
         const _wl = new THREE.PointLight(c, i, d);
-        _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 14.6 : -14.6)); // Pass 4467: slot entry warning light Z spread 8→10.8 wider alarm reach — Pass 5656: 10.8→14.6 wider reject alarm warning light Z spread
+        _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 19.7 : -19.7)); // Pass 4467: slot entry warning light Z spread 8→10.8 wider alarm reach — Pass 5656: 10.8→14.6 wider reject alarm warning light Z spread — Pass 7162: 14.6→19.7 wider reject alarm warning light Z spread
         scene.add(_wl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _wl, age: 0, peak: _wl.intensity });
@@ -4478,7 +4478,7 @@ function animate(ts) {
           _dp2.active = true; _dp2.age = 0; _dp2.life = 4.73 + Math.random() * 2.46; // Pass 2410: cup arrival dust life 0.58+0.30→0.78+0.41 — Pass 2651: 0.78+0.41→1.05+0.55 — Pass 2872: 1.05+0.55→1.42+0.74 — Pass 3082: 1.42+0.74→1.92+1.00 — Pass 4355: 1.92+1.00→2.59+1.35 longer arm end-stop dust — Pass 5662: base 2.59→3.50 longer arm end-stop dust base life — Pass 5663: rand 1.35→1.82 longer arm end-stop dust life variance — Pass 6830: base 3.50→4.73 rand 1.82→2.46 longer arm end-stop dust lifespan
           _dp2.mesh.position.set(_arCupX + (Math.random()-0.5)*6, _arCupY + (Math.random()-0.5)*4, (Math.random()-0.5)*8);
           _dp2.mesh.visible = true;
-          _dp2.vx = (Math.random()-0.5) * 192.6; _dp2.vy = 96.9 + Math.random() * 151.6; _dp2.vz = (Math.random()-0.5) * 218.0; // Pass 2154: cup dust vx 24→32, vy 12+19→16+25, vz 27→36 — Pass 2652: 32→43, 16+25→21.6+33.8, 36→48.6 — Pass 2873/2874: 43→58, 21.6+33.8→29.2+45.6, 48.6→65.6 — Pass 3083: vx 58→78.3 Pass 3084: vy 29.2+45.6→39.4+61.6, vz 65.6→88.6 — Pass 3468: vx 78.3→105.7, vy 39.4+61.6→53.2+83.2, vz 88.6→119.6 — Pass 4565: vx 105.7→142.7 vy 53.2→71.8 rand 83.2→112.3 vz 119.6→161.5 bigger pick suction dust cloud — Pass 5632: vx 142.7→192.6 vy 71.8→96.9 rand 112.3→151.6 vz 161.5→218.0 bigger pick suction dust cloud
+          _dp2.vx = (Math.random()-0.5) * 260; _dp2.vy = 131 + Math.random() * 205; _dp2.vz = (Math.random()-0.5) * 294; // Pass 2154: cup dust vx 24→32, vy 12+19→16+25, vz 27→36 — Pass 2652: 32→43, 16+25→21.6+33.8, 36→48.6 — Pass 2873/2874: 43→58, 21.6+33.8→29.2+45.6, 48.6→65.6 — Pass 3083: vx 58→78.3 Pass 3084: vy 29.2+45.6→39.4+61.6, vz 65.6→88.6 — Pass 3468: vx 78.3→105.7, vy 39.4+61.6→53.2+83.2, vz 88.6→119.6 — Pass 4565: vx 105.7→142.7 vy 53.2→71.8 rand 83.2→112.3 vz 119.6→161.5 bigger pick suction dust cloud — Pass 5632: vx 142.7→192.6 vy 71.8→96.9 rand 112.3→151.6 vz 161.5→218.0 bigger pick suction dust cloud — Pass 7160: vx 192.6→260 vy base 96.9→131 rand 151.6→205 vz 218.0→294 bigger pick suction dust cloud
           _dp2.mat.color.setRGB(0.82, 0.86, 0.90);
           _dustCount++;
         }
@@ -4535,7 +4535,7 @@ function animate(ts) {
       // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 — Pass 643: extend wisp to 45%; boost 0.48+0.22→0.62+0.28
       // Pass 865: domain wisp opacity 0.62+0.28→0.80+0.40 — Pass 1052: →0.90+0.48 richer memory trail
       const _arT245 = phaseRaw(PH.armReturn);
-      if (_arT245 < 1.19) { // Pass 643: 0.30→0.45 — Pass 1507: →0.55 — Pass 1602: →0.65 even longer domain memory on return — Pass 4283: 0.65→0.88 dominant domain memory on return — Pass 5800: 0.88→1.19 full domain color throughout armReturn
+      if (_arT245 < 1.61) { // Pass 643: 0.30→0.45 — Pass 1507: →0.55 — Pass 1602: →0.65 even longer domain memory on return — Pass 4283: 0.65→0.88 dominant domain memory on return — Pass 5800: 0.88→1.19 full domain color throughout armReturn — Pass 7167: 1.19→1.61 extended arm return domain color hold window
         tp.mat.color.setHex(ct.hex);
         // Pass 1599: domain wisp opacity 0.90+0.10→1.0 (max brightness)
         tp.mat.opacity = Math.min(1.0, 0.95 + Math.random() * 0.10);
