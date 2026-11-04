@@ -2516,7 +2516,7 @@ function animate(ts) {
       // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 — Pass 1651: →1.9 brighter resting LEDs
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity += (3.47 - mat.emissiveIntensity) * 0.12; // Pass 2520: slot LED idle 1.9→2.57 — Pass 4047: 2.57→3.47 warmer slot LED idle glow
+      mat.emissiveIntensity += (3.47 - mat.emissiveIntensity) * 0.162; // Pass 2520: slot LED idle 1.9→2.57 — Pass 4047: 2.57→3.47 warmer slot LED idle glow — Pass 4610: tracking rate 0.12→0.162 snappier LED settle
     }
   });
 
@@ -2924,7 +2924,7 @@ function animate(ts) {
       const _lt3 = phaseRaw(PH.armLift);
       // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter — Pass 1575: →0.20 primary, 0.032→0.044 secondary
       if (_lt3 < 0.30) {
-        const _env605 = Math.exp(-_lt3 * 6);
+        const _env605 = Math.exp(-_lt3 * 8.1); // Pass 4611: arm oscillation decay 6→8.1 crisper separation chatter
         _liftHoverX = (0.656 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.146 * Math.sin(_lt3 / 0.30 * Math.PI * 5.13 + 0.9)) * _env605; // Pass 2282: lift hover X 0.27→0.36, secondary 0.059→0.080 — Pass 3926: 0.36+0.080→0.486+0.108 more stack separation chatter — Pass 4293: 0.486+0.108→0.656+0.146 bigger lift hover chatter — Pass 4545: arm lift secondary freq 3.8→5.13 crisper separation chatter
       }
     }
@@ -3000,7 +3000,7 @@ function animate(ts) {
           const _dp = GRAB_PARTICLES[_di];
           if (_dp.active) continue;
           _dp.active = true; _dp.age = 0; _dp.life = 1.038 + Math.random() * 0.547; // Pass 1487: 0.22+0.12→0.30+0.16 — Pass 1686: →0.42+0.22 — Pass 1847: →0.57+0.30 — Pass 3933: 0.57+0.30→0.769+0.405 longer slot drop dust — Pass 4419: 0.769+0.405→1.038+0.547 even longer belt dust puff
-          _dp.mesh.position.set(-111 + (Math.random()-0.5)*8, CONV_Y_TOP + 4, (Math.random()-0.5)*7);
+          _dp.mesh.position.set(-111 + (Math.random()-0.5)*8, CONV_Y_TOP + 4, (Math.random()-0.5)*9.45); // Pass 4613: belt entry dust Z spread 7→9.45 wider dust scatter
           _dp.mesh.visible = true;
           const _side = Math.random() < 0.5 ? 1 : -1;
           _dp.vx = _side * (98.4 + Math.random() * 160); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 — Pass 1687: →40+65 — Pass 1848: →54+88 — Pass 3934: 54+88→72.9+118.8 — Pass 4205: base 72.9→98.4 — Pass 4212: rand 118.8→160 wider belt deposit burst
@@ -3239,7 +3239,7 @@ function animate(ts) {
       0
     );
     // Pass 606: secondary scan line opacity 0.65→0.90 — Pass 850: →1.0 for max visible X-sweep
-    scanLine2.material.opacity = Math.min(1, flashIntensity * 1.0);
+    scanLine2.material.opacity = Math.min(1, flashIntensity * 1.35); // Pass 4608: secondary scanline opacity 1.0→1.35 brighter X-sweep beam
     // Pass 183: scan beams stay neutral cyan before identity reveal, snap to domain at 85%
     // (cohesive with pass 176 card tint + pass 180 ghost trail reveal sequence)
     const _beamHex = _identityRevealed ? ct.hex : 0x00ccff;
@@ -3677,7 +3677,7 @@ function animate(ts) {
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
       // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 — Pass 1069: →3.4 — Pass 1447: →4.8 for wider flash
       const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18.9) * 71.9 : 1.0; // Pass 2565: shimmer bloom 8.78→11.9 — Pass 3005: 11.9→16.1 — Pass 3201: 16.1→21.7 — Pass 3439: 21.7→29.3 — Pass 3703: 29.3→39.5 — Pass 3817: 39.5→53.3 — Pass 4245: 53.3→71.9 bigger shimmer bloom at reveal — Pass 4562: shimmer bloom decay 14→18.9 crisper reveal bloom taper
-      cardShimmerMesh.scale.set(_shimBloom310, 1.0, _shimBloom310);
+      cardShimmerMesh.scale.set(_shimBloom310, 1.35, _shimBloom310); // Pass 4609: card shimmer Y scale 1.0→1.35 taller shimmer band
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
@@ -4244,7 +4244,7 @@ function animate(ts) {
         if (_pp.active) continue;
         _pp.active = true; _pp.age = 0; _pp.life = 2.34 + Math.random() * 1.26; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69 — Pass 3060: 1.28+0.69→1.73+0.93 — Pass 4323: 1.73+0.93→2.34+1.26 longer landing puff cloud
         _pp.mesh.position.set(
-          _puffX + (Math.random() - 0.5) * 10,
+          _puffX + (Math.random() - 0.5) * 13.5, // Pass 4614: landing puff X spread 10→13.5 wider puff cloud
           _puffY + Math.random() * 4,
           _puffZ + (Math.random() - 0.5) * 12
         );
@@ -4753,7 +4753,7 @@ function animate(ts) {
     const _edgeFade = Math.sin(_belFrac * Math.PI); // 0→1→0
     beltShimmerMat.color.set(beltSurfMat.emissive); // tint to belt emissive (domain color)
     // Pass 472: shimmer opacity 0.38→0.50 — Pass 696: →0.65 — Pass 993: →0.85 — Pass 1401: →1.0 for stronger belt shimmer stripe
-    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 1.0;
+    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 1.35; // Pass 4615: slot shimmer halo opacity 1.0→1.35 brighter belt shimmer stripe
   } else {
     beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 32.8); // Pass 2004: shimmer fade 4→5.4 — Pass 2764: 5.4→7.29 — Pass 2902: 7.29→9.84 — Pass 3112: 9.84→13.3 — Pass 3284: 13.3→18.0 — Pass 3362: 18.0→24.3 — Pass 4552: 24.3→32.8 faster slot shimmer halo fade
     if (beltShimmerMat.opacity < 0.01) beltShimmerMesh.visible = false;
@@ -5122,7 +5122,7 @@ function animate(ts) {
     const _grs = 1.0 + easeOut(_grabRingT) * 680.4; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6 — Pass 3141: 151.6→204.7 — Pass 3313: 204.7→276.3 — Pass 3422: 276.3→373.0 — Pass 3535: 373.0→504 — Pass 4089: 504→680.4 wider suction burst
     grabRing.scale.setScalar(_grs);
     // Pass 938: grab ring opacity 0.6→0.85 — Pass 1036: →0.95 — Pass 1541: →1.0 for more vivid ring
-    grabRingMat.opacity = (1 - _grabRingT) * 1.0;
+    grabRingMat.opacity = (1 - _grabRingT) * 1.35; // Pass 4612: pick suction ring fade rate 1.0→1.35 brighter grab ring fade
     if (_grabRingT >= 1) {
       _grabRingT = -1;
       grabRing.visible = false;
