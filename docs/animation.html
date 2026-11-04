@@ -3446,16 +3446,16 @@ function animate(ts) {
           scanBarMat.color.copy(_blendC);
           scanBarMat.emissive.copy(_blendC);
           // Pass 497: scan bar 65-85% tension base 1.5→1.8 — Pass 838: post-reveal base 2.2→3.0, peak 2.5→3.5
-          const _baseI = barFill >= 0.85 ? 7.38 + flashIntensity * 6.39 : 4.43 + flashIntensity * 3.78; // Pass 2329: post-reveal base 4.05→5.47, flash 3.5→4.73; Pass 2330: tension base 2.43→3.28, flash 2.8→3.78 — Pass 4072: post-reveal base 5.47→7.38 — Pass 4073: tension base 3.28→4.43 brighter scan bar identity states — Pass 4592: scan bar post-reveal flash contribution 4.73→6.39 more vivid reveal emissive
+          const _baseI = barFill >= 0.85 ? 9.96 + flashIntensity * 8.63 : 5.98 + flashIntensity * 5.10; // Pass 2329: post-reveal base 4.05→5.47, flash 3.5→4.73; Pass 2330: tension base 2.43→3.28, flash 2.8→3.78 — Pass 4072: post-reveal base 5.47→7.38 — Pass 4073: tension base 3.28→4.43 brighter scan bar identity states — Pass 4592: scan bar post-reveal flash contribution 4.73→6.39 more vivid reveal emissive — Pass 5288: post-reveal base 7.38→9.96 — Pass 5289: post-reveal flash 6.39→8.63 — Pass 5290: tension base 4.43→5.98 — Pass 5291: tension flash 3.78→5.10
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75 — Pass 1343: →1.05
-          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 11.7 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50 — Pass 3559: 3.50→4.73 — Pass 3722: 4.73→6.39 — Pass 3829: 6.39→8.63 — Pass 4115: 8.63→11.7
+          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 15.8 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50 — Pass 3559: 3.50→4.73 — Pass 3722: 4.73→6.39 — Pass 3829: 6.39→8.63 — Pass 4115: 8.63→11.7 — Pass 5292: 11.7→15.8 brighter post-reveal breathing pulse
           // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 — Pass 1327: →20.0 for bigger climax
           const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 220 : 0; // Pass 2332: completion superflash 27.0→36.5 — Pass 2836: 36.5→49.3 — Pass 2981: 49.3→66.6 — Pass 3492: 66.6→89.9 — Pass 3708: 89.9→121 — Pass 4114: 121→163 blinding fill completion — Pass 5268: 163→220 blinding fill bar completion flash
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
         }
       }
       // Pass 841: scan bar opacity base 0.75→0.90, flash contribution 0.25→0.40 for more vivid bar
-      scanBarMat.opacity = Math.min(1, 0.90 + flashIntensity * 0.54); // Pass 4798: scan bar flash opacity contribution 0.40→0.54
+      scanBarMat.opacity = Math.min(1, 0.90 + flashIntensity * 0.73); // Pass 4798: scan bar flash opacity contribution 0.40→0.54 — Pass 5293: flash opacity contribution 0.54→0.73
       // Pass 469: apply init flash OVER normal bar (brief white overbloom in first 4%)
       if (_barInitFlash469 > 0.1) {
         scanBarMat.color.set(0xffffff); scanBarMat.emissive.set(0xffffff);
@@ -3481,7 +3481,7 @@ function animate(ts) {
       const _exColor = ft < 0.85 ? 0xccddff : ct.hex;
       tp.mat.color.setHex(_exColor); // pre-confirm: cool blue-white; post-confirm: domain
       // Pass 723: exhaust opacity 0.18+0.15→0.26+0.20 — Pass 843: →0.40+0.32 — Pass 1328: →0.55+0.42 for more vivid scanner exhaust
-      tp.mat.opacity = 3.32 + Math.random() * 2.55; // Pass 2542: exhaust opacity 0.55+0.42→0.74+0.57 — Pass 2982: 0.74+0.57→1.00+0.77 — Pass 3181: 1.00+0.77→1.35+1.04 — Pass 3578: 1.35+1.04→1.82+1.40 — Pass 3673: 1.82+1.40→2.46+1.89 — Pass 4238: base 2.46→3.32 — Pass 4239: rand 1.89→2.55 brighter scanner exhaust
+      tp.mat.opacity = 4.48 + Math.random() * 3.44; // Pass 2542: exhaust opacity 0.55+0.42→0.74+0.57 — Pass 2982: 0.74+0.57→1.00+0.77 — Pass 3181: 1.00+0.77→1.35+1.04 — Pass 3578: 1.35+1.04→1.82+1.40 — Pass 3673: 1.82+1.40→2.46+1.89 — Pass 4238: base 2.46→3.32 — Pass 4239: rand 1.89→2.55 brighter scanner exhaust — Pass 5294: base 3.32→4.48 — Pass 5295: rand 2.55→3.44 brighter scanner exhaust plume
       tp.age = 0; tp.life = 3.32 + Math.random() * 2.44; // Pass 2543: exhaust life 0.55+0.40→0.74+0.54 — Pass 2983: 0.74+0.54→1.00+0.73 — Pass 3182: 1.00+0.73→1.35+0.99 — Pass 3765: base 1.35→1.82 — Pass 3766: rand 0.99→1.34 — Pass 3873: base 1.82→2.46 — Pass 3874: rand 1.34→1.81 — Pass 4240: base 2.46→3.32 — Pass 4241: rand 1.81→2.44 longer exhaust particles
       tp.active = true; tp.mesh.visible = true;
     }
@@ -3587,7 +3587,7 @@ function animate(ts) {
     // (Pass 76 lerp superseded by pass 189 binary snap — removed)
     // Pass 115: beam urgency strobe — frequency and amplitude build from 65%→85% scan progress
     const _prevT = barFill < 0.65 ? 0 : barFill > 0.85 ? 0 : (barFill - 0.65) / 0.20;
-    const _strobeFreq = 5 + _prevT * 37.8; // Pass 442: ramps 5→23Hz — Pass 1170: →33Hz for more frenetic pre-reveal urgency — Pass 4280: 28→37.8 even more frenetic urgency strobe
+    const _strobeFreq = 5 + _prevT * 51.0; // Pass 442: ramps 5→23Hz — Pass 1170: →33Hz for more frenetic pre-reveal urgency — Pass 4280: 28→37.8 even more frenetic urgency strobe — Pass 5294: 37.8→51.0 more frenetic pre-reveal urgency strobe
     // Pass 573: strobe amplitude 0.10→0.16 — Pass 620: →0.22 — Pass 1155: →0.35 — Pass 1291: →0.50 for stronger urgency strobe pre-reveal
     const _strobeAmp  = _prevT * 4.10;  // Pass 2557: strobe amp 0.50→0.68 — Pass 2823: 0.68→0.92 — Pass 2995: 0.92→1.24 — Pass 3488: 1.24→1.67 — Pass 3707: 1.67→2.25 — Pass 3991: 2.25→3.04 — Pass 4131: 3.04→4.10 stronger urgency strobe
     const _strobe = Math.sin(ts * _strobeFreq * Math.PI * 2) * _strobeAmp;
@@ -3659,7 +3659,7 @@ function animate(ts) {
       routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 18.8 : 0)) + _tgtRevealSpike339; // Pass 1728: post-reveal emissive boost 4.2→5.67 — Pass 3199: 5.67→7.65 — Pass 3994: 7.65→10.3 — Pass 4422: 10.3→13.9 brighter destination post-reveal glow — Pass 4993: 13.9→18.8 blazing destination post-reveal glow
       routeTargetMat.opacity = flashIntensity * 1.35; // Pass 1538: 0.9→1.0 — Pass 4642: scan bar scanline opacity slope 1.0→1.35 brighter destination indicator
       // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 — Pass 858: →1.20 — Pass 1068: →1.55 — Pass 1442: →2.10 — Pass 1539: →2.80 for bigger destination sphere pulse
-      const _tgtScale304 = 1.0 + flashIntensity * 22.95 * Math.sin(ts * 4 * Math.PI * 2); // Pass 2564: sphere scale pulse 5.10→6.89 — Pass 3200: 6.89→9.30 — Pass 3620: 9.30→12.6 — Pass 3995: 12.6→17.0 — Pass 4051: 17.0→22.95 bigger destination sphere throb
+      const _tgtScale304 = 1.0 + flashIntensity * 31.0 * Math.sin(ts * 4 * Math.PI * 2); // Pass 2564: sphere scale pulse 5.10→6.89 — Pass 3200: 6.89→9.30 — Pass 3620: 9.30→12.6 — Pass 3995: 12.6→17.0 — Pass 4051: 17.0→22.95 bigger destination sphere throb — Pass 5293: 22.95→31.0 bigger destination sphere throb
       routeTarget.scale.setScalar(Math.max(0.1, _tgtScale304));
     }
     // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
@@ -3718,12 +3718,12 @@ function animate(ts) {
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
       // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 — Pass 1140: →14.0 — Pass 1220: →20.0 — Pass 1293: →28.0 hotter blaze
-      activeCardMat.emissiveIntensity = 1026; // Pass 2569: card blaze at conveyorOut start 68.9→93.0 — Pass 3009: 93.0→125.6 — Pass 3205: 125.6→169.6 — Pass 3582: 169.6→229 — Pass 3677: 229→309 — Pass 3791: 309→417 — Pass 3894: 417→563 — Pass 4726: 563→760 — Pass 4735: 760→1026 hotter card exit blaze
+      activeCardMat.emissiveIntensity = 1385; // Pass 2569: card blaze at conveyorOut start 68.9→93.0 — Pass 3009: 93.0→125.6 — Pass 3205: 125.6→169.6 — Pass 3582: 169.6→229 — Pass 3677: 229→309 — Pass 3791: 309→417 — Pass 3894: 417→563 — Pass 4726: 563→760 — Pass 4735: 760→1026 hotter card exit blaze — Pass 5288: 1026→1385 hotter card exit blaze
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
-      lensMat.emissiveIntensity = 180.2; // Pass 2570: lens spike at conveyorOut 22.1→29.8 — Pass 3206: 29.8→40.2 — Pass 3583: 40.2→54.3 — Pass 3678: 54.3→73.3 — Pass 3792: 73.3→98.9 — Pass 3895: 98.9→133.5 — Pass 4730: 133.5→180.2 brighter lens domain flare at exit
+      lensMat.emissiveIntensity = 243; // Pass 2570: lens spike at conveyorOut 22.1→29.8 — Pass 3206: 29.8→40.2 — Pass 3583: 40.2→54.3 — Pass 3678: 54.3→73.3 — Pass 3792: 73.3→98.9 — Pass 3895: 98.9→133.5 — Pass 4730: 133.5→180.2 brighter lens domain flare at exit — Pass 5289: 180.2→243 brighter lens domain flare at exit
       lensMat.emissive.setHex(ct.hex);
       // Pass 478: scan-confirm LED flashbang — scanner LED briefly goes white-hot at scan complete
-      scanLEDMat.emissiveIntensity = 217.5; // Pass 2571: scan LED flashbang 19.7→26.6 — Pass 3207: 26.6→35.9 — Pass 3584: 35.9→48.5 — Pass 3679: 48.5→65.5 — Pass 3793: 65.5→88.4 — Pass 3896: 88.4→119.3 — Pass 4727: 119.3→161.1 — Pass 4731: 161.1→217.5 brighter scan confirm LED flashbang
+      scanLEDMat.emissiveIntensity = 294; // Pass 2571: scan LED flashbang 19.7→26.6 — Pass 3207: 26.6→35.9 — Pass 3584: 35.9→48.5 — Pass 3679: 48.5→65.5 — Pass 3793: 65.5→88.4 — Pass 3896: 88.4→119.3 — Pass 4727: 119.3→161.1 — Pass 4731: 161.1→217.5 brighter scan confirm LED flashbang — Pass 5290: 217.5→294 brighter scan confirm LED flashbang
       scanLEDMat.color.set(0xffffff);
       scanLEDMat.emissive.set(0xffffff);
     }
@@ -3733,7 +3733,7 @@ function animate(ts) {
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
     // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
     const _ledUrgencyHz = 8 + ot * 29.7; // 8→30Hz // Pass 4763: LED urgency Hz ramp 22→29.7 more frantic gate pulse
-    const _ledUrgencyPulse = 0.18 + 22.3 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5 — Pass 4373: 16.5→22.3 deeper gate LED urgency throb
+    const _ledUrgencyPulse = 0.18 + 30.1 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5 — Pass 4373: 16.5→22.3 deeper gate LED urgency throb — Pass 5291: 22.3→30.1 deeper gate LED urgency pulse
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 — Pass 1221: →10.0 for brighter gate approach signal
@@ -3758,7 +3758,7 @@ function animate(ts) {
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     // Pass 312: conveyorOut Z bank amplifier — outer columns lean harder to reinforce routing
     // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit — Pass 1593: →0.88
-    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 9.75; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61 — Pass 3013: 1.61→2.17 — Pass 3476: 2.17→2.93 — Pass 3544: 2.93→3.96 — Pass 3739: 3.96→5.35 — Pass 3847: 5.35→7.22 — Pass 4733: 7.22→9.75 harder outer column bank lean
+    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 13.2; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61 — Pass 3013: 1.61→2.17 — Pass 3476: 2.17→2.93 — Pass 3544: 2.93→3.96 — Pass 3739: 3.96→5.35 — Pass 3847: 5.35→7.22 — Pass 4733: 7.22→9.75 harder outer column bank lean — Pass 5292: 9.75→13.2 harder outer column bank lean
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
     // Pass 140: blend lean from 0 (scan end) to belt lean over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
