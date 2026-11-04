@@ -4199,7 +4199,7 @@ function animate(ts) {
       const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 60.5 : _sympFlash278; // Pass 2120: target LED spike 10.0→13.5 — Pass 2617: 13.5→18.2 — Pass 3058: 18.2→24.6 — Pass 3570: 24.6→33.2 — Pass 3728: 33.2→44.8 — Pass 4659: 44.8→60.5 brighter target-column LED confirm spike
       const _ledDrop = dt3 < 0.22 ? 4.73 : THREE.MathUtils.lerp(4.73, 0.15, (dt3 - 0.22) / 0.78); // Pass 470 — Pass 4746: LED drop peak 3.5→4.73 brighter slot LED column
       const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.15 + _sympFlash278;
-      gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
+      gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 5.40); // Pass 4840: gate col LED slotDrop tracking rate 4→5.40 snappier slot LED response
     });
     // Pass 195: slot entrance gate-burst — brief bright point light at slot threshold when
     // card first crosses TRAY_X_START. Separate from the slow-ramping sweep light;
@@ -4269,7 +4269,7 @@ function animate(ts) {
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
         ? (dt3 - 0.55) / 0.31 * 43.6 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92 — Pass 2624: 2.92→3.94 — Pass 2865: 3.94→5.32 — Pass 3063: 5.32→7.18 — Pass 3246: 7.18→9.69 — Pass 3598: 9.69→13.1 — Pass 3694: 13.1→17.7 — Pass 3806: 17.7→23.9 — Pass 3906: 23.9→32.3 — Pass 4384: 32.3→43.6 stronger pre-landing urgency flicker
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
-        ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 5);
+        ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 6.75); // Pass 4841: strip emissive tracking rate 5→6.75 snappier pre-landing strip
       }
     }
     // Fire impact shockwave ring once when floor-0 card hits the tray floor
@@ -4705,16 +4705,16 @@ function animate(ts) {
     if (inPhase(PH.conveyorOut)) {
       const _ot2 = phaseRaw(PH.conveyorOut);
       const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 6.05 : 0; // Pass 2430: iris snap-close overshoot 0.41→0.55 — Pass 2668: 0.55→0.74 — Pass 2759: 0.74→1.00 — Pass 2897: 1.00→1.35 — Pass 3106: 1.35→1.82 — Pass 3279: 1.82→2.46 — Pass 3357: 2.46→3.32 — Pass 4388: 3.32→4.48 — Pass 4714: 4.48→6.05 bigger iris snap-close bounce
-      lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 10);
+      lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 13.5); // Pass 4842: iris snap-close scale tracking rate 10→13.5 snappier iris settle
       lens.scale.z = lens.scale.x;
     } else {
-      lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 4);
-      lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 4);
+      lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 5.40); // Pass 4843: iris idle X return rate 4→5.40 crisper lens retract
+      lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 5.40); // Pass 4844: iris idle Z return rate 4→5.40 crisper lens retract
     }
     lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 4.05)); // Pass 4829: lens idle emissive color tracking 3→4.05
     lensMat.emissiveIntensity += (10.9 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99 — Pass 2669: 0.99→1.34 — Pass 2760: 1.34→1.81 — Pass 2898: 1.81→2.44 — Pass 3107: 2.44→3.29 — Pass 3280: 3.29→4.44 — Pass 3358: 4.44→5.99 — Pass 4317: 5.99→8.09 — Pass 4715: 8.09→10.9 brighter idle lens glow
     // Pass 197: hood settles back to Z=0 after scan ends
-    scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 8);
+    scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 10.8); // Pass 4845: scanner hood Z return rate 8→10.8 crisper hood retract
   }
 
   // Pass 56: Spin rollers proportional to belt scroll speed (synced to smooth ramp from pass 53)
@@ -5158,7 +5158,7 @@ function animate(ts) {
         hopperLight.intensity += (_hBase + _preT * 9.99 - hopperLight.intensity) * Math.min(1, dt * 2.5); // Pass 2464: pre-charge delta 1.65→2.23 — Pass 2710: 2.23→3.01 — Pass 2938: 3.01→4.06 — Pass 3145: 4.06→5.48 — Pass 3627: 5.48→7.40 — Pass 4170: 7.40→9.99 richer domain herald
       } else {
         hopperLight.color.set(0xffeedd);
-        hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
+        hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2.70); // Pass 4846: hopper pause-mode light tracking rate 2→2.70 snappier idle light settle
       }
     } else {
       hopperLight.color.set(0xffeedd); // warm neutral when idle
@@ -5253,7 +5253,7 @@ function animate(ts) {
       // conveyorIn/Out → stretch up to ~7 extra units; scan (stationary) → compress back to base.
       const _beltMoving = (_onBelt && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)));
       const _stretchTarget = _beltMoving ? CARD_H * 1.00 + _beltScrollSpeed * 2124 : CARD_H * 1.00; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863 — Pass 3152: 863→1165 — Pass 3321: 1165→1573 — Pass 4176: 1573→2124 more dynamic speed-stretch — Pass 4397: base 0.74→1.00 wider card shadow
-      _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 6);
+      _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 8.10); // Pass 4847: shadow stretch tracking rate 6→8.10 snappier speed-stretch response
     }
     _shadowMesh.visible = _shadowMat.opacity > 0.01;
   }
