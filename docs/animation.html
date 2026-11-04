@@ -3718,12 +3718,12 @@ function animate(ts) {
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
       // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 — Pass 1140: →14.0 — Pass 1220: →20.0 — Pass 1293: →28.0 hotter blaze
-      activeCardMat.emissiveIntensity = 760; // Pass 2569: card blaze at conveyorOut start 68.9→93.0 — Pass 3009: 93.0→125.6 — Pass 3205: 125.6→169.6 — Pass 3582: 169.6→229 — Pass 3677: 229→309 — Pass 3791: 309→417 — Pass 3894: 417→563 — Pass 4726: 563→760 hotter card exit blaze
+      activeCardMat.emissiveIntensity = 1026; // Pass 2569: card blaze at conveyorOut start 68.9→93.0 — Pass 3009: 93.0→125.6 — Pass 3205: 125.6→169.6 — Pass 3582: 169.6→229 — Pass 3677: 229→309 — Pass 3791: 309→417 — Pass 3894: 417→563 — Pass 4726: 563→760 — Pass 4735: 760→1026 hotter card exit blaze
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
-      lensMat.emissiveIntensity = 133.5; // Pass 2570: lens spike at conveyorOut 22.1→29.8 — Pass 3206: 29.8→40.2 — Pass 3583: 40.2→54.3 — Pass 3678: 54.3→73.3 — Pass 3792: 73.3→98.9 — Pass 3895: 98.9→133.5
+      lensMat.emissiveIntensity = 180.2; // Pass 2570: lens spike at conveyorOut 22.1→29.8 — Pass 3206: 29.8→40.2 — Pass 3583: 40.2→54.3 — Pass 3678: 54.3→73.3 — Pass 3792: 73.3→98.9 — Pass 3895: 98.9→133.5 — Pass 4730: 133.5→180.2 brighter lens domain flare at exit
       lensMat.emissive.setHex(ct.hex);
       // Pass 478: scan-confirm LED flashbang — scanner LED briefly goes white-hot at scan complete
-      scanLEDMat.emissiveIntensity = 161.1; // Pass 2571: scan LED flashbang 19.7→26.6 — Pass 3207: 26.6→35.9 — Pass 3584: 35.9→48.5 — Pass 3679: 48.5→65.5 — Pass 3793: 65.5→88.4 — Pass 3896: 88.4→119.3 — Pass 4727: 119.3→161.1 brighter scan LED flashbang
+      scanLEDMat.emissiveIntensity = 217.5; // Pass 2571: scan LED flashbang 19.7→26.6 — Pass 3207: 26.6→35.9 — Pass 3584: 35.9→48.5 — Pass 3679: 48.5→65.5 — Pass 3793: 65.5→88.4 — Pass 3896: 88.4→119.3 — Pass 4727: 119.3→161.1 — Pass 4731: 161.1→217.5 brighter scan confirm LED flashbang
       scanLEDMat.color.set(0xffffff);
       scanLEDMat.emissive.set(0xffffff);
     }
@@ -3737,7 +3737,7 @@ function animate(ts) {
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 — Pass 1221: →10.0 for brighter gate approach signal
-      const _target = _isTarget ? (149 * ot) * _ledUrgencyPulse : 0.1; // Pass 2357: gate LED target max 24.6→33.2 — Pass 2573: 33.2→44.8 — Pass 3011: 44.8→60.5 — Pass 3209: 60.5→81.7 — Pass 3586: 81.7→110.3 — Pass 3681: 110.3→149
+      const _target = _isTarget ? (201 * ot) * _ledUrgencyPulse : 0.1; // Pass 2357: gate LED target max 24.6→33.2 — Pass 2573: 33.2→44.8 — Pass 3011: 44.8→60.5 — Pass 3209: 60.5→81.7 — Pass 3586: 81.7→110.3 — Pass 3681: 110.3→149 — Pass 4732: 149→201 brighter gate approach LED urgency
       gm.color.setHex(_isTarget ? ct.hex : 0x224466);
       gm.emissive.setHex(_isTarget ? ct.hex : 0x112233);
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
@@ -3758,7 +3758,7 @@ function animate(ts) {
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     // Pass 312: conveyorOut Z bank amplifier — outer columns lean harder to reinforce routing
     // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit — Pass 1593: →0.88
-    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 7.22; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61 — Pass 3013: 1.61→2.17 — Pass 3476: 2.17→2.93 — Pass 3544: 2.93→3.96 — Pass 3739: 3.96→5.35 — Pass 3847: 5.35→7.22
+    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 9.75; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61 — Pass 3013: 1.61→2.17 — Pass 3476: 2.17→2.93 — Pass 3544: 2.93→3.96 — Pass 3739: 3.96→5.35 — Pass 3847: 5.35→7.22 — Pass 4733: 7.22→9.75 harder outer column bank lean
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
     // Pass 140: blend lean from 0 (scan end) to belt lean over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
@@ -3885,7 +3885,7 @@ function animate(ts) {
     // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 — Pass 916: →19.0 — Pass 1074: →27.0 — Pass 1179: →38.0 — Pass 1564: →52.0, dist→150 for bigger paddle hit
     if (!_gateFlashFired) {
       _gateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 775, 150); // Pass 2367: gate contact flash 94.8→128.0 — Pass 2584: 128.0→172.8 — Pass 2845: 172.8→233.3 — Pass 3024: 233.3→315.0 — Pass 3217: 315.0→425.3 — Pass 3386: 425.3→574.2 — Pass 3517: 574.2→775
+      const _gfl = new THREE.PointLight(ct.hex, 1046, 150); // Pass 2367: gate contact flash 94.8→128.0 — Pass 2584: 128.0→172.8 — Pass 2845: 172.8→233.3 — Pass 3024: 233.3→315.0 — Pass 3217: 315.0→425.3 — Pass 3386: 425.3→574.2 — Pass 3517: 574.2→775 — Pass 4728: 775→1046 brighter paddle smack flash
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3893,7 +3893,7 @@ function animate(ts) {
       // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 — Pass 917: →12.0 — Pass 1180: →17.0 — Pass 1565: →24.0
       paddleMat.emissiveIntensity = 483; // Pass 2368: paddle spike 43.7→59.0 — Pass 2585: 59.0→79.7 — Pass 2846: 79.7→107.6 — Pass 3025: 107.6→145.3 — Pass 3218: 145.3→196.2 — Pass 3387: 196.2→264.9 — Pass 3518: 264.9→358 — Pass 4313: 358→483 brighter paddle smack flash
       // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 — Pass 781: →10.0 — Pass 1181: →15.0 — Pass 1566: →22.0 hotter blaze
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 328); // Pass 2369: gate-contact card flash 40.1→54.1 — Pass 2586: 54.1→73.0 — Pass 2847: 73.0→98.6 — Pass 3026: 98.6→133.1 — Pass 3219: 133.1→179.7 — Pass 3388: 179.7→242.6 — Pass 3519: 242.6→328
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 443); // Pass 2369: gate-contact card flash 40.1→54.1 — Pass 2586: 54.1→73.0 — Pass 2847: 73.0→98.6 — Pass 3026: 98.6→133.1 — Pass 3219: 133.1→179.7 — Pass 3388: 179.7→242.6 — Pass 3519: 242.6→328 — Pass 4729: 328→443 hotter gate-contact card blaze
       // Pass 298: gate-contact camera shake — Pass 588: 1.8→3.0 for more physical paddle impact
       _cameraShake = 3.0;
       // Pass 369: gate-contact camera shake — Pass 782: →6.5 — Pass 923: →9.5 — Pass 1182: →14.0 — Pass 1567: →20.0 for bigger paddle hit feel
@@ -4038,7 +4038,7 @@ function animate(ts) {
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       if (gi === ct.col) {
         gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
-        gm.emissiveIntensity += (111.2 - gm.emissiveIntensity) * Math.min(1, dt * 10); // Pass 2383: deflect LED target 18.4→24.8 — Pass 2605: 24.8→33.5 — Pass 3042: 33.5→45.2 — Pass 3569: 45.2→61.0 — Pass 3727: 61.0→82.4 — Pass 3836: 82.4→111.2
+        gm.emissiveIntensity += (150.1 - gm.emissiveIntensity) * Math.min(1, dt * 10); // Pass 2383: deflect LED target 18.4→24.8 — Pass 2605: 24.8→33.5 — Pass 3042: 33.5→45.2 — Pass 3569: 45.2→61.0 — Pass 3727: 61.0→82.4 — Pass 3836: 82.4→111.2 — Pass 4734: 111.2→150.1 brighter deflect domain LED column
       } else {
         gm.emissiveIntensity += (0.15 - gm.emissiveIntensity) * Math.min(1, dt * 5);
       }
