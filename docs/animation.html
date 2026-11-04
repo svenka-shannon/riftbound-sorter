@@ -41,7 +41,7 @@
   #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; transition: color 0.3s; display: inline-block; }
   @keyframes countBump {
     0%   { transform: scale(1.0);   text-shadow: none; }
-    20%  { transform: scale(5.14);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale — Pass 5938: 3.81→5.14 more dramatic score count bump peak scale */
+    20%  { transform: scale(6.94);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale — Pass 5938: 3.81→5.14 more dramatic score count bump peak scale — Pass 5985: 5.14→6.94 more dramatic score count bump peak scale */
     55%  { transform: scale(0.95);  text-shadow: 0 0 8px currentColor; }
     100% { transform: scale(1.0);   text-shadow: none; }
   }
@@ -212,7 +212,7 @@
   /* ── Stats count bounce ─────────────────────────────────────────────── */
   @keyframes countBounce {
     0%   { transform: scale(1); }
-    35%  { transform: scale(6.66); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop — Pass 5802: 3.65→4.93 more dramatic stats count bounce peak scale — Pass 5942: 4.93→6.66 more dramatic stats count bounce peak scale */
+    35%  { transform: scale(8.99); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop — Pass 5802: 3.65→4.93 more dramatic stats count bounce peak scale — Pass 5942: 4.93→6.66 more dramatic stats count bounce peak scale — Pass 5984: 6.66→8.99 more dramatic stats count bounce peak scale */
     65%  { transform: scale(0.92); }
     100% { transform: scale(1); }
   }
@@ -989,7 +989,7 @@ scene.add(scanLine);
 const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
-  emissiveIntensity: 11.2, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive
+  emissiveIntensity: 15.1, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive — Pass 5979: 11.2→15.1 brighter scan crosshair secondary sweep bar emissive
   transparent: true, opacity: 1.61 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep — Pass 5880: 1.19→1.61 overdrive scan crosshair secondary sweep opacity
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 164), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height — Pass 5072: 121.5→164 wider secondary scan sweep
@@ -1134,7 +1134,7 @@ function makeTrayFloor(yBase, colorHex) {
     const capMat = new THREE.MeshStandardMaterial({
       color: capColor,
       emissive: new THREE.Color(capColor),
-      emissiveIntensity: 4.85, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest — Pass 5407: 2.66→3.59 brighter slot tray floor cap guide rail emissive — Pass 5863: 3.59→4.85 brighter slot tray floor cap guide rail emissive
+      emissiveIntensity: 6.55, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest — Pass 5407: 2.66→3.59 brighter slot tray floor cap guide rail emissive — Pass 5863: 3.59→4.85 brighter slot tray floor cap guide rail emissive — Pass 5980: 4.85→6.55 brighter slot tray floor cap guide rail emissive
       roughness: 0.3,
       metalness: 0.2
     });
@@ -1935,7 +1935,7 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 78; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool
+const TRAIL_PARTICLE_COUNT = 105; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5978: 78→105 richer deflect wake trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(7.30, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius
@@ -1950,7 +1950,7 @@ let _trailSpawnAcc = 0;    // time accumulator for spawn rate
 // 32 spheres in all 8 domain colors fire upward from above the tray when
 // a complete sort round (all 8 domains) finishes. Each domain gets 4 particles.
 const CELEB_PARTICLES = [];
-const CELEB_COUNT = 142; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst — Pass 5959: 105→142 even more confetti per celebration burst
+const CELEB_COUNT = 192; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst — Pass 5959: 105→142 even more confetti per celebration burst — Pass 5983: 142→192 even more confetti per celebration burst
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
@@ -2767,17 +2767,17 @@ function animate(ts) {
       const lt = phaseT(PH.armLift, easeOut);
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 — Pass 1356: →-0.48 — Pass 1681: →-0.65
       const _ltLurch = lt < 0.328 ? -5.35 * Math.sin((lt / 0.328) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93 — Pass 4224: -2.93→-3.96 more dramatic suction-break strain — Pass 4927: arm pick lift lurch window 0.18→0.243 deeper pick velocity engagement — Pass 5164: 0.243→0.328 wider card release timing window — Pass 5935: 3.96→5.35 more dramatic suction-break lift lurch
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.049, 1.46, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position — Pass 4566: arm lift start matches descent end -0.036→-0.049 — Pass 5169: 1.08→1.46 higher arm lift apex
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.049, 1.97, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position — Pass 4566: arm lift start matches descent end -0.036→-0.049 — Pass 5169: 1.08→1.46 higher arm lift apex — Pass 5978: 1.46→1.97 higher arm lift apex rotation
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 — Pass 1682: →7.0 more dramatic dip
       if (lt < 0.22) {
-        const _yDip = -42.3 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip — Pass 4902: -23.2→-31.3 more dramatic peel-off lurch — Pass 5178: -31.3→-42.3 more dramatic pivot dip
+        const _yDip = -57.1 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip — Pass 4902: -23.2→-31.3 more dramatic peel-off lurch — Pass 5178: -31.3→-42.3 more dramatic pivot dip — Pass 5979: -42.3→-57.1 deeper suction-break pivot Y dip
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
         // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 — Pass 1358: →7.00 — Pass 1683: →9.50
         const _pickStutter = lt < 0.12 ? 42.7 * Math.exp(-lt * 35.1) * (Math.sin(ts * 29.7 * Math.PI * 2) * 0.88 + Math.sin(ts * 51.3 * Math.PI * 2) * 0.47) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear — Pass 4504: pick stutter high freq 38→51.3 sharper micro-jolt — Pass 4527: pick-stutter low-freq amplitude 0.65→0.88 stronger suction-seal shudder — Pass 4529: pick-stutter low-freq seal frequency 22→29.7 sharper suction-seal Hz — Pass 4624: pick-stutter high-freq secondary amplitude 0.35→0.47 more violent seal tear recoil — Pass 4638: pick stutter decay rate 26→35.1 crisper suction-seal shudder — Pass 5170: 31.6→42.7 more violent suction-seal burst
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 — Pass 1359: →15.0 for more dramatic peel-off sway
-      const _peelZ291 = lt < 0.28 ? 67.2 * Math.sin(lt / 0.28 * Math.PI) : 0; // Pass 2272: peel-off Z drift 20.25→27.34 — Pass 3920: 27.34→36.9 — Pass 4227: 36.9→49.8 wider peel-off sway — Pass 5171: 49.8→67.2 wider peel-off sway arc
+      const _peelZ291 = lt < 0.28 ? 90.7 * Math.sin(lt / 0.28 * Math.PI) : 0; // Pass 2272: peel-off Z drift 20.25→27.34 — Pass 3920: 27.34→36.9 — Pass 4227: 36.9→49.8 wider peel-off sway — Pass 5171: 49.8→67.2 wider peel-off sway arc — Pass 5980: 67.2→90.7 wider peel-off Z drift sway arc
       suctionPivot.position.z = _peelZ291;
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
@@ -2792,7 +2792,7 @@ function animate(ts) {
       // Pass 181: cup holds bright domain glow while actively carrying the card (armLift)
       // Pass 501: cup pick glow boost 1.5→2.0 — Pass 1173: →3.0 for more vivid suction-hold visualization
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (80.9 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 2273: cup hold glow 4.05→5.47 — Pass 3418: 5.47→7.38 — Pass 3530: 7.38→9.96 — Pass 3712: 9.96→13.4 — Pass 3822: 13.4→18.1 — Pass 4229: 18.1→24.4 stronger suction hold glow — Pass 4596: suction cup lift emissive lerp rate 8→10.8 snappier cup glow response — Pass 4944: 24.4→32.9 brighter suction cup hold glow — Pass 5124: 32.9→44.4 brighter suction release flash hold glow — Pass 5199: 44.4→59.9 brighter suction cup hold glow — Pass 5295: suction cup release bounce glow 59.9→80.9 brighter suction hold flash
+      suctionCupMat.emissiveIntensity += (109 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 2273: cup hold glow 4.05→5.47 — Pass 3418: 5.47→7.38 — Pass 3530: 7.38→9.96 — Pass 3712: 9.96→13.4 — Pass 3822: 13.4→18.1 — Pass 4229: 18.1→24.4 stronger suction hold glow — Pass 4596: suction cup lift emissive lerp rate 8→10.8 snappier cup glow response — Pass 4944: 24.4→32.9 brighter suction cup hold glow — Pass 5124: 32.9→44.4 brighter suction release flash hold glow — Pass 5199: 44.4→59.9 brighter suction cup hold glow — Pass 5295: suction cup release bounce glow 59.9→80.9 brighter suction hold flash — Pass 5981: 80.9→109 brighter suction cup active hold glow peak
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
@@ -2853,13 +2853,13 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(1.46, 1.57, st); // Pass 4487: arm swing start 0.80→1.08 matches lift endpoint — Pass 5532: 1.08→1.46 arm swings from deeper pre-cocked angle
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
       // Pass 676: Z-depth arc 14→17 — Pass 764: →23 — Pass 1176: →32 — Pass 1244: →44 — Pass 1340: →60 for even more dramatic 3D depth sweep
-      suctionPivot.position.z = Math.sin(st * Math.PI) * 360; // Pass 2275: armSwing Z-depth arc 81→109 — Pass 3957: 109→147 — Pass 4189: 147→198 — Pass 4916: 198→267 deeper 3D sweep — Pass 5192: 267→360 deeper arm swing 3D arc
+      suctionPivot.position.z = Math.sin(st * Math.PI) * 486; // Pass 2275: armSwing Z-depth arc 81→109 — Pass 3957: 109→147 — Pass 4189: 147→198 — Pass 4916: 198→267 deeper 3D sweep — Pass 5192: 267→360 deeper arm swing 3D arc — Pass 5982: 360→486 deeper arm swing Z-depth 3D arc
       // Pass 234: arm pivot Y sag — pivot slightly droops under card weight at swing midpoint
       // Pass 282: end-of-swing Y bounce — brief upward over-correction as arm decelerates at deposit
       // Pass 677: deposit bounce 0.55→0.85 — Pass 765: →1.25 — Pass 1177: →1.80 — Pass 1245: →2.60 — Pass 1341: →3.60 for stronger spring at belt handoff
       // Pass 770: pivot Y sag 2.2→3.2 — Pass 1178: →4.5 — Pass 1246: →6.2 — Pass 1342: →8.5 for more weight feel during swing
       const _swingEndBounce = st > 0.88 ? 40.0 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0; // Pass 2276: armSwing end bounce 4.86→6.56 — Pass 3176: 6.56→8.86 — Pass 3575: 8.86→12.0 — Pass 3670: 12.0→16.2 — Pass 4190: 16.2→21.9 — Pass 4914: 21.9→29.6 bouncier deposit — Pass 5193: 29.6→40.0 bouncier arm deposit end-bounce
-      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 126 + _swingEndBounce; // Pass 2277: armSwing Y sag 11.5→15.5 — Pass 3177: 15.5→20.9 — Pass 3576: 20.9→28.2 — Pass 3671: 28.2→38.1 — Pass 4191: 38.1→51.4 — Pass 4915: 51.4→69.4 deeper weight sag — Pass 5194: 69.4→93.7 deeper arm swing weight sag — Pass 5485: 93.7→126 deeper arm extension Y amplitude
+      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 170 + _swingEndBounce; // Pass 2277: armSwing Y sag 11.5→15.5 — Pass 3177: 15.5→20.9 — Pass 3576: 20.9→28.2 — Pass 3671: 28.2→38.1 — Pass 4191: 38.1→51.4 — Pass 4915: 51.4→69.4 deeper weight sag — Pass 5194: 69.4→93.7 deeper arm swing weight sag — Pass 5485: 93.7→126 deeper arm extension Y amplitude — Pass 5983: 126→170 deeper arm swing weight sag Y amplitude
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 7.3); // Pass 4646: arm swing vibration damping constant 4→5.4 snappier cup emissive fade during swing — Pass 5106: arm extension damping 5.4→7.3 snappier cup emissive fade during swing
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
@@ -2884,7 +2884,7 @@ function animate(ts) {
         // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: →0.85+0.62 — Pass 1060: →0.95+0.80 — Pass 1247: apex →1.15 for brighter arc midpoint
         const _swT482 = phaseRaw(PH.armSwing);
         // Pass 482: trail opacity peak — Pass 1352: 0.95+1.15→0.95+1.55 — Pass 1500: apex →2.00 for brighter arc peak
-        tp.mat.opacity = Math.min(1, 0.95 + 12.1 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65 — Pass 3950: 3.65→4.93 — Pass 4192: 4.93→6.66 brighter arc-apex trail — Pass 5024: 6.66→8.99 brighter arc apex trail — Pass 5205: 8.99→12.1 brighter arc apex trail opacity
+        tp.mat.opacity = Math.min(1, 0.95 + 16.3 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65 — Pass 3950: 3.65→4.93 — Pass 4192: 4.93→6.66 brighter arc-apex trail — Pass 5024: 6.66→8.99 brighter arc apex trail — Pass 5205: 8.99→12.1 brighter arc apex trail opacity — Pass 5984: 12.1→16.3 brighter arc apex trail opacity multiplier
         tp.age = 0;
         // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 — Pass 1501: →1.10+0.55 longer arc trail
         tp.life = 74.0 + Math.random() * 6.05; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82 — Pass 3672: 3.66+1.82→4.94+2.46 — Pass 4193: base 4.94→6.67 — Pass 4194: rand 2.46→3.32 — Pass 4917: base 6.67→9.00 — Pass 4918: rand 3.32→4.48 longer arc trail — Pass 5206: 9.00→12.2 longer arc trail base life — Pass 5221: rand 4.48→6.05 longer arc trail rand life — Pass 5393: 12.2→16.5 longer card deal arc trail base life — Pass 5575: 16.5→22.3 longer card deal arc trail base life — Pass 5584: 22.3→30.1 longer card deal arc trail base life — Pass 5607: 30.1→40.6 longer slot entry arc card spin trail base life — Pass 5615: 40.6→54.8 longer slot tray secondary bounce energy arc trail base life — Pass 5622: 54.8→74.0 longer slot approach landing flare arc trail base life
@@ -2897,7 +2897,7 @@ function animate(ts) {
     if(inPhase(PH.armLift) && stackCards[stackTopIdx]) {
       const lt = phaseRaw(PH.armLift);
       const baseY = CARD_T/2 + 6 + stackTopIdx * (CARD_T + 0.5);
-      stackCards[stackTopIdx].position.y = baseY + lt * 189.5; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 — Pass 1838: →lt*57 — Pass 3948: 57→77.0 — Pass 4195: 77.0→104.0 higher card elevation during lift — Pass 5025: 104.0→140.4 higher card lift — Pass 5207: 140.4→189.5 higher stack card lift apex
+      stackCards[stackTopIdx].position.y = baseY + lt * 256; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 — Pass 1838: →lt*57 — Pass 3948: 57→77.0 — Pass 4195: 77.0→104.0 higher card elevation during lift — Pass 5025: 104.0→140.4 higher card lift — Pass 5207: 140.4→189.5 higher stack card lift apex — Pass 5985: 189.5→256 higher stack card lift apex height
     }
 
     // Card tracks suction cup (pass 154: Z follows pivot during arm phases)
@@ -3323,7 +3323,7 @@ function animate(ts) {
     }
     // Pass 55: scan progress LED bar — fills left-to-right as ft 0→1
     // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 — Pass 1320: →8.0 — Pass 1697: →11.0 for bigger scanner power-on test
-    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 51.3) * 90.0 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1 — Pass 3860: 20.1→27.1 — Pass 4149: 27.1→36.6 bigger power-on pop — Pass 4528: scan bar init flash decay 38→51.3 sharper power-on pop — Pass 5269: 36.6→49.4 bigger scan bar power-on flash — Pass 5841: 49.4→66.7 bigger scan bar power-on flash — Pass 5953: 66.7→90.0 bigger scan bar power-on flash
+    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 51.3) * 122 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1 — Pass 3860: 20.1→27.1 — Pass 4149: 27.1→36.6 bigger power-on pop — Pass 4528: scan bar init flash decay 38→51.3 sharper power-on pop — Pass 5269: 36.6→49.4 bigger scan bar power-on flash — Pass 5841: 49.4→66.7 bigger scan bar power-on flash — Pass 5953: 66.7→90.0 bigger scan bar power-on flash — Pass 5981: 90.0→122 bigger scan bar power-on flash
     {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
@@ -3350,7 +3350,7 @@ function animate(ts) {
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
       const _cursorPreScale300 = !_identityRevealed ? 1.0 + 1.12 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25 — Pass 3945: 0.25→0.338 — Pass 4153: 0.338→0.456 bigger cursor search pulse — Pass 5274: 0.456→0.616 bigger cursor search scale pulse — Pass 5847: 0.616→0.832 bigger cursor search scale pulse — Pass 5949: 0.832→1.12 bigger cursor search scale pulse
       const _cursorScale290 = _identityRevealed && ft < 0.91
-        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 29.0 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75 — Pass 4154: 8.75→11.8 bigger cursor pop — Pass 5275: 11.8→15.9 bigger cursor reveal scale punch — Pass 5848: 15.9→21.5 bigger cursor reveal scale punch — Pass 5950: 21.5→29.0 bigger cursor reveal scale punch
+        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 39.2 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75 — Pass 4154: 8.75→11.8 bigger cursor pop — Pass 5275: 11.8→15.9 bigger cursor reveal scale punch — Pass 5848: 15.9→21.5 bigger cursor reveal scale punch — Pass 5950: 21.5→29.0 bigger cursor reveal scale punch — Pass 5982: 29.0→39.2 bigger cursor reveal scale punch
         : _cursorPreScale300;
       scanBarCursor.scale.setScalar(_cursorScale290);
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
