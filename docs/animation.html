@@ -1908,7 +1908,7 @@ const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 // ─── Pass 34: Grab particle burst pool + domain fill light ───────────────────
 // 16 small spheres scatter from grab point when arm picks up a card.
 const GRAB_PARTICLES = [];
-for (let _gpi = 0; _gpi < 22; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir
+for (let _gpi = 0; _gpi < 30; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir — Pass 6268: 22→30 larger grab burst particle reservoir
   const _gpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(3.44, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst — Pass 5916: 2.55→3.44 chunkier grab burst particle sphere
   _gpMesh.visible = false;
@@ -5062,7 +5062,7 @@ function animate(ts) {
   // ── Impact ring: expansion animation ─────────────────────────────────────────
   if (_impactRingT >= 0) {
     // Pass 384: expansion speed boost 0.4s→0.31s — Pass 809: dt*3.2→dt*4.8 — Pass 942: →dt*3.5 — Pass 1033: →dt*2.8 — Pass 1333: →dt*2.2 — Pass 1552: →dt*1.8 longer ring
-    _impactRingT = Math.min(1, _impactRingT + dt * 119.6); // Pass 2498: impact ring speed 3.28→4.43 — Pass 2699: 4.43→5.98 — Pass 2794: 5.98→8.07 — Pass 2927: 8.07→10.9 — Pass 3138: 10.9→14.7 — Pass 3306: 14.7→19.8 — Pass 3405: 19.8→26.7 — Pass 4085: 26.7→36.0 snappier shockwave — Pass 5024: 36.0→48.6 snappier impact shockwave — Pass 5097: 48.6→65.6 snappier landing impact ring timing — Pass 5535: 65.6→88.6 snappier landing impact ring expansion speed — Pass 5715: 88.6→119.6 snappier landing impact ring expansion speed
+    _impactRingT = Math.min(1, _impactRingT + dt * 161.5); // Pass 2498: impact ring speed 3.28→4.43 — Pass 2699: 4.43→5.98 — Pass 2794: 5.98→8.07 — Pass 2927: 8.07→10.9 — Pass 3138: 10.9→14.7 — Pass 3306: 14.7→19.8 — Pass 3405: 19.8→26.7 — Pass 4085: 26.7→36.0 snappier shockwave — Pass 5024: 36.0→48.6 snappier impact shockwave — Pass 5097: 48.6→65.6 snappier landing impact ring timing — Pass 5535: 65.6→88.6 snappier landing impact ring expansion speed — Pass 5715: 88.6→119.6 snappier landing impact ring expansion speed — Pass 6268: 119.6→161.5 snappier landing impact shockwave ring expansion speed
     // scale0: floor-0 starts at 1.0 (big bang), floor-1 starts at 0.55 (gentle glide)
     // Pass 284: easeOut expansion + floor-0 scale boost — ring punches out hard then decelerates
     // Pass 382: floor-0 max scale 6.0→7.5 — Pass 808: →11.0 — Pass 940: →16.0 — Pass 1032: →22.0 — Pass 1332: →30.0 — Pass 1551: →42.0 wider shockwave
@@ -5084,11 +5084,11 @@ function animate(ts) {
   // Pass 100: confirm ring expands from scanner center at identity reveal
   // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 — Pass 944: →dt*3.5 — Pass 1432: →dt*2.6 for longer ring
   if (_confirmRingT >= 0) {
-    _confirmRingT = Math.min(1, _confirmRingT + dt * 94.9); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring — Pass 5029: 38.6→52.1 faster identity confirm ring — Pass 5876: 52.1→70.3 faster identity confirm ring speed — Pass 6026: 70.3→94.9 faster identity confirm ring expansion speed
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 128.1); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring — Pass 5029: 38.6→52.1 faster identity confirm ring — Pass 5876: 52.1→70.3 faster identity confirm ring speed — Pass 6026: 70.3→94.9 faster identity confirm ring expansion speed — Pass 6269: 94.9→128.1 faster identity confirm ring expansion speed
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
     const _crs = 1.0 + easeOut(_confirmRingT) * 4544; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring — Pass 5127: 1368→1847 wider slot ring scale speed confirm ring — Pass 5716: 1847→2493 wider identity confirm ring scale — Pass 5875: 2493→3366 wider identity confirm ring max scale — Pass 6014: 3366→4544 wider identity confirm ring max scale
     confirmRing.scale.setScalar(_crs);
-    confirmRingMat.opacity = (1 - _confirmRingT) * 2.46; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash — Pass 5374: 1.35→1.82 brighter identity confirm ring opacity — Pass 6032: 1.82→2.46 brighter identity confirm ring opacity peak
+    confirmRingMat.opacity = (1 - _confirmRingT) * 3.32; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash — Pass 5374: 1.35→1.82 brighter identity confirm ring opacity — Pass 6032: 1.82→2.46 brighter identity confirm ring opacity peak — Pass 6272: 2.46→3.32 brighter identity confirm ring opacity peak
     if (_confirmRingT >= 1) {
       _confirmRingT = -1;
       confirmRing.visible = false;
@@ -5098,13 +5098,13 @@ function animate(ts) {
   // Pass 184: second confirm ring — fires 0.12s after first, smaller and faster
   if (_confirmRingT2 > -1) {
     // Pass 945: second ring speed dt*2.2→dt*2.8 — Pass 1434: →dt*2.2 for longer second ring duration
-    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 80.7); // Pass 2500: second confirm ring speed 4.01→5.41 — Pass 2703: 5.41→7.30 — Pass 2799: 7.30→9.86 — Pass 3310: 9.86→13.3 — Pass 3420: 13.3→18.0 — Pass 3533: 18.0→24.3 — Pass 4057: 24.3→32.8 faster secondary ripple — Pass 5375: 32.8→44.3 faster secondary confirm ripple — Pass 5877: 44.3→59.8 faster secondary confirm ring speed — Pass 6027: 59.8→80.7 faster secondary confirm ring expansion speed
+    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 109.0); // Pass 2500: second confirm ring speed 4.01→5.41 — Pass 2703: 5.41→7.30 — Pass 2799: 7.30→9.86 — Pass 3310: 9.86→13.3 — Pass 3420: 13.3→18.0 — Pass 3533: 18.0→24.3 — Pass 4057: 24.3→32.8 faster secondary ripple — Pass 5375: 32.8→44.3 faster secondary confirm ripple — Pass 5877: 44.3→59.8 faster secondary confirm ring speed — Pass 6027: 59.8→80.7 faster secondary confirm ring expansion speed — Pass 6270: 80.7→109.0 faster secondary confirm ring expansion speed
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
       // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 — Pass 1533: →30.0 for wider second burst
       const _crs2 = 0.6 + easeOut(_confirmRingT2) * 1099; // Pass 2491: second confirm ring scale 73.8→99.6 — Pass 2704: 99.6→134.5 — Pass 2800: 134.5→181.6 — Pass 2932: 181.6→245.2 — Pass 3311: 245.2→331.0 — Pass 4058: 331.0→447 wider secondary confirm ripple — Pass 5371: 447→603 wider secondary confirm ripple — Pass 5878: 603→814 wider secondary confirm ring max scale — Pass 6028: 814→1099 wider secondary confirm ring max scale
       confirmRing2.scale.setScalar(_crs2);
-      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 2.46); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0 — Pass 4689: 1.0→1.35 brighter secondary confirm ring — Pass 5376: 1.35→1.82 brighter secondary confirm ring opacity — Pass 6033: 1.82→2.46 brighter secondary confirm ring opacity peak
+      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 3.32); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0 — Pass 4689: 1.0→1.35 brighter secondary confirm ring — Pass 5376: 1.35→1.82 brighter secondary confirm ring opacity — Pass 6033: 1.82→2.46 brighter secondary confirm ring opacity peak — Pass 6273: 2.46→3.32 brighter secondary confirm ring opacity peak
       if (_confirmRingT2 >= 1) {
         _confirmRingT2 = -1;
         confirmRing2.visible = false;
@@ -5117,7 +5117,7 @@ function animate(ts) {
   // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
     // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 — Pass 1037: →dt*2.6 — Pass 1436: →dt*2.0 for longer visible ring
-    _grabRingT = Math.min(1, _grabRingT + dt * 133.1); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0 — Pass 3534: 22.0→29.7 — Pass 4088: 29.7→40.1 snappier suction grab — Pass 5372: 40.1→54.1 snappier suction grab ring — Pass 5484: 54.1→73.0 faster slot entry LED ring scale speed — Pass 5492: 73.0→98.6 faster slot arrival ring fade rate — Pass 5717: 98.6→133.1 faster suction grab ring expansion speed
+    _grabRingT = Math.min(1, _grabRingT + dt * 179.7); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0 — Pass 3534: 22.0→29.7 — Pass 4088: 29.7→40.1 snappier suction grab — Pass 5372: 40.1→54.1 snappier suction grab ring — Pass 5484: 54.1→73.0 faster slot entry LED ring scale speed — Pass 5492: 73.0→98.6 faster slot arrival ring fade rate — Pass 5717: 98.6→133.1 faster suction grab ring expansion speed — Pass 6271: 133.1→179.7 faster suction grab ring expansion speed
     // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 — Pass 1437: →18.0 — Pass 1540: →25.0 for wider domain ring burst at pick
     const _grs = 1.0 + easeOut(_grabRingT) * 1674; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6 — Pass 3141: 151.6→204.7 — Pass 3313: 204.7→276.3 — Pass 3422: 276.3→373.0 — Pass 3535: 373.0→504 — Pass 4089: 504→680.4 wider suction burst — Pass 5373: 680.4→918.5 wider suction burst ring — Pass 5815: 918.5→1240 wider grab ring suction burst max scale — Pass 6015: 1240→1674 wider grab ring suction burst max scale
     grabRing.scale.setScalar(_grs);
@@ -5204,7 +5204,7 @@ function animate(ts) {
     if (onBelt && activeCard.visible) {
       _beltTrackLight.color.setHex(ct.hex);
       // Pass 186: Z now follows card's Z-wobble (passes 173-174) instead of hardcoded 0
-      _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 10.9, activeCard.position.z); // Pass 4598: belt active card-tracking light height 6→8.1 higher overhead beam — Pass 5796: 8.1→10.9 higher overhead beam
+      _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 14.7, activeCard.position.z); // Pass 4598: belt active card-tracking light height 6→8.1 higher overhead beam — Pass 5796: 8.1→10.9 higher overhead beam — Pass 6274: 10.9→14.7 higher belt active card-tracking light overhead beam
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
       // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5 — Pass 1443: out →13.5, in →6.0
@@ -5242,7 +5242,7 @@ function animate(ts) {
     const _onBelt = (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))
                      && activeCard.visible;
     // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
-    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 5.40 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20 — Pass 4175: 1.20→1.62 deeper scan shadow pulse — Pass 5388: 1.62→2.19 deeper scan shadow pulse — Pass 5693: 2.19→2.96 deeper scan shadow disc pulse amplitude — Pass 5972: 2.96→4.00 deeper scan shadow disc pulse amplitude — Pass 6040: 4.00→5.40 deeper scan shadow disc pulse amplitude
+    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 7.29 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20 — Pass 4175: 1.20→1.62 deeper scan shadow pulse — Pass 5388: 1.62→2.19 deeper scan shadow pulse — Pass 5693: 2.19→2.96 deeper scan shadow disc pulse amplitude — Pass 5972: 2.96→4.00 deeper scan shadow disc pulse amplitude — Pass 6040: 4.00→5.40 deeper scan shadow disc pulse amplitude — Pass 6275: 5.40→7.29 deeper scan shadow disc pulse amplitude
     const _shadowTarget = _onBelt ? 4.48 + _shadowScanPulse : 0; // Pass 2472: shadow opacity 0.93→1.0 — Pass 4757: shadow base 1.0→1.35 — Pass 5389: 1.35→1.82 richer card shadow base opacity — Pass 5694: 1.82→2.46 richer card shadow base opacity — Pass 5973: 2.46→3.32 richer card shadow base opacity — Pass 6017: 3.32→4.48 richer card shadow base opacity
     _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 19.7); // Pass 4398: shadow tracking rate 8→10.8 snappier shadow response — Pass 5381: 10.8→14.6 snappier card shadow opacity tracking — Pass 6022: 14.6→19.7 snappier card shadow opacity tracking rate
     if (_onBelt) {
