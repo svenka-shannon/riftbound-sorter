@@ -575,7 +575,7 @@ controls.update();
 
 // ─── Lights ───────────────────────────────────────────────────────────────────
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
-const ambientLight = new THREE.AmbientLight(0x202030, 0.45);
+const ambientLight = new THREE.AmbientLight(0x202030, 0.61); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill
 scene.add(ambientLight);
 scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.35));
 
@@ -617,7 +617,7 @@ for (let i = 0; i < DUST_COUNT; i++) {
 const dustGeo = new THREE.BufferGeometry();
 dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
 const dustMat = new THREE.PointsMaterial({
-  size: 1.5, color: 0x8899bb, transparent: true, opacity: 0.35,
+  size: 2.0, color: 0x8899bb, transparent: true, opacity: 0.47, // Pass 4015: dust size 1.5→2.0 larger ambient particles — Pass 4016: dust opacity 0.35→0.47 more visible atmosphere
   depthWrite: false, sizeAttenuation: true
 });
 const dustPoints = new THREE.Points(dustGeo, dustMat);
@@ -704,7 +704,7 @@ scene.add(baseMesh);
 const HOPPER_X = -230;
 
 // Point light above hopper to spotlight the pick-up action
-const hopperLight = new THREE.PointLight(0xffeedd, 0.5, 200);
+const hopperLight = new THREE.PointLight(0xffeedd, 0.68, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight
 hopperLight.position.set(HOPPER_X + 33, 200, 0);
 scene.add(hopperLight);
 
@@ -889,7 +889,7 @@ scene.add(lensRing);
 const scanLEDMat = new THREE.MeshStandardMaterial({
   color: 0x00aaff,
   emissive: new THREE.Color(0x0055cc),
-  emissiveIntensity: 1.2,
+  emissiveIntensity: 1.62, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
@@ -1477,8 +1477,8 @@ const activeCardEdge = new THREE.LineSegments(activeCardEdgeGeo, activeCardEdgeM
 activeCardEdge.visible = false;
 scene.add(activeCardEdge);
 
-// Card glow: increased range (200) and physical falloff
-const cardGlow = new THREE.PointLight(0xffffff, 0, 200);
+// Card glow: increased range and physical falloff
+const cardGlow = new THREE.PointLight(0xffffff, 0, 270); // Pass 4020: card glow range 200→270 wider card illumination
 cardGlow.decay = 2;
 scene.add(cardGlow);
 
@@ -1557,7 +1557,7 @@ let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.
 const confirmRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 1.2, 4, 48), confirmRingMat);
+const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 1.62, 4, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring
 confirmRing.rotation.x = -Math.PI / 2; // lie flat (XZ plane)
 confirmRing.visible = false;
 scene.add(confirmRing);
@@ -1566,7 +1566,7 @@ let _confirmRingT = -1; // -1=idle; 0..1=animation progress
 const confirmRing2Mat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 0.8, 4, 48), confirmRing2Mat);
+const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 1.08, 4, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring
 confirmRing2.rotation.x = -Math.PI / 2;
 confirmRing2.visible = false;
 scene.add(confirmRing2);
