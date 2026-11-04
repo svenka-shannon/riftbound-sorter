@@ -4166,12 +4166,12 @@ function animate(ts) {
     // Pass 751: peak 3.8→5.2, decay 8.5→11 — Pass 975: peak 5.2→7.5, decay 11→14 — Pass 1111: →11.0 — Pass 1198: →16.0 — Pass 1405: →22.0 — Pass 1548: →30.0 for bigger landing flash
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 603 * Math.exp(-_bFlashT * 14)); // Pass 2115: bounce flash 54.7→73.8 — Pass 2612: 73.8→99.6 — Pass 3053: 99.6→134.5 — Pass 3240: 134.5→181.6 — Pass 3594: 181.6→245 — Pass 3690: 245→331 — Pass 3802: 331→447 — Pass 3902: 447→603
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 814 * Math.exp(-_bFlashT * 14)); // Pass 2115: bounce flash 54.7→73.8 — Pass 2612: 73.8→99.6 — Pass 3053: 99.6→134.5 — Pass 3240: 134.5→181.6 — Pass 3594: 181.6→245 — Pass 3690: 245→331 — Pass 3802: 331→447 — Pass 3902: 447→603 — Pass 4656: 603→814 bigger floor-bounce emissive flash
     }
     // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: 1.2→1.8, decay 30→25 — Pass 754: 1.8→3.0, decay 25→22
     // Pass 976: impact glow spike 3.0→4.8, decay 22→18 — Pass 1112: →7.5 — Pass 1199: →11.5 — Pass 1406: →16.0 — Pass 1549: →22.0 for stronger slot impact glow
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
-      ? Math.exp(-(dt3 - 0.88) * 18) * 443 : 0; // Pass 2116: impact glow spike 40.1→54.1 — Pass 2613: 54.1→73.0 — Pass 3054: 73.0→98.6 — Pass 3241: 98.6→133.1 — Pass 3595: 133.1→180 — Pass 3691: 180→243 — Pass 3803: 243→328 — Pass 3903: 328→443
+      ? Math.exp(-(dt3 - 0.88) * 18) * 598 : 0; // Pass 2116: impact glow spike 40.1→54.1 — Pass 2613: 54.1→73.0 — Pass 3054: 73.0→98.6 — Pass 3241: 98.6→133.1 — Pass 3595: 133.1→180 — Pass 3691: 180→243 — Pass 3803: 243→328 — Pass 3903: 328→443 — Pass 4657: 443→598 stronger slot-impact card glow
     cardGlow.intensity = THREE.MathUtils.lerp(0.81, 0, dt3) + _glowImpact313; // Pass 4543: slot drop approach card glow start 0.6→0.81 warmer approach emissive
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     // Pass 979: start from 2.8 — Pass 1550: →4.0 for brighter slot target spotlight at drop entry
@@ -4194,9 +4194,9 @@ function animate(ts) {
     // Pass 470: target LED hold-then-snap — holds at 3.5 for first 22%, then snaps to 0.15 quickly
     // Pass 530: sympathetic flash amplitude 0.55→0.75; target LED spike 1.8→2.6 for stronger confirm flash
     // Pass 963: sympathetic flash 0.75→1.20, target spike 2.6→4.0 — Pass 1390: sympath →1.70, target →5.5
-    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 34.3 : 0; // Pass 2119: sympathetic flash 3.11→4.20 — Pass 2616: 4.20→5.67 — Pass 3057: 5.67→7.65 — Pass 3244: 7.65→10.3 — Pass 3596: 10.3→13.9 — Pass 3692: 13.9→18.8 — Pass 3804: 18.8→25.4 — Pass 3904: 25.4→34.3
+    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 46.3 : 0; // Pass 2119: sympathetic flash 3.11→4.20 — Pass 2616: 4.20→5.67 — Pass 3057: 5.67→7.65 — Pass 3244: 7.65→10.3 — Pass 3596: 10.3→13.9 — Pass 3692: 13.9→18.8 — Pass 3804: 18.8→25.4 — Pass 3904: 25.4→34.3 — Pass 4658: 34.3→46.3 brighter gate LED sympathy flash
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
-      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 44.8 : _sympFlash278; // Pass 2120: target LED spike 10.0→13.5 — Pass 2617: 13.5→18.2 — Pass 3058: 18.2→24.6 — Pass 3570: 24.6→33.2 — Pass 3728: 33.2→44.8
+      const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 60.5 : _sympFlash278; // Pass 2120: target LED spike 10.0→13.5 — Pass 2617: 13.5→18.2 — Pass 3058: 18.2→24.6 — Pass 3570: 24.6→33.2 — Pass 3728: 33.2→44.8 — Pass 4659: 44.8→60.5 brighter target-column LED confirm spike
       const _ledDrop = dt3 < 0.22 ? 3.5 : THREE.MathUtils.lerp(3.5, 0.15, (dt3 - 0.22) / 0.78); // Pass 470
       const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.15 + _sympFlash278;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
@@ -4207,7 +4207,7 @@ function animate(ts) {
     if (!_slotGateFlashFired && dt3 >= 0.06) {
       _slotGateFlashFired = true;
       // Pass 537: slot gate flash 8.0→11.0 — Pass 960: →17.0 — Pass 1119: →26.0 — Pass 1260: →36.0 for brighter tray entry burst
-      const _gfl = new THREE.PointLight(ct.hex, 536, 120); // Pass 2389: slot gate flash 88.6→119.6 — Pass 2618: 119.6→161.5 — Pass 2861: 161.5→218.0 — Pass 3059: 218.0→294.3 — Pass 3571: 294.3→397 — Pass 3729: 397→536
+      const _gfl = new THREE.PointLight(ct.hex, 724, 120); // Pass 2389: slot gate flash 88.6→119.6 — Pass 2618: 119.6→161.5 — Pass 2861: 161.5→218.0 — Pass 3059: 218.0→294.3 — Pass 3571: 294.3→397 — Pass 3729: 397→536 — Pass 4660: 536→724 brighter slot entry photogate flash
       _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4786,10 +4786,10 @@ function animate(ts) {
     // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
     // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35 — Pass 1458: armDesc 0.18→0.26, convIn 0.25→0.35
     // Pass 1662: spike 2.50→3.40; Pass 1663: swing 1.35→1.80; Pass 1664: lift base 0.42→0.58
-    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 92.7 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7 — Pass 3285: 20.7→27.9 — Pass 3365: 27.9→37.7 — Pass 3503: 37.7→50.9 — Pass 3744: 50.9→68.7 — Pass 3852: 68.7→92.7
-    const _rodGlow = Math.max(_armDescT * 0.63, _armLiftT * 1.05 + _liftPickSpike, _armSwingT * 48.6, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07 — Pass 3114: 8.07→10.9 — Pass 3286: 10.9→14.7 — Pass 3366: 14.7→19.8 — Pass 3504: 19.8→26.7 — Pass 3745: 26.7→36.0 — Pass 3853: 36.0→48.6 — Pass 4252: armDesc 0.47→0.63 — Pass 4253: armLift 0.78→1.05 brighter arm rod during descend/lift
+    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 125.1 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7 — Pass 3285: 20.7→27.9 — Pass 3365: 27.9→37.7 — Pass 3503: 37.7→50.9 — Pass 3744: 50.9→68.7 — Pass 3852: 68.7→92.7 — Pass 4661: 92.7→125.1 bigger suction-break energy spike
+    const _rodGlow = Math.max(_armDescT * 0.63, _armLiftT * 1.05 + _liftPickSpike, _armSwingT * 65.6, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07 — Pass 3114: 8.07→10.9 — Pass 3286: 10.9→14.7 — Pass 3366: 14.7→19.8 — Pass 3504: 19.8→26.7 — Pass 3745: 26.7→36.0 — Pass 3853: 36.0→48.6 — Pass 4252: armDesc 0.47→0.63 — Pass 4253: armLift 0.78→1.05 brighter arm rod during descend/lift — Pass 4662: swing 48.6→65.6 brighter arm rod swing glow
     armRod.material.emissive.setHex(ct.hex);
-    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 217); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161 — Pass 3854: 161→217
+    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 293); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161 — Pass 3854: 161→217 — Pass 4663: 217→293 snappier arm rod emissive response
   }
 
   // ── Suction cup domain glow ──
