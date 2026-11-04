@@ -2545,7 +2545,7 @@ function animate(ts) {
       ? 28.6 + 8.07 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo — Pass 5062: base 15.7→21.2 brighter card halo — Pass 5196: 21.2→28.6 brighter card halo base emissive
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
-    const _haloScale332 = beltActive ? 1.0 + 0.363 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5480: 0.269→0.363 bigger card halo breathe rate
+    const _haloScale332 = beltActive ? 1.0 + 0.490 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5480: 0.269→0.363 bigger card halo breathe rate — Pass 5836: 0.363→0.490 bigger card halo breathe amplitude
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
     const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 6.67 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo — Pass 4951: 2.71→3.66 more dramatic gate slam halo burst — Pass 5198: 3.66→4.94 more dramatic gate slam halo burst — Pass 5713: 4.94→6.67 more dramatic gate slam halo scale burst
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
@@ -2732,8 +2732,8 @@ function animate(ts) {
             tp.mat.color.set(0x9aaabb); // cool steel-gray (no domain reveal yet)
           }
           // Pass 883: descent trail opacity 0.22+0.12→0.32+0.18, life 0.20+0.10→0.28+0.14 — Pass 1091: opacity 0.32+0.18→0.48+0.26, life 0.28+0.14→0.40+0.20 — Pass 1494: opacity →0.65+0.35, Pass 1495: life →0.55+0.28 — Pass 1676: opacity →0.80+0.45, Pass 1677: life →0.72+0.36 — Pass 3908: life 0.72+0.36→0.97+0.49 longer arm trail — Pass 4775: opacity 1.08→1.46 brighter descent trail
-          tp.mat.opacity = 2.66 + Math.random() * 0.82; // Pass 4417: arm trail opacity 0.80+0.45→1.08+0.61 brighter descent trail — Pass 4775: opacity 1.08→1.46 brighter descent trail — Pass 5125: 1.46→1.97 brighter arm descent trail — Pass 5776: 1.97→2.66 brighter arm descent contrail opacity
-          tp.age = 0; tp.life = 2.39 + Math.random() * 0.89; // Pass 4418: arm trail life 0.97+0.49→1.31+0.66 longer descent trail — Pass 5077: 1.31→1.77 longer descent trail — Pass 5777: 1.77→2.39 longer arm descent contrail particle lifetime
+          tp.mat.opacity = 3.59 + Math.random() * 0.82; // Pass 4417: arm trail opacity 0.80+0.45→1.08+0.61 brighter descent trail — Pass 4775: opacity 1.08→1.46 brighter descent trail — Pass 5125: 1.46→1.97 brighter arm descent trail — Pass 5776: 1.97→2.66 brighter arm descent contrail opacity — Pass 5834: 2.66→3.59 brighter arm descent contrail opacity
+          tp.age = 0; tp.life = 3.23 + Math.random() * 0.89; // Pass 4418: arm trail life 0.97+0.49→1.31+0.66 longer descent trail — Pass 5077: 1.31→1.77 longer descent trail — Pass 5777: 1.77→2.39 longer arm descent contrail particle lifetime — Pass 5835: 2.39→3.23 longer arm descent contrail particle lifetime
           tp.active = true; tp.mesh.visible = true;
         }
       }
@@ -3269,7 +3269,7 @@ function animate(ts) {
     // Pass 848: reversal flash intensity 5.5→9.0 — Pass 1690: →12.0, dist 80→110 — Pass 4005: 12.0→16.2 brighter beam direction-flip flash
     if (!_beamReversalFlashFired && ft >= 0.50 && !_identityRevealed) {
       _beamReversalFlashFired = true;
-      const _brfl = new THREE.PointLight(0xaaddff, 21.9, 149); // Pass 4005: beam reversal flash 12.0→16.2 — Pass 5365: intensity 16.2→21.9, range 110→149 brighter beam reversal flash
+      const _brfl = new THREE.PointLight(0xaaddff, 29.6, 149); // Pass 4005: beam reversal flash 12.0→16.2 — Pass 5365: intensity 16.2→21.9, range 110→149 brighter beam reversal flash — Pass 5840: 21.9→29.6 brighter beam direction-flip flash
       _brfl.position.set(-40, CONV_Y_TOP + 20, 0);
       scene.add(_brfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3288,16 +3288,16 @@ function animate(ts) {
         // Pass 171: each dot switches domain color at its own cascade threshold
         const _dotSwitchFt = 0.85 + di * 0.014; // dot 0 at 0.85, dot 8 at 0.962
         const dotColor = ft >= _dotSwitchFt ? ct.hex : 0xaaddff;
-        const dotOp = Math.sin(Math.min(1, dotFt) * Math.PI) * flashIntensity * (1.73 + _dotRevealBurst * 0.5); // Pass 4797: scan dot opacity base 0.95→1.28 — Pass 5376: 1.28→1.73 brighter scan dot base opacity
+        const dotOp = Math.sin(Math.min(1, dotFt) * Math.PI) * flashIntensity * (2.34 + _dotRevealBurst * 0.5); // Pass 4797: scan dot opacity base 0.95→1.28 — Pass 5376: 1.28→1.73 brighter scan dot base opacity — Pass 5837: 1.73→2.34 brighter scan dot base opacity multiplier
         if (dotOp > 0.01) {
           mesh.visible = true;
           // Pass 211: scan grid dots float — pre-reveal dots oscillate in Y at 3Hz with
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
           // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 — Pass 1240: →1.40 — Pass 1317: →1.90 — Pass 1419: →2.60 — Pass 1693: →3.50
-          const _dotFloat = _identityRevealed ? 0 : 28.6 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp; // Pass 2533: grid dot float amp 3.50→4.73 — Pass 3555: 4.73→6.39 — Pass 3717: 6.39→8.63 — Pass 3827: 8.63→11.6 — Pass 4146: 11.6→15.7 — Pass 4673: 15.7→21.2 more nervous scan dot float — Pass 5265: 21.2→28.6 bigger scan dot float amplitude
+          const _dotFloat = _identityRevealed ? 0 : 38.6 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp; // Pass 2533: grid dot float amp 3.50→4.73 — Pass 3555: 4.73→6.39 — Pass 3717: 6.39→8.63 — Pass 3827: 8.63→11.6 — Pass 4146: 11.6→15.7 — Pass 4673: 15.7→21.2 more nervous scan dot float — Pass 5265: 21.2→28.6 bigger scan dot float amplitude — Pass 5839: 28.6→38.6 bigger scan dot float amplitude
           // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 — Pass 1318: →2.60 — Pass 1694: →3.50
-          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 21.2 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0; // Pass 2534: dot lock jitter 3.50→4.73 — Pass 3556: 4.73→6.39 — Pass 3718: 6.39→8.63 — Pass 3828: 8.63→11.6 — Pass 4147: 11.6→15.7 wilder lock jitter — Pass 5266: 15.7→21.2 wilder scan dot lock jitter
+          const _dotLockJitter = _identityRevealed && ft < 0.91 ? 28.6 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0; // Pass 2534: dot lock jitter 3.50→4.73 — Pass 3556: 4.73→6.39 — Pass 3718: 6.39→8.63 — Pass 3828: 8.63→11.6 — Pass 4147: 11.6→15.7 wilder lock jitter — Pass 5266: 15.7→21.2 wilder scan dot lock jitter — Pass 5838: 21.2→28.6 wilder scan dot lock jitter
           // Pass 366: post-reveal dots Z drift toward destination slot — Pass 1699: 0.20→0.28
           const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.510 : 0; // Pass 4302: scan dot Z drift 0.28→0.378 deeper slot lean — Pass 5326: 0.378→0.510 deeper scan dot slot lean
           mesh.position.set(
@@ -3323,7 +3323,7 @@ function animate(ts) {
     }
     // Pass 55: scan progress LED bar — fills left-to-right as ft 0→1
     // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 — Pass 1320: →8.0 — Pass 1697: →11.0 for bigger scanner power-on test
-    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 51.3) * 49.4 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1 — Pass 3860: 20.1→27.1 — Pass 4149: 27.1→36.6 bigger power-on pop — Pass 4528: scan bar init flash decay 38→51.3 sharper power-on pop — Pass 5269: 36.6→49.4 bigger scan bar power-on flash
+    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 51.3) * 66.7 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1 — Pass 3860: 20.1→27.1 — Pass 4149: 27.1→36.6 bigger power-on pop — Pass 4528: scan bar init flash decay 38→51.3 sharper power-on pop — Pass 5269: 36.6→49.4 bigger scan bar power-on flash — Pass 5841: 49.4→66.7 bigger scan bar power-on flash
     {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
