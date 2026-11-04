@@ -232,7 +232,7 @@
     100% { opacity: 0; }
   }
   .scan-flash-on {
-    animation: scanFlashFade 0.6s ease-out forwards;
+    animation: scanFlashFade 0.81s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash */
   }
 
   /* ── Round-complete banner (pass 68) ───────────────────────────────────── */
@@ -878,7 +878,7 @@ scene.add(lens);
 
 // Lens retaining ring
 const lensRing = new THREE.Mesh(
-  new THREE.TorusGeometry(8, 1.5, 8, 20),
+  new THREE.TorusGeometry(8, 2.03, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring
   new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.5, metalness: 0.6 })
 );
 lensRing.rotation.x = Math.PI / 2;
@@ -1617,7 +1617,7 @@ for (let _gdi = 0; _gdi < 9; _gdi++) {
   const _gdMat = new THREE.MeshBasicMaterial({
     color: 0x00ffcc, transparent: true, opacity: 0,
   });
-  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(1.4, 6, 6), _gdMat);
+  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(1.89, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots
   _gdMesh.visible = false;
   scene.add(_gdMesh);
   SCAN_GRID_DOTS.push({ mesh: _gdMesh, mat: _gdMat });
@@ -1741,7 +1741,7 @@ function addCardToTray(ct) {
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 30; // start above, animate down
   const zJitter    = (Math.random() - 0.5) * 2.7;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread
-  const yRotJitter = (Math.random() - 0.5) * 0.12;  // ±0.06 rad tilt
+  const yRotJitter = (Math.random() - 0.5) * 0.162;  // ±0.081 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle
   mesh.position.set(
     TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
     startY,
@@ -2925,7 +2925,7 @@ function animate(ts) {
       // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter — Pass 1575: →0.20 primary, 0.032→0.044 secondary
       if (_lt3 < 0.30) {
         const _env605 = Math.exp(-_lt3 * 6);
-        _liftHoverX = (0.656 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.146 * Math.sin(_lt3 / 0.30 * Math.PI * 3.8 + 0.9)) * _env605; // Pass 2282: lift hover X 0.27→0.36, secondary 0.059→0.080 — Pass 3926: 0.36+0.080→0.486+0.108 more stack separation chatter — Pass 4293: 0.486+0.108→0.656+0.146 bigger lift hover chatter
+        _liftHoverX = (0.656 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.146 * Math.sin(_lt3 / 0.30 * Math.PI * 5.13 + 0.9)) * _env605; // Pass 2282: lift hover X 0.27→0.36, secondary 0.059→0.080 — Pass 3926: 0.36+0.080→0.486+0.108 more stack separation chatter — Pass 4293: 0.486+0.108→0.656+0.146 bigger lift hover chatter — Pass 4545: arm lift secondary freq 3.8→5.13 crisper separation chatter
       }
     }
     activeCard.rotation.set(_swingDragX + _liftHoverX, 0, armRot - Math.PI / 2 + _swingWobble);
@@ -3984,7 +3984,7 @@ function animate(ts) {
     // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020 — Pass 1188: primary →0.062, secondary →0.032 — Pass 1256: primary →0.082, secondary →0.042 for more flutter micro-wobble
     const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 2.989 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 1.543) * Math.sin(dt2 * Math.PI); // Pass 2379: flutter primary 0.201→0.271, secondary 0.104→0.140 — Pass 2599: 0.271→0.366, 0.140→0.189 — Pass 3037: 0.366→0.494, 0.189→0.255 — Pass 3227: primary 0.494→0.667, secondary 0.255→0.344 — Pass 3393: 0.667→0.900, 0.344→0.465 — Pass 3521: primary 0.900→1.215, secondary 0.465→0.628 — Pass 3734: 1.215→1.640, 0.628→0.847 — Pass 3840: primary 1.640→2.214 — Pass 3841: secondary 0.847→1.143 — Pass 4449: primary 2.214→2.989 — Pass 4450: secondary 1.143→1.543 wilder deflect card flutter wobble
     // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
-    if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 11);
+    if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 14.9); // Pass 4549: gate Z-kick decay rate 11→14.9 crisper deflect impulse
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     // Pass 226: tumble-correlated glow — Pass 417: 0.28→0.40 — Pass 465: base+peak 0.80+0.60
     // Pass 761: base 0.80→1.05, peak 0.60→0.80 — Pass 980: base 1.05→1.35, peak 0.80→1.10 — Pass 1189: base 1.35→1.80, peak 1.10→1.55 for brighter arc glow
@@ -4389,7 +4389,7 @@ function animate(ts) {
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         tp.mesh.position.set(
-          TRAY_X_START + 15 + (Math.random() - 0.5) * 12,
+          TRAY_X_START + 15 + (Math.random() - 0.5) * 16.2, // Pass 4551: reject burst X radius 12→16.2 wider alarm fountain
           ct.slotFloorY + 30 + Math.random() * 15,
           ct.slotZ + (Math.random() - 0.5) * 24.3 // Pass 4535: reject alarm fountain Z radius 18→24.3 wider alarm spread
         );
@@ -4609,7 +4609,7 @@ function animate(ts) {
   // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 — Pass 1059: →0.10 reactive belt
   const _beltSpeedGlow = _beltScrollSpeed > 0.005
     ? 1.10 * (_beltScrollSpeed / 0.108) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0; // Pass 2163: belt speed glow amp 0.135→0.182 — Pass 2656: 0.182→0.246 — Pass 2887: 0.246→0.332 — Pass 3094: 0.332→0.448 — Pass 3270: 0.448→0.605 — Pass 3610: 0.605→0.817 — Pass 4432: 0.817→1.10 brighter belt speed glow
-  beltSurfMat.emissiveIntensity = beltBase + 0.03 * Math.sin(cycleT * 10) + _beltSpeedGlow;
+  beltSurfMat.emissiveIntensity = beltBase + 0.041 * Math.sin(cycleT * 10) + _beltSpeedGlow; // Pass 4547: belt idle strobe amplitude 0.03→0.041 livelier idle belt flicker
   // Belt surface tints subtly toward domain color when active card rides on it
   {
     const onBelt = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
