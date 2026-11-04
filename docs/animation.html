@@ -4219,7 +4219,7 @@ function animate(ts) {
       const _stX = TRAY_X_START + 8;
       const _stTopY = ct.slotFloorY + 60;
       const _stZ = ct.slotZ;
-      for (let _si = 0; _si < 14; _si++) { // Pass 435: streak length 7→10 (longer lance) — Pass 4577: 10→14 denser arm trail sphere count per tick
+      for (let _si = 0; _si < 19; _si++) { // Pass 435: streak length 7→10 (longer lance) — Pass 4577: 10→14 denser arm trail sphere count per tick — Pass 5686: 14→19 denser slot entry streak sphere count
         const _tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         _tp.mesh.position.set(_stX + (Math.random() - 0.5) * 4, _stTopY - _si * 12.8, _stZ + (Math.random() - 0.5) * 3); // Pass 4583: scan bar vertical reveal length 7→9.45 longer slot entry lance reveal — Pass 5635: 9.45→12.8 longer slot entry lance reveal vertical spacing
@@ -4374,7 +4374,7 @@ function animate(ts) {
         _ral.classList.add('reject-alarm-on');
       }
       // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90 — Pass 1397: amber →20.0/200, red →10.0/120
-      [[0xff6600, 163.9, 270], [0xff1a00, 81.7, 162]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5 — Pass 4005: amber 121.4→163.9 — Pass 4006: red 60.5→81.7 — Pass 4305: amber dist 200→270 — Pass 4306: red dist 120→162 wider reject alarm reach
+      [[0xff6600, 221, 270], [0xff1a00, 110, 162]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5 — Pass 4005: amber 121.4→163.9 — Pass 4006: red 60.5→81.7 — Pass 4305: amber dist 200→270 — Pass 4306: red dist 120→162 wider reject alarm reach — Pass 5688: amber 163.9→221 brighter reject alarm amber — Pass 5689: red 81.7→110 brighter reject alarm red
         const _wl = new THREE.PointLight(c, i, d);
         _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 14.6 : -14.6)); // Pass 4467: slot entry warning light Z spread 8→10.8 wider alarm reach — Pass 5656: 10.8→14.6 wider reject alarm warning light Z spread
         scene.add(_wl);
@@ -4453,7 +4453,7 @@ function animate(ts) {
     const art = phaseT(PH.armReturn);
     // Pass 132: end-stop bounce — overshoot to -0.41 then spring back to -0.35
     if (art < 0.82) {
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(2.12, -0.35, art / 0.82); // Pass 4617: arm return initial rotation arc 1.57→2.12 wider return sweep
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(2.86, -0.35, art / 0.82); // Pass 4617: arm return initial rotation arc 1.57→2.12 wider return sweep — Pass 5687: 2.12→2.86 wider arm return sweep arc
     } else {
       const _osT = (art - 0.82) / 0.18;
       // Pass 673: arm overshoot spring 0.06→0.10 — Pass 862: →0.16 — Pass 1050: →0.26 — Pass 1268: →0.36 more dramatic rebound
@@ -5306,19 +5306,19 @@ function animate(ts) {
   // Creates a large-radius, dim color wash that transitions with each domain.
   _domFillClr.setHex(ct.hex);
   _domainFillLight.color.lerp(_domFillClr, dt * 12.3); // Pass 2455: fill color tracking 0.82→1.11 — Pass 2720: 1.11→1.50 — Pass 2817: 1.50→2.03 — Pass 2953: 2.03→2.74 — Pass 3157: 2.74→3.70 — Pass 3329: 3.70→5.00 — Pass 4183: 5.00→6.75 snappier domain color shift — Pass 5344: 6.75→9.11 snappier domain fill color tracking — Pass 5697: 9.11→12.3 snappier domain fill color lerp rate
-  const _fillTgt = activeCard.visible ? 2.96 : 0.05; // Pass 2456: fill active card target 0.27→0.36 — Pass 2721: 0.36→0.49 — Pass 2818: 0.49→0.66 — Pass 2954: 0.66→0.89 — Pass 3158: 0.89→1.20 — Pass 4036: 1.20→1.62 — Pass 4676: 1.62→2.19 stronger overhead domain wash during active card — Pass 5131: 2.19→2.96 richer overhead domain wash active card
+  const _fillTgt = activeCard.visible ? 4.00 : 0.05; // Pass 2456: fill active card target 0.27→0.36 — Pass 2721: 0.36→0.49 — Pass 2818: 0.49→0.66 — Pass 2954: 0.66→0.89 — Pass 3158: 0.89→1.20 — Pass 4036: 1.20→1.62 — Pass 4676: 1.62→2.19 stronger overhead domain wash during active card — Pass 5131: 2.19→2.96 richer overhead domain wash active card — Pass 5698: 2.96→4.00 richer overhead domain fill active card target
   // Pass 498: deflect domain fill boost — domain fill light surges during card arc (peaks at midpoint) — Pass 1463: 0.22→0.32
-  const _deflectFill498 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 8.63 : 0; // Pass 2457: deflect domain fill 0.58→0.78 — Pass 2722: 0.78→1.05 — Pass 2819: 1.05→1.42 — Pass 2955: 1.42→1.92 — Pass 3159: 1.92→2.59 — Pass 3628: 2.59→3.50 — Pass 4184: 3.50→4.73 — Pass 4677: 4.73→6.39 richer deflect domain color wash — Pass 5127: 6.39→8.63 richer deflect chamber color wash
+  const _deflectFill498 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 11.7 : 0; // Pass 2457: deflect domain fill 0.58→0.78 — Pass 2722: 0.78→1.05 — Pass 2819: 1.05→1.42 — Pass 2955: 1.42→1.92 — Pass 3159: 1.92→2.59 — Pass 3628: 2.59→3.50 — Pass 4184: 3.50→4.73 — Pass 4677: 4.73→6.39 richer deflect domain color wash — Pass 5127: 6.39→8.63 richer deflect chamber color wash — Pass 5699: 8.63→11.7 richer deflect arc domain color wash amplitude
   // Pass 519: scan phase domain fill boost — scanner chamber glows stronger with domain color at scan peak
   // Pass 664: scan fill boost 0.18→0.26 — Pass 1464: →0.36 for more vivid scanner chamber domain wash
-  const _scanFill519 = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 7.29 : 0; // Pass 2458: scan domain fill 0.66→0.89 — Pass 2723: 0.89→1.20 — Pass 2820: 1.20→1.62 — Pass 2956: 1.62→2.19 — Pass 3160: 2.19→2.96 — Pass 4185: 2.96→4.00 — Pass 4678: 4.00→5.40 richer scan chamber domain wash — Pass 5132: 5.40→7.29 richer scan chamber domain wash
+  const _scanFill519 = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 9.84 : 0; // Pass 2458: scan domain fill 0.66→0.89 — Pass 2723: 0.89→1.20 — Pass 2820: 1.20→1.62 — Pass 2956: 1.62→2.19 — Pass 3160: 2.19→2.96 — Pass 4185: 2.96→4.00 — Pass 4678: 4.00→5.40 richer scan chamber domain wash — Pass 5132: 5.40→7.29 richer scan chamber domain wash — Pass 5700: 7.29→9.84 richer scan chamber domain fill peak amplitude
   // Pass 99: decay boost (set at 85% identity reveal), adds scene-wide domain color wash
   if (_domainFillBoost > 0.005) {
     // Pass 542: reveal fill boost decay 2.2→1.6 (longer wash ~0.35s) + max cap 0.90→1.10 — Pass 1465: cap →1.50
     _domainFillBoost = Math.max(0, _domainFillBoost - dt * 1.6); // ~0.35s decay
     _domainFillLight.intensity = Math.min(30.2, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 2459: reveal fill cap 2.74→3.70 — Pass 2724: 3.70→5.00 — Pass 3436: 5.00→6.75 — Pass 3716: 6.75→9.11 — Pass 3826: 9.11→12.3 — Pass 4186: 12.3→16.6 — Pass 4679: 16.6→22.4 higher domain fill cap — Pass 5133: 22.4→30.2 higher domain fill light cap
   } else {
-    _domainFillLight.intensity += (_fillTgt + _deflectFill498 + _scanFill519 - _domainFillLight.intensity) * dt * 3.28; // Pass 4446: domain fill idle tracking 1.8→2.43 snappier overhead color wash — Pass 5343: 2.43→3.28 snappier domain fill idle tracking
+    _domainFillLight.intensity += (_fillTgt + _deflectFill498 + _scanFill519 - _domainFillLight.intensity) * dt * 4.43; // Pass 4446: domain fill idle tracking 1.8→2.43 snappier overhead color wash — Pass 5343: 2.43→3.28 snappier domain fill idle tracking — Pass 5701: 3.28→4.43 snappier domain fill idle intensity tracking
   }
 
   // ── Pass 36: Round completion celebration particle physics ──────────────────
@@ -5330,14 +5330,14 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= (p.grav || 1030) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417 — Pass 3849: 417→563 — Pass 4187: 563→760 heavier confetti — Pass 5145: 760→1030 heavier celeb particle gravity
+    p.vy -= (p.grav || 1390) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417 — Pass 3849: 417→563 — Pass 4187: 563→760 heavier confetti — Pass 5145: 760→1030 heavier celeb particle gravity — Pass 5702: 1030→1390 heavier celeb particle gravity
     p.vx *= 1 - dt * 0.900; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter) — Pass 4285: 0.9→0.667 even wider confetti scatter — Pass 5352: 0.667→0.900 tighter confetti horizontal drag
     p.vz *= 1 - dt * 1.215; // Pass 4426: confetti vz drag 0.667→0.900 tighter Z spread — Pass 5353: 0.900→1.215 tighter confetti Z spread
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
     p.mesh.rotation.x += p.rx * dt;
     p.mesh.rotation.y += p.ry * dt;
     p.mesh.rotation.z += p.rz * dt;
-    p.rx *= 1 - dt * 1.09; p.ry *= 1 - dt * 1.09; p.rz *= 1 - dt * 1.09; // Pass 1637: angular drag 0.8→0.6 (longer spin) — Pass 4425: 0.6→0.81 stronger confetti tumble damping — Pass 5295: 0.81→1.09 stronger confetti tumble damping
+    p.rx *= 1 - dt * 1.47; p.ry *= 1 - dt * 1.47; p.rz *= 1 - dt * 1.47; // Pass 1637: angular drag 0.8→0.6 (longer spin) — Pass 4425: 0.6→0.81 stronger confetti tumble damping — Pass 5295: 0.81→1.09 stronger confetti tumble damping — Pass 5703: 1.09→1.47 stronger confetti angular tumble damping
     p.mat.opacity = (1 - _ct2 * _ct2) * 1.82; // Pass 1472: peak opacity 0.88→1.0 — Pass 4647: landing mote particle fade multiplier 1.0→1.35 brighter confetti fade-out — Pass 5354: 1.35→1.82 brighter confetti particle fade-out
   });
 
@@ -5466,7 +5466,7 @@ function animate(ts) {
     // Pass 493: breathe amplitude boost 0.08→0.14 — Pass 544: 0.14→0.20 for more tray card life
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
     // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
-    const _breathe = 4.48 + 2.46 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35 — Pass 4720: base 1.82→2.46 — Pass 4721: amp 1.35→1.82 richer tray card breathe — Pass 5134: 2.46→3.32 richer tray card resting glow — Pass 5317: base 3.32→4.48 richer tray card breathe resting base — Pass 5338: amp 1.82→2.46 richer tray card breathe primary amplitude
+    const _breathe = 6.05 + 2.46 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35 — Pass 4720: base 1.82→2.46 — Pass 4721: amp 1.35→1.82 richer tray card breathe — Pass 5134: 2.46→3.32 richer tray card resting glow — Pass 5317: base 3.32→4.48 richer tray card breathe resting base — Pass 5338: amp 1.82→2.46 richer tray card breathe primary amplitude — Pass 5704: base 4.48→6.05 richer tray card breathe resting base emissive
                          + 0.666 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing — Pass 5342: 0.20→0.27 richer tray secondary harmonic pulse — Pass 5617: 0.27→0.365 richer card hold emissive breathe secondary harmonic pulse — Pass 5625: 0.365→0.493 richer card reveal ring opacity rate idle hover Z secondary harmonic pulse — Pass 5631: 0.493→0.666 richer slot tray rim LED urgency secondary harmonic pulse
     slotArr.forEach(m => {
       if (!m.material) return;
@@ -5475,7 +5475,7 @@ function animate(ts) {
         m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 17.7); // Pass 2443: tray arrival decay 2.16→2.92 — Pass 2738: 2.92→3.94 — Pass 2970: 3.94→5.32 — Pass 3170: 5.32→7.18 — Pass 3338: 7.18→9.69 — Pass 4722: 9.69→13.1 snappier tray arrival flash decay — Pass 5443: 13.1→17.7 snappier tray arrival flash decay
       } else {
         // At idle — gently track the breathing target
-        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98 — Pass 4555: 5.98→8.07 snappier tray idle emissive tracking — Pass 5135: 8.07→10.9 snappier tray idle emissive tracking
+        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 14.7); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98 — Pass 4555: 5.98→8.07 snappier tray idle emissive tracking — Pass 5135: 8.07→10.9 snappier tray idle emissive tracking — Pass 5705: 10.9→14.7 snappier tray card idle emissive tracking
       }
     });
   });
