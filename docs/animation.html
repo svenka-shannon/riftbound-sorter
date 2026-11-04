@@ -916,7 +916,7 @@ scene.add(scanBloom);
 // Fills left→right as scan progresses; flashes domain color on completion
 const SCAN_BAR_MAX_W = 72; // matches hood width minus margins
 const scanBarMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 6.20, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20
+  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 8.37, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
@@ -2348,7 +2348,7 @@ function animate(ts) {
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
         // Spike the hopper light for visual emphasis — Pass 1014: 2.5→5.0
-        hopperLight.intensity = 6.75; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash
+        hopperLight.intensity = 9.11; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash — Pass 4271: 6.75→9.11 even brighter hopper spike
         hopperLight.color.set(0xfff0cc);
       }
     }
@@ -2413,7 +2413,7 @@ function animate(ts) {
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9
-        a.mesh.material.emissiveIntensity = 0.15 + 68.9 * Math.exp(-a.glowAge * 3.8);
+        a.mesh.material.emissiveIntensity = 0.15 + 93.0 * Math.exp(-a.glowAge * 3.8); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2636,8 +2636,8 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.35, -0.036, pt);
       // Pass 182: servo hunt jitter — was ts*0.055 (114-second period = invisible).
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
-      // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch
-      const jitter = 7.0 * (1 - pt) * (
+      // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
+      const jitter = 9.45 * (1 - pt) * (
         Math.sin(ts * 8 * Math.PI * 2) * 0.7 +
         Math.sin(ts * 13 * Math.PI * 2) * 0.3
       );
@@ -2646,8 +2646,8 @@ function animate(ts) {
       suctionPivot.position.y = 108 + jitter + _tapOffset;
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
-      // Pass 1125: Z drift peak 2.0→3.2 — Pass 1212: →4.8 — Pass 1309: →6.5 for more visible lateral inertia sway — Pass 3907: 6.5→8.8 deeper lateral swing
-      suctionPivot.position.z = 8.8 * Math.sin(pt * Math.PI) * (1 - pt * 0.7);
+      // Pass 1125: Z drift peak 2.0→3.2 — Pass 1212: →4.8 — Pass 1309: →6.5 for more visible lateral inertia sway — Pass 3907: 6.5→8.8 deeper lateral swing — Pass 4274: 8.8→11.9 more dramatic lateral sway
+      suctionPivot.position.z = 11.9 * Math.sin(pt * Math.PI) * (1 - pt * 0.7);
       // Pass 262: pre-pick targeting spotlight — warm downward spot on hopper card in final approach
       if (pt > 0.75) {
         const _pickTgtT = (pt - 0.75) / 0.25;
@@ -2753,11 +2753,11 @@ function animate(ts) {
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
         // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 — Pass 1249: surge →0.92 — Pass 1361: →1.20 — Pass 1679: →1.60 stronger pump surge
-        const _vacSurge = pt > 0.85 ? 7.18 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0; // Pass 2267: vacuum surge 2.16→2.92 — Pass 3180: 2.92→3.94 — Pass 3757: 3.94→5.32 — Pass 3865: 5.32→7.18
+        const _vacSurge = pt > 0.85 ? 9.69 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0; // Pass 2267: vacuum surge 2.16→2.92 — Pass 3180: 2.92→3.94 — Pass 3757: 3.94→5.32 — Pass 3865: 5.32→7.18 — Pass 4275: 7.18→9.69 stronger vacuum surge
         vacuumRingMat.opacity = Math.min(1, Math.sin(_vt * Math.PI) * 1.28 + _vacSurge); // Pass 1092: opacity 0.75→0.95 — Pass 4070: 0.95→1.28 wider full-opacity window
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
         // Pass 1250: elongation scale 0.55→0.82 — Pass 1275: →1.10 — Pass 1360: →1.50 — Pass 1680: →2.00
-        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 4.93), _vacBaseScale); // Pass 2268: ring Y elongation 2.70→3.65 — Pass 3917: 3.65→4.93 deeper suction pull
+        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 6.66), _vacBaseScale); // Pass 2268: ring Y elongation 2.70→3.65 — Pass 3917: 3.65→4.93 deeper suction pull — Pass 4276: 4.93→6.66 more dramatic vacuum stretch
       } else {
         vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       }
@@ -3129,7 +3129,7 @@ function animate(ts) {
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
     // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 — Pass 1279: →0.62 for sharper card-edge flash at identity reveal
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
-    const _yTilt = _identityRevealed ? 1.13 * Math.sin(_yTiltT * Math.PI) : 0; // Pass 1710: Y-tilt 0.62→0.84 — Pass 3938: 0.84→1.13 sharper card-edge flash at reveal
+    const _yTilt = _identityRevealed ? 1.53 * Math.sin(_yTiltT * Math.PI) : 0; // Pass 1710: Y-tilt 0.62→0.84 — Pass 3938: 0.84→1.13 sharper card-edge flash at reveal — Pass 4277: 1.13→1.53 more dramatic reveal tilt
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
     // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 — Pass 1150: →0.085 — Pass 1280: →0.120 for sharper scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
