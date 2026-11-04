@@ -2919,7 +2919,7 @@ function animate(ts) {
       // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050 — Pass 1572: →0.210+0.050 bigger card oscillation — Pass 1573: decay 3.2→2.4 longer wobble tail
       _swingWobble = (Math.sin(_sw * 19) * 0.698 + Math.sin(_sw * 29 + 0.6) * 0.167) * Math.exp(-_sw * 2.4); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 — Pass 4196: 0.517+0.124→0.698+0.167 wilder card oscillation
       // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt — Pass 1574: →0.30
-      _swingDragX = 0.743 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55 — Pass 3925: 0.55→0.743 stronger inertia tilt
+      _swingDragX = 1.00 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55 — Pass 3925: 0.55→0.743 — Pass 4204: 0.743→1.00 stronger inertia tilt
     } else if (inPhase(PH.armLift)) {
       const _lt3 = phaseRaw(PH.armLift);
       // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter — Pass 1575: →0.20 primary, 0.032→0.044 secondary
@@ -2935,9 +2935,9 @@ function animate(ts) {
     // armDescend uses 0 so the card doesn't glow before the suction picks it up.
     let _armCardEmissive = 0;
     // Pass 1576: armLift emissive base 0.22→0.30, ramp 0.08→0.11
-    if (inPhase(PH.armLift)) _armCardEmissive = 0.743 + 0.270 * phaseRaw(PH.armLift); // Pass 2283: armLift card emissive base 0.41→0.55, ramp 0.15→0.20 — Pass 3927: 0.55+0.20→0.743+0.270 brighter lift glow
+    if (inPhase(PH.armLift)) _armCardEmissive = 1.00 + 0.365 * phaseRaw(PH.armLift); // Pass 2283: armLift card emissive base 0.41→0.55, ramp 0.15→0.20 — Pass 3927: 0.55+0.20→0.743+0.270 — Pass 4197: base 0.743→1.00 — Pass 4198: ramp 0.270→0.365 brighter lift glow
     // Pass 381: armSwing emissive peak boost 0.35 → 0.50 — Pass 466: →0.65 — Pass 1064: →0.92 — Pass 1355: →1.25 brighter arc glow — Pass 1577: →1.70
-    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.743 + 4.20 * Math.sin(phaseRaw(PH.armSwing) * Math.PI); // Pass 2284: armSwing emissive 0.41+2.30→0.55+3.11 — Pass 3928: 0.55+3.11→0.743+4.20 hotter arc glow
+    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.743 + 5.67 * Math.sin(phaseRaw(PH.armSwing) * Math.PI); // Pass 2284: armSwing emissive 0.41+2.30→0.55+3.11 — Pass 3928: 0.55+3.11→0.743+4.20 — Pass 4199: 4.20→5.67 hotter arc glow
     activeCardMat.emissiveIntensity = _armCardEmissive;
     // Pass 467: arm-swing arc-peak domain flash — at arm's fastest midpoint, spawn a brief domain
     // point light at card position, syncing with the emissive peak (pass 466).
@@ -2946,7 +2946,7 @@ function animate(ts) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 146, 255); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7 — Pass 3772: 79.7→108 — Pass 3879: 108→146
+        const _spfl = new THREE.PointLight(ct.hex, 197, 255); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7 — Pass 3772: 79.7→108 — Pass 3879: 108→146 — Pass 4200: 146→197 brighter arc apex
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
@@ -2957,7 +2957,7 @@ function animate(ts) {
     // Pass 1063: apex boost 1.20→1.65 — Pass 1349: →2.20 for brighter cardGlow at swing closest-point — Pass 1581: →3.00; Pass 1582: base 1.85→2.50
     if (inPhase(PH.armSwing)) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
-      cardGlow.intensity = _armCardEmissive * (11.2 + _swZ299 * 9.96); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96
+      cardGlow.intensity = _armCardEmissive * (15.1 + _swZ299 * 13.4); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96 — Pass 4201: base 11.2→15.1 — Pass 4202: boost 9.96→13.4
     } else {
       cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 2.50 : 0;
     }
@@ -2986,7 +2986,7 @@ function animate(ts) {
     if (!_depositFired) {
       _depositFired = true;
       // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 — Pass 1300: →34.0 — Pass 1379: →46.0 — Pass 1684: →62.0, dist→175
-      const _dfl = new THREE.PointLight(ct.hex, 375, 175); // Pass 2287: belt deposit flash 83.7→113.0 — Pass 3416: 113.0→152.6 — Pass 3528: 152.6→206 — Pass 3711: 206→278 — Pass 3824: 278→375
+      const _dfl = new THREE.PointLight(ct.hex, 506, 175); // Pass 2287: belt deposit flash 83.7→113.0 — Pass 3416: 113.0→152.6 — Pass 3528: 152.6→206 — Pass 3711: 206→278 — Pass 3824: 278→375 — Pass 4203: 375→506 bigger belt deposit flash
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
