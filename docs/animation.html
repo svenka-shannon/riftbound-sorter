@@ -3262,7 +3262,7 @@ function animate(ts) {
     const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 139 : 0; // Pass 2312: beam2 reveal 22.95→30.98 — Pass 3749: 30.98→41.8 — Pass 3857: 41.8→56.4 — Pass 4141: 56.4→76.1 — Pass 5261: 76.1→103 bigger secondary beam reveal — Pass 6467: 103→139 bigger secondary beam reveal spike
     scanLineMat2.emissiveIntensity = 77.8 + _beam2Reveal345; // Pass 2313: beam2 base 12.8→17.3 — Pass 3750: 17.3→23.4 — Pass 3858: 23.4→31.6 — Pass 4142: 31.6→42.7 brighter secondary beam — Pass 5262: 42.7→57.6 brighter secondary scan beam base — Pass 5849: 57.6→77.8 brighter secondary scan beam base emissive
     // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 — Pass 1290: →17.0 — Pass 1376: →24.0 — Pass 1531: →33.0 — Pass 1691: →44.0
-    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 266; // Pass 2314: beam reversal flare 59.4→80.2 — Pass 3751: 80.2→108.3 — Pass 3859: 108.3→146.2 — Pass 4143: 146.2→197 bigger reversal flare — Pass 5263: 197→266 bigger beam reversal flare
+    const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 359; // Pass 2314: beam reversal flare 59.4→80.2 — Pass 3751: 80.2→108.3 — Pass 3859: 108.3→146.2 — Pass 4143: 146.2→197 bigger reversal flare — Pass 5263: 197→266 bigger beam reversal flare — Pass 6465: 266→359 bigger scan beam direction-flip reversal flare
     scanLineMat.emissiveIntensity += _revFlare;
     // Pass 611: beam reversal point light — at ft≈0.5 scan midpoint, brief white point light fires
     // at the scanner to mark the beam direction flip moment with a physical light burst.
@@ -3281,7 +3281,7 @@ function animate(ts) {
       // Each dot switches ft=0.85 + di*0.014 — wave of domain color spreading across grid
       // Brief brightness spike at reveal moment
       // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 — Pass 849: →1.90 — Pass 1316: →2.60 — Pass 1418: →3.60 — Pass 1692: →4.80
-      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 29.0 : 0; // Pass 2548: dot reveal burst 4.80→6.48 — Pass 3557: 6.48→8.75 — Pass 3715: 8.75→11.8 — Pass 3825: 11.8→15.9 — Pass 4144: 15.9→21.5 brighter dot burst — Pass 5264: 21.5→29.0 brighter dot reveal burst
+      const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 39.2 : 0; // Pass 2548: dot reveal burst 4.80→6.48 — Pass 3557: 6.48→8.75 — Pass 3715: 8.75→11.8 — Pass 3825: 11.8→15.9 — Pass 4144: 15.9→21.5 brighter dot burst — Pass 5264: 21.5→29.0 brighter dot reveal burst — Pass 6466: 29.0→39.2 brighter scan grid dot identity reveal burst
       SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
         const stagger = di * 0.109; // 80ms stagger per dot // Pass 4890: scan grid dot cascade stagger interval 0.06→0.081 — Pass 5546: 0.081→0.109 slower scan grid dot cascade stagger
         const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
@@ -3388,7 +3388,7 @@ function animate(ts) {
         // Pass 121: destination fill bar spikes at identity reveal — pre-announces incoming card
         // Pass 565: fill bar reveal spike 2.2→4.0 — Pass 735: →5.8 for bigger reveal announcement
         if (fillBars[ct.slot] && fillBars[ct.slot].material) {
-          fillBars[ct.slot].material.emissiveIntensity = 35.0; // Pass 2319: fill bar reveal spike 7.8→10.5 — Pass 3754: 10.5→14.2 — Pass 3862: 14.2→19.2 — Pass 4237: 19.2→25.9 bigger fill bar announce spike — Pass 5265: 25.9→35.0 bigger fill bar reveal spike
+          fillBars[ct.slot].material.emissiveIntensity = 47.3; // Pass 2319: fill bar reveal spike 7.8→10.5 — Pass 3754: 10.5→14.2 — Pass 3862: 14.2→19.2 — Pass 4237: 19.2→25.9 bigger fill bar announce spike — Pass 5265: 25.9→35.0 bigger fill bar reveal spike — Pass 6467: 35.0→47.3 more vivid fill bar identity reveal announce spike
         }
         // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
         _hoodRevealFlash = 0.001; // just above 0 to activate
