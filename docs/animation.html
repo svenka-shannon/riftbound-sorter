@@ -3023,7 +3023,7 @@ function animate(ts) {
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
     // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5 — Pass 1203: →11.0 — Pass 1301: →16.0 — Pass 1387: →22.0 bigger card-slap settle — Pass 1586: →30.0; Pass 1587: decay 16→12 longer tail
-    const _settleY = 99.6 * Math.exp(-ct2 * 12) * Math.abs(Math.sin(ct2 * Math.PI * 5)); // Pass 2288: conveyor settle bounce 40.5→54.7 — Pass 3922: 54.7→73.8 — Pass 4080: 73.8→99.6 punchier card-slap
+    const _settleY = 99.6 * Math.exp(-ct2 * 12) * Math.abs(Math.sin(ct2 * Math.PI * 6.75)); // Pass 2288: conveyor settle bounce 40.5→54.7 — Pass 3922: 54.7→73.8 — Pass 4080: 73.8→99.6 punchier card-slap — Pass 4559: settle oscillation count 5→6.75 busier card-slap sway
     // Pass 173: belt lateral wobble — fades in (0→5%) and out (90→100%)
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
@@ -3768,7 +3768,7 @@ function animate(ts) {
     // Pass 232: belt acceleration pitch kick — belt surges from scan crawl (0.02) to full
     // speed at conveyorOut start, briefly pitching card nose-up by inertia.
     // Pass 640: belt launch pitch kick 0.06→0.10 — Pass 776: 0.10→0.16 — Pass 970: →0.22 for stronger card-lurch at scan exit — Pass 1594: →0.30; Pass 1595: decay 22→16 longer kick
-    const _beltKickPitch = Math.exp(-ot * 16) * 4.48; // Pass 2359: belt launch kick pitch 0.55→0.74 — Pass 2576: 0.74→1.00 — Pass 3014: 1.00→1.35 — Pass 3211: 1.35→1.82 — Pass 3474: 1.82→2.46 — Pass 3705: 2.46→3.32 — Pass 3819: 3.32→4.48
+    const _beltKickPitch = Math.exp(-ot * 16) * 6.05; // Pass 2359: belt launch kick pitch 0.55→0.74 — Pass 2576: 0.74→1.00 — Pass 3014: 1.00→1.35 — Pass 3211: 1.35→1.82 — Pass 3474: 1.82→2.46 — Pass 3705: 2.46→3.32 — Pass 3819: 3.32→4.48 — Pass 4557: 4.48→6.05 more dramatic belt exit pitch kick
     activeCard.rotation.set(_exitLean + _beltKickPitch, 0, zBank); // forward lean + kick + bank
     // Pass 174: continue belt Z-wobble during conveyorOut — fades in over first 5% and out
     // over last 30% so card arrives stable at gate (no Z snap at scan→out or out→deflect)
@@ -4487,7 +4487,7 @@ function animate(ts) {
     // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154) — Pass 860: 10→15 — Pass 1350: →22 for more 3D sweep
     // Arm dips toward viewer at midpoint of return sweep for 3-D parabolic path
     // Pass 288: final Z ring oscillation — Pass 861: 0.50→0.80 — Pass 1271: →1.10 — Pass 1351: →1.55 for bigger settling ring
-    const _artZRing = art > 0.88 ? 30.9 * Math.sin((art - 0.88) / 0.12 * Math.PI * 3.38) * (1 - (art - 0.88) / 0.12) : 0; // Pass 2411: arm return Z ring 2.82→3.81 — Pass 2644: 3.81→5.14 — Pass 2875: 5.14→6.94 — Pass 3085: 6.94→9.37 — Pass 3261: 9.37→12.6 — Pass 3602: 12.6→17.0 — Pass 3698: 17.0→22.9 — Pass 3811: 22.9→30.9 — Pass 4509: suction ring oscillation count 2.5→3.38 busier settle ring
+    const _artZRing = art > 0.88 ? 41.7 * Math.sin((art - 0.88) / 0.12 * Math.PI * 3.38) * (1 - (art - 0.88) / 0.12) : 0; // Pass 2411: arm return Z ring 2.82→3.81 — Pass 2644: 3.81→5.14 — Pass 2875: 5.14→6.94 — Pass 3085: 6.94→9.37 — Pass 3261: 9.37→12.6 — Pass 3602: 12.6→17.0 — Pass 3698: 17.0→22.9 — Pass 3811: 22.9→30.9 — Pass 4509: suction ring oscillation count 2.5→3.38 busier settle ring — Pass 4556: ring amplitude 30.9→41.7 deeper arm return Z arc
     suctionPivot.position.z = Math.sin(art * Math.PI) * 598 + _artZRing; // Pass 2412: arm return Z-depth arc 40.1→54.1 — Pass 2645: 54.1→73.0 — Pass 2876: 73.0→98.6 — Pass 3086: 98.6→133.1 — Pass 3262: 133.1→179.7 — Pass 3603: 179.7→243 — Pass 3699: 243→328 — Pass 3812: 328→443 — Pass 4540: 443→598 deeper arm descent oscillation arc
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 8.24); // Pass 1973: paddle return 4.5→6.1 — Pass 4074: 6.1→8.24 snappier paddle spring-back
@@ -4755,7 +4755,7 @@ function animate(ts) {
     // Pass 472: shimmer opacity 0.38→0.50 — Pass 696: →0.65 — Pass 993: →0.85 — Pass 1401: →1.0 for stronger belt shimmer stripe
     beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 1.0;
   } else {
-    beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 24.3); // Pass 2004: shimmer fade 4→5.4 — Pass 2764: 5.4→7.29 — Pass 2902: 7.29→9.84 — Pass 3112: 9.84→13.3 — Pass 3284: 13.3→18.0 — Pass 3362: 18.0→24.3
+    beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 32.8); // Pass 2004: shimmer fade 4→5.4 — Pass 2764: 5.4→7.29 — Pass 2902: 7.29→9.84 — Pass 3112: 9.84→13.3 — Pass 3284: 13.3→18.0 — Pass 3362: 18.0→24.3 — Pass 4552: 24.3→32.8 faster slot shimmer halo fade
     if (beltShimmerMat.opacity < 0.01) beltShimmerMesh.visible = false;
   }
 
@@ -4965,7 +4965,7 @@ function animate(ts) {
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
       const _fdScale = 1.0 + _altFrac * 70.3; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
-      const _fdPulse514 = (1 - _altFrac) * 0.077 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe
+      const _fdPulse514 = (1 - _altFrac) * 0.104 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe — Pass 4558: 0.077→0.104 stronger floor disc breathe
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
       const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.055, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00
       floorDisc.scale.setScalar(_fdScale);
@@ -5445,10 +5445,10 @@ function animate(ts) {
       if (!t.stripMat) return;
       if (_inSlotDrop && t !== ct) {
         // Non-active strip fades to 0.05 (spotlight yields)
-        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 6.39); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39
+        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 8.63); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39 — Pass 4553: 6.39→8.63 snappier strip spotlight yield
       } else if (!_inSlotDrop && t.stripMat.emissiveIntensity < 0.15) {
         // Recovery to normal idle after spotlight
-        t.stripMat.emissiveIntensity = Math.min(0.15, t.stripMat.emissiveIntensity + dt * 3.65); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65
+        t.stripMat.emissiveIntensity = Math.min(0.15, t.stripMat.emissiveIntensity + dt * 4.93); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65 — Pass 4554: 3.65→4.93 faster strip recovery after spotlight
       } else if (t.stripMat.emissiveIntensity > 0.15) {
         // Pass 69: decay from flash
         t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 44.8); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2 — Pass 4511: belt active strip flash decay 33.2→44.8 snappier strobe
@@ -5475,7 +5475,7 @@ function animate(ts) {
         m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 9.69); // Pass 2443: tray arrival decay 2.16→2.92 — Pass 2738: 2.92→3.94 — Pass 2970: 3.94→5.32 — Pass 3170: 5.32→7.18 — Pass 3338: 7.18→9.69
       } else {
         // At idle — gently track the breathing target
-        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 5.98); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98
+        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 8.07); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98 — Pass 4555: 5.98→8.07 snappier tray idle emissive tracking
       }
     });
   });
