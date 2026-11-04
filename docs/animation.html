@@ -3972,7 +3972,7 @@ function animate(ts) {
       const _defEntryT = Math.min(1, dt2 / 0.14);
       const _normTilt = THREE.MathUtils.lerp(0, floorTilt, dt2);
       // Pass 763: launch kick 0.28→0.40 — Pass 1186: →0.58 for more dramatic gate-exit nose-up
-      const _launchKick = 6.39 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 2377: launch kick 1.42→1.92 — Pass 2597: 1.92→2.59 — Pass 2858: 2.59→3.50 — Pass 3036: 3.50→4.73 — Pass 4004: 4.73→6.39
+      const _launchKick = 8.63 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 2377: launch kick 1.42→1.92 — Pass 2597: 1.92→2.59 — Pass 2858: 2.59→3.50 — Pass 3036: 3.50→4.73 — Pass 4004: 4.73→6.39 — Pass 4696: 6.39→8.63 stronger gate-exit nose-up kick
       activeCard.rotation.x = THREE.MathUtils.lerp(-0.05, _normTilt, easeOut(_defEntryT)) + _launchKick;
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
@@ -3988,13 +3988,13 @@ function animate(ts) {
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     // Pass 226: tumble-correlated glow — Pass 417: 0.28→0.40 — Pass 465: base+peak 0.80+0.60
     // Pass 761: base 0.80→1.05, peak 0.60→0.80 — Pass 980: base 1.05→1.35, peak 0.80→1.10 — Pass 1189: base 1.35→1.80, peak 1.10→1.55 for brighter arc glow
-    cardGlow.intensity = (26.7 + 17.0 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z)); // Pass 2380: glow base 4.43→5.98, peak 3.81→5.14 — Pass 2600: 5.98→8.07, 5.14→6.94 — Pass 3039: 8.07→10.9, 6.94→9.37 — Pass 3396: base 10.9→14.7 peak 9.37→12.6 — Pass 3458: base 14.7→19.8 — Pass 3973: base 19.8→26.7 — Pass 3974: peak 12.6→17.0
+    cardGlow.intensity = (36.0 + 23.0 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z)); // Pass 2380: glow base 4.43→5.98, peak 3.81→5.14 — Pass 2600: 5.98→8.07, 5.14→6.94 — Pass 3039: 8.07→10.9, 6.94→9.37 — Pass 3396: base 10.9→14.7 peak 9.37→12.6 — Pass 3458: base 14.7→19.8 — Pass 3973: base 19.8→26.7 — Pass 3974: peak 12.6→17.0 — Pass 4697: base 26.7→36.0 — Pass 4698: peak 17.0→23.0 brighter deflect arc card glow
     cardGlow.position.copy(activeCard.position);
     // Pass 250: deflect tumble emissive — Pass 415: 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
     // Pass 762: base 0.55→0.45, peak 0.72→0.95 for more dynamic emissive swing during tumble
     // Pass 968: base 0.45→0.55, peak 0.95→1.25 — Pass 1190: peak 1.25→1.65 — Pass 1255: peak 1.65→2.10 for even brighter deflect tumble arc glow
-    const _tumbleEmissive = 0.55 + 139.7 * Math.max(0, Math.cos(2 * activeCard.rotation.z)); // Pass 2381: tumble emissive peak 5.17→6.98 — Pass 2601: 6.98→9.42 — Pass 2860: 9.42→12.7 — Pass 3040: 12.7→17.1 — Pass 3228: 17.1→23.1 — Pass 3394: 23.1→31.2 — Pass 3459: 31.2→42.1 — Pass 3522: 42.1→56.8 — Pass 3735: 56.8→76.7 — Pass 3842: 76.7→103.5 — Pass 4311: 103.5→139.7 hotter deflect tumble arc glow
-    activeCardMat.emissiveIntensity += (_tumbleEmissive - activeCardMat.emissiveIntensity) * Math.min(1, dt * 7);
+    const _tumbleEmissive = 0.55 + 189 * Math.max(0, Math.cos(2 * activeCard.rotation.z)); // Pass 2381: tumble emissive peak 5.17→6.98 — Pass 2601: 6.98→9.42 — Pass 2860: 9.42→12.7 — Pass 3040: 12.7→17.1 — Pass 3228: 17.1→23.1 — Pass 3394: 23.1→31.2 — Pass 3459: 31.2→42.1 — Pass 3522: 42.1→56.8 — Pass 3735: 56.8→76.7 — Pass 3842: 76.7→103.5 — Pass 4311: 103.5→139.7 — Pass 4699: 139.7→189 hotter deflect tumble arc glow
+    activeCardMat.emissiveIntensity += (_tumbleEmissive - activeCardMat.emissiveIntensity) * Math.min(1, dt * 9.5); // Pass 4700: deflect tumble emissive tracking dt*7→dt*9.5 snappier arc glow response
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
     // Pass 126: color warms from neutral white to domain color as card approaches
     scanTargetLight.color.set(0xffeecc).lerp(new THREE.Color(ct.hex), easeOut(dt2));
@@ -4463,7 +4463,7 @@ function animate(ts) {
       if (!_armReturnThunkFired) {
         _armReturnThunkFired = true;
         // Pass 556: arm end-stop camera shake 0.28→0.55 — Pass 863: →1.0 — Pass 1051: →2.0 — Pass 1269: →3.2 better clunk
-        _cameraShake = Math.max(_cameraShake, 19.3); // Pass 2408: arm end-stop camera shake 5.83→7.87 — Pass 2642: 7.87→10.6 — Pass 2870: 10.6→14.3 — Pass 3080: 14.3→19.3
+        _cameraShake = Math.max(_cameraShake, 26.1); // Pass 2408: arm end-stop camera shake 5.83→7.87 — Pass 2642: 7.87→10.6 — Pass 2870: 10.6→14.3 — Pass 3080: 14.3→19.3 — Pass 4701: 19.3→26.1 stronger arm end-stop mechanical thunk
         // Pass 267: cup end-stop emissive spike — Pass 864: 2.8→4.5 — Pass 1051: →7.5 — Pass 1270: →12.0 brighter hard stop flash
         suctionCupMat.emissive.set(1, 1, 1);
         suctionCupMat.emissiveIntensity = 98.4; // Pass 2409: cup end-stop emissive spike 21.9→29.6 — Pass 2643: 29.6→40.0 — Pass 2871: 40.0→54.0 — Pass 3081: 54.0→72.9 — Pass 4459: 72.9→98.4 brighter cup end-stop emissive spike
@@ -4490,7 +4490,7 @@ function animate(ts) {
     const _artZRing = art > 0.88 ? 41.7 * Math.sin((art - 0.88) / 0.12 * Math.PI * 3.38) * (1 - (art - 0.88) / 0.12) : 0; // Pass 2411: arm return Z ring 2.82→3.81 — Pass 2644: 3.81→5.14 — Pass 2875: 5.14→6.94 — Pass 3085: 6.94→9.37 — Pass 3261: 9.37→12.6 — Pass 3602: 12.6→17.0 — Pass 3698: 17.0→22.9 — Pass 3811: 22.9→30.9 — Pass 4509: suction ring oscillation count 2.5→3.38 busier settle ring — Pass 4556: ring amplitude 30.9→41.7 deeper arm return Z arc
     suctionPivot.position.z = Math.sin(art * Math.PI) * 598 + _artZRing; // Pass 2412: arm return Z-depth arc 40.1→54.1 — Pass 2645: 54.1→73.0 — Pass 2876: 73.0→98.6 — Pass 3086: 98.6→133.1 — Pass 3262: 133.1→179.7 — Pass 3603: 179.7→243 — Pass 3699: 243→328 — Pass 3812: 328→443 — Pass 4540: 443→598 deeper arm descent oscillation arc
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
-    paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 8.24); // Pass 1973: paddle return 4.5→6.1 — Pass 4074: 6.1→8.24 snappier paddle spring-back
+    paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 11.1); // Pass 1973: paddle return 4.5→6.1 — Pass 4074: 6.1→8.24 — Pass 4702: 8.24→11.1 snappier paddle spring-back
     // Return floor diverter to flat (lower floor default) during arm return
     _diverterAngle += (DIVERTER_FLOOR0 - _diverterAngle) * Math.min(1, dt * 4.05); // Pass 4503: arm return diverter velocity 3→4.05 snappier servo return
     floorDiverterPivot.rotation.z = -_diverterAngle;
@@ -4516,7 +4516,7 @@ function animate(ts) {
     {
       const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 1.15; // dampens in first ~45% of phase // Pass 4411: scanner flicker amp 0.85→1.15 stronger LED power-down oscillation
       const _flickVal = 1.62 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp // Pass 4412: scanner flicker base 1.2→1.62 brighter LED reset floor
-                            + (Math.random() - 0.5) * _flickAmp * 0.35;
+                            + (Math.random() - 0.5) * _flickAmp * 0.47; // Pass 4703: scanner LED flicker noise amplitude 0.35→0.47 more chaotic power-down oscillation
       scanLEDMat.emissiveIntensity = Math.max(0.41, Math.min(70.9, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak — Pass 4502: scanner LED power-down minimum floor 0.30→0.41 brighter LED floor
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
