@@ -2545,7 +2545,7 @@ function animate(ts) {
       ? 28.6 + 8.07 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo — Pass 5062: base 15.7→21.2 brighter card halo — Pass 5196: 21.2→28.6 brighter card halo base emissive
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
-    const _haloScale332 = beltActive ? 1.0 + 0.363 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5456: 0.269→0.363 bigger card halo breathe rate
+    const _haloScale332 = beltActive ? 1.0 + 0.363 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5464: 0.269→0.363 bigger card halo breathe rate
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
     const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 4.94 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo — Pass 4951: 2.71→3.66 more dramatic gate slam halo burst — Pass 5198: 3.66→4.94 more dramatic gate slam halo burst
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
@@ -2859,7 +2859,7 @@ function animate(ts) {
       // Pass 677: deposit bounce 0.55→0.85 — Pass 765: →1.25 — Pass 1177: →1.80 — Pass 1245: →2.60 — Pass 1341: →3.60 for stronger spring at belt handoff
       // Pass 770: pivot Y sag 2.2→3.2 — Pass 1178: →4.5 — Pass 1246: →6.2 — Pass 1342: →8.5 for more weight feel during swing
       const _swingEndBounce = st > 0.88 ? 40.0 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0; // Pass 2276: armSwing end bounce 4.86→6.56 — Pass 3176: 6.56→8.86 — Pass 3575: 8.86→12.0 — Pass 3670: 12.0→16.2 — Pass 4190: 16.2→21.9 — Pass 4914: 21.9→29.6 bouncier deposit — Pass 5193: 29.6→40.0 bouncier arm deposit end-bounce
-      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 93.7 + _swingEndBounce; // Pass 2277: armSwing Y sag 11.5→15.5 — Pass 3177: 15.5→20.9 — Pass 3576: 20.9→28.2 — Pass 3671: 28.2→38.1 — Pass 4191: 38.1→51.4 — Pass 4915: 51.4→69.4 deeper weight sag — Pass 5194: 69.4→93.7 deeper arm swing weight sag
+      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 126 + _swingEndBounce; // Pass 2277: armSwing Y sag 11.5→15.5 — Pass 3177: 15.5→20.9 — Pass 3576: 20.9→28.2 — Pass 3671: 28.2→38.1 — Pass 4191: 38.1→51.4 — Pass 4915: 51.4→69.4 deeper weight sag — Pass 5194: 69.4→93.7 deeper arm swing weight sag — Pass 5469: 93.7→126 deeper arm extension Y amplitude
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 7.3); // Pass 4646: arm swing vibration damping constant 4→5.4 snappier cup emissive fade during swing — Pass 5106: arm extension damping 5.4→7.3 snappier cup emissive fade during swing
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
@@ -3448,7 +3448,7 @@ function animate(ts) {
           // Pass 497: scan bar 65-85% tension base 1.5→1.8 — Pass 838: post-reveal base 2.2→3.0, peak 2.5→3.5
           const _baseI = barFill >= 0.85 ? 9.96 + flashIntensity * 8.63 : 5.98 + flashIntensity * 5.10; // Pass 2329: post-reveal base 4.05→5.47, flash 3.5→4.73; Pass 2330: tension base 2.43→3.28, flash 2.8→3.78 — Pass 4072: post-reveal base 5.47→7.38 — Pass 4073: tension base 3.28→4.43 brighter scan bar identity states — Pass 4592: scan bar post-reveal flash contribution 4.73→6.39 more vivid reveal emissive — Pass 5288: post-reveal base 7.38→9.96 — Pass 5289: post-reveal flash 6.39→8.63 — Pass 5290: tension base 4.43→5.98 — Pass 5291: tension flash 3.78→5.10
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75 — Pass 1343: →1.05
-          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 15.8 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50 — Pass 3559: 3.50→4.73 — Pass 3722: 4.73→6.39 — Pass 3829: 6.39→8.63 — Pass 4115: 8.63→11.7 — Pass 5292: 11.7→15.8 brighter post-reveal breathing pulse
+          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 21.3 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50 — Pass 3559: 3.50→4.73 — Pass 3722: 4.73→6.39 — Pass 3829: 6.39→8.63 — Pass 4115: 8.63→11.7 — Pass 5292: 11.7→15.8 brighter post-reveal breathing pulse — Pass 5465: 15.8→21.3 brighter card reveal breathe rate
           // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 — Pass 1327: →20.0 for bigger climax
           const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 220 : 0; // Pass 2332: completion superflash 27.0→36.5 — Pass 2836: 36.5→49.3 — Pass 2981: 49.3→66.6 — Pass 3492: 66.6→89.9 — Pass 3708: 89.9→121 — Pass 4114: 121→163 blinding fill completion — Pass 5268: 163→220 blinding fill bar completion flash
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
@@ -3814,7 +3814,7 @@ function animate(ts) {
       if (_trailSpawnAcc >= _coronaRate) {
         _trailSpawnAcc = 0;
         const _coronaAng = Math.random() * Math.PI * 2;
-        const _coronaR = 8.1 + Math.random() * 13.5; // Pass 4406: corona radius 6+10→8.1+13.5 wider gate charge aura
+        const _coronaR = 10.9 + Math.random() * 18.2; // Pass 4406: corona radius 6+10→8.1+13.5 wider gate charge aura — Pass 5458: 8.1+13.5→10.9+18.2 wider gate charge corona radius
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         tp.mesh.position.set(
@@ -4246,12 +4246,12 @@ function animate(ts) {
         _pp.mesh.position.set(
           _puffX + (Math.random() - 0.5) * 13.5, // Pass 4614: landing puff X spread 10→13.5 wider puff cloud
           _puffY + Math.random() * 5.4, // Pass 4653: landing puff Z initial spawn height 4→5.4 taller puff birth zone
-          _puffZ + (Math.random() - 0.5) * 16.2 // Pass 4631: landing puff initial Z spawn spread 12→16.2 wider Z footprint
+          _puffZ + (Math.random() - 0.5) * 21.9 // Pass 4631: landing puff initial Z spawn spread 12→16.2 wider Z footprint — Pass 5454: 16.2→21.9 wider landing puff Z footprint
         );
         _pp.mesh.visible = true;
-        _pp.vx = (Math.random() - 0.5) * 68.9; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread — Pass 5454: 51.0→68.9 wider landing puff vx spread
+        _pp.vx = (Math.random() - 0.5) * 68.9; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread — Pass 5462: 51.0→68.9 wider landing puff vx spread
         _pp.vy = 1216 + Math.random() * 795; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft
-        _pp.vz = (Math.random() - 0.5) * 98.4; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread
+        _pp.vz = (Math.random() - 0.5) * 133; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread — Pass 5466: 98.4→133 wider landing puff vz spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
           Math.min(1, _rr / 255 * 0.61 + 0.55), // Pass 4860: landing puff domain tint 0.45→0.61
@@ -4301,7 +4301,7 @@ function animate(ts) {
           _lp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 13.5, // Pass 4600: slot entry landing dust X jitter 10→13.5 wider X scatter
             ct.slotFloorY + 2.7, // Pass 4586: slot entry dust Y offset 2→2.7 more airborne impact dust
-            ct.slotZ + (Math.random() - 0.5) * 24.3 // Pass 4569: slot landing dust Z spread 18→24.3 wider impact footprint
+            ct.slotZ + (Math.random() - 0.5) * 32.8 // Pass 4569: slot landing dust Z spread 18→24.3 wider impact footprint — Pass 5455: 24.3→32.8 wider slot landing dust Z spread
           );
           _lp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
@@ -4348,7 +4348,7 @@ function animate(ts) {
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 10.8, // Pass 4833: upper floor mote X spawn spread 8→10.8 wider arrival fountain footprint
             ct.slotFloorY + 54.7 + Math.random() * 6, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain — Pass 5078: 40.5→54.7 taller arrival fountain
-            ct.slotZ + (Math.random() - 0.5) * 16.2 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint
+            ct.slotZ + (Math.random() - 0.5) * 21.9 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint — Pass 5456: 16.2→21.9 wider landing mote Z footprint
           );
           _mp.mesh.visible = true;
           _mp.vx = (Math.random() - 0.5) * 24.6; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst — Pass 5079: 13.5→18.2 wider arrival mote burst — Pass 5147: 18.2→24.6 wider arrival mote X burst
@@ -4391,7 +4391,7 @@ function animate(ts) {
         tp.mesh.position.set(
           TRAY_X_START + 15 + (Math.random() - 0.5) * 16.2, // Pass 4551: reject burst X radius 12→16.2 wider alarm fountain
           ct.slotFloorY + 30 + Math.random() * 20, // Pass 5022: reject alarm spark Y height spread 15→20 taller alarm fountain
-          ct.slotZ + (Math.random() - 0.5) * 24.3 // Pass 4535: reject alarm fountain Z radius 18→24.3 wider alarm spread
+          ct.slotZ + (Math.random() - 0.5) * 32.8 // Pass 4535: reject alarm fountain Z radius 18→24.3 wider alarm spread — Pass 5457: 24.3→32.8 wider reject alarm fountain Z radius
         );
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
@@ -4417,7 +4417,7 @@ function animate(ts) {
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
         tp2.mat.opacity = 1.15 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2 — Pass 4749: 0.85→1.15 brighter reject secondary burst
-        tp2.age = 0; tp2.life = 3.44 + Math.random() * 2.30; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26 — Pass 3260: 1.89+1.26→2.55+1.70 — Pass 4052: 2.55+1.70→3.44+2.30 longer reject secondary sparks
+        tp2.age = 0; tp2.life = 4.64 + Math.random() * 3.11; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26 — Pass 3260: 1.89+1.26→2.55+1.70 — Pass 4052: 2.55+1.70→3.44+2.30 longer reject secondary sparks — Pass 5459: 3.44+2.30→4.64+3.11 longer reject secondary spark life
         tp2.active = true; tp2.mesh.visible = true;
         _rb2++;
       }
@@ -4596,7 +4596,7 @@ function animate(ts) {
     // Pass 1058: breathing base 0.12→0.20, amp 0.07→0.14 for more visible scanner idle pulse
     {
       const _breathe = 5.40 + 6.94 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe — Pass 5296: scanner idle rotation breathe amplitude 2.82→3.81 deeper standby pulse — Pass 5316: base 4.00→5.40 brighter scanner standby breathe base — Pass 5337: amp 3.81→5.14 deeper scanner standby breathe amplitude — Pass 5349: 5.14→6.94 deeper scanner idle hover breathe amplitude
-      scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 4.56); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse — Pass 5394: 3.38→4.56 snappier scanner idle LED breathe tracking
+      scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6.16); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse — Pass 5394: 3.38→4.56 snappier scanner idle LED breathe tracking — Pass 5467: 4.56→6.16 snappier idle scan LED breathe tracking rate
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.03)); // Pass 4824: hood standby emissive color tracking rate 1.5→2.03
       hoodMat.emissiveIntensity += (_breathe * 6.26 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 — Pass 4711: 2.55→3.44 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe — Pass 5142: 3.44→4.64 brighter scanner head idle emissive breathe — Pass 5395: 4.64→6.26 brighter scanner hood idle breathe multiplier
     }
@@ -4676,7 +4676,7 @@ function animate(ts) {
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
       beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 2.03)); // Pass 4604: belt scan emissive color lerp rate 1.5→2.03 snappier domain tint adoption
       // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14 — Pass 1455: →0.28+0.20
-      const _bsTarget = 5.67 + 2.96 * Math.sin(cycleT * 6); // Pass 2436: belt active emissive base 0.38→0.51, pulse 0.27→0.36 — Pass 2665: 0.51→0.69, 0.36→0.49 — Pass 2756: base 0.69→0.93 — Pass 2893/2894: 0.93+0.49→1.26+0.66 — Pass 3103: 1.26→1.70, 0.66→0.89 — Pass 3276: 1.70+0.89→2.30+1.20 — Pass 3356: 2.30+1.20→3.11+1.62 — Pass 4382: base 3.11→4.20, pulse 1.62→2.19 — Pass 4716: base 4.20→5.67 — Pass 4717: pulse 2.19→2.96 richer belt active glow
+      const _bsTarget = 7.65 + 4.00 * Math.sin(cycleT * 6); // Pass 2436: belt active emissive base 0.38→0.51, pulse 0.27→0.36 — Pass 2665: 0.51→0.69, 0.36→0.49 — Pass 2756: base 0.69→0.93 — Pass 2893/2894: 0.93+0.49→1.26+0.66 — Pass 3103: 1.26→1.70, 0.66→0.89 — Pass 3276: 1.70+0.89→2.30+1.20 — Pass 3356: 2.30+1.20→3.11+1.62 — Pass 4382: base 3.11→4.20, pulse 1.62→2.19 — Pass 4716: base 4.20→5.67 — Pass 4717: pulse 2.19→2.96 richer belt active glow — Pass 5461: base 5.67→7.65 pulse 2.96→4.00 richer belt active emissive
       beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 4605: belt scan emissive intensity tracking 2→2.70 crisper active belt glow response
     } else {
       beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 2.03)); // Pass 4826: belt scan-idle color return tracking 1.5→2.03
@@ -4693,7 +4693,7 @@ function animate(ts) {
       // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 — Pass 1456: →0.28+1.80 for dramatic heat-up
       const _warmTarget = 0.378 + _warmT * 119.6; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7 — Pass 3277: 14.7→19.8 — Pass 3363: 19.8→26.7 — Pass 3501: 26.7→36.0 — Pass 3742: 36.0→48.6 — Pass 3850: 48.6→65.6 — Pass 4386: 65.6→88.6 — Pass 4712: 88.6→119.6 brighter scanner hood warm-up — Pass 4804: warm-up base 0.28→0.378 brighter hood warm-up floor
       // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 — Pass 1457: →0.14 for more visible heat flicker
-      const _hoodShimmer = 9.37 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15 — Pass 3278: 1.15→1.55 — Pass 3364: 1.55→2.09 — Pass 3502: 2.09→2.82 — Pass 3743: 2.82→3.81 — Pass 3851: 3.81→5.14 — Pass 4387: 5.14→6.94 — Pass 4713: 6.94→9.37 more vivid hood shimmer
+      const _hoodShimmer = 12.6 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15 — Pass 3278: 1.15→1.55 — Pass 3364: 1.55→2.09 — Pass 3502: 2.09→2.82 — Pass 3743: 2.82→3.81 — Pass 3851: 3.81→5.14 — Pass 4387: 5.14→6.94 — Pass 4713: 6.94→9.37 more vivid hood shimmer — Pass 5460: 9.37→12.6 more vivid scanner hood shimmer amplitude
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 5.40); // Pass 4791: hood warm-up emissive tracking rate 4→5.40 snappier scanner heat-up response
     } else {
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 3.38)); // Pass 4828: hood cooldown color tracking 2.5→3.38
@@ -4827,7 +4827,7 @@ function animate(ts) {
 
   // Camera auto-orbit: ellipse + phase-aware target drift + card tracking
   if(!controls.enableRotate || !controls._userInteracted) {
-    const orbitAngle = ts * 0.000147 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit — Pass 5423: 0.000081→0.000109 faster cinematic orbit — Pass 5455: 0.000109→0.000147 faster slot approach orbit speed boost
+    const orbitAngle = ts * 0.000147 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit — Pass 5423: 0.000081→0.000109 faster cinematic orbit — Pass 5463: 0.000109→0.000147 faster slot approach orbit speed boost
     // Orbit radius tightens slightly during scan for closer scanner view
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
@@ -5117,7 +5117,7 @@ function animate(ts) {
   // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
     // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 — Pass 1037: →dt*2.6 — Pass 1436: →dt*2.0 for longer visible ring
-    _grabRingT = Math.min(1, _grabRingT + dt * 54.1); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0 — Pass 3534: 22.0→29.7 — Pass 4088: 29.7→40.1 snappier suction grab — Pass 5372: 40.1→54.1 snappier suction grab ring
+    _grabRingT = Math.min(1, _grabRingT + dt * 73.0); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0 — Pass 3534: 22.0→29.7 — Pass 4088: 29.7→40.1 snappier suction grab — Pass 5372: 40.1→54.1 snappier suction grab ring — Pass 5468: 54.1→73.0 faster slot entry LED ring scale speed
     // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 — Pass 1437: →18.0 — Pass 1540: →25.0 for wider domain ring burst at pick
     const _grs = 1.0 + easeOut(_grabRingT) * 918.5; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6 — Pass 3141: 151.6→204.7 — Pass 3313: 204.7→276.3 — Pass 3422: 276.3→373.0 — Pass 3535: 373.0→504 — Pass 4089: 504→680.4 wider suction burst — Pass 5373: 680.4→918.5 wider suction burst ring
     grabRing.scale.setScalar(_grs);
