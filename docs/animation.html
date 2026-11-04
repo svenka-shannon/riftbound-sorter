@@ -982,7 +982,7 @@ const scanLineMat = new THREE.MeshStandardMaterial({
   emissiveIntensity: 18.1, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive
   transparent: true, opacity: 1.73 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam — Pass 5879: 1.28→1.73 overdrive scan crosshair primary beam opacity
 });
-const scanLine = new THREE.Mesh(new THREE.BoxGeometry(133, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span
+const scanLine = new THREE.Mesh(new THREE.BoxGeometry(180, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span — Pass 5914: 133→180 wider scan crosshair primary beam span
 scanLine.visible = false;
 scene.add(scanLine);
 // Secondary bar (spans Z=88, sweeps in X) — slightly warmer teal to differentiate
@@ -1205,7 +1205,7 @@ CARD_TYPES.forEach(ct => {
 // Flat (0 rad) = card falls through to lower floor. ~0.65 rad (~37°) = ramp to upper floor.
 const DIVERTER_X = TRAY_X_START - 5;
 const DIVERTER_FLOOR0 = 0;    // lower floor: flat
-const DIVERTER_FLOOR1 = 1.19; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp — Pass 4987: 0.878→1.19 steeper diverter ramp
+const DIVERTER_FLOOR1 = 1.61; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp — Pass 4987: 0.878→1.19 steeper diverter ramp — Pass 5915: 1.19→1.61 steeper diverter upper floor ramp angle
 const diverterServoBox = makeBox(14, 14, 22, 0x9aa0b0);
 diverterServoBox.position.set(DIVERTER_X - 3, CONV_Y_TOP + 7, 0);
 scene.add(diverterServoBox);
@@ -1910,10 +1910,10 @@ const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 const GRAB_PARTICLES = [];
 for (let _gpi = 0; _gpi < 22; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir
   const _gpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(2.55, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst
+  const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(3.44, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst — Pass 5916: 2.55→3.44 chunkier grab burst particle sphere
   _gpMesh.visible = false;
   scene.add(_gpMesh);
-  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 1.24, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence — Pass 5318: 0.68→0.918 longer grab burst particle persistence — Pass 5398: 0.918→1.24 longer idle scan emit grab particle persistence
+  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 1.67, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence — Pass 5318: 0.68→0.918 longer grab burst particle persistence — Pass 5398: 0.918→1.24 longer idle scan emit grab particle persistence — Pass 5917: 1.24→1.67 longer grab burst particle persistence
 }
 // Pre-allocated Color for domain fill updates (no per-frame GC pressure)
 const _domFillClr = new THREE.Color();
@@ -2359,7 +2359,7 @@ function animate(ts) {
   stackCards.forEach((sc, i) => {
     if (!sc.visible) return;
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
-    const _jPhase = i * 3.60; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync — Pass 5332: 2.67→3.60 more organic slot ring initial color saturation desync
+    const _jPhase = i * 4.86; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync — Pass 5332: 2.67→3.60 more organic slot ring initial color saturation desync — Pass 5918: 3.60→4.86 more organic stack card jitter phase desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
     const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 7.65 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter — Pass 5313: 2.30→3.11 livelier pre-pick stack jitter primary amplitude — Pass 5334: 3.11→4.20 livelier pre-pick stack jitter primary amplitude — Pass 5424: 4.20→5.67 livelier card hold oscillation primary amplitude — Pass 5518: 5.67→7.65 livelier arm descent oscillation primary amplitude
               + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 31.1; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary — Pass 5326: 1.15→1.55 livelier arm descent oscillation secondary amplitude — Pass 5335: 1.55→2.09 livelier idle arm sway Y secondary amplitude — Pass 5345: 2.09→2.82 livelier card Y jitter hold secondary amplitude — Pass 5425: 2.82→3.81 livelier card hold oscillation secondary amplitude — Pass 5436: 3.81→5.14 livelier arm extension secondary oscillation Y amplitude — Pass 5486: 5.14→6.94 livelier arm descent oscillation tertiary secondary Y amplitude — Pass 5519: 6.94→9.37 livelier arm descent oscillation quaternary secondary Y amplitude — Pass 5581: 9.37→12.6 livelier arm descent oscillation quaternary secondary Y amplitude — Pass 5610: 12.6→17.0 livelier arm descent servo hunt secondary oscillation Y amplitude — Pass 5618: 17.0→23.0 livelier arm descent oscillation tertiary Y secondary amplitude — Pass 5634: 23.0→31.1 livelier arm sway Y tertiary secondary oscillation amplitude
@@ -2371,19 +2371,19 @@ function animate(ts) {
       const _cardDelay = (stackTopIdx - 1 - i) * 0.146; // top-most remaining card fires first — Pass 4779: stack pick recoil stagger delay 0.08→0.108 wider cascade timing — Pass 5076: 0.108→0.146 wider cascade stagger
       const _delayedT = Math.max(0, _lt2 - _cardDelay);
       // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 — Pass 1228: →2.4 — Pass 1661: →3.2 — Pass 4062: →4.32 deeper suction-break recoil
-      if (_delayedT < 0.45) _recoilDip = -10.6 * Math.sin(_delayedT / 0.45 * Math.PI); // Pass 4780: stack pick recoil dip 4.32→5.83 deeper suction-break recoil — Pass 5059: 5.83→7.87 deeper suction-break recoil — Pass 5070: 7.87→10.6 deeper suction-break recoil
+      if (_delayedT < 0.45) _recoilDip = -14.3 * Math.sin(_delayedT / 0.45 * Math.PI); // Pass 4780: stack pick recoil dip 4.32→5.83 deeper suction-break recoil — Pass 5059: 5.83→7.87 deeper suction-break recoil — Pass 5070: 7.87→10.6 deeper suction-break recoil — Pass 5919: 10.6→14.3 deeper suction-break recoil dip amplitude
     }
     sc.position.y = _baseY + _jY + _recoilDip;
     // Pass 178: deck "charge" shimmer — ripples bottom→top at 0.6 Hz during idle/approach
     if (sc.material) {
       const _prePickT = inPhase(PH.pause) || inPhase(PH.armDescend) || inPhase(PH.armLift);
       if (_prePickT) {
-        const _wave = Math.sin(ts * 1.47 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5; // Pass 4513: deck shimmer wave frequency 0.6→0.81 livelier deck charge ripple — Pass 5023: 0.81→1.09 livelier deck charge ripple — Pass 5165: 1.09→1.47 faster shimmer stripe animation speed
+        const _wave = Math.sin(ts * 1.98 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5; // Pass 4513: deck shimmer wave frequency 0.6→0.81 livelier deck charge ripple — Pass 5023: 0.81→1.09 livelier deck charge ripple — Pass 5165: 1.09→1.47 faster shimmer stripe animation speed — Pass 5920: 1.47→1.98 faster deck charge shimmer wave frequency
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
         const _waveAmp301 = inPhase(PH.armDescend) ? 3.81 + phaseRaw(PH.armDescend) * 8.17 : 3.81; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp // Pass 4493: deck shimmer wave base 1.15→1.55 richer deck energy floor — Pass 4896: base 1.55→2.09 — Pass 4897: ramp 3.32→4.48 brighter deck charge surge — Pass 5208: base 2.09→2.82 — Pass 5209: ramp 4.48→6.05 brighter deck charge surge — Pass 5429: base 2.82→3.81, ramp 6.05→8.17 brighter deck charge buildup wave
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 — Pass 4061: →0.49 richer deck energy base
-        sc.material.emissiveIntensity = 1.62 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor — Pass 5096: 0.66→0.891 richer deck shimmer base glow — Pass 5210: 0.891→1.20 richer deck shimmer base emissive — Pass 5315: 1.20→1.62 richer deck shimmer base emissive
+        sc.material.emissiveIntensity = 2.19 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor — Pass 5096: 0.66→0.891 richer deck shimmer base glow — Pass 5210: 0.891→1.20 richer deck shimmer base emissive — Pass 5315: 1.20→1.62 richer deck shimmer base emissive — Pass 5921: 1.62→2.19 richer deck shimmer base emissive floor
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
         sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 5.47); // Pass 4813: deck shimmer idle tracking 3→4.05 snappier deck energy decay — Pass 5549: 4.05→5.47 snappier deck shimmer idle tracking
