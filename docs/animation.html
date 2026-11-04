@@ -1240,7 +1240,7 @@ scene.add(suctionPivot);
 
 // Arm rod: cylindrical metal rod
 const armRod = new THREE.Mesh(
-  new THREE.CylinderGeometry(2.5, 2.5, 80, 22), // Pass 4955: arm rod radial segments 12→16 smoother arm rod — Pass 5821: 16→22 smoother arm rod
+  new THREE.CylinderGeometry(2.5, 2.5, 80, 30), // Pass 4955: arm rod radial segments 12→16 smoother arm rod — Pass 5821: 16→22 smoother arm rod — Pass 7287: 22→30 smoother arm rod
   new THREE.MeshStandardMaterial({
     color: 0x909098, roughness: 0.2, metalness: 0.7,
     emissive: new THREE.Color(0xffffff), emissiveIntensity: 0
@@ -1259,7 +1259,7 @@ flange.position.set(0, 0, 0);
 suctionPivot.add(flange);
 
 // Suction cup — round disc with emissive capability for domain color glow
-const suctionCupGeo = new THREE.CylinderGeometry(7, 5, 4, 22); // Pass 4957: suction cup radial segments 12→16 smoother grip cup — Pass 5822: 16→22 smoother grip cup
+const suctionCupGeo = new THREE.CylinderGeometry(7, 5, 4, 30); // Pass 4957: suction cup radial segments 12→16 smoother grip cup — Pass 5822: 16→22 smoother grip cup — Pass 7288: 22→30 smoother grip cup
 const suctionCupMat = new THREE.MeshStandardMaterial({
   color: 0x222233, roughness: 0.8,
   emissive: new THREE.Color(0x000000), emissiveIntensity: 0
@@ -1490,7 +1490,7 @@ const _shadowMat = new THREE.MeshBasicMaterial({
 });
 const _shadowMesh = new THREE.Mesh(new THREE.CircleGeometry(1, 32), _shadowMat);
 _shadowMesh.rotation.x = -Math.PI / 2; // lie flat on belt surface
-_shadowMesh.scale.set(CARD_H * 1.00, 1, CARD_W * 1.00); // elongated card-proportioned ellipse — Pass 4917: card contact shadow ellipse scale 0.55→0.74 larger belt shadow — Pass 5532: 0.74→1.00 full-card contact shadow ellipse scale
+_shadowMesh.scale.set(CARD_H * 1.35, 1, CARD_W * 1.35); // elongated card-proportioned ellipse — Pass 4917: card contact shadow ellipse scale 0.55→0.74 larger belt shadow — Pass 5532: 0.74→1.00 full-card contact shadow ellipse scale — Pass 7289: 1.00→1.35 wider card contact shadow ellipse overscale
 _shadowMesh.position.set(-40, CONV_Y_TOP + 1.33, 0); // Pass 4926: shadow Y offset 0.4→0.54 more elevated belt shadow — Pass 5469: 0.54→0.729 more elevated card contact shadow — Pass 6344: 0.729→0.984 more elevated card contact shadow — Pass 7145: 0.984→1.33 more elevated card contact shadow
 scene.add(_shadowMesh);
 
@@ -2434,7 +2434,7 @@ function animate(ts) {
           mesh.material.emissiveIntensity = 3.44 + 24.0 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing — Pass 5067: base 1.40→1.89 richer settled card glow — Pass 5068: amp 2.93→3.96 richer settled card breathing — Pass 5314: base 1.89→2.55 richer settled card breathe base glow — Pass 5347: amp 3.96→5.35 richer card emissive breathe amplitude — Pass 5999: 5.35→7.22 richer settled card emissive breathe amplitude — Pass 6302: 7.22→9.75 richer settled card emissive breathe amplitude — Pass 6334: 9.75→13.2 richer settled card emissive breathe amplitude — Pass 6856: base 2.55→3.44 richer settled card breathe base glow — Pass 7066: amp 13.2→17.8 richer settled card emissive breathe amplitude — Pass 7323: amp 17.8→24.0 richer settled card emissive breathe amplitude
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway — Pass 4772: 0.051→0.069 deeper deck sway
           const _swayPhase = _globalCardIdx * 27.4; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync — Pass 5077: 2.47→3.33 more organic sway desync — Pass 5155: 3.33→4.50 more organic settled card sway desync — Pass 5712: 4.50→6.08 more organic settled card sway phase desync — Pass 5936: 6.08→8.21 more organic settled card sway phase desync — Pass 6336: 8.21→11.1 more organic settled card sway phase desync — Pass 6863: 11.1→15.0 more organic settled card sway phase desync — Pass 7303: 15.0→20.3 more organic settled card sway phase desync — Pass 7324: 20.3→27.4 more organic settled card sway phase desync
-          mesh.rotation.z = 0.420 * Math.sin(ts * 0.693 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway — Pass 5069: 0.069→0.093 deeper deck sway — Pass 5156: 0.093→0.126 deeper settled card Z micro-rocking — Pass 5336: 0.126→0.170 deeper settled card Z sway amplitude — Pass 5648: 0.513→0.693 livelier settled card Z sway frequency — Pass 6337: 0.170→0.230 deeper settled card Z sway amplitude — Pass 6857: 0.230→0.311 deeper settled card Z sway amplitude — Pass 7067: 0.311→0.420 deeper settled card Z sway amplitude
+          mesh.rotation.z = 0.567 * Math.sin(ts * 0.693 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway — Pass 5069: 0.069→0.093 deeper deck sway — Pass 5156: 0.093→0.126 deeper settled card Z micro-rocking — Pass 5336: 0.126→0.170 deeper settled card Z sway amplitude — Pass 5648: 0.513→0.693 livelier settled card Z sway frequency — Pass 6337: 0.170→0.230 deeper settled card Z sway amplitude — Pass 6857: 0.230→0.311 deeper settled card Z sway amplitude — Pass 7067: 0.311→0.420 deeper settled card Z sway amplitude — Pass 7325: 0.420→0.567 deeper settled card Z sway amplitude
         }
         _globalCardIdx++;
       });
@@ -2446,10 +2446,10 @@ function animate(ts) {
   if(window._flashLights) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
-      const _fPeak = f.peak || 13.4; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash — Pass 5529: 4.05→5.47 brighter arrival flash fallback peak — Pass 6338: 5.47→7.38 brighter arrival flash fallback peak — Pass 7095: 7.38→9.96 brighter arrival flash fallback peak — Pass 7079: 9.96→13.4 brighter arrival flash fallback peak
+      const _fPeak = f.peak || 18.1; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash — Pass 5529: 4.05→5.47 brighter arrival flash fallback peak — Pass 6338: 5.47→7.38 brighter arrival flash fallback peak — Pass 7095: 7.38→9.96 brighter arrival flash fallback peak — Pass 7079: 9.96→13.4 brighter arrival flash fallback peak — Pass 7326: 13.4→18.1 brighter arrival flash fallback peak
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 32.7)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence — Pass 6339: 13.3→17.9 longer slot arrival flash glow persistence — Pass 7096: 17.9→24.2 longer slot arrival flash glow persistence — Pass 7080: 24.2→32.7 longer slot arrival flash glow persistence
-      if(f.age > 24.3) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window — Pass 6396: 9.86→13.3 longer flash light removal threshold — Pass 7097: 13.3→18.0 longer flash light removal threshold — Pass 7081: 18.0→24.3 longer flash light removal threshold
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 44.1)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence — Pass 6339: 13.3→17.9 longer slot arrival flash glow persistence — Pass 7096: 17.9→24.2 longer slot arrival flash glow persistence — Pass 7080: 24.2→32.7 longer slot arrival flash glow persistence — Pass 7327: 32.7→44.1 longer slot arrival flash glow persistence
+      if(f.age > 32.8) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window — Pass 6396: 9.86→13.3 longer flash light removal threshold — Pass 7097: 13.3→18.0 longer flash light removal threshold — Pass 7081: 18.0→24.3 longer flash light removal threshold — Pass 7328: 24.3→32.8 longer flash light removal threshold
       return true;
     });
   }
@@ -2465,7 +2465,7 @@ function animate(ts) {
     if (!bar._springVel) bar._springVel = 0;
     const _springDiff = targetScaleY - bar.scale.y;
     bar._springVel = bar._springVel * 0.80 + _springDiff * 1.14; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255 — Pass 4991: 0.255→0.344 snappier fill bar spring — Pass 5202: 0.344→0.464 snappier fill bar spring response — Pass 6008: 0.464→0.626 snappier fill bar spring constant — Pass 6605: 0.626→0.845 snappier fill bar spring constant — Pass 7311: 0.845→1.14 snappier fill bar spring constant
-    bar.scale.y = Math.max(0.01, Math.min(5.29, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce — Pass 5203: 1.59→2.15 bigger fill bar overshoot bounce — Pass 6205: 2.15→2.90 bigger fill bar spring overshoot — Pass 7098: 2.90→3.92 bigger fill bar spring overshoot — Pass 7082: 3.92→5.29 bigger fill bar spring overshoot
+    bar.scale.y = Math.max(0.01, Math.min(7.14, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce — Pass 5203: 1.59→2.15 bigger fill bar overshoot bounce — Pass 6205: 2.15→2.90 bigger fill bar spring overshoot — Pass 7098: 2.90→3.92 bigger fill bar spring overshoot — Pass 7082: 3.92→5.29 bigger fill bar spring overshoot — Pass 7329: 5.29→7.14 bigger fill bar spring overshoot
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
     const _fbRest = 11.9 + 3.11 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26 — Pass 4684: base 2.66→3.59 — Pass 4685: amp 1.26→1.70 brighter fill bar breathe — Pass 5120: 3.59→4.85 brighter fill bar resting glow — Pass 5191: 4.85→6.55 brighter fill bar resting base glow — Pass 5204: amp 1.70→2.30 bigger fill bar breathe amplitude — Pass 6206: base 6.55→8.85 richer fill bar resting glow base — Pass 6218: amp 2.30→3.11 richer fill bar breathe amplitude — Pass 7068: base 8.85→11.9 richer fill bar resting glow base
@@ -2473,7 +2473,7 @@ function animate(ts) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
     } else {
-      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 11.2); // Pass 4723: fill bar idle tracking 2.5→3.38 snappier fill bar settle — Pass 5078: 3.38→4.56 snappier fill bar tracking — Pass 6207: 4.56→6.16 snappier fill bar idle emissive tracking rate — Pass 7099: 6.16→8.32 snappier fill bar idle emissive tracking rate — Pass 7083: 8.32→11.2 snappier fill bar idle emissive tracking rate
+      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 15.1); // Pass 4723: fill bar idle tracking 2.5→3.38 snappier fill bar settle — Pass 5078: 3.38→4.56 snappier fill bar tracking — Pass 6207: 4.56→6.16 snappier fill bar idle emissive tracking rate — Pass 7099: 6.16→8.32 snappier fill bar idle emissive tracking rate — Pass 7083: 8.32→11.2 snappier fill bar idle emissive tracking rate — Pass 7330: 11.2→15.1 snappier fill bar idle emissive tracking rate
     }
   });
 
