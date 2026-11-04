@@ -41,7 +41,7 @@
   #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; transition: color 0.3s; display: inline-block; }
   @keyframes countBump {
     0%   { transform: scale(1.0);   text-shadow: none; }
-    20%  { transform: scale(56.7);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale — Pass 5938: 3.81→5.14 more dramatic score count bump peak scale — Pass 6001: 5.14→6.94 more dramatic score count bump peak scale — Pass 6444: 6.94→9.37 more dramatic score count bump peak scale — Pass 6866: 9.37→12.6 more dramatic score count bump peak scale — Pass 6958: 12.6→17.0 more dramatic score count bump peak scale — Pass 7183: 17.0→23.0 more dramatic score count bump peak scale — Pass 7363: 23.0→31.1 more dramatic score count bump peak scale — Pass 7419: 31.1→42.0 more dramatic score count bump peak scale — Pass 7427: 42.0→56.7 more dramatic score count bump peak scale */
+    20%  { transform: scale(76.5);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale — Pass 5938: 3.81→5.14 more dramatic score count bump peak scale — Pass 6001: 5.14→6.94 more dramatic score count bump peak scale — Pass 6444: 6.94→9.37 more dramatic score count bump peak scale — Pass 6866: 9.37→12.6 more dramatic score count bump peak scale — Pass 6958: 12.6→17.0 more dramatic score count bump peak scale — Pass 7183: 17.0→23.0 more dramatic score count bump peak scale — Pass 7363: 23.0→31.1 more dramatic score count bump peak scale — Pass 7419: 31.1→42.0 more dramatic score count bump peak scale — Pass 7427: 42.0→56.7 more dramatic score count bump peak scale — Pass 7563: 56.7→76.5 more dramatic score count bump peak scale */
     55%  { transform: scale(0.95);  text-shadow: 0 0 8px currentColor; }
     100% { transform: scale(1.0);   text-shadow: none; }
   }
@@ -82,7 +82,7 @@
   }
   /* Pass 62: lock-on snap animation — brackets contract on card ID */
   @keyframes hudLockOn {
-    0%   { transform: translateX(-50%) scale(19.4); opacity: 0.4; } /* Pass 4914: scanner HUD lock-on initial scale 1.3→1.76 bigger bracket snap — Pass 5033: 1.76→2.38 bigger bracket snap — Pass 5851: 2.38→3.21 bigger scanner HUD lock-on initial bracket scale — Pass 5939: 3.21→4.33 bigger scanner HUD lock-on initial bracket scale — Pass 6220: 4.33→5.85 bigger scanner HUD lock-on initial bracket scale — Pass 6445: 5.85→7.90 bigger scanner HUD lock-on initial bracket scale — Pass 6867: 7.90→10.7 bigger scanner HUD lock-on initial bracket scale — Pass 6959: 10.7→14.4 bigger scanner HUD lock-on initial bracket scale — Pass 7200: 14.4→19.4 bigger scanner HUD lock-on initial bracket scale */
+    0%   { transform: translateX(-50%) scale(26.2); opacity: 0.4; } /* Pass 4914: scanner HUD lock-on initial scale 1.3→1.76 bigger bracket snap — Pass 5033: 1.76→2.38 bigger bracket snap — Pass 5851: 2.38→3.21 bigger scanner HUD lock-on initial bracket scale — Pass 5939: 3.21→4.33 bigger scanner HUD lock-on initial bracket scale — Pass 6220: 4.33→5.85 bigger scanner HUD lock-on initial bracket scale — Pass 6445: 5.85→7.90 bigger scanner HUD lock-on initial bracket scale — Pass 6867: 7.90→10.7 bigger scanner HUD lock-on initial bracket scale — Pass 6959: 10.7→14.4 bigger scanner HUD lock-on initial bracket scale — Pass 7200: 14.4→19.4 bigger scanner HUD lock-on initial bracket scale — Pass 7564: 19.4→26.2 bigger scanner HUD lock-on initial bracket scale */
     35%  { transform: translateX(-50%) scale(0.95); opacity: 1.0; }
     65%  { transform: translateX(-50%) scale(1.02); opacity: 0.9; }
     100% { transform: translateX(-50%) scale(1.0); opacity: 0.7; }
@@ -122,7 +122,7 @@
     45%  { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-4px); }
   }
-  #scan-confirm.confirm-pop { animation: scanConfirmPop 3.94s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop — Pass 7226: 2.16s→2.92s longer domain reveal pop — Pass 7480: 2.92s→3.94s longer domain reveal pop */
+  #scan-confirm.confirm-pop { animation: scanConfirmPop 5.32s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop — Pass 7226: 2.16s→2.92s longer domain reveal pop — Pass 7480: 2.92s→3.94s longer domain reveal pop — Pass 7565: 3.94s→5.32s longer domain reveal pop */
 
   #hint {
     position: fixed; bottom: 20px; right: 20px;
@@ -182,7 +182,7 @@
 
   @keyframes fadeUp {
     0%   { transform: translateY(0) scale(1);   opacity: 1; }
-    30%  { transform: translateY(-13.5px) scale(13.3); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop — Pass 5034: 1.62→2.19 more emphatic +1 pop — Pass 5852: 2.19→2.96 more emphatic slot score popup peak scale — Pass 5940: 2.96→4.00 more emphatic slot score popup peak scale — Pass 6221: 4.00→5.40 more emphatic slot score popup peak scale — Pass 6406: 5.40→7.29 more emphatic slot score popup peak scale — Pass 6468: 7.29→9.84 more emphatic slot score popup peak scale — Pass 7086: fadeUp 30% Y offset -10px→-13.5px taller popup float — Pass 7467: 9.84→13.3 more emphatic slot score popup peak scale */
+    30%  { transform: translateY(-13.5px) scale(18.0); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop — Pass 5034: 1.62→2.19 more emphatic +1 pop — Pass 5852: 2.19→2.96 more emphatic slot score popup peak scale — Pass 5940: 2.96→4.00 more emphatic slot score popup peak scale — Pass 6221: 4.00→5.40 more emphatic slot score popup peak scale — Pass 6406: 5.40→7.29 more emphatic slot score popup peak scale — Pass 6468: 7.29→9.84 more emphatic slot score popup peak scale — Pass 7086: fadeUp 30% Y offset -10px→-13.5px taller popup float — Pass 7467: 9.84→13.3 more emphatic slot score popup peak scale — Pass 7566: 13.3→18.0 more emphatic slot score popup peak scale */
     100% { transform: translateY(-60.75px) scale(0.8); opacity: 0; } /* Pass 7087: fadeUp 100% Y offset -45px→-60.75px higher popup exit */
   }
   .slot-plusone {
@@ -196,7 +196,7 @@
   }
 
   @keyframes rippleOut {
-    0%   { transform: translateX(-50%) translateY(-50%) scale(0); opacity: 2.34; } /* Pass 4880: slot ring initial opacity 0.7→0.95 more vivid slot ripple flash — Pass 6866: 0.95→1.28 more vivid slot ripple flash — Pass 7232: 1.28→1.73 more vivid slot ripple flash initial opacity — Pass 7479: 1.73→2.34 more vivid slot ripple flash initial opacity */
+    0%   { transform: translateX(-50%) translateY(-50%) scale(0); opacity: 3.16; } /* Pass 4880: slot ring initial opacity 0.7→0.95 more vivid slot ripple flash — Pass 6866: 0.95→1.28 more vivid slot ripple flash — Pass 7232: 1.28→1.73 more vivid slot ripple flash initial opacity — Pass 7479: 1.73→2.34 more vivid slot ripple flash initial opacity — Pass 7567: 2.34→3.16 more vivid slot ripple flash initial opacity */
     100% { transform: translateX(-50%) translateY(-50%) scale(70.3); opacity: 0; } /* Pass 4881: slot ring expand scale 3.5→4.72 wider slot ripple ring — Pass 5035: 4.72→6.37 wider slot ripple ring — Pass 5121: 6.37→8.60 wider slot ring scale speed — Pass 5331: 8.60→11.6 faster card reveal ring expand speed — Pass 5853: 11.6→15.7 wider card reveal slot ripple ring expand scale — Pass 5941: 15.7→21.2 wider card reveal slot ripple ring expand scale — Pass 6222: 21.2→28.6 wider card reveal slot ripple ring expand scale — Pass 6469: 28.6→38.6 wider card reveal slot ripple ring expand scale — Pass 7177: 38.6→52.1 wider card reveal slot ripple ring expand scale — Pass 7366: 52.1→70.3 wider card reveal slot ripple ring expand scale */
   }
   .slot-ripple {
@@ -205,7 +205,7 @@
     z-index: 28;
     width: 40px; height: 40px;
     border-radius: 50%;
-    border: 6.66px solid; /* Pass 7089: slot ripple ring border 2px→2.70px thicker ring — Pass 7181: 2.70→3.65px thicker slot ripple ring border — Pass 7227: 3.65→4.93px thicker slot ripple ring border — Pass 7483: 4.93→6.66px thicker slot ripple ring border */
+    border: 8.99px solid; /* Pass 7089: slot ripple ring border 2px→2.70px thicker ring — Pass 7181: 2.70→3.65px thicker slot ripple ring border — Pass 7227: 3.65→4.93px thicker slot ripple ring border — Pass 7483: 4.93→6.66px thicker slot ripple ring border — Pass 7568: 6.66→8.99px thicker slot ripple ring border */
     animation: rippleOut 2.34s ease-out forwards; /* Pass 7090: rippleOut ring animation duration 0.7s→0.945s slower more dramatic ring — Pass 7182: 0.945s→1.28s slower more dramatic slot ripple ring — Pass 7228: 1.28s→1.73s slower more dramatic slot ripple ring — Pass 7484: 1.73s→2.34s slower more dramatic slot ripple ring */
   }
 
@@ -1983,7 +1983,7 @@ function fireCelebration() {
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98 — Pass 6718: →975/1165/3576 wilder confetti tumble
     p.rx = (Math.random() - 0.5) * 1317; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161 — Pass 4093: 161→217 wilder tumble — Pass 4682: 217→293 even wilder tumble — Pass 5020: 293→396 wilder confetti rotation — Pass 5885: 396→535 wilder confetti tumble X rotation — Pass 6296: 535→722 wilder confetti tumble X rotation — Pass 6718: 722→975 wilder confetti tumble X rotation — Pass 7125: 975→1317 wilder confetti tumble X rotation
     p.ry = (Math.random() - 0.5) * 2124; // Pass 2503: tumble ry 78→105 — Pass 3551: 105→142 — Pass 3634: 142→192 — Pass 4094: 192→259 — Pass 4928: 259→350 wilder confetti tumble Y — Pass 5184: 350→473 wilder confetti tumble Y — Pass 5886: 473→639 wilder confetti tumble Y rotation — Pass 6297: 639→863 wilder confetti tumble Y rotation — Pass 6718: 863→1165 wilder confetti tumble Y rotation — Pass 7118: 1165→1573 wilder confetti tumble Y rotation — Pass 7539: 1573→2124 wilder confetti tumble Y rotation
-    p.rz = (Math.random() - 0.5) * 6516; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178 — Pass 3635: 178→240 — Pass 3777: 240→324 — Pass 3884: 324→437 — Pass 4095: 437→590 — Pass 4929: 590→797 wilder confetti tumble Z — Pass 5185: 797→1076 wilder confetti tumble Z — Pass 5887: 1076→1453 wilder confetti tumble Z rotation — Pass 6284: 1453→1962 wilder confetti tumble Z rotation amplitude — Pass 6625: 1962→2649 wilder confetti tumble Z rotation amplitude — Pass 6718: 2649→3576 wilder confetti tumble Z rotation amplitude — Pass 7488: 3576→4827 wilder confetti tumble Z rotation amplitude — Pass 7524: 4827→6516 wilder confetti tumble Z rotation amplitude
+    p.rz = (Math.random() - 0.5) * 8797; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178 — Pass 3635: 178→240 — Pass 3777: 240→324 — Pass 3884: 324→437 — Pass 4095: 437→590 — Pass 4929: 590→797 wilder confetti tumble Z — Pass 5185: 797→1076 wilder confetti tumble Z — Pass 5887: 1076→1453 wilder confetti tumble Z rotation — Pass 6284: 1453→1962 wilder confetti tumble Z rotation amplitude — Pass 6625: 1962→2649 wilder confetti tumble Z rotation amplitude — Pass 6718: 2649→3576 wilder confetti tumble Z rotation amplitude — Pass 7488: 3576→4827 wilder confetti tumble Z rotation amplitude — Pass 7524: 4827→6516 wilder confetti tumble Z rotation amplitude — Pass 7569: 6516→8797 wilder confetti tumble Z rotation amplitude
     p.active = true;
     p.mesh.visible = true;
   });
@@ -3129,7 +3129,7 @@ function animate(ts) {
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
     // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 — Pass 1279: →0.62 for sharper card-edge flash at identity reveal
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
-    const _yTilt = _identityRevealed ? 3.77 * Math.sin(_yTiltT * Math.PI) : 0; // Pass 1710: Y-tilt 0.62→0.84 — Pass 3938: 0.84→1.13 sharper card-edge flash at reveal — Pass 4277: 1.13→1.53 more dramatic reveal tilt — Pass 5237: 1.53→2.07 more dramatic reveal Y tilt — Pass 6407: 2.07→2.79 more dramatic reveal Y tilt — Pass 7500: 2.79→3.77 more dramatic reveal Y tilt
+    const _yTilt = _identityRevealed ? 5.09 * Math.sin(_yTiltT * Math.PI) : 0; // Pass 1710: Y-tilt 0.62→0.84 — Pass 3938: 0.84→1.13 sharper card-edge flash at reveal — Pass 4277: 1.13→1.53 more dramatic reveal tilt — Pass 5237: 1.53→2.07 more dramatic reveal Y tilt — Pass 6407: 2.07→2.79 more dramatic reveal Y tilt — Pass 7500: 2.79→3.77 more dramatic reveal Y tilt — Pass 7570: 3.77→5.09 more dramatic reveal Y tilt
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
     // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 — Pass 1150: →0.085 — Pass 1280: →0.120 for sharper scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
@@ -3440,7 +3440,7 @@ function animate(ts) {
           scanBarMat.color.set(0xffffff);
           scanBarMat.emissive.set(0xaaddff);
           // Pass 326: pre-reveal urgency breath — Pass 836: 0.35→0.58 — Pass 1137: →0.85 for more vivid scan bar pulse
-          const _preBreath326 = barFill * 9.37 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)); // Pass 2328: urgency breath 1.15→1.55 — Pass 2988: 1.55→2.09 — Pass 4071: 2.09→2.82 more vivid pre-reveal urgency pulse — Pass 5286: 2.82→3.81 more vivid pre-reveal urgency pulse — Pass 5426: 3.81→5.14 more vivid pre-reveal LED urgency pulse — Pass 6488: 5.14→6.94 more vivid pre-reveal LED urgency pulse — Pass 6494: 6.94→9.37 more vivid pre-reveal LED urgency pulse
+          const _preBreath326 = barFill * 12.6 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)); // Pass 2328: urgency breath 1.15→1.55 — Pass 2988: 1.55→2.09 — Pass 4071: 2.09→2.82 more vivid pre-reveal urgency pulse — Pass 5286: 2.82→3.81 more vivid pre-reveal urgency pulse — Pass 5426: 3.81→5.14 more vivid pre-reveal LED urgency pulse — Pass 6488: 5.14→6.94 more vivid pre-reveal LED urgency pulse — Pass 6494: 6.94→9.37 more vivid pre-reveal LED urgency pulse — Pass 7563: 9.37→12.6 more vivid pre-reveal LED urgency pulse
           scanBarMat.emissiveIntensity = 1.62 + flashIntensity * 10.8 + _preBreath326; // Pass 1715: pre-reveal flash contribution 1.8→2.4 — Pass 3964: 2.4→3.24 brighter scan bar flash — Pass 4049: base 1.2→1.62, flash 3.24→4.37 more vivid pre-reveal scan bar — Pass 4996: flash 4.37→5.90 brighter scan bar flash contribution — Pass 5287: 5.90→7.97 brighter scan bar pre-reveal flash — Pass 6514: 7.97→10.8 brighter scan bar pre-reveal flash contribution
         } else {
           scanBarMat.color.copy(_blendC);
@@ -3448,9 +3448,9 @@ function animate(ts) {
           // Pass 497: scan bar 65-85% tension base 1.5→1.8 — Pass 838: post-reveal base 2.2→3.0, peak 2.5→3.5
           const _baseI = barFill >= 0.85 ? 13.4 + flashIntensity * 11.7 : 5.98 + flashIntensity * 5.10; // Pass 2329: post-reveal base 4.05→5.47, flash 3.5→4.73; Pass 2330: tension base 2.43→3.28, flash 2.8→3.78 — Pass 4072: post-reveal base 5.47→7.38 — Pass 4073: tension base 3.28→4.43 brighter scan bar identity states — Pass 4592: scan bar post-reveal flash contribution 4.73→6.39 more vivid reveal emissive — Pass 5288: post-reveal base 7.38→9.96 — Pass 5289: post-reveal flash 6.39→8.63 — Pass 5290: tension base 4.43→5.98 — Pass 5291: tension flash 3.78→5.10 — Pass 6516: post-reveal base 9.96→13.4 flash 8.63→11.7 brighter scan bar identity state
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75 — Pass 1343: →1.05
-          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 28.8 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50 — Pass 3559: 3.50→4.73 — Pass 3722: 4.73→6.39 — Pass 3829: 6.39→8.63 — Pass 4115: 8.63→11.7 — Pass 5292: 11.7→15.8 brighter post-reveal breathing pulse — Pass 5481: 15.8→21.3 brighter card reveal breathe rate — Pass 6496: 21.3→28.8 brighter card reveal breathe pulse amplitude
+          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 38.9 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50 — Pass 3559: 3.50→4.73 — Pass 3722: 4.73→6.39 — Pass 3829: 6.39→8.63 — Pass 4115: 8.63→11.7 — Pass 5292: 11.7→15.8 brighter post-reveal breathing pulse — Pass 5481: 15.8→21.3 brighter card reveal breathe rate — Pass 6496: 21.3→28.8 brighter card reveal breathe pulse amplitude — Pass 7564: 28.8→38.9 brighter card reveal breathe pulse amplitude
           // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 — Pass 1327: →20.0 for bigger climax
-          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 401 : 0; // Pass 2332: completion superflash 27.0→36.5 — Pass 2836: 36.5→49.3 — Pass 2981: 49.3→66.6 — Pass 3492: 66.6→89.9 — Pass 3708: 89.9→121 — Pass 4114: 121→163 blinding fill completion — Pass 5268: 163→220 blinding fill bar completion flash — Pass 6470: 220→297 blinding scan bar fill completion superflash — Pass 6495: 297→401 blinding scan bar fill completion superflash
+          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 541 : 0; // Pass 2332: completion superflash 27.0→36.5 — Pass 2836: 36.5→49.3 — Pass 2981: 49.3→66.6 — Pass 3492: 66.6→89.9 — Pass 3708: 89.9→121 — Pass 4114: 121→163 blinding fill completion — Pass 5268: 163→220 blinding fill bar completion flash — Pass 6470: 220→297 blinding scan bar fill completion superflash — Pass 6495: 297→401 blinding scan bar fill completion superflash — Pass 7565: 401→541 blinding scan bar fill completion superflash
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
         }
       }
@@ -3521,14 +3521,14 @@ function animate(ts) {
       });
     }
     // Belt crawls slowly while card sits under scanner
-    _beltScrollSpeed = 0.0666; // Pass 4874: scan belt crawl speed 0.02→0.027 livelier scan belt motion — Pass 5502: 0.027→0.0365 livelier scan belt crawl speed — Pass 6345: 0.0365→0.0493 livelier scan belt crawl speed — Pass 6695: 0.0493→0.0666 livelier scan belt crawl speed
+    _beltScrollSpeed = 0.0899; // Pass 4874: scan belt crawl speed 0.02→0.027 livelier scan belt motion — Pass 5502: 0.027→0.0365 livelier scan belt crawl speed — Pass 6345: 0.0365→0.0493 livelier scan belt crawl speed — Pass 6695: 0.0493→0.0666 livelier scan belt crawl speed — Pass 7566: 0.0666→0.0899 livelier scan belt crawl speed
     // Pass 156: gate LED chase — cycles scan-blue through columns pre-reveal (machine "deciding")
     // then snaps to domain color on correct column at identity confirm
     {
       if (!_identityRevealed) {
         // Pass 319: gate LED chase speed ramp — chase accelerates as scan fills (machine grows impatient)
         // Pass 648: chase range 7→12Hz → 9→18Hz — Pass 802: →10+16Hz (10→26Hz) for even more frantic cycling
-        const _chaseHz = 33.2 + barFill * 21.6; // Pass 802: 9+9 → 10+16 (10→26Hz) — Pass 4321: base 10→13.5 — Pass 4322: range 16→21.6 faster gate LED chase cycle — Pass 5433: base 13.5→18.2 faster gate LED chase base — Pass 6540: 18.2→24.6 faster gate LED chase base frequency — Pass 6694: base 24.6→33.2 faster gate LED chase base frequency
+        const _chaseHz = 44.8 + barFill * 21.6; // Pass 802: 9+9 → 10+16 (10→26Hz) — Pass 4321: base 10→13.5 — Pass 4322: range 16→21.6 faster gate LED chase cycle — Pass 5433: base 13.5→18.2 faster gate LED chase base — Pass 6540: 18.2→24.6 faster gate LED chase base frequency — Pass 6694: base 24.6→33.2 faster gate LED chase base frequency — Pass 7567: base 33.2→44.8 faster gate LED chase base frequency
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 — Pass 1384: →15.0 for more vivid pre-reveal LED cycling
