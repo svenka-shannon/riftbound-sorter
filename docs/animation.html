@@ -3255,9 +3255,9 @@ function animate(ts) {
     const _cardCenterZ = activeCard.position.z;
     const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
     // Pass 343: scan beam reveal spike — Pass 575: 4.0→6.5 — Pass 845: →9.5 — Pass 1286: →13.5 — Pass 1422: →18.0 — Pass 1528: →25.0 for stronger beam pop at lock-on
-    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 151 : 0; // Pass 2309: beam reveal spike 33.75→45.6 — Pass 3480: 45.6→61.6 — Pass 3546: 61.6→83.2 — Pass 3659: 83.2→112 — Pass 3985: 112→151
+    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 204 : 0; // Pass 2309: beam reveal spike 33.75→45.6 — Pass 3480: 45.6→61.6 — Pass 3546: 61.6→83.2 — Pass 3659: 83.2→112 — Pass 3985: 112→151 — Pass 4139: 151→204 bigger spike
     // Pass 599: beam base 3.0→4.5 — Pass 844: →6.5 + prox boost 3.5→5.5 — Pass 1423: base →9.0, prox →7.5 — Pass 1529: base →12.0, prox →10.0 for brighter scan lines
-    scanLineMat.emissiveIntensity = 53.9 + _beamProxZ * 44.8 + _beamRevealSpike343; // Pass 2310: beam base 16.2→21.9, Pass 2311: prox boost 13.5→18.2 — Pass 3463: base 21.9→29.6 — Pass 3464: prox boost 18.2→24.6 — Pass 3657: base 29.6→39.9 — Pass 3658: prox 24.6→33.2 — Pass 3986: base 39.9→53.9 — Pass 3987: prox 33.2→44.8
+    scanLineMat.emissiveIntensity = 72.8 + _beamProxZ * 44.8 + _beamRevealSpike343; // Pass 2310: beam base 16.2→21.9, Pass 2311: prox boost 13.5→18.2 — Pass 3463: base 21.9→29.6 — Pass 3464: prox boost 18.2→24.6 — Pass 3657: base 29.6→39.9 — Pass 3658: prox 24.6→33.2 — Pass 3986: base 39.9→53.9 — Pass 3987: prox 33.2→44.8 — Pass 4140: base 53.9→72.8 brighter beam
     // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5 — Pass 1424: base →7.0, reveal →12.0 — Pass 1530: base →9.5, reveal →17.0
     const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 56.4 : 0; // Pass 2312: beam2 reveal 22.95→30.98 — Pass 3749: 30.98→41.8 — Pass 3857: 41.8→56.4
     scanLineMat2.emissiveIntensity = 31.6 + _beam2Reveal345; // Pass 2313: beam2 base 12.8→17.3 — Pass 3750: 17.3→23.4 — Pass 3858: 23.4→31.6
@@ -3599,21 +3599,21 @@ function animate(ts) {
       scanBeamMat.color.setHex(_beamHex2);
     }
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
-    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 32.8 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3 — Pass 3579: 13.3→18.0 — Pass 3674: 18.0→24.3 — Pass 3992: 24.3→32.8
+    const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 44.3 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3 — Pass 3579: 13.3→18.0 — Pass 3674: 18.0→24.3 — Pass 3992: 24.3→32.8 — Pass 4133: 32.8→44.3 brighter cone flare
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
-    scanCone.position.z = 59.8 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8
+    scanCone.position.z = 80.7 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
-    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 15.7 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7
+    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 21.2 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7 — Pass 4135: 15.7→21.2 taller cone punch
     // Pass 515: scan cone base opacity boost 0.09→0.14 — Pass 1159: →0.22 for more visible beam cone during scan
     scanConeMat.opacity = flashIntensity * 1.00 + _strobe * 0.5 + _coneRevealBoost; // Pass 2561: cone base opacity 0.41→0.55 — Pass 2826: 0.55→0.74 — Pass 2999: 0.74→1.00
     // Pass 287: scan beam strength scales with bar fill — Pass 1160: boost 0.20→0.35 for more data-accumulation feel
-    const _beamFillBoost = barFill * 0.63; // Pass 1719: beam fill boost 0.35→0.47 — Pass 3000: 0.47→0.63
+    const _beamFillBoost = barFill * 0.85; // Pass 1719: beam fill boost 0.35→0.47 — Pass 3000: 0.47→0.63 — Pass 4136: 0.63→0.85 stronger data-fill glow
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
     // Pass 549: beam reveal boost 0.55→0.80 — Pass 1161: →1.20 for more vivid beam flare at lock-on
-    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 9.84 : 0; // Pass 2344: beam reveal boost 1.62→2.19 — Pass 2827: 2.19→2.96 — Pass 3001: 2.96→4.00 — Pass 3565: 4.00→5.40 — Pass 3725: 5.40→7.29 — Pass 3834: 7.29→9.84
+    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 13.3 : 0; // Pass 2344: beam reveal boost 1.62→2.19 — Pass 2827: 2.19→2.96 — Pass 3001: 2.96→4.00 — Pass 3565: 4.00→5.40 — Pass 3725: 5.40→7.29 — Pass 3834: 7.29→9.84 — Pass 4137: 9.84→13.3 brighter beam flare
     // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 — Pass 1162: →1.10 — Pass 1289: →1.45 — Pass 1378: →1.90 for stronger scan column
-    scanBeamMat.opacity = flashIntensity * 15.5 + _strobe + _beamFillBoost + _beamRevealBoost389; // Pass 2345: beam base opacity 2.56→3.46 — Pass 2828: 3.46→4.67 — Pass 3002: 4.67→6.30 — Pass 3566: 6.30→8.51 — Pass 3726: 8.51→11.5 — Pass 3835: 11.5→15.5
+    scanBeamMat.opacity = flashIntensity * 20.9 + _strobe + _beamFillBoost + _beamRevealBoost389; // Pass 2345: beam base opacity 2.56→3.46 — Pass 2828: 3.46→4.67 — Pass 3002: 4.67→6.30 — Pass 3566: 6.30→8.51 — Pass 3726: 8.51→11.5 — Pass 3835: 11.5→15.5 — Pass 4138: 15.5→20.9 brighter scan beam
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
