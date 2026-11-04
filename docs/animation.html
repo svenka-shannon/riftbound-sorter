@@ -558,7 +558,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 7.59; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure — Pass 5954: 4.16→5.62 richer tone mapping exposure — Pass 6047: 5.62→7.59 richer tone mapping exposure
+renderer.toneMappingExposure = 10.2; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure — Pass 5954: 4.16→5.62 richer tone mapping exposure — Pass 6047: 5.62→7.59 richer tone mapping exposure — Pass 6428: 7.59→10.2 richer tone mapping exposure
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 // Pass 67: animated clear color — base dark navy tints toward domain on scan/celebration
 const _clearBase = new THREE.Color(0x0a0a12);
@@ -575,9 +575,9 @@ controls.update();
 
 // ─── Lights ───────────────────────────────────────────────────────────────────
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
-const ambientLight = new THREE.AmbientLight(0x202030, 3.70); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill — Pass 5899: 1.50→2.03 stronger ambient fill — Pass 5962: 2.03→2.74 stronger ambient fill — Pass 6048: 2.74→3.70 stronger ambient fill
+const ambientLight = new THREE.AmbientLight(0x202030, 5.00); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill — Pass 5899: 1.50→2.03 stronger ambient fill — Pass 5962: 2.03→2.74 stronger ambient fill — Pass 6048: 2.74→3.70 stronger ambient fill — Pass 6429: 3.70→5.00 stronger ambient fill
 scene.add(ambientLight);
-scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 2.13)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill — Pass 5738: 0.639→0.863 stronger sky/ground hemisphere fill — Pass 5991: 0.863→1.17 stronger sky/ground hemisphere ambient fill — Pass 6049: 1.17→1.58 stronger sky/ground hemisphere ambient fill — Pass 6342: 1.58→2.13 stronger sky/ground hemisphere ambient fill
+scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 2.88)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill — Pass 5738: 0.639→0.863 stronger sky/ground hemisphere fill — Pass 5991: 0.863→1.17 stronger sky/ground hemisphere ambient fill — Pass 6049: 1.17→1.58 stronger sky/ground hemisphere ambient fill — Pass 6342: 1.58→2.13 stronger sky/ground hemisphere ambient fill — Pass 6430: 2.13→2.88 stronger sky/ground hemisphere ambient fill
 
 // Increase key light slightly to compensate for lower ambient
 const keyLight = new THREE.DirectionalLight(0xfff8f0, 13.9); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light — Pass 5963: 5.67→7.65 stronger key light — Pass 6050: 7.65→10.3 stronger key light — Pass 6380: 10.3→13.9 stronger key light
@@ -857,7 +857,7 @@ for (let _ri = 0; _ri < 2; _ri++) {
 // --- Scanner hood --- dedicated matte-black material
 const hoodMat = new THREE.MeshStandardMaterial({
   color: 0x111118, roughness: 0.85, metalness: 0.15,
-  emissive: new THREE.Color(0x001122), emissiveIntensity: 1.35 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow — Pass 5051: 0.547→0.738 stronger scanner hood glow — Pass 5129: 0.738→0.997 stronger scanner hood glow — Pass 5706: 0.997→1.35 stronger scanner hood base emissive
+  emissive: new THREE.Color(0x001122), emissiveIntensity: 1.82 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow — Pass 5051: 0.547→0.738 stronger scanner hood glow — Pass 5129: 0.738→0.997 stronger scanner hood glow — Pass 5706: 0.997→1.35 stronger scanner hood base emissive — Pass 6431: 1.35→1.82 stronger scanner hood base emissive
 });
 const scannerHood = new THREE.Mesh(new THREE.BoxGeometry(80, 65, 100), hoodMat);
 scannerHood.castShadow = true;
@@ -869,7 +869,7 @@ scene.add(scannerHood);
 const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 36); // Pass 4953: lens radial segments 20→27 smoother camera aperture — Pass 5819: 27→36 smoother camera aperture
 const lensMat = new THREE.MeshStandardMaterial({
   color: 0x001122, roughness: 0.05, metalness: 0.9,
-  emissive: new THREE.Color(0x002244), emissiveIntensity: 1.33 // Pass 4761: camera lens base emissive 0.4→0.54 — Pass 4969: 0.54→0.729 brighter camera lens aperture — Pass 5130: 0.729→0.984 brighter camera lens aperture — Pass 5707: 0.984→1.33 brighter camera lens aperture emissive
+  emissive: new THREE.Color(0x002244), emissiveIntensity: 1.80 // Pass 4761: camera lens base emissive 0.4→0.54 — Pass 4969: 0.54→0.729 brighter camera lens aperture — Pass 5130: 0.729→0.984 brighter camera lens aperture — Pass 5707: 0.984→1.33 brighter camera lens aperture emissive — Pass 6432: 1.33→1.80 brighter camera lens aperture emissive
 });
 const lens = new THREE.Mesh(lensGeo, lensMat);
 lens.rotation.x = Math.PI / 2;
@@ -889,7 +889,7 @@ scene.add(lensRing);
 const scanLEDMat = new THREE.MeshStandardMaterial({
   color: 0x00aaff,
   emissive: new THREE.Color(0x0055cc),
-  emissiveIntensity: 44.3, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor — Pass 5862: 13.3→18.0 brighter scanner body idle LED emissive floor — Pass 5945: 18.0→24.3 brighter scanner body idle LED emissive floor — Pass 5958: 24.3→32.8 brighter scanner body idle LED emissive floor — Pass 6059: 32.8→44.3 brighter scanner body idle LED emissive floor
+  emissiveIntensity: 59.8, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor — Pass 5862: 13.3→18.0 brighter scanner body idle LED emissive floor — Pass 5945: 18.0→24.3 brighter scanner body idle LED emissive floor — Pass 5958: 24.3→32.8 brighter scanner body idle LED emissive floor — Pass 6059: 32.8→44.3 brighter scanner body idle LED emissive floor — Pass 6433: 44.3→59.8 brighter scanner body idle LED emissive floor
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
@@ -909,14 +909,14 @@ scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
 const scanBloom = new THREE.PointLight(0x0088ff, 0, 1820); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach — Pass 6314: 1348→1820 even wider scan bloom light reach
-scanBloom.decay = 8.99; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff — Pass 5906: 3.65→4.93 tighter scan bloom falloff — Pass 5966: 4.93→6.66 tighter scan bloom falloff — Pass 6056: 6.66→8.99 tighter scan bloom falloff
+scanBloom.decay = 12.1; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff — Pass 5906: 3.65→4.93 tighter scan bloom falloff — Pass 5966: 4.93→6.66 tighter scan bloom falloff — Pass 6056: 6.66→8.99 tighter scan bloom falloff — Pass 6434: 8.99→12.1 tighter scan bloom falloff
 scene.add(scanBloom);
 
 // Pass 55: Scan progress LED bar — thin strip on scanner hood front face
 // Fills left→right as scan progresses; flashes domain color on completion
 const SCAN_BAR_MAX_W = 72; // matches hood width minus margins
 const scanBarMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 27.9, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow — Pass 5747: 15.3→20.7 brighter scan progress bar base glow — Pass 6336: 20.7→27.9 brighter scan progress bar base glow
+  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 37.7, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow — Pass 5747: 15.3→20.7 brighter scan progress bar base glow — Pass 6336: 20.7→27.9 brighter scan progress bar base glow — Pass 6435: 27.9→37.7 brighter scan progress bar base glow
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
