@@ -2986,7 +2986,7 @@ function animate(ts) {
     if (!_depositFired) {
       _depositFired = true;
       // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 — Pass 1300: →34.0 — Pass 1379: →46.0 — Pass 1684: →62.0, dist→175
-      const _dfl = new THREE.PointLight(ct.hex, 683, 236); // Pass 2287: belt deposit flash 83.7→113.0 — Pass 3416: 113.0→152.6 — Pass 3528: 152.6→206 — Pass 3711: 206→278 — Pass 3824: 278→375 — Pass 4203: 375→506 bigger belt deposit flash — Pass 4501: belt entry deposit flash reach 175→236 wider entry flash — Pass 5180: 506→683 brighter belt deposit flash
+      const _dfl = new THREE.PointLight(ct.hex, 683, 319); // Pass 2287: belt deposit flash 83.7→113.0 — Pass 3416: 113.0→152.6 — Pass 3528: 152.6→206 — Pass 3711: 206→278 — Pass 3824: 278→375 — Pass 4203: 375→506 bigger belt deposit flash — Pass 4501: belt entry deposit flash reach 175→236 wider entry flash — Pass 5180: 506→683 brighter belt deposit flash — Pass 5794: range 236→319 wider belt deposit flash reach
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3163,7 +3163,7 @@ function animate(ts) {
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 27.5 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16 — Pass 3412: 6.16→8.32 — Pass 3768: 8.32→11.2 — Pass 3876: 11.2→15.1 — Pass 4370: 15.1→20.4 brighter scan card flash — Pass 5206: 20.4→27.5 brighter scan card flash
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
     const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 230 : 0; // Pass 2300: reveal glow surge 37.8→51.0 — Pass 3376: 51.0→68.9 — Pass 3509: 68.9→93.0 — Pass 3648: 93.0→126 — Pass 4339: 126→170 more intense card glow surge at reveal — Pass 5207: 170→230 more intense card glow surge at reveal
-    cardGlow.intensity = 7.97 + flashIntensity * 26.1 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83 — Pass 3377: base 4.4→5.9 Pass 3378: flash 5.83→7.87 — Pass 3510: flash 7.87→10.6 — Pass 3649: flash 10.6→14.3 — Pass 4371: 14.3→19.3 — Pass 4675: base 5.9→7.97 brighter scan card glow base — Pass 5264: flash 19.3→26.1 brighter scan card glow flash
+    cardGlow.intensity = 10.8 + flashIntensity * 26.1 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83 — Pass 3377: base 4.4→5.9 Pass 3378: flash 5.83→7.87 — Pass 3510: flash 7.87→10.6 — Pass 3649: flash 10.6→14.3 — Pass 4371: 14.3→19.3 — Pass 4675: base 5.9→7.97 brighter scan card glow base — Pass 5264: flash 19.3→26.1 brighter scan card glow flash — Pass 5797: base 7.97→10.8 brighter scan card glow base
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Pass 372: scanner LED boost 2.0→2.5 — Pass 603: 2.5→3.5 + flashIntensity 3.0→4.5 — Pass 1513: base 3.5→5.0, flash 4.5→6.0
@@ -3186,7 +3186,7 @@ function animate(ts) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 6.93); // Pass 4787: hood reveal flash progression rate 3.8→5.13 snappier reveal strobe — Pass 5374: 5.13→6.93 snappier hood reveal flash progression
       // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5 — Pass 1151: →6.5 — Pass 1413: →9.0
       const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 98.6; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0 — Pass 3432: 22.0→29.7 — Pass 3455: 29.7→40.1 — Pass 3645: 40.1→54.1 — Pass 4340: 54.1→73.0 brighter hood reveal strobe — Pass 5248: 73.0→98.6 brighter hood reveal strobe
-      hoodMat.emissiveIntensity = 0.635 + flashIntensity * 1.82 + _revStrobe; // Pass 738: 1.10→1.35 — Pass 3980: flash multiplier 1.35→1.82 — Pass 4364: base 0.35→0.47 brighter hood reveal base — Pass 5369: 0.47→0.635 brighter hood reveal strobe base
+      hoodMat.emissiveIntensity = 0.635 + flashIntensity * 2.46 + _revStrobe; // Pass 738: 1.10→1.35 — Pass 3980: flash multiplier 1.35→1.82 — Pass 4364: base 0.35→0.47 brighter hood reveal base — Pass 5369: 0.47→0.635 brighter hood reveal strobe base — Pass 5798: flash multiplier 1.82→2.46 stronger hood reveal strobe flash
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
       // Pass 500: scanner hood scan intensity 0.35+1.10→0.40+1.40 — Pass 739: →0.45+1.70 — Pass 1414: →0.45+2.30
@@ -3712,7 +3712,7 @@ function animate(ts) {
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
       // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0 — Pass 1139: →32.0 — Pass 1219: →45.0 — Pass 1292: →62.0
-      const _cofl = new THREE.PointLight(ct.hex, 2271, 216); // Pass 2568: scanner exit flash 152.6→206.0 — Pass 3008: 206.0→278.1 — Pass 3204: 278.1→375.4 — Pass 3581: 375.4→507 — Pass 3676: 507→684 — Pass 3790: 684→923 — Pass 3893: 923→1246 — Pass 4724: intensity 1246→1682 — Pass 4725: range 160→216 brighter scanner exit burst — Pass 5462: intensity 1682→2271 brighter scanner exit flash burst
+      const _cofl = new THREE.PointLight(ct.hex, 2271, 292); // Pass 2568: scanner exit flash 152.6→206.0 — Pass 3008: 206.0→278.1 — Pass 3204: 278.1→375.4 — Pass 3581: 375.4→507 — Pass 3676: 507→684 — Pass 3790: 684→923 — Pass 3893: 923→1246 — Pass 4724: intensity 1246→1682 — Pass 4725: range 160→216 brighter scanner exit burst — Pass 5462: intensity 1682→2271 brighter scanner exit flash burst — Pass 5795: range 216→292 wider scanner exit burst reach
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
@@ -4207,7 +4207,7 @@ function animate(ts) {
     if (!_slotGateFlashFired && dt3 >= 0.06) {
       _slotGateFlashFired = true;
       // Pass 537: slot gate flash 8.0→11.0 — Pass 960: →17.0 — Pass 1119: →26.0 — Pass 1260: →36.0 for brighter tray entry burst
-      const _gfl = new THREE.PointLight(ct.hex, 977, 120); // Pass 2389: slot gate flash 88.6→119.6 — Pass 2618: 119.6→161.5 — Pass 2861: 161.5→218.0 — Pass 3059: 218.0→294.3 — Pass 3571: 294.3→397 — Pass 3729: 397→536 — Pass 4660: 536→724 brighter slot entry photogate flash — Pass 5500: 724→977 brighter slot entry photogate flash
+      const _gfl = new THREE.PointLight(ct.hex, 977, 162); // Pass 2389: slot gate flash 88.6→119.6 — Pass 2618: 119.6→161.5 — Pass 2861: 161.5→218.0 — Pass 3059: 218.0→294.3 — Pass 3571: 294.3→397 — Pass 3729: 397→536 — Pass 4660: 536→724 brighter slot entry photogate flash — Pass 5500: 724→977 brighter slot entry photogate flash — Pass 5799: range 120→162 wider slot entry photogate flash reach
       _gfl.position.set(TRAY_X_START + 10, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4225,8 +4225,8 @@ function animate(ts) {
         _tp.mesh.position.set(_stX + (Math.random() - 0.5) * 4, _stTopY - _si * 12.8, _stZ + (Math.random() - 0.5) * 3); // Pass 4583: scan bar vertical reveal length 7→9.45 longer slot entry lance reveal — Pass 5635: 9.45→12.8 longer slot entry lance reveal vertical spacing
         _tp.mat.color.setHex(ct.hex);
         _tp.mat.opacity = 1.46 - _si * 0.07; // Pass 434: opacity 0.65→0.80 — Pass 4747: 0.80→1.08 brighter slot entry streak — Pass 5501: 1.08→1.46 brighter slot entry streak opacity
-        _tp.age = 0; _tp.life = 0.324 + _si * 0.027; // Pass 4351: streak life base 0.18→0.24 — Pass 4352: step 0.02→0.027 longer slot entry lance — Pass 5615: base 0.24→0.324 longer slot entry lance
-        _tp.mesh.scale.setScalar(0.824 + Math.random() * 0.41); // Pass 4353: streak scale base 0.45→0.61 — Pass 4354: rand 0.3→0.41 bolder entry streak — Pass 5616: base 0.61→0.824 bolder slot entry streak scale
+        _tp.age = 0; _tp.life = 0.324 + _si * 0.0365; // Pass 4351: streak life base 0.18→0.24 — Pass 4352: step 0.02→0.027 longer slot entry lance — Pass 5615: base 0.24→0.324 longer slot entry lance — Pass 5801: step 0.027→0.0365 longer slot entry lance gradient
+        _tp.mesh.scale.setScalar(0.824 + Math.random() * 0.554); // Pass 4353: streak scale base 0.45→0.61 — Pass 4354: rand 0.3→0.41 bolder entry streak — Pass 5616: base 0.61→0.824 bolder slot entry streak scale — Pass 5800: rand 0.41→0.554 bolder slot entry streak scale variance
         _tp.mesh.visible = true;
       }
     }
@@ -5204,7 +5204,7 @@ function animate(ts) {
     if (onBelt && activeCard.visible) {
       _beltTrackLight.color.setHex(ct.hex);
       // Pass 186: Z now follows card's Z-wobble (passes 173-174) instead of hardcoded 0
-      _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 8.1, activeCard.position.z); // Pass 4598: belt active card-tracking light height 6→8.1 higher overhead beam
+      _beltTrackLight.position.set(activeCard.position.x, CONV_Y_TOP + 10.9, activeCard.position.z); // Pass 4598: belt active card-tracking light height 6→8.1 higher overhead beam — Pass 5796: 8.1→10.9 higher overhead beam
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
       // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5 — Pass 1443: out →13.5, in →6.0
