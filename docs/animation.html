@@ -3156,7 +3156,7 @@ function animate(ts) {
     // Two-frequency scan strobe: primary 12Hz + secondary 7Hz creates interference pattern
     const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 2.59 + Math.sin(ts * 7 * Math.PI * 2) * 0.473) * flashIntensity; // Pass 1764: primary 0.58→0.78 — Pass 1865: →1.05; Pass 1765: secondary 0.10→0.14 — Pass 1866: →0.19 — Pass 3433: primary 1.05→1.42 Pass 3434: secondary 0.19→0.26 — Pass 3537: primary 1.42→1.92 Pass 3538: secondary 0.26→0.35 — Pass 3978: primary 1.92→2.59 — Pass 3979: secondary 0.35→0.473
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 — Pass 1514: →dt*2.8 (longer burst visibility)
-    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 2.1); // Pass 1740: burst decay 2.8→2.1 (longer visible burst)
+    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 1.56); // Pass 1740: burst decay 2.8→2.1 (longer visible burst) — Pass 4278: 2.1→1.56 even longer reveal burst
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
     const _revOsc = _cardRevealBurst * (1.61 + 1.47 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81 — Pass 1867: →1.19+1.09 — Pass 3935: 1.19+1.09→1.61+1.47 more vivid reveal pulse
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
@@ -3489,7 +3489,7 @@ function animate(ts) {
     // 3 rings staggered by 0.33s each; repeat as long as scan phase is active
     {
       // Pass 633: ping period 0.55→0.42 — Pass 720: →0.35 — Pass 796: →0.27 — Pass 1163: →0.20 for even faster scan rhythm
-      const pingPeriod = 0.20; // Pass 1163: one ping every 0.20s
+      const pingPeriod = 0.148; // Pass 1163: one ping every 0.20s — Pass 4279: 0.20→0.148 faster scan rhythm
       scanPings.forEach((p, pi) => {
         // Stagger start times across the phase: pi × (pingPeriod/3)
         const staggerOffset = pi * (pingPeriod / SCAN_PING_COUNT);
@@ -3587,7 +3587,7 @@ function animate(ts) {
     // (Pass 76 lerp superseded by pass 189 binary snap — removed)
     // Pass 115: beam urgency strobe — frequency and amplitude build from 65%→85% scan progress
     const _prevT = barFill < 0.65 ? 0 : barFill > 0.85 ? 0 : (barFill - 0.65) / 0.20;
-    const _strobeFreq = 5 + _prevT * 28; // Pass 442: ramps 5→23Hz — Pass 1170: →33Hz for more frenetic pre-reveal urgency
+    const _strobeFreq = 5 + _prevT * 37.8; // Pass 442: ramps 5→23Hz — Pass 1170: →33Hz for more frenetic pre-reveal urgency — Pass 4280: 28→37.8 even more frenetic urgency strobe
     // Pass 573: strobe amplitude 0.10→0.16 — Pass 620: →0.22 — Pass 1155: →0.35 — Pass 1291: →0.50 for stronger urgency strobe pre-reveal
     const _strobeAmp  = _prevT * 4.10;  // Pass 2557: strobe amp 0.50→0.68 — Pass 2823: 0.68→0.92 — Pass 2995: 0.92→1.24 — Pass 3488: 1.24→1.67 — Pass 3707: 1.67→2.25 — Pass 3991: 2.25→3.04 — Pass 4131: 3.04→4.10 stronger urgency strobe
     const _strobe = Math.sin(ts * _strobeFreq * Math.PI * 2) * _strobeAmp;
@@ -4018,7 +4018,7 @@ function animate(ts) {
     paddleMat.emissiveIntensity = Math.max(0.3, paddleMat.emissiveIntensity * 0.92); // dim slowly
     // Pass 109: apply paddle recoil offset and spring it back to base target angle
     if (Math.abs(_paddleRecoil) > 0.001) {
-      _paddleRecoil *= Math.max(0, 1 - dt * 6.5); // Pass 1578: recoil decay 9→6.5 slower spring-back, more kick felt
+      _paddleRecoil *= Math.max(0, 1 - dt * 4.81); // Pass 1578: recoil decay 9→6.5 slower spring-back, more kick felt — Pass 4281: 6.5→4.81 even longer paddle kick
       paddlePivot.rotation.y += _paddleRecoil; // accuracy: Y-axis recoil
     }
     // Accuracy: hold floor diverter at target floor position throughout deflect
@@ -4029,7 +4029,7 @@ function animate(ts) {
     }
     // Pass 216: solenoid Z-vibration decay — paddle vibrates laterally at ~42Hz, fading ~0.2s
     if (_paddleJitterAmt > 0.005) {
-      _paddleJitterAmt *= Math.max(0, 1 - dt * 10); // Pass 1579: jitter decay 14→10 longer solenoid buzz
+      _paddleJitterAmt *= Math.max(0, 1 - dt * 7.41); // Pass 1579: jitter decay 14→10 longer solenoid buzz — Pass 4282: 10→7.41 even longer solenoid buzz
       paddlePivot.position.z = _paddleJitterAmt * Math.sin(ts * 42 * Math.PI * 2);
     } else {
       paddlePivot.position.z += (0 - paddlePivot.position.z) * Math.min(1, dt * 10);
@@ -4535,7 +4535,7 @@ function animate(ts) {
       // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 — Pass 643: extend wisp to 45%; boost 0.48+0.22→0.62+0.28
       // Pass 865: domain wisp opacity 0.62+0.28→0.80+0.40 — Pass 1052: →0.90+0.48 richer memory trail
       const _arT245 = phaseRaw(PH.armReturn);
-      if (_arT245 < 0.65) { // Pass 643: 0.30→0.45 — Pass 1507: →0.55 — Pass 1602: →0.65 even longer domain memory on return
+      if (_arT245 < 0.88) { // Pass 643: 0.30→0.45 — Pass 1507: →0.55 — Pass 1602: →0.65 even longer domain memory on return — Pass 4283: 0.65→0.88 dominant domain memory on return
         tp.mat.color.setHex(ct.hex);
         // Pass 1599: domain wisp opacity 0.90+0.10→1.0 (max brightness)
         tp.mat.opacity = Math.min(1.0, 0.95 + Math.random() * 0.10);
@@ -4637,7 +4637,7 @@ function animate(ts) {
     const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 12.5 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09 — Pass 3098: 5.09→6.87 — Pass 3274: 6.87→9.27 — Pass 3352: 9.27→12.5
     // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 — Pass 1611: →1.35
     const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 20.1 : 0; // Pass 2425: reveal ambient peak 2.46→3.32 — Pass 2661: 3.32→4.48 — Pass 2751: 4.48→6.05 — Pass 2892: 6.05→8.17 — Pass 3099: 8.17→11.0 — Pass 3275: 11.0→14.9 — Pass 3353: 14.9→20.1
-    const _ambTarget = 0.84 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84
+    const _ambTarget = 1.13 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84 — Pass 4284: 0.84→1.13 brighter scene ambient
     ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
     // Tint ambient toward domain color during scan or slotDrop
     if (_scanAmbBoost > 0.02 || _dropAmbBoost > 0.02) {
@@ -5331,8 +5331,8 @@ function animate(ts) {
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
     p.vy -= (p.grav || 760) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417 — Pass 3849: 417→563 — Pass 4187: 563→760 heavier confetti
-    p.vx *= 1 - dt * 0.9; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter)
-    p.vz *= 1 - dt * 0.9;
+    p.vx *= 1 - dt * 0.667; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter) — Pass 4285: 0.9→0.667 even wider confetti scatter
+    p.vz *= 1 - dt * 0.667;
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
     p.mesh.rotation.x += p.rx * dt;
     p.mesh.rotation.y += p.ry * dt;
