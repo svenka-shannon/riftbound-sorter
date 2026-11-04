@@ -192,7 +192,7 @@
     font-weight: 800;
     z-index: 30;
     letter-spacing: 0.04em;
-    animation: fadeUp 1.82s cubic-bezier(0.25,0.46,0.45,0.94) forwards; /* Pass 7088: fadeUp popup animation duration 1.0s→1.35s longer visible popup — Pass 7231: 1.35s→1.82s longer visible popup */
+    animation: fadeUp 2.46s cubic-bezier(0.25,0.46,0.45,0.94) forwards; /* Pass 7088: fadeUp popup animation duration 1.0s→1.35s longer visible popup — Pass 7231: 1.35s→1.82s longer visible popup — Pass 7490: 1.82s→2.46s longer visible popup */
   }
 
   @keyframes rippleOut {
@@ -205,8 +205,8 @@
     z-index: 28;
     width: 40px; height: 40px;
     border-radius: 50%;
-    border: 4.93px solid; /* Pass 7089: slot ripple ring border 2px→2.70px thicker ring — Pass 7181: 2.70→3.65px thicker slot ripple ring border — Pass 7227: 3.65→4.93px thicker slot ripple ring border */
-    animation: rippleOut 1.73s ease-out forwards; /* Pass 7090: rippleOut ring animation duration 0.7s→0.945s slower more dramatic ring — Pass 7182: 0.945s→1.28s slower more dramatic slot ripple ring — Pass 7228: 1.28s→1.73s slower more dramatic slot ripple ring */
+    border: 6.66px solid; /* Pass 7089: slot ripple ring border 2px→2.70px thicker ring — Pass 7181: 2.70→3.65px thicker slot ripple ring border — Pass 7227: 3.65→4.93px thicker slot ripple ring border — Pass 7483: 4.93→6.66px thicker slot ripple ring border */
+    animation: rippleOut 2.34s ease-out forwards; /* Pass 7090: rippleOut ring animation duration 0.7s→0.945s slower more dramatic ring — Pass 7182: 0.945s→1.28s slower more dramatic slot ripple ring — Pass 7228: 1.28s→1.73s slower more dramatic slot ripple ring — Pass 7484: 1.73s→2.34s slower more dramatic slot ripple ring */
   }
 
   /* ── Stats count bounce ─────────────────────────────────────────────── */
@@ -898,7 +898,7 @@ scanLED.position.set(-40, CONV_Y_TOP + 0.5, 20);
 scene.add(scanLED);
 
 // Scanner opening slot
-const scanSlot = makeBox(2, 26.7, 80, 0x222233); // Pass 4987: scanner slot aperture height 6→8.1 taller scanner slot — Pass 5833: 8.1→10.9 taller scanner slot aperture — Pass 6315: 10.9→14.7 taller scanner slot aperture — Pass 6498: 14.7→19.8 taller scanner slot aperture — Pass 7124: 19.8→26.7 taller scanner slot aperture
+const scanSlot = makeBox(2, 36.0, 80, 0x222233); // Pass 4987: scanner slot aperture height 6→8.1 taller scanner slot — Pass 5833: 8.1→10.9 taller scanner slot aperture — Pass 6315: 10.9→14.7 taller scanner slot aperture — Pass 6498: 14.7→19.8 taller scanner slot aperture — Pass 7124: 19.8→26.7 taller scanner slot aperture — Pass 7485: 26.7→36.0 taller scanner slot aperture
 scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
@@ -1778,7 +1778,7 @@ function addCardToTray(ct) {
   const legSlot = document.getElementById('lc-' + ct.name.toLowerCase());
   if(legSlot) {
     legSlot.style.textShadow = `0 0 114px ${ct.css}`; // Pass 4429: legend slot flash size 10→14px brighter slot entry flare — Pass 4988: 14→18.9px more vivid slot entry flare — Pass 5329: 18.9→25.5px more vivid slot entry lateral jitter flare — Pass 5922: 25.5→34.4px more vivid legend slot entry flare — Pass 6199: 34.4→46.4px more vivid legend slot entry flare — Pass 6850: 46.4→62.6px more vivid legend slot entry flare — Pass 7041: 62.6→84.5px more vivid legend slot entry flare — Pass 7320: 84.5px→114px more vivid legend slot entry flare
-    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 4906); // Pass 4430: legend slot flash duration 600→810ms longer entry flash — Pass 4989: 810→1094ms even longer entry flash — Pass 5297: slot LED pre-reveal flash duration 1094→1477ms even longer entry flash — Pass 5923: 1477→1994ms even longer slot entry legend flash duration — Pass 6200: 1994→2692ms even longer slot entry legend flash duration — Pass 6851: 2692→3634ms even longer slot entry legend flash duration — Pass 7042: 3634→4906ms even longer slot entry legend flash duration
+    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 6623); // Pass 4430: legend slot flash duration 600→810ms longer entry flash — Pass 4989: 810→1094ms even longer entry flash — Pass 5297: slot LED pre-reveal flash duration 1094→1477ms even longer entry flash — Pass 5923: 1477→1994ms even longer slot entry legend flash duration — Pass 6200: 1994→2692ms even longer slot entry legend flash duration — Pass 6851: 2692→3634ms even longer slot entry legend flash duration — Pass 7042: 3634→4906ms even longer slot entry legend flash duration — Pass 7489: 4906ms→6623ms even longer slot entry legend flash duration
   }
 
   // Flash stats counter in domain color + bounce animation on each card sorted
@@ -1838,7 +1838,7 @@ CARD_TYPES.forEach(ct => {
   const mat = new THREE.MeshStandardMaterial({
     color:             ct.hex,
     emissive:          ct.hex,
-    emissiveIntensity: 2.43, // Pass 4801: fill bar initial emissiveIntensity 0.4→0.54 richer domain bar base — Pass 5063: 0.54→0.729 richer fill bar base glow — Pass 5905: 0.729→0.984 richer fill bar base glow — Pass 6351: 0.984→1.33 richer fill bar base glow — Pass 6861: 1.33→1.80 richer fill bar base glow — Pass 7014: 1.80→2.43 richer fill bar base glow
+    emissiveIntensity: 3.28, // Pass 4801: fill bar initial emissiveIntensity 0.4→0.54 richer domain bar base — Pass 5063: 0.54→0.729 richer fill bar base glow — Pass 5905: 0.729→0.984 richer fill bar base glow — Pass 6351: 0.984→1.33 richer fill bar base glow — Pass 6861: 1.33→1.80 richer fill bar base glow — Pass 7014: 1.80→2.43 richer fill bar base glow — Pass 7486: 2.43→3.28 richer fill bar base glow
     roughness:         0.5,
     metalness:         0.0,
   });
@@ -1919,7 +1919,7 @@ for (let _gpi = 0; _gpi < 332; _gpi++) { // Pass 5016: grab particle pool size 1
 const _domFillClr = new THREE.Color();
 // Overhead fill light: large-radius, dim, slowly tinted toward current domain color.
 // Creates a subtle room-level color cast that shifts with each domain.
-const _domainFillLight = new THREE.PointLight(0xffffff, 2.84, 2326); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash — Pass 5358: 0.257→0.347 stronger ambient color wash — Pass 5725: 0.347→0.469 stronger ambient domain color wash — Pass 5933: 0.469→0.633 stronger ambient domain color wash intensity — Pass 6201: 0.633→0.855 stronger ambient domain color wash intensity — Pass 6386: 0.855→1.154 stronger ambient domain color wash intensity — Pass 6653: 1.154→1.558 stronger ambient domain color wash intensity — Pass 6685: 1.558→2.10 stronger ambient domain color wash intensity — Pass 6753: 2.10→2.84 stronger ambient domain color wash intensity — Pass 7126: range 700→945 wider domain fill light reach — Pass 7271: range 945→1276 wider domain fill light reach — Pass 7288: 1276→1723 wider domain fill light reach — Pass 7463: range 1723→2326 wider domain fill light reach
+const _domainFillLight = new THREE.PointLight(0xffffff, 3.83, 2326); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash — Pass 5358: 0.257→0.347 stronger ambient color wash — Pass 5725: 0.347→0.469 stronger ambient domain color wash — Pass 5933: 0.469→0.633 stronger ambient domain color wash intensity — Pass 6201: 0.633→0.855 stronger ambient domain color wash intensity — Pass 6386: 0.855→1.154 stronger ambient domain color wash intensity — Pass 6653: 1.154→1.558 stronger ambient domain color wash intensity — Pass 6685: 1.558→2.10 stronger ambient domain color wash intensity — Pass 6753: 2.10→2.84 stronger ambient domain color wash intensity — Pass 7126: range 700→945 wider domain fill light reach — Pass 7271: range 945→1276 wider domain fill light reach — Pass 7288: 1276→1723 wider domain fill light reach — Pass 7463: range 1723→2326 wider domain fill light reach — Pass 7487: 2.84→3.83 stronger ambient domain color wash intensity
 _domainFillLight.position.set(-30, 280, 0); // centered above the belt, high up
 scene.add(_domainFillLight);
 
@@ -1983,7 +1983,7 @@ function fireCelebration() {
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98 — Pass 6718: →975/1165/3576 wilder confetti tumble
     p.rx = (Math.random() - 0.5) * 1317; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161 — Pass 4093: 161→217 wilder tumble — Pass 4682: 217→293 even wilder tumble — Pass 5020: 293→396 wilder confetti rotation — Pass 5885: 396→535 wilder confetti tumble X rotation — Pass 6296: 535→722 wilder confetti tumble X rotation — Pass 6718: 722→975 wilder confetti tumble X rotation — Pass 7125: 975→1317 wilder confetti tumble X rotation
     p.ry = (Math.random() - 0.5) * 1573; // Pass 2503: tumble ry 78→105 — Pass 3551: 105→142 — Pass 3634: 142→192 — Pass 4094: 192→259 — Pass 4928: 259→350 wilder confetti tumble Y — Pass 5184: 350→473 wilder confetti tumble Y — Pass 5886: 473→639 wilder confetti tumble Y rotation — Pass 6297: 639→863 wilder confetti tumble Y rotation — Pass 6718: 863→1165 wilder confetti tumble Y rotation — Pass 7118: 1165→1573 wilder confetti tumble Y rotation
-    p.rz = (Math.random() - 0.5) * 3576; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178 — Pass 3635: 178→240 — Pass 3777: 240→324 — Pass 3884: 324→437 — Pass 4095: 437→590 — Pass 4929: 590→797 wilder confetti tumble Z — Pass 5185: 797→1076 wilder confetti tumble Z — Pass 5887: 1076→1453 wilder confetti tumble Z rotation — Pass 6284: 1453→1962 wilder confetti tumble Z rotation amplitude — Pass 6625: 1962→2649 wilder confetti tumble Z rotation amplitude — Pass 6718: 2649→3576 wilder confetti tumble Z rotation amplitude
+    p.rz = (Math.random() - 0.5) * 4827; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178 — Pass 3635: 178→240 — Pass 3777: 240→324 — Pass 3884: 324→437 — Pass 4095: 437→590 — Pass 4929: 590→797 wilder confetti tumble Z — Pass 5185: 797→1076 wilder confetti tumble Z — Pass 5887: 1076→1453 wilder confetti tumble Z rotation — Pass 6284: 1453→1962 wilder confetti tumble Z rotation amplitude — Pass 6625: 1962→2649 wilder confetti tumble Z rotation amplitude — Pass 6718: 2649→3576 wilder confetti tumble Z rotation amplitude — Pass 7488: 3576→4827 wilder confetti tumble Z rotation amplitude
     p.active = true;
     p.mesh.visible = true;
   });
