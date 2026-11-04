@@ -584,9 +584,9 @@ const keyLight = new THREE.DirectionalLight(0xfff8f0, 46.3); // Pass 4784: key l
 keyLight.position.set(400, 600, 400);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
-keyLight.shadow.camera.left = -1477; keyLight.shadow.camera.right = 1477; // Pass 4882: shadow camera extents -600/600→-810/810 wider shadow coverage — Pass 5541: -810/810→-1094/1094 wider shadow camera frustum — Pass 6334: -1094/1094→-1477/1477 wider shadow camera frustum
-keyLight.shadow.camera.top = 984;   keyLight.shadow.camera.bottom = -493; // Pass 4883: shadow camera top/bottom 400/-200→540/-270 deeper shadow coverage — Pass 5542: 540/-270→729/-365 deeper shadow camera coverage — Pass 6335: 729/-365→984/-493 deeper shadow camera coverage
-keyLight.shadow.bias = -0.00246; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff — Pass 5422: -0.00135→-0.00182 stronger shadow bias — Pass 6340: -0.00182→-0.00246 stronger shadow bias
+keyLight.shadow.camera.left = -1994; keyLight.shadow.camera.right = 1994; // Pass 4882: shadow camera extents -600/600→-810/810 wider shadow coverage — Pass 5541: -810/810→-1094/1094 wider shadow camera frustum — Pass 6334: -1094/1094→-1477/1477 wider shadow camera frustum — Pass 7120: -1477/1477→-1994/1994 wider shadow camera frustum
+keyLight.shadow.camera.top = 1328;   keyLight.shadow.camera.bottom = -666; // Pass 4883: shadow camera top/bottom 400/-200→540/-270 deeper shadow coverage — Pass 5542: 540/-270→729/-365 deeper shadow camera coverage — Pass 6335: 729/-365→984/-493 deeper shadow camera coverage — Pass 7121: 984/-493→1328/-666 deeper shadow camera frustum
+keyLight.shadow.bias = -0.00332; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff — Pass 5422: -0.00135→-0.00182 stronger shadow bias — Pass 6340: -0.00182→-0.00246 stronger shadow bias — Pass 7122: -0.00246→-0.00332 stronger shadow bias
 scene.add(keyLight);
 
 const fillLight = new THREE.DirectionalLight(0xc0d8ff, 18.4); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill — Pass 5964: 2.25→3.04 stronger cool fill — Pass 6051: 3.04→4.10 stronger cool fill — Pass 6381: 4.10→5.54 stronger cool fill — Pass 6437: 5.54→7.48 stronger cool fill — Pass 6873: 7.48→10.1 stronger cool fill light — Pass 6964: 10.1→13.6 stronger cool fill light — Pass 7071: 13.6→18.4 stronger cool fill light
@@ -893,12 +893,12 @@ const scanLEDMat = new THREE.MeshStandardMaterial({
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
-const scanLED = new THREE.Mesh(new THREE.BoxGeometry(78, 9.96, 9.96), scanLEDMat); // Pass 4986: scanner LED strip cross-section 3→4.05 chunkier scanner LED — Pass 5824: 4.05→5.47 chunkier scanner LED strip — Pass 6312: 5.47→7.38 chunkier scanner LED strip cross-section — Pass 6497: 7.38→9.96 chunkier scanner LED strip cross-section
+const scanLED = new THREE.Mesh(new THREE.BoxGeometry(78, 13.4, 13.4), scanLEDMat); // Pass 4986: scanner LED strip cross-section 3→4.05 chunkier scanner LED — Pass 5824: 4.05→5.47 chunkier scanner LED strip — Pass 6312: 5.47→7.38 chunkier scanner LED strip cross-section — Pass 6497: 7.38→9.96 chunkier scanner LED strip cross-section — Pass 7123: 9.96→13.4 chunkier scanner LED strip cross-section
 scanLED.position.set(-40, CONV_Y_TOP + 0.5, 20);
 scene.add(scanLED);
 
 // Scanner opening slot
-const scanSlot = makeBox(2, 19.8, 80, 0x222233); // Pass 4987: scanner slot aperture height 6→8.1 taller scanner slot — Pass 5833: 8.1→10.9 taller scanner slot aperture — Pass 6315: 10.9→14.7 taller scanner slot aperture — Pass 6498: 14.7→19.8 taller scanner slot aperture
+const scanSlot = makeBox(2, 26.7, 80, 0x222233); // Pass 4987: scanner slot aperture height 6→8.1 taller scanner slot — Pass 5833: 8.1→10.9 taller scanner slot aperture — Pass 6315: 10.9→14.7 taller scanner slot aperture — Pass 6498: 14.7→19.8 taller scanner slot aperture — Pass 7124: 19.8→26.7 taller scanner slot aperture
 scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
@@ -1050,7 +1050,7 @@ scene.add(gateBase);
 // Pass 60: Sort gate column indicator LEDs — 4 small spheres showing destination Z column
 const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x224466, emissive: 0x112233, emissiveIntensity: 8.09, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs — Pass 5132: 0.996→1.34 brighter gate col width indicator LEDs — Pass 5189: 1.34→1.81 brighter gate column width indicator LEDs — Pass 5746: 1.81→2.44 brighter gate column LED emissive — Pass 6304: 2.44→3.29 brighter gate column LED emissive — Pass 6500: 3.29→4.44 brighter gate column LED emissive — Pass 6698: 4.44→5.99 brighter gate column LED emissive — Pass 6715: 5.99→8.09 brighter gate column LED emissive
+    color: 0x224466, emissive: 0x112233, emissiveIntensity: 10.9, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs — Pass 5132: 0.996→1.34 brighter gate col width indicator LEDs — Pass 5189: 1.34→1.81 brighter gate column width indicator LEDs — Pass 5746: 1.81→2.44 brighter gate column LED emissive — Pass 6304: 2.44→3.29 brighter gate column LED emissive — Pass 6500: 3.29→4.44 brighter gate column LED emissive — Pass 6698: 4.44→5.99 brighter gate column LED emissive — Pass 6715: 5.99→8.09 brighter gate column LED emissive — Pass 7125: 8.09→10.9 brighter gate column LED emissive
     roughness: 0.05, metalness: 0.0,
   });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 19, 19), mat); // Pass 4988: gate column LED sphere segments 10→14 smoother gate indicators — Pass 5826: 14→19 smoother gate column LED sphere
@@ -1919,7 +1919,7 @@ for (let _gpi = 0; _gpi < 135; _gpi++) { // Pass 5016: grab particle pool size 1
 const _domFillClr = new THREE.Color();
 // Overhead fill light: large-radius, dim, slowly tinted toward current domain color.
 // Creates a subtle room-level color cast that shifts with each domain.
-const _domainFillLight = new THREE.PointLight(0xffffff, 2.84, 700); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash — Pass 5358: 0.257→0.347 stronger ambient color wash — Pass 5725: 0.347→0.469 stronger ambient domain color wash — Pass 5933: 0.469→0.633 stronger ambient domain color wash intensity — Pass 6201: 0.633→0.855 stronger ambient domain color wash intensity — Pass 6386: 0.855→1.154 stronger ambient domain color wash intensity — Pass 6653: 1.154→1.558 stronger ambient domain color wash intensity — Pass 6685: 1.558→2.10 stronger ambient domain color wash intensity — Pass 6753: 2.10→2.84 stronger ambient domain color wash intensity
+const _domainFillLight = new THREE.PointLight(0xffffff, 2.84, 945); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash — Pass 5358: 0.257→0.347 stronger ambient color wash — Pass 5725: 0.347→0.469 stronger ambient domain color wash — Pass 5933: 0.469→0.633 stronger ambient domain color wash intensity — Pass 6201: 0.633→0.855 stronger ambient domain color wash intensity — Pass 6386: 0.855→1.154 stronger ambient domain color wash intensity — Pass 6653: 1.154→1.558 stronger ambient domain color wash intensity — Pass 6685: 1.558→2.10 stronger ambient domain color wash intensity — Pass 6753: 2.10→2.84 stronger ambient domain color wash intensity — Pass 7126: range 700→945 wider domain fill light reach
 _domainFillLight.position.set(-30, 280, 0); // centered above the belt, high up
 scene.add(_domainFillLight);
 
@@ -1927,7 +1927,7 @@ scene.add(_domainFillLight);
 // Domain-colored point light that follows the card along the belt surface
 // during conveyorIn and conveyorOut phases, casting a moving pool of color
 // on the belt texture beneath the card. Fades to zero outside belt phases.
-const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 1418); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach — Pass 5726: 234→316 wider belt track light reach — Pass 5934: 316→427 wider belt track light reach — Pass 6363: 427→576 wider belt track light reach — Pass 6654: 576→778 wider belt track light reach — Pass 6686: 778→1050 wider belt track light reach — Pass 6768: 1050→1418 wider belt track light reach
+const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 1914); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach — Pass 5726: 234→316 wider belt track light reach — Pass 5934: 316→427 wider belt track light reach — Pass 6363: 427→576 wider belt track light reach — Pass 6654: 576→778 wider belt track light reach — Pass 6686: 778→1050 wider belt track light reach — Pass 6768: 1050→1418 wider belt track light reach — Pass 7127: 1418→1914 wider belt track light reach
 _beltTrackLight.position.set(-40, CONV_Y_TOP + 6, 0);
 scene.add(_beltTrackLight);
 
