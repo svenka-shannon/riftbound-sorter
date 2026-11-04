@@ -2664,8 +2664,8 @@ function animate(ts) {
       if (pt > 0.50 && pt <= 0.80) {
         const _earlyT = (pt - 0.50) / 0.30; // 0→1 in early warmup window
         suctionCupMat.emissive.setHex(ct.hex);
-        // Pass 1315: early vacuum warmup emissive 0.25→0.40 for more visible vacuum build
-        suctionCupMat.emissiveIntensity += (0.40 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 5);
+        // Pass 1315: early vacuum warmup emissive 0.25→0.40 — Pass 3958: 0.40→0.540 more visible vacuum build
+        suctionCupMat.emissiveIntensity += (0.540 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 5);
       }
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
@@ -2673,8 +2673,8 @@ function animate(ts) {
         // Pass 181: cup pre-warms with domain color in approach window
         const _cupApproach = _sq;
         suctionCupMat.emissive.setHex(ct.hex);
-        // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 — Pass 1214: →3.6 — Pass 1311: →5.2 — Pass 1427: →7.0 for more vivid suction warmup
-        suctionCupMat.emissiveIntensity += (7.0 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10);
+        // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 — Pass 1214: →3.6 — Pass 1311: →5.2 — Pass 1427: →7.0 — Pass 3959: 7.0→9.45 more vivid suction warmup
+        suctionCupMat.emissiveIntensity += (9.45 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10);
         // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
         if (!_contactFlashFired) {
           _contactFlashFired = true;
@@ -2852,7 +2852,7 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(0.80, 1.57, st);
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
       // Pass 676: Z-depth arc 14→17 — Pass 764: →23 — Pass 1176: →32 — Pass 1244: →44 — Pass 1340: →60 for even more dramatic 3D depth sweep
-      suctionPivot.position.z = Math.sin(st * Math.PI) * 109; // Pass 2275: armSwing Z-depth arc 81→109
+      suctionPivot.position.z = Math.sin(st * Math.PI) * 147; // Pass 2275: armSwing Z-depth arc 81→109 — Pass 3957: 109→147 more dramatic 3D depth sweep
       // Pass 234: arm pivot Y sag — pivot slightly droops under card weight at swing midpoint
       // Pass 282: end-of-swing Y bounce — brief upward over-correction as arm decelerates at deposit
       // Pass 677: deposit bounce 0.55→0.85 — Pass 765: →1.25 — Pass 1177: →1.80 — Pass 1245: →2.60 — Pass 1341: →3.60 for stronger spring at belt handoff
@@ -3052,8 +3052,8 @@ function animate(ts) {
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 20;
-    activeCardMat.emissiveIntensity = 0.55 + _approachT * 1.55 // Pass 1856: approach emissive ramp 1.15→1.55
-      + _approachT * 1.65 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65
+    activeCardMat.emissiveIntensity = 0.55 + _approachT * 2.09 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 stronger scanner approach tension
+      + _approachT * 2.23 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65 — Pass 3961: 1.65→2.23 more vivid approach pulse
       + _approachT * 0.10 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat
       + _entryBoost;
     // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 — Pass 1304: →12.0 for stronger tension glow — Pass 1591: →16.0
@@ -3065,7 +3065,7 @@ function animate(ts) {
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
       ? (ct2 - 0.60) / 0.20 * 1.10 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10
     // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 — Pass 1306: →10.5 for more vivid warmup before scan
-    const _ledWarmTarget = 0.3 + _warmupT * 14.2 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2
+    const _ledWarmTarget = 0.3 + _warmupT * 19.2 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 brighter LED pre-warm before scan
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
@@ -3344,7 +3344,7 @@ function animate(ts) {
       // Pass 608: boost pre-reveal flicker amplitude 0.10→0.22; post-reveal breath 0.20→0.30 for more visible cursor
       scanBarCursorMat.opacity = _identityRevealed
         ? 0.72 + 0.567 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // Pass 1700: post-reveal breath 0.30→0.42 — Pass 3956: 0.42→0.567 stronger post-reveal cursor breathe
-        : 0.78 + 0.30 * Math.abs(Math.sin(ts * 18 * Math.PI * 2)); // Pass 1701: pre-reveal flicker amp 0.22→0.30
+        : 0.78 + 0.405 * Math.abs(Math.sin(ts * 18 * Math.PI * 2)); // Pass 1701: pre-reveal flicker amp 0.22→0.30 — Pass 3963: 0.30→0.405 more nervous pre-reveal cursor flicker
       // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 — Pass 853: →2.5 — Pass 1322: →3.5 for bigger swell
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
       const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.338 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25 — Pass 3945: 0.25→0.338 bigger cursor search pulse
@@ -3440,7 +3440,7 @@ function animate(ts) {
           scanBarMat.emissive.set(0xaaddff);
           // Pass 326: pre-reveal urgency breath — Pass 836: 0.35→0.58 — Pass 1137: →0.85 for more vivid scan bar pulse
           const _preBreath326 = barFill * 2.09 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)); // Pass 2328: urgency breath 1.15→1.55 — Pass 2988: 1.55→2.09
-          scanBarMat.emissiveIntensity = 1.2 + flashIntensity * 2.4 + _preBreath326; // Pass 1715: pre-reveal flash contribution 1.8→2.4
+          scanBarMat.emissiveIntensity = 1.2 + flashIntensity * 3.24 + _preBreath326; // Pass 1715: pre-reveal flash contribution 1.8→2.4 — Pass 3964: 2.4→3.24 brighter scan bar flash
         } else {
           scanBarMat.color.copy(_blendC);
           scanBarMat.emissive.copy(_blendC);
