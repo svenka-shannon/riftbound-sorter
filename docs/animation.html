@@ -903,7 +903,7 @@ scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
 // Flash point light inside scanner (animated during scan phase)
-const scanFlash = new THREE.PointLight(0xffffff, 0, 100);
+const scanFlash = new THREE.PointLight(0xffffff, 0, 135); // Pass 4021: scanFlash range 100→135
 scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
@@ -938,7 +938,7 @@ scene.add(scanBarCursor);
 
 // Scan destination target light — illuminates the slot the card is going to
 // during scan phase so viewer immediately knows the routing decision
-const scanTargetLight = new THREE.PointLight(0xffffff, 0, 90);
+const scanTargetLight = new THREE.PointLight(0xffffff, 0, 122); // Pass 4022: scanTargetLight range 90→122
 scanTargetLight.decay = 2;
 scene.add(scanTargetLight);
 
@@ -1753,14 +1753,14 @@ function addCardToTray(ct) {
   trayArrivals.push({ mesh, startY, targetY, t: 0, glowAge: 0 });
 
   // Pass 45: pulse ALL existing cards in this slot — "stack reacts to new member" ripple
-  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 0.85; });
+  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 1.15; }); // Pass 4023: stack ripple emissive 0.85→1.15
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
-  if (mesh.material) mesh.material.emissiveIntensity = 3.2;
+  if (mesh.material) mesh.material.emissiveIntensity = 4.32; // Pass 4024: new card arrival flash 3.2→4.32
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow
   _ledCooloff[ct.slot] = 5.1;
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
-  const flashLight = new THREE.PointLight(ct.hex, 5.0, 120);
+  const flashLight = new THREE.PointLight(ct.hex, 6.75, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162
   flashLight.position.copy(mesh.position);
   scene.add(flashLight);
   if(!window._flashLights) window._flashLights = [];
@@ -1768,7 +1768,7 @@ function addCardToTray(ct) {
 
   // Pulse fill bar brightness on arrival — Pass 398: 1.5→2.8 — Pass 851: →5.0 for vivid fill animation
   if(fillBars[ct.slot]) {
-    fillBars[ct.slot].material.emissiveIntensity = 5.0;
+    fillBars[ct.slot].material.emissiveIntensity = 6.75; // Pass 4025: fill bar arrival pulse 5.0→6.75
   }
 
   // Track per-domain sort count
@@ -2325,7 +2325,7 @@ function animate(ts) {
     // just snaps to exactly 0 to clear floating-point residue, then restores color.
     paddlePivot.rotation.y = 0; // accuracy: Y-axis rotation for Z-column deflection
     paddlePivot.rotation.z = 0; // clear any residual Z tilt
-    paddleMat.emissiveIntensity = 0.5; // back to resting glow
+    paddleMat.emissiveIntensity = 0.675; // Pass 4026: paddle resting glow 0.5→0.675
     paddleMat.color.setHex(0xff6600);   // restore orange at cycle boundary
     paddleMat.emissive.setHex(0xff3300);
 
@@ -4421,7 +4421,7 @@ function animate(ts) {
         _rb2++;
       }
       // Smaller secondary amber light — Pass 1048: 4.5→9.0 for brighter second alarm pulse
-      const _ral2 = new THREE.PointLight(0xff6600, 40.6, 100); // Pass 2406: reject secondary amber light 16.5→22.3 — Pass 2640: 22.3→30.1 — Pass 3078: 30.1→40.6
+      const _ral2 = new THREE.PointLight(0xff6600, 54.8, 100); // Pass 2406: reject secondary amber light 16.5→22.3 — Pass 2640: 22.3→30.1 — Pass 3078: 30.1→40.6 — Pass 4028: 40.6→54.8
       _ral2.position.set(TRAY_X_START + 20, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_ral2);
       if (!window._flashLights) window._flashLights = [];
