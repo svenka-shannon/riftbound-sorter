@@ -2405,7 +2405,7 @@ function animate(ts) {
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
       // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 — Pass 3783: →78.3 — Pass 3888: →106 for more physical slot landing — Pass 4769: →193 stronger slot landing
-      _yPos = a.targetY + 1168 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy — Pass 5996: 352→475 stronger slot landing bounce energy — Pass 6323: 475→641 stronger slot tray arrival bounce energy — Pass 6339: 641→865 stronger slot tray arrival bounce energy — Pass 6360: 865→1168 stronger slot tray arrival bounce energy
+      _yPos = a.targetY + 1577 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy — Pass 5996: 352→475 stronger slot landing bounce energy — Pass 6323: 475→641 stronger slot tray arrival bounce energy — Pass 6339: 641→865 stronger slot tray arrival bounce energy — Pass 6360: 865→1168 stronger slot tray arrival bounce energy — Pass 6515: 1168→1577 stronger slot tray arrival bounce energy
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
