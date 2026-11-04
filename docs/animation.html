@@ -3119,27 +3119,27 @@ function animate(ts) {
     // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
     // Pass 1235: starting lean -0.18→-0.05 to match belt lean bugfix
     // Pass 659: tilt peak -0.40→-0.52 — Pass 749: -0.52→-0.64 — Pass 1078: →-0.82 — Pass 1278: →-1.05 for even more face-toward-camera during scan
-    const _bellTilt = -4.73 * Math.sin(ft * Math.PI); // Pass 2297: tilt peak -1.42→-1.92 — Pass 3924: -1.92→-2.59 — Pass 4233: -2.59→-3.50 more face-toward-camera during scan — Pass 5200: -3.50→-4.73 deeper face-toward-camera during scan
+    const _bellTilt = -6.39 * Math.sin(ft * Math.PI); // Pass 2297: tilt peak -1.42→-1.92 — Pass 3924: -1.92→-2.59 — Pass 4233: -2.59→-3.50 more face-toward-camera during scan — Pass 5200: -3.50→-4.73 deeper face-toward-camera during scan — Pass 5235: -4.73→-6.39 deeper face-toward-camera during scan
     const _blendInT = Math.min(1, ft / 0.10); // 0→1 over first 10% of scan phase
     const _revealTilt = THREE.MathUtils.lerp(-0.05, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
     // Pass 746: pre-reveal vibration scale 0.8→1.3 for more visible scanner tremor buildup
-    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 4.31; // Pass 1707: pre-reveal vibration scale 1.3→1.75 — Pass 3937: 1.75→2.36 — Pass 4234: 2.36→3.19 more visible scanner tremor — Pass 5112: 3.19→4.31 more intense scanner body jitter amplitude
+    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 5.82; // Pass 1707: pre-reveal vibration scale 1.3→1.75 — Pass 3937: 1.75→2.36 — Pass 4234: 2.36→3.19 more visible scanner tremor — Pass 5112: 3.19→4.31 more intense scanner body jitter amplitude — Pass 5236: 4.31→5.82 more intense scanner body jitter
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.00338 + Math.sin(ts * 73 * Math.PI * 2) * 0.00203) * _scanVibScale; // Pass 4361: scan vib primary 0.0025→0.00338 — Pass 4362: secondary 0.0015→0.00203 stronger scanner tremor
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
     // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 — Pass 1279: →0.62 for sharper card-edge flash at identity reveal
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
-    const _yTilt = _identityRevealed ? 1.53 * Math.sin(_yTiltT * Math.PI) : 0; // Pass 1710: Y-tilt 0.62→0.84 — Pass 3938: 0.84→1.13 sharper card-edge flash at reveal — Pass 4277: 1.13→1.53 more dramatic reveal tilt
+    const _yTilt = _identityRevealed ? 2.07 * Math.sin(_yTiltT * Math.PI) : 0; // Pass 1710: Y-tilt 0.62→0.84 — Pass 3938: 0.84→1.13 sharper card-edge flash at reveal — Pass 4277: 1.13→1.53 more dramatic reveal tilt — Pass 5237: 1.53→2.07 more dramatic reveal Y tilt
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
     // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 — Pass 1150: →0.085 — Pass 1280: →0.120 for sharper scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
-      ? 0.296 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0; // Pass 1711: Z-shake 0.120→0.162 — Pass 4067: →0.219 sharper scanner lock-on recoil — Pass 5201: 0.219→0.296 sharper scanner lock-on recoil
+      ? 0.400 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0; // Pass 1711: Z-shake 0.120→0.162 — Pass 4067: →0.219 sharper scanner lock-on recoil — Pass 5201: 0.219→0.296 sharper scanner lock-on recoil — Pass 5238: 0.296→0.400 sharper scanner lock-on recoil
     activeCard.rotation.set(_revealTilt, _yTilt, _scanVib + _revealZShake);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
     // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
     // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 — Pass 1373: →23.0 — Pass 1517: →32.0 for bigger scan flash and lock-on pop
-    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 261 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143 — Pass 4235: 143→193 bigger reveal spike — Pass 5202: 193→261 bigger reveal spike
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 352 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143 — Pass 4235: 143→193 bigger reveal spike — Pass 5202: 193→261 bigger reveal spike — Pass 5239: 261→352 bigger scan reveal spike
     scanFlash.intensity = flashIntensity * 163 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3 — Pass 3759: 49.3→66.6 — Pass 3867: 66.6→89.9 — Pass 4236: 89.9→121 brighter scan flash — Pass 5203: 121→163 brighter scan flash
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 1.33 : 0; // Pass 1864: scan flash Z drift 0.40→0.54 — Pass 3939: 0.54→0.729 further Z drift toward slot — Pass 4421: 0.729→0.984 deeper scan flash Z pull — Pass 5150: 0.984→1.33 deeper scan flash Z drift toward slot
