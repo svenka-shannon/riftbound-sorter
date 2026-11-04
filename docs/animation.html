@@ -41,7 +41,7 @@
   #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; transition: color 0.3s; display: inline-block; }
   @keyframes countBump {
     0%   { transform: scale(1.0);   text-shadow: none; }
-    20%  { transform: scale(1.55);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; }
+    20%  { transform: scale(2.09);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop */
     55%  { transform: scale(0.95);  text-shadow: 0 0 8px currentColor; }
     100% { transform: scale(1.0);   text-shadow: none; }
   }
@@ -228,7 +228,7 @@
   }
   @keyframes scanFlashFade {
     0%   { opacity: 0; }
-    8%   { opacity: 0.22; }
+    8%   { opacity: 0.297; } /* Pass 4867: scan flash overlay peak opacity 0.22→0.297 more vivid flash */
     100% { opacity: 0; }
   }
   .scan-flash-on {
@@ -577,7 +577,7 @@ controls.update();
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
 const ambientLight = new THREE.AmbientLight(0x202030, 0.824); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill
 scene.add(ambientLight);
-scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.35));
+scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.473)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill
 
 // Increase key light slightly to compensate for lower ambient
 const keyLight = new THREE.DirectionalLight(0xfff8f0, 2.30); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination
@@ -745,11 +745,11 @@ scene.add(hopperGroup);
 // Angled inner guide walls inside hopper (funnel shape to direct cards to exit)
 const guideL = makeBox(6, 70, 5, 0xb8b8c4);
 guideL.position.set(HOPPER_X + 15, 40, -30);
-guideL.rotation.z = 0.25;
+guideL.rotation.z = 0.338; // Pass 4868: hopper guide L tilt angle 0.25→0.338 steeper funnel
 scene.add(guideL);
 const guideR = makeBox(6, 70, 5, 0xb8b8c4);
 guideR.position.set(HOPPER_X + 15, 40, 30);
-guideR.rotation.z = 0.25;
+guideR.rotation.z = 0.338; // Pass 4868: hopper guide R tilt angle 0.25→0.338 steeper funnel
 scene.add(guideR);
 
 const hopperWire = makeWireBox(72, 108, 80, 0x444466);
@@ -1627,8 +1627,8 @@ const SCAN_DOT_OFFSETS = [];
 for (let _dr = 0; _dr < 3; _dr++) {
   for (let _dc = 0; _dc < 3; _dc++) {
     SCAN_DOT_OFFSETS.push({
-      x: THREE.MathUtils.lerp(-CARD_W * 0.32, CARD_W * 0.32, _dc / 2),
-      z: THREE.MathUtils.lerp(-CARD_H * 0.3, CARD_H * 0.3, _dr / 2),
+      x: THREE.MathUtils.lerp(-CARD_W * 0.432, CARD_W * 0.432, _dc / 2), // Pass 4865: scan grid X spread 0.32→0.432 wider dot array
+      z: THREE.MathUtils.lerp(-CARD_H * 0.405, CARD_H * 0.405, _dr / 2), // Pass 4866: scan grid Z spread 0.3→0.405 deeper dot array
     });
   }
 }
@@ -1954,7 +1954,7 @@ const CELEB_COUNT = 43; // Pass 4576: confetti pool size 32→43 more confetti p
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
-  const _cpMesh = new THREE.Mesh(new THREE.BoxGeometry(5, 4, 0.8), _cpMat);
+  const _cpMesh = new THREE.Mesh(new THREE.BoxGeometry(6.75, 4, 0.8), _cpMat); // Pass 4870: confetti particle width 5→6.75 chunkier confetti
   _cpMesh.visible = false;
   scene.add(_cpMesh);
   // Pass 481: randomized gravity factor per particle (18–35) for organic varied fall speed — Pass 4262: base 18→24.3, rand 17→22.95 stronger confetti gravity variance
@@ -4323,12 +4323,12 @@ function animate(ts) {
     // expands from the slot face to signal arrival without drama.
     if (ct.floor === 1 && !_impactFired && dt3 >= 0.88) {
       _impactFired = true;
-      _impactRingT = 0; _impactRingScale0 = 0.55;
+      _impactRingT = 0; _impactRingScale0 = 0.743; // Pass 4869: floor-1 guided arrival ring start scale 0.55→0.743 bigger ring entry
       // Stand ring upright (XZ plane, facing the camera) at slot entrance
       impactRing.position.set(TRAY_X_START + 20, ct.slotFloorY + 29, ct.slotZ);
       impactRing.rotation.x = 0; // vertical ring
       impactRingMat.color.setHex(ct.hex);
-      impactRing.scale.setScalar(0.55);
+      impactRing.scale.setScalar(0.743); // Pass 4869: floor-1 guided arrival ring start scale 0.55→0.743 bigger ring entry
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
       // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 — Pass 1267: →22.0 — Pass 1371: →32.0 — Pass 1553: →45.0 for stronger floor-1 arrival
