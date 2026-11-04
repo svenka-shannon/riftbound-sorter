@@ -41,7 +41,7 @@
   #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; transition: color 0.3s; display: inline-block; }
   @keyframes countBump {
     0%   { transform: scale(1.0);   text-shadow: none; }
-    20%  { transform: scale(2.82);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop */
+    20%  { transform: scale(3.81);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale */
     55%  { transform: scale(0.95);  text-shadow: 0 0 8px currentColor; }
     100% { transform: scale(1.0);   text-shadow: none; }
   }
@@ -82,7 +82,7 @@
   }
   /* Pass 62: lock-on snap animation — brackets contract on card ID */
   @keyframes hudLockOn {
-    0%   { transform: translateX(-50%) scale(2.38); opacity: 0.4; } /* Pass 4914: scanner HUD lock-on initial scale 1.3→1.76 bigger bracket snap — Pass 5033: 1.76→2.38 bigger bracket snap */
+    0%   { transform: translateX(-50%) scale(3.21); opacity: 0.4; } /* Pass 4914: scanner HUD lock-on initial scale 1.3→1.76 bigger bracket snap — Pass 5033: 1.76→2.38 bigger bracket snap — Pass 5851: 2.38→3.21 bigger scanner HUD lock-on initial bracket scale */
     35%  { transform: translateX(-50%) scale(0.95); opacity: 1.0; }
     65%  { transform: translateX(-50%) scale(1.02); opacity: 0.9; }
     100% { transform: translateX(-50%) scale(1.0); opacity: 0.7; }
@@ -182,7 +182,7 @@
 
   @keyframes fadeUp {
     0%   { transform: translateY(0) scale(1);   opacity: 1; }
-    30%  { transform: translateY(-10px) scale(2.19); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop — Pass 5034: 1.62→2.19 more emphatic +1 pop */
+    30%  { transform: translateY(-10px) scale(2.96); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop — Pass 5034: 1.62→2.19 more emphatic +1 pop — Pass 5852: 2.19→2.96 more emphatic slot score popup peak scale */
     100% { transform: translateY(-45px) scale(0.8); opacity: 0; }
   }
   .slot-plusone {
@@ -197,7 +197,7 @@
 
   @keyframes rippleOut {
     0%   { transform: translateX(-50%) translateY(-50%) scale(0); opacity: 0.95; } /* Pass 4880: slot ring initial opacity 0.7→0.95 more vivid slot ripple flash */
-    100% { transform: translateX(-50%) translateY(-50%) scale(11.6); opacity: 0; } /* Pass 4881: slot ring expand scale 3.5→4.72 wider slot ripple ring — Pass 5035: 4.72→6.37 wider slot ripple ring — Pass 5121: 6.37→8.60 wider slot ring scale speed — Pass 5331: 8.60→11.6 faster card reveal ring expand speed */
+    100% { transform: translateX(-50%) translateY(-50%) scale(15.7); opacity: 0; } /* Pass 4881: slot ring expand scale 3.5→4.72 wider slot ripple ring — Pass 5035: 4.72→6.37 wider slot ripple ring — Pass 5121: 6.37→8.60 wider slot ring scale speed — Pass 5331: 8.60→11.6 faster card reveal ring expand speed — Pass 5853: 11.6→15.7 wider card reveal slot ripple ring expand scale */
   }
   .slot-ripple {
     position: fixed;
@@ -1760,7 +1760,7 @@ function addCardToTray(ct) {
   _ledCooloff[ct.slot] = 17.0; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5299: slot LED afterglow 12.6→17.0s even longer slot domain glow
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
-  const flashLight = new THREE.PointLight(ct.hex, 40.8, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst — Pass 5410: 22.4→30.2 brighter card deal slot arrival burst flash — Pass 5534: 30.2→40.8 brighter card deal slot arrival burst flash peak
+  const flashLight = new THREE.PointLight(ct.hex, 55.1, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst — Pass 5410: 22.4→30.2 brighter card deal slot arrival burst flash — Pass 5534: 30.2→40.8 brighter card deal slot arrival burst flash peak — Pass 5854: 40.8→55.1 brighter card deal slot arrival burst flash peak
   flashLight.position.copy(mesh.position);
   scene.add(flashLight);
   if(!window._flashLights) window._flashLights = [];
@@ -1806,7 +1806,7 @@ function addCardToTray(ct) {
 // They pulse domain color when a card is being routed to that slot.
 const slotLEDs = [];
 CARD_TYPES.forEach(ct => {
-  const geo = new THREE.SphereGeometry(7.38, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators — Pass 4981: 4.05→5.47 larger slot LED spheres — Pass 5449: 5.47→7.38 larger slot domain LED spheres
+  const geo = new THREE.SphereGeometry(9.96, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators — Pass 4981: 4.05→5.47 larger slot LED spheres — Pass 5449: 5.47→7.38 larger slot domain LED spheres — Pass 5855: 7.38→9.96 larger slot domain LED indicator spheres
   const mat = new THREE.MeshStandardMaterial({
     color: ct.hex, emissive: ct.hex, emissiveIntensity: 4.06, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs — Pass 5061: 1.65→2.23 brighter slot domain LEDs — Pass 5305: 2.23→3.01 brighter slot wall LED color urgency — Pass 5450: 3.01→4.06 brighter slot domain LED emissive
     roughness: 0.2, metalness: 0.0
@@ -1938,7 +1938,7 @@ const TRAIL_PARTICLES = [];
 const TRAIL_PARTICLE_COUNT = 43; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(5.41, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius
+  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(7.30, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius
   _tpMesh.visible = false;
   scene.add(_tpMesh);
   TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 1.80, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence — Pass 5076: 0.73→0.986 even longer contrail persistence — Pass 5366: 0.986→1.33 longer idle scan emit trail particle persistence — Pass 5733: 1.33→1.80 longer deflect trail particle lifetime
@@ -1954,7 +1954,7 @@ const CELEB_COUNT = 78; // Pass 4576: confetti pool size 32→43 more confetti p
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
-  const _cpMesh = new THREE.Mesh(new THREE.BoxGeometry(9.11, 4, 0.8), _cpMat); // Pass 4870: confetti particle width 5→6.75 chunkier confetti — Pass 5452: 6.75→9.11 chunkier confetti particle width
+  const _cpMesh = new THREE.Mesh(new THREE.BoxGeometry(12.3, 4, 0.8), _cpMat); // Pass 4870: confetti particle width 5→6.75 chunkier confetti — Pass 5452: 6.75→9.11 chunkier confetti particle width — Pass 5857: 9.11→12.3 chunkier confetti particle width
   _cpMesh.visible = false;
   scene.add(_cpMesh);
   // Pass 481: randomized gravity factor per particle (18–35) for organic varied fall speed — Pass 4262: base 18→24.3, rand 17→22.95 stronger confetti gravity variance
