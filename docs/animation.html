@@ -3040,22 +3040,22 @@ function animate(ts) {
     const _beltVib = Math.sin(ts * 59.4 * Math.PI * 2) * 0.00621 + Math.sin(ts * 98.6 * Math.PI * 2) * 0.00365; // Pass 4359: belt vib primary 0.0034→0.00460 — Pass 4360: secondary 0.0020→0.00270 more tactile belt roughness — Pass 4532: belt vibration Z primary frequency 44→59.4 more tactile belt roughness — Pass 4634: belt vibration secondary frequency 73→98.6 busier secondary roughness — Pass 5342: primary 0.00460→0.00621 — Pass 5343: secondary 0.00270→0.00365 more tactile belt roughness amplitude
     // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
     // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 — Pass 1303: →0.45 for more physical card-slap — Pass 1588: →0.62
-    const _beltFlopY309 = 2.07 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 3.38); // Pass 2291: belt flop Y 0.84→1.13 — Pass 3931: 1.13→1.53 — Pass 4210: 1.53→2.07 more physical card-slap sideways — Pass 4589: belt flop Y oscillation count 2.5→3.38 livelier belt entry flop
+    const _beltFlopY309 = 2.80 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 3.38); // Pass 2291: belt flop Y 0.84→1.13 — Pass 3931: 1.13→1.53 — Pass 4210: 1.53→2.07 more physical card-slap sideways — Pass 4589: belt flop Y oscillation count 2.5→3.38 livelier belt entry flop — Pass 5358: 2.07→2.80 more physical card-slap sideways flop
     activeCard.rotation.set(_beltLean, _beltFlopY309, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
-    gateColLight.intensity *= Math.max(0, 1 - dt * 5.4); // pass 141: fade gate column light on belt entry — Pass 4762: gate col fade rate 4→5.4 crisper dismiss
+    gateColLight.intensity *= Math.max(0, 1 - dt * 7.3); // pass 141: fade gate column light on belt entry — Pass 4762: gate col fade rate 4→5.4 crisper dismiss — Pass 5359: 5.4→7.3 crisper gate column dismiss
     // Pass 144: scan anticipation — card brightens in final 15% of conveyorIn as scanner looms
     const _approachT = Math.max(0, (ct2 - 0.85) / 0.15); // 0→1 in last 15%
     // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap) — Pass 1592: →1.9
-    const _entryBoost = Math.exp(-ct2 * 27.0) * 6.32; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 — Pass 4209: 4.68→6.32 bigger entry flash — Pass 4523: belt entry flash decay rate 20→27.0 snappier entry flash
+    const _entryBoost = Math.exp(-ct2 * 27.0) * 8.53; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 — Pass 4209: 4.68→6.32 bigger entry flash — Pass 4523: belt entry flash decay rate 20→27.0 snappier entry flash — Pass 5360: 6.32→8.53 bigger belt entry flash peak
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 49.3; // Pass 4764: approach flicker ramp 20→27 more nervous pre-pick tension — Pass 5107: approach flicker ramp 27→36.5 more nervous pre-pick tension — Pass 5340: 36.5→49.3 more nervous pre-pick approach flicker ramp
     activeCardMat.emissiveIntensity = 0.74 + _approachT * 6.94 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card — Pass 5125: 2.82→3.81 stronger gate charge buildup emissive ramp — Pass 5135: 3.81→5.14 stronger gate charge buildup emissive ramp — Pass 5323: 5.14→6.94 stronger gate charge buildup emissive scale factor
-      + _approachT * 3.01 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65 — Pass 3961: 1.65→2.23 — Pass 4214: 2.23→3.01 more vivid approach pulse
-      + _approachT * 0.14 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat — Pass 4269: secondary amplitude 0.10→0.14 stronger interference beat
+      + _approachT * 4.06 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65 — Pass 3961: 1.65→2.23 — Pass 4214: 2.23→3.01 more vivid approach pulse — Pass 5361: 3.01→4.06 more vivid scanner approach pulse
+      + _approachT * 0.189 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat — Pass 4269: secondary amplitude 0.10→0.14 stronger interference beat — Pass 5362: 0.14→0.189 stronger secondary approach beat
       + _entryBoost;
     // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 — Pass 1304: →12.0 for stronger tension glow — Pass 1591: →16.0
     cardGlow.intensity = 1.4 + _approachT * 53.2; // Pass 1858: approach glow ramp 16.0→21.6 — Pass 3940: 21.6→29.2 — Pass 4215: 29.2→39.4 stronger approach tension glow — Pass 5027: 39.4→53.2 more vivid approach tension
@@ -3125,7 +3125,7 @@ function animate(ts) {
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
     // Pass 746: pre-reveal vibration scale 0.8→1.3 for more visible scanner tremor buildup
     const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 5.82; // Pass 1707: pre-reveal vibration scale 1.3→1.75 — Pass 3937: 1.75→2.36 — Pass 4234: 2.36→3.19 more visible scanner tremor — Pass 5112: 3.19→4.31 more intense scanner body jitter amplitude — Pass 5236: 4.31→5.82 more intense scanner body jitter
-    const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.00338 + Math.sin(ts * 73 * Math.PI * 2) * 0.00203) * _scanVibScale; // Pass 4361: scan vib primary 0.0025→0.00338 — Pass 4362: secondary 0.0015→0.00203 stronger scanner tremor
+    const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.00456 + Math.sin(ts * 73 * Math.PI * 2) * 0.00274) * _scanVibScale; // Pass 4361: scan vib primary 0.0025→0.00338 — Pass 4362: secondary 0.0015→0.00203 stronger scanner tremor — Pass 5363: primary 0.00338→0.00456 — Pass 5364: secondary 0.00203→0.00274 stronger scanner body jitter
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
     // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 — Pass 1279: →0.62 for sharper card-edge flash at identity reveal
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
@@ -3269,7 +3269,7 @@ function animate(ts) {
     // Pass 848: reversal flash intensity 5.5→9.0 — Pass 1690: →12.0, dist 80→110 — Pass 4005: 12.0→16.2 brighter beam direction-flip flash
     if (!_beamReversalFlashFired && ft >= 0.50 && !_identityRevealed) {
       _beamReversalFlashFired = true;
-      const _brfl = new THREE.PointLight(0xaaddff, 16.2, 110); // Pass 4005: beam reversal flash 12.0→16.2
+      const _brfl = new THREE.PointLight(0xaaddff, 21.9, 149); // Pass 4005: beam reversal flash 12.0→16.2 — Pass 5365: intensity 16.2→21.9, range 110→149 brighter beam reversal flash
       _brfl.position.set(-40, CONV_Y_TOP + 20, 0);
       scene.add(_brfl);
       if (!window._flashLights) window._flashLights = [];
