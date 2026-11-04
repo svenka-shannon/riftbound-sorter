@@ -3957,7 +3957,7 @@ function animate(ts) {
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
-    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 387 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387
+    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 523 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387 — Pass 4408: 387→523 stronger deflect Z air buffet
       + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 5.41; // Pass 2107: Z tremor tertiary 2.2→2.97 — Pass 3941: 2.97→4.01 — Pass 4402: 4.01→5.41 stronger deflect air buffet
     // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 — Pass 1072: →3.2 — Pass 1253: →4.4 for more 3D turbulence in deflect arc
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 217; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161 — Pass 4084: 161→217
@@ -4351,9 +4351,9 @@ function animate(ts) {
             ct.slotZ + (Math.random() - 0.5) * 12
           );
           _mp.mesh.visible = true;
-          _mp.vx = (Math.random() - 0.5) * 10;
+          _mp.vx = (Math.random() - 0.5) * 13.5; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst
           _mp.vy = 74.4 + Math.random() * 148.9; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7 — Pass 3915: 40.8+81.7→55.1+110.3 — Pass 4407: 55.1+110.3→74.4+148.9 taller mote fountain
-          _mp.vz = (Math.random() - 0.5) * 12;
+          _mp.vz = (Math.random() - 0.5) * 16.2; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread
           _mp.mat.color.setRGB(
             Math.min(1, _rr3 / 255 * 0.50 + 0.50),
             Math.min(1, _gg3 / 255 * 0.50 + 0.50),
@@ -4514,10 +4514,10 @@ function animate(ts) {
     routeTargetMat.emissiveIntensity = 0;
     // Pass 94: scanner LED power-down flicker — CRT-style oscillation as scanner resets
     {
-      const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 0.85; // dampens in first ~45% of phase
-      const _flickVal = 1.2 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp
+      const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 1.15; // dampens in first ~45% of phase // Pass 4411: scanner flicker amp 0.85→1.15 stronger LED power-down oscillation
+      const _flickVal = 1.62 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp // Pass 4412: scanner flicker base 1.2→1.62 brighter LED reset floor
                             + (Math.random() - 0.5) * _flickAmp * 0.35;
-      scanLEDMat.emissiveIntensity = Math.max(0.30, Math.min(52.5, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5
+      scanLEDMat.emissiveIntensity = Math.max(0.30, Math.min(70.9, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
@@ -4565,7 +4565,7 @@ function animate(ts) {
       GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
         if (gi === ct.col) {
           gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
-          gm.emissiveIntensity += (_pausePulse492 - gm.emissiveIntensity) * Math.min(1, dt * 1.5);
+          gm.emissiveIntensity += (_pausePulse492 - gm.emissiveIntensity) * Math.min(1, dt * 2.03); // Pass 4414: gate LED pause tracking 1.5→2.03 snappier gate afterglow response
         }
       });
     }
@@ -4596,7 +4596,7 @@ function animate(ts) {
     // Pass 1058: breathing base 0.12→0.20, amp 0.07→0.14 for more visible scanner idle pulse
     {
       const _breathe = 2.96 + 2.09 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 brighter standby breathe
-      scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 2.5);
+      scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 3.38); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 1.5));
       hoodMat.emissiveIntensity += (_breathe * 2.55 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 brighter scanner hood idle glow
     }
