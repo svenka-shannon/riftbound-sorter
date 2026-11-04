@@ -2473,7 +2473,7 @@ function animate(ts) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
     } else {
-      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 2.5);
+      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 3.38); // Pass 4723: fill bar idle tracking 2.5→3.38 snappier fill bar settle
     }
   });
 
@@ -3712,18 +3712,18 @@ function animate(ts) {
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
       // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0 — Pass 1139: →32.0 — Pass 1219: →45.0 — Pass 1292: →62.0
-      const _cofl = new THREE.PointLight(ct.hex, 1246, 160); // Pass 2568: scanner exit flash 152.6→206.0 — Pass 3008: 206.0→278.1 — Pass 3204: 278.1→375.4 — Pass 3581: 375.4→507 — Pass 3676: 507→684 — Pass 3790: 684→923 — Pass 3893: 923→1246
+      const _cofl = new THREE.PointLight(ct.hex, 1682, 216); // Pass 2568: scanner exit flash 152.6→206.0 — Pass 3008: 206.0→278.1 — Pass 3204: 278.1→375.4 — Pass 3581: 375.4→507 — Pass 3676: 507→684 — Pass 3790: 684→923 — Pass 3893: 923→1246 — Pass 4724: intensity 1246→1682 — Pass 4725: range 160→216 brighter scanner exit burst
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _cofl, age: 0, peak: _cofl.intensity });
       // Pass 428: card blaze at scan confirm 1.8→3.0 — Pass 553: →5.0 — Pass 688: →7.5 — Pass 773: →10.0 — Pass 1140: →14.0 — Pass 1220: →20.0 — Pass 1293: →28.0 hotter blaze
-      activeCardMat.emissiveIntensity = 563; // Pass 2569: card blaze at conveyorOut start 68.9→93.0 — Pass 3009: 93.0→125.6 — Pass 3205: 125.6→169.6 — Pass 3582: 169.6→229 — Pass 3677: 229→309 — Pass 3791: 309→417 — Pass 3894: 417→563
+      activeCardMat.emissiveIntensity = 760; // Pass 2569: card blaze at conveyorOut start 68.9→93.0 — Pass 3009: 93.0→125.6 — Pass 3205: 125.6→169.6 — Pass 3582: 169.6→229 — Pass 3677: 229→309 — Pass 3791: 309→417 — Pass 3894: 417→563 — Pass 4726: 563→760 hotter card exit blaze
       // Pass 261/429: lens domain persistence spike 3.5 → 5.5 — Pass 554: 5.5→9.0
       lensMat.emissiveIntensity = 133.5; // Pass 2570: lens spike at conveyorOut 22.1→29.8 — Pass 3206: 29.8→40.2 — Pass 3583: 40.2→54.3 — Pass 3678: 54.3→73.3 — Pass 3792: 73.3→98.9 — Pass 3895: 98.9→133.5
       lensMat.emissive.setHex(ct.hex);
       // Pass 478: scan-confirm LED flashbang — scanner LED briefly goes white-hot at scan complete
-      scanLEDMat.emissiveIntensity = 119.3; // Pass 2571: scan LED flashbang 19.7→26.6 — Pass 3207: 26.6→35.9 — Pass 3584: 35.9→48.5 — Pass 3679: 48.5→65.5 — Pass 3793: 65.5→88.4 — Pass 3896: 88.4→119.3
+      scanLEDMat.emissiveIntensity = 161.1; // Pass 2571: scan LED flashbang 19.7→26.6 — Pass 3207: 26.6→35.9 — Pass 3584: 35.9→48.5 — Pass 3679: 48.5→65.5 — Pass 3793: 65.5→88.4 — Pass 3896: 88.4→119.3 — Pass 4727: 119.3→161.1 brighter scan LED flashbang
       scanLEDMat.color.set(0xffffff);
       scanLEDMat.emissive.set(0xffffff);
     }
@@ -5466,13 +5466,13 @@ function animate(ts) {
     // Pass 493: breathe amplitude boost 0.08→0.14 — Pass 544: 0.14→0.20 for more tray card life
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
     // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
-    const _breathe = 1.82 + 1.35 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35
+    const _breathe = 2.46 + 1.82 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35 — Pass 4720: base 1.82→2.46 — Pass 4721: amp 1.35→1.82 richer tray card breathe
                          + 0.20 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
         // Arrival pulse still decaying — let it fall toward breathe target
-        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 9.69); // Pass 2443: tray arrival decay 2.16→2.92 — Pass 2738: 2.92→3.94 — Pass 2970: 3.94→5.32 — Pass 3170: 5.32→7.18 — Pass 3338: 7.18→9.69
+        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 13.1); // Pass 2443: tray arrival decay 2.16→2.92 — Pass 2738: 2.92→3.94 — Pass 2970: 3.94→5.32 — Pass 3170: 5.32→7.18 — Pass 3338: 7.18→9.69 — Pass 4722: 9.69→13.1 snappier tray arrival flash decay
       } else {
         // At idle — gently track the breathing target
         m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 8.07); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98 — Pass 4555: 5.98→8.07 snappier tray idle emissive tracking
