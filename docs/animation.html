@@ -3167,7 +3167,7 @@ function animate(ts) {
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Pass 372: scanner LED boost 2.0→2.5 — Pass 603: 2.5→3.5 + flashIntensity 3.0→4.5 — Pass 1513: base 3.5→5.0, flash 4.5→6.0
-    scanLEDMat.emissiveIntensity = 22.4 + flashIntensity * 36.1; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7 — Pass 3511: base 12.3→16.6 Pass 3512: flash 14.7→19.8 — Pass 3646: base 16.6→22.4 — Pass 3647: flash 19.8→26.7 — Pass 4372: flash 26.7→36.1 brighter scan LED flash
+    scanLEDMat.emissiveIntensity = 22.4 + flashIntensity * 48.7; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7 — Pass 3511: base 12.3→16.6 Pass 3512: flash 14.7→19.8 — Pass 3646: base 16.6→22.4 — Pass 3647: flash 19.8→26.7 — Pass 4372: flash 26.7→36.1 brighter scan LED flash — Pass 5247: 36.1→48.7 brighter scan LED flash
     // Pass 222: scanner LED domain flash — at identity reveal, LED color switches to domain
     // Pass 270: hold domain color 0.12s before fading (was immediate fade) — more visual lock-on impact
     if (_scanLEDRevealT >= 0) {
