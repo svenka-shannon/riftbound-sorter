@@ -603,7 +603,7 @@ gridHelper.position.y = -2;
 scene.add(gridHelper);
 
 // ─── Ambient Dust Particles ───────────────────────────────────────────────────
-const DUST_COUNT = 749; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count — Pass 5517: 411→555 denser ambient mote spawn count — Pass 5956: 555→749 denser ambient dust mote count
+const DUST_COUNT = 1011; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count — Pass 5517: 411→555 denser ambient mote spawn count — Pass 5956: 555→749 denser ambient dust mote count — Pass 6034: 749→1011 denser ambient dust mote count
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
 const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
@@ -1913,7 +1913,7 @@ for (let _gpi = 0; _gpi < 22; _gpi++) { // Pass 5016: grab particle pool size 16
   const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(3.44, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst — Pass 5916: 2.55→3.44 chunkier grab burst particle sphere
   _gpMesh.visible = false;
   scene.add(_gpMesh);
-  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 1.67, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence — Pass 5318: 0.68→0.918 longer grab burst particle persistence — Pass 5398: 0.918→1.24 longer idle scan emit grab particle persistence — Pass 5917: 1.24→1.67 longer grab burst particle persistence
+  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 2.25, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence — Pass 5318: 0.68→0.918 longer grab burst particle persistence — Pass 5398: 0.918→1.24 longer idle scan emit grab particle persistence — Pass 5917: 1.24→1.67 longer grab burst particle persistence — Pass 6035: 1.67→2.25 longer grab burst particle persistence
 }
 // Pre-allocated Color for domain fill updates (no per-frame GC pressure)
 const _domFillClr = new THREE.Color();
@@ -1935,10 +1935,10 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 105; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool
+const TRAIL_PARTICLE_COUNT = 142; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(7.30, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius
+  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(9.86, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius — Pass 6037: 7.30→9.86 chunkier arm arc trail contrail particle radius
   _tpMesh.visible = false;
   scene.add(_tpMesh);
   TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 2.43, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence — Pass 5076: 0.73→0.986 even longer contrail persistence — Pass 5366: 0.986→1.33 longer idle scan emit trail particle persistence — Pass 5733: 1.33→1.80 longer deflect trail particle lifetime — Pass 5935: 1.80→2.43 longer deflect trail particle lifetime
@@ -3323,7 +3323,7 @@ function animate(ts) {
     }
     // Pass 55: scan progress LED bar — fills left-to-right as ft 0→1
     // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 — Pass 1320: →8.0 — Pass 1697: →11.0 for bigger scanner power-on test
-    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 51.3) * 122 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1 — Pass 3860: 20.1→27.1 — Pass 4149: 27.1→36.6 bigger power-on pop — Pass 4528: scan bar init flash decay 38→51.3 sharper power-on pop — Pass 5269: 36.6→49.4 bigger scan bar power-on flash — Pass 5841: 49.4→66.7 bigger scan bar power-on flash — Pass 5953: 66.7→90.0 bigger scan bar power-on flash — Pass 5997: 90.0→122 bigger scan bar power-on flash
+    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 51.3) * 165 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1 — Pass 3860: 20.1→27.1 — Pass 4149: 27.1→36.6 bigger power-on pop — Pass 4528: scan bar init flash decay 38→51.3 sharper power-on pop — Pass 5269: 36.6→49.4 bigger scan bar power-on flash — Pass 5841: 49.4→66.7 bigger scan bar power-on flash — Pass 5953: 66.7→90.0 bigger scan bar power-on flash — Pass 5997: 90.0→122 bigger scan bar power-on flash — Pass 6038: 122→165 bigger scan bar power-on flash
     {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
@@ -3348,7 +3348,7 @@ function animate(ts) {
         : 0.78 + 1.35 * Math.abs(Math.sin(ts * 24 * Math.PI * 2)); // Pass 1701: pre-reveal flicker amp 0.22→0.30 — Pass 3963: 0.30→0.405 — Pass 4152: 0.405→0.547 more nervous pre-reveal flicker — Pass 4440: freq 18→24 faster scan bar cursor flicker — Pass 5273: 0.547→0.739 more nervous pre-reveal cursor flicker — Pass 5846: 0.739→0.998 more nervous pre-reveal cursor flicker — Pass 5948: 0.998→1.35 more nervous pre-reveal cursor flicker
       // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 — Pass 853: →2.5 — Pass 1322: →3.5 for bigger swell
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
-      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 1.12 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25 — Pass 3945: 0.25→0.338 — Pass 4153: 0.338→0.456 bigger cursor search pulse — Pass 5274: 0.456→0.616 bigger cursor search scale pulse — Pass 5847: 0.616→0.832 bigger cursor search scale pulse — Pass 5949: 0.832→1.12 bigger cursor search scale pulse
+      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 1.51 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25 — Pass 3945: 0.25→0.338 — Pass 4153: 0.338→0.456 bigger cursor search pulse — Pass 5274: 0.456→0.616 bigger cursor search scale pulse — Pass 5847: 0.616→0.832 bigger cursor search scale pulse — Pass 5949: 0.832→1.12 bigger cursor search scale pulse — Pass 6039: 1.12→1.51 bigger cursor pre-reveal search scale pulse
       const _cursorScale290 = _identityRevealed && ft < 0.91
         ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 39.2 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75 — Pass 4154: 8.75→11.8 bigger cursor pop — Pass 5275: 11.8→15.9 bigger cursor reveal scale punch — Pass 5848: 15.9→21.5 bigger cursor reveal scale punch — Pass 5950: 21.5→29.0 bigger cursor reveal scale punch — Pass 5998: 29.0→39.2 bigger cursor reveal scale punch
         : _cursorPreScale300;
@@ -5242,7 +5242,7 @@ function animate(ts) {
     const _onBelt = (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))
                      && activeCard.visible;
     // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
-    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 4.00 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20 — Pass 4175: 1.20→1.62 deeper scan shadow pulse — Pass 5388: 1.62→2.19 deeper scan shadow pulse — Pass 5693: 2.19→2.96 deeper scan shadow disc pulse amplitude — Pass 5972: 2.96→4.00 deeper scan shadow disc pulse amplitude
+    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 5.40 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20 — Pass 4175: 1.20→1.62 deeper scan shadow pulse — Pass 5388: 1.62→2.19 deeper scan shadow pulse — Pass 5693: 2.19→2.96 deeper scan shadow disc pulse amplitude — Pass 5972: 2.96→4.00 deeper scan shadow disc pulse amplitude — Pass 6040: 4.00→5.40 deeper scan shadow disc pulse amplitude
     const _shadowTarget = _onBelt ? 4.48 + _shadowScanPulse : 0; // Pass 2472: shadow opacity 0.93→1.0 — Pass 4757: shadow base 1.0→1.35 — Pass 5389: 1.35→1.82 richer card shadow base opacity — Pass 5694: 1.82→2.46 richer card shadow base opacity — Pass 5973: 2.46→3.32 richer card shadow base opacity — Pass 6017: 3.32→4.48 richer card shadow base opacity
     _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 19.7); // Pass 4398: shadow tracking rate 8→10.8 snappier shadow response — Pass 5381: 10.8→14.6 snappier card shadow opacity tracking — Pass 6022: 14.6→19.7 snappier card shadow opacity tracking rate
     if (_onBelt) {
@@ -5311,7 +5311,7 @@ function animate(ts) {
   const _deflectFill498 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 15.8 : 0; // Pass 2457: deflect domain fill 0.58→0.78 — Pass 2722: 0.78→1.05 — Pass 2819: 1.05→1.42 — Pass 2955: 1.42→1.92 — Pass 3159: 1.92→2.59 — Pass 3628: 2.59→3.50 — Pass 4184: 3.50→4.73 — Pass 4677: 4.73→6.39 richer deflect domain color wash — Pass 5127: 6.39→8.63 richer deflect chamber color wash — Pass 5699: 8.63→11.7 richer deflect arc domain color wash amplitude — Pass 5976: 11.7→15.8 richer deflect arc domain color wash amplitude
   // Pass 519: scan phase domain fill boost — scanner chamber glows stronger with domain color at scan peak
   // Pass 664: scan fill boost 0.18→0.26 — Pass 1464: →0.36 for more vivid scanner chamber domain wash
-  const _scanFill519 = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 13.3 : 0; // Pass 2458: scan domain fill 0.66→0.89 — Pass 2723: 0.89→1.20 — Pass 2820: 1.20→1.62 — Pass 2956: 1.62→2.19 — Pass 3160: 2.19→2.96 — Pass 4185: 2.96→4.00 — Pass 4678: 4.00→5.40 richer scan chamber domain wash — Pass 5132: 5.40→7.29 richer scan chamber domain wash — Pass 5700: 7.29→9.84 richer scan chamber domain fill peak amplitude — Pass 5977: 9.84→13.3 richer scan chamber domain fill peak amplitude
+  const _scanFill519 = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 18.0 : 0; // Pass 2458: scan domain fill 0.66→0.89 — Pass 2723: 0.89→1.20 — Pass 2820: 1.20→1.62 — Pass 2956: 1.62→2.19 — Pass 3160: 2.19→2.96 — Pass 4185: 2.96→4.00 — Pass 4678: 4.00→5.40 richer scan chamber domain wash — Pass 5132: 5.40→7.29 richer scan chamber domain wash — Pass 5700: 7.29→9.84 richer scan chamber domain fill peak amplitude — Pass 5977: 9.84→13.3 richer scan chamber domain fill peak amplitude — Pass 6041: 13.3→18.0 richer scan chamber domain fill peak amplitude
   // Pass 99: decay boost (set at 85% identity reveal), adds scene-wide domain color wash
   if (_domainFillBoost > 0.005) {
     // Pass 542: reveal fill boost decay 2.2→1.6 (longer wash ~0.35s) + max cap 0.90→1.10 — Pass 1465: cap →1.50
