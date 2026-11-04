@@ -819,7 +819,7 @@ const beltShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide,
 });
 const beltShimmerMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(63.2, 1, 78), // Pass 4985: belt shimmer stripe width 10→14 wider belt sheen — Pass 5161: 14→19 wider belt shimmer stripe — Pass 6338: 19→25.7 wider belt shimmer stripe — Pass 6496: 25.7→34.7 wider belt shimmer stripe — Pass 6512: 34.7→46.8 wider belt shimmer stripe — Pass 6835: 46.8→63.2 wider belt shimmer stripe
+  new THREE.BoxGeometry(85.3, 1, 78), // Pass 4985: belt shimmer stripe width 10→14 wider belt sheen — Pass 5161: 14→19 wider belt shimmer stripe — Pass 6338: 19→25.7 wider belt shimmer stripe — Pass 6496: 25.7→34.7 wider belt shimmer stripe — Pass 6512: 34.7→46.8 wider belt shimmer stripe — Pass 6835: 46.8→63.2 wider belt shimmer stripe — Pass 6990: 63.2→85.3 wider belt shimmer stripe
   beltShimmerMat
 );
 beltShimmerMesh.position.set(-140, CONV_Y_TOP + 2.6, 0);
@@ -1214,10 +1214,10 @@ floorDiverterPivot.position.set(DIVERTER_X, CONV_Y_TOP + 3, 0); // CONV_Y_TOP + 
 scene.add(floorDiverterPivot);
 const diverterFlapMat = new THREE.MeshStandardMaterial({
   color: 0xcc7700, roughness: 0.4, metalness: 0.25,
-  emissive: new THREE.Color(0x441f00), emissiveIntensity: 1.84 // Pass 4044: floor diverter emissive 0.22→0.30 brighter routing flap — Pass 4891: 0.30→0.41 more visible diverter — Pass 5057: 0.41→0.554 more vivid diverter flap glow — Pass 5138: 0.554→0.748 stronger floor diverter emissive ramp — Pass 5709: 0.748→1.01 stronger floor diverter emissive glow — Pass 6305: 1.01→1.36 stronger floor diverter emissive glow — Pass 6858: 1.36→1.84 stronger floor diverter emissive glow
+  emissive: new THREE.Color(0x441f00), emissiveIntensity: 2.48 // Pass 4044: floor diverter emissive 0.22→0.30 brighter routing flap — Pass 4891: 0.30→0.41 more visible diverter — Pass 5057: 0.41→0.554 more vivid diverter flap glow — Pass 5138: 0.554→0.748 stronger floor diverter emissive ramp — Pass 5709: 0.748→1.01 stronger floor diverter emissive glow — Pass 6305: 1.01→1.36 stronger floor diverter emissive glow — Pass 6858: 1.36→1.84 stronger floor diverter emissive glow — Pass 6991: 1.84→2.48 stronger floor diverter emissive glow
 });
 const diverterFlapMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(TX_DEP + 6, 18.1, TRAY_Z_HALF * 2), // Pass 4991: diverter flap thickness 3→4.05 chunkier routing flap — Pass 5930: 4.05→5.47 chunkier routing diverter flap — Pass 6230: 5.47→7.38 chunkier routing diverter flap thickness — Pass 6450: 7.38→9.96 chunkier routing diverter flap thickness — Pass 6573: 9.96→13.4 chunkier routing diverter flap thickness — Pass 6707: 13.4→18.1 chunkier routing diverter flap thickness
+  new THREE.BoxGeometry(TX_DEP + 6, 24.4, TRAY_Z_HALF * 2), // Pass 4991: diverter flap thickness 3→4.05 chunkier routing flap — Pass 5930: 4.05→5.47 chunkier routing diverter flap — Pass 6230: 5.47→7.38 chunkier routing diverter flap thickness — Pass 6450: 7.38→9.96 chunkier routing diverter flap thickness — Pass 6573: 9.96→13.4 chunkier routing diverter flap thickness — Pass 6707: 13.4→18.1 chunkier routing diverter flap thickness — Pass 6992: 18.1→24.4 chunkier routing diverter flap thickness
   diverterFlapMat
 );
 // Pivot is at left edge — offset mesh half its width to the right
@@ -1478,8 +1478,8 @@ activeCardEdge.visible = false;
 scene.add(activeCardEdge);
 
 // Card glow: increased range and physical falloff
-const cardGlow = new THREE.PointLight(0xffffff, 0, 4030); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range — Pass 5734: 493→666 wider card glow illumination range — Pass 5960: 666→899 wider card glow illumination range — Pass 6231: 899→1213 wider card glow illumination range — Pass 6451: 1213→1638 wider card glow illumination range — Pass 6574: 1638→2211 wider card glow illumination range — Pass 6708: 2211→2985 wider card glow illumination range — Pass 6759: 2985→4030 wider card glow illumination range
-cardGlow.decay = 16.3; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff — Pass 6339: 4.93→6.66 tighter card glow falloff — Pass 6443: 6.66→8.99 tighter card glow falloff — Pass 6575: 8.99→12.1 tighter card glow falloff — Pass 6709: 12.1→16.3 tighter card glow falloff
+const cardGlow = new THREE.PointLight(0xffffff, 0, 5441); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range — Pass 5734: 493→666 wider card glow illumination range — Pass 5960: 666→899 wider card glow illumination range — Pass 6231: 899→1213 wider card glow illumination range — Pass 6451: 1213→1638 wider card glow illumination range — Pass 6574: 1638→2211 wider card glow illumination range — Pass 6708: 2211→2985 wider card glow illumination range — Pass 6759: 2985→4030 wider card glow illumination range — Pass 6993: 4030→5441 wider card glow illumination range
+cardGlow.decay = 22.0; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff — Pass 6339: 4.93→6.66 tighter card glow falloff — Pass 6443: 6.66→8.99 tighter card glow falloff — Pass 6575: 8.99→12.1 tighter card glow falloff — Pass 6709: 12.1→16.3 tighter card glow falloff — Pass 6994: 16.3→22.0 tighter card glow falloff
 scene.add(cardGlow);
 
 // ─── Pass 177: Card contact shadow disc ──────────────────────────────────────
@@ -1822,7 +1822,7 @@ CARD_TYPES.forEach(ct => {
 // Visible during belt travel; makes domain color unmistakably obvious
 const cardHaloGeo = new THREE.TorusGeometry(42, 48.6, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring — Pass 6235: 5.98→8.07 chunkier card arrival halo ring tube radius — Pass 6456: 8.07→10.9 chunkier card arrival halo ring tube radius — Pass 6505: 10.9→14.7 chunkier card arrival halo ring tube radius — Pass 6514: 14.7→19.8 chunkier card arrival halo ring tube radius — Pass 6703: 19.8→26.7 chunkier card arrival halo ring tube radius — Pass 6749: 26.7→36.0 chunkier card arrival halo ring tube radius — Pass 6987: 36.0→48.6 chunkier card arrival halo ring tube radius
 const cardHaloMat = new THREE.MeshStandardMaterial({
-  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 16.3, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow — Pass 6350: 6.66→8.99 more vivid card halo ring birth glow — Pass 6704: 8.99→12.1 more vivid card halo ring birth glow emissive — Pass 6750: 12.1→16.3 more vivid card halo ring birth glow emissive
+  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 22.0, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow — Pass 6350: 6.66→8.99 more vivid card halo ring birth glow — Pass 6704: 8.99→12.1 more vivid card halo ring birth glow emissive — Pass 6750: 12.1→16.3 more vivid card halo ring birth glow emissive — Pass 6995: 16.3→22.0 more vivid card halo ring birth glow emissive
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
 });
 const cardHalo = new THREE.Mesh(cardHaloGeo, cardHaloMat);
@@ -2348,7 +2348,7 @@ function animate(ts) {
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
         // Spike the hopper light for visual emphasis — Pass 1014: 2.5→5.0
-        hopperLight.intensity = 30.2; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash — Pass 4271: 6.75→9.11 even brighter hopper spike — Pass 5027: 9.11→12.3 even brighter hopper spike — Pass 5211: 12.3→16.6 even brighter hopper refill spike — Pass 5913: 16.6→22.4 even brighter hopper refill spike — Pass 6361: 22.4→30.2 even brighter hopper refill spike intensity
+        hopperLight.intensity = 40.8; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash — Pass 4271: 6.75→9.11 even brighter hopper spike — Pass 5027: 9.11→12.3 even brighter hopper spike — Pass 5211: 12.3→16.6 even brighter hopper refill spike — Pass 5913: 16.6→22.4 even brighter hopper refill spike — Pass 6361: 22.4→30.2 even brighter hopper refill spike intensity — Pass 6996: 30.2→40.8 even brighter hopper refill spike intensity
         hopperLight.color.set(0xfff0cc);
       }
     }
@@ -4396,7 +4396,7 @@ function animate(ts) {
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
         tp.mat.opacity = 1.65 + Math.random() * 0.14; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks — Pass 4748: 0.90→1.22 more vivid reject sparks — Pass 5715: 1.22→1.65 more vivid reject sparks — Pass 5944: rand 0.10→0.14 wider reject spark opacity variance
-        tp.age = 0; tp.life = 8.86 + Math.random() * 3.81; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09 — Pass 4008: base 3.60→4.86 — Pass 4009: rand 2.09→2.82 — Pass 5627: base 4.86→6.56 longer reject spark lifespan — Pass 5628: rand 2.82→3.81 longer reject spark lifespan variance — Pass 6697: 6.56→8.86 longer reject spark lifespan base
+        tp.age = 0; tp.life = 12.0 + Math.random() * 3.81; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09 — Pass 4008: base 3.60→4.86 — Pass 4009: rand 2.09→2.82 — Pass 5627: base 4.86→6.56 longer reject spark lifespan — Pass 5628: rand 2.82→3.81 longer reject spark lifespan variance — Pass 6697: 6.56→8.86 longer reject spark lifespan base — Pass 6997: 8.86→12.0 longer reject spark lifespan base
         tp.active = true; tp.mesh.visible = true;
       }
     }
