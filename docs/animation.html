@@ -992,7 +992,7 @@ const scanLineMat2 = new THREE.MeshStandardMaterial({
   emissiveIntensity: 6.16, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar
   transparent: true, opacity: 0.88 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep
 });
-const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 121.5), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height
+const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 164), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height — Pass 5072: 121.5→164 wider secondary scan sweep
 scanLine2.visible = false;
 scene.add(scanLine2);
 
@@ -1978,7 +1978,7 @@ function fireCelebration() {
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
-    p.life = 6.39 + Math.random() * 4.93; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 — Pass 4100: 3.5+2.7→4.73+3.65 even longer airtime — Pass 4680: base 4.73→6.39 — Pass 4681: rand 3.65→4.93 even longer confetti airtime
+    p.life = 8.63 + Math.random() * 4.93; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 — Pass 4100: 3.5+2.7→4.73+3.65 even longer airtime — Pass 4680: base 4.73→6.39 — Pass 4681: rand 3.65→4.93 even longer confetti airtime — Pass 5073: base 6.39→8.63 longer confetti lifespan
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98
     p.rx = (Math.random() - 0.5) * 396; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161 — Pass 4093: 161→217 wilder tumble — Pass 4682: 217→293 even wilder tumble — Pass 5020: 293→396 wilder confetti rotation
@@ -2221,7 +2221,7 @@ function showScanOverlay(cardType, visible, routeText) {
 // Paddle rotates around Y axis (vertical) to deflect cards in the Z direction (column routing).
 // slotZ ∈ {-97.5, -32.5, 32.5, 97.5}  →  angles ±0.73 rad outer, ±0.24 rad inner
 function paddleAngleForSlot(slotZ) {
-  return -(slotZ / 160) * 1.62; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing
+  return -(slotZ / 160) * 2.19; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing — Pass 5074: 1.62→2.19 more dramatic gate swing
 }
 
 // ─── Hopper stack (dynamic — shrinks each cycle, refills after 6 cards) ───────
@@ -2343,7 +2343,7 @@ function animate(ts) {
         });
         // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 — Pass 1393: →14.0 for bigger batch-loaded burst — Pass 1583: →20.0, dist→300
         const _rfl = new THREE.PointLight(0xfff0cc, 66.6, 405); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst — Pass 4059: 27.0→36.5 intensity — Pass 4060: range 300→405 — Pass 4683: 36.5→49.3 brighter hopper refill burst — Pass 5026: 49.3→66.6 brighter hopper refill burst
-        _rfl.position.set(HOPPER_X + 33, 216, 0); // Pass 4519: hopper refill flash height 160→216 wider refill burst reach
+        _rfl.position.set(HOPPER_X + 33, 292, 0); // Pass 4519: hopper refill flash height 160→216 wider refill burst reach — Pass 5075: 216→292 taller hopper refill flash reach
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
@@ -2368,7 +2368,7 @@ function animate(ts) {
     let _recoilDip = 0;
     if (inPhase(PH.armLift) && i < stackTopIdx) {
       const _lt2 = phaseRaw(PH.armLift);
-      const _cardDelay = (stackTopIdx - 1 - i) * 0.108; // top-most remaining card fires first — Pass 4779: stack pick recoil stagger delay 0.08→0.108 wider cascade timing
+      const _cardDelay = (stackTopIdx - 1 - i) * 0.146; // top-most remaining card fires first — Pass 4779: stack pick recoil stagger delay 0.08→0.108 wider cascade timing — Pass 5076: 0.108→0.146 wider cascade stagger
       const _delayedT = Math.max(0, _lt2 - _cardDelay);
       // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 — Pass 1228: →2.4 — Pass 1661: →3.2 — Pass 4062: →4.32 deeper suction-break recoil
       if (_delayedT < 0.45) _recoilDip = -10.6 * Math.sin(_delayedT / 0.45 * Math.PI); // Pass 4780: stack pick recoil dip 4.32→5.83 deeper suction-break recoil — Pass 5059: 5.83→7.87 deeper suction-break recoil — Pass 5070: 7.87→10.6 deeper suction-break recoil
@@ -2433,7 +2433,7 @@ function animate(ts) {
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61 — Pass 4771: amp 2.17→2.93 richer settled breathing
           mesh.material.emissiveIntensity = 1.89 + 3.96 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing — Pass 5067: base 1.40→1.89 richer settled card glow — Pass 5068: amp 2.93→3.96 richer settled card breathing
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway — Pass 4772: 0.051→0.069 deeper deck sway
-          const _swayPhase = _globalCardIdx * 2.47; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync
+          const _swayPhase = _globalCardIdx * 3.33; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync — Pass 5077: 2.47→3.33 more organic sway desync
           mesh.rotation.z = 0.093 * Math.sin(ts * 0.513 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway — Pass 5069: 0.069→0.093 deeper deck sway
         }
         _globalCardIdx++;
@@ -2473,7 +2473,7 @@ function animate(ts) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
     } else {
-      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 3.38); // Pass 4723: fill bar idle tracking 2.5→3.38 snappier fill bar settle
+      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 4.56); // Pass 4723: fill bar idle tracking 2.5→3.38 snappier fill bar settle — Pass 5078: 3.38→4.56 snappier fill bar tracking
     }
   });
 
@@ -2525,7 +2525,7 @@ function animate(ts) {
   const beltActive = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
   const airActive  = inPhase(PH.deflect) || inPhase(PH.slotDrop);
   // Pass 431: belt halo 0.35→0.45 — Pass 708/709: belt 0.45→0.58, air 0.20→0.28 — Pass 832: belt→0.72, air→0.38
-  const haloTargetOpacity = beltActive ? 0.97 : airActive ? 0.69 : 0; // Pass 2521: halo belt 0.72→0.97 Pass 2522: air 0.38→0.51 — Pass 4247: air 0.51→0.69 brighter airborne halo
+  const haloTargetOpacity = beltActive ? 0.97 : airActive ? 0.93 : 0; // Pass 2521: halo belt 0.72→0.97 Pass 2522: air 0.38→0.51 — Pass 4247: air 0.51→0.69 brighter airborne halo — Pass 5079: air 0.69→0.93 brighter airborne halo
   // Pass 833: airborne spin rate 0.003→0.006 for faster spinning when card is airborne
   // Pass 4053: halo belt-active spin rate 0.0012→0.00162 — Pass 4054: halo airborne spin rate 0.006→0.0081
   const haloSpinRate = beltActive ? 0.00162 : 0.0081;
