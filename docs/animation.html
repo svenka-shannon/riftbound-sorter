@@ -2525,7 +2525,7 @@ function animate(ts) {
   const beltActive = inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut);
   const airActive  = inPhase(PH.deflect) || inPhase(PH.slotDrop);
   // Pass 431: belt halo 0.35→0.45 — Pass 708/709: belt 0.45→0.58, air 0.20→0.28 — Pass 832: belt→0.72, air→0.38
-  const haloTargetOpacity = beltActive ? 0.97 : airActive ? 0.51 : 0; // Pass 2521: halo belt 0.72→0.97 Pass 2522: air 0.38→0.51
+  const haloTargetOpacity = beltActive ? 0.97 : airActive ? 0.69 : 0; // Pass 2521: halo belt 0.72→0.97 Pass 2522: air 0.38→0.51 — Pass 4247: air 0.51→0.69 brighter airborne halo
   // Pass 833: airborne spin rate 0.003→0.006 for faster spinning when card is airborne
   // Pass 4053: halo belt-active spin rate 0.0012→0.00162 — Pass 4054: halo airborne spin rate 0.006→0.0081
   const haloSpinRate = beltActive ? 0.00162 : 0.0081;
@@ -4530,7 +4530,7 @@ function animate(ts) {
       const _aCupY = PIV_Y - 83 * Math.cos(_aRot);
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
-      tp.mesh.position.set(_aCupX + (Math.random()-0.5)*3, _aCupY + (Math.random()-0.5)*3, suctionPivot.position.z + (Math.random()-0.5)*6);
+      tp.mesh.position.set(_aCupX + (Math.random()-0.5)*4.05, _aCupY + (Math.random()-0.5)*4.05, suctionPivot.position.z + (Math.random()-0.5)*8.1); // Pass 4250: armReturn trail XY scatter 3→4.05 — Pass 4251: Z scatter 6→8.1 wider return wisps
       // Pass 245: armReturn domain wisps — first 30% of return trail carries domain color
       // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 — Pass 643: extend wisp to 45%; boost 0.48+0.22→0.62+0.28
       // Pass 865: domain wisp opacity 0.62+0.28→0.80+0.40 — Pass 1052: →0.90+0.48 richer memory trail
@@ -4575,7 +4575,7 @@ function animate(ts) {
     // on the scanner hood emissive, as if it's slowly cooling down between cycles. — Pass 1606: 0.04→0.06
     {
       const _hoodEmber = 0.656 * Math.sin(ts * 0.4 * Math.PI * 2) * Math.sin(ts * 1.3 * Math.PI * 2); // Pass 2418: hood ember amp 0.109→0.147 — Pass 2654: 0.147→0.198 — Pass 2884: 0.198→0.267 — Pass 3092: 0.267→0.360 — Pass 3268: 0.360→0.486 — Pass 3608: 0.486→0.656
-      hoodMat.emissiveIntensity = Math.max(0.10, hoodMat.emissiveIntensity + _hoodEmber * dt * 3.5);
+      hoodMat.emissiveIntensity = Math.max(0.10, hoodMat.emissiveIntensity + _hoodEmber * dt * 4.73); // Pass 4246: hood ember apply rate 3.5→4.73 more reactive thermal ember
     }
     activeCard.visible = false;
     activeCardMat.opacity = 0;
@@ -4605,7 +4605,7 @@ function animate(ts) {
   // Belt emissive flicker implies motion throughout the cycle (base scales with speed)
   const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.05;
   // Pass 143: speed-proportional strobe frequency (3 Hz idle → 9 Hz at full belt speed)
-  const _beltStrobeFreq = 3 + _beltScrollSpeed * 75;
+  const _beltStrobeFreq = 4.05 + _beltScrollSpeed * 101; // Pass 4248: belt idle strobe freq 3→4.05 — Pass 4249: speed mult 75→101 busier belt strobe
   // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 — Pass 1059: →0.10 reactive belt
   const _beltSpeedGlow = _beltScrollSpeed > 0.005
     ? 0.817 * (_beltScrollSpeed / 0.108) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0; // Pass 2163: belt speed glow amp 0.135→0.182 — Pass 2656: 0.182→0.246 — Pass 2887: 0.246→0.332 — Pass 3094: 0.332→0.448 — Pass 3270: 0.448→0.605 — Pass 3610: 0.605→0.817
@@ -4787,7 +4787,7 @@ function animate(ts) {
     // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35 — Pass 1458: armDesc 0.18→0.26, convIn 0.25→0.35
     // Pass 1662: spike 2.50→3.40; Pass 1663: swing 1.35→1.80; Pass 1664: lift base 0.42→0.58
     const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 92.7 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7 — Pass 3285: 20.7→27.9 — Pass 3365: 27.9→37.7 — Pass 3503: 37.7→50.9 — Pass 3744: 50.9→68.7 — Pass 3852: 68.7→92.7
-    const _rodGlow = Math.max(_armDescT * 0.47, _armLiftT * 0.78 + _liftPickSpike, _armSwingT * 48.6, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07 — Pass 3114: 8.07→10.9 — Pass 3286: 10.9→14.7 — Pass 3366: 14.7→19.8 — Pass 3504: 19.8→26.7 — Pass 3745: 26.7→36.0 — Pass 3853: 36.0→48.6
+    const _rodGlow = Math.max(_armDescT * 0.63, _armLiftT * 1.05 + _liftPickSpike, _armSwingT * 48.6, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07 — Pass 3114: 8.07→10.9 — Pass 3286: 10.9→14.7 — Pass 3366: 14.7→19.8 — Pass 3504: 19.8→26.7 — Pass 3745: 26.7→36.0 — Pass 3853: 36.0→48.6 — Pass 4252: armDesc 0.47→0.63 — Pass 4253: armLift 0.78→1.05 brighter arm rod during descend/lift
     armRod.material.emissive.setHex(ct.hex);
     armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 217); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161 — Pass 3854: 161→217
   }
