@@ -1739,7 +1739,7 @@ function addCardToTray(ct) {
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
-  const startY  = targetY + 30; // start above, animate down
+  const startY  = targetY + 40.5; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5
   const zJitter    = (Math.random() - 0.5) * 2.7;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread
   const yRotJitter = (Math.random() - 0.5) * 0.162;  // ±0.081 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle
   mesh.position.set(
@@ -1995,7 +1995,7 @@ function fireCelebration() {
     _mp.vx = (Math.random() - 0.5) * 510; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 wider shimmer spread
     _mp.vy = 514 + Math.random() * 433; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 higher shimmer loft
     _mp.vz = (Math.random() - 0.5) * 201; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 — Pass 4104: 149→201 even wider Z shimmer
-    _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*30, FLOOR_Y[0] + 85, (Math.random()-0.5)*40);
+    _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*40.5, FLOOR_Y[0] + 85, (Math.random()-0.5)*40); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5
     _mp.mat.color.setHex(_shimmerColors[_mi]);
     _mp.mat.opacity = 1.0;
     _mp.age = 0; _mp.life = 2.005 + Math.random() * 1.458; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 — Pass 4108: 1.485+1.080→2.005+1.458 longer shimmer life
@@ -3283,7 +3283,7 @@ function animate(ts) {
       // Pass 344: dot reveal burst — Pass 576: 0.80→1.30 — Pass 849: →1.90 — Pass 1316: →2.60 — Pass 1418: →3.60 — Pass 1692: →4.80
       const _dotRevealBurst = _identityRevealed ? Math.exp(-(ft - 0.85) * 15) * 21.5 : 0; // Pass 2548: dot reveal burst 4.80→6.48 — Pass 3557: 6.48→8.75 — Pass 3715: 8.75→11.8 — Pass 3825: 11.8→15.9 — Pass 4144: 15.9→21.5 brighter dot burst
       SCAN_GRID_DOTS.forEach(({ mesh, mat }, di) => {
-        const stagger = di * 0.06; // 60ms stagger per dot (0..0.48s)
+        const stagger = di * 0.081; // 60ms stagger per dot (0..0.48s) // Pass 4890: scan grid dot cascade stagger interval 0.06→0.081
         const dotFt = Math.max(0, ft - stagger * (1 / 0.6)); // normalize to phase
         // Pass 171: each dot switches domain color at its own cascade threshold
         const _dotSwitchFt = 0.85 + di * 0.014; // dot 0 at 0.85, dot 8 at 0.962
@@ -3601,7 +3601,7 @@ function animate(ts) {
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
     const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 44.3 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3 — Pass 3579: 13.3→18.0 — Pass 3674: 18.0→24.3 — Pass 3992: 24.3→32.8 — Pass 4133: 32.8→44.3 brighter cone flare
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
-    scanCone.position.z = 80.7 * Math.sin(phaseRaw(PH.scan) * Math.PI * 1.5); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc
+    scanCone.position.z = 80.7 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
     scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 21.2 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7 — Pass 4135: 15.7→21.2 taller cone punch
@@ -3702,7 +3702,7 @@ function animate(ts) {
     _ov.style.top  = (_sy - 90) + 'px';
     // Pass 103: HUD breathes with scan flash intensity — slight scale pulse
     // Pass 219: completion bounce — Pass 566: 0.12→0.22 — Pass 619: →0.32 — Pass 817: →0.48
-    const _ovBounce = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 0.48 : 0;
+    const _ovBounce = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 0.65 : 0; // Pass 4892: scan HUD completion bounce amplitude 0.48→0.65
     _ov.style.transform = `translateX(-50%) scale(${(1.0 + flashIntensity * 0.135 + _ovBounce).toFixed(4)})`; // Pass 4799: scan overlay flash scale 0.10→0.135
   }
 
@@ -3963,7 +3963,7 @@ function animate(ts) {
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 217; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161 — Pass 4084: 161→217
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
-    const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
+    const floorTilt = ct.floor === 1 ? 0.27 : -0.1; // upper: nose up; lower: nose down // Pass 4893: floor-1 guided deflect arc nose-up tilt 0.20→0.27
     activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.68 * bankSign, dt2); // Pass 4695: deflect flight bank angle 0.5→0.68 harder card lean during arc
     // Pass 159: smooth conveyorOut exit lean → floorTilt + brief nose-up launch kick
     // Eliminates the snap at the conveyorOut/deflect rotation.x boundary
@@ -4181,7 +4181,7 @@ function animate(ts) {
       const _sweepX = THREE.MathUtils.lerp(TRAY_X_START + 5, TRAY_X_END - 5, easeInOut(dt3));
       slotSweepLight.color.setHex(ct.hex);
       // Pass 315: sweep light Z oscillation — light sways laterally as it travels into the slot
-      const _sweepZOsc315 = 6.75 * Math.sin(dt3 * Math.PI * 3) * Math.max(0, 1 - dt3 * 1.5); // Pass 4008: sweep Z oscillation amplitude 5→6.75 wider slot sweep sway
+      const _sweepZOsc315 = 6.75 * Math.sin(dt3 * Math.PI * 4.05) * Math.max(0, 1 - dt3 * 1.5); // Pass 4008: sweep Z oscillation amplitude 5→6.75 wider slot sweep sway — Pass 4894: slot entry sweep Z oscillation count 3→4.05
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 39.2, ct.slotZ + _sweepZOsc315); // Pass 4853: slot sweep light Y height 29→39.2 higher slot entry spotlight
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
@@ -4797,7 +4797,7 @@ function animate(ts) {
   const cupPickActive = cycleT < PH.armSwing[1]; // during descend + lift + swing
   if (cupPickActive) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
-                     inPhase(PH.armLift)    ? 1.0 : 0.5;
+                     inPhase(PH.armLift)    ? 1.0 : 0.68; // Pass 4889: armSwing cup glow coefficient 0.5→0.68
     suctionCupMat.emissive.setHex(ct.hex);
     suctionCupMat.emissiveIntensity = cupGlowT * 50.9; // Pass 2184: cup peak glow 4.59→6.20 — Pass 2676: 6.20→8.37 — Pass 2768: 8.37→11.3 — Pass 2906: 11.3→15.3 — Pass 3116: 15.3→20.7 — Pass 3288: 20.7→27.9 — Pass 3368: 27.9→37.7 — Pass 4457: 37.7→50.9 brighter cup down-thrust emissive
   } else if (inPhase(PH.armReturn)) {
