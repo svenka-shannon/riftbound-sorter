@@ -1628,7 +1628,7 @@ for (let _dr = 0; _dr < 3; _dr++) {
   for (let _dc = 0; _dc < 3; _dc++) {
     SCAN_DOT_OFFSETS.push({
       x: THREE.MathUtils.lerp(-CARD_W * 0.787, CARD_W * 0.787, _dc / 2), // Pass 4865: scan grid X spread 0.32→0.432 wider dot array — Pass 5447: 0.432→0.583 wider scan grid X span — Pass 5860: 0.583→0.787 wider scan grid dot array X span
-      z: THREE.MathUtils.lerp(-CARD_H * 0.738, CARD_H * 0.738, _dr / 2), // Pass 4866: scan grid Z spread 0.3→0.405 deeper dot array — Pass 5448: 0.405→0.547 deeper scan grid Z span — Pass 5861: 0.547→0.738 deeper scan grid dot array Z span
+      z: THREE.MathUtils.lerp(-CARD_H * 0.996, CARD_H * 0.996, _dr / 2), // Pass 4866: scan grid Z spread 0.3→0.405 deeper dot array — Pass 5448: 0.405→0.547 deeper scan grid Z span — Pass 5861: 0.547→0.738 deeper scan grid dot array Z span — Pass 6348: 0.738→0.996 deeper scan grid dot array Z span
     });
   }
 }
@@ -1640,7 +1640,7 @@ const floorDiscMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0,
   depthWrite: false, side: THREE.DoubleSide,
 });
-const floorDisc = new THREE.Mesh(new THREE.CircleGeometry(35, 32), floorDiscMat);
+const floorDisc = new THREE.Mesh(new THREE.CircleGeometry(47.3, 32), floorDiscMat); // Pass 6349: floor halo disc radius 35→47.3 wider card floor glow halo
 floorDisc.rotation.x = -Math.PI / 2; // lay flat on grid floor
 floorDisc.position.y = 1.5;          // just above grid floor (avoids z-fighting)
 scene.add(floorDisc);
@@ -1822,7 +1822,7 @@ CARD_TYPES.forEach(ct => {
 // Visible during belt travel; makes domain color unmistakably obvious
 const cardHaloGeo = new THREE.TorusGeometry(42, 8.07, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring — Pass 6235: 5.98→8.07 chunkier card arrival halo ring tube radius
 const cardHaloMat = new THREE.MeshStandardMaterial({
-  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 6.66, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow
+  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 8.99, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow — Pass 6350: 6.66→8.99 more vivid card halo ring birth glow
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
 });
 const cardHalo = new THREE.Mesh(cardHaloGeo, cardHaloMat);
@@ -1838,7 +1838,7 @@ CARD_TYPES.forEach(ct => {
   const mat = new THREE.MeshStandardMaterial({
     color:             ct.hex,
     emissive:          ct.hex,
-    emissiveIntensity: 0.984, // Pass 4801: fill bar initial emissiveIntensity 0.4→0.54 richer domain bar base — Pass 5063: 0.54→0.729 richer fill bar base glow — Pass 5905: 0.729→0.984 richer fill bar base glow
+    emissiveIntensity: 1.33, // Pass 4801: fill bar initial emissiveIntensity 0.4→0.54 richer domain bar base — Pass 5063: 0.54→0.729 richer fill bar base glow — Pass 5905: 0.729→0.984 richer fill bar base glow — Pass 6351: 0.984→1.33 richer fill bar base glow
     roughness:         0.5,
     metalness:         0.0,
   });
@@ -1998,10 +1998,10 @@ function fireCelebration() {
     _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*54.7, FLOOR_Y[0] + 85, (Math.random()-0.5)*40); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5 — Pass 5521: 40.5→54.7 wider shimmer confetti X spawn spread
     _mp.mat.color.setHex(_shimmerColors[_mi]);
     _mp.mat.opacity = 1.0;
-    _mp.age = 0; _mp.life = 4.93 + Math.random() * 1.968; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 — Pass 4108: 1.485+1.080→2.005+1.458 longer shimmer life — Pass 4937: 2.005+1.458→2.707+1.968 longer shimmer life — Pass 5520: 2.707→3.655 longer shimmer particle life base — Pass 5889: 3.655→4.93 longer celebration shimmer particle lifespan
-    _mp.rx = (Math.random() - 0.5) * 556; // Pass 2506: shimmer rx 50→68 — Pass 3629: 68→92 — Pass 3774: 92→124 — Pass 3881: 124→167 — Pass 4105: 167→226 — Pass 4933: 226→305 wilder shimmer tumble X — Pass 5517: 305→412 wilder shimmer tumble X spin — Pass 5895: 412→556 wilder shimmer tumble X rotation
-    _mp.ry = (Math.random() - 0.5) * 658; // Pass 2507: shimmer ry 60→81 — Pass 3630: 81→109 — Pass 3775: 109→147 — Pass 3882: 147→198 — Pass 4106: 198→267 — Pass 4934: 267→361 wilder shimmer tumble Y — Pass 5518: 361→487 wilder shimmer tumble Y spin — Pass 5896: 487→658 wilder shimmer tumble Y rotation
-    _mp.rz = (Math.random() - 0.5) * 779; // Pass 2508: shimmer rz 70→95 — Pass 3631: 95→128 — Pass 3776: 128→173 — Pass 3883: 173→234 — Pass 4107: 234→316 — Pass 4938: 316→427 wilder shimmer tumble Z — Pass 5519: 427→577 wilder shimmer tumble Z spin — Pass 5897: 577→779 wilder shimmer tumble Z rotation
+    _mp.age = 0; _mp.life = 6.66 + Math.random() * 2.66; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 — Pass 4108: 1.485+1.080→2.005+1.458 longer shimmer life — Pass 4937: 2.005+1.458→2.707+1.968 longer shimmer life — Pass 5520: 2.707→3.655 longer shimmer particle life base — Pass 5889: 3.655→4.93 longer celebration shimmer particle lifespan — Pass 6352: 4.93+1.968→6.66+2.66 longer celebration shimmer particle lifespan
+    _mp.rx = (Math.random() - 0.5) * 751; // Pass 2506: shimmer rx 50→68 — Pass 3629: 68→92 — Pass 3774: 92→124 — Pass 3881: 124→167 — Pass 4105: 167→226 — Pass 4933: 226→305 wilder shimmer tumble X — Pass 5517: 305→412 wilder shimmer tumble X spin — Pass 5895: 412→556 wilder shimmer tumble X rotation — Pass 6353: 556→751 wilder shimmer tumble X rotation
+    _mp.ry = (Math.random() - 0.5) * 888; // Pass 2507: shimmer ry 60→81 — Pass 3630: 81→109 — Pass 3775: 109→147 — Pass 3882: 147→198 — Pass 4106: 198→267 — Pass 4934: 267→361 wilder shimmer tumble Y — Pass 5518: 361→487 wilder shimmer tumble Y spin — Pass 5896: 487→658 wilder shimmer tumble Y rotation — Pass 6354: 658→888 wilder shimmer tumble Y rotation
+    _mp.rz = (Math.random() - 0.5) * 1052; // Pass 2508: shimmer rz 70→95 — Pass 3631: 95→128 — Pass 3776: 128→173 — Pass 3883: 173→234 — Pass 4107: 234→316 — Pass 4938: 316→427 wilder shimmer tumble Z — Pass 5519: 427→577 wilder shimmer tumble Z spin — Pass 5897: 577→779 wilder shimmer tumble Z rotation — Pass 6355: 779→1052 wilder shimmer tumble Z rotation
     _mp.active = true; _mp.mesh.visible = true;
   }
   // Pass 54: full-scene celebration enhancement
