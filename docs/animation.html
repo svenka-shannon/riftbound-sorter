@@ -1757,7 +1757,7 @@ function addCardToTray(ct) {
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 10.6; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop — Pass 5774: 7.87→10.6 brighter new card arrival emissive flash
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow — Pass 4768: →9.3s even longer afterglow
-  _ledCooloff[ct.slot] = 23.0; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5299: slot LED afterglow 12.6→17.0s even longer slot domain glow — Pass 5882: 17.0→23.0 even longer slot LED afterglow duration
+  _ledCooloff[ct.slot] = 31.1; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5299: slot LED afterglow 12.6→17.0s even longer slot domain glow — Pass 5882: 17.0→23.0 even longer slot LED afterglow duration — Pass 6195: 23.0→31.1 even longer slot LED afterglow duration
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
   const flashLight = new THREE.PointLight(ct.hex, 55.1, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst — Pass 5410: 22.4→30.2 brighter card deal slot arrival burst flash — Pass 5534: 30.2→40.8 brighter card deal slot arrival burst flash peak — Pass 5854: 40.8→55.1 brighter card deal slot arrival burst flash peak
@@ -3108,11 +3108,11 @@ function animate(ts) {
     // Pass 172: scan-field levitation — card floats on 0.8Hz sine during scan (peaks at midpoint)
     // Pass 658: levitate 0.30→0.55 + secondary 0.15 — Pass 788: primary 0.55→0.75, secondary 0.15→0.24 — Pass 1076: primary 0.75→1.05, secondary 0.24→0.35 — Pass 1208: primary 1.05→1.50, secondary 0.35→0.55 — Pass 1276: primary 1.50→2.10, secondary 0.55→0.78
     const ft = phaseRaw(PH.scan);
-    const _levitate = (9.48 * Math.sin(ts * 0.8 * Math.PI * 2) + 3.52 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI); // Pass 2295: levitate primary 2.85→3.85, secondary 1.06→1.43 — Pass 3923: 3.85+1.43→5.20+1.93 — Pass 4218: primary 5.20→7.02 — Pass 4219: secondary 1.93→2.61 more scan levitation — Pass 5030: primary 7.02→9.48, secondary 2.61→3.52 more scan levitation
+    const _levitate = (12.8 * Math.sin(ts * 0.8 * Math.PI * 2) + 4.75 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI); // Pass 2295: levitate primary 2.85→3.85, secondary 1.06→1.43 — Pass 3923: 3.85+1.43→5.20+1.93 — Pass 4218: primary 5.20→7.02 — Pass 4219: secondary 1.93→2.61 more scan levitation — Pass 5030: primary 7.02→9.48, secondary 2.61→3.52 more scan levitation — Pass 6188: primary 9.48→12.8, secondary 3.52→4.75 more scan levitation amplitude
     // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
     // confirmed (ft 0.85→1.0), giving a subtle "recognition" gesture.
     // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 — Pass 1077: →12.0 — Pass 1209: →17.0 — Pass 1277: →24.0 for more prominent "recognized!" rise
-    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 106.2 : 0; // Pass 2296: reveal lift 32.0→43.2 — Pass 3943: 43.2→58.3 — Pass 4232: 58.3→78.7 higher recognition rise — Pass 5031: 78.7→106.2 higher reveal lift
+    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 143 : 0; // Pass 2296: reveal lift 32.0→43.2 — Pass 3943: 43.2→58.3 — Pass 4232: 58.3→78.7 higher recognition rise — Pass 5031: 78.7→106.2 higher reveal lift — Pass 6189: 106.2→143 higher card recognition rise
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's belt lean into the reveal bell curve over first 10%
@@ -3139,8 +3139,8 @@ function animate(ts) {
     const flashIntensity = Math.sin(ft * Math.PI);
     // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
     // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 — Pass 1373: →23.0 — Pass 1517: →32.0 for bigger scan flash and lock-on pop
-    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 352 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143 — Pass 4235: 143→193 bigger reveal spike — Pass 5202: 193→261 bigger reveal spike — Pass 5239: 261→352 bigger scan reveal spike
-    scanFlash.intensity = flashIntensity * 163 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3 — Pass 3759: 49.3→66.6 — Pass 3867: 66.6→89.9 — Pass 4236: 89.9→121 brighter scan flash — Pass 5203: 121→163 brighter scan flash
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 475 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143 — Pass 4235: 143→193 bigger reveal spike — Pass 5202: 193→261 bigger reveal spike — Pass 5239: 261→352 bigger scan reveal spike — Pass 6190: 352→475 bigger scan flash reveal spike
+    scanFlash.intensity = flashIntensity * 220 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3 — Pass 3759: 49.3→66.6 — Pass 3867: 66.6→89.9 — Pass 4236: 89.9→121 brighter scan flash — Pass 5203: 121→163 brighter scan flash — Pass 6191: 163→220 brighter scan flash intensity
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 1.33 : 0; // Pass 1864: scan flash Z drift 0.40→0.54 — Pass 3939: 0.54→0.729 further Z drift toward slot — Pass 4421: 0.729→0.984 deeper scan flash Z pull — Pass 5150: 0.984→1.33 deeper scan flash Z drift toward slot
     scanFlash.position.set(-40, CONV_Y_TOP + 10, _flashZ351);
@@ -3162,7 +3162,7 @@ function animate(ts) {
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 27.5 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16 — Pass 3412: 6.16→8.32 — Pass 3768: 8.32→11.2 — Pass 3876: 11.2→15.1 — Pass 4370: 15.1→20.4 brighter scan card flash — Pass 5206: 20.4→27.5 brighter scan card flash
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
-    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 230 : 0; // Pass 2300: reveal glow surge 37.8→51.0 — Pass 3376: 51.0→68.9 — Pass 3509: 68.9→93.0 — Pass 3648: 93.0→126 — Pass 4339: 126→170 more intense card glow surge at reveal — Pass 5207: 170→230 more intense card glow surge at reveal
+    const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 311 : 0; // Pass 2300: reveal glow surge 37.8→51.0 — Pass 3376: 51.0→68.9 — Pass 3509: 68.9→93.0 — Pass 3648: 93.0→126 — Pass 4339: 126→170 more intense card glow surge at reveal — Pass 5207: 170→230 more intense card glow surge at reveal — Pass 6192: 230→311 more intense card glow surge at reveal
     cardGlow.intensity = 10.8 + flashIntensity * 26.1 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83 — Pass 3377: base 4.4→5.9 Pass 3378: flash 5.83→7.87 — Pass 3510: flash 7.87→10.6 — Pass 3649: flash 10.6→14.3 — Pass 4371: 14.3→19.3 — Pass 4675: base 5.9→7.97 brighter scan card glow base — Pass 5264: flash 19.3→26.1 brighter scan card glow flash — Pass 5797: base 7.97→10.8 brighter scan card glow base
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
@@ -5253,7 +5253,7 @@ function animate(ts) {
       // conveyorIn/Out → stretch up to ~7 extra units; scan (stationary) → compress back to base.
       const _beltMoving = (_onBelt && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)));
       const _stretchTarget = _beltMoving ? CARD_H * 1.00 + _beltScrollSpeed * 2867 : CARD_H * 1.00; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863 — Pass 3152: 863→1165 — Pass 3321: 1165→1573 — Pass 4176: 1573→2124 more dynamic speed-stretch — Pass 4397: base 0.74→1.00 wider card shadow — Pass 5645: speed-stretch belt factor 2124→2867 more dynamic card shadow speed-stretch
-      _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 10.9); // Pass 4847: shadow stretch tracking rate 6→8.10 snappier speed-stretch response — Pass 5387: 8.10→10.9 snappier shadow speed-stretch tracking
+      _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 14.7); // Pass 4847: shadow stretch tracking rate 6→8.10 snappier speed-stretch response — Pass 5387: 8.10→10.9 snappier shadow speed-stretch tracking — Pass 6188: 10.9→14.7 snappier shadow speed-stretch tracking rate
     }
     _shadowMesh.visible = _shadowMat.opacity > 0.01;
   }
@@ -5269,9 +5269,9 @@ function animate(ts) {
     tp.age += dt;
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
-    tp.mesh.position.y += dt * (109.2 + _tt * 161); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail — Pass 5288: base 59.9→80.9 — Pass 5289: ramp 88.6→119.6 more buoyant contrail — Pass 5720: base 80.9→109.2 more buoyant arm trail contrail — Pass 6010: ramp 119.6→161 more buoyant contrail rise rate
-    tp.mat.opacity = (1 - _tt) * 3.96; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth — Pass 4521: arm trail contrail birth opacity 1.19→1.61 brighter sphere trail — Pass 5345: 1.61→2.17 brighter arm trail contrail birth opacity — Pass 5695: 2.17→2.93 brighter arm trail contrail birth opacity — Pass 5974: 2.93→3.96 brighter arm trail contrail birth opacity
-    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 15.0)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper — Pass 5290: 8.24→11.1 faster trail shrink taper — Pass 5807: 11.1→15.0 faster arm trail shrink taper
+    tp.mesh.position.y += dt * (147 + _tt * 161); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail — Pass 5288: base 59.9→80.9 — Pass 5289: ramp 88.6→119.6 more buoyant contrail — Pass 5720: base 80.9→109.2 more buoyant arm trail contrail — Pass 6010: ramp 119.6→161 more buoyant contrail rise rate — Pass 6189: base 109.2→147 more buoyant arm trail contrail rise base
+    tp.mat.opacity = (1 - _tt) * 5.35; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth — Pass 4521: arm trail contrail birth opacity 1.19→1.61 brighter sphere trail — Pass 5345: 1.61→2.17 brighter arm trail contrail birth opacity — Pass 5695: 2.17→2.93 brighter arm trail contrail birth opacity — Pass 5974: 2.93→3.96 brighter arm trail contrail birth opacity — Pass 6190: 3.96→5.35 brighter arm trail contrail birth opacity
+    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 20.3)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper — Pass 5290: 8.24→11.1 faster trail shrink taper — Pass 5807: 11.1→15.0 faster arm trail shrink taper — Pass 6191: 15.0→20.3 faster arm trail shrink taper rate
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
     // then bleach normally — so the arc trail stays vivid near the arm and fades away.
@@ -5297,7 +5297,7 @@ function animate(ts) {
     p.mesh.position.z += p.vz * dt;
     p.vy -= 2025 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4 — Pass 3493: 449.4→607 — Pass 4181: 607→820 heavier dust — Pass 5144: 820→1110 heavier grab particle gravity — Pass 5696: 1110→1500 heavier grab particle gravity — Pass 6064: 1500→2025 heavier grab particle gravity
     p.vx *= 1 - dt * 76.0; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9 — Pass 4182: 22.9→30.9 snappier particle decel — Pass 5348: 30.9→41.7 snappier grab particle air resistance — Pass 5721: 41.7→56.3 snappier grab particle air resistance — Pass 6065: 56.3→76.0 snappier grab particle X air resistance
-    p.vz *= 1 - dt * 56.7; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread — Pass 5350: 31.1→42.0 tighter grab particle Z spread — Pass 5808: 42.0→56.7 tighter grab particle Z spread
+    p.vz *= 1 - dt * 76.5; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread — Pass 5350: 31.1→42.0 tighter grab particle Z spread — Pass 5808: 42.0→56.7 tighter grab particle Z spread — Pass 6192: 56.7→76.5 tighter grab particle Z spread drag
     p.mat.opacity = (1 - _pt * _pt) * 2.46; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00 — Pass 4524: grab particle fade rate 1.00→1.35 faster fade-out — Pass 5349: 1.35→1.82 brighter grab particle fade-out — Pass 6066: 1.82→2.46 brighter grab particle fade-out opacity multiplier
     p.mesh.scale.setScalar(Math.max(0.068, 1.0 - _pt * 2.34)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95 — Pass 4424: 0.95→1.28 crisper particle shrink — Pass 4652: grab particle min scale floor 0.05→0.068 chunkier particle tail — Pass 5351: 1.28→1.73 crisper grab particle shrink — Pass 6014: 1.73→2.34 crisper grab particle shrink taper
   });
@@ -5338,7 +5338,7 @@ function animate(ts) {
     p.mesh.rotation.y += p.ry * dt;
     p.mesh.rotation.z += p.rz * dt;
     p.rx *= 1 - dt * 1.98; p.ry *= 1 - dt * 1.98; p.rz *= 1 - dt * 1.98; // Pass 1637: angular drag 0.8→0.6 (longer spin) — Pass 4425: 0.6→0.81 stronger confetti tumble damping — Pass 5295: 0.81→1.09 stronger confetti tumble damping — Pass 5703: 1.09→1.47 stronger confetti angular tumble damping — Pass 6070: 1.47→1.98 stronger confetti angular tumble damping
-    p.mat.opacity = (1 - _ct2 * _ct2) * 1.82; // Pass 1472: peak opacity 0.88→1.0 — Pass 4647: landing mote particle fade multiplier 1.0→1.35 brighter confetti fade-out — Pass 5354: 1.35→1.82 brighter confetti particle fade-out
+    p.mat.opacity = (1 - _ct2 * _ct2) * 2.46; // Pass 1472: peak opacity 0.88→1.0 — Pass 4647: landing mote particle fade multiplier 1.0→1.35 brighter confetti fade-out — Pass 5354: 1.35→1.82 brighter confetti particle fade-out — Pass 6193: 1.82→2.46 brighter confetti particle fade-out opacity
   });
 
   // ── Fog color — fixed dark navy, no domain tinting (removed per user request) ──
@@ -5475,7 +5475,7 @@ function animate(ts) {
         m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 32.3); // Pass 2443: tray arrival decay 2.16→2.92 — Pass 2738: 2.92→3.94 — Pass 2970: 3.94→5.32 — Pass 3170: 5.32→7.18 — Pass 3338: 7.18→9.69 — Pass 4722: 9.69→13.1 snappier tray arrival flash decay — Pass 5443: 13.1→17.7 snappier tray arrival flash decay — Pass 5817: 17.7→23.9 snappier tray arrival flash decay — Pass 6078: 23.9→32.3 snappier tray arrival flash decay
       } else {
         // At idle — gently track the breathing target
-        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 14.7); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98 — Pass 4555: 5.98→8.07 snappier tray idle emissive tracking — Pass 5135: 8.07→10.9 snappier tray idle emissive tracking — Pass 5705: 10.9→14.7 snappier tray card idle emissive tracking
+        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 19.8); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98 — Pass 4555: 5.98→8.07 snappier tray idle emissive tracking — Pass 5135: 8.07→10.9 snappier tray idle emissive tracking — Pass 5705: 10.9→14.7 snappier tray card idle emissive tracking — Pass 6194: 14.7→19.8 snappier tray card idle emissive tracking rate
       }
     });
   });
