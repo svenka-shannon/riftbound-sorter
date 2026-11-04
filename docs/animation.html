@@ -1033,7 +1033,7 @@ scene.add(scanLine2);
   const _nTex = new THREE.CanvasTexture(_nc);
   const _nMat = new THREE.MeshStandardMaterial({
     map: _nTex, roughness: 0.4, metalness: 0.3,
-    emissive: new THREE.Color(0x203060), emissiveIntensity: 0.616, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate
+    emissive: new THREE.Color(0x203060), emissiveIntensity: 0.832, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow
   });
   const _nMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 18), _nMat);
   // Front face of scanner hood: hood center is (-40, CONV_Y_TOP+32.5, 0), depth=100, front at Z=+50
@@ -1134,7 +1134,7 @@ function makeTrayFloor(yBase, colorHex) {
     const capMat = new THREE.MeshStandardMaterial({
       color: capColor,
       emissive: new THREE.Color(capColor),
-      emissiveIntensity: 1.97, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip
+      emissiveIntensity: 2.66, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest
       roughness: 0.3,
       metalness: 0.2
     });
@@ -1192,7 +1192,7 @@ CARD_TYPES.forEach(ct => {
   const stripGeo = new THREE.BoxGeometry(2, 60, 2);
   const stripMat = new THREE.MeshStandardMaterial({
     color: ct.hex, roughness: 0.4, metalness: 0.2,
-    emissive: ct.hex, emissiveIntensity: 0.365 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips — Pass 4890: 0.20→0.27 more vivid tray entry strips — Pass 5056: 0.27→0.365 richer tray entry strip glow
+    emissive: ct.hex, emissiveIntensity: 0.493 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips — Pass 4890: 0.20→0.27 more vivid tray entry strips — Pass 5056: 0.27→0.365 richer tray entry strip glow — Pass 5325: 0.365→0.493 richer slot tray emissive at rest
   });
   const stripMesh = new THREE.Mesh(stripGeo, stripMat);
   stripMesh.position.set(TRAY_X_START, ct.slotFloorY + 1, ct.slotZ);
@@ -1913,7 +1913,7 @@ for (let _gpi = 0; _gpi < 22; _gpi++) { // Pass 5016: grab particle pool size 16
   const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(2.55, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst
   _gpMesh.visible = false;
   scene.add(_gpMesh);
-  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 0.68, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence
+  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 0.918, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence — Pass 5318: 0.68→0.918 longer grab burst particle persistence
 }
 // Pre-allocated Color for domain fill updates (no per-frame GC pressure)
 const _domFillClr = new THREE.Color();
@@ -2638,7 +2638,7 @@ function animate(ts) {
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
       const jitter = 12.8 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting
-        Math.sin(ts * 19.7 * Math.PI * 2) * 0.945 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter — Pass 5087: 10.8→14.6 Hz crisper arm tremor oscillation — Pass 5109: arm descent servo hunt frequency 14.6→19.7 Hz crisper pre-pick tremor
+        Math.sin(ts * 19.7 * Math.PI * 2) * 1.28 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter — Pass 5087: 10.8→14.6 Hz crisper arm tremor oscillation — Pass 5109: arm descent servo hunt frequency 14.6→19.7 Hz crisper pre-pick tremor — Pass 5319: 0.945→1.28 stronger arm extension tremor primary amplitude
         Math.sin(ts * 17.6 * Math.PI * 2) * 0.739 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone — Pass 5112: 0.405→0.547 richer descent overtone texture — Pass 5254: scanner arm extension descent overtone amp 0.547→0.739 richer arm tremor texture
       );
       // Pass 243: terminal servo micro-tap — precision down-push in final 5% of descent
@@ -2996,7 +2996,7 @@ function animate(ts) {
         const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
         // Pass 679: belt entry dust puff count 5→8 — Pass 869: →12 — Pass 1685: →18 for bigger card-on-belt burst
         let _dpSpawned = 0;
-        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 43; _di++) { // Pass 3438: belt dust puff count 18→24 — Pass 4442: 24→32 bigger belt deposit dust puff — Pass 5123: 32→43 denser landing puff spawn count per frame
+        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 58; _di++) { // Pass 3438: belt dust puff count 18→24 — Pass 4442: 24→32 bigger belt deposit dust puff — Pass 5123: 32→43 denser landing puff spawn count per frame — Pass 5321: 43→58 denser floor puff spawn count
           const _dp = GRAB_PARTICLES[_di];
           if (_dp.active) continue;
           _dp.active = true; _dp.age = 0; _dp.life = 1.401 + Math.random() * 0.739; // Pass 1487: 0.22+0.12→0.30+0.16 — Pass 1686: →0.42+0.22 — Pass 1847: →0.57+0.30 — Pass 3933: 0.57+0.30→0.769+0.405 longer slot drop dust — Pass 4419: 0.769+0.405→1.038+0.547 even longer belt dust puff — Pass 5181: 1.038→1.401 rand 0.547→0.739 longer belt dust puff
@@ -3053,7 +3053,7 @@ function animate(ts) {
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 36.5; // Pass 4764: approach flicker ramp 20→27 more nervous pre-pick tension — Pass 5107: approach flicker ramp 27→36.5 more nervous pre-pick tension
-    activeCardMat.emissiveIntensity = 0.74 + _approachT * 5.14 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card — Pass 5125: 2.82→3.81 stronger gate charge buildup emissive ramp — Pass 5135: 3.81→5.14 stronger gate charge buildup emissive ramp
+    activeCardMat.emissiveIntensity = 0.74 + _approachT * 6.94 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card — Pass 5125: 2.82→3.81 stronger gate charge buildup emissive ramp — Pass 5135: 3.81→5.14 stronger gate charge buildup emissive ramp — Pass 5323: 5.14→6.94 stronger gate charge buildup emissive scale factor
       + _approachT * 3.01 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65 — Pass 3961: 1.65→2.23 — Pass 4214: 2.23→3.01 more vivid approach pulse
       + _approachT * 0.14 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat — Pass 4269: secondary amplitude 0.10→0.14 stronger interference beat
       + _entryBoost;
@@ -4251,7 +4251,7 @@ function animate(ts) {
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 51.0; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread
         _pp.vy = 1216 + Math.random() * 795; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft
-        _pp.vz = (Math.random() - 0.5) * 72.9; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread
+        _pp.vz = (Math.random() - 0.5) * 98.4; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
           Math.min(1, _rr / 255 * 0.61 + 0.55), // Pass 4860: landing puff domain tint 0.45→0.61
