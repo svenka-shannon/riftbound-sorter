@@ -2655,7 +2655,7 @@ function animate(ts) {
         scanTargetLight.position.set(PIV_X, CONV_Y_TOP + 8, 0);
         // Pass 276: rangefinder lock-on flicker — 22Hz strobe in final 12% as arm locks on
         // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 — Pass 4063: sine amp 0.52→0.70 more nervous lock-on hunting
-        const _lockFlicker = pt > 0.88 ? (0.875 + 0.70 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0; // Pass 4590: rangefinder flicker floor 0.48→0.648 brighter suction lock-on baseline — Pass 5129: 0.648→0.875 brighter suction lock-on baseline
+        const _lockFlicker = pt > 0.88 ? (0.875 + 0.70 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0; // Pass 4590: rangefinder flicker floor 0.48→0.648 brighter suction lock-on baseline — Pass 5144: 0.648→0.875 brighter suction lock-on baseline
         // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 — Pass 1310: →7.5 — Pass 1426: →10.5 — Pass 3913: 10.5→14.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight
         scanTargetLight.intensity = _pickTgtT * 35.0 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker; // Pass 4416: 14.2→19.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight — Pass 5070: 25.9→35.0 brighter lock-on spotlight
       }
@@ -3028,7 +3028,7 @@ function animate(ts) {
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.068); // Pass 4855: belt wobble fade-in window 0.05→0.068 softer wobble entry
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
-    const _beltWobbleZ = (25.5 * Math.sin(ts * 4.7 * Math.PI * 2) + 7.86 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave — Pass 5089: primary 18.9→25.5 deeper card belt Z weave — Pass 5103: secondary 5.82→7.86 deeper card Z spacing on belt weave
+    const _beltWobbleZ = (25.5 * Math.sin(ts * 4.7 * Math.PI * 2) + 10.6 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave — Pass 5089: primary 18.9→25.5 deeper card belt Z weave — Pass 5103: secondary 5.82→7.86 deeper card Z spacing on belt weave — Pass 5151: secondary 7.86→10.6 deeper belt wobble secondary amplitude
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
     const _beltYBump = 5.00 * Math.sin(ts * 29.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 — Pass 4208: 3.70→5.00 more tactile belt feel — Pass 4505: belt Y micro-bump freq 22→29.7 livelier tactile bump
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2.70 + _settleY + _beltYBump, _beltWobbleZ); // Pass 4542: card-on-belt height above belt surface 2→2.70 higher card float
@@ -3142,7 +3142,7 @@ function animate(ts) {
     const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 193 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143 — Pass 4235: 143→193 bigger reveal spike
     scanFlash.intensity = flashIntensity * 121 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3 — Pass 3759: 49.3→66.6 — Pass 3867: 66.6→89.9 — Pass 4236: 89.9→121 brighter scan flash
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
-    const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.984 : 0; // Pass 1864: scan flash Z drift 0.40→0.54 — Pass 3939: 0.54→0.729 further Z drift toward slot — Pass 4421: 0.729→0.984 deeper scan flash Z pull
+    const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 1.33 : 0; // Pass 1864: scan flash Z drift 0.40→0.54 — Pass 3939: 0.54→0.729 further Z drift toward slot — Pass 4421: 0.729→0.984 deeper scan flash Z pull — Pass 5150: 0.984→1.33 deeper scan flash Z drift toward slot
     scanFlash.position.set(-40, CONV_Y_TOP + 10, _flashZ351);
     // Pass 257: scanFlash domain color snap — scan light shifts to domain color at identity reveal
     scanFlash.color.setHex(_identityRevealed ? ct.hex : 0xffffff);
@@ -4323,12 +4323,12 @@ function animate(ts) {
     // expands from the slot face to signal arrival without drama.
     if (ct.floor === 1 && !_impactFired && dt3 >= 0.88) {
       _impactFired = true;
-      _impactRingT = 0; _impactRingScale0 = 0.743; // Pass 4869: floor-1 guided arrival ring start scale 0.55→0.743 bigger ring entry
+      _impactRingT = 0; _impactRingScale0 = 1.00; // Pass 4869: floor-1 guided arrival ring start scale 0.55→0.743 bigger ring entry — Pass 5149: 0.743→1.00 bigger ring entry
       // Stand ring upright (XZ plane, facing the camera) at slot entrance
       impactRing.position.set(TRAY_X_START + 20, ct.slotFloorY + 29, ct.slotZ);
       impactRing.rotation.x = 0; // vertical ring
       impactRingMat.color.setHex(ct.hex);
-      impactRing.scale.setScalar(0.743); // Pass 4869: floor-1 guided arrival ring start scale 0.55→0.743 bigger ring entry
+      impactRing.scale.setScalar(1.00); // Pass 4869: floor-1 guided arrival ring start scale 0.55→0.743 bigger ring entry — Pass 5149: 0.743→1.00 bigger ring entry
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
       // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 — Pass 1267: →22.0 — Pass 1371: →32.0 — Pass 1553: →45.0 for stronger floor-1 arrival
@@ -4351,9 +4351,9 @@ function animate(ts) {
             ct.slotZ + (Math.random() - 0.5) * 16.2 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint
           );
           _mp.mesh.visible = true;
-          _mp.vx = (Math.random() - 0.5) * 18.2; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst — Pass 5079: 13.5→18.2 wider arrival mote burst
-          _mp.vy = 74.4 + Math.random() * 148.9; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7 — Pass 3915: 40.8+81.7→55.1+110.3 — Pass 4407: 55.1+110.3→74.4+148.9 taller mote fountain
-          _mp.vz = (Math.random() - 0.5) * 21.9; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread — Pass 5086: 16.2→21.9 wider arrival mote Z spread
+          _mp.vx = (Math.random() - 0.5) * 24.6; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst — Pass 5079: 13.5→18.2 wider arrival mote burst — Pass 5147: 18.2→24.6 wider arrival mote X burst
+          _mp.vy = 100 + Math.random() * 201; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7 — Pass 3915: 40.8+81.7→55.1+110.3 — Pass 4407: 55.1+110.3→74.4+148.9 taller mote fountain — Pass 5146: 74.4+148.9→100+201 taller arrival mote fountain
+          _mp.vz = (Math.random() - 0.5) * 29.6; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread — Pass 5086: 16.2→21.9 wider arrival mote Z spread — Pass 5148: 21.9→29.6 wider arrival mote Z spread
           _mp.mat.color.setRGB(
             Math.min(1, _rr3 / 255 * 0.68 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68
             Math.min(1, _gg3 / 255 * 0.68 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68
@@ -5295,7 +5295,7 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= 820 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4 — Pass 3493: 449.4→607 — Pass 4181: 607→820 heavier dust
+    p.vy -= 1110 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4 — Pass 3493: 449.4→607 — Pass 4181: 607→820 heavier dust — Pass 5144: 820→1110 heavier grab particle gravity
     p.vx *= 1 - dt * 30.9; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9 — Pass 4182: 22.9→30.9 snappier particle decel
     p.vz *= 1 - dt * 31.1; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread
     p.mat.opacity = (1 - _pt * _pt) * 1.35; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00 — Pass 4524: grab particle fade rate 1.00→1.35 faster fade-out
@@ -5330,7 +5330,7 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= (p.grav || 760) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417 — Pass 3849: 417→563 — Pass 4187: 563→760 heavier confetti
+    p.vy -= (p.grav || 1030) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417 — Pass 3849: 417→563 — Pass 4187: 563→760 heavier confetti — Pass 5145: 760→1030 heavier celeb particle gravity
     p.vx *= 1 - dt * 0.667; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter) — Pass 4285: 0.9→0.667 even wider confetti scatter
     p.vz *= 1 - dt * 0.900; // Pass 4426: confetti vz drag 0.667→0.900 tighter Z spread
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
