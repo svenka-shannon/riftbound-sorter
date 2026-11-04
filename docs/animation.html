@@ -196,8 +196,8 @@
   }
 
   @keyframes rippleOut {
-    0%   { transform: translateX(-50%) translateY(-50%) scale(0); opacity: 0.7; }
-    100% { transform: translateX(-50%) translateY(-50%) scale(3.5); opacity: 0; }
+    0%   { transform: translateX(-50%) translateY(-50%) scale(0); opacity: 0.95; } /* Pass 4880: slot ring initial opacity 0.7→0.95 more vivid slot ripple flash */
+    100% { transform: translateX(-50%) translateY(-50%) scale(4.72); opacity: 0; } /* Pass 4881: slot ring expand scale 3.5→4.72 wider slot ripple ring */
   }
   .slot-ripple {
     position: fixed;
@@ -584,8 +584,8 @@ const keyLight = new THREE.DirectionalLight(0xfff8f0, 2.30); // Pass 4784: key l
 keyLight.position.set(400, 600, 400);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
-keyLight.shadow.camera.left = -600; keyLight.shadow.camera.right = 600;
-keyLight.shadow.camera.top = 400;   keyLight.shadow.camera.bottom = -200;
+keyLight.shadow.camera.left = -810; keyLight.shadow.camera.right = 810; // Pass 4882: shadow camera extents -600/600→-810/810 wider shadow coverage
+keyLight.shadow.camera.top = 540;   keyLight.shadow.camera.bottom = -270; // Pass 4883: shadow camera top/bottom 400/-200→540/-270 deeper shadow coverage
 keyLight.shadow.bias = -0.00135; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff
 scene.add(keyLight);
 
@@ -4144,7 +4144,7 @@ function animate(ts) {
     activeCard.rotation.z = _wallLean;
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
-      const _wallOsc = Math.abs(Math.sin(dt3 * Math.PI * 4)) * Math.max(0, 1 - dt3 * 1.4);
+      const _wallOsc = Math.abs(Math.sin(dt3 * Math.PI * 4)) * Math.max(0, 1 - dt3 * 1.89); // Pass 4884: slot wall oscillation decay rate 1.4→1.89 snappier wall bounce fade
       if (_wallOsc > 0.72) ct.stripMat.emissiveIntensity = Math.max(ct.stripMat.emissiveIntensity, 0.203 + (_wallOsc - 0.72) / 0.28 * 1.22); // Pass 4499: slot wall LED bounce peak 0.90→1.22 brighter wall contact flash — Pass 4530: slot wall LED emissive floor 0.15→0.203 brighter wall-contact baseline
     }
     // Pass 456: pre-impact micro-shake ramp — for floor-0, subtle increasing camera tremor
@@ -4827,7 +4827,7 @@ function animate(ts) {
 
   // Camera auto-orbit: ellipse + phase-aware target drift + card tracking
   if(!controls.enableRotate || !controls._userInteracted) {
-    const orbitAngle = ts * 0.00006 + Math.PI * 0.3; // phase offset for 3/4 front view
+    const orbitAngle = ts * 0.000081 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit
     // Orbit radius tightens slightly during scan for closer scanner view
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
@@ -4836,7 +4836,7 @@ function animate(ts) {
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.027; // smooth zoom — Pass 4759: orbit smooth rate 0.02→0.027
     const orbitR = controls._orbitR;
-    camera.position.x = orbitR * 0.45 * Math.cos(orbitAngle) - 30;
+    camera.position.x = orbitR * 0.608 * Math.cos(orbitAngle) - 30; // Pass 4886: orbit X ellipse factor 0.45→0.608 rounder orbit arc
     camera.position.z = orbitR * Math.sin(orbitAngle);
     // Slight vertical bob for cinematic feel; lower elevation during scan to see belt better
     // Pass 295: armLift camera Y dip — lower target during pickup for better card-peel view
@@ -5186,7 +5186,7 @@ function animate(ts) {
       _ledColor = 0xffcc00; _ledGlow = 2.97; // yellow: half-full — Pass 4393: 2.2→2.97 brighter half-stack LED
     } else if (_visibleCards >= 1) {
       // Red: low — fast 4Hz blink for urgency (fix: was ts*0.012, far too slow)
-      const _blinkOn = Math.sin(ts * Math.PI * 2 * 4) > 0;
+      const _blinkOn = Math.sin(ts * Math.PI * 2 * 5.4) > 0; // Pass 4887: hopper LED low-stack blink frequency 4→5.4 more urgent warning flash
       _ledColor = 0xff2200; _ledGlow = _blinkOn ? 3.78 : 0.54; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink
     } else {
       _ledColor = 0xff6600; _ledGlow = 1.62; // orange: empty (refilling) — Pass 4395: 1.2→1.62 brighter empty/refilling LED
