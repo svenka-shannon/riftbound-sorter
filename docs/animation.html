@@ -577,7 +577,7 @@ controls.update();
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
 const ambientLight = new THREE.AmbientLight(0x202030, 3.70); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill — Pass 5899: 1.50→2.03 stronger ambient fill — Pass 5962: 2.03→2.74 stronger ambient fill — Pass 6048: 2.74→3.70 stronger ambient fill
 scene.add(ambientLight);
-scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 1.58)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill — Pass 5738: 0.639→0.863 stronger sky/ground hemisphere fill — Pass 5991: 0.863→1.17 stronger sky/ground hemisphere ambient fill — Pass 6049: 1.17→1.58 stronger sky/ground hemisphere ambient fill
+scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 2.13)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill — Pass 5738: 0.639→0.863 stronger sky/ground hemisphere fill — Pass 5991: 0.863→1.17 stronger sky/ground hemisphere ambient fill — Pass 6049: 1.17→1.58 stronger sky/ground hemisphere ambient fill — Pass 6342: 1.58→2.13 stronger sky/ground hemisphere ambient fill
 
 // Increase key light slightly to compensate for lower ambient
 const keyLight = new THREE.DirectionalLight(0xfff8f0, 10.3); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light — Pass 5963: 5.67→7.65 stronger key light — Pass 6050: 7.65→10.3 stronger key light
@@ -586,7 +586,7 @@ keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
 keyLight.shadow.camera.left = -1477; keyLight.shadow.camera.right = 1477; // Pass 4882: shadow camera extents -600/600→-810/810 wider shadow coverage — Pass 5541: -810/810→-1094/1094 wider shadow camera frustum — Pass 6334: -1094/1094→-1477/1477 wider shadow camera frustum
 keyLight.shadow.camera.top = 984;   keyLight.shadow.camera.bottom = -493; // Pass 4883: shadow camera top/bottom 400/-200→540/-270 deeper shadow coverage — Pass 5542: 540/-270→729/-365 deeper shadow camera coverage — Pass 6335: 729/-365→984/-493 deeper shadow camera coverage
-keyLight.shadow.bias = -0.00182; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff — Pass 5422: -0.00135→-0.00182 stronger shadow bias
+keyLight.shadow.bias = -0.00246; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff — Pass 5422: -0.00135→-0.00182 stronger shadow bias — Pass 6340: -0.00182→-0.00246 stronger shadow bias
 scene.add(keyLight);
 
 const fillLight = new THREE.DirectionalLight(0xc0d8ff, 4.10); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill — Pass 5964: 2.25→3.04 stronger cool fill — Pass 6051: 3.04→4.10 stronger cool fill
@@ -603,7 +603,7 @@ gridHelper.position.y = -2;
 scene.add(gridHelper);
 
 // ─── Ambient Dust Particles ───────────────────────────────────────────────────
-const DUST_COUNT = 1365; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count — Pass 5517: 411→555 denser ambient mote spawn count — Pass 5956: 555→749 denser ambient dust mote count — Pass 6034: 749→1011 denser ambient dust mote count — Pass 6316: 1011→1365 denser ambient dust mote count
+const DUST_COUNT = 1843; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count — Pass 5517: 411→555 denser ambient mote spawn count — Pass 5956: 555→749 denser ambient dust mote count — Pass 6034: 749→1011 denser ambient dust mote count — Pass 6316: 1011→1365 denser ambient dust mote count — Pass 6340: 1365→1843 denser ambient dust mote count
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
 const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
@@ -745,11 +745,11 @@ scene.add(hopperGroup);
 // Angled inner guide walls inside hopper (funnel shape to direct cards to exit)
 const guideL = makeBox(6, 94.5, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry
 guideL.position.set(HOPPER_X + 15, 40, -30);
-guideL.rotation.z = 0.456; // Pass 4868: hopper guide L tilt angle 0.25→0.338 steeper funnel — Pass 5471: 0.338→0.456 steeper hopper left guide funnel angle
+guideL.rotation.z = 0.616; // Pass 4868: hopper guide L tilt angle 0.25→0.338 steeper funnel — Pass 5471: 0.338→0.456 steeper hopper left guide funnel angle — Pass 6341: 0.456→0.616 steeper hopper left guide funnel angle
 scene.add(guideL);
 const guideR = makeBox(6, 94.5, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry
 guideR.position.set(HOPPER_X + 15, 40, 30);
-guideR.rotation.z = 0.456; // Pass 4868: hopper guide R tilt angle 0.25→0.338 steeper funnel — Pass 5472: 0.338→0.456 steeper hopper right guide funnel angle
+guideR.rotation.z = 0.616; // Pass 4868: hopper guide R tilt angle 0.25→0.338 steeper funnel — Pass 5472: 0.338→0.456 steeper hopper right guide funnel angle — Pass 6342: 0.456→0.616 steeper hopper right guide funnel angle
 scene.add(guideR);
 
 const hopperWire = makeWireBox(72, 108, 80, 0x444466);
@@ -1033,7 +1033,7 @@ scene.add(scanLine2);
   const _nTex = new THREE.CanvasTexture(_nc);
   const _nMat = new THREE.MeshStandardMaterial({
     map: _nTex, roughness: 0.4, metalness: 0.3,
-    emissive: new THREE.Color(0x203060), emissiveIntensity: 1.51, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow — Pass 5753: 0.832→1.12 more vivid scanner nameplate emissive — Pass 6303: 1.12→1.51 more vivid scanner nameplate emissive
+    emissive: new THREE.Color(0x203060), emissiveIntensity: 2.04, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow — Pass 5753: 0.832→1.12 more vivid scanner nameplate emissive — Pass 6303: 1.12→1.51 more vivid scanner nameplate emissive — Pass 6343: 1.51→2.04 more vivid scanner nameplate emissive
   });
   const _nMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 18), _nMat);
   // Front face of scanner hood: hood center is (-40, CONV_Y_TOP+32.5, 0), depth=100, front at Z=+50
@@ -1192,7 +1192,7 @@ CARD_TYPES.forEach(ct => {
   const stripGeo = new THREE.BoxGeometry(2, 60, 2);
   const stripMat = new THREE.MeshStandardMaterial({
     color: ct.hex, roughness: 0.4, metalness: 0.2,
-    emissive: ct.hex, emissiveIntensity: 1.213 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips — Pass 4890: 0.20→0.27 more vivid tray entry strips — Pass 5056: 0.27→0.365 richer tray entry strip glow — Pass 5325: 0.365→0.493 richer slot tray emissive at rest — Pass 5408: 0.493→0.666 richer slot entry guide rail emissive — Pass 5864: 0.666→0.899 richer slot entry guide rail domain emissive — Pass 6252: 0.899→1.213 richer slot entry guide rail domain emissive
+    emissive: ct.hex, emissiveIntensity: 1.638 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips — Pass 4890: 0.20→0.27 more vivid tray entry strips — Pass 5056: 0.27→0.365 richer tray entry strip glow — Pass 5325: 0.365→0.493 richer slot tray emissive at rest — Pass 5408: 0.493→0.666 richer slot entry guide rail emissive — Pass 5864: 0.666→0.899 richer slot entry guide rail domain emissive — Pass 6252: 0.899→1.213 richer slot entry guide rail domain emissive — Pass 6344: 1.213→1.638 richer slot entry guide rail domain emissive
   });
   const stripMesh = new THREE.Mesh(stripGeo, stripMat);
   stripMesh.position.set(TRAY_X_START, ct.slotFloorY + 1, ct.slotZ);
@@ -1252,7 +1252,7 @@ suctionPivot.add(armRod);
 
 // Pivot flange ring at servo joint
 const flange = new THREE.Mesh(
-  new THREE.TorusGeometry(6, 2, 15, 16), // Pass 4956: flange torus tube segments 8→11 smoother servo flange ring — Pass 5477: 11→15 smoother servo flange torus tube segments
+  new THREE.TorusGeometry(6, 2, 20, 16), // Pass 4956: flange torus tube segments 8→11 smoother servo flange ring — Pass 5477: 11→15 smoother servo flange torus tube segments — Pass 6343: 15→20 smoother servo flange torus tube segments
   new THREE.MeshStandardMaterial({ color: 0x555566, roughness: 0.4, metalness: 0.5 })
 );
 flange.position.set(0, 0, 0);
@@ -1491,7 +1491,7 @@ const _shadowMat = new THREE.MeshBasicMaterial({
 const _shadowMesh = new THREE.Mesh(new THREE.CircleGeometry(1, 32), _shadowMat);
 _shadowMesh.rotation.x = -Math.PI / 2; // lie flat on belt surface
 _shadowMesh.scale.set(CARD_H * 1.00, 1, CARD_W * 1.00); // elongated card-proportioned ellipse — Pass 4917: card contact shadow ellipse scale 0.55→0.74 larger belt shadow — Pass 5532: 0.74→1.00 full-card contact shadow ellipse scale
-_shadowMesh.position.set(-40, CONV_Y_TOP + 0.729, 0); // Pass 4926: shadow Y offset 0.4→0.54 more elevated belt shadow — Pass 5469: 0.54→0.729 more elevated card contact shadow
+_shadowMesh.position.set(-40, CONV_Y_TOP + 0.984, 0); // Pass 4926: shadow Y offset 0.4→0.54 more elevated belt shadow — Pass 5469: 0.54→0.729 more elevated card contact shadow — Pass 6344: 0.729→0.984 more elevated card contact shadow
 scene.add(_shadowMesh);
 
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
@@ -1733,7 +1733,7 @@ function addCardToTray(ct) {
   const geo = new THREE.BoxGeometry(CARD_T, TRAY_CARD_H, CARD_W);
   const mat = new THREE.MeshStandardMaterial({
     color: 0xffffff, roughness: 0.18, metalness: 0.0,
-    emissive: ct.hex, emissiveIntensity: 0.832, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow — Pass 5058: 0.456→0.616 richer card base glow — Pass 5773: 0.616→0.832 richer tray card initial base glow
+    emissive: ct.hex, emissiveIntensity: 1.12, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow — Pass 5058: 0.456→0.616 richer card base glow — Pass 5773: 0.616→0.832 richer tray card initial base glow — Pass 6341: 0.832→1.12 richer tray card initial base glow
     map: cardTextures[ct.slot]
   });
   const mesh = new THREE.Mesh(geo, mat);
@@ -1741,7 +1741,7 @@ function addCardToTray(ct) {
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 99.6; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5 — Pass 5468: 40.5→54.7 higher slot tray arrival drop height — Pass 5909: 54.7→73.8 higher slot tray arrival drop height — Pass 6233: 73.8→99.6 higher slot tray arrival drop height
   const zJitter    = (Math.random() - 0.5) * 6.66;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle — Pass 5423: 4.93→6.66 wider card Z spread during belt idle
-  const yRotJitter = (Math.random() - 0.5) * 0.729;  // ±0.365 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter — Pass 5409: 0.540→0.729 wilder slot entry guided arc card tilt range
+  const yRotJitter = (Math.random() - 0.5) * 0.984;  // ±0.492 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter — Pass 5409: 0.540→0.729 wilder slot entry guided arc card tilt range — Pass 6345: 0.729→0.984 wilder slot entry guided arc card tilt range
   mesh.position.set(
     TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
     startY,
@@ -2842,7 +2842,7 @@ function animate(ts) {
           p.mat.color.setHex(_pc);
           p.mat.opacity = 1.55 + Math.random() * 0.20; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst — Pass 4744: 0.85→1.15 more vivid grab burst — Pass 5031: 1.15→1.55 more vivid grab burst — Pass 5936: rand 0.15→0.20 more vivid grab burst opacity variance
           p.age = 0;
-          p.life = 2.79 + Math.random() * 1.600; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles — Pass 4292: 1.134+0.878→1.531+1.185 longer arc trail persistence — Pass 5173: 1.531→2.067 rand 1.185→1.600 longer arc trail life — Pass 5367: 2.067→2.79 longer card deal arc trail particle base life
+          p.life = 3.77 + Math.random() * 2.160; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles — Pass 4292: 1.134+0.878→1.531+1.185 longer arc trail persistence — Pass 5173: 1.531→2.067 rand 1.185→1.600 longer arc trail life — Pass 5367: 2.067→2.79 longer card deal arc trail particle base life — Pass 6346: 2.79+1.600→3.77+2.160 longer card deal arc trail particle life
           p.active = true;
           p.mesh.visible = true;
         });
@@ -3031,7 +3031,7 @@ function animate(ts) {
     const _beltWobbleZ = (34.4 * Math.sin(ts * 4.7 * Math.PI * 2) + 14.3 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave — Pass 5089: primary 18.9→25.5 deeper card belt Z weave — Pass 5103: secondary 5.82→7.86 deeper card Z spacing on belt weave — Pass 5151: secondary 7.86→10.6 deeper belt wobble secondary amplitude — Pass 6280: primary 25.5→34.4 deeper card belt Z wobble primary amplitude — Pass 6281: secondary 10.6→14.3 deeper card belt Z wobble secondary amplitude
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
     const _beltYBump = 12.3 * Math.sin(ts * 29.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 — Pass 4208: 3.70→5.00 more tactile belt feel — Pass 4505: belt Y micro-bump freq 22→29.7 livelier tactile bump — Pass 5183: 5.00→6.75 more tactile belt Y bump — Pass 5988: 6.75→9.11 more tactile belt Y micro-bump amplitude — Pass 6182: 9.11→12.3 more tactile belt Y micro-bump amplitude
-    activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 3.65 + _settleY + _beltYBump, _beltWobbleZ); // Pass 4542: card-on-belt height above belt surface 2→2.70 higher card float — Pass 5387: 2.70→3.65 higher card float
+    activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 4.93 + _settleY + _beltYBump, _beltWobbleZ); // Pass 4542: card-on-belt height above belt surface 2→2.70 higher card float — Pass 5387: 2.70→3.65 higher card float — Pass 6347: 3.65→4.93 higher card float
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     // Pass 1235: lean -0.18→-0.05 (bugfix: at -0.18 the card front edge was 4.9u below belt; safe max ≈0.05rad)
     const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
@@ -3500,7 +3500,7 @@ function animate(ts) {
           const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 40.1 : 0; // Pass 2546: ping Z drift 2.00→2.70 — Pass 2837: 2.70→3.65 — Pass 2984: 3.65→4.93 — Pass 3183: 4.93→6.66 — Pass 3424: 6.66→8.99 — Pass 3532: 8.99→12.1 — Pass 3770: 12.1→16.3 — Pass 3877: 16.3→22.0 — Pass 4242: 22.0→29.7 more pronounced destination lean — Pass 5386: 29.7→40.1 more pronounced destination lean
           p.mesh.position.z = _pingZ311;
           // Pass 274: post-reveal ping scale — Pass 400: 8.5→11.0 — Pass 716: →14.0 — Pass 797: →19.0 — Pass 1165: →26.0 — Pass 1410: →36.0 — Pass 1524: →50.0 (wider confirm rings)
-          const _pingMaxScale = _identityRevealed ? 303 : 33.2; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1 — Pass 3184: 166.1→224.2 — Pass 3470: pre-reveal 10.0→13.5 — Pass 3769: 13.5→18.2 — Pass 4243: pre-reveal 18.2→24.6 wider pre-reveal ping rings — Pass 5432: pre-reveal 24.6→33.2 wider pre-reveal ping rings — Pass 5825: post-reveal 224.2→303 wider post-reveal ping rings
+          const _pingMaxScale = _identityRevealed ? 303 : 44.8; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1 — Pass 3184: 166.1→224.2 — Pass 3470: pre-reveal 10.0→13.5 — Pass 3769: 13.5→18.2 — Pass 4243: pre-reveal 18.2→24.6 wider pre-reveal ping rings — Pass 5432: pre-reveal 24.6→33.2 wider pre-reveal ping rings — Pass 5825: post-reveal 224.2→303 wider post-reveal ping rings — Pass 6347: pre-reveal 33.2→44.8 wider pre-reveal ping rings
           const s = 1 + localFt * _pingMaxScale;
           p.mesh.scale.setScalar(s);
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
@@ -3521,7 +3521,7 @@ function animate(ts) {
       });
     }
     // Belt crawls slowly while card sits under scanner
-    _beltScrollSpeed = 0.0365; // Pass 4874: scan belt crawl speed 0.02→0.027 livelier scan belt motion — Pass 5502: 0.027→0.0365 livelier scan belt crawl speed
+    _beltScrollSpeed = 0.0493; // Pass 4874: scan belt crawl speed 0.02→0.027 livelier scan belt motion — Pass 5502: 0.027→0.0365 livelier scan belt crawl speed — Pass 6345: 0.0365→0.0493 livelier scan belt crawl speed
     // Pass 156: gate LED chase — cycles scan-blue through columns pre-reveal (machine "deciding")
     // then snaps to domain color on correct column at identity confirm
     {
@@ -3852,7 +3852,7 @@ function animate(ts) {
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
-    _beltScrollSpeed = 0.146; // Pass 4875: conveyorOut belt speed 0.08→0.108 faster exit belt sweep — Pass 5437: 0.108→0.146 faster conveyor exit belt scroll speed
+    _beltScrollSpeed = 0.197; // Pass 4875: conveyorOut belt speed 0.08→0.108 faster exit belt sweep — Pass 5437: 0.108→0.146 faster conveyor exit belt scroll speed — Pass 6346: 0.146→0.197 faster conveyor exit belt scroll speed
     // Pass 212: conveyorOut domain exhaust trail — card leaves a brief domain-colored contrail
     // as it accelerates toward the gate. Spawns every ~70ms, short life.
     // Pass 459: final-approach trail density boost — last 35% of conveyorOut spawns at 38ms
