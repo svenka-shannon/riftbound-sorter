@@ -3835,7 +3835,7 @@ function animate(ts) {
     slotSweepLight.intensity = 0; // pass 81: off during conveyor
     scanBloom.intensity = 0;
     // Pass 165: smooth LED decay from scan peak (~2.0) to idle (1.2) — was hard snap
-    scanLEDMat.emissiveIntensity += (4.00 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00
+    scanLEDMat.emissiveIntensity += (5.40 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
@@ -3891,7 +3891,7 @@ function animate(ts) {
       if (!window._flashLights) window._flashLights = [];
       window._flashLights.push({ light: _gfl, age: 0, peak: _gfl.intensity });
       // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 — Pass 917: →12.0 — Pass 1180: →17.0 — Pass 1565: →24.0
-      paddleMat.emissiveIntensity = 358; // Pass 2368: paddle spike 43.7→59.0 — Pass 2585: 59.0→79.7 — Pass 2846: 79.7→107.6 — Pass 3025: 107.6→145.3 — Pass 3218: 145.3→196.2 — Pass 3387: 196.2→264.9 — Pass 3518: 264.9→358
+      paddleMat.emissiveIntensity = 483; // Pass 2368: paddle spike 43.7→59.0 — Pass 2585: 59.0→79.7 — Pass 2846: 79.7→107.6 — Pass 3025: 107.6→145.3 — Pass 3218: 145.3→196.2 — Pass 3387: 196.2→264.9 — Pass 3518: 264.9→358 — Pass 4313: 358→483 brighter paddle smack flash
       // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 — Pass 781: →10.0 — Pass 1181: →15.0 — Pass 1566: →22.0 hotter blaze
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 328); // Pass 2369: gate-contact card flash 40.1→54.1 — Pass 2586: 54.1→73.0 — Pass 2847: 73.0→98.6 — Pass 3026: 98.6→133.1 — Pass 3219: 133.1→179.7 — Pass 3388: 179.7→242.6 — Pass 3519: 242.6→328
       // Pass 298: gate-contact camera shake — Pass 588: 1.8→3.0 for more physical paddle impact
@@ -3903,9 +3903,9 @@ function animate(ts) {
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
       // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 — Pass 1194: →0.88 — Pass 1569: →1.20 for harder paddle whack feel
-      _paddleRecoil = 17.9 * Math.sign(ct.slotZ); // Pass 2372: paddle recoil kick 2.19→2.96 — Pass 2589: 2.96→4.00 — Pass 2850: 4.00→5.40 — Pass 3028: 5.40→7.29 — Pass 3471: 7.29→9.84 — Pass 3706: 9.84→13.3 — Pass 3820: 13.3→17.9
+      _paddleRecoil = 24.2 * Math.sign(ct.slotZ); // Pass 2372: paddle recoil kick 2.19→2.96 — Pass 2589: 2.96→4.00 — Pass 2850: 4.00→5.40 — Pass 3028: 5.40→7.29 — Pass 3471: 7.29→9.84 — Pass 3706: 9.84→13.3 — Pass 3820: 13.3→17.9 — Pass 4314: 17.9→24.2 harder paddle recoil
       // Pass 216: solenoid jitter — Pass 591: 0.85→1.30 — Pass 1570: →1.80 for stronger lateral vibration
-      _paddleJitterAmt = 10.9; // Pass 2108: solenoid jitter 2.43→3.28 — Pass 2590: 3.28→4.43 — Pass 2851: 4.43→5.98 — Pass 3755: 5.98→8.07 — Pass 3863: 8.07→10.9
+      _paddleJitterAmt = 14.7; // Pass 2108: solenoid jitter 2.43→3.28 — Pass 2590: 3.28→4.43 — Pass 2851: 4.43→5.98 — Pass 3755: 5.98→8.07 — Pass 3863: 8.07→10.9 — Pass 4315: 10.9→14.7 stronger solenoid buzz
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
       // decays into the normal tumble over ~0.12s, simulating the paddle "whacking" the card sideways.
       _gateZKick = bankSign * 3.32; // Pass 2085: gate Z-kick 0.74→1.00 — Pass 2604: 1.00→1.35 — Pass 2852: 1.35→1.82 — Pass 3029: 1.82→2.46 — Pass 4307: 2.46→3.32 harder deflect kick
@@ -3978,7 +3978,7 @@ function animate(ts) {
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
     // Pass 317: deflect tumble distance scaling — outer columns tumble harder (steeper deflect angle)
     // Pass 759: tumble base 0.65→0.82 — Pass 1187: →1.15 — Pass 1254: →1.40 for even more dramatic card spin mid-arc
-    const _tumbleAmp = 37.9 + Math.abs(ct.slotZ) / 97.5 * 0.84; // Pass 2378: tumble base 3.44→4.64, scaling 0.46→0.62 — Pass 2598: 4.64→6.26, 0.62→0.84 — Pass 2859: base 6.26→8.45 — Pass 3038: 8.45→11.4 — Pass 3226: 11.4→15.4 — Pass 3392: 15.4→20.8 — Pass 3508: 20.8→28.1 — Pass 3999: 28.1→37.9
+    const _tumbleAmp = 51.2 + Math.abs(ct.slotZ) / 97.5 * 0.84; // Pass 2378: tumble base 3.44→4.64, scaling 0.46→0.62 — Pass 2598: 4.64→6.26, 0.62→0.84 — Pass 2859: base 6.26→8.45 — Pass 3038: 8.45→11.4 — Pass 3226: 11.4→15.4 — Pass 3392: 15.4→20.8 — Pass 3508: 20.8→28.1 — Pass 3999: 28.1→37.9 — Pass 4312: 37.9→51.2 wider tumble spin arc
     const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
     // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020 — Pass 1188: primary →0.062, secondary →0.032 — Pass 1256: primary →0.082, secondary →0.042 for more flutter micro-wobble
@@ -3993,7 +3993,7 @@ function animate(ts) {
     // Pass 250: deflect tumble emissive — Pass 415: 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
     // Pass 762: base 0.55→0.45, peak 0.72→0.95 for more dynamic emissive swing during tumble
     // Pass 968: base 0.45→0.55, peak 0.95→1.25 — Pass 1190: peak 1.25→1.65 — Pass 1255: peak 1.65→2.10 for even brighter deflect tumble arc glow
-    const _tumbleEmissive = 0.55 + 103.5 * Math.max(0, Math.cos(2 * activeCard.rotation.z)); // Pass 2381: tumble emissive peak 5.17→6.98 — Pass 2601: 6.98→9.42 — Pass 2860: 9.42→12.7 — Pass 3040: 12.7→17.1 — Pass 3228: 17.1→23.1 — Pass 3394: 23.1→31.2 — Pass 3459: 31.2→42.1 — Pass 3522: 42.1→56.8 — Pass 3735: 56.8→76.7 — Pass 3842: 76.7→103.5
+    const _tumbleEmissive = 0.55 + 139.7 * Math.max(0, Math.cos(2 * activeCard.rotation.z)); // Pass 2381: tumble emissive peak 5.17→6.98 — Pass 2601: 6.98→9.42 — Pass 2860: 9.42→12.7 — Pass 3040: 12.7→17.1 — Pass 3228: 17.1→23.1 — Pass 3394: 23.1→31.2 — Pass 3459: 31.2→42.1 — Pass 3522: 42.1→56.8 — Pass 3735: 56.8→76.7 — Pass 3842: 76.7→103.5 — Pass 4311: 103.5→139.7 hotter deflect tumble arc glow
     activeCardMat.emissiveIntensity += (_tumbleEmissive - activeCardMat.emissiveIntensity) * Math.min(1, dt * 7);
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
     // Pass 126: color warms from neutral white to domain color as card approaches
@@ -4634,7 +4634,7 @@ function animate(ts) {
     // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 — Pass 1607: →1.05
     const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 15.8 : 0; // Pass 2423: slotDrop ambient 1.92→2.59 — Pass 2659: 2.59→3.50 — Pass 2749: 3.50→4.73 — Pass 2890: 4.73→6.39 — Pass 3097: 6.39→8.63 — Pass 3273: 8.63→11.7 — Pass 3351: 11.7→15.8
     // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response — Pass 1610: →0.84
-    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 12.5 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09 — Pass 3098: 5.09→6.87 — Pass 3274: 6.87→9.27 — Pass 3352: 9.27→12.5
+    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 16.9 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09 — Pass 3098: 5.09→6.87 — Pass 3274: 6.87→9.27 — Pass 3352: 9.27→12.5 — Pass 4316: 12.5→16.9 richer ambient during card flight
     // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 — Pass 1611: →1.35
     const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 20.1 : 0; // Pass 2425: reveal ambient peak 2.46→3.32 — Pass 2661: 3.32→4.48 — Pass 2751: 4.48→6.05 — Pass 2892: 6.05→8.17 — Pass 3099: 8.17→11.0 — Pass 3275: 11.0→14.9 — Pass 3353: 14.9→20.1
     const _ambTarget = 1.13 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84 — Pass 4284: 0.84→1.13 brighter scene ambient
@@ -4712,7 +4712,7 @@ function animate(ts) {
       lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 4);
     }
     lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 3));
-    lensMat.emissiveIntensity += (5.99 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99 — Pass 2669: 0.99→1.34 — Pass 2760: 1.34→1.81 — Pass 2898: 1.81→2.44 — Pass 3107: 2.44→3.29 — Pass 3280: 3.29→4.44 — Pass 3358: 4.44→5.99
+    lensMat.emissiveIntensity += (8.09 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99 — Pass 2669: 0.99→1.34 — Pass 2760: 1.34→1.81 — Pass 2898: 1.81→2.44 — Pass 3107: 2.44→3.29 — Pass 3280: 3.29→4.44 — Pass 3358: 4.44→5.99 — Pass 4317: 5.99→8.09 brighter idle lens glow
     // Pass 197: hood settles back to Z=0 after scan ends
     scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 8);
   }
