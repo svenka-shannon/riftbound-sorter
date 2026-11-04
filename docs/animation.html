@@ -878,7 +878,7 @@ scene.add(lens);
 
 // Lens retaining ring
 const lensRing = new THREE.Mesh(
-  new THREE.TorusGeometry(8, 2.03, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring
+  new THREE.TorusGeometry(8, 2.74, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring — Pass 5016: 2.03→2.74 chunkier scanner lens ring
   new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.5, metalness: 0.6 })
 );
 lensRing.rotation.x = Math.PI / 2;
@@ -1908,12 +1908,12 @@ const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 // ─── Pass 34: Grab particle burst pool + domain fill light ───────────────────
 // 16 small spheres scatter from grab point when arm picks up a card.
 const GRAB_PARTICLES = [];
-for (let _gpi = 0; _gpi < 16; _gpi++) {
+for (let _gpi = 0; _gpi < 22; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir
   const _gpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(2.55, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst
   _gpMesh.visible = false;
   scene.add(_gpMesh);
-  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 0.5, active: false });
+  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 0.68, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence
 }
 // Pre-allocated Color for domain fill updates (no per-frame GC pressure)
 const _domFillClr = new THREE.Color();
@@ -1941,7 +1941,7 @@ for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(4.01, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads
   _tpMesh.visible = false;
   scene.add(_tpMesh);
-  TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 0.54, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence
+  TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 0.73, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence
 }
 let _trailHead = 0;        // ring-buffer head for trail particles
 let _trailSpawnAcc = 0;    // time accumulator for spawn rate
@@ -1969,10 +1969,10 @@ function fireCelebration() {
     // Pass 594: confetti burst speed 60+90 — Pass 652: →80+120 — Pass 728: →100+150 — Pass 755: →125+180 — Pass 892: →155+220 — Pass 1009: →190+260 — Pass 1633: →255+350 — Pass 3461: base 255→344 — Pass 3462: rand 350→473
     const spd = 845 + Math.random() * 861; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638 — Pass 4096: base 464→626 — Pass 4097: rand 638→861 faster burst — Pass 4943: base 626→845 faster celebration burst
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
-    p.vx = Math.cos(angle) * spd * 1.01; // Pass 4069: confetti vx spread 0.75→1.01 wider horizontal burst
+    p.vx = Math.cos(angle) * spd * 1.36; // Pass 4069: confetti vx spread 0.75→1.01 wider horizontal burst — Pass 5018: 1.01→1.36 wider confetti horizontal burst
     // Pass 729: upward bias 0.6+0.6→0.75+0.70 — Pass 893: →0.90+0.85 — Pass 1010: →1.10+1.00 — Pass 1634: →1.40+1.30 stronger launch
     p.vy = spd * (6.26 + Math.random() * 5.85); // Pass 2501: celeb launch bias 1.40+1.30→1.89+1.76 — Pass 3549: 1.89+1.76→2.55+2.38 — Pass 3664: 2.55+2.38→3.44+3.21 — Pass 4098: base 3.44→4.64 — Pass 4099: rand 3.21→4.33 higher loft — Pass 4912: base 4.64→6.26 — Pass 4913: rand 4.33→5.85 bigger confetti loft
-    p.vz = Math.sin(angle) * spd * 1.19; // Pass 3903: confetti vz spread 0.65→0.88 wider Z burst — Pass 4286: 0.88→1.19 wider confetti Z burst
+    p.vz = Math.sin(angle) * spd * 1.61; // Pass 3903: confetti vz spread 0.65→0.88 wider Z burst — Pass 4286: 0.88→1.19 wider confetti Z burst — Pass 5019: 1.19→1.61 wider confetti Z burst
     // Pass 652: randomize spawn position within ±25 units of tray center for wider burst area
     p.mesh.position.set(TX_MID + (Math.random()-0.5)*33.8, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*27.0); // Pass 4472: confetti Z spawn spread 20→27.0 wider burst footprint — Pass 4500: confetti spawn X spread 25→33.8 wider burst footprint
     p.mat.color.setHex(domCt.hex);
@@ -1981,7 +1981,7 @@ function fireCelebration() {
     p.life = 6.39 + Math.random() * 4.93; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 — Pass 4100: 3.5+2.7→4.73+3.65 even longer airtime — Pass 4680: base 4.73→6.39 — Pass 4681: rand 3.65→4.93 even longer confetti airtime
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98
-    p.rx = (Math.random() - 0.5) * 293; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161 — Pass 4093: 161→217 wilder tumble — Pass 4682: 217→293 even wilder tumble
+    p.rx = (Math.random() - 0.5) * 396; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161 — Pass 4093: 161→217 wilder tumble — Pass 4682: 217→293 even wilder tumble — Pass 5020: 293→396 wilder confetti rotation
     p.ry = (Math.random() - 0.5) * 350; // Pass 2503: tumble ry 78→105 — Pass 3551: 105→142 — Pass 3634: 142→192 — Pass 4094: 192→259 — Pass 4928: 259→350 wilder confetti tumble Y
     p.rz = (Math.random() - 0.5) * 797; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178 — Pass 3635: 178→240 — Pass 3777: 240→324 — Pass 3884: 324→437 — Pass 4095: 437→590 — Pass 4929: 590→797 wilder confetti tumble Z
     p.active = true;
@@ -1990,7 +1990,7 @@ function fireCelebration() {
   // Pass 458: metallic shimmer burst — silver-gold confetti pieces with fast tumble
   // Pass 653: shimmer count 8→12 — Pass 896: →16; speed 90→130 — Pass 895: →165; vy 55+50→75+65 — Pass 895: →95+80
   const _shimmerColors = [0xffffff, 0xffe0a0, 0xf0f0f0, 0xffd070, 0xeeeeee, 0xffc040, 0xe8e8ff, 0xffeebb, 0xffd0a0, 0xffffff, 0xffe880, 0xf8f8ff, 0xffffff, 0xffd0ff, 0xffe0b0, 0xf8ffff, 0xffffd0, 0xffe8b0, 0xf0fff0, 0xffd890, 0xe0e0ff, 0xfff0d0];
-  for (let _mi = 0; _mi < 22; _mi++) { // Pass 896: 12→16 shimmer pieces // Pass 4448: 16→22 more shimmer confetti burst
+  for (let _mi = 0; _mi < 30; _mi++) { // Pass 896: 12→16 shimmer pieces // Pass 4448: 16→22 more shimmer confetti burst — Pass 5021: 22→30 more shimmer confetti burst
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
     _mp.vx = (Math.random() - 0.5) * 689; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread
     _mp.vy = 694 + Math.random() * 585; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft
@@ -2359,7 +2359,7 @@ function animate(ts) {
   stackCards.forEach((sc, i) => {
     if (!sc.visible) return;
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
-    const _jPhase = i * 1.98; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync
+    const _jPhase = i * 2.67; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
     const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 1.26 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter
               + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.63; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63
@@ -2378,7 +2378,7 @@ function animate(ts) {
     if (sc.material) {
       const _prePickT = inPhase(PH.pause) || inPhase(PH.armDescend) || inPhase(PH.armLift);
       if (_prePickT) {
-        const _wave = Math.sin(ts * 0.81 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5; // Pass 4513: deck shimmer wave frequency 0.6→0.81 livelier deck charge ripple
+        const _wave = Math.sin(ts * 1.09 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5; // Pass 4513: deck shimmer wave frequency 0.6→0.81 livelier deck charge ripple — Pass 5023: 0.81→1.09 livelier deck charge ripple
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
         const _waveAmp301 = inPhase(PH.armDescend) ? 2.09 + phaseRaw(PH.armDescend) * 4.48 : 2.09; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp // Pass 4493: deck shimmer wave base 1.15→1.55 richer deck energy floor — Pass 4896: base 1.55→2.09 — Pass 4897: ramp 3.32→4.48 brighter deck charge surge
