@@ -2342,7 +2342,7 @@ function animate(ts) {
           c.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
         });
         // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 — Pass 1393: →14.0 for bigger batch-loaded burst — Pass 1583: →20.0, dist→300
-        const _rfl = new THREE.PointLight(0xfff0cc, 27.0, 300); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst
+        const _rfl = new THREE.PointLight(0xfff0cc, 36.5, 405); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst — Pass 4059: 27.0→36.5 intensity — Pass 4060: range 300→405
         _rfl.position.set(HOPPER_X + 33, 160, 0);
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
@@ -2527,7 +2527,8 @@ function animate(ts) {
   // Pass 431: belt halo 0.35→0.45 — Pass 708/709: belt 0.45→0.58, air 0.20→0.28 — Pass 832: belt→0.72, air→0.38
   const haloTargetOpacity = beltActive ? 0.97 : airActive ? 0.51 : 0; // Pass 2521: halo belt 0.72→0.97 Pass 2522: air 0.38→0.51
   // Pass 833: airborne spin rate 0.003→0.006 for faster spinning when card is airborne
-  const haloSpinRate = beltActive ? 0.0012 : 0.006;
+  // Pass 4053: halo belt-active spin rate 0.0012→0.00162 — Pass 4054: halo airborne spin rate 0.006→0.0081
+  const haloSpinRate = beltActive ? 0.00162 : 0.0081;
   cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.15;
   if (cardHaloMat.opacity > 0.01) {
     cardHalo.position.copy(activeCard.position);
@@ -5083,9 +5084,9 @@ function animate(ts) {
   // Pass 100: confirm ring expands from scanner center at identity reveal
   // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 — Pass 944: →dt*3.5 — Pass 1432: →dt*2.6 for longer ring
   if (_confirmRingT >= 0) {
-    _confirmRingT = Math.min(1, _confirmRingT + dt * 28.6); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 38.6); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
-    const _crs = 1.0 + easeOut(_confirmRingT) * 1013; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013
+    const _crs = 1.0 + easeOut(_confirmRingT) * 1368; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring
     confirmRing.scale.setScalar(_crs);
     confirmRingMat.opacity = (1 - _confirmRingT) * 1.0; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0
     if (_confirmRingT >= 1) {
@@ -5097,11 +5098,11 @@ function animate(ts) {
   // Pass 184: second confirm ring — fires 0.12s after first, smaller and faster
   if (_confirmRingT2 > -1) {
     // Pass 945: second ring speed dt*2.2→dt*2.8 — Pass 1434: →dt*2.2 for longer second ring duration
-    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 24.3); // Pass 2500: second confirm ring speed 4.01→5.41 — Pass 2703: 5.41→7.30 — Pass 2799: 7.30→9.86 — Pass 3310: 9.86→13.3 — Pass 3420: 13.3→18.0 — Pass 3533: 18.0→24.3
+    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 32.8); // Pass 2500: second confirm ring speed 4.01→5.41 — Pass 2703: 5.41→7.30 — Pass 2799: 7.30→9.86 — Pass 3310: 9.86→13.3 — Pass 3420: 13.3→18.0 — Pass 3533: 18.0→24.3 — Pass 4057: 24.3→32.8 faster secondary ripple
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
       // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 — Pass 1533: →30.0 for wider second burst
-      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 331.0; // Pass 2491: second confirm ring scale 73.8→99.6 — Pass 2704: 99.6→134.5 — Pass 2800: 134.5→181.6 — Pass 2932: 181.6→245.2 — Pass 3311: 245.2→331.0
+      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 447; // Pass 2491: second confirm ring scale 73.8→99.6 — Pass 2704: 99.6→134.5 — Pass 2800: 134.5→181.6 — Pass 2932: 181.6→245.2 — Pass 3311: 245.2→331.0 — Pass 4058: 331.0→447 wider secondary confirm ripple
       confirmRing2.scale.setScalar(_crs2);
       confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 1.0); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0
       if (_confirmRingT2 >= 1) {
