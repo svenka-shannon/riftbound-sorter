@@ -1497,7 +1497,7 @@ scene.add(_shadowMesh);
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
 // Narrow bright band swept across the card face during scan — simulates specular
 // reflection of the scanner beam reading the card surface (X=fullwidth, thin Z=7).
-const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 0.9, 9.45); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread
+const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 1.22, 9.45); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band
 const cardShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false,
 });
@@ -1587,7 +1587,7 @@ const vacuumRingMat = new THREE.MeshBasicMaterial({
   color: 0xaaccff, transparent: true, opacity: 0, side: THREE.DoubleSide,
 });
 const vacuumRing = new THREE.Mesh(
-  new THREE.TorusGeometry(12, 2.03, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring
+  new THREE.TorusGeometry(16.2, 2.03, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep
   vacuumRingMat
 );
 vacuumRing.rotation.x = -Math.PI / 2; // flat (XZ plane)
@@ -1950,7 +1950,7 @@ let _trailSpawnAcc = 0;    // time accumulator for spawn rate
 // 32 spheres in all 8 domain colors fire upward from above the tray when
 // a complete sort round (all 8 domains) finishes. Each domain gets 4 particles.
 const CELEB_PARTICLES = [];
-const CELEB_COUNT = 32;
+const CELEB_COUNT = 43; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
@@ -4118,7 +4118,7 @@ function animate(ts) {
     // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
     // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
     // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 — Pass 1114: primary 5.5→7.5, secondary 1.5→2.2 — Pass 1200: primary →10.5, secondary →3.2 — Pass 1258: primary →13.5, secondary →4.2 — Pass 1408: primary →18.0, secondary →5.6 for even more pronounced slot wall bounce
-    const _slotWallZ = ct.slotZ + (198.5 * Math.sin(dt3 * Math.PI * 4) + 61.8 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4); // Pass 2109: wall Z primary 32.8→44.3 Pass 2110: secondary 10.2→13.8 — Pass 2610: 44.3→59.8, 13.8→18.6 — Pass 3048: 59.8→80.7 Pass 3049: 18.6→25.1 — Pass 3233: 80.7→108.9 Pass 3234: 25.1→33.9 — Pass 3400: 108.9→147.0 Pass 3401: 33.9→45.8 — Pass 4303: primary 147.0→198.5 — Pass 4304: secondary 45.8→61.8 wilder slot wall bounce
+    const _slotWallZ = ct.slotZ + (198.5 * Math.sin(dt3 * Math.PI * 5.4) + 61.8 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4); // Pass 2109: wall Z primary 32.8→44.3 Pass 2110: secondary 10.2→13.8 — Pass 2610: 44.3→59.8, 13.8→18.6 — Pass 3048: 59.8→80.7 Pass 3049: 18.6→25.1 — Pass 3233: 80.7→108.9 Pass 3234: 25.1→33.9 — Pass 3400: 108.9→147.0 Pass 3401: 33.9→45.8 — Pass 4303: primary 147.0→198.5 — Pass 4304: secondary 45.8→61.8 wilder slot wall bounce — Pass 4580: wall bounce oscillation count 4→5.4 more slot drop bounces
     activeCard.position.set(TRAY_X_START + 27.0, cy, _slotWallZ); // Pass 4520: slot drop card X drift 20→27.0 wider lateral fall offset
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
@@ -4219,10 +4219,10 @@ function animate(ts) {
       const _stX = TRAY_X_START + 8;
       const _stTopY = ct.slotFloorY + 60;
       const _stZ = ct.slotZ;
-      for (let _si = 0; _si < 10; _si++) { // Pass 435: streak length 7→10 (longer lance)
+      for (let _si = 0; _si < 14; _si++) { // Pass 435: streak length 7→10 (longer lance) — Pass 4577: 10→14 denser arm trail sphere count per tick
         const _tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
-        _tp.mesh.position.set(_stX + (Math.random() - 0.5) * 4, _stTopY - _si * 7, _stZ + (Math.random() - 0.5) * 3);
+        _tp.mesh.position.set(_stX + (Math.random() - 0.5) * 4, _stTopY - _si * 9.45, _stZ + (Math.random() - 0.5) * 3); // Pass 4583: scan bar vertical reveal length 7→9.45 longer slot entry lance reveal
         _tp.mat.color.setHex(ct.hex);
         _tp.mat.opacity = 0.80 - _si * 0.07; // Pass 434: opacity 0.65→0.80
         _tp.age = 0; _tp.life = 0.24 + _si * 0.027; // Pass 4351: streak life base 0.18→0.24 — Pass 4352: step 0.02→0.027 longer slot entry lance
@@ -4239,7 +4239,7 @@ function animate(ts) {
       const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
       let _puffSpawned = 0;
       // Pass 961: puff count 6→10, vy 32+28→45+40; Pass 962: life 0.28+0.15→0.40+0.20
-      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 10; _pi++) {
+      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 14; _pi++) { // Pass 4582: landing puff particle count 10→14 denser slot entry air puff
         const _pp = GRAB_PARTICLES[_pi];
         if (_pp.active) continue;
         _pp.active = true; _pp.age = 0; _pp.life = 2.34 + Math.random() * 1.26; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69 — Pass 3060: 1.28+0.69→1.73+0.93 — Pass 4323: 1.73+0.93→2.34+1.26 longer landing puff cloud
@@ -5228,7 +5228,7 @@ function animate(ts) {
           ? new THREE.Color(ct.hex).lerp(new THREE.Color(0xaaccff), phaseRaw(PH.armReturn)).getHex()
           : 0xaaccff;
         _beltTrackLight.color.setHex(_idleColor);
-        _beltTrackLight.position.set(shimmerX, CONV_Y_TOP + 5, 0);
+        _beltTrackLight.position.set(shimmerX, CONV_Y_TOP + 6.75, 0); // Pass 4581: belt idle shimmer light height 5→6.75 higher belt active light position
         // Pulse the shimmer brightness — brighter at belt midpoint, softer at ends
         const midT = 1 - Math.abs((_beltIdlePhase % 1) - 0.5) * 2;
         _beltTrackLight.intensity = 12.3 + midT * 17.8; // Pass 2469: idle shimmer base 1.11→1.50 Pass 2470: peak 1.61→2.17 — Pass 2713: 1.50→2.03, 2.17→2.93 — Pass 2810: 2.03→2.74 Pass 2811: 2.93→3.96 — Pass 2943: 2.74→3.70 Pass 2944: 3.96→5.35 — Pass 3149: base 3.70→5.00 Pass 3150: peak 5.35→7.22 — Pass 3319: 5.00+7.22→6.75+9.75 — Pass 3490: base 6.75→9.11 Pass 3491: peak 9.75→13.2 — Pass 4173: base 9.11→12.3 — Pass 4174: peak 13.2→17.8 brighter idle shimmer
