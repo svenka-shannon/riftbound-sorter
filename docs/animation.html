@@ -992,7 +992,7 @@ const scanLineMat2 = new THREE.MeshStandardMaterial({
   emissiveIntensity: 3.38, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar
   transparent: true, opacity: 0.88 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep
 });
-const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 3, 121.5), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam
+const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 121.5), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height
 scanLine2.visible = false;
 scene.add(scanLine2);
 
@@ -1974,7 +1974,7 @@ function fireCelebration() {
     p.vy = spd * (4.64 + Math.random() * 4.33); // Pass 2501: celeb launch bias 1.40+1.30→1.89+1.76 — Pass 3549: 1.89+1.76→2.55+2.38 — Pass 3664: 2.55+2.38→3.44+3.21 — Pass 4098: base 3.44→4.64 — Pass 4099: rand 3.21→4.33 higher loft
     p.vz = Math.sin(angle) * spd * 1.19; // Pass 3903: confetti vz spread 0.65→0.88 wider Z burst — Pass 4286: 0.88→1.19 wider confetti Z burst
     // Pass 652: randomize spawn position within ±25 units of tray center for wider burst area
-    p.mesh.position.set(TX_MID + (Math.random()-0.5)*25, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*27.0); // Pass 4472: confetti Z spawn spread 20→27.0 wider burst footprint
+    p.mesh.position.set(TX_MID + (Math.random()-0.5)*33.8, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*27.0); // Pass 4472: confetti Z spawn spread 20→27.0 wider burst footprint — Pass 4500: confetti spawn X spread 25→33.8 wider burst footprint
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
@@ -2433,7 +2433,7 @@ function animate(ts) {
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61
           mesh.material.emissiveIntensity = 1.40 + 2.17 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway
-          const _swayPhase = _globalCardIdx * 1.83;
+          const _swayPhase = _globalCardIdx * 2.47; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync
           mesh.rotation.z = 0.051 * Math.sin(ts * 0.513 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking
         }
         _globalCardIdx++;
@@ -2986,7 +2986,7 @@ function animate(ts) {
     if (!_depositFired) {
       _depositFired = true;
       // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 — Pass 1300: →34.0 — Pass 1379: →46.0 — Pass 1684: →62.0, dist→175
-      const _dfl = new THREE.PointLight(ct.hex, 506, 175); // Pass 2287: belt deposit flash 83.7→113.0 — Pass 3416: 113.0→152.6 — Pass 3528: 152.6→206 — Pass 3711: 206→278 — Pass 3824: 278→375 — Pass 4203: 375→506 bigger belt deposit flash
+      const _dfl = new THREE.PointLight(ct.hex, 506, 236); // Pass 2287: belt deposit flash 83.7→113.0 — Pass 3416: 113.0→152.6 — Pass 3528: 152.6→206 — Pass 3711: 206→278 — Pass 3824: 278→375 — Pass 4203: 375→506 bigger belt deposit flash — Pass 4501: belt entry deposit flash reach 175→236 wider entry flash
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4145,7 +4145,7 @@ function animate(ts) {
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
       const _wallOsc = Math.abs(Math.sin(dt3 * Math.PI * 4)) * Math.max(0, 1 - dt3 * 1.4);
-      if (_wallOsc > 0.72) ct.stripMat.emissiveIntensity = Math.max(ct.stripMat.emissiveIntensity, 0.15 + (_wallOsc - 0.72) / 0.28 * 0.90);
+      if (_wallOsc > 0.72) ct.stripMat.emissiveIntensity = Math.max(ct.stripMat.emissiveIntensity, 0.15 + (_wallOsc - 0.72) / 0.28 * 1.22); // Pass 4499: slot wall LED bounce peak 0.90→1.22 brighter wall contact flash
     }
     // Pass 456: pre-impact micro-shake ramp — for floor-0, subtle increasing camera tremor
     // from dt3=0.72→0.88 builds tension before the big landing shake at 0.88.
@@ -4492,7 +4492,7 @@ function animate(ts) {
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 8.24); // Pass 1973: paddle return 4.5→6.1 — Pass 4074: 6.1→8.24 snappier paddle spring-back
     // Return floor diverter to flat (lower floor default) during arm return
-    _diverterAngle += (DIVERTER_FLOOR0 - _diverterAngle) * Math.min(1, dt * 3);
+    _diverterAngle += (DIVERTER_FLOOR0 - _diverterAngle) * Math.min(1, dt * 4.05); // Pass 4503: arm return diverter velocity 3→4.05 snappier servo return
     floorDiverterPivot.rotation.z = -_diverterAngle;
     // Pass 72: decay paddle back to resting orange glow after charge discharge
     paddleMat.emissive.lerp(new THREE.Color(0xff3300), Math.min(1, dt * 5.47)); // Pass 1974: paddle emissive decay 3→4.05 — Pass 4075: 4.05→5.47 faster paddle glow return
@@ -4517,7 +4517,7 @@ function animate(ts) {
       const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 1.15; // dampens in first ~45% of phase // Pass 4411: scanner flicker amp 0.85→1.15 stronger LED power-down oscillation
       const _flickVal = 1.62 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp // Pass 4412: scanner flicker base 1.2→1.62 brighter LED reset floor
                             + (Math.random() - 0.5) * _flickAmp * 0.35;
-      scanLEDMat.emissiveIntensity = Math.max(0.30, Math.min(70.9, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak
+      scanLEDMat.emissiveIntensity = Math.max(0.41, Math.min(70.9, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak — Pass 4502: scanner LED power-down minimum floor 0.30→0.41 brighter LED floor
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
@@ -4555,7 +4555,7 @@ function animate(ts) {
     // Pass 136: arm holds home position with realistic multi-frequency servo tremor
     // Two overlapping sine waves at different frequencies simulate motor holding dither — Pass 1605: 0.009→0.013, 0.004→0.006
     suctionPivot.rotation.z = -0.35
-      + 0.192 * Math.sin(ts * 0.58 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043 — Pass 2879: 0.043→0.058 — Pass 3089: 0.058→0.078 — Pass 3265: 0.078→0.105 — Pass 3605: 0.105→0.142 — Pass 4010: 0.142→0.192
+      + 0.192 * Math.sin(ts * 0.783 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043 — Pass 2879: 0.043→0.058 — Pass 3089: 0.058→0.078 — Pass 3265: 0.078→0.105 — Pass 3605: 0.105→0.142 — Pass 4010: 0.142→0.192 — Pass 4498: pick suction hold oscillation frequency 0.58→0.783 livelier motor dither
       + 0.089 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020 — Pass 2880: 0.020→0.027 — Pass 3090: 0.027→0.036 — Pass 3266: 0.036→0.049 — Pass 3606: 0.049→0.066 — Pass 4011: 0.066→0.089
     // Pass 492: gate LED domain afterglow — during pause, active column retains a faint 0.4Hz
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
