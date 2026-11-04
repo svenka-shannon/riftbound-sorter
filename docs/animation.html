@@ -1992,13 +1992,13 @@ function fireCelebration() {
   const _shimmerColors = [0xffffff, 0xffe0a0, 0xf0f0f0, 0xffd070, 0xeeeeee, 0xffc040, 0xe8e8ff, 0xffeebb, 0xffd0a0, 0xffffff, 0xffe880, 0xf8f8ff, 0xffffff, 0xffd0ff, 0xffe0b0, 0xf8ffff];
   for (let _mi = 0; _mi < 16; _mi++) { // Pass 896: 12→16 shimmer pieces
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
-    _mp.vx = (Math.random() - 0.5) * 280; // Pass 1011: 165→210 — Pass 1476: →280 faster shimmer burst
+    _mp.vx = (Math.random() - 0.5) * 378; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 faster shimmer burst
     _mp.vy = 381 + Math.random() * 321; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321
     _mp.vz = (Math.random() - 0.5) * 149; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 even wider Z shimmer
     _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*30, FLOOR_Y[0] + 85, (Math.random()-0.5)*40);
     _mp.mat.color.setHex(_shimmerColors[_mi]);
     _mp.mat.opacity = 1.0;
-    _mp.age = 0; _mp.life = 1.10 + Math.random() * 0.80; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 longer shimmer life
+    _mp.age = 0; _mp.life = 1.485 + Math.random() * 1.080; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 longer shimmer life
     _mp.rx = (Math.random() - 0.5) * 167; // Pass 2506: shimmer rx 50→68 — Pass 3629: 68→92 — Pass 3774: 92→124 — Pass 3881: 124→167
     _mp.ry = (Math.random() - 0.5) * 198; // Pass 2507: shimmer ry 60→81 — Pass 3630: 81→109 — Pass 3775: 109→147 — Pass 3882: 147→198
     _mp.rz = (Math.random() - 0.5) * 234; // Pass 2508: shimmer rz 70→95 — Pass 3631: 95→128 — Pass 3776: 128→173 — Pass 3883: 173→234
@@ -2700,7 +2700,7 @@ function animate(ts) {
               _cp.mesh.visible = true;
               _cp.vx = (Math.random() - 0.5) * 128.3; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 — Pass 1672: →95 — Pass 3910: 95→128.3 wider pick burst
               _cp.vy = 75.6 + Math.random() * 102.6;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 — Pass 1673: →56+76 — Pass 3909: 56+76→75.6+102.6 higher pick dust loft
-              _cp.vz = (Math.random() - 0.5) * 28; // Pass 1674: 20→28
+              _cp.vz = (Math.random() - 0.5) * 37.8; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread
               _cp.mat.color.setRGB(0.85, 0.88, 0.92); // cool pale grey (displaced air)
               _cpSpawned++;
             }
@@ -2796,7 +2796,7 @@ function animate(ts) {
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
         // Pass 524: grab pulse light intensity 6.0→7.5 — Pass 625: →10.0 — Pass 877: →14.0 — Pass 1174: →20.0 — Pass 1669: →28.0, dist→150
-        const grabLight = new THREE.PointLight(ct.hex, 51.0, 150); // Pass 2274: grab pulse light 37.8→51.0
+        const grabLight = new THREE.PointLight(ct.hex, 68.9, 150); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 brighter suction grab burst
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -2841,7 +2841,7 @@ function animate(ts) {
           p.mat.color.setHex(_pc);
           p.mat.opacity = 0.85 + Math.random() * 0.15; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst
           p.age = 0;
-          p.life = 0.84 + Math.random() * 0.65; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65
+          p.life = 1.134 + Math.random() * 0.878; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles
           p.active = true;
           p.mesh.visible = true;
         });
@@ -2883,7 +2883,7 @@ function animate(ts) {
         // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: →0.85+0.62 — Pass 1060: →0.95+0.80 — Pass 1247: apex →1.15 for brighter arc midpoint
         const _swT482 = phaseRaw(PH.armSwing);
         // Pass 482: trail opacity peak — Pass 1352: 0.95+1.15→0.95+1.55 — Pass 1500: apex →2.00 for brighter arc peak
-        tp.mat.opacity = Math.min(1, 0.95 + 3.65 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65
+        tp.mat.opacity = Math.min(1, 0.95 + 4.93 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65 — Pass 3950: 3.65→4.93 brighter arc-apex trail peak
         tp.age = 0;
         // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 — Pass 1501: →1.10+0.55 longer arc trail
         tp.life = 4.94 + Math.random() * 2.46; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82 — Pass 3672: 3.66+1.82→4.94+2.46
@@ -3004,7 +3004,7 @@ function animate(ts) {
           const _side = Math.random() < 0.5 ? 1 : -1;
           _dp.vx = _side * (72.9 + Math.random() * 118.8); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 — Pass 1687: →40+65 — Pass 1848: →54+88 — Pass 3934: 54+88→72.9+118.8 wider slot drop burst
           _dp.vy = 83.7 + Math.random() * 104.0; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 — Pass 1688: →34+42 — Pass 1849: →46+57 — Pass 3437: →62+77 — Pass 3916: 62+77→83.7+104.0 higher slot drop dust
-          _dp.vz = (Math.random() - 0.5) * 30; // Pass 1486: 16→22 — Pass 1689: →30
+          _dp.vz = (Math.random() - 0.5) * 40.5; // Pass 1486: 16→22 — Pass 1689: →30 — Pass 3953: 30→40.5 wider slot drop Z spread
           // Pale domain-tinted dust: 35% domain + 65% white
           _dp.mat.color.setRGB(
             Math.min(1, _rr / 255 * 0.35 + 0.65),
@@ -3343,7 +3343,7 @@ function animate(ts) {
       // Pass 227: cursor flicker slows post-reveal — frantic 18Hz uncertainty → calm 3Hz domain pulse
       // Pass 608: boost pre-reveal flicker amplitude 0.10→0.22; post-reveal breath 0.20→0.30 for more visible cursor
       scanBarCursorMat.opacity = _identityRevealed
-        ? 0.72 + 0.42 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // Pass 1700: post-reveal breath 0.30→0.42
+        ? 0.72 + 0.567 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // Pass 1700: post-reveal breath 0.30→0.42 — Pass 3956: 0.42→0.567 stronger post-reveal cursor breathe
         : 0.78 + 0.30 * Math.abs(Math.sin(ts * 18 * Math.PI * 2)); // Pass 1701: pre-reveal flicker amp 0.22→0.30
       // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 — Pass 853: →2.5 — Pass 1322: →3.5 for bigger swell
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
