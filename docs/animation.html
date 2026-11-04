@@ -1617,7 +1617,7 @@ for (let _gdi = 0; _gdi < 9; _gdi++) {
   const _gdMat = new THREE.MeshBasicMaterial({
     color: 0x00ffcc, transparent: true, opacity: 0,
   });
-  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(2.55, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots
+  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(3.44, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots
   _gdMesh.visible = false;
   scene.add(_gdMesh);
   SCAN_GRID_DOTS.push({ mesh: _gdMesh, mat: _gdMat });
@@ -1627,8 +1627,8 @@ const SCAN_DOT_OFFSETS = [];
 for (let _dr = 0; _dr < 3; _dr++) {
   for (let _dc = 0; _dc < 3; _dc++) {
     SCAN_DOT_OFFSETS.push({
-      x: THREE.MathUtils.lerp(-CARD_W * 0.432, CARD_W * 0.432, _dc / 2), // Pass 4865: scan grid X spread 0.32→0.432 wider dot array
-      z: THREE.MathUtils.lerp(-CARD_H * 0.405, CARD_H * 0.405, _dr / 2), // Pass 4866: scan grid Z spread 0.3→0.405 deeper dot array
+      x: THREE.MathUtils.lerp(-CARD_W * 0.583, CARD_W * 0.583, _dc / 2), // Pass 4865: scan grid X spread 0.32→0.432 wider dot array — Pass 5447: 0.432→0.583 wider scan grid X span
+      z: THREE.MathUtils.lerp(-CARD_H * 0.547, CARD_H * 0.547, _dr / 2), // Pass 4866: scan grid Z spread 0.3→0.405 deeper dot array — Pass 5448: 0.405→0.547 deeper scan grid Z span
     });
   }
 }
@@ -1806,9 +1806,9 @@ function addCardToTray(ct) {
 // They pulse domain color when a card is being routed to that slot.
 const slotLEDs = [];
 CARD_TYPES.forEach(ct => {
-  const geo = new THREE.SphereGeometry(5.47, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators — Pass 4981: 4.05→5.47 larger slot LED spheres
+  const geo = new THREE.SphereGeometry(7.38, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators — Pass 4981: 4.05→5.47 larger slot LED spheres — Pass 5449: 5.47→7.38 larger slot domain LED spheres
   const mat = new THREE.MeshStandardMaterial({
-    color: ct.hex, emissive: ct.hex, emissiveIntensity: 3.01, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs — Pass 5061: 1.65→2.23 brighter slot domain LEDs — Pass 5305: 2.23→3.01 brighter slot wall LED color urgency
+    color: ct.hex, emissive: ct.hex, emissiveIntensity: 4.06, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs — Pass 5061: 1.65→2.23 brighter slot domain LEDs — Pass 5305: 2.23→3.01 brighter slot wall LED color urgency — Pass 5450: 3.01→4.06 brighter slot domain LED emissive
     roughness: 0.2, metalness: 0.0
   });
   const led = new THREE.Mesh(geo, mat);
@@ -1938,7 +1938,7 @@ const TRAIL_PARTICLES = [];
 const TRAIL_PARTICLE_COUNT = 32; // Pass 4959: trail particle pool 24→32 richer deflect wake
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(4.01, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads
+  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(5.41, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius
   _tpMesh.visible = false;
   scene.add(_tpMesh);
   TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 1.33, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence — Pass 5076: 0.73→0.986 even longer contrail persistence — Pass 5366: 0.986→1.33 longer idle scan emit trail particle persistence
@@ -1954,7 +1954,7 @@ const CELEB_COUNT = 58; // Pass 4576: confetti pool size 32→43 more confetti p
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
-  const _cpMesh = new THREE.Mesh(new THREE.BoxGeometry(6.75, 4, 0.8), _cpMat); // Pass 4870: confetti particle width 5→6.75 chunkier confetti
+  const _cpMesh = new THREE.Mesh(new THREE.BoxGeometry(9.11, 4, 0.8), _cpMat); // Pass 4870: confetti particle width 5→6.75 chunkier confetti — Pass 5452: 6.75→9.11 chunkier confetti particle width
   _cpMesh.visible = false;
   scene.add(_cpMesh);
   // Pass 481: randomized gravity factor per particle (18–35) for organic varied fall speed — Pass 4262: base 18→24.3, rand 17→22.95 stronger confetti gravity variance
@@ -1992,7 +1992,7 @@ function fireCelebration() {
   const _shimmerColors = [0xffffff, 0xffe0a0, 0xf0f0f0, 0xffd070, 0xeeeeee, 0xffc040, 0xe8e8ff, 0xffeebb, 0xffd0a0, 0xffffff, 0xffe880, 0xf8f8ff, 0xffffff, 0xffd0ff, 0xffe0b0, 0xf8ffff, 0xffffd0, 0xffe8b0, 0xf0fff0, 0xffd890, 0xe0e0ff, 0xfff0d0];
   for (let _mi = 0; _mi < 30; _mi++) { // Pass 896: 12→16 shimmer pieces // Pass 4448: 16→22 more shimmer confetti burst — Pass 5021: 22→30 more shimmer confetti burst
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
-    _mp.vx = (Math.random() - 0.5) * 689; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread
+    _mp.vx = (Math.random() - 0.5) * 930; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread — Pass 5453: 689→930 wider celebration shimmer X spread
     _mp.vy = 694 + Math.random() * 585; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft
     _mp.vz = (Math.random() - 0.5) * 271; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 — Pass 4104: 149→201 even wider Z shimmer — Pass 4936: 201→271 wider shimmer Z spread
     _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*40.5, FLOOR_Y[0] + 85, (Math.random()-0.5)*40); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5
