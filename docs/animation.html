@@ -1617,7 +1617,7 @@ for (let _gdi = 0; _gdi < 9; _gdi++) {
   const _gdMat = new THREE.MeshBasicMaterial({
     color: 0x00ffcc, transparent: true, opacity: 0,
   });
-  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(6.26, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius
+  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(8.45, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius — Pass 6452: 6.26→8.45 even fatter scan grid mote dot radius
   _gdMesh.visible = false;
   scene.add(_gdMesh);
   SCAN_GRID_DOTS.push({ mesh: _gdMesh, mat: _gdMat });
