@@ -992,7 +992,7 @@ const scanLineMat2 = new THREE.MeshStandardMaterial({
   emissiveIntensity: 3.38, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar
   transparent: true, opacity: 0.88 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep
 });
-const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 121.5), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage
+const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 3, 121.5), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam
 scanLine2.visible = false;
 scene.add(scanLine2);
 
@@ -1205,7 +1205,7 @@ CARD_TYPES.forEach(ct => {
 // Flat (0 rad) = card falls through to lower floor. ~0.65 rad (~37°) = ramp to upper floor.
 const DIVERTER_X = TRAY_X_START - 5;
 const DIVERTER_FLOOR0 = 0;    // lower floor: flat
-const DIVERTER_FLOOR1 = 0.65; // upper floor: ramp up ~37°
+const DIVERTER_FLOOR1 = 0.878; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp
 const diverterServoBox = makeBox(14, 14, 22, 0x9aa0b0);
 diverterServoBox.position.set(DIVERTER_X - 3, CONV_Y_TOP + 7, 0);
 scene.add(diverterServoBox);
@@ -1519,7 +1519,7 @@ scene.add(routeArcLine);
 const routeTargetMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0, roughness: 0.3, transparent: true, opacity: 0
 });
-const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(4, 10, 10), routeTargetMat);
+const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(5.40, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator
 scene.add(routeTarget);
 
 // ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
@@ -1938,7 +1938,7 @@ const TRAIL_PARTICLES = [];
 const TRAIL_PARTICLE_COUNT = 24;
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(2.2, 4, 4), _tpMat);
+  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(2.97, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads
   _tpMesh.visible = false;
   scene.add(_tpMesh);
   TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 0.4, age: 0, active: false });
@@ -1974,7 +1974,7 @@ function fireCelebration() {
     p.vy = spd * (4.64 + Math.random() * 4.33); // Pass 2501: celeb launch bias 1.40+1.30→1.89+1.76 — Pass 3549: 1.89+1.76→2.55+2.38 — Pass 3664: 2.55+2.38→3.44+3.21 — Pass 4098: base 3.44→4.64 — Pass 4099: rand 3.21→4.33 higher loft
     p.vz = Math.sin(angle) * spd * 1.19; // Pass 3903: confetti vz spread 0.65→0.88 wider Z burst — Pass 4286: 0.88→1.19 wider confetti Z burst
     // Pass 652: randomize spawn position within ±25 units of tray center for wider burst area
-    p.mesh.position.set(TX_MID + (Math.random()-0.5)*25, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*20);
+    p.mesh.position.set(TX_MID + (Math.random()-0.5)*25, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*27.0); // Pass 4472: confetti Z spawn spread 20→27.0 wider burst footprint
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
@@ -2434,7 +2434,7 @@ function animate(ts) {
           mesh.material.emissiveIntensity = 1.40 + 2.17 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway
           const _swayPhase = _globalCardIdx * 1.83;
-          mesh.rotation.z = 0.051 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking
+          mesh.rotation.z = 0.051 * Math.sin(ts * 0.513 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking
         }
         _globalCardIdx++;
       });
@@ -4332,7 +4332,7 @@ function animate(ts) {
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
       // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 — Pass 1267: →22.0 — Pass 1371: →32.0 — Pass 1553: →45.0 for stronger floor-1 arrival
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 903; // Pass 2397: upper floor strip flash 110.7→149.4 — Pass 2631: 149.4→201.7 — Pass 3069: 201.7→272.3 — Pass 3252: 272.3→367.6 — Pass 3599: 367.6→496 — Pass 3695: 496→669 — Pass 3807: 669→903
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 1219; // Pass 2397: upper floor strip flash 110.7→149.4 — Pass 2631: 149.4→201.7 — Pass 3069: 201.7→272.3 — Pass 3252: 272.3→367.6 — Pass 3599: 367.6→496 — Pass 3695: 496→669 — Pass 3807: 669→903 — Pass 4475: 903→1219 brighter upper floor landing flash
       // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 — Pass 986: →11.0 — Pass 1107: →18.0 — Pass 1371: →26.0 — Pass 1554: →36.0 vivid arrival
       if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 977; // Pass 2398: upper floor fill bar spark 88.6→119.6 — Pass 2632: 119.6→161.5 — Pass 2868: 161.5→218.0 — Pass 3070: 218.0→294.3 — Pass 3253: 294.3→397.3 — Pass 3600: 397.3→536 — Pass 3696: 536→724 — Pass 3808: 724→977
       // Pass 224: upper floor arrival glow particles — 3 gentle domain-tinted motes that
@@ -4402,7 +4402,7 @@ function animate(ts) {
     }
     // Pass 457: reject second burst — at dt3=0.55 a smaller follow-up spark burst fires,
     // echoing the first alarm like a double-tap warning strobe.
-    if (ct.slot === 7 && !_rejectBurst2Fired && dt3 >= 0.55) {
+    if (ct.slot === 7 && !_rejectBurst2Fired && dt3 >= 0.743) { // Pass 4479: reject secondary strobe trigger 0.55→0.743 later double-tap alarm
       _rejectBurst2Fired = true;
       let _rb2 = 0;
       // Pass 1048: reject burst2 count 8→12
