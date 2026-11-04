@@ -1967,7 +1967,7 @@ function fireCelebration() {
     const domCt = CARD_TYPES[pi % CARD_TYPES.length];
     const angle = (pi / CELEB_COUNT) * Math.PI * 2;
     // Pass 594: confetti burst speed 60+90 — Pass 652: →80+120 — Pass 728: →100+150 — Pass 755: →125+180 — Pass 892: →155+220 — Pass 1009: →190+260 — Pass 1633: →255+350 — Pass 3461: base 255→344 — Pass 3462: rand 350→473
-    const spd = 626 + Math.random() * 861; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638 — Pass 4096: base 464→626 — Pass 4097: rand 638→861 faster burst
+    const spd = 845 + Math.random() * 861; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638 — Pass 4096: base 464→626 — Pass 4097: rand 638→861 faster burst — Pass 4943: base 626→845 faster celebration burst
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
     p.vx = Math.cos(angle) * spd * 1.01; // Pass 4069: confetti vx spread 0.75→1.01 wider horizontal burst
     // Pass 729: upward bias 0.6+0.6→0.75+0.70 — Pass 893: →0.90+0.85 — Pass 1010: →1.10+1.00 — Pass 1634: →1.40+1.30 stronger launch
@@ -1994,14 +1994,14 @@ function fireCelebration() {
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
     _mp.vx = (Math.random() - 0.5) * 689; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread
     _mp.vy = 694 + Math.random() * 585; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft
-    _mp.vz = (Math.random() - 0.5) * 201; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 — Pass 4104: 149→201 even wider Z shimmer
+    _mp.vz = (Math.random() - 0.5) * 271; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 — Pass 4104: 149→201 even wider Z shimmer — Pass 4936: 201→271 wider shimmer Z spread
     _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*40.5, FLOOR_Y[0] + 85, (Math.random()-0.5)*40); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5
     _mp.mat.color.setHex(_shimmerColors[_mi]);
     _mp.mat.opacity = 1.0;
-    _mp.age = 0; _mp.life = 2.005 + Math.random() * 1.458; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 — Pass 4108: 1.485+1.080→2.005+1.458 longer shimmer life
+    _mp.age = 0; _mp.life = 2.707 + Math.random() * 1.968; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 — Pass 4108: 1.485+1.080→2.005+1.458 longer shimmer life — Pass 4937: 2.005+1.458→2.707+1.968 longer shimmer life
     _mp.rx = (Math.random() - 0.5) * 305; // Pass 2506: shimmer rx 50→68 — Pass 3629: 68→92 — Pass 3774: 92→124 — Pass 3881: 124→167 — Pass 4105: 167→226 — Pass 4933: 226→305 wilder shimmer tumble X
     _mp.ry = (Math.random() - 0.5) * 361; // Pass 2507: shimmer ry 60→81 — Pass 3630: 81→109 — Pass 3775: 109→147 — Pass 3882: 147→198 — Pass 4106: 198→267 — Pass 4934: 267→361 wilder shimmer tumble Y
-    _mp.rz = (Math.random() - 0.5) * 316; // Pass 2508: shimmer rz 70→95 — Pass 3631: 95→128 — Pass 3776: 128→173 — Pass 3883: 173→234 — Pass 4107: 234→316
+    _mp.rz = (Math.random() - 0.5) * 427; // Pass 2508: shimmer rz 70→95 — Pass 3631: 95→128 — Pass 3776: 128→173 — Pass 3883: 173→234 — Pass 4107: 234→316 — Pass 4938: 316→427 wilder shimmer tumble Z
     _mp.active = true; _mp.mesh.visible = true;
   }
   // Pass 54: full-scene celebration enhancement
@@ -2018,14 +2018,14 @@ function fireCelebration() {
   // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° — Pass 1006: →26° — Pass 1103: →36° — Pass 1346: →50° — Pass 1621: →68°
   _fovBump = 167; // Pass 2494: celebration FOV punch 124→167
   // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0 — Pass 897: →20.0 — Pass 1007: →30.0, dist →500 — Pass 1104: →45.0, dist→650 — Pass 1347: →64.0, dist→800 — Pass 1631: →86.0, dist→1050
-  const _cfl = new THREE.PointLight(0xffffff, 1281, 1050); // Pass 2495: celebration white burst 156.7→211.6 — Pass 3413: 211.6→285.7 — Pass 3525: 285.7→386 — Pass 3661: 386→521 — Pass 3780: 521→703 — Pass 3885: 703→949 — Pass 4112: 949→1281 bigger celebration flash
+  const _cfl = new THREE.PointLight(0xffffff, 1729, 1418); // Pass 2495: celebration white burst 156.7→211.6 — Pass 3413: 211.6→285.7 — Pass 3525: 285.7→386 — Pass 3661: 386→521 — Pass 3780: 521→703 — Pass 3885: 703→949 — Pass 4112: 949→1281 bigger celebration flash — Pass 4939: 1281→1729 brighter celebration white burst — Pass 4940: range 1050→1418 wider celebration burst reach
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: _cfl, age: 0, peak: _cfl.intensity });
   // Pass 150: rainbow tray burst — Pass 423: 5.5→8.0 — Pass 727: →12.0 — Pass 898: →18.0 — Pass 1008: →26.0, dist →300 — Pass 1105: →38.0, dist→400 — Pass 1451: →52.0, dist→520 — Pass 1635: →70.0, dist→690
   CARD_TYPES.forEach(dct => {
-    const _dfl = new THREE.PointLight(dct.hex, 572, 690); // Pass 2496: celebration rainbow burst 127.6→172.3 — Pass 3414: 172.3→232.6 — Pass 3526: 232.6→314 — Pass 3662: 314→424 — Pass 4113: 424→572 more vivid rainbow burst
+    const _dfl = new THREE.PointLight(dct.hex, 772, 690); // Pass 2496: celebration rainbow burst 127.6→172.3 — Pass 3414: 172.3→232.6 — Pass 3526: 232.6→314 — Pass 3662: 314→424 — Pass 4113: 424→572 more vivid rainbow burst — Pass 4941: 572→772 stronger rainbow tray burst
     _dfl.position.set(TX_MID, dct.slotFloorY + 55, dct.slotZ);
     scene.add(_dfl);
     window._flashLights.push({ light: _dfl, age: 0, peak: _dfl.intensity });
@@ -2448,7 +2448,7 @@ function animate(ts) {
       f.age += dt;
       const _fPeak = f.peak || 4.05; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 7.30)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 9.86)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence
       if(f.age > 7.30) { scene.remove(f.light); return false; }
       return true;
     });
