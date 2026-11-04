@@ -5242,8 +5242,8 @@ function animate(ts) {
     const _onBelt = (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))
                      && activeCard.visible;
     // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
-    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 1.62 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20 — Pass 4175: 1.20→1.62 deeper scan shadow pulse
-    const _shadowTarget = _onBelt ? 1.35 + _shadowScanPulse : 0; // Pass 2472: shadow opacity 0.93→1.0 — Pass 4757: shadow base 1.0→1.35
+    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 2.19 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20 — Pass 4175: 1.20→1.62 deeper scan shadow pulse — Pass 5388: 1.62→2.19 deeper scan shadow pulse
+    const _shadowTarget = _onBelt ? 1.82 + _shadowScanPulse : 0; // Pass 2472: shadow opacity 0.93→1.0 — Pass 4757: shadow base 1.0→1.35 — Pass 5389: 1.35→1.82 richer card shadow base opacity
     _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 14.6); // Pass 4398: shadow tracking rate 8→10.8 snappier shadow response — Pass 5381: 10.8→14.6 snappier card shadow opacity tracking
     if (_onBelt) {
       _shadowMesh.position.set(activeCard.position.x, CONV_Y_TOP + 0.4, activeCard.position.z);
@@ -5253,7 +5253,7 @@ function animate(ts) {
       // conveyorIn/Out → stretch up to ~7 extra units; scan (stationary) → compress back to base.
       const _beltMoving = (_onBelt && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)));
       const _stretchTarget = _beltMoving ? CARD_H * 1.00 + _beltScrollSpeed * 2124 : CARD_H * 1.00; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863 — Pass 3152: 863→1165 — Pass 3321: 1165→1573 — Pass 4176: 1573→2124 more dynamic speed-stretch — Pass 4397: base 0.74→1.00 wider card shadow
-      _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 8.10); // Pass 4847: shadow stretch tracking rate 6→8.10 snappier speed-stretch response
+      _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 10.9); // Pass 4847: shadow stretch tracking rate 6→8.10 snappier speed-stretch response — Pass 5387: 8.10→10.9 snappier shadow speed-stretch tracking
     }
     _shadowMesh.visible = _shadowMat.opacity > 0.01;
   }
