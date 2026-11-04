@@ -2025,7 +2025,7 @@ function fireCelebration() {
   window._flashLights.push({ light: _cfl, age: 0, peak: _cfl.intensity });
   // Pass 150: rainbow tray burst — Pass 423: 5.5→8.0 — Pass 727: →12.0 — Pass 898: →18.0 — Pass 1008: →26.0, dist →300 — Pass 1105: →38.0, dist→400 — Pass 1451: →52.0, dist→520 — Pass 1635: →70.0, dist→690
   CARD_TYPES.forEach(dct => {
-    const _dfl = new THREE.PointLight(dct.hex, 1407, 1258); // Pass 2496: celebration rainbow burst 127.6→172.3 — Pass 3414: 172.3→232.6 — Pass 3526: 232.6→314 — Pass 3662: 314→424 — Pass 4113: 424→572 more vivid rainbow burst — Pass 4941: 572→772 stronger rainbow tray burst — Pass 5214: 772→1042 brighter rainbow tray burst — Pass 5215: range 690→932 wider rainbow burst reach — Pass 6358: 1042→1407 brighter rainbow tray burst intensity — Pass 6359: 932→1258 wider rainbow tray burst reach
+    const _dfl = new THREE.PointLight(dct.hex, 1899, 1258); // Pass 2496: celebration rainbow burst 127.6→172.3 — Pass 3414: 172.3→232.6 — Pass 3526: 232.6→314 — Pass 3662: 314→424 — Pass 4113: 424→572 more vivid rainbow burst — Pass 4941: 572→772 stronger rainbow tray burst — Pass 5214: 772→1042 brighter rainbow tray burst — Pass 5215: range 690→932 wider rainbow burst reach — Pass 6358: 1042→1407 brighter rainbow tray burst intensity — Pass 6359: 932→1258 wider rainbow tray burst reach — Pass 7256: 1407→1899 brighter rainbow tray burst intensity
     _dfl.position.set(TX_MID, dct.slotFloorY + 55, dct.slotZ);
     scene.add(_dfl);
     window._flashLights.push({ light: _dfl, age: 0, peak: _dfl.intensity });
@@ -2342,7 +2342,7 @@ function animate(ts) {
           c.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
         });
         // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 — Pass 1393: →14.0 for bigger batch-loaded burst — Pass 1583: →20.0, dist→300
-        const _rfl = new THREE.PointLight(0xfff0cc, 163, 998); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst — Pass 4059: 27.0→36.5 intensity — Pass 4060: range 300→405 — Pass 4683: 36.5→49.3 brighter hopper refill burst — Pass 5026: 49.3→66.6 brighter hopper refill burst — Pass 5179: 66.6→89.9 brighter hopper refill flash — Pass 5212: range 405→547 wider hopper refill flash reach — Pass 5928: range 547→739 wider hopper refill flash reach — Pass 6599: 89.9→121 brighter hopper refill burst flash intensity — Pass 6600: 739→998 wider hopper refill flash reach range — Pass 6988: 121→163 brighter hopper refill burst flash intensity
+        const _rfl = new THREE.PointLight(0xfff0cc, 220, 998); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst — Pass 4059: 27.0→36.5 intensity — Pass 4060: range 300→405 — Pass 4683: 36.5→49.3 brighter hopper refill burst — Pass 5026: 49.3→66.6 brighter hopper refill burst — Pass 5179: 66.6→89.9 brighter hopper refill flash — Pass 5212: range 405→547 wider hopper refill flash reach — Pass 5928: range 547→739 wider hopper refill flash reach — Pass 6599: 89.9→121 brighter hopper refill burst flash intensity — Pass 6600: 739→998 wider hopper refill flash reach range — Pass 6988: 121→163 brighter hopper refill burst flash intensity — Pass 7257: 163→220 brighter hopper refill burst flash intensity
         _rfl.position.set(HOPPER_X + 33, 532, 0); // Pass 4519: hopper refill flash height 160→216 wider refill burst reach — Pass 5075: 216→292 taller hopper refill flash reach — Pass 5929: 292→394 taller hopper refill flash reach height — Pass 6601: 394→532 taller hopper refill flash reach height
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
@@ -2383,7 +2383,7 @@ function animate(ts) {
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
         const _waveAmp301 = inPhase(PH.armDescend) ? 6.94 + phaseRaw(PH.armDescend) * 27.1 : 6.94; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp // Pass 4493: deck shimmer wave base 1.15→1.55 richer deck energy floor — Pass 4896: base 1.55→2.09 — Pass 4897: ramp 3.32→4.48 brighter deck charge surge — Pass 5208: base 2.09→2.82 — Pass 5209: ramp 4.48→6.05 brighter deck charge surge — Pass 5429: base 2.82→3.81, ramp 6.05→8.17 brighter deck charge buildup wave — Pass 5925: base 3.81→5.14, ramp 8.17→11.0 brighter deck charge wave buildup — Pass 6321: base 5.14→6.94 ramp 11.0→14.9 brighter deck charge wave buildup — Pass 6854: ramp 14.9→20.1 brighter deck charge wave ramp — Pass 7064: ramp 20.1→27.1 brighter deck charge wave ramp
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 — Pass 4061: →0.49 richer deck energy base
-        sc.material.emissiveIntensity = 4.00 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor — Pass 5096: 0.66→0.891 richer deck shimmer base glow — Pass 5210: 0.891→1.20 richer deck shimmer base emissive — Pass 5315: 1.20→1.62 richer deck shimmer base emissive — Pass 5921: 1.62→2.19 richer deck shimmer base emissive floor — Pass 6322: 2.19→2.96 richer deck shimmer base emissive floor — Pass 6853: 2.96→4.00 richer deck shimmer base emissive floor
+        sc.material.emissiveIntensity = 5.40 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor — Pass 5096: 0.66→0.891 richer deck shimmer base glow — Pass 5210: 0.891→1.20 richer deck shimmer base emissive — Pass 5315: 1.20→1.62 richer deck shimmer base emissive — Pass 5921: 1.62→2.19 richer deck shimmer base emissive floor — Pass 6322: 2.19→2.96 richer deck shimmer base emissive floor — Pass 6853: 2.96→4.00 richer deck shimmer base emissive floor — Pass 7258: 4.00→5.40 richer deck shimmer base emissive floor
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
         sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 9.96); // Pass 4813: deck shimmer idle tracking 3→4.05 snappier deck energy decay — Pass 5549: 4.05→5.47 snappier deck shimmer idle tracking — Pass 6332: 5.47→7.38 snappier deck shimmer idle tracking — Pass 6855: 7.38→9.96 snappier deck shimmer idle tracking rate
@@ -2797,7 +2797,7 @@ function animate(ts) {
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
         // Pass 524: grab pulse light intensity 6.0→7.5 — Pass 625: →10.0 — Pass 877: →14.0 — Pass 1174: →20.0 — Pass 1669: →28.0, dist→150
-        const grabLight = new THREE.PointLight(ct.hex, 567, 370); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 — Pass 4230: 68.9→93.0 intensity, 150→203 range brighter suction grab burst — Pass 4903: range 203→274 wider grab pulse reach — Pass 4945: intensity 93.0→125.6 brighter grab burst — Pass 5075: 125.6→170 brighter grab burst — Pass 5195: 170→230 brighter grab pulse flash — Pass 5533: 230→311 brighter suction grab burst light intensity — Pass 5793: range 274→370 wider grab pulse reach — Pass 6526: 311→420 brighter suction grab burst light intensity — Pass 6813: 420→567 brighter suction grab burst light intensity
+        const grabLight = new THREE.PointLight(ct.hex, 765, 370); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 — Pass 4230: 68.9→93.0 intensity, 150→203 range brighter suction grab burst — Pass 4903: range 203→274 wider grab pulse reach — Pass 4945: intensity 93.0→125.6 brighter grab burst — Pass 5075: 125.6→170 brighter grab burst — Pass 5195: 170→230 brighter grab pulse flash — Pass 5533: 230→311 brighter suction grab burst light intensity — Pass 5793: range 274→370 wider grab pulse reach — Pass 6526: 311→420 brighter suction grab burst light intensity — Pass 6813: 420→567 brighter suction grab burst light intensity — Pass 7259: 567→765 brighter suction grab burst light intensity
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -3167,7 +3167,7 @@ function animate(ts) {
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Pass 372: scanner LED boost 2.0→2.5 — Pass 603: 2.5→3.5 + flashIntensity 3.0→4.5 — Pass 1513: base 3.5→5.0, flash 4.5→6.0
-    scanLEDMat.emissiveIntensity = 30.2 + flashIntensity * 65.7; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7 — Pass 3511: base 12.3→16.6 Pass 3512: flash 14.7→19.8 — Pass 3646: base 16.6→22.4 — Pass 3647: flash 19.8→26.7 — Pass 4372: flash 26.7→36.1 brighter scan LED flash — Pass 5247: 36.1→48.7 brighter scan LED flash — Pass 6212: 48.7→65.7 brighter scan LED flash peak intensity — Pass 6431: base 22.4→30.2 brighter scanner LED base emissive
+    scanLEDMat.emissiveIntensity = 30.2 + flashIntensity * 88.7; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7 — Pass 3511: base 12.3→16.6 Pass 3512: flash 14.7→19.8 — Pass 3646: base 16.6→22.4 — Pass 3647: flash 19.8→26.7 — Pass 4372: flash 26.7→36.1 brighter scan LED flash — Pass 5247: 36.1→48.7 brighter scan LED flash — Pass 6212: 48.7→65.7 brighter scan LED flash peak intensity — Pass 6431: base 22.4→30.2 brighter scanner LED base emissive — Pass 7260: 65.7→88.7 brighter scan LED flash peak intensity
     // Pass 222: scanner LED domain flash — at identity reveal, LED color switches to domain
     // Pass 270: hold domain color 0.12s before fading (was immediate fade) — more visual lock-on impact
     if (_scanLEDRevealT >= 0) {
@@ -4697,14 +4697,14 @@ function animate(ts) {
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 9.84); // Pass 4791: hood warm-up emissive tracking rate 4→5.40 snappier scanner heat-up response — Pass 5641: 5.40→7.29 snappier scanner hood warm-up emissive tracking — Pass 6370: 7.29→9.84 snappier scanner hood warm-up emissive tracking
     } else {
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 6.16)); // Pass 4828: hood cooldown color tracking 2.5→3.38 — Pass 5683: 3.38→4.56 snappier scanner hood cooldown color return — Pass 6371: 4.56→6.16 snappier scanner hood cooldown color return
-      hoodMat.emissiveIntensity += (0.689 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5); // Pass 4805: scanner hood idle emissive target 0.28→0.378 warmer scanner cooldown floor — Pass 5143: 0.378→0.510 warmer scanner head idle emissive cooldown floor — Pass 6272: 0.510→0.689 warmer scanner hood idle emissive cooldown floor
+      hoodMat.emissiveIntensity += (0.689 - hoodMat.emissiveIntensity) * Math.min(1, dt * 3.38); // Pass 4805: scanner hood idle emissive target 0.28→0.378 warmer scanner cooldown floor — Pass 5143: 0.378→0.510 warmer scanner head idle emissive cooldown floor — Pass 6272: 0.510→0.689 warmer scanner hood idle emissive cooldown floor — Pass 7251: tracking rate 2.5→3.38 snappier scanner hood idle emissive settle
     }
     // Pass 80: lens iris closes back to resting size
     // Pass 238: iris snap-close overshoot — at conveyorOut start, iris briefly overshoots
     // resting scale (peaks at +0.22 extra) then settles, mirroring the pass 162 snap-open.
     if (inPhase(PH.conveyorOut)) {
       const _ot2 = phaseRaw(PH.conveyorOut);
-      const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 11.0 : 0; // Pass 2430: iris snap-close overshoot 0.41→0.55 — Pass 2668: 0.55→0.74 — Pass 2759: 0.74→1.00 — Pass 2897: 1.00→1.35 — Pass 3106: 1.35→1.82 — Pass 3279: 1.82→2.46 — Pass 3357: 2.46→3.32 — Pass 4388: 3.32→4.48 — Pass 4714: 4.48→6.05 bigger iris snap-close bounce — Pass 5594: 6.05→8.17 bigger iris snap-close overshoot bounce — Pass 6565: 8.17→11.0 bigger iris snap-close overshoot bounce
+      const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 14.9 : 0; // Pass 2430: iris snap-close overshoot 0.41→0.55 — Pass 2668: 0.55→0.74 — Pass 2759: 0.74→1.00 — Pass 2897: 1.00→1.35 — Pass 3106: 1.35→1.82 — Pass 3279: 1.82→2.46 — Pass 3357: 2.46→3.32 — Pass 4388: 3.32→4.48 — Pass 4714: 4.48→6.05 bigger iris snap-close bounce — Pass 5594: 6.05→8.17 bigger iris snap-close overshoot bounce — Pass 6565: 8.17→11.0 bigger iris snap-close overshoot bounce — Pass 7252: 11.0→14.9 bigger iris snap-close overshoot bounce
       lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 24.6); // Pass 4842: iris snap-close scale tracking rate 10→13.5 snappier iris settle — Pass 5755: 13.5→18.2 snappier iris snap-close scale tracking — Pass 6372: 18.2→24.6 snappier iris snap-close scale tracking
       lens.scale.z = lens.scale.x;
     } else {
@@ -4753,7 +4753,7 @@ function animate(ts) {
     const _edgeFade = Math.sin(_belFrac * Math.PI); // 0→1→0
     beltShimmerMat.color.set(beltSurfMat.emissive); // tint to belt emissive (domain color)
     // Pass 472: shimmer opacity 0.38→0.50 — Pass 696: →0.65 — Pass 993: →0.85 — Pass 1401: →1.0 for stronger belt shimmer stripe
-    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 2.46; // Pass 4615: slot shimmer halo opacity 1.0→1.35 brighter belt shimmer stripe — Pass 5394: 1.35→1.82 brighter belt shimmer stripe opacity — Pass 6384: 1.82→2.46 brighter belt shimmer stripe opacity
+    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 3.32; // Pass 4615: slot shimmer halo opacity 1.0→1.35 brighter belt shimmer stripe — Pass 5394: 1.35→1.82 brighter belt shimmer stripe opacity — Pass 6384: 1.82→2.46 brighter belt shimmer stripe opacity — Pass 7253: 2.46→3.32 brighter belt shimmer stripe opacity peak
   } else {
     beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 59.8); // Pass 2004: shimmer fade 4→5.4 — Pass 2764: 5.4→7.29 — Pass 2902: 7.29→9.84 — Pass 3112: 9.84→13.3 — Pass 3284: 13.3→18.0 — Pass 3362: 18.0→24.3 — Pass 4552: 24.3→32.8 faster slot shimmer halo fade — Pass 5596: 32.8→44.3 faster belt shimmer stripe fade rate — Pass 6567: 44.3→59.8 faster belt shimmer stripe fade rate
     if (beltShimmerMat.opacity < 0.01) beltShimmerMesh.visible = false;
@@ -4766,7 +4766,7 @@ function animate(ts) {
       pos.array[i*3+1] += dustSpeeds[i] * dt * speedMult;       // float upward
       // Pass 187: fix dust X sway — was ts*0.0003 (~5.8h period = completely stationary).
       // Fixed to ts*0.08 (~78s period): slow gentle waft visible over minutes of viewing.
-      pos.array[i*3+0] += Math.sin(ts * 0.08 + dustPhases[i]) * 0.0986; // gentle X sway — Pass 4783: dust particle X sway amplitude 0.04→0.054 livelier ambient drift — Pass 5689: 0.054→0.073 livelier dust particle X sway — Pass 6253: 0.073→0.0986 livelier dust particle X sway amplitude
+      pos.array[i*3+0] += Math.sin(ts * 0.08 + dustPhases[i]) * 0.133; // gentle X sway — Pass 4783: dust particle X sway amplitude 0.04→0.054 livelier ambient drift — Pass 5689: 0.054→0.073 livelier dust particle X sway — Pass 6253: 0.073→0.0986 livelier dust particle X sway amplitude — Pass 7254: 0.0986→0.133 livelier dust particle X sway amplitude
       if (pos.array[i*3+1] > 200) {
         // reset to bottom with new random X/Z
         pos.array[i*3+0] = THREE.MathUtils.randFloat(-300, 200);
@@ -4797,7 +4797,7 @@ function animate(ts) {
   const cupPickActive = cycleT < PH.armSwing[1]; // during descend + lift + swing
   if (cupPickActive) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
-                     inPhase(PH.armLift)    ? 1.0 : 1.239; // Pass 4889: armSwing cup glow coefficient 0.5→0.68 — Pass 5756: 0.68→0.918 stronger armSwing cup glow coefficient — Pass 6254: 0.918→1.239 stronger armSwing cup glow coefficient
+                     inPhase(PH.armLift)    ? 1.0 : 1.673; // Pass 4889: armSwing cup glow coefficient 0.5→0.68 — Pass 5756: 0.68→0.918 stronger armSwing cup glow coefficient — Pass 6254: 0.918→1.239 stronger armSwing cup glow coefficient — Pass 7255: 1.239→1.673 stronger armSwing cup glow coefficient
     suctionCupMat.emissive.setHex(ct.hex);
     suctionCupMat.emissiveIntensity = cupGlowT * 125; // Pass 2184: cup peak glow 4.59→6.20 — Pass 2676: 6.20→8.37 — Pass 2768: 8.37→11.3 — Pass 2906: 11.3→15.3 — Pass 3116: 15.3→20.7 — Pass 3288: 20.7→27.9 — Pass 3368: 27.9→37.7 — Pass 4457: 37.7→50.9 brighter cup down-thrust emissive — Pass 5164: 50.9→68.7 brighter cup down-thrust glow — Pass 6048: 68.7→92.7 brighter suction cup down-thrust peak glow — Pass 7213: 92.7→125 brighter suction cup down-thrust peak glow
   } else if (inPhase(PH.armReturn)) {
@@ -4809,10 +4809,10 @@ function animate(ts) {
       suctionCupMat.emissive.setHex(ct.hex);
       suctionCupMat.emissiveIntensity += (_memFade * 14.9 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2186: cup memory intensity 0.74→1.00 — Pass 2770: 1.00→1.35 — Pass 2908: 1.35→1.82 — Pass 3117: 1.82→2.46 — Pass 3289: 2.46→3.32 — Pass 3369: 3.32→4.48 — Pass 4458: 4.48→6.05 brighter cup memory glow — Pass 5166: 6.05→8.17 brighter cup return memory glow — Pass 6049: 8.17→11.0 brighter suction cup domain memory glow peak — Pass 7214: 11.0→14.9 brighter suction cup domain memory glow peak
     } else {
-      suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.370; // Pass 4806: suction cup emissive decay rate 0.15→0.203 snappier cup glow fade — Pass 5503: 0.203→0.274 snappier suction cup glow fade — Pass 6255: 0.274→0.370 snappier suction cup glow fade rate
+      suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.500; // Pass 4806: suction cup emissive decay rate 0.15→0.203 snappier cup glow fade — Pass 5503: 0.203→0.274 snappier suction cup glow fade — Pass 6255: 0.274→0.370 snappier suction cup glow fade rate — Pass 7256: 0.370→0.500 snappier suction cup glow fade rate
     }
   } else {
-    suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.370; // decay — Pass 4806: suction cup emissive decay rate 0.15→0.203 snappier cup glow fade — Pass 5503: 0.203→0.274 snappier suction cup glow fade — Pass 6255: 0.274→0.370 snappier suction cup glow fade rate
+    suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.500; // decay — Pass 4806: suction cup emissive decay rate 0.15→0.203 snappier cup glow fade — Pass 5503: 0.203→0.274 snappier suction cup glow fade — Pass 6255: 0.274→0.370 snappier suction cup glow fade rate — Pass 7256: 0.370→0.500 snappier suction cup glow fade rate
   }
 
   // Auto-orbit recovery: re-enable after 12 s of pointer inactivity
@@ -4965,7 +4965,7 @@ function animate(ts) {
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
       const _fdScale = 1.0 + _altFrac * 128; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo — Pass 5406: 70.3→94.9 bigger domain halo altitude expansion — Pass 6238: 94.9→128 bigger domain halo altitude expansion scale
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
-      const _fdPulse514 = (1 - _altFrac) * 0.189 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe — Pass 4558: 0.077→0.104 stronger floor disc breathe — Pass 5407: 0.104→0.140 stronger floor disc breathe pulse — Pass 6239: 0.140→0.189 stronger floor disc breathe pulse amplitude
+      const _fdPulse514 = (1 - _altFrac) * 0.255 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe — Pass 4558: 0.077→0.104 stronger floor disc breathe — Pass 5407: 0.104→0.140 stronger floor disc breathe pulse — Pass 6239: 0.140→0.189 stronger floor disc breathe pulse amplitude — Pass 7257: 0.189→0.255 stronger floor disc breathe pulse amplitude
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
       const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.135, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00 — Pass 4751: altitude floor 0.055→0.074 more visible floor disc at altitude — Pass 5721: altitude floor 0.074→0.100 more visible floor disc at altitude — Pass 7247: altitude floor 0.100→0.135 more visible floor disc at altitude
       floorDisc.scale.setScalar(_fdScale);
@@ -5003,7 +5003,7 @@ function animate(ts) {
       if (pickPhase) {
         topCard.material.emissive.setHex(ct.hex);
         const glowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) : 1.0;
-        topCard.material.emissiveIntensity = glowT * 54.8; // Pass 2481: pick-phase top card glow 2.01→2.71 — Pass 2693: 2.71→3.66 — Pass 2788: 3.66→4.94 — Pass 2921: 4.94→6.67 — Pass 3132: 6.67→9.00 — Pass 3301: 9.00→12.2 — Pass 4163: 12.2→16.5 brighter pick preview — Pass 5359: 16.5→22.3 brighter top card pick preview — Pass 5871: 22.3→30.1 brighter top card pick-phase domain glow — Pass 6046: 30.1→40.6 brighter top card pick-phase domain glow — Pass 6257: 40.6→54.8 brighter top card pick-phase domain glow
+        topCard.material.emissiveIntensity = glowT * 74.0; // Pass 2481: pick-phase top card glow 2.01→2.71 — Pass 2693: 2.71→3.66 — Pass 2788: 3.66→4.94 — Pass 2921: 4.94→6.67 — Pass 3132: 6.67→9.00 — Pass 3301: 9.00→12.2 — Pass 4163: 12.2→16.5 brighter pick preview — Pass 5359: 16.5→22.3 brighter top card pick preview — Pass 5871: 22.3→30.1 brighter top card pick-phase domain glow — Pass 6046: 30.1→40.6 brighter top card pick-phase domain glow — Pass 6257: 40.6→54.8 brighter top card pick-phase domain glow — Pass 7258: 54.8→74.0 brighter top card pick-phase domain glow
       } else if (previewPhase) {
         // Dim preview: next card's domain glows subtly on the top hopper card
         // Pass 480: next-card preview slow pulse — 0.6Hz breathing for "anticipate" feel
