@@ -2918,13 +2918,13 @@ function animate(ts) {
       // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050 — Pass 1572: →0.210+0.050 bigger card oscillation — Pass 1573: decay 3.2→2.4 longer wobble tail
       _swingWobble = (Math.sin(_sw * 19) * 0.517 + Math.sin(_sw * 29 + 0.6) * 0.124) * Math.exp(-_sw * 2.4); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 livelier card oscillation
       // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt — Pass 1574: →0.30
-      _swingDragX = 0.55 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55
+      _swingDragX = 0.743 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55 — Pass 3925: 0.55→0.743 stronger inertia tilt
     } else if (inPhase(PH.armLift)) {
       const _lt3 = phaseRaw(PH.armLift);
       // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter — Pass 1575: →0.20 primary, 0.032→0.044 secondary
       if (_lt3 < 0.30) {
         const _env605 = Math.exp(-_lt3 * 6);
-        _liftHoverX = (0.36 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.080 * Math.sin(_lt3 / 0.30 * Math.PI * 3.8 + 0.9)) * _env605; // Pass 2282: lift hover X 0.27→0.36, secondary 0.059→0.080
+        _liftHoverX = (0.486 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.108 * Math.sin(_lt3 / 0.30 * Math.PI * 3.8 + 0.9)) * _env605; // Pass 2282: lift hover X 0.27→0.36, secondary 0.059→0.080 — Pass 3926: 0.36+0.080→0.486+0.108 more stack separation chatter
       }
     }
     activeCard.rotation.set(_swingDragX + _liftHoverX, 0, armRot - Math.PI / 2 + _swingWobble);
@@ -2934,9 +2934,9 @@ function animate(ts) {
     // armDescend uses 0 so the card doesn't glow before the suction picks it up.
     let _armCardEmissive = 0;
     // Pass 1576: armLift emissive base 0.22→0.30, ramp 0.08→0.11
-    if (inPhase(PH.armLift)) _armCardEmissive = 0.55 + 0.20 * phaseRaw(PH.armLift); // Pass 2283: armLift card emissive base 0.41→0.55, ramp 0.15→0.20
+    if (inPhase(PH.armLift)) _armCardEmissive = 0.743 + 0.270 * phaseRaw(PH.armLift); // Pass 2283: armLift card emissive base 0.41→0.55, ramp 0.15→0.20 — Pass 3927: 0.55+0.20→0.743+0.270 brighter lift glow
     // Pass 381: armSwing emissive peak boost 0.35 → 0.50 — Pass 466: →0.65 — Pass 1064: →0.92 — Pass 1355: →1.25 brighter arc glow — Pass 1577: →1.70
-    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.55 + 3.11 * Math.sin(phaseRaw(PH.armSwing) * Math.PI); // Pass 2284: armSwing emissive 0.41+2.30→0.55+3.11
+    else if (inPhase(PH.armSwing)) _armCardEmissive = 0.743 + 4.20 * Math.sin(phaseRaw(PH.armSwing) * Math.PI); // Pass 2284: armSwing emissive 0.41+2.30→0.55+3.11 — Pass 3928: 0.55+3.11→0.743+4.20 hotter arc glow
     activeCardMat.emissiveIntensity = _armCardEmissive;
     // Pass 467: arm-swing arc-peak domain flash — at arm's fastest midpoint, spawn a brief domain
     // point light at card position, syncing with the emissive peak (pass 466).
@@ -3027,9 +3027,9 @@ function animate(ts) {
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
-    const _beltWobbleZ = (10.4 * Math.sin(ts * 4.7 * Math.PI * 2) + 3.19 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19
+    const _beltWobbleZ = (14.0 * Math.sin(ts * 4.7 * Math.PI * 2) + 4.31 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 more vivid belt weave
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
-    const _beltYBump = 2.74 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74
+    const _beltYBump = 3.70 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 more tactile belt feel
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     // Pass 1235: lean -0.18→-0.05 (bugfix: at -0.18 the card front edge was 4.9u below belt; safe max ≈0.05rad)
@@ -3039,7 +3039,7 @@ function animate(ts) {
     const _beltVib = Math.sin(ts * 44 * Math.PI * 2) * 0.0034 + Math.sin(ts * 73 * Math.PI * 2) * 0.0020;
     // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
     // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 — Pass 1303: →0.45 for more physical card-slap — Pass 1588: →0.62
-    const _beltFlopY309 = 1.13 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5); // Pass 2291: belt flop Y 0.84→1.13
+    const _beltFlopY309 = 1.53 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5); // Pass 2291: belt flop Y 0.84→1.13 — Pass 3931: 1.13→1.53 more physical card-slap sideways
     activeCard.rotation.set(_beltLean, _beltFlopY309, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
@@ -3048,7 +3048,7 @@ function animate(ts) {
     // Pass 144: scan anticipation — card brightens in final 15% of conveyorIn as scanner looms
     const _approachT = Math.max(0, (ct2 - 0.85) / 0.15); // 0→1 in last 15%
     // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap) — Pass 1592: →1.9
-    const _entryBoost = Math.exp(-ct2 * 20) * 3.47; // Pass 2292: belt entry boost 2.57→3.47
+    const _entryBoost = Math.exp(-ct2 * 20) * 4.68; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 bigger entry flash
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 20;
