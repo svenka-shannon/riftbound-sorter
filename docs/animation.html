@@ -3957,7 +3957,7 @@ function animate(ts) {
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
-    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 1290 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387 — Pass 4408: 387→523 stronger deflect Z air buffet — Pass 5537: 523→706 stronger card deal arc Z air buffet amplitude — Pass 5585: 706→953 stronger card deal arc Z air buffet amplitude — Pass 5605: 953→1290 stronger deflect Z air buffet amplitude
+    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 1740 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387 — Pass 4408: 387→523 stronger deflect Z air buffet — Pass 5537: 523→706 stronger card deal arc Z air buffet amplitude — Pass 5585: 706→953 stronger card deal arc Z air buffet amplitude — Pass 5605: 953→1290 stronger deflect Z air buffet amplitude — Pass 5616: 1290→1740 stronger arm approach Z drift frequency deflect air buffet amplitude
       + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 7.30; // Pass 2107: Z tremor tertiary 2.2→2.97 — Pass 3941: 2.97→4.01 — Pass 4402: 4.01→5.41 stronger deflect air buffet — Pass 5561: 5.41→7.30 stronger deflect Z tertiary tremor
     // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 — Pass 1072: →3.2 — Pass 1253: →4.4 for more 3D turbulence in deflect arc
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 293; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161 — Pass 4084: 161→217 — Pass 5562: 217→293 stronger deflect Y tremor
@@ -4011,9 +4011,9 @@ function animate(ts) {
     if (dt2 < 0.18) {
       paddleMat.emissive.setHex(ct.hex);
     } else {
-      paddleMat.emissive.r += (1.0 - paddleMat.emissive.r) * Math.min(1, dt * 4.73); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return
-      paddleMat.emissive.g += (0.26 - paddleMat.emissive.g) * Math.min(1, dt * 4.73); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return
-      paddleMat.emissive.b *= Math.max(0, 1 - dt * 4.73); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return
+      paddleMat.emissive.r += (1.0 - paddleMat.emissive.r) * Math.min(1, dt * 6.39); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return — Pass 5610: 4.73→6.39 snappier paddle color channel spring return
+      paddleMat.emissive.g += (0.26 - paddleMat.emissive.g) * Math.min(1, dt * 6.39); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return — Pass 5610: 4.73→6.39 snappier paddle color channel spring return
+      paddleMat.emissive.b *= Math.max(0, 1 - dt * 6.39); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return — Pass 5610: 4.73→6.39 snappier paddle color channel spring return
     }
     paddleMat.emissiveIntensity = Math.max(0.547, paddleMat.emissiveIntensity * 0.92); // dim slowly // Pass 4802: paddle emissive floor 0.3→0.405 brighter resting gate glow — Pass 5604: 0.405→0.547 brighter paddle resting emissive floor
     // Pass 109: apply paddle recoil offset and spring it back to base target angle
@@ -4123,7 +4123,7 @@ function animate(ts) {
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
     const _bankSign = Math.sign(ct.slotZ || 0);
-    const _bankStart = -0.68 * _bankSign; // Pass 4602: card tumble outer settle bank angle 0.5→0.68 wider slotDrop entry lean
+    const _bankStart = -0.919 * _bankSign; // Pass 4602: card tumble outer settle bank angle 0.5→0.68 wider slotDrop entry lean — Pass 5611: 0.68→0.919 wider slot entry bank lean
     const _ySettleT = Math.min(1, dt3 / 0.5); // 0→1 over first half of slotDrop
     activeCard.rotation.y = THREE.MathUtils.lerp(_bankStart, 0, easeOut(_ySettleT));
     // Pass 161: landing pitch — card tips forward at bounce impact, springs back
@@ -4307,7 +4307,7 @@ function animate(ts) {
           const _ang = Math.random() * Math.PI * 2;
           const _spd = 2827 + Math.random() * 3202; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757 — Pass 4405: 1551+1757→2094+2372 faster impact radial spray — Pass 5500: base 2094→2827 faster impact radial spray — Pass 5501: rand 2372→3202 wider impact radial spray
           _lp.vx = Math.cos(_ang) * _spd * 0.61; // Pass 4357: landing dust vx factor 0.45→0.61 wider radial scatter
-          _lp.vy = 151.6 + Math.random() * 351.0; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft — Pass 4621: base 112.3→151.6 bigger landing puff vy spread
+          _lp.vy = 205 + Math.random() * 474; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft — Pass 4621: base 112.3→151.6 bigger landing puff vy spread — Pass 5611: 151.6+351.0→205+474 more explosive slot-impact dust loft
           _lp.vz = Math.sin(_ang) * _spd * 1.35; // Pass 4358: landing dust vz factor 1.0→1.35 deeper Z floor spray
           _lp.mat.color.setRGB(
             Math.min(1, _rr2 / 255 * 0.74 + 0.45), // Pass 4861: lower floor scatter domain tint 0.55→0.74
@@ -4344,7 +4344,7 @@ function animate(ts) {
         for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 11; _mi++) { // Pass 4606: landing mote particle count 8→11 denser upper-floor arrival fountain
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
-          _mp.active = true; _mp.age = 0; _mp.life = 10.1 + Math.random() * 5.09; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09
+          _mp.active = true; _mp.age = 0; _mp.life = 13.6 + Math.random() * 6.87; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09 — Pass 5612: 10.1+5.09→13.6+6.87 longer upper-floor arrival mote hang
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 10.8, // Pass 4833: upper floor mote X spawn spread 8→10.8 wider arrival fountain footprint
             ct.slotFloorY + 54.7 + Math.random() * 6, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain — Pass 5078: 40.5→54.7 taller arrival fountain
@@ -5467,7 +5467,7 @@ function animate(ts) {
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
     // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
     const _breathe = 4.48 + 2.46 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35 — Pass 4720: base 1.82→2.46 — Pass 4721: amp 1.35→1.82 richer tray card breathe — Pass 5134: 2.46→3.32 richer tray card resting glow — Pass 5317: base 3.32→4.48 richer tray card breathe resting base — Pass 5338: amp 1.82→2.46 richer tray card breathe primary amplitude
-                         + 0.27 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing — Pass 5342: 0.20→0.27 richer tray secondary harmonic pulse
+                         + 0.365 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing — Pass 5342: 0.20→0.27 richer tray secondary harmonic pulse — Pass 5617: 0.27→0.365 richer card hold emissive breathe secondary harmonic pulse
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
