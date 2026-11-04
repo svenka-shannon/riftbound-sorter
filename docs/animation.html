@@ -2370,8 +2370,8 @@ function animate(ts) {
       const _lt2 = phaseRaw(PH.armLift);
       const _cardDelay = (stackTopIdx - 1 - i) * 0.08; // top-most remaining card fires first
       const _delayedT = Math.max(0, _lt2 - _cardDelay);
-      // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 — Pass 1228: →2.4 — Pass 1661: →3.2 dramatic suction-break recoil
-      if (_delayedT < 0.45) _recoilDip = -3.2 * Math.sin(_delayedT / 0.45 * Math.PI);
+      // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 — Pass 1228: →2.4 — Pass 1661: →3.2 — Pass 4062: →4.32 deeper suction-break recoil
+      if (_delayedT < 0.45) _recoilDip = -4.32 * Math.sin(_delayedT / 0.45 * Math.PI);
     }
     sc.position.y = _baseY + _jY + _recoilDip;
     // Pass 178: deck "charge" shimmer — ripples bottom→top at 0.6 Hz during idle/approach
@@ -2382,8 +2382,8 @@ function animate(ts) {
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
         const _waveAmp301 = inPhase(PH.armDescend) ? 1.15 + phaseRaw(PH.armDescend) * 2.46 : 1.15; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15
-        // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 for brighter deck energy
-        sc.material.emissiveIntensity = 0.36 + _wave * _waveAmp301;
+        // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 — Pass 4061: →0.49 richer deck energy base
+        sc.material.emissiveIntensity = 0.49 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
         sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 3);
@@ -2654,8 +2654,8 @@ function animate(ts) {
         scanTargetLight.color.setHex(0xffeedd);
         scanTargetLight.position.set(PIV_X, CONV_Y_TOP + 8, 0);
         // Pass 276: rangefinder lock-on flicker — 22Hz strobe in final 12% as arm locks on
-        // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 more nervous hunting
-        const _lockFlicker = pt > 0.88 ? (0.48 + 0.52 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0;
+        // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 — Pass 4063: sine amp 0.52→0.70 more nervous lock-on hunting
+        const _lockFlicker = pt > 0.88 ? (0.48 + 0.70 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0;
         // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 — Pass 1310: →7.5 — Pass 1426: →10.5 — Pass 3913: 10.5→14.2 brighter pre-pick spotlight
         scanTargetLight.intensity = _pickTgtT * 14.2 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker;
       }
@@ -2689,12 +2689,12 @@ function animate(ts) {
           // Pass 203: cup contact dust puff — tiny displaced air burst upward from card surface.
           // 4 particles shoot upward and sideways, simulating air compressed under the cup.
           {
-            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 — Pass 1313: →20 — Pass 1670: →28 for more explosive burst
+            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 — Pass 1313: →20 — Pass 1670: →28 — Pass 4064: →38 bigger suction contact burst
           let _cpSpawned = 0;
-            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 28; _ci++) {
+            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 38; _ci++) {
               const _cp = GRAB_PARTICLES[_ci];
               if (_cp.active) continue;
-              _cp.active = true; _cp.age = 0; _cp.life = 0.42 + Math.random() * 0.20; // Pass 1130: 0.20+0.10→0.30+0.15 — Pass 1671: →0.42+0.20 longer pick dust
+              _cp.active = true; _cp.age = 0; _cp.life = 0.57 + Math.random() * 0.27; // Pass 1130: 0.20+0.10→0.30+0.15 — Pass 1671: →0.42+0.20 — Pass 4066: →0.57+0.27 longer pick dust
               const _cpX = PIV_X + 83 * Math.sin(_cfRot);
               const _cpY = PIV_Y - 83 * Math.cos(_cfRot);
               _cp.mesh.position.set(_cpX + (Math.random()-0.5)*10, _cpY - 4, (Math.random()-0.5)*8);
@@ -2712,10 +2712,10 @@ function animate(ts) {
       }
       // Pass 102: air displacement trail — cup cuts through air on rapid descent
       // Only active in faster descent portion (pt > 0.25); spawns every 90ms
-      // Pass 571: armDescend air trail spawn interval 0.09→0.065s — Pass 1678: →0.045s for even denser descent trail
+      // Pass 571: armDescend air trail spawn interval 0.09→0.065s — Pass 1678: →0.045s — Pass 4065: →0.030s denser descent trail
       if (pt > 0.25) {
         _trailSpawnAcc += dt;
-        if (_trailSpawnAcc >= 0.045) {
+        if (_trailSpawnAcc >= 0.030) {
           _trailSpawnAcc = 0;
           const _dRot = suctionPivot.rotation.z;
           const _dCupX = PIV_X + 83 * Math.sin(_dRot);
@@ -3133,7 +3133,7 @@ function animate(ts) {
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
     // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 — Pass 1150: →0.085 — Pass 1280: →0.120 for sharper scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
-      ? 0.162 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0; // Pass 1711: Z-shake 0.120→0.162
+      ? 0.219 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0; // Pass 1711: Z-shake 0.120→0.162 — Pass 4067: →0.219 sharper scanner lock-on recoil
     activeCard.rotation.set(_revealTilt, _yTilt, _scanVib + _revealZShake);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
@@ -3218,8 +3218,8 @@ function animate(ts) {
     scanBloom.color.setHex(_identityRevealed ? ct.hex : 0x0088ff);
     // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 — Pass 1238: →2.8 — Pass 1521: →3.8 for stronger soft scan halo
     scanBloom.intensity = flashIntensity * 23.0 + _bloomRevealSurge; // Pass 2316: bloom flash contribution 5.13→6.93 — Pass 3385: 6.93→9.36 — Pass 3516: 9.36→12.6 — Pass 3656: 12.6→17.0 — Pass 3984: 17.0→23.0
-    // Pass 347: bloom Z drift toward destination slot after identity reveal
-    const _bloomZ347 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.20) * 0.30 : 0;
+    // Pass 347: bloom Z drift toward destination slot after identity reveal — Pass 4068: drift multiplier 0.30→0.41 further bloom Z drift
+    const _bloomZ347 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.20) * 0.41 : 0;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, _bloomZ347);
     // Crosshair scan lines sweep across the card
     scanLine.visible = true;
