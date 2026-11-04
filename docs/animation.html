@@ -1910,7 +1910,7 @@ const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 const GRAB_PARTICLES = [];
 for (let _gpi = 0; _gpi < 16; _gpi++) {
   const _gpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(1.4, 4, 4), _gpMat);
+  const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(1.89, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst
   _gpMesh.visible = false;
   scene.add(_gpMesh);
   GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 0.5, active: false });
@@ -2773,7 +2773,7 @@ function animate(ts) {
         const _yDip = -23.2 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
         // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 — Pass 1358: →7.00 — Pass 1683: →9.50
-        const _pickStutter = lt < 0.12 ? 31.6 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear
+        const _pickStutter = lt < 0.12 ? 31.6 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 51.3 * Math.PI * 2) * 0.35) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear — Pass 4504: pick stutter high freq 38→51.3 sharper micro-jolt
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 — Pass 1359: →15.0 for more dramatic peel-off sway
@@ -2917,7 +2917,7 @@ function animate(ts) {
     if (inPhase(PH.armSwing)) {
       const _sw = phaseT(PH.armSwing);
       // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050 — Pass 1572: →0.210+0.050 bigger card oscillation — Pass 1573: decay 3.2→2.4 longer wobble tail
-      _swingWobble = (Math.sin(_sw * 19) * 0.698 + Math.sin(_sw * 29 + 0.6) * 0.167) * Math.exp(-_sw * 2.4); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 — Pass 4196: 0.517+0.124→0.698+0.167 wilder card oscillation
+      _swingWobble = (Math.sin(_sw * 19) * 0.698 + Math.sin(_sw * 39.2 + 0.6) * 0.167) * Math.exp(-_sw * 2.4); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 — Pass 4196: 0.517+0.124→0.698+0.167 wilder card oscillation — Pass 4508: arm swing wobble secondary freq 29→39.2 crisper angular range oscillation
       // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt — Pass 1574: →0.30
       _swingDragX = 1.00 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55 — Pass 3925: 0.55→0.743 — Pass 4204: 0.743→1.00 stronger inertia tilt
     } else if (inPhase(PH.armLift)) {
@@ -3030,7 +3030,7 @@ function animate(ts) {
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
     const _beltWobbleZ = (18.9 * Math.sin(ts * 4.7 * Math.PI * 2) + 5.82 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
-    const _beltYBump = 5.00 * Math.sin(ts * 22 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 — Pass 4208: 3.70→5.00 more tactile belt feel
+    const _beltYBump = 5.00 * Math.sin(ts * 29.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 — Pass 4208: 3.70→5.00 more tactile belt feel — Pass 4505: belt Y micro-bump freq 22→29.7 livelier tactile bump
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     // Pass 1235: lean -0.18→-0.05 (bugfix: at -0.18 the card front edge was 4.9u below belt; safe max ≈0.05rad)
@@ -3568,7 +3568,7 @@ function animate(ts) {
     // Pass 550: fill bar post-reveal 0.4+1.2 → 0.6+1.6 — Pass 910: →0.80+2.2 for stronger slot pre-announce
     if(fillBars[ct.slot]) {
       const _fbTarget = _identityRevealed ? (2.66 + flashIntensity * 9.86) : 0.12; // Pass 2555: fill bar scan flash base 1.08→1.46 Pass 2556: contribution 2.97→4.01 — Pass 2994: 1.46→1.97, 4.01→5.41 — Pass 3193: base 1.97→2.66 Pass 3194: contribution 5.41→7.30 — Pass 4130: 7.30→9.86 brighter fill bar
-      fillBars[ct.slot].material.emissiveIntensity += (_fbTarget - fillBars[ct.slot].material.emissiveIntensity) * Math.min(1, dt * 5);
+      fillBars[ct.slot].material.emissiveIntensity += (_fbTarget - fillBars[ct.slot].material.emissiveIntensity) * Math.min(1, dt * 6.75); // Pass 4510: fill bar emissive tracking rate 5→6.75 crisper reveal fade
     }
     // Pass 204: paddle pre-aim — after identity reveal, paddle very subtly pre-positions
     // toward destination (15% of target angle) before conveyorOut takes over at 100%.
@@ -4487,7 +4487,7 @@ function animate(ts) {
     // Pass 175: arm return Z-depth arc — mirror of armSwing (pass 154) — Pass 860: 10→15 — Pass 1350: →22 for more 3D sweep
     // Arm dips toward viewer at midpoint of return sweep for 3-D parabolic path
     // Pass 288: final Z ring oscillation — Pass 861: 0.50→0.80 — Pass 1271: →1.10 — Pass 1351: →1.55 for bigger settling ring
-    const _artZRing = art > 0.88 ? 30.9 * Math.sin((art - 0.88) / 0.12 * Math.PI * 2.5) * (1 - (art - 0.88) / 0.12) : 0; // Pass 2411: arm return Z ring 2.82→3.81 — Pass 2644: 3.81→5.14 — Pass 2875: 5.14→6.94 — Pass 3085: 6.94→9.37 — Pass 3261: 9.37→12.6 — Pass 3602: 12.6→17.0 — Pass 3698: 17.0→22.9 — Pass 3811: 22.9→30.9
+    const _artZRing = art > 0.88 ? 30.9 * Math.sin((art - 0.88) / 0.12 * Math.PI * 3.38) * (1 - (art - 0.88) / 0.12) : 0; // Pass 2411: arm return Z ring 2.82→3.81 — Pass 2644: 3.81→5.14 — Pass 2875: 5.14→6.94 — Pass 3085: 6.94→9.37 — Pass 3261: 9.37→12.6 — Pass 3602: 12.6→17.0 — Pass 3698: 17.0→22.9 — Pass 3811: 22.9→30.9 — Pass 4509: suction ring oscillation count 2.5→3.38 busier settle ring
     suctionPivot.position.z = Math.sin(art * Math.PI) * 443 + _artZRing; // Pass 2412: arm return Z-depth arc 40.1→54.1 — Pass 2645: 54.1→73.0 — Pass 2876: 73.0→98.6 — Pass 3086: 98.6→133.1 — Pass 3262: 133.1→179.7 — Pass 3603: 179.7→243 — Pass 3699: 243→328 — Pass 3812: 328→443
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 8.24); // Pass 1973: paddle return 4.5→6.1 — Pass 4074: 6.1→8.24 snappier paddle spring-back
@@ -4638,7 +4638,7 @@ function animate(ts) {
     // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 — Pass 1611: →1.35
     const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 20.1 : 0; // Pass 2425: reveal ambient peak 2.46→3.32 — Pass 2661: 3.32→4.48 — Pass 2751: 4.48→6.05 — Pass 2892: 6.05→8.17 — Pass 3099: 8.17→11.0 — Pass 3275: 11.0→14.9 — Pass 3353: 14.9→20.1
     const _ambTarget = 1.13 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84 — Pass 4284: 0.84→1.13 brighter scene ambient
-    ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 5);
+    ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 6.75); // Pass 4507: ambient tracking rate 5→6.75 snappier slot drop ambient ramp
     // Tint ambient toward domain color during scan or slotDrop
     if (_scanAmbBoost > 0.02 || _dropAmbBoost > 0.02) {
       ambientLight.color.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 2));
@@ -5451,7 +5451,7 @@ function animate(ts) {
         t.stripMat.emissiveIntensity = Math.min(0.15, t.stripMat.emissiveIntensity + dt * 3.65); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65
       } else if (t.stripMat.emissiveIntensity > 0.15) {
         // Pass 69: decay from flash
-        t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 33.2); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2
+        t.stripMat.emissiveIntensity = Math.max(0.15, t.stripMat.emissiveIntensity - dt * 44.8); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2 — Pass 4511: belt active strip flash decay 33.2→44.8 snappier strobe
       }
     });
   }
