@@ -5270,7 +5270,7 @@ function animate(ts) {
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
     tp.mesh.position.y += dt * (80.9 + _tt * 119.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail — Pass 5288: base 59.9→80.9 — Pass 5289: ramp 88.6→119.6 more buoyant contrail
-    tp.mat.opacity = (1 - _tt) * 1.61; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth — Pass 4521: arm trail contrail birth opacity 1.19→1.61 brighter sphere trail
+    tp.mat.opacity = (1 - _tt) * 2.17; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth — Pass 4521: arm trail contrail birth opacity 1.19→1.61 brighter sphere trail — Pass 5345: 1.61→2.17 brighter arm trail contrail birth opacity
     tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 11.1)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper — Pass 5290: 8.24→11.1 faster trail shrink taper
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
@@ -5278,8 +5278,8 @@ function animate(ts) {
     if (tp._birthHex && _tt < 1.81) { // Pass 2513: domain color hold 0.54→0.73 — Pass 2950: 0.73→0.99 — Pass 4758: 0.99→1.34 — Pass 5294: 1.34→1.81 longer domain color hold on arm trail
       tp.mat.color.setHex(tp._birthHex); // hold domain color fresh near the arm
     } else {
-      tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 5.98); // Pass 2815: bleach R rate 1.8→2.43 — Pass 3324: 2.43→3.28 — Pass 3498: 3.28→4.43 — Pass 4571: 4.43→5.98 faster arm trail cool-white fade
-      tp.mat.color.g += (1.0 - tp.mat.color.g) * Math.min(1, dt * 5.98); // Pass 2815b: bleach G rate 1.8→2.43 — Pass 3325: 2.43→3.28 — Pass 3498b: 3.28→4.43 — Pass 4625: arm trail G bleach rate 4.43→5.98 faster cool-white fade
+      tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 8.07); // Pass 2815: bleach R rate 1.8→2.43 — Pass 3324: 2.43→3.28 — Pass 3498: 3.28→4.43 — Pass 4571: 4.43→5.98 faster arm trail cool-white fade — Pass 5346: 5.98→8.07 faster arm trail R bleach
+      tp.mat.color.g += (1.0 - tp.mat.color.g) * Math.min(1, dt * 8.07); // Pass 2815b: bleach G rate 1.8→2.43 — Pass 3325: 2.43→3.28 — Pass 3498b: 3.28→4.43 — Pass 4625: arm trail G bleach rate 4.43→5.98 faster cool-white fade — Pass 5347: 5.98→8.07 faster arm trail G bleach
       tp.mat.color.b = Math.min(1, tp.mat.color.b + dt * 10.8); // blue channel rises fastest → cool white — Pass 2816: 2.4→3.24 — Pass 3326: 3.24→4.37 — Pass 3499: 4.37→5.90 — Pass 4180: 5.90→7.97 faster cool-white bleed — Pass 5293: 7.97→10.8 faster arm trail blue bleed
       if (tp._birthHex) tp._birthHex = undefined; // allow normal bleach in second half
     }
@@ -5296,16 +5296,16 @@ function animate(ts) {
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
     p.vy -= 1110 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4 — Pass 3493: 449.4→607 — Pass 4181: 607→820 heavier dust — Pass 5144: 820→1110 heavier grab particle gravity
-    p.vx *= 1 - dt * 30.9; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9 — Pass 4182: 22.9→30.9 snappier particle decel
+    p.vx *= 1 - dt * 41.7; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9 — Pass 4182: 22.9→30.9 snappier particle decel — Pass 5348: 30.9→41.7 snappier grab particle air resistance
     p.vz *= 1 - dt * 31.1; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread
-    p.mat.opacity = (1 - _pt * _pt) * 1.35; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00 — Pass 4524: grab particle fade rate 1.00→1.35 faster fade-out
+    p.mat.opacity = (1 - _pt * _pt) * 1.82; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00 — Pass 4524: grab particle fade rate 1.00→1.35 faster fade-out — Pass 5349: 1.35→1.82 brighter grab particle fade-out
     p.mesh.scale.setScalar(Math.max(0.068, 1.0 - _pt * 1.28)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95 — Pass 4424: 0.95→1.28 crisper particle shrink — Pass 4652: grab particle min scale floor 0.05→0.068 chunkier particle tail
   });
 
   // ── Pass 34: Domain fill light — overhead tint shifts to current domain color ─
   // Creates a large-radius, dim color wash that transitions with each domain.
   _domFillClr.setHex(ct.hex);
-  _domainFillLight.color.lerp(_domFillClr, dt * 6.75); // Pass 2455: fill color tracking 0.82→1.11 — Pass 2720: 1.11→1.50 — Pass 2817: 1.50→2.03 — Pass 2953: 2.03→2.74 — Pass 3157: 2.74→3.70 — Pass 3329: 3.70→5.00 — Pass 4183: 5.00→6.75 snappier domain color shift
+  _domainFillLight.color.lerp(_domFillClr, dt * 9.11); // Pass 2455: fill color tracking 0.82→1.11 — Pass 2720: 1.11→1.50 — Pass 2817: 1.50→2.03 — Pass 2953: 2.03→2.74 — Pass 3157: 2.74→3.70 — Pass 3329: 3.70→5.00 — Pass 4183: 5.00→6.75 snappier domain color shift — Pass 5344: 6.75→9.11 snappier domain fill color tracking
   const _fillTgt = activeCard.visible ? 2.96 : 0.05; // Pass 2456: fill active card target 0.27→0.36 — Pass 2721: 0.36→0.49 — Pass 2818: 0.49→0.66 — Pass 2954: 0.66→0.89 — Pass 3158: 0.89→1.20 — Pass 4036: 1.20→1.62 — Pass 4676: 1.62→2.19 stronger overhead domain wash during active card — Pass 5131: 2.19→2.96 richer overhead domain wash active card
   // Pass 498: deflect domain fill boost — domain fill light surges during card arc (peaks at midpoint) — Pass 1463: 0.22→0.32
   const _deflectFill498 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 8.63 : 0; // Pass 2457: deflect domain fill 0.58→0.78 — Pass 2722: 0.78→1.05 — Pass 2819: 1.05→1.42 — Pass 2955: 1.42→1.92 — Pass 3159: 1.92→2.59 — Pass 3628: 2.59→3.50 — Pass 4184: 3.50→4.73 — Pass 4677: 4.73→6.39 richer deflect domain color wash — Pass 5127: 6.39→8.63 richer deflect chamber color wash
@@ -5318,7 +5318,7 @@ function animate(ts) {
     _domainFillBoost = Math.max(0, _domainFillBoost - dt * 1.6); // ~0.35s decay
     _domainFillLight.intensity = Math.min(30.2, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 2459: reveal fill cap 2.74→3.70 — Pass 2724: 3.70→5.00 — Pass 3436: 5.00→6.75 — Pass 3716: 6.75→9.11 — Pass 3826: 9.11→12.3 — Pass 4186: 12.3→16.6 — Pass 4679: 16.6→22.4 higher domain fill cap — Pass 5133: 22.4→30.2 higher domain fill light cap
   } else {
-    _domainFillLight.intensity += (_fillTgt + _deflectFill498 + _scanFill519 - _domainFillLight.intensity) * dt * 2.43; // Pass 4446: domain fill idle tracking 1.8→2.43 snappier overhead color wash
+    _domainFillLight.intensity += (_fillTgt + _deflectFill498 + _scanFill519 - _domainFillLight.intensity) * dt * 3.28; // Pass 4446: domain fill idle tracking 1.8→2.43 snappier overhead color wash — Pass 5343: 2.43→3.28 snappier domain fill idle tracking
   }
 
   // ── Pass 36: Round completion celebration particle physics ──────────────────
