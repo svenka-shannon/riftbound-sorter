@@ -4881,9 +4881,9 @@ function animate(ts) {
     // Pass 221: stronger Z pre-roll in last 20% of conveyorOut — card commits to its lane,
     // camera follows more eagerly (ramps from 0.25 → 0.65 of slotZ in the final stretch).
     const _coRaw = inPhase(PH.conveyorOut) ? phaseRaw(PH.conveyorOut) : 0;
-    const _coZBoost = inPhase(PH.conveyorOut) ? 3.29 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0; // Pass 2540: conveyorOut Z lean boost 0.40→0.54 — Pass 2680: 0.54→0.73 — Pass 2776: 0.73→0.99 — Pass 2910: 0.99→1.34 — Pass 3121: 1.34→1.81 — Pass 3292: 1.81→2.44 — Pass 3611: 2.44→3.29
+    const _coZBoost = inPhase(PH.conveyorOut) ? 4.44 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0; // Pass 2540: conveyorOut Z lean boost 0.40→0.54 — Pass 2680: 0.54→0.73 — Pass 2776: 0.73→0.99 — Pass 2910: 0.99→1.34 — Pass 3121: 1.34→1.81 — Pass 3292: 1.81→2.44 — Pass 3611: 2.44→3.29 — Pass 4157: 3.29→4.44 more committed lean
     // Pass 297: slotDrop Z camera lead boost — camera leans further into destination column as card falls — Pass 1608: 0.20→0.28
-    const _sdZBoost = inPhase(PH.slotDrop) ? 2.30 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38 — Pass 2681: 0.38→0.51 — Pass 2777: 0.51→0.69 — Pass 2911: 0.69→0.93 — Pass 3122: 0.93→1.26 — Pass 3293: 1.26→1.70 — Pass 3621: 1.70→2.30
+    const _sdZBoost = inPhase(PH.slotDrop) ? 3.11 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38 — Pass 2681: 0.38→0.51 — Pass 2777: 0.51→0.69 — Pass 2911: 0.69→0.93 — Pass 3122: 0.93→1.26 — Pass 3293: 1.26→1.70 — Pass 3621: 1.70→2.30 — Pass 4158: 2.30→3.11 deeper slot lean
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
       ? ct.slotZ * (0.25 + _coZBoost + _sdZBoost) : 0;
     if (!controls._camTgtZ) controls._camTgtZ = 0;
@@ -4961,9 +4961,9 @@ function animate(ts) {
       floorDiscMat.color.setHex(ct.hex);
       // Altitude = card Y above belt surface; belt at CONV_Y_TOP+2
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
-      const _altFrac = Math.min(1, _altitude / 301); // Pass 2195: floor disc altitude 67→90 — Pass 2784: 90→122 — Pass 2917: 122→165 — Pass 3127: 165→223 — Pass 3297: 223→301
+      const _altFrac = Math.min(1, _altitude / 406); // Pass 2195: floor disc altitude 67→90 — Pass 2784: 90→122 — Pass 2917: 122→165 — Pass 3127: 165→223 — Pass 3297: 223→301 — Pass 4159: 301→406 disc follows higher lifts
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
-      const _fdScale = 1.0 + _altFrac * 52.1; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1
+      const _fdScale = 1.0 + _altFrac * 70.3; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
       const _fdPulse514 = (1 - _altFrac) * 0.077 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
@@ -4983,11 +4983,11 @@ function animate(ts) {
       (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))) {
     const _glintDist = Math.abs(beltShimmerMesh.position.x - activeCard.position.x);
     // Pass 479: glint 0.22→0.32 — Pass 704: →0.45 — Pass 1023: →0.65 — Pass 1403: →0.88 stronger stripe-under-card flash
-    const _glint = Math.max(0, 1 - _glintDist / 18) * 13.2; // Pass 2479: belt glint flash 1.61→2.17 — Pass 2689: 2.17→2.93 — Pass 2786: 2.93→3.96 — Pass 2919: 3.96→5.35 — Pass 3129: 5.35→7.22 — Pass 3299: 7.22→9.75 — Pass 3623: 9.75→13.2
+    const _glint = Math.max(0, 1 - _glintDist / 18) * 17.8; // Pass 2479: belt glint flash 1.61→2.17 — Pass 2689: 2.17→2.93 — Pass 2786: 2.93→3.96 — Pass 2919: 3.96→5.35 — Pass 3129: 5.35→7.22 — Pass 3299: 7.22→9.75 — Pass 3623: 9.75→13.2 — Pass 4161: 13.2→17.8 brighter glint
     if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
     // Pass 163: shimmer pressure lift — Pass 1023: lift 5.5→8.0 — Pass 1403: →11.0 higher card float under stripe
     if (_glint > 0.005 && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)))
-      activeCard.position.y += _glint * 163.9; // Pass 2480: shimmer lift 20.0→27.0 — Pass 2690: 27.0→36.5 — Pass 2787: 36.5→49.3 — Pass 2920: 49.3→66.6 — Pass 3130: 66.6→89.9 — Pass 3300: 89.9→121.4 — Pass 3624: 121.4→163.9
+      activeCard.position.y += _glint * 221; // Pass 2480: shimmer lift 20.0→27.0 — Pass 2690: 27.0→36.5 — Pass 2787: 36.5→49.3 — Pass 2920: 49.3→66.6 — Pass 3130: 66.6→89.9 — Pass 3300: 89.9→121.4 — Pass 3624: 121.4→163.9 — Pass 4162: 163.9→221 bigger lift
   }
 
   // ── Hopper top card domain preview ──────────────────────────────────────────
@@ -5003,14 +5003,14 @@ function animate(ts) {
       if (pickPhase) {
         topCard.material.emissive.setHex(ct.hex);
         const glowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) : 1.0;
-        topCard.material.emissiveIntensity = glowT * 12.2; // Pass 2481: pick-phase top card glow 2.01→2.71 — Pass 2693: 2.71→3.66 — Pass 2788: 3.66→4.94 — Pass 2921: 4.94→6.67 — Pass 3132: 6.67→9.00 — Pass 3301: 9.00→12.2
+        topCard.material.emissiveIntensity = glowT * 16.5; // Pass 2481: pick-phase top card glow 2.01→2.71 — Pass 2693: 2.71→3.66 — Pass 2788: 3.66→4.94 — Pass 2921: 4.94→6.67 — Pass 3132: 6.67→9.00 — Pass 3301: 9.00→12.2 — Pass 4163: 12.2→16.5 brighter pick preview
       } else if (previewPhase) {
         // Dim preview: next card's domain glows subtly on the top hopper card
         // Pass 480: next-card preview slow pulse — 0.6Hz breathing for "anticipate" feel
         const nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
         topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 1.5));
         const _prevT = inPhase(PH.pause) ? phaseRaw(PH.pause) : phaseRaw(PH.armReturn);
-        const _prevPulse = 3.81 + 1.92 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 2482: preview pulse base 0.63→0.85 Pass 2483: amp 0.32→0.43 — Pass 2694: 0.85→1.15, 0.43→0.58 — Pass 2789: base 1.15→1.55 Pass 2790: amp 0.58→0.78 — Pass 2922/2923: 1.55+0.78→2.09+1.05 — Pass 3133: base 2.09→2.82 Pass 3134: amp 1.05→1.42 — Pass 3302: 2.82+1.42→3.81+1.92
+        const _prevPulse = 5.14 + 2.59 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 2482: preview pulse base 0.63→0.85 Pass 2483: amp 0.32→0.43 — Pass 2694: 0.85→1.15, 0.43→0.58 — Pass 2789: base 1.15→1.55 Pass 2790: amp 0.58→0.78 — Pass 2922/2923: 1.55+0.78→2.09+1.05 — Pass 3133: base 2.09→2.82 Pass 3134: amp 1.05→1.42 — Pass 3302: 2.82+1.42→3.81+1.92 — Pass 4164: base 3.81→5.14, amp 1.92→2.59
         topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 2);
       } else {
         topCard.material.emissiveIntensity *= 0.85; // decay when not in pick phase
