@@ -122,7 +122,7 @@
     45%  { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-4px); }
   }
-  #scan-confirm.confirm-pop { animation: scanConfirmPop 2.92s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop — Pass 7226: 2.16s→2.92s longer domain reveal pop */
+  #scan-confirm.confirm-pop { animation: scanConfirmPop 3.94s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop — Pass 7226: 2.16s→2.92s longer domain reveal pop — Pass 7480: 2.92s→3.94s longer domain reveal pop */
 
   #hint {
     position: fixed; bottom: 20px; right: 20px;
@@ -196,7 +196,7 @@
   }
 
   @keyframes rippleOut {
-    0%   { transform: translateX(-50%) translateY(-50%) scale(0); opacity: 1.73; } /* Pass 4880: slot ring initial opacity 0.7→0.95 more vivid slot ripple flash — Pass 6866: 0.95→1.28 more vivid slot ripple flash — Pass 7232: 1.28→1.73 more vivid slot ripple flash initial opacity */
+    0%   { transform: translateX(-50%) translateY(-50%) scale(0); opacity: 2.34; } /* Pass 4880: slot ring initial opacity 0.7→0.95 more vivid slot ripple flash — Pass 6866: 0.95→1.28 more vivid slot ripple flash — Pass 7232: 1.28→1.73 more vivid slot ripple flash initial opacity — Pass 7479: 1.73→2.34 more vivid slot ripple flash initial opacity */
     100% { transform: translateX(-50%) translateY(-50%) scale(70.3); opacity: 0; } /* Pass 4881: slot ring expand scale 3.5→4.72 wider slot ripple ring — Pass 5035: 4.72→6.37 wider slot ripple ring — Pass 5121: 6.37→8.60 wider slot ring scale speed — Pass 5331: 8.60→11.6 faster card reveal ring expand speed — Pass 5853: 11.6→15.7 wider card reveal slot ripple ring expand scale — Pass 5941: 15.7→21.2 wider card reveal slot ripple ring expand scale — Pass 6222: 21.2→28.6 wider card reveal slot ripple ring expand scale — Pass 6469: 28.6→38.6 wider card reveal slot ripple ring expand scale — Pass 7177: 38.6→52.1 wider card reveal slot ripple ring expand scale — Pass 7366: 52.1→70.3 wider card reveal slot ripple ring expand scale */
   }
   .slot-ripple {
@@ -217,7 +217,7 @@
     100% { transform: scale(1); }
   }
   .count-bounce {
-    animation: countBounce 0.820s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; /* Pass 7091: countBounce animation duration 0.45s→0.608s longer bounce pop — Pass 7225: 0.608s→0.820s longer bounce pop */
+    animation: countBounce 1.11s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; /* Pass 7091: countBounce animation duration 0.45s→0.608s longer bounce pop — Pass 7225: 0.608s→0.820s longer bounce pop — Pass 7481: 0.820s→1.11s longer bounce pop */
   }
 
   /* ── Scan flash overlay ─────────────────────────────────────────────── */
@@ -321,7 +321,7 @@
   /* Pass 131 — dot pop on phase activation */
   @keyframes ph-dot-pop {
     0%   { transform: scale(1.0); }
-    30%  { transform: scale(47.5); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation — Pass 5805: 5.83→7.87 punchier phase dot pop peak scale — Pass 5944: 7.87→10.6 punchier phase dot pop peak scale — Pass 6224: 10.6→14.3 punchier phase dot pop peak scale — Pass 6472: 14.3→19.3 punchier phase dot pop peak scale — Pass 6869: 19.3→26.1 punchier phase dot pop peak scale — Pass 6961: 26.1→35.2 punchier phase dot pop peak scale — Pass 7224: 35.2→47.5 punchier phase dot pop peak scale */
+    30%  { transform: scale(64.1); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation — Pass 5805: 5.83→7.87 punchier phase dot pop peak scale — Pass 5944: 7.87→10.6 punchier phase dot pop peak scale — Pass 6224: 10.6→14.3 punchier phase dot pop peak scale — Pass 6472: 14.3→19.3 punchier phase dot pop peak scale — Pass 6869: 19.3→26.1 punchier phase dot pop peak scale — Pass 6961: 26.1→35.2 punchier phase dot pop peak scale — Pass 7224: 35.2→47.5 punchier phase dot pop peak scale — Pass 7478: 47.5→64.1 punchier phase dot pop peak scale */
     65%  { transform: scale(0.85); }
     100% { transform: scale(1.0); }
   }
@@ -878,7 +878,7 @@ scene.add(lens);
 
 // Lens retaining ring
 const lensRing = new THREE.Mesh(
-  new THREE.TorusGeometry(8, 12.3, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring — Pass 5016: 2.03→2.74 chunkier scanner lens ring — Pass 5903: 2.74→3.70 chunkier scanner lens ring — Pass 6226: 3.70→5.00 chunkier scanner lens ring tube radius — Pass 6442: 5.00→6.75 chunkier scanner lens ring tube radius — Pass 6877: 6.75→9.11 chunkier scanner lens ring tube radius — Pass 7019: 9.11→12.3 chunkier scanner lens ring tube radius
+  new THREE.TorusGeometry(8, 16.6, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring — Pass 5016: 2.03→2.74 chunkier scanner lens ring — Pass 5903: 2.74→3.70 chunkier scanner lens ring — Pass 6226: 3.70→5.00 chunkier scanner lens ring tube radius — Pass 6442: 5.00→6.75 chunkier scanner lens ring tube radius — Pass 6877: 6.75→9.11 chunkier scanner lens ring tube radius — Pass 7019: 9.11→12.3 chunkier scanner lens ring tube radius — Pass 7476: 12.3→16.6 chunkier scanner lens ring tube radius
   new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.5, metalness: 0.6 })
 );
 lensRing.rotation.x = Math.PI / 2;
@@ -889,7 +889,7 @@ scene.add(lensRing);
 const scanLEDMat = new THREE.MeshStandardMaterial({
   color: 0x00aaff,
   emissive: new THREE.Color(0x0055cc),
-  emissiveIntensity: 109, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor — Pass 5862: 13.3→18.0 brighter scanner body idle LED emissive floor — Pass 5945: 18.0→24.3 brighter scanner body idle LED emissive floor — Pass 5958: 24.3→32.8 brighter scanner body idle LED emissive floor — Pass 6059: 32.8→44.3 brighter scanner body idle LED emissive floor — Pass 6433: 44.3→59.8 brighter scanner body idle LED emissive floor — Pass 6525: 59.8→80.7 brighter scanner body idle LED emissive floor — Pass 7098: 80.7→109 brighter scanner body idle LED emissive floor
+  emissiveIntensity: 147, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor — Pass 5862: 13.3→18.0 brighter scanner body idle LED emissive floor — Pass 5945: 18.0→24.3 brighter scanner body idle LED emissive floor — Pass 5958: 24.3→32.8 brighter scanner body idle LED emissive floor — Pass 6059: 32.8→44.3 brighter scanner body idle LED emissive floor — Pass 6433: 44.3→59.8 brighter scanner body idle LED emissive floor — Pass 6525: 59.8→80.7 brighter scanner body idle LED emissive floor — Pass 7098: 80.7→109 brighter scanner body idle LED emissive floor — Pass 7475: 109→147 brighter scanner body idle LED emissive floor
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
@@ -916,7 +916,7 @@ scene.add(scanBloom);
 // Fills left→right as scan progresses; flashes domain color on completion
 const SCAN_BAR_MAX_W = 72; // matches hood width minus margins
 const scanBarMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 125, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow — Pass 5747: 15.3→20.7 brighter scan progress bar base glow — Pass 6336: 20.7→27.9 brighter scan progress bar base glow — Pass 6435: 27.9→37.7 brighter scan progress bar base glow — Pass 6474: 37.7→50.9 brighter scan progress bar base glow — Pass 6880: 50.9→68.7 brighter scan progress bar base glow emissive — Pass 7021: 68.7→92.7 brighter scan progress bar base glow emissive — Pass 7222: 92.7→125 brighter scan progress bar base glow emissive
+  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 169, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow — Pass 5747: 15.3→20.7 brighter scan progress bar base glow — Pass 6336: 20.7→27.9 brighter scan progress bar base glow — Pass 6435: 27.9→37.7 brighter scan progress bar base glow — Pass 6474: 37.7→50.9 brighter scan progress bar base glow — Pass 6880: 50.9→68.7 brighter scan progress bar base glow emissive — Pass 7021: 68.7→92.7 brighter scan progress bar base glow emissive — Pass 7222: 92.7→125 brighter scan progress bar base glow emissive — Pass 7477: 125→169 brighter scan progress bar base glow emissive
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
@@ -1205,7 +1205,7 @@ CARD_TYPES.forEach(ct => {
 // Flat (0 rad) = card falls through to lower floor. ~0.65 rad (~37°) = ramp to upper floor.
 const DIVERTER_X = TRAY_X_START - 5;
 const DIVERTER_FLOOR0 = 0;    // lower floor: flat
-const DIVERTER_FLOOR1 = 3.96; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp — Pass 4987: 0.878→1.19 steeper diverter ramp — Pass 5915: 1.19→1.61 steeper diverter upper floor ramp angle — Pass 6229: 1.61→2.17 steeper diverter upper floor ramp angle — Pass 6449: 2.17→2.93 steeper diverter upper floor ramp angle — Pass 7237: 2.93→3.96 steeper diverter upper floor ramp angle
+const DIVERTER_FLOOR1 = 5.35; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp — Pass 4987: 0.878→1.19 steeper diverter ramp — Pass 5915: 1.19→1.61 steeper diverter upper floor ramp angle — Pass 6229: 1.61→2.17 steeper diverter upper floor ramp angle — Pass 6449: 2.17→2.93 steeper diverter upper floor ramp angle — Pass 7237: 2.93→3.96 steeper diverter upper floor ramp angle — Pass 7482: 3.96→5.35 steeper upper floor diverter ramp angle
 const diverterServoBox = makeBox(14, 14, 22, 0x9aa0b0);
 diverterServoBox.position.set(DIVERTER_X - 3, CONV_Y_TOP + 7, 0);
 scene.add(diverterServoBox);
@@ -1507,7 +1507,7 @@ scene.add(cardShimmerMesh);
 
 // ─── Routing arc: scanner → target slot ──────────────────────────────────────
 // Quadratic bezier arc drawn during scan phase — makes routing decision unmistakable
-const ROUTE_SEGS = 51; // Pass 5828: 28→38 smoother routing arc bezier segments — Pass 7030: 38→51 smoother routing arc bezier segments
+const ROUTE_SEGS = 69; // Pass 5828: 28→38 smoother routing arc bezier segments — Pass 7030: 38→51 smoother routing arc bezier segments — Pass 7476: 51→69 smoother routing arc bezier segments
 const routeArcGeo = new THREE.BufferGeometry();
 const routeArcPts = new Float32Array((ROUTE_SEGS + 1) * 3);
 routeArcGeo.setAttribute('position', new THREE.BufferAttribute(routeArcPts, 3));
@@ -1935,7 +1935,7 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 5225; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool — Pass 6411: 192→259 richer deflect trail particle pool — Pass 6502: 259→350 richer deflect trail particle pool — Pass 6510: 350→473 richer deflect trail particle pool — Pass 6656: 473→639 richer deflect trail particle pool — Pass 6683: 639→863 richer deflect trail particle pool — Pass 6770: 863→1165 richer deflect trail particle pool — Pass 6977: 1165→1573 richer deflect trail particle pool — Pass 7203: 1573→2124 richer deflect trail particle pool — Pass 7230: 2124→2867 richer deflect trail particle pool — Pass 7252: 2867→3870 richer deflect trail particle pool — Pass 7285: 3870→5225 richer deflect trail particle pool
+const TRAIL_PARTICLE_COUNT = 7054; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool — Pass 6411: 192→259 richer deflect trail particle pool — Pass 6502: 259→350 richer deflect trail particle pool — Pass 6510: 350→473 richer deflect trail particle pool — Pass 6656: 473→639 richer deflect trail particle pool — Pass 6683: 639→863 richer deflect trail particle pool — Pass 6770: 863→1165 richer deflect trail particle pool — Pass 6977: 1165→1573 richer deflect trail particle pool — Pass 7203: 1573→2124 richer deflect trail particle pool — Pass 7230: 2124→2867 richer deflect trail particle pool — Pass 7252: 2867→3870 richer deflect trail particle pool — Pass 7285: 3870→5225 richer deflect trail particle pool — Pass 7475: 5225→7054 richer deflect trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(80.7, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius — Pass 6037: 7.30→9.86 chunkier arm arc trail contrail particle radius — Pass 6457: 9.86→13.3 chunkier arm arc trail contrail particle radius — Pass 6503: 13.3→18.0 chunkier arm arc trail contrail particle radius — Pass 6687: 18.0→24.3 chunkier arm arc trail contrail particle radius — Pass 6771: 24.3→32.8 chunkier arm arc trail contrail particle radius — Pass 6846: 32.8→44.3 chunkier arm arc trail contrail particle radius — Pass 7001: 44.3→59.8 chunkier arm arc trail contrail particle radius — Pass 7459: 59.8→80.7 chunkier arm arc trail contrail particle radius
