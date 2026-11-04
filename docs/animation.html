@@ -3653,7 +3653,7 @@ function animate(ts) {
       routeTargetMat.color.copy(_arcColor);
       routeTargetMat.emissive.copy(_arcColor);
       // Pass 339: target emissive reveal spike — Pass 564: boost 2.5→4.0 — Pass 857: →6.5 — Pass 1440: →9.0 — Pass 1536: →13.0 for bigger sphere flare at lock-on
-      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 143 : 0; // Pass 2563: target reveal spike 23.6→31.9 — Pass 3004: 31.9→43.1 — Pass 3198: 43.1→58.2 — Pass 3426: 58.2→78.6 — Pass 3540: 78.6→106.1 — Pass 3738: 106.1→143
+      const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 193 : 0; // Pass 2563: target reveal spike 23.6→31.9 — Pass 3004: 31.9→43.1 — Pass 3198: 43.1→58.2 — Pass 3426: 58.2→78.6 — Pass 3540: 78.6→106.1 — Pass 3738: 106.1→143 — Pass 3846: 143→193
       // Pass 858: post-reveal emissive add 1.2→2.0 — Pass 1441: →3.0 — Pass 1537: base 2.0→2.8, boost 3.0→4.2 for more vivid destination glow
       routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 7.65 : 0)) + _tgtRevealSpike339; // Pass 1728: post-reveal emissive boost 4.2→5.67 — Pass 3199: 5.67→7.65
       routeTargetMat.opacity = flashIntensity * 1.0; // Pass 1538: 0.9→1.0
@@ -3757,7 +3757,7 @@ function animate(ts) {
     const zBankSign = ct.slotZ > 0 ? 1 : ct.slotZ < 0 ? -1 : 0;
     // Pass 312: conveyorOut Z bank amplifier — outer columns lean harder to reinforce routing
     // Pass 777: outer column amplifier 0.40→0.65 for harder column lean on exit — Pass 1593: →0.88
-    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 5.35; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61 — Pass 3013: 1.61→2.17 — Pass 3476: 2.17→2.93 — Pass 3544: 2.93→3.96 — Pass 3739: 3.96→5.35
+    const _bankAmp312 = 1.0 + Math.abs(ct.slotZ) / 97.5 * 7.22; // Pass 2067: outer column bank amp 0.88→1.19 — Pass 2575: 1.19→1.61 — Pass 3013: 1.61→2.17 — Pass 3476: 2.17→2.93 — Pass 3544: 2.93→3.96 — Pass 3739: 3.96→5.35 — Pass 3847: 5.35→7.22
     const zBank = THREE.MathUtils.lerp(0, 0.1 * zBankSign * _bankAmp312, ot);
     // Pass 140: blend lean from 0 (scan end) to belt lean over first 12% of phase
     // (symmetric to pass 139 which handles conveyorIn/scan boundary)
@@ -3775,7 +3775,7 @@ function animate(ts) {
       const _oFadeIn  = Math.min(1, ot / 0.05);
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
       // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 — Pass 969: →3.2 — Pass 1299: →4.2 for more lateral belt weave on exit — Pass 1596: →5.7
-      const _oWobbleZ = 62.6 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5 — Pass 3475: 25.5→34.4 — Pass 3543: 34.4→46.4 — Pass 3740: 46.4→62.6
+      const _oWobbleZ = 84.5 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5 — Pass 3475: 25.5→34.4 — Pass 3543: 34.4→46.4 — Pass 3740: 46.4→62.6 — Pass 3848: 62.6→84.5
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
       // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview — Pass 1597: →0.68
       const _z268drift = ct.slotZ * 2.25 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25
@@ -4108,7 +4108,7 @@ function animate(ts) {
         // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
         // Pass 971: bounce 16→22 — Pass 1108: →30 — Pass 1195: →40 — Pass 1257: →52 for even bigger card-slap landing bounce
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 1042 * Math.sin(bT * Math.PI) * (1 - bT * 0.24); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772 — Pass 3737: 772→1042
+        cy = targetY + 1407 * Math.sin(bT * Math.PI) * (1 - bT * 0.24); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772 — Pass 3737: 772→1042 — Pass 3845: 1042→1407
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4690,9 +4690,9 @@ function animate(ts) {
       const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
       hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 3));
       // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 — Pass 1456: →0.28+1.80 for dramatic heat-up
-      const _warmTarget = 0.28 + _warmT * 48.6; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7 — Pass 3277: 14.7→19.8 — Pass 3363: 19.8→26.7 — Pass 3501: 26.7→36.0 — Pass 3742: 36.0→48.6
+      const _warmTarget = 0.28 + _warmT * 65.6; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7 — Pass 3277: 14.7→19.8 — Pass 3363: 19.8→26.7 — Pass 3501: 26.7→36.0 — Pass 3742: 36.0→48.6 — Pass 3850: 48.6→65.6
       // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 — Pass 1457: →0.14 for more visible heat flicker
-      const _hoodShimmer = 3.81 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15 — Pass 3278: 1.15→1.55 — Pass 3364: 1.55→2.09 — Pass 3502: 2.09→2.82 — Pass 3743: 2.82→3.81
+      const _hoodShimmer = 5.14 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15 — Pass 3278: 1.15→1.55 — Pass 3364: 1.55→2.09 — Pass 3502: 2.09→2.82 — Pass 3743: 2.82→3.81 — Pass 3851: 3.81→5.14
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 4);
     } else {
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.5));
@@ -4785,7 +4785,7 @@ function animate(ts) {
     // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
     // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35 — Pass 1458: armDesc 0.18→0.26, convIn 0.25→0.35
     // Pass 1662: spike 2.50→3.40; Pass 1663: swing 1.35→1.80; Pass 1664: lift base 0.42→0.58
-    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 68.7 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7 — Pass 3285: 20.7→27.9 — Pass 3365: 27.9→37.7 — Pass 3503: 37.7→50.9 — Pass 3744: 50.9→68.7
+    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 92.7 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7 — Pass 3285: 20.7→27.9 — Pass 3365: 27.9→37.7 — Pass 3503: 37.7→50.9 — Pass 3744: 50.9→68.7 — Pass 3852: 68.7→92.7
     const _rodGlow = Math.max(_armDescT * 0.47, _armLiftT * 0.78 + _liftPickSpike, _armSwingT * 36.0, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07 — Pass 3114: 8.07→10.9 — Pass 3286: 10.9→14.7 — Pass 3366: 14.7→19.8 — Pass 3504: 19.8→26.7 — Pass 3745: 26.7→36.0
     armRod.material.emissive.setHex(ct.hex);
     armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 161); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161
@@ -5329,7 +5329,7 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= (p.grav || 417) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417
+    p.vy -= (p.grav || 563) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417 — Pass 3849: 417→563
     p.vx *= 1 - dt * 0.9; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter)
     p.vz *= 1 - dt * 0.9;
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
