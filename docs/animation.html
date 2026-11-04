@@ -192,7 +192,7 @@
     font-weight: 800;
     z-index: 30;
     letter-spacing: 0.04em;
-    animation: fadeUp 3.32s cubic-bezier(0.25,0.46,0.45,0.94) forwards; /* Pass 7088: fadeUp popup animation duration 1.0s→1.35s longer visible popup — Pass 7231: 1.35s→1.82s longer visible popup — Pass 7490: 1.82s→2.46s longer visible popup — Pass 7662: 2.46s→3.32s longer visible popup */
+    animation: fadeUp 4.48s cubic-bezier(0.25,0.46,0.45,0.94) forwards; /* Pass 7088: fadeUp popup animation duration 1.0s→1.35s longer visible popup — Pass 7231: 1.35s→1.82s longer visible popup — Pass 7490: 1.82s→2.46s longer visible popup — Pass 7662: 2.46s→3.32s longer visible popup — Pass 7944: 3.32s→4.48s longer visible popup */
   }
 
   @keyframes rippleOut {
@@ -205,7 +205,7 @@
     z-index: 28;
     width: 40px; height: 40px;
     border-radius: 50%;
-    border: 12.1px solid; /* Pass 7089: slot ripple ring border 2px→2.70px thicker ring — Pass 7181: 2.70→3.65px thicker slot ripple ring border — Pass 7227: 3.65→4.93px thicker slot ripple ring border — Pass 7483: 4.93→6.66px thicker slot ripple ring border — Pass 7568: 6.66→8.99px thicker slot ripple ring border — Pass 7726: 8.99→12.1px thicker slot ripple ring border */
+    border: 16.3px solid; /* Pass 7089: slot ripple ring border 2px→2.70px thicker ring — Pass 7181: 2.70→3.65px thicker slot ripple ring border — Pass 7227: 3.65→4.93px thicker slot ripple ring border — Pass 7483: 4.93→6.66px thicker slot ripple ring border — Pass 7568: 6.66→8.99px thicker slot ripple ring border — Pass 7726: 8.99→12.1px thicker slot ripple ring border — Pass 7946: 12.1→16.3px thicker slot ripple ring border */
     animation: rippleOut 7.78s ease-out forwards; /* Pass 7090: rippleOut ring animation duration 0.7s→0.945s slower more dramatic ring — Pass 7182: 0.945s→1.28s slower more dramatic slot ripple ring — Pass 7228: 1.28s→1.73s slower more dramatic slot ripple ring — Pass 7484: 1.73s→2.34s slower more dramatic slot ripple ring — Pass 7572: 2.34s→3.16s slower more dramatic slot ripple ring — Pass 7727: 3.16s→4.27s slower more dramatic slot ripple ring duration — Pass 7800: 4.27s→5.76s slower more dramatic slot ripple ring duration — Pass 7937: 5.76s→7.78s slower more dramatic slot ripple ring duration */
   }
 
@@ -232,7 +232,7 @@
     100% { opacity: 0; }
   }
   .scan-flash-on {
-    animation: scanFlashFade 133s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash — Pass 5186: 1.47→1.98s even longer scan flash fade — Pass 5804: 1.98→2.67s even longer scan flash fade duration — Pass 5943: 2.67→3.60s even longer scan flash fade duration — Pass 6223: 3.60→4.86s even longer scan flash fade duration — Pass 6335: 4.86→6.56s even longer scan flash fade duration — Pass 6356: 6.56→8.86s even longer scan flash fade duration — Pass 6471: 8.86→12.0s even longer scan flash fade duration — Pass 6747: 12.0→16.2s even longer scan flash fade duration — Pass 6755: 16.2→21.9s even longer scan flash fade duration — Pass 6981: 21.9→29.6s even longer scan flash fade duration — Pass 7233: 29.6→40.0s even longer scan flash fade duration — Pass 7298: 40.0s→54.0s even longer scan flash fade duration — Pass 7420: 54.0s→72.9s even longer scan flash fade duration — Pass 7659: 72.9s→98.4s even longer scan flash fade duration — Pass 7801: 98.4s→133s even longer scan flash fade duration */
+    animation: scanFlashFade 180s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash — Pass 5186: 1.47→1.98s even longer scan flash fade — Pass 5804: 1.98→2.67s even longer scan flash fade duration — Pass 5943: 2.67→3.60s even longer scan flash fade duration — Pass 6223: 3.60→4.86s even longer scan flash fade duration — Pass 6335: 4.86→6.56s even longer scan flash fade duration — Pass 6356: 6.56→8.86s even longer scan flash fade duration — Pass 6471: 8.86→12.0s even longer scan flash fade duration — Pass 6747: 12.0→16.2s even longer scan flash fade duration — Pass 6755: 16.2→21.9s even longer scan flash fade duration — Pass 6981: 21.9→29.6s even longer scan flash fade duration — Pass 7233: 29.6→40.0s even longer scan flash fade duration — Pass 7298: 40.0s→54.0s even longer scan flash fade duration — Pass 7420: 54.0s→72.9s even longer scan flash fade duration — Pass 7659: 72.9s→98.4s even longer scan flash fade duration — Pass 7801: 98.4s→133s even longer scan flash fade duration — Pass 7942: 133s→180s even longer scan flash fade duration */
   }
 
   /* ── Round-complete banner (pass 68) ───────────────────────────────────── */
@@ -252,7 +252,7 @@
     100% { transform: translateX(-50%) scale(1.0);  opacity: 0; }
   }
   #round-banner.round-bang {
-    animation: roundBannerIn 5.98s ease-out forwards; /* Pass 7374: roundBannerIn duration 1.8s→2.43s longer round complete banner animation — Pass 7473: 2.43s→3.28s longer round complete banner animation — Pass 7660: 3.28s→4.43s longer round complete banner animation — Pass 7798: 4.43s→5.98s longer round complete banner animation */
+    animation: roundBannerIn 8.07s ease-out forwards; /* Pass 7374: roundBannerIn duration 1.8s→2.43s longer round complete banner animation — Pass 7473: 2.43s→3.28s longer round complete banner animation — Pass 7660: 3.28s→4.43s longer round complete banner animation — Pass 7798: 4.43s→5.98s longer round complete banner animation — Pass 7943: 5.98s→8.07s longer round complete banner animation */
   }
 
   /* ── Reject slot alarm vignette ─────────────────────────────────────────── */
@@ -558,7 +558,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 61.8; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure — Pass 5954: 4.16→5.62 richer tone mapping exposure — Pass 6047: 5.62→7.59 richer tone mapping exposure — Pass 6428: 7.59→10.2 richer tone mapping exposure — Pass 6501: 10.2→13.8 richer tone mapping exposure — Pass 6802: 13.8→18.6 richer tone mapping exposure — Pass 7075: 18.6→25.1 richer tone mapping exposure — Pass 7367: 25.1→33.9 richer tone mapping exposure — Pass 7619: 33.9→45.8 richer tone mapping exposure — Pass 7659: 45.8→61.8 richer tone mapping exposure
+renderer.toneMappingExposure = 83.4; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure — Pass 5954: 4.16→5.62 richer tone mapping exposure — Pass 6047: 5.62→7.59 richer tone mapping exposure — Pass 6428: 7.59→10.2 richer tone mapping exposure — Pass 6501: 10.2→13.8 richer tone mapping exposure — Pass 6802: 13.8→18.6 richer tone mapping exposure — Pass 7075: 18.6→25.1 richer tone mapping exposure — Pass 7367: 25.1→33.9 richer tone mapping exposure — Pass 7619: 33.9→45.8 richer tone mapping exposure — Pass 7659: 45.8→61.8 richer tone mapping exposure — Pass 7945: 61.8→83.4 richer tone mapping exposure
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 // Pass 67: animated clear color — base dark navy tints toward domain on scan/celebration
 const _clearBase = new THREE.Color(0x0a0a12);
@@ -819,7 +819,7 @@ const beltShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide,
 });
 const beltShimmerMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(284, 1, 78), // Pass 4985: belt shimmer stripe width 10→14 wider belt sheen — Pass 5161: 14→19 wider belt shimmer stripe — Pass 6338: 19→25.7 wider belt shimmer stripe — Pass 6496: 25.7→34.7 wider belt shimmer stripe — Pass 6512: 34.7→46.8 wider belt shimmer stripe — Pass 6835: 46.8→63.2 wider belt shimmer stripe — Pass 6990: 63.2→85.3 wider belt shimmer stripe — Pass 7110: 85.3→115.2 wider belt shimmer stripe — Pass 7223: 115.2→155.5 wider belt shimmer stripe — Pass 7634: 155.5→210.0 wider belt shimmer stripe — Pass 7730: 210.0→284 wider belt shimmer stripe width
+  new THREE.BoxGeometry(384, 1, 78), // Pass 4985: belt shimmer stripe width 10→14 wider belt sheen — Pass 5161: 14→19 wider belt shimmer stripe — Pass 6338: 19→25.7 wider belt shimmer stripe — Pass 6496: 25.7→34.7 wider belt shimmer stripe — Pass 6512: 34.7→46.8 wider belt shimmer stripe — Pass 6835: 46.8→63.2 wider belt shimmer stripe — Pass 6990: 63.2→85.3 wider belt shimmer stripe — Pass 7110: 85.3→115.2 wider belt shimmer stripe — Pass 7223: 115.2→155.5 wider belt shimmer stripe — Pass 7634: 155.5→210.0 wider belt shimmer stripe — Pass 7730: 210.0→284 wider belt shimmer stripe width — Pass 7947: 284→384 wider belt shimmer stripe width
   beltShimmerMat
 );
 beltShimmerMesh.position.set(-140, CONV_Y_TOP + 2.6, 0);
