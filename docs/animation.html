@@ -558,7 +558,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 2.28; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output
+renderer.toneMappingExposure = 3.08; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 // Pass 67: animated clear color — base dark navy tints toward domain on scan/celebration
 const _clearBase = new THREE.Color(0x0a0a12);
@@ -575,12 +575,12 @@ controls.update();
 
 // ─── Lights ───────────────────────────────────────────────────────────────────
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
-const ambientLight = new THREE.AmbientLight(0x202030, 1.11); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill
+const ambientLight = new THREE.AmbientLight(0x202030, 1.50); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill
 scene.add(ambientLight);
 scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.473)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill
 
 // Increase key light slightly to compensate for lower ambient
-const keyLight = new THREE.DirectionalLight(0xfff8f0, 3.11); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light
+const keyLight = new THREE.DirectionalLight(0xfff8f0, 4.20); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light
 keyLight.position.set(400, 600, 400);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
@@ -589,7 +589,7 @@ keyLight.shadow.camera.top = 540;   keyLight.shadow.camera.bottom = -270; // Pas
 keyLight.shadow.bias = -0.00135; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xc0d8ff, 1.24); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill
+const fillLight = new THREE.DirectionalLight(0xc0d8ff, 1.67); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill
 fillLight.position.set(-400, 300, 200);
 scene.add(fillLight);
 
@@ -2884,7 +2884,7 @@ function animate(ts) {
         // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: →0.85+0.62 — Pass 1060: →0.95+0.80 — Pass 1247: apex →1.15 for brighter arc midpoint
         const _swT482 = phaseRaw(PH.armSwing);
         // Pass 482: trail opacity peak — Pass 1352: 0.95+1.15→0.95+1.55 — Pass 1500: apex →2.00 for brighter arc peak
-        tp.mat.opacity = Math.min(1, 0.95 + 6.66 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65 — Pass 3950: 3.65→4.93 — Pass 4192: 4.93→6.66 brighter arc-apex trail
+        tp.mat.opacity = Math.min(1, 0.95 + 8.99 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65 — Pass 3950: 3.65→4.93 — Pass 4192: 4.93→6.66 brighter arc-apex trail — Pass 5024: 6.66→8.99 brighter arc apex trail
         tp.age = 0;
         // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 — Pass 1501: →1.10+0.55 longer arc trail
         tp.life = 9.00 + Math.random() * 4.48; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82 — Pass 3672: 3.66+1.82→4.94+2.46 — Pass 4193: base 4.94→6.67 — Pass 4194: rand 2.46→3.32 — Pass 4917: base 6.67→9.00 — Pass 4918: rand 3.32→4.48 longer arc trail
@@ -2897,7 +2897,7 @@ function animate(ts) {
     if(inPhase(PH.armLift) && stackCards[stackTopIdx]) {
       const lt = phaseRaw(PH.armLift);
       const baseY = CARD_T/2 + 6 + stackTopIdx * (CARD_T + 0.5);
-      stackCards[stackTopIdx].position.y = baseY + lt * 104.0; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 — Pass 1838: →lt*57 — Pass 3948: 57→77.0 — Pass 4195: 77.0→104.0 higher card elevation during lift
+      stackCards[stackTopIdx].position.y = baseY + lt * 140.4; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 — Pass 1838: →lt*57 — Pass 3948: 57→77.0 — Pass 4195: 77.0→104.0 higher card elevation during lift — Pass 5025: 104.0→140.4 higher card lift
     }
 
     // Card tracks suction cup (pass 154: Z follows pivot during arm phases)
@@ -2919,7 +2919,7 @@ function animate(ts) {
       // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050 — Pass 1572: →0.210+0.050 bigger card oscillation — Pass 1573: decay 3.2→2.4 longer wobble tail
       _swingWobble = (Math.sin(_sw * 25.7) * 0.698 + Math.sin(_sw * 39.2 + 0.6) * 0.167) * Math.exp(-_sw * 3.24); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 — Pass 4196: 0.517+0.124→0.698+0.167 wilder card oscillation — Pass 4508: arm swing wobble secondary freq 29→39.2 crisper angular range oscillation — Pass 4526: arm swing tilt wobble decay 2.4→3.24 crisper swing tilt — Pass 4593: arm swing tilt wobble primary freq 19→25.7 crisper card tilt oscillation
       // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt — Pass 1574: →0.30
-      _swingDragX = 1.00 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55 — Pass 3925: 0.55→0.743 — Pass 4204: 0.743→1.00 stronger inertia tilt
+      _swingDragX = 1.35 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55 — Pass 3925: 0.55→0.743 — Pass 4204: 0.743→1.00 stronger inertia tilt — Pass 5026: 1.00→1.35 more inertia drag lean
     } else if (inPhase(PH.armLift)) {
       const _lt3 = phaseRaw(PH.armLift);
       // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter — Pass 1575: →0.20 primary, 0.032→0.044 secondary
@@ -3058,15 +3058,15 @@ function animate(ts) {
       + _approachT * 0.14 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat — Pass 4269: secondary amplitude 0.10→0.14 stronger interference beat
       + _entryBoost;
     // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 — Pass 1304: →12.0 for stronger tension glow — Pass 1591: →16.0
-    cardGlow.intensity = 1.4 + _approachT * 39.4; // Pass 1858: approach glow ramp 16.0→21.6 — Pass 3940: 21.6→29.2 — Pass 4215: 29.2→39.4 stronger approach tension glow
+    cardGlow.intensity = 1.4 + _approachT * 53.2; // Pass 1858: approach glow ramp 16.0→21.6 — Pass 3940: 21.6→29.2 — Pass 4215: 29.2→39.4 stronger approach tension glow — Pass 5027: 39.4→53.2 more vivid approach tension
     // Pass 170: scanner LED pre-warms in last 20% of conveyorIn — visible warmup before scan starts
     // Pass 468: early detection ripple — at ct2=0.60-0.80, LED flickers at 10Hz (card entering field)
     // Pass 888: early detect amplitude 0.5→0.8 for stronger card-entering-field detection
     const _warmupT = Math.max(0, (ct2 - 0.80) / 0.20); // 0→1 in last 20%
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
-      ? (ct2 - 0.60) / 0.20 * 2.01 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10 — Pass 3967: 1.10→1.49 — Pass 4216: 1.49→2.01 stronger card-entering-field detection
+      ? (ct2 - 0.60) / 0.20 * 2.71 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10 — Pass 3967: 1.10→1.49 — Pass 4216: 1.49→2.01 stronger card-entering-field detection — Pass 5028: 2.01→2.71 more vivid early detection flicker
     // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 — Pass 1306: →10.5 for more vivid warmup before scan
-    const _ledWarmTarget = 0.41 + _warmupT * 25.9 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 — Pass 4217: 19.2→25.9 brighter LED pre-warm — Pass 4434: LED approach warmup base 0.30→0.41 brighter approach floor
+    const _ledWarmTarget = 0.41 + _warmupT * 35.0 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 — Pass 4217: 19.2→25.9 brighter LED pre-warm — Pass 4434: LED approach warmup base 0.30→0.41 brighter approach floor — Pass 5029: 25.9→35.0 brighter LED pre-warm peak
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6.75); // Pass 4584: LED warmup spring 5→6.75 crisper approach warmup tracking
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
@@ -3108,11 +3108,11 @@ function animate(ts) {
     // Pass 172: scan-field levitation — card floats on 0.8Hz sine during scan (peaks at midpoint)
     // Pass 658: levitate 0.30→0.55 + secondary 0.15 — Pass 788: primary 0.55→0.75, secondary 0.15→0.24 — Pass 1076: primary 0.75→1.05, secondary 0.24→0.35 — Pass 1208: primary 1.05→1.50, secondary 0.35→0.55 — Pass 1276: primary 1.50→2.10, secondary 0.55→0.78
     const ft = phaseRaw(PH.scan);
-    const _levitate = (7.02 * Math.sin(ts * 0.8 * Math.PI * 2) + 2.61 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI); // Pass 2295: levitate primary 2.85→3.85, secondary 1.06→1.43 — Pass 3923: 3.85+1.43→5.20+1.93 — Pass 4218: primary 5.20→7.02 — Pass 4219: secondary 1.93→2.61 more scan levitation
+    const _levitate = (9.48 * Math.sin(ts * 0.8 * Math.PI * 2) + 3.52 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI); // Pass 2295: levitate primary 2.85→3.85, secondary 1.06→1.43 — Pass 3923: 3.85+1.43→5.20+1.93 — Pass 4218: primary 5.20→7.02 — Pass 4219: secondary 1.93→2.61 more scan levitation — Pass 5030: primary 7.02→9.48, secondary 2.61→3.52 more scan levitation
     // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
     // confirmed (ft 0.85→1.0), giving a subtle "recognition" gesture.
     // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 — Pass 1077: →12.0 — Pass 1209: →17.0 — Pass 1277: →24.0 for more prominent "recognized!" rise
-    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 78.7 : 0; // Pass 2296: reveal lift 32.0→43.2 — Pass 3943: 43.2→58.3 — Pass 4232: 58.3→78.7 higher recognition rise
+    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 106.2 : 0; // Pass 2296: reveal lift 32.0→43.2 — Pass 3943: 43.2→58.3 — Pass 4232: 58.3→78.7 higher recognition rise — Pass 5031: 78.7→106.2 higher reveal lift
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's belt lean into the reveal bell curve over first 10%
