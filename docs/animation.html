@@ -197,7 +197,7 @@
 
   @keyframes rippleOut {
     0%   { transform: translateX(-50%) translateY(-50%) scale(0); opacity: 0.95; } /* Pass 4880: slot ring initial opacity 0.7→0.95 more vivid slot ripple flash */
-    100% { transform: translateX(-50%) translateY(-50%) scale(8.60); opacity: 0; } /* Pass 4881: slot ring expand scale 3.5→4.72 wider slot ripple ring — Pass 5035: 4.72→6.37 wider slot ripple ring — Pass 5121: 6.37→8.60 wider slot ring scale speed */
+    100% { transform: translateX(-50%) translateY(-50%) scale(11.6); opacity: 0; } /* Pass 4881: slot ring expand scale 3.5→4.72 wider slot ripple ring — Pass 5035: 4.72→6.37 wider slot ripple ring — Pass 5121: 6.37→8.60 wider slot ring scale speed — Pass 5331: 8.60→11.6 faster card reveal ring expand speed */
   }
   .slot-ripple {
     position: fixed;
@@ -212,7 +212,7 @@
   /* ── Stats count bounce ─────────────────────────────────────────────── */
   @keyframes countBounce {
     0%   { transform: scale(1); }
-    35%  { transform: scale(2.70); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop */
+    35%  { transform: scale(3.65); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop */
     65%  { transform: scale(0.92); }
     100% { transform: scale(1); }
   }
@@ -1777,7 +1777,7 @@ function addCardToTray(ct) {
   // Flash the tray legend slot entry
   const legSlot = document.getElementById('lc-' + ct.name.toLowerCase());
   if(legSlot) {
-    legSlot.style.textShadow = `0 0 18.9px ${ct.css}`; // Pass 4429: legend slot flash size 10→14px brighter slot entry flare — Pass 4988: 14→18.9px more vivid slot entry flare
+    legSlot.style.textShadow = `0 0 25.5px ${ct.css}`; // Pass 4429: legend slot flash size 10→14px brighter slot entry flare — Pass 4988: 14→18.9px more vivid slot entry flare — Pass 5329: 18.9→25.5px more vivid slot entry lateral jitter flare
     setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 1477); // Pass 4430: legend slot flash duration 600→810ms longer entry flash — Pass 4989: 810→1094ms even longer entry flash — Pass 5297: slot LED pre-reveal flash duration 1094→1477ms even longer entry flash
   }
 
@@ -2359,10 +2359,10 @@ function animate(ts) {
   stackCards.forEach((sc, i) => {
     if (!sc.visible) return;
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
-    const _jPhase = i * 2.67; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync
+    const _jPhase = i * 3.60; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync — Pass 5332: 2.67→3.60 more organic slot ring initial color saturation desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
     const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 3.11 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter — Pass 5313: 2.30→3.11 livelier pre-pick stack jitter primary amplitude
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 1.15; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 1.55; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary — Pass 5326: 1.15→1.55 livelier arm descent oscillation secondary amplitude
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2405,7 +2405,7 @@ function animate(ts) {
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
       // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 — Pass 3783: →78.3 — Pass 3888: →106 for more physical slot landing — Pass 4769: →193 stronger slot landing
-      _yPos = a.targetY + 261 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing
+      _yPos = a.targetY + 352 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
@@ -2639,7 +2639,7 @@ function animate(ts) {
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
       const jitter = 12.8 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting
         Math.sin(ts * 19.7 * Math.PI * 2) * 1.28 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter — Pass 5087: 10.8→14.6 Hz crisper arm tremor oscillation — Pass 5109: arm descent servo hunt frequency 14.6→19.7 Hz crisper pre-pick tremor — Pass 5319: 0.945→1.28 stronger arm extension tremor primary amplitude
-        Math.sin(ts * 17.6 * Math.PI * 2) * 0.739 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone — Pass 5112: 0.405→0.547 richer descent overtone texture — Pass 5254: scanner arm extension descent overtone amp 0.547→0.739 richer arm tremor texture
+        Math.sin(ts * 17.6 * Math.PI * 2) * 1.00 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone — Pass 5112: 0.405→0.547 richer descent overtone texture — Pass 5254: scanner arm extension descent overtone amp 0.547→0.739 richer arm tremor texture — Pass 5327: 0.739→1.00 richer arm tremor overtone frequency amplitude
       );
       // Pass 243: terminal servo micro-tap — precision down-push in final 5% of descent
       const _tapOffset = pt > 0.95 ? -1.46 * ((pt - 0.95) / 0.05) : 0; // Pass 4439: terminal tap magnitude 0.8→1.08 stronger precision tap — Pass 5121: 1.08→1.46 stronger terminal servo tap
@@ -2647,7 +2647,7 @@ function animate(ts) {
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
       // Pass 1125: Z drift peak 2.0→3.2 — Pass 1212: →4.8 — Pass 1309: →6.5 for more visible lateral inertia sway — Pass 3907: 6.5→8.8 deeper lateral swing — Pass 4274: 8.8→11.9 more dramatic lateral sway
-      suctionPivot.position.z = 29.3 * Math.sin(pt * Math.PI) * (1 - pt * 0.95); // Pass 4466: pick suction oscillation decay 0.7→0.95 tighter lateral sway — Pass 5122: 11.9→16.1 more dramatic pick lateral sway — Pass 5157: 16.1→21.7 more dramatic arm descent lateral sway — Pass 5294: arm descent lateral sway 21.7→29.3 more dramatic pick lateral sway
+      suctionPivot.position.z = 39.6 * Math.sin(pt * Math.PI) * (1 - pt * 0.95); // Pass 4466: pick suction oscillation decay 0.7→0.95 tighter lateral sway — Pass 5122: 11.9→16.1 more dramatic pick lateral sway — Pass 5157: 16.1→21.7 more dramatic arm descent lateral sway — Pass 5294: arm descent lateral sway 21.7→29.3 more dramatic pick lateral sway — Pass 5328: 29.3→39.6 more dramatic slot entry lateral jitter sway
       // Pass 262: pre-pick targeting spotlight — warm downward spot on hopper card in final approach
       if (pt > 0.75) {
         const _pickTgtT = (pt - 0.75) / 0.25;
@@ -3299,7 +3299,7 @@ function animate(ts) {
           // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 — Pass 1318: →2.60 — Pass 1694: →3.50
           const _dotLockJitter = _identityRevealed && ft < 0.91 ? 21.2 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0; // Pass 2534: dot lock jitter 3.50→4.73 — Pass 3556: 4.73→6.39 — Pass 3718: 6.39→8.63 — Pass 3828: 8.63→11.6 — Pass 4147: 11.6→15.7 wilder lock jitter — Pass 5266: 15.7→21.2 wilder scan dot lock jitter
           // Pass 366: post-reveal dots Z drift toward destination slot — Pass 1699: 0.20→0.28
-          const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.378 : 0; // Pass 4302: scan dot Z drift 0.28→0.378 deeper slot lean
+          const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.510 : 0; // Pass 4302: scan dot Z drift 0.28→0.378 deeper slot lean — Pass 5326: 0.378→0.510 deeper scan dot slot lean
           mesh.position.set(
             activeCard.position.x + SCAN_DOT_OFFSETS[di].x + _dotLockJitter,
             CONV_Y_TOP + CARD_T + 4.73 + _dotFloat, // Pass 4923: scan grid dot height 3.5→4.73 dots float higher above card
@@ -3337,7 +3337,7 @@ function animate(ts) {
       // Pass 151: leading-edge cursor tracks the bar's rightmost pixel
       scanBarCursor.visible = barFill < 0.99;
       scanBarCursor.position.x = leftEdge + SCAN_BAR_MAX_W * barFill;
-      scanBarCursor.position.y = CONV_Y_TOP + 83.7; // Pass 4650: scan bar reveal lift distance 62→83.7
+      scanBarCursor.position.y = CONV_Y_TOP + 113.0; // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5327: 83.7→113.0 higher scan bar cursor Y mount
       scanBarCursor.position.z = -51;
       const _cursorColor = _identityRevealed ? ct.hex : 0xffffff;
       scanBarCursorMat.color.setHex(_cursorColor);
