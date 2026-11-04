@@ -2018,7 +2018,7 @@ function fireCelebration() {
   // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° — Pass 1006: →26° — Pass 1103: →36° — Pass 1346: →50° — Pass 1621: →68°
   _fovBump = 167; // Pass 2494: celebration FOV punch 124→167
   // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0 — Pass 897: →20.0 — Pass 1007: →30.0, dist →500 — Pass 1104: →45.0, dist→650 — Pass 1347: →64.0, dist→800 — Pass 1631: →86.0, dist→1050
-  const _cfl = new THREE.PointLight(0xffffff, 703, 1050); // Pass 2495: celebration white burst 156.7→211.6 — Pass 3413: 211.6→285.7 — Pass 3525: 285.7→386 — Pass 3661: 386→521 — Pass 3780: 521→703
+  const _cfl = new THREE.PointLight(0xffffff, 949, 1050); // Pass 2495: celebration white burst 156.7→211.6 — Pass 3413: 211.6→285.7 — Pass 3525: 285.7→386 — Pass 3661: 386→521 — Pass 3780: 521→703 — Pass 3885: 703→949
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
@@ -2361,8 +2361,8 @@ function animate(ts) {
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
     const _jPhase = i * 1.47; // stagger per card
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
-    const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.69 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.35; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35
+    const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.93 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.47; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2381,7 +2381,7 @@ function animate(ts) {
         const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
-        const _waveAmp301 = inPhase(PH.armDescend) ? 0.85 + phaseRaw(PH.armDescend) * 2.46 : 0.85; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46
+        const _waveAmp301 = inPhase(PH.armDescend) ? 1.15 + phaseRaw(PH.armDescend) * 2.46 : 1.15; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 for brighter deck energy
         sc.material.emissiveIntensity = 0.36 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
@@ -2404,16 +2404,16 @@ function animate(ts) {
       _yPos = THREE.MathUtils.lerp(a.startY, a.targetY, easeOut(a.t / 0.80));
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
-      // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 — Pass 3783: →78.3 for more physical slot landing
-      _yPos = a.targetY + 78.3 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
+      // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 — Pass 3783: →78.3 — Pass 3888: →106 for more physical slot landing
+      _yPos = a.targetY + 106 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
     if (a.glowAge < 1.2) {
       a.glowAge += dt;
       if (a.mesh.material) {
-        // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0
-        a.mesh.material.emissiveIntensity = 0.15 + 51.0 * Math.exp(-a.glowAge * 3.8);
+        // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9
+        a.mesh.material.emissiveIntensity = 0.15 + 68.9 * Math.exp(-a.glowAge * 3.8);
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2430,8 +2430,8 @@ function animate(ts) {
         if (!inFlight && mesh.material) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 1.23;
-          // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19
-          mesh.material.emissiveIntensity = 0.77 + 1.19 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
+          // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61
+          mesh.material.emissiveIntensity = 1.04 + 1.61 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking
           const _swayPhase = _globalCardIdx * 1.83;
           mesh.rotation.z = 0.028 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
