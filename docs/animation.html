@@ -2792,12 +2792,12 @@ function animate(ts) {
       // Pass 181: cup holds bright domain glow while actively carrying the card (armLift)
       // Pass 501: cup pick glow boost 1.5→2.0 — Pass 1173: →3.0 for more vivid suction-hold visualization
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (18.1 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2273: cup hold glow 4.05→5.47 — Pass 3418: 5.47→7.38 — Pass 3530: 7.38→9.96 — Pass 3712: 9.96→13.4 — Pass 3822: 13.4→18.1
+      suctionCupMat.emissiveIntensity += (24.4 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2273: cup hold glow 4.05→5.47 — Pass 3418: 5.47→7.38 — Pass 3530: 7.38→9.96 — Pass 3712: 9.96→13.4 — Pass 3822: 13.4→18.1 — Pass 4229: 18.1→24.4 stronger suction hold glow
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
         // Pass 524: grab pulse light intensity 6.0→7.5 — Pass 625: →10.0 — Pass 877: →14.0 — Pass 1174: →20.0 — Pass 1669: →28.0, dist→150
-        const grabLight = new THREE.PointLight(ct.hex, 68.9, 150); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 brighter suction grab burst
+        const grabLight = new THREE.PointLight(ct.hex, 93.0, 203); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 — Pass 4230: 68.9→93.0 intensity, 150→203 range brighter suction grab burst
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -2821,7 +2821,7 @@ function animate(ts) {
         GRAB_PARTICLES.forEach((p, _gi) => {
           const angle = Math.random() * Math.PI * 2;
           // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 — Pass 1098: →40+90 — Pass 1218: →55+115 for more energetic burst
-          const spd = 182 + Math.random() * 155; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182
+          const spd = 246 + Math.random() * 155; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.15;
           p.vx = Math.cos(angle) * spd * 0.55;
@@ -3112,19 +3112,19 @@ function animate(ts) {
     // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
     // confirmed (ft 0.85→1.0), giving a subtle "recognition" gesture.
     // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 — Pass 1077: →12.0 — Pass 1209: →17.0 — Pass 1277: →24.0 for more prominent "recognized!" rise
-    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 58.3 : 0; // Pass 2296: reveal lift 32.0→43.2 — Pass 3943: 43.2→58.3 more prominent recognition rise
+    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 78.7 : 0; // Pass 2296: reveal lift 32.0→43.2 — Pass 3943: 43.2→58.3 — Pass 4232: 58.3→78.7 higher recognition rise
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's belt lean into the reveal bell curve over first 10%
     // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
     // Pass 1235: starting lean -0.18→-0.05 to match belt lean bugfix
     // Pass 659: tilt peak -0.40→-0.52 — Pass 749: -0.52→-0.64 — Pass 1078: →-0.82 — Pass 1278: →-1.05 for even more face-toward-camera during scan
-    const _bellTilt = -2.59 * Math.sin(ft * Math.PI); // Pass 2297: tilt peak -1.42→-1.92 — Pass 3924: -1.92→-2.59 more face-toward-camera during scan
+    const _bellTilt = -3.50 * Math.sin(ft * Math.PI); // Pass 2297: tilt peak -1.42→-1.92 — Pass 3924: -1.92→-2.59 — Pass 4233: -2.59→-3.50 more face-toward-camera during scan
     const _blendInT = Math.min(1, ft / 0.10); // 0→1 over first 10% of scan phase
     const _revealTilt = THREE.MathUtils.lerp(-0.05, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
     // Pass 746: pre-reveal vibration scale 0.8→1.3 for more visible scanner tremor buildup
-    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 2.36; // Pass 1707: pre-reveal vibration scale 1.3→1.75 — Pass 3937: 1.75→2.36 more visible scanner tremor
+    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 3.19; // Pass 1707: pre-reveal vibration scale 1.3→1.75 — Pass 3937: 1.75→2.36 — Pass 4234: 2.36→3.19 more visible scanner tremor
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.0025 + Math.sin(ts * 73 * Math.PI * 2) * 0.0015) * _scanVibScale;
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
     // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 — Pass 1279: →0.62 for sharper card-edge flash at identity reveal
@@ -3139,8 +3139,8 @@ function animate(ts) {
     const flashIntensity = Math.sin(ft * Math.PI);
     // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
     // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 — Pass 1373: →23.0 — Pass 1517: →32.0 for bigger scan flash and lock-on pop
-    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 143 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143
-    scanFlash.intensity = flashIntensity * 89.9 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3 — Pass 3759: 49.3→66.6 — Pass 3867: 66.6→89.9
+    const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 193 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143 — Pass 4235: 143→193 bigger reveal spike
+    scanFlash.intensity = flashIntensity * 121 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3 — Pass 3759: 49.3→66.6 — Pass 3867: 66.6→89.9 — Pass 4236: 89.9→121 brighter scan flash
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.729 : 0; // Pass 1864: scan flash Z drift 0.40→0.54 — Pass 3939: 0.54→0.729 further Z drift toward slot
     scanFlash.position.set(-40, CONV_Y_TOP + 10, _flashZ351);
