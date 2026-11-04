@@ -2875,7 +2875,7 @@ function animate(ts) {
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         // Pass 154: trail Z follows the pivot arc for realistic 3D sweep
-        tp.mesh.position.set(_aCupX + (Math.random() - 0.5) * 4, _aCupY + (Math.random() - 0.5) * 4, suctionPivot.position.z + (Math.random() - 0.5) * 10.9); // Pass 4491: arc trail Z spread 6→8.1 wider swing arc contrail volume — Pass 5182: 8.1→10.9 wider swing arc contrail volume
+        tp.mesh.position.set(_aCupX + (Math.random() - 0.5) * 4, _aCupY + (Math.random() - 0.5) * 4, suctionPivot.position.z + (Math.random() - 0.5) * 14.7); // Pass 4491: arc trail Z spread 6→8.1 wider swing arc contrail volume — Pass 5182: 8.1→10.9 wider swing arc contrail volume — Pass 5373: 10.9→14.7 wider card deal Z spread during arc contrail
         tp.mat.color.setHex(ct.hex);
         // Pass 236: arm trail domain-hold — tag arm-swing particles so the update loop
         // holds their domain color for the first 40% of life before bleaching.
@@ -2959,7 +2959,7 @@ function animate(ts) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
       cardGlow.intensity = _armCardEmissive * (20.4 + _swZ299 * 18.1); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96 — Pass 4201: base 11.2→15.1 — Pass 4202: boost 9.96→13.4 — Pass 4946: base 15.1→20.4 — Pass 4947: boost 13.4→18.1 brighter arc apex card glow
     } else {
-      cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 4.56 : 0; // Pass 4363: resting cardGlow multiplier 2.50→3.38 brighter card glow outside swing — Pass 5175: 3.38→4.56 brighter card glow outside swing
+      cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 6.16 : 0; // Pass 4363: resting cardGlow multiplier 2.50→3.38 brighter card glow outside swing — Pass 5175: 3.38→4.56 brighter card glow outside swing — Pass 5372: 4.56→6.16 brighter arm rest card glow emissive
     }
     // Pass 242: arm-phase cardGlow domain pre-tint — point light during arc shines domain color
     if (_armCardEmissive > 0) cardGlow.color.setHex(ct.hex);
@@ -3473,9 +3473,9 @@ function animate(ts) {
       _trailHead++;
       // Spawn along the scanner hood top (Y ≈ CONV_Y_TOP+65), spread in Z
       tp.mesh.position.set(
-        -40 + (Math.random() - 0.5) * 37.8, // Pass 4090: exhaust X spread 28→37.8 wider plume
-        CONV_Y_TOP + 65 + Math.random() * 10.8, // Pass 4091: exhaust Y spread 8→10.8 taller cloud
-        (Math.random() - 0.5) * 67.5 // Pass 4639: scanner exhaust Z spread 50→67.5 wider exhaust plume
+        -40 + (Math.random() - 0.5) * 51.0, // Pass 4090: exhaust X spread 28→37.8 wider plume — Pass 5366: 37.8→51.0 wider scanner exhaust plume
+        CONV_Y_TOP + 65 + Math.random() * 14.6, // Pass 4091: exhaust Y spread 8→10.8 taller cloud — Pass 5367: 10.8→14.6 taller scanner exhaust cloud
+        (Math.random() - 0.5) * 91.1 // Pass 4639: scanner exhaust Z spread 50→67.5 wider exhaust plume — Pass 5368: 67.5→91.1 wider scanner exhaust volume
       );
       // Pass 89: exhaust color reveals domain at 85% scan (matches beam reveal timing)
       const _exColor = ft < 0.85 ? 0xccddff : ct.hex;
@@ -3601,7 +3601,7 @@ function animate(ts) {
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
     const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 44.3 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3 — Pass 3579: 13.3→18.0 — Pass 3674: 18.0→24.3 — Pass 3992: 24.3→32.8 — Pass 4133: 32.8→44.3 brighter cone flare
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
-    scanCone.position.z = 267 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03 — Pass 5088: 80.7→109 wider scan cone sweep arc — Pass 5102: 109→147 wider scanner head rotation limit sweep arc — Pass 5117: 147→198 wider slot approach orbit scan sweep — Pass 5346: 198→267 wider scanner idle rotation range sweep
+    scanCone.position.z = 360 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03 — Pass 5088: 80.7→109 wider scan cone sweep arc — Pass 5102: 109→147 wider scanner head rotation limit sweep arc — Pass 5117: 147→198 wider slot approach orbit scan sweep — Pass 5346: 198→267 wider scanner idle rotation range sweep — Pass 5368: 267→360 wider scanner idle tilt range sweep
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
     scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 28.6 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7 — Pass 4135: 15.7→21.2 taller cone punch — Pass 5270: 21.2→28.6 taller scan cone reveal punch
@@ -3835,7 +3835,7 @@ function animate(ts) {
     slotSweepLight.intensity = 0; // pass 81: off during conveyor
     scanBloom.intensity = 0;
     // Pass 165: smooth LED decay from scan peak (~2.0) to idle (1.2) — was hard snap
-    scanLEDMat.emissiveIntensity += (5.40 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 8.1); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest — Pass 4694: idle tracking speed dt*6→dt*8.1 snappier scan LED idle settle
+    scanLEDMat.emissiveIntensity += (5.40 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest — Pass 4694: idle tracking speed dt*6→dt*8.1 snappier scan LED idle settle — Pass 5369: 8.1→10.9 snappier scan LED idle settle tracking
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
@@ -4555,8 +4555,8 @@ function animate(ts) {
     // Pass 136: arm holds home position with realistic multi-frequency servo tremor
     // Two overlapping sine waves at different frequencies simulate motor holding dither — Pass 1605: 0.009→0.013, 0.004→0.006
     suctionPivot.rotation.z = -0.35
-      + 0.350 * Math.sin(ts * 0.783 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043 — Pass 2879: 0.043→0.058 — Pass 3089: 0.058→0.078 — Pass 3265: 0.078→0.105 — Pass 3605: 0.105→0.142 — Pass 4010: 0.142→0.192 — Pass 4498: pick suction hold oscillation frequency 0.58→0.783 livelier motor dither — Pass 4704: sway 0.192→0.259 more visible arm hold dither — Pass 5160: 0.259→0.350 wider idle arm sway X amplitude
-      + 0.296 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020 — Pass 2880: 0.020→0.027 — Pass 3090: 0.027→0.036 — Pass 3266: 0.036→0.049 — Pass 3606: 0.049→0.066 — Pass 4011: 0.066→0.089 — Pass 4705: 0.089→0.120 livelier arm tremor — Pass 5113: 0.120→0.162 livelier idle arm oscillation secondary amplitude — Pass 5159: 0.162→0.219 livelier idle arm Z drift secondary tremor — Pass 5342: 0.219→0.296 livelier idle arm Z drift secondary tremor
+      + 0.473 * Math.sin(ts * 0.783 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043 — Pass 2879: 0.043→0.058 — Pass 3089: 0.058→0.078 — Pass 3265: 0.078→0.105 — Pass 3605: 0.105→0.142 — Pass 4010: 0.142→0.192 — Pass 4498: pick suction hold oscillation frequency 0.58→0.783 livelier motor dither — Pass 4704: sway 0.192→0.259 more visible arm hold dither — Pass 5160: 0.259→0.350 wider idle arm sway X amplitude — Pass 5370: 0.350→0.473 wider arm rest oscillation X sway
+      + 0.400 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020 — Pass 2880: 0.020→0.027 — Pass 3090: 0.027→0.036 — Pass 3266: 0.036→0.049 — Pass 3606: 0.049→0.066 — Pass 4011: 0.066→0.089 — Pass 4705: 0.089→0.120 livelier arm tremor — Pass 5113: 0.120→0.162 livelier idle arm oscillation secondary amplitude — Pass 5159: 0.162→0.219 livelier idle arm Z drift secondary tremor — Pass 5342: 0.219→0.296 livelier idle arm Z drift secondary tremor — Pass 5371: 0.296→0.400 livelier arm rest oscillation secondary tremor
     // Pass 492: gate LED domain afterglow — during pause, active column retains a faint 0.4Hz
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
     // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory — Pass 1603: base 0.14→0.20, amp 0.12→0.18
@@ -5088,7 +5088,7 @@ function animate(ts) {
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
     const _crs = 1.0 + easeOut(_confirmRingT) * 1847; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring — Pass 5127: 1368→1847 wider slot ring scale speed confirm ring
     confirmRing.scale.setScalar(_crs);
-    confirmRingMat.opacity = (1 - _confirmRingT) * 1.35; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash
+    confirmRingMat.opacity = (1 - _confirmRingT) * 1.82; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash — Pass 5374: 1.35→1.82 brighter identity confirm ring opacity
     if (_confirmRingT >= 1) {
       _confirmRingT = -1;
       confirmRing.visible = false;
@@ -5098,13 +5098,13 @@ function animate(ts) {
   // Pass 184: second confirm ring — fires 0.12s after first, smaller and faster
   if (_confirmRingT2 > -1) {
     // Pass 945: second ring speed dt*2.2→dt*2.8 — Pass 1434: →dt*2.2 for longer second ring duration
-    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 32.8); // Pass 2500: second confirm ring speed 4.01→5.41 — Pass 2703: 5.41→7.30 — Pass 2799: 7.30→9.86 — Pass 3310: 9.86→13.3 — Pass 3420: 13.3→18.0 — Pass 3533: 18.0→24.3 — Pass 4057: 24.3→32.8 faster secondary ripple
+    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 44.3); // Pass 2500: second confirm ring speed 4.01→5.41 — Pass 2703: 5.41→7.30 — Pass 2799: 7.30→9.86 — Pass 3310: 9.86→13.3 — Pass 3420: 13.3→18.0 — Pass 3533: 18.0→24.3 — Pass 4057: 24.3→32.8 faster secondary ripple — Pass 5375: 32.8→44.3 faster secondary confirm ripple
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
       // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 — Pass 1533: →30.0 for wider second burst
       const _crs2 = 0.6 + easeOut(_confirmRingT2) * 603; // Pass 2491: second confirm ring scale 73.8→99.6 — Pass 2704: 99.6→134.5 — Pass 2800: 134.5→181.6 — Pass 2932: 181.6→245.2 — Pass 3311: 245.2→331.0 — Pass 4058: 331.0→447 wider secondary confirm ripple — Pass 5371: 447→603 wider secondary confirm ripple
       confirmRing2.scale.setScalar(_crs2);
-      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 1.35); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0 — Pass 4689: 1.0→1.35 brighter secondary confirm ring
+      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 1.82); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0 — Pass 4689: 1.0→1.35 brighter secondary confirm ring — Pass 5376: 1.35→1.82 brighter secondary confirm ring opacity
       if (_confirmRingT2 >= 1) {
         _confirmRingT2 = -1;
         confirmRing2.visible = false;
@@ -5122,7 +5122,7 @@ function animate(ts) {
     const _grs = 1.0 + easeOut(_grabRingT) * 918.5; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6 — Pass 3141: 151.6→204.7 — Pass 3313: 204.7→276.3 — Pass 3422: 276.3→373.0 — Pass 3535: 373.0→504 — Pass 4089: 504→680.4 wider suction burst — Pass 5373: 680.4→918.5 wider suction burst ring
     grabRing.scale.setScalar(_grs);
     // Pass 938: grab ring opacity 0.6→0.85 — Pass 1036: →0.95 — Pass 1541: →1.0 for more vivid ring
-    grabRingMat.opacity = (1 - _grabRingT) * 1.35; // Pass 4612: pick suction ring fade rate 1.0→1.35 brighter grab ring fade
+    grabRingMat.opacity = (1 - _grabRingT) * 1.82; // Pass 4612: pick suction ring fade rate 1.0→1.35 brighter grab ring fade — Pass 5377: 1.35→1.82 brighter grab ring opacity
     if (_grabRingT >= 1) {
       _grabRingT = -1;
       grabRing.visible = false;
@@ -5158,11 +5158,11 @@ function animate(ts) {
         hopperLight.intensity += (_hBase + _preT * 13.5 - hopperLight.intensity) * Math.min(1, dt * 2.5); // Pass 2464: pre-charge delta 1.65→2.23 — Pass 2710: 2.23→3.01 — Pass 2938: 3.01→4.06 — Pass 3145: 4.06→5.48 — Pass 3627: 5.48→7.40 — Pass 4170: 7.40→9.99 richer domain herald — Pass 5014: 9.99→13.5 brighter pre-charge intensity
       } else {
         hopperLight.color.set(0xffeedd);
-        hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2.70); // Pass 4846: hopper pause-mode light tracking rate 2→2.70 snappier idle light settle
+        hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 3.65); // Pass 4846: hopper pause-mode light tracking rate 2→2.70 snappier idle light settle — Pass 5378: 2.70→3.65 snappier hopper pause-mode light settle
       }
     } else {
       hopperLight.color.set(0xffeedd); // warm neutral when idle
-      hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2.70); // Pass 4435: hopper idle tracking 2→2.70 snappier idle intensity
+      hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 3.65); // Pass 4435: hopper idle tracking 2→2.70 snappier idle intensity — Pass 5379: 2.70→3.65 snappier hopper idle light tracking
       hopperLight.position.set(HOPPER_X + 33, 200, 0); // reset to home position
     }
   }
@@ -5193,7 +5193,7 @@ function animate(ts) {
     }
     hopperLEDMat.color.setHex(_ledColor);
     hopperLEDMat.emissive.setHex(_ledColor);
-    hopperLEDMat.emissiveIntensity += (_ledGlow - hopperLEDMat.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 4396: LED tracking rate 8→10.8 crisper LED response
+    hopperLEDMat.emissiveIntensity += (_ledGlow - hopperLEDMat.emissiveIntensity) * Math.min(1, dt * 14.6); // Pass 4396: LED tracking rate 8→10.8 crisper LED response — Pass 5380: 10.8→14.6 crisper hopper LED response
   }
 
   // ── Pass 37: Belt card tracking light ───────────────────────────────────────
@@ -5244,7 +5244,7 @@ function animate(ts) {
     // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
     const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 1.62 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20 — Pass 4175: 1.20→1.62 deeper scan shadow pulse
     const _shadowTarget = _onBelt ? 1.35 + _shadowScanPulse : 0; // Pass 2472: shadow opacity 0.93→1.0 — Pass 4757: shadow base 1.0→1.35
-    _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 10.8); // Pass 4398: shadow tracking rate 8→10.8 snappier shadow response
+    _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 14.6); // Pass 4398: shadow tracking rate 8→10.8 snappier shadow response — Pass 5381: 10.8→14.6 snappier card shadow opacity tracking
     if (_onBelt) {
       _shadowMesh.position.set(activeCard.position.x, CONV_Y_TOP + 0.4, activeCard.position.z);
     }
