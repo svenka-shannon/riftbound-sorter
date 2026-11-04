@@ -2465,7 +2465,7 @@ function animate(ts) {
     if (!bar._springVel) bar._springVel = 0;
     const _springDiff = targetScaleY - bar.scale.y;
     bar._springVel = bar._springVel * 0.80 + _springDiff * 0.255; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255
-    bar.scale.y = Math.max(0.01, Math.min(1.18, bar.scale.y + bar._springVel));
+    bar.scale.y = Math.max(0.01, Math.min(1.59, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
     const _fbRest = 3.59 + 1.70 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26 — Pass 4684: base 2.66→3.59 — Pass 4685: amp 1.26→1.70 brighter fill bar breathe
@@ -3026,7 +3026,7 @@ function animate(ts) {
     const _settleY = 99.6 * Math.exp(-ct2 * 16.2) * Math.abs(Math.sin(ct2 * Math.PI * 6.75)); // Pass 2288: conveyor settle bounce 40.5→54.7 — Pass 3922: 54.7→73.8 — Pass 4080: 73.8→99.6 punchier card-slap — Pass 4559: settle oscillation count 5→6.75 busier card-slap sway — Pass 4623: belt entry settle decay 12→16.2 snappier card rotation kick
     // Pass 173: belt lateral wobble — fades in (0→5%) and out (90→100%)
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
-    const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
+    const _wobbleFadeIn  = Math.min(1, ct2 / 0.068); // Pass 4855: belt wobble fade-in window 0.05→0.068 softer wobble entry
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
     const _beltWobbleZ = (18.9 * Math.sin(ts * 4.7 * Math.PI * 2) + 5.82 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
@@ -3196,7 +3196,7 @@ function animate(ts) {
     // Pass 607: amplitude 0.5→0.85 + secondary 4.1Hz harmonic — Pass 948: primary 0.85→1.20, secondary 0.28→0.42
     // Damps out near identity reveal (post 85%) as the machine "locks on".
     {
-      const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.10) : 1.0;
+      const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.135) : 1.0; // Pass 4852: hood sway damp window 0.10→0.135 softer sway lockout
       // Pass 1152: hood sway primary 1.20→1.65, secondary 0.42→0.60 — Pass 1420: primary →2.20, secondary →0.82 for more resonant scanner oscillation
       scannerHood.position.z = (5.41 * Math.sin(ts * 2.8 * Math.PI * 2) + 2.01 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10 — Pass 3936: 2.97+1.10→4.01+1.49 deeper scanner hood sway — Pass 4221: primary 4.01→5.41 — Pass 4222: secondary 1.49→2.01 wilder hood resonance
     }
@@ -3619,7 +3619,7 @@ function animate(ts) {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
       const arcEnd   = new THREE.Vector3(TX_MID, ct.slotFloorY + 30, ct.slotZ);
       // Pass 305: post-reveal arc Z lean — midpoint biases harder toward destination column once route confirmed
-      const _arcZBias305 = _identityRevealed ? 0.65 : 0.40;
+      const _arcZBias305 = _identityRevealed ? 0.878 : 0.40; // Pass 4851: routing arc post-reveal Z lean 0.65→0.878 stronger destination lean
       const arcMid   = new THREE.Vector3(
         (arcStart.x + arcEnd.x) / 2 + 13.5, // Pass 4572: routing arc X midpoint bias 10→13.5 deeper slot arc lean
         // Pass 685: route arc loft 55→68 for more dramatic predicted-path arc — Pass 4077: 68→91.8 taller arc
@@ -4182,7 +4182,7 @@ function animate(ts) {
       slotSweepLight.color.setHex(ct.hex);
       // Pass 315: sweep light Z oscillation — light sways laterally as it travels into the slot
       const _sweepZOsc315 = 6.75 * Math.sin(dt3 * Math.PI * 3) * Math.max(0, 1 - dt3 * 1.5); // Pass 4008: sweep Z oscillation amplitude 5→6.75 wider slot sweep sway
-      slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
+      slotSweepLight.position.set(_sweepX, ct.slotFloorY + 39.2, ct.slotZ + _sweepZOsc315); // Pass 4853: slot sweep light Y height 29→39.2 higher slot entry spotlight
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
       slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 309.0, dt3 / 0.35) // Pass 4488: slot sweep peak 228.9→309.0 brighter slot entry spotlight
@@ -4906,7 +4906,7 @@ function animate(ts) {
   // ── Scan grid dots: hide when not in scan phase ──────────────────────────────
   if (!inPhase(PH.scan)) {
     SCAN_GRID_DOTS.forEach(({ mesh, mat }) => {
-      mat.opacity *= 0.6; // fast decay out of scan phase
+      mat.opacity *= 0.81; // fast decay out of scan phase // Pass 4848: scan grid dot fade rate 0.6→0.81 slower dot fade-out
       if (mat.opacity < 0.01) { mat.opacity = 0; mesh.visible = false; }
     });
   }
@@ -5048,9 +5048,9 @@ function animate(ts) {
         // Pass 667: ghost emissive base 0.28→0.36 — Pass 821: →0.50 — Pass 1030: →0.65, decay 0.12→0.10
         mat.emissiveIntensity = ((13.2 - gi * 0.10) + _ghostRevealBoost378) * _speedFactor; // Pass 2487: ghost emissive base 1.19→1.61 — Pass 2698: 1.61→2.17 — Pass 2793: 2.17→2.93 — Pass 2926: 2.93→3.96 — Pass 3137: 3.96→5.35 — Pass 3305: 5.35→7.22 — Pass 3626: 7.22→9.75 — Pass 4166: 9.75→13.2 brighter ghost trail
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
-        mat.opacity += (targetOp - mat.opacity) * 0.35;
+        mat.opacity += (targetOp - mat.opacity) * 0.47; // Pass 4850: ghost trail opacity tracking rate 0.35→0.47 snappier trail fade-in
       } else {
-        mat.opacity *= 0.72; // decay toward 0
+        mat.opacity *= 0.97; // decay toward 0 // Pass 4849: ghost trail fade rate 0.72→0.97 slower trail dissipation
         if (mat.opacity < 0.005) {
           mat.opacity = 0;
           mesh.visible = false;
