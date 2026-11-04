@@ -931,7 +931,7 @@ scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(21.3, 21.3, 21.3), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block — Pass 5744: 8.63→11.7 larger scan bar leading-edge cursor block — Pass 6437: 11.7→15.8 larger scan bar leading-edge cursor block — Pass 6884: 15.8→21.3 larger scan bar leading-edge cursor block
+const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(28.8, 28.8, 28.8), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block — Pass 5744: 8.63→11.7 larger scan bar leading-edge cursor block — Pass 6437: 11.7→15.8 larger scan bar leading-edge cursor block — Pass 6884: 15.8→21.3 larger scan bar leading-edge cursor block — Pass 7435: 21.3→28.8 larger scan bar leading-edge cursor block
 scanBarCursor.position.set(-40, CONV_Y_TOP + 375, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount — Pass 6351: 113.0→152.6 higher scan bar cursor mount — Pass 6513: 152.6→206 higher scan bar cursor mount — Pass 7411: 206→278 higher scan bar cursor mount — Pass 7429: 278→375 higher scan bar cursor mount
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
@@ -1252,7 +1252,7 @@ suctionPivot.add(armRod);
 
 // Pivot flange ring at servo joint
 const flange = new THREE.Mesh(
-  new THREE.TorusGeometry(6, 2, 20, 16), // Pass 4956: flange torus tube segments 8→11 smoother servo flange ring — Pass 5477: 11→15 smoother servo flange torus tube segments — Pass 6343: 15→20 smoother servo flange torus tube segments
+  new THREE.TorusGeometry(6, 2, 27, 16), // Pass 4956: flange torus tube segments 8→11 smoother servo flange ring — Pass 5477: 11→15 smoother servo flange torus tube segments — Pass 6343: 15→20 smoother servo flange torus tube segments — Pass 7436: 20→27 smoother servo flange torus tube segments
   new THREE.MeshStandardMaterial({ color: 0x555566, roughness: 0.4, metalness: 0.5 })
 );
 flange.position.set(0, 0, 0);
@@ -2221,7 +2221,7 @@ function showScanOverlay(cardType, visible, routeText) {
 // Paddle rotates around Y axis (vertical) to deflect cards in the Z direction (column routing).
 // slotZ ∈ {-97.5, -32.5, 32.5, 97.5}  →  angles ±0.73 rad outer, ±0.24 rad inner
 function paddleAngleForSlot(slotZ) {
-  return -(slotZ / 160) * 4.00; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing — Pass 5074: 1.62→2.19 more dramatic gate swing — Pass 5745: 2.19→2.96 more dramatic gate paddle deflect angle — Pass 6714: 2.96→4.00 more dramatic gate paddle deflect angle
+  return -(slotZ / 160) * 5.40; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing — Pass 5074: 1.62→2.19 more dramatic gate swing — Pass 5745: 2.19→2.96 more dramatic gate paddle deflect angle — Pass 6714: 2.96→4.00 more dramatic gate paddle deflect angle — Pass 7437: 4.00→5.40 more dramatic gate paddle deflect angle
 }
 
 // ─── Hopper stack (dynamic — shrinks each cycle, refills after 6 cards) ───────
@@ -2343,7 +2343,7 @@ function animate(ts) {
         });
         // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 — Pass 1393: →14.0 for bigger batch-loaded burst — Pass 1583: →20.0, dist→300
         const _rfl = new THREE.PointLight(0xfff0cc, 220, 998); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst — Pass 4059: 27.0→36.5 intensity — Pass 4060: range 300→405 — Pass 4683: 36.5→49.3 brighter hopper refill burst — Pass 5026: 49.3→66.6 brighter hopper refill burst — Pass 5179: 66.6→89.9 brighter hopper refill flash — Pass 5212: range 405→547 wider hopper refill flash reach — Pass 5928: range 547→739 wider hopper refill flash reach — Pass 6599: 89.9→121 brighter hopper refill burst flash intensity — Pass 6600: 739→998 wider hopper refill flash reach range — Pass 6988: 121→163 brighter hopper refill burst flash intensity — Pass 7257: 163→220 brighter hopper refill burst flash intensity
-        _rfl.position.set(HOPPER_X + 33, 532, 0); // Pass 4519: hopper refill flash height 160→216 wider refill burst reach — Pass 5075: 216→292 taller hopper refill flash reach — Pass 5929: 292→394 taller hopper refill flash reach height — Pass 6601: 394→532 taller hopper refill flash reach height
+        _rfl.position.set(HOPPER_X + 33, 718, 0); // Pass 4519: hopper refill flash height 160→216 wider refill burst reach — Pass 5075: 216→292 taller hopper refill flash reach — Pass 5929: 292→394 taller hopper refill flash reach height — Pass 6601: 394→532 taller hopper refill flash reach height — Pass 7438: 532→718 taller hopper refill flash reach height
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
@@ -2701,7 +2701,7 @@ function animate(ts) {
               _cp.mesh.visible = true;
               _cp.vx = (Math.random() - 0.5) * 1052; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 — Pass 1672: →95 — Pass 3910: 95→128.3 wider pick burst — Pass 4375: 128.3→173.2 even wider suction puff — Pass 5123: 173.2→233.8 even wider pick dust spread — Pass 6006: 233.8→316 wider pick dust horizontal spread — Pass 6610: 316→427 wider pick dust horizontal spread — Pass 6836: 427→577 wider pick dust horizontal spread — Pass 7119: 577→779 wider pick dust horizontal spread — Pass 7130: 779→1052 wider pick dust horizontal spread
               _cp.vy = 339 + Math.random() * 187.0;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 — Pass 1673: →56+76 — Pass 3909: 56+76→75.6+102.6 higher pick dust loft — Pass 4376: base 75.6→102.1 — Pass 4377: rand 102.6→138.5 more forceful pick dust launch — Pass 5130: 102.1→137.8 higher pick dust loft base — Pass 5932: rand 138.5→187.0 more forceful pick dust vy launch rand — Pass 6719: base 137.8→186.0 higher pick dust loft base — Pass 6837: base 186.0→251 higher pick dust vertical launch velocity — Pass 7120: base 251→339 higher pick dust vertical launch velocity
-              _cp.vz = (Math.random() - 0.5) * 170; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread — Pass 4378: 37.8→51.0 even wider pick dust Z — Pass 5124: 51.0→68.9 even wider pick dust Z spread — Pass 6007: 68.9→93.0 wider pick dust Z spread — Pass 6611: 93.0→126 wider pick dust Z spread — Pass 6956: 126→170 wider pick dust Z spread
+              _cp.vz = (Math.random() - 0.5) * 230; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread — Pass 4378: 37.8→51.0 even wider pick dust Z — Pass 5124: 51.0→68.9 even wider pick dust Z spread — Pass 6007: 68.9→93.0 wider pick dust Z spread — Pass 6611: 93.0→126 wider pick dust Z spread — Pass 6956: 126→170 wider pick dust Z spread — Pass 7439: 170→230 wider pick dust Z spread
               _cp.mat.color.setRGB(0.85, 0.88, 0.92); // cool pale grey (displaced air)
               _cpSpawned++;
             }
@@ -2754,7 +2754,7 @@ function animate(ts) {
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
         // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 — Pass 1249: surge →0.92 — Pass 1361: →1.20 — Pass 1679: →1.60 stronger pump surge
         const _vacSurge = pt > 0.80 ? 58.9 * Math.sin((pt - 0.80) / 0.20 * Math.PI) : 0; // Pass 2267: vacuum surge 2.16→2.92 — Pass 3180: 2.92→3.94 — Pass 3757: 3.94→5.32 — Pass 3865: 5.32→7.18 — Pass 4275: 7.18→9.69 stronger vacuum surge — Pass 4515: arm descent suction oscillation life 0.15→0.20 longer vacuum surge window — Pass 4900: 9.69→13.1 bigger vacuum surge spike — Pass 5176: 13.1→17.7 bigger vacuum surge spike — Pass 6003: 17.7→23.9 bigger vacuum ring surge spike — Pass 6536: 23.9→32.3 bigger vacuum ring surge spike — Pass 6816: 32.3→43.6 bigger vacuum ring surge spike — Pass 7337: 43.6→58.9 bigger vacuum ring surge spike
-        vacuumRingMat.opacity = Math.min(1, Math.sin(_vt * Math.PI) * 3.16 + _vacSurge); // Pass 1092: opacity 0.75→0.95 — Pass 4070: 0.95→1.28 wider full-opacity window — Pass 5179: 1.28→1.73 wider vacuum ring full-opacity window — Pass 6004: 1.73→2.34 wider vacuum ring opacity window — Pass 6626: 2.34→3.16 wider vacuum ring full-opacity window
+        vacuumRingMat.opacity = Math.min(1, Math.sin(_vt * Math.PI) * 4.27 + _vacSurge); // Pass 1092: opacity 0.75→0.95 — Pass 4070: 0.95→1.28 wider full-opacity window — Pass 5179: 1.28→1.73 wider vacuum ring full-opacity window — Pass 6004: 1.73→2.34 wider vacuum ring opacity window — Pass 6626: 2.34→3.16 wider vacuum ring full-opacity window — Pass 7440: 3.16→4.27 wider vacuum ring full-opacity window
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
         // Pass 1250: elongation scale 0.55→0.82 — Pass 1275: →1.10 — Pass 1360: →1.50 — Pass 1680: →2.00
         vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 29.7), _vacBaseScale); // Pass 2268: ring Y elongation 2.70→3.65 — Pass 3917: 3.65→4.93 deeper suction pull — Pass 4276: 4.93→6.66 more dramatic vacuum stretch — Pass 4901: 6.66→8.99 deeper suction elongation — Pass 5177: 8.99→12.1 deeper ring stretch at surge — Pass 6005: 12.1→16.3 deeper vacuum ring Y stretch at surge — Pass 7021: 16.3→22.0 deeper vacuum ring Y stretch at surge — Pass 7338: 22.0→29.7 deeper vacuum ring Y stretch at surge
@@ -2767,7 +2767,7 @@ function animate(ts) {
       const lt = phaseT(PH.armLift, easeOut);
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 — Pass 1356: →-0.48 — Pass 1681: →-0.65
       const _ltLurch = lt < 0.328 ? -9.75 * Math.sin((lt / 0.328) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93 — Pass 4224: -2.93→-3.96 more dramatic suction-break strain — Pass 4927: arm pick lift lurch window 0.18→0.243 deeper pick velocity engagement — Pass 5164: 0.243→0.328 wider card release timing window — Pass 5935: 3.96→5.35 more dramatic suction-break lift lurch — Pass 6527: 5.35→7.22 more dramatic suction-break lift lurch — Pass 7339: 7.22→9.75 more dramatic suction-break lift lurch
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.049, 2.66, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position — Pass 4566: arm lift start matches descent end -0.036→-0.049 — Pass 5169: 1.08→1.46 higher arm lift apex — Pass 5978: 1.46→1.97 higher arm lift apex rotation — Pass 6723: 1.97→2.66 higher arm lift apex rotation
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.049, 3.59, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position — Pass 4566: arm lift start matches descent end -0.036→-0.049 — Pass 5169: 1.08→1.46 higher arm lift apex — Pass 5978: 1.46→1.97 higher arm lift apex rotation — Pass 6723: 1.97→2.66 higher arm lift apex rotation — Pass 7441: 2.66→3.59 higher arm lift apex rotation
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 — Pass 1682: →7.0 more dramatic dip
       if (lt < 0.22) {
         const _yDip = -141 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip — Pass 4902: -23.2→-31.3 more dramatic peel-off lurch — Pass 5178: -31.3→-42.3 more dramatic pivot dip — Pass 5979: -42.3→-57.1 deeper suction-break pivot Y dip — Pass 6532: -57.1→-77.1 deeper suction-break pivot Y dip — Pass 6817: -77.1→-104.1 deeper suction-break pivot Y dip — Pass 7340: -104.1→-141 deeper suction-break pivot Y dip
@@ -2842,7 +2842,7 @@ function animate(ts) {
           p.mat.color.setHex(_pc);
           p.mat.opacity = 2.09 + Math.random() * 0.20; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst — Pass 4744: 0.85→1.15 more vivid grab burst — Pass 5031: 1.15→1.55 more vivid grab burst — Pass 5936: rand 0.15→0.20 more vivid grab burst opacity variance — Pass 6962: 1.55→2.09 more vivid grab burst opacity base
           p.age = 0;
-          p.life = 3.77 + Math.random() * 2.160; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles — Pass 4292: 1.134+0.878→1.531+1.185 longer arc trail persistence — Pass 5173: 1.531→2.067 rand 1.185→1.600 longer arc trail life — Pass 5367: 2.067→2.79 longer card deal arc trail particle base life — Pass 6346: 2.79+1.600→3.77+2.160 longer card deal arc trail particle life
+          p.life = 5.09 + Math.random() * 2.160; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles — Pass 4292: 1.134+0.878→1.531+1.185 longer arc trail persistence — Pass 5173: 1.531→2.067 rand 1.185→1.600 longer arc trail life — Pass 5367: 2.067→2.79 longer card deal arc trail particle base life — Pass 6346: 2.79+1.600→3.77+2.160 longer card deal arc trail particle life — Pass 7442: 3.77→5.09 longer grab trail particle base life
           p.active = true;
           p.mesh.visible = true;
         });
