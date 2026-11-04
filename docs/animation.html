@@ -3852,7 +3852,7 @@ function animate(ts) {
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
-    _beltScrollSpeed = 0.108; // Pass 4875: conveyorOut belt speed 0.08→0.108 faster exit belt sweep
+    _beltScrollSpeed = 0.146; // Pass 4875: conveyorOut belt speed 0.08→0.108 faster exit belt sweep — Pass 5437: 0.108→0.146 faster conveyor exit belt scroll speed
     // Pass 212: conveyorOut domain exhaust trail — card leaves a brief domain-colored contrail
     // as it accelerates toward the gate. Spawns every ~70ms, short life.
     // Pass 459: final-approach trail density boost — last 35% of conveyorOut spawns at 38ms
