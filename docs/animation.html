@@ -3950,7 +3950,7 @@ function animate(ts) {
     const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
     const cz = THREE.MathUtils.lerp(0, ct.slotZ, dt2);
     // Pass 147: parabolic arc — Pass 416: arc height boost floor-0 10→13, floor-1 18→22
-    const arcY = ct.floor === 1 ? CONV_Y_TOP + 40 : CONV_Y_TOP + 27; // Pass 4872: deflect arc floor-1 target height 30→40 — Pass 4873: deflect arc floor-0 target height 20→27
+    const arcY = ct.floor === 1 ? CONV_Y_TOP + 54 : CONV_Y_TOP + 36.5; // Pass 4872: deflect arc floor-1 target height 30→40 — Pass 4873: deflect arc floor-0 target height 20→27 — Pass 5615: floor-1 40→54, floor-0 27→36.5 higher deflect arc apex
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
     // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 — Pass 1559: floor-0 →38, floor-1 →40 for even higher card flight arc during deflect
     const _arcBump = (ct.floor === 1 ? 3630 : 3430) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599 — Pass 3688: floor-0 567→765, floor-1 599→809 — Pass 3799: floor-0 765→1033 — Pass 3800: floor-1 809→1092 — Pass 4560: floor-0 1033→1395 floor-1 1092→1474 higher slot entry arc — Pass 5090: floor-0 1395→1883 floor-1 1474→1990 higher guided arc travel — Pass 5252: card deal arc height mid-point floor-0 1883→2542 floor-1 1990→2687 higher deflect arc — Pass 5293: arc apex height floor-0 2542→3430 floor-1 2687→3630 higher slot entry arc apex
@@ -4056,7 +4056,7 @@ function animate(ts) {
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
       tp.mesh.position.set(
-        activeCard.position.x + (Math.random() - 0.5) * 6.75, // Pass 4920: arc particle deflect X spread 5→6.75 wider arc contrail volume
+        activeCard.position.x + (Math.random() - 0.5) * 9.11, // Pass 4920: arc particle deflect X spread 5→6.75 wider arc contrail volume — Pass 5614: 6.75→9.11 wider deflect arc contrail X spread
         activeCard.position.y + (Math.random() - 0.5) * 5,
         activeCard.position.z + (Math.random() - 0.5) * 5
       );
@@ -4133,10 +4133,10 @@ function animate(ts) {
       activeCard.rotation.x = 0.493 * Math.sin(_bT * Math.PI); // Pass 356: bounce pitch boost 0.14 → 0.20 — Pass 3988: 0.20→0.270 — Pass 4403: 0.270→0.365 snappier landing bounce pitch — Pass 5564: 0.365→0.493 stronger slot landing bounce pitch
     } else if (ct.floor === 0) {
       // Aerodynamic drag: nose-down lean proportional to fall velocity (bell curve)
-      activeCard.rotation.x = -0.095 * Math.sin(dt3 / 0.88 * Math.PI); // Pass 4692: aerodynamic fall nose-down lean 0.07→0.095 deeper gravity fall lean
+      activeCard.rotation.x = -0.128 * Math.sin(dt3 / 0.88 * Math.PI); // Pass 4692: aerodynamic fall nose-down lean 0.07→0.095 deeper gravity fall lean — Pass 5612: 0.095→0.128 deeper aerodynamic nose-down lean
     } else {
       // Pass 314: floor-1 guided insert lean — card tips slightly forward during slot insertion
-      activeCard.rotation.x = -0.054 * Math.sin(dt3 * Math.PI); // Pass 4693: floor-1 guided insert lean 0.04→0.054 more visible upper-slot entry pitch
+      activeCard.rotation.x = -0.073 * Math.sin(dt3 * Math.PI); // Pass 4693: floor-1 guided insert lean 0.04→0.054 more visible upper-slot entry pitch — Pass 5613: 0.054→0.073 deeper upper-slot guided insert pitch
     }
     // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
     // Pass 647: wall lean 0.032→0.055 — Pass 974: →0.082 — Pass 1115: →0.12 for more physical lateral tilt at each wall contact
