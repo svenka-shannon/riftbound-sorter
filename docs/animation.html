@@ -2464,7 +2464,7 @@ function animate(ts) {
     // Pass 146: spring overshoot — bar bounces slightly when a new card arrives
     if (!bar._springVel) bar._springVel = 0;
     const _springDiff = targetScaleY - bar.scale.y;
-    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.464; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255 — Pass 4991: 0.255→0.344 snappier fill bar spring — Pass 5202: 0.344→0.464 snappier fill bar spring response
+    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.626; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255 — Pass 4991: 0.255→0.344 snappier fill bar spring — Pass 5202: 0.344→0.464 snappier fill bar spring response — Pass 6008: 0.464→0.626 snappier fill bar spring constant
     bar.scale.y = Math.max(0.01, Math.min(2.15, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce — Pass 5203: 1.59→2.15 bigger fill bar overshoot bounce
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
@@ -2529,7 +2529,7 @@ function animate(ts) {
   // Pass 833: airborne spin rate 0.003→0.006 for faster spinning when card is airborne
   // Pass 4053: halo belt-active spin rate 0.0012→0.00162 — Pass 4054: halo airborne spin rate 0.006→0.0081 — Pass 5334: belt-active 0.00162→0.00219 faster belt halo spin — Pass 5335: airborne 0.0081→0.01094 faster airborne halo spin
   const haloSpinRate = beltActive ? 0.00219 : 0.01094;
-  cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.27; // Pass 4782: halo opacity tracking rate 0.15→0.20 snappier halo fade in/out — Pass 5098: 0.20→0.27 snappier halo fade tracking
+  cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.365; // Pass 4782: halo opacity tracking rate 0.15→0.20 snappier halo fade in/out — Pass 5098: 0.20→0.27 snappier halo fade tracking — Pass 6002: 0.27→0.365 snappier card halo opacity fade tracking
   if (cardHaloMat.opacity > 0.01) {
     cardHalo.position.copy(activeCard.position);
     // Halo lies flat (horizontal) — rotate to match card, then spin
@@ -2642,7 +2642,7 @@ function animate(ts) {
         Math.sin(ts * 17.6 * Math.PI * 2) * 8.17 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone — Pass 5112: 0.405→0.547 richer descent overtone texture — Pass 5254: scanner arm extension descent overtone amp 0.547→0.739 richer arm tremor texture — Pass 5327: 0.739→1.00 richer arm tremor overtone frequency amplitude — Pass 5392: 1.00→1.35 richer arm approach jitter buildup overtone amplitude — Pass 5493: 1.35→1.82 richer arm descent oscillation tertiary overtone secondary amplitude — Pass 5521: 1.82→2.46 richer arm tremor tertiary overtone amplitude — Pass 5579: 2.46→3.32 richer arm descent overtone jitter amplitude — Pass 5583: 3.32→4.48 richer arm descent overtone jitter amplitude — Pass 5612: 4.48→6.05 richer arm descent servo hunt secondary overtone amplitude — Pass 5620: 6.05→8.17 richer pre-pick scan LED Z spread arm descent servo hunt secondary overtone amplitude
       );
       // Pass 243: terminal servo micro-tap — precision down-push in final 5% of descent
-      const _tapOffset = pt > 0.95 ? -1.46 * ((pt - 0.95) / 0.05) : 0; // Pass 4439: terminal tap magnitude 0.8→1.08 stronger precision tap — Pass 5121: 1.08→1.46 stronger terminal servo tap
+      const _tapOffset = pt > 0.95 ? -1.97 * ((pt - 0.95) / 0.05) : 0; // Pass 4439: terminal tap magnitude 0.8→1.08 stronger precision tap — Pass 5121: 1.08→1.46 stronger terminal servo tap — Pass 6009: 1.46→1.97 stronger terminal servo precision tap
       suctionPivot.position.y = 108 + jitter + _tapOffset;
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
@@ -2699,9 +2699,9 @@ function animate(ts) {
               const _cpY = PIV_Y - 83 * Math.cos(_cfRot);
               _cp.mesh.position.set(_cpX + (Math.random()-0.5)*10, _cpY - 4, (Math.random()-0.5)*8);
               _cp.mesh.visible = true;
-              _cp.vx = (Math.random() - 0.5) * 233.8; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 — Pass 1672: →95 — Pass 3910: 95→128.3 wider pick burst — Pass 4375: 128.3→173.2 even wider suction puff — Pass 5123: 173.2→233.8 even wider pick dust spread
+              _cp.vx = (Math.random() - 0.5) * 316; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 — Pass 1672: →95 — Pass 3910: 95→128.3 wider pick burst — Pass 4375: 128.3→173.2 even wider suction puff — Pass 5123: 173.2→233.8 even wider pick dust spread — Pass 6006: 233.8→316 wider pick dust horizontal spread
               _cp.vy = 137.8 + Math.random() * 187.0;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 — Pass 1673: →56+76 — Pass 3909: 56+76→75.6+102.6 higher pick dust loft — Pass 4376: base 75.6→102.1 — Pass 4377: rand 102.6→138.5 more forceful pick dust launch — Pass 5130: 102.1→137.8 higher pick dust loft base — Pass 5932: rand 138.5→187.0 more forceful pick dust vy launch rand
-              _cp.vz = (Math.random() - 0.5) * 68.9; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread — Pass 4378: 37.8→51.0 even wider pick dust Z — Pass 5124: 51.0→68.9 even wider pick dust Z spread
+              _cp.vz = (Math.random() - 0.5) * 93.0; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread — Pass 4378: 37.8→51.0 even wider pick dust Z — Pass 5124: 51.0→68.9 even wider pick dust Z spread — Pass 6007: 68.9→93.0 wider pick dust Z spread
               _cp.mat.color.setRGB(0.85, 0.88, 0.92); // cool pale grey (displaced air)
               _cpSpawned++;
             }
@@ -2753,11 +2753,11 @@ function animate(ts) {
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
         // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 — Pass 1249: surge →0.92 — Pass 1361: →1.20 — Pass 1679: →1.60 stronger pump surge
-        const _vacSurge = pt > 0.80 ? 17.7 * Math.sin((pt - 0.80) / 0.20 * Math.PI) : 0; // Pass 2267: vacuum surge 2.16→2.92 — Pass 3180: 2.92→3.94 — Pass 3757: 3.94→5.32 — Pass 3865: 5.32→7.18 — Pass 4275: 7.18→9.69 stronger vacuum surge — Pass 4515: arm descent suction oscillation life 0.15→0.20 longer vacuum surge window — Pass 4900: 9.69→13.1 bigger vacuum surge spike — Pass 5176: 13.1→17.7 bigger vacuum surge spike
-        vacuumRingMat.opacity = Math.min(1, Math.sin(_vt * Math.PI) * 1.73 + _vacSurge); // Pass 1092: opacity 0.75→0.95 — Pass 4070: 0.95→1.28 wider full-opacity window — Pass 5179: 1.28→1.73 wider vacuum ring full-opacity window
+        const _vacSurge = pt > 0.80 ? 23.9 * Math.sin((pt - 0.80) / 0.20 * Math.PI) : 0; // Pass 2267: vacuum surge 2.16→2.92 — Pass 3180: 2.92→3.94 — Pass 3757: 3.94→5.32 — Pass 3865: 5.32→7.18 — Pass 4275: 7.18→9.69 stronger vacuum surge — Pass 4515: arm descent suction oscillation life 0.15→0.20 longer vacuum surge window — Pass 4900: 9.69→13.1 bigger vacuum surge spike — Pass 5176: 13.1→17.7 bigger vacuum surge spike — Pass 6003: 17.7→23.9 bigger vacuum ring surge spike
+        vacuumRingMat.opacity = Math.min(1, Math.sin(_vt * Math.PI) * 2.34 + _vacSurge); // Pass 1092: opacity 0.75→0.95 — Pass 4070: 0.95→1.28 wider full-opacity window — Pass 5179: 1.28→1.73 wider vacuum ring full-opacity window — Pass 6004: 1.73→2.34 wider vacuum ring opacity window
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
         // Pass 1250: elongation scale 0.55→0.82 — Pass 1275: →1.10 — Pass 1360: →1.50 — Pass 1680: →2.00
-        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 12.1), _vacBaseScale); // Pass 2268: ring Y elongation 2.70→3.65 — Pass 3917: 3.65→4.93 deeper suction pull — Pass 4276: 4.93→6.66 more dramatic vacuum stretch — Pass 4901: 6.66→8.99 deeper suction elongation — Pass 5177: 8.99→12.1 deeper ring stretch at surge
+        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 16.3), _vacBaseScale); // Pass 2268: ring Y elongation 2.70→3.65 — Pass 3917: 3.65→4.93 deeper suction pull — Pass 4276: 4.93→6.66 more dramatic vacuum stretch — Pass 4901: 6.66→8.99 deeper suction elongation — Pass 5177: 8.99→12.1 deeper ring stretch at surge — Pass 6005: 12.1→16.3 deeper vacuum ring Y stretch at surge
       } else {
         vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       }
