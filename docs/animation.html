@@ -3528,7 +3528,7 @@ function animate(ts) {
       if (!_identityRevealed) {
         // Pass 319: gate LED chase speed ramp — chase accelerates as scan fills (machine grows impatient)
         // Pass 648: chase range 7→12Hz → 9→18Hz — Pass 802: →10+16Hz (10→26Hz) for even more frantic cycling
-        const _chaseHz = 10 + barFill * 16; // Pass 802: 9+9 → 10+16 (10→26Hz)
+        const _chaseHz = 13.5 + barFill * 21.6; // Pass 802: 9+9 → 10+16 (10→26Hz) — Pass 4321: base 10→13.5 — Pass 4322: range 16→21.6 faster gate LED chase cycle
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 — Pass 1384: →15.0 for more vivid pre-reveal LED cycling
@@ -3779,7 +3779,7 @@ function animate(ts) {
       const _oWobbleZ = 114.1 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5 — Pass 3475: 25.5→34.4 — Pass 3543: 34.4→46.4 — Pass 3740: 46.4→62.6 — Pass 3848: 62.6→84.5 — Pass 4081: 84.5→114.1
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
       // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview — Pass 1597: →0.68
-      const _z268drift = ct.slotZ * 2.25 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25
+      const _z268drift = ct.slotZ * 3.04 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25 — Pass 4320: 2.25→3.04 stronger lane-change preview drift
       activeCard.position.set(
         THREE.MathUtils.lerp(-40, GATE_X, ot),
         CONV_Y_TOP + CARD_T/2 + 2, _oWobbleZ + _z268drift
@@ -3804,7 +3804,7 @@ function animate(ts) {
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
     // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 — Pass 1557: primary →4.80, secondary →1.70 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
-      ? (21.5 * Math.sin(ts * 6 * Math.PI * 2) + 7.65 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 2362: flicker primary 8.75→11.8, secondary 3.11→4.20 — Pass 2580: 11.8→15.9, 4.20→5.67 — Pass 3018: 15.9→21.5, 5.67→7.65
+      ? (29.0 * Math.sin(ts * 6 * Math.PI * 2) + 10.3 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 2362: flicker primary 8.75→11.8, secondary 3.11→4.20 — Pass 2580: 11.8→15.9, 4.20→5.67 — Pass 3018: 15.9→21.5, 5.67→7.65 — Pass 4318: 21.5→29.0 — Pass 4319: 7.65→10.3 wilder gate charge flicker
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
@@ -4242,7 +4242,7 @@ function animate(ts) {
       for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 10; _pi++) {
         const _pp = GRAB_PARTICLES[_pi];
         if (_pp.active) continue;
-        _pp.active = true; _pp.age = 0; _pp.life = 1.73 + Math.random() * 0.93; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69 — Pass 3060: 1.28+0.69→1.73+0.93
+        _pp.active = true; _pp.age = 0; _pp.life = 2.34 + Math.random() * 1.26; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69 — Pass 3060: 1.28+0.69→1.73+0.93 — Pass 4323: 1.73+0.93→2.34+1.26 longer landing puff cloud
         _pp.mesh.position.set(
           _puffX + (Math.random() - 0.5) * 10,
           _puffY + Math.random() * 4,
@@ -4284,9 +4284,9 @@ function animate(ts) {
       // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 — Pass 1263: →18.0 — Pass 1366: →26.0 — Pass 1542: →36.0 for bigger floor thud
       _cameraShake = Math.max(_cameraShake, 397.3); // Pass 2393: floor landing shake 88.6→119.6 — Pass 2625: 119.6→161.5 — Pass 2866: 161.5→218.0 — Pass 3064: 218.0→294.3 — Pass 3247: 294.3→397.3
       // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 — Pass 1367: →50.0 — Pass 1543: →68.0 vivid landing pop
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 1013; // Pass 2394: strip flash at landing 167.4→226.0 — Pass 2626: 226.0→305.1 — Pass 3065: 305.1→411.9 — Pass 3248: 411.9→556.1 — Pass 3404: 556.1→750.7 — Pass 3445: 750.7→1013
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 1368; // Pass 2394: strip flash at landing 167.4→226.0 — Pass 2626: 226.0→305.1 — Pass 3065: 305.1→411.9 — Pass 3248: 411.9→556.1 — Pass 3404: 556.1→750.7 — Pass 3445: 750.7→1013 — Pass 4324: 1013→1368 brighter landing strip flash
       // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 — Pass 1368: →56.0 — Pass 1544: →75.0 vivid count
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 825.7; // Pass 2395: fill bar landing spark 184.1→248.5 — Pass 2627: 248.5→335.5 — Pass 3066: 335.5→453.0 — Pass 3249: 453.0→611.6 — Pass 3409: 611.6→825.7
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 1115; // Pass 2395: fill bar landing spark 184.1→248.5 — Pass 2627: 248.5→335.5 — Pass 3066: 335.5→453.0 — Pass 3249: 453.0→611.6 — Pass 3409: 611.6→825.7 — Pass 4325: 825.7→1115 bigger fill bar count flash
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
