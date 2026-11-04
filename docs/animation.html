@@ -553,7 +553,7 @@ camera.position.set(-30, 350, 800);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(W, H);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.70)); // Pass 4916: renderer max pixel ratio 2→2.70 crisper high-DPI rendering
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3.65)); // Pass 4916: renderer max pixel ratio 2→2.70 crisper high-DPI rendering — Pass 5414: 2.70→3.65 crisper high-DPI rendering
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
@@ -577,7 +577,7 @@ controls.update();
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
 const ambientLight = new THREE.AmbientLight(0x202030, 1.50); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill
 scene.add(ambientLight);
-scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.473)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill
+scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.639)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill
 
 // Increase key light slightly to compensate for lower ambient
 const keyLight = new THREE.DirectionalLight(0xfff8f0, 4.20); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light
@@ -909,7 +909,7 @@ scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
 const scanBloom = new THREE.PointLight(0x0088ff, 0, 998); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach
-scanBloom.decay = 2.70; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom
+scanBloom.decay = 3.65; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff
 scene.add(scanBloom);
 
 // Pass 55: Scan progress LED bar — thin strip on scanner hood front face
@@ -1479,7 +1479,7 @@ scene.add(activeCardEdge);
 
 // Card glow: increased range and physical falloff
 const cardGlow = new THREE.PointLight(0xffffff, 0, 365); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach
-cardGlow.decay = 3.65; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff
+cardGlow.decay = 4.93; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff
 scene.add(cardGlow);
 
 // ─── Pass 177: Card contact shadow disc ──────────────────────────────────────
@@ -4834,7 +4834,7 @@ function animate(ts) {
     // Pass 996: scan orbit 600→530 for tighter close-up during identity scan, armSwing 680→620 — Pass 1354: scan→470, armSwing→560
     const orbitRBase = inPhase(PH.scan) ? 419 : inPhase(PH.armSwing) ? 567 : inPhase(PH.deflect) ? 756 : 837; // Pass 2538: orbit tighten scan 420→310 armSwing 560→420 deflect 700→560 base 750→620 — Pass 4753: scan orbit 310→419 — Pass 4754: armSwing orbit 420→567 — Pass 4755: deflect orbit 560→756 — Pass 4756: base orbit 620→837
     if(!controls._orbitR) controls._orbitR = orbitRBase;
-    controls._orbitR += (orbitRBase - controls._orbitR) * 0.027; // smooth zoom — Pass 4759: orbit smooth rate 0.02→0.027
+    controls._orbitR += (orbitRBase - controls._orbitR) * 0.0365; // smooth zoom — Pass 4759: orbit smooth rate 0.02→0.027 — Pass 5418: 0.027→0.0365 snappier orbit zoom
     const orbitR = controls._orbitR;
     camera.position.x = orbitR * 0.608 * Math.cos(orbitAngle) - 30; // Pass 4886: orbit X ellipse factor 0.45→0.608 rounder orbit arc
     camera.position.z = orbitR * Math.sin(orbitAngle);
@@ -4969,7 +4969,7 @@ function animate(ts) {
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
       const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.074, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00 — Pass 4751: altitude floor 0.055→0.074 more visible floor disc at altitude
       floorDisc.scale.setScalar(_fdScale);
-      floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.20; // Pass 4690: floor disc opacity tracking rate 0.15→0.20 snappier domain halo fade
+      floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.27; // Pass 4690: floor disc opacity tracking rate 0.15→0.20 snappier domain halo fade — Pass 5419: 0.20→0.27 snappier floor disc opacity tracking
     } else {
       floorDiscMat.opacity *= 0.82; // smooth fade-out when card hidden
       if (floorDiscMat.opacity < 0.005) { floorDiscMat.opacity = 0; floorDisc.scale.setScalar(1.0); }
@@ -5048,7 +5048,7 @@ function animate(ts) {
         // Pass 667: ghost emissive base 0.28→0.36 — Pass 821: →0.50 — Pass 1030: →0.65, decay 0.12→0.10
         mat.emissiveIntensity = ((24.0 - gi * 0.10) + _ghostRevealBoost378) * _speedFactor; // Pass 2487: ghost emissive base 1.19→1.61 — Pass 2698: 1.61→2.17 — Pass 2793: 2.17→2.93 — Pass 2926: 2.93→3.96 — Pass 3137: 3.96→5.35 — Pass 3305: 5.35→7.22 — Pass 3626: 7.22→9.75 — Pass 4166: 9.75→13.2 brighter ghost trail — Pass 5369: 13.2→17.8 brighter ghost trail emissive — Pass 5405: 17.8→24.0 brighter ghost trail emissive base
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
-        mat.opacity += (targetOp - mat.opacity) * 0.47; // Pass 4850: ghost trail opacity tracking rate 0.35→0.47 snappier trail fade-in
+        mat.opacity += (targetOp - mat.opacity) * 0.635; // Pass 4850: ghost trail opacity tracking rate 0.35→0.47 snappier trail fade-in — Pass 5420: 0.47→0.635 snappier ghost trail opacity tracking
       } else {
         mat.opacity *= 0.97; // decay toward 0 // Pass 4849: ghost trail fade rate 0.72→0.97 slower trail dissipation
         if (mat.opacity < 0.005) {
@@ -5189,7 +5189,7 @@ function animate(ts) {
       const _blinkOn = Math.sin(ts * Math.PI * 2 * 5.4) > 0; // Pass 4887: hopper LED low-stack blink frequency 4→5.4 more urgent warning flash
       _ledColor = 0xff2200; _ledGlow = _blinkOn ? 3.78 : 0.54; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink
     } else {
-      _ledColor = 0xff6600; _ledGlow = 1.62; // orange: empty (refilling) — Pass 4395: 1.2→1.62 brighter empty/refilling LED
+      _ledColor = 0xff6600; _ledGlow = 2.19; // orange: empty (refilling) — Pass 4395: 1.2→1.62 brighter empty/refilling LED — Pass 5421: 1.62→2.19 brighter empty/refilling LED
     }
     hopperLEDMat.color.setHex(_ledColor);
     hopperLEDMat.emissive.setHex(_ledColor);
