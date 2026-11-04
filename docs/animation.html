@@ -3528,7 +3528,7 @@ function animate(ts) {
       if (!_identityRevealed) {
         // Pass 319: gate LED chase speed ramp — chase accelerates as scan fills (machine grows impatient)
         // Pass 648: chase range 7→12Hz → 9→18Hz — Pass 802: →10+16Hz (10→26Hz) for even more frantic cycling
-        const _chaseHz = 18.2 + barFill * 21.6; // Pass 802: 9+9 → 10+16 (10→26Hz) — Pass 4321: base 10→13.5 — Pass 4322: range 16→21.6 faster gate LED chase cycle — Pass 5433: base 13.5→18.2 faster gate LED chase base
+        const _chaseHz = 24.6 + barFill * 21.6; // Pass 802: 9+9 → 10+16 (10→26Hz) — Pass 4321: base 10→13.5 — Pass 4322: range 16→21.6 faster gate LED chase cycle — Pass 5433: base 13.5→18.2 faster gate LED chase base — Pass 6540: 18.2→24.6 faster gate LED chase base frequency
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 — Pass 1384: →15.0 for more vivid pre-reveal LED cycling
@@ -3611,7 +3611,7 @@ function animate(ts) {
     const _beamFillBoost = barFill * 1.55; // Pass 1719: beam fill boost 0.35→0.47 — Pass 3000: 0.47→0.63 — Pass 4136: 0.63→0.85 stronger data-fill glow — Pass 5434: 0.85→1.15 stronger data-fill beam glow — Pass 6522: 1.15→1.55 stronger data-fill beam glow
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
     // Pass 549: beam reveal boost 0.55→0.80 — Pass 1161: →1.20 for more vivid beam flare at lock-on
-    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 18.0 : 0; // Pass 2344: beam reveal boost 1.62→2.19 — Pass 2827: 2.19→2.96 — Pass 3001: 2.96→4.00 — Pass 3565: 4.00→5.40 — Pass 3725: 5.40→7.29 — Pass 3834: 7.29→9.84 — Pass 4137: 9.84→13.3 brighter beam flare — Pass 5435: 13.3→18.0 brighter beam reveal flare
+    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 24.3 : 0; // Pass 2344: beam reveal boost 1.62→2.19 — Pass 2827: 2.19→2.96 — Pass 3001: 2.96→4.00 — Pass 3565: 4.00→5.40 — Pass 3725: 5.40→7.29 — Pass 3834: 7.29→9.84 — Pass 4137: 9.84→13.3 brighter beam flare — Pass 5435: 13.3→18.0 brighter beam reveal flare — Pass 6541: 18.0→24.3 brighter beam reveal flare
     // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 — Pass 1162: →1.10 — Pass 1289: →1.45 — Pass 1378: →1.90 for stronger scan column
     scanBeamMat.opacity = flashIntensity * 28.2 + _strobe + _beamFillBoost + _beamRevealBoost389; // Pass 2345: beam base opacity 2.56→3.46 — Pass 2828: 3.46→4.67 — Pass 3002: 4.67→6.30 — Pass 3566: 6.30→8.51 — Pass 3726: 8.51→11.5 — Pass 3835: 11.5→15.5 — Pass 4138: 15.5→20.9 brighter scan beam — Pass 5436: 20.9→28.2 brighter scan beam flash contribution
     // ── Routing arc: curved path from scanner lens → destination slot ──
@@ -3733,7 +3733,7 @@ function animate(ts) {
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
     // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
     const _ledUrgencyHz = 8 + ot * 54.1; // 8→62Hz // Pass 4763: LED urgency Hz ramp 22→29.7 more frantic gate pulse — Pass 5526: 29.7→40.1 more frantic gate LED urgency pulse — Pass 6383: 40.1→54.1 more frantic gate LED urgency Hz ramp
-    const _ledUrgencyPulse = 0.18 + 40.6 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5 — Pass 4373: 16.5→22.3 deeper gate LED urgency throb — Pass 5291: 22.3→30.1 deeper gate LED urgency pulse — Pass 5428: 30.1→40.6 deeper gate LED urgency pulse depth
+    const _ledUrgencyPulse = 0.18 + 54.8 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5 — Pass 4373: 16.5→22.3 deeper gate LED urgency throb — Pass 5291: 22.3→30.1 deeper gate LED urgency pulse — Pass 5428: 30.1→40.6 deeper gate LED urgency pulse depth — Pass 6542: 40.6→54.8 deeper gate LED urgency pulse depth
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 — Pass 1221: →10.0 for brighter gate approach signal
@@ -3746,7 +3746,7 @@ function animate(ts) {
     // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 — Pass 1369: →30.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (1139 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2358: gate col tracking light 103.3→139.5 — Pass 2574: 139.5→188.3 — Pass 3012: 188.3→254.2 — Pass 3210: 254.2→343.2 — Pass 3587: 343.2→463 — Pass 3682: 463→625 — Pass 4374: 625→844 brighter gate column domain pool — Pass 5438: 844→1139 brighter gate column domain pool
+    gateColLight.intensity += (1538 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2358: gate col tracking light 103.3→139.5 — Pass 2574: 139.5→188.3 — Pass 3012: 188.3→254.2 — Pass 3210: 254.2→343.2 — Pass 3587: 343.2→463 — Pass 3682: 463→625 — Pass 4374: 625→844 brighter gate column domain pool — Pass 5438: 844→1139 brighter gate column domain pool — Pass 6543: 1139→1538 brighter gate column domain pool
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 6.16); // Pass 4788: route arc fade rate 2.5→3.38 crisper routing arc dismissal — Pass 5527: 3.38→4.56 crisper routing arc fade — Pass 6385: 4.56→6.16 crisper routing arc exit fade rate
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -3885,7 +3885,7 @@ function animate(ts) {
     // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 — Pass 916: →19.0 — Pass 1074: →27.0 — Pass 1179: →38.0 — Pass 1564: →52.0, dist→150 for bigger paddle hit
     if (!_gateFlashFired) {
       _gateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 1412, 150); // Pass 2367: gate contact flash 94.8→128.0 — Pass 2584: 128.0→172.8 — Pass 2845: 172.8→233.3 — Pass 3024: 233.3→315.0 — Pass 3217: 315.0→425.3 — Pass 3386: 425.3→574.2 — Pass 3517: 574.2→775 — Pass 4728: 775→1046 brighter paddle smack flash — Pass 5463: 1046→1412 stronger gate paddle smack flash
+      const _gfl = new THREE.PointLight(ct.hex, 1906, 150); // Pass 2367: gate contact flash 94.8→128.0 — Pass 2584: 128.0→172.8 — Pass 2845: 172.8→233.3 — Pass 3024: 233.3→315.0 — Pass 3217: 315.0→425.3 — Pass 3386: 425.3→574.2 — Pass 3517: 574.2→775 — Pass 4728: 775→1046 brighter paddle smack flash — Pass 5463: 1046→1412 stronger gate paddle smack flash — Pass 6544: 1412→1906 stronger gate paddle smack flash
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3903,12 +3903,12 @@ function animate(ts) {
       // Pass 248: paddle domain afterglow — brief domain color tint on paddle at contact
       paddleMat.emissive.setHex(ct.hex);
       // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 — Pass 1194: →0.88 — Pass 1569: →1.20 for harder paddle whack feel
-      _paddleRecoil = 32.7 * Math.sign(ct.slotZ); // Pass 2372: paddle recoil kick 2.19→2.96 — Pass 2589: 2.96→4.00 — Pass 2850: 4.00→5.40 — Pass 3028: 5.40→7.29 — Pass 3471: 7.29→9.84 — Pass 3706: 9.84→13.3 — Pass 3820: 13.3→17.9 — Pass 4314: 17.9→24.2 harder paddle recoil — Pass 5430: 24.2→32.7 harder paddle recoil
+      _paddleRecoil = 44.1 * Math.sign(ct.slotZ); // Pass 2372: paddle recoil kick 2.19→2.96 — Pass 2589: 2.96→4.00 — Pass 2850: 4.00→5.40 — Pass 3028: 5.40→7.29 — Pass 3471: 7.29→9.84 — Pass 3706: 9.84→13.3 — Pass 3820: 13.3→17.9 — Pass 4314: 17.9→24.2 harder paddle recoil — Pass 5430: 24.2→32.7 harder paddle recoil — Pass 6545: 32.7→44.1 harder paddle recoil
       // Pass 216: solenoid jitter — Pass 591: 0.85→1.30 — Pass 1570: →1.80 for stronger lateral vibration
       _paddleJitterAmt = 19.8; // Pass 2108: solenoid jitter 2.43→3.28 — Pass 2590: 3.28→4.43 — Pass 2851: 4.43→5.98 — Pass 3755: 5.98→8.07 — Pass 3863: 8.07→10.9 — Pass 4315: 10.9→14.7 stronger solenoid buzz — Pass 5431: 14.7→19.8 stronger solenoid buzz
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
       // decays into the normal tumble over ~0.12s, simulating the paddle "whacking" the card sideways.
-      _gateZKick = bankSign * 4.48; // Pass 2085: gate Z-kick 0.74→1.00 — Pass 2604: 1.00→1.35 — Pass 2852: 1.35→1.82 — Pass 3029: 1.82→2.46 — Pass 4307: 2.46→3.32 harder deflect kick — Pass 5432: 3.32→4.48 harder deflect kick
+      _gateZKick = bankSign * 6.05; // Pass 2085: gate Z-kick 0.74→1.00 — Pass 2604: 1.00→1.35 — Pass 2852: 1.35→1.82 — Pass 3029: 1.82→2.46 — Pass 4307: 2.46→3.32 harder deflect kick — Pass 5432: 3.32→4.48 harder deflect kick — Pass 6546: 4.48→6.05 harder deflect kick
       // Pass 92: gate impact sparks — micro-burst from paddle contact point
       {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
@@ -4038,7 +4038,7 @@ function animate(ts) {
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       if (gi === ct.col) {
         gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
-        gm.emissiveIntensity += (202.6 - gm.emissiveIntensity) * Math.min(1, dt * 10); // Pass 2383: deflect LED target 18.4→24.8 — Pass 2605: 24.8→33.5 — Pass 3042: 33.5→45.2 — Pass 3569: 45.2→61.0 — Pass 3727: 61.0→82.4 — Pass 3836: 82.4→111.2 — Pass 4734: 111.2→150.1 brighter deflect domain LED column — Pass 5464: 150.1→202.6 brighter deflect domain LED column
+        gm.emissiveIntensity += (273.5 - gm.emissiveIntensity) * Math.min(1, dt * 10); // Pass 2383: deflect LED target 18.4→24.8 — Pass 2605: 24.8→33.5 — Pass 3042: 33.5→45.2 — Pass 3569: 45.2→61.0 — Pass 3727: 61.0→82.4 — Pass 3836: 82.4→111.2 — Pass 4734: 111.2→150.1 brighter deflect domain LED column — Pass 5464: 150.1→202.6 brighter deflect domain LED column — Pass 6547: 202.6→273.5 brighter deflect domain LED column
       } else {
         gm.emissiveIntensity += (0.274 - gm.emissiveIntensity) * Math.min(1, dt * 5); // Pass 4803: inactive gate column LED idle target 0.15→0.203 warmer idle column glow — Pass 5608: 0.203→0.274 warmer inactive gate column idle glow
       }
@@ -5362,7 +5362,7 @@ function animate(ts) {
     // Pass 460: edge reveal white flash — at identity lock-on the outline briefly blooms white
     // before settling to domain color. Uses _confirmRingT [0..1] as a proxy timing signal.
     // Pass 628: edge reveal flash window 0.18→0.24 — Pass 1391: →0.34 for longer white bloom at identity lock-on
-    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 2.07) ? (1.0 - _confirmRingT / 2.07) : 0; // Pass 2449: edge reveal window 0.62→0.84 — Pass 4750: 0.84→1.13 longer identity edge reveal flash — Pass 5646: 1.13→1.53 longer identity edge reveal white bloom flash — Pass 6071: 1.53→2.07 longer identity edge reveal white bloom flash window
+    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 2.79) ? (1.0 - _confirmRingT / 2.79) : 0; // Pass 2449: edge reveal window 0.62→0.84 — Pass 4750: 0.84→1.13 longer identity edge reveal flash — Pass 5646: 1.13→1.53 longer identity edge reveal white bloom flash — Pass 6071: 1.53→2.07 longer identity edge reveal white bloom flash window — Pass 6547: 2.07→2.79 longer identity edge reveal white bloom flash window
     if (_edgeRvl > 0.05) activeCardEdgeMat.color.lerp(new THREE.Color(0xffffff), _edgeRvl);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
@@ -5467,7 +5467,7 @@ function animate(ts) {
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
     // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
     const _breathe = 8.17 + 2.46 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35 — Pass 4720: base 1.82→2.46 — Pass 4721: amp 1.35→1.82 richer tray card breathe — Pass 5134: 2.46→3.32 richer tray card resting glow — Pass 5317: base 3.32→4.48 richer tray card breathe resting base — Pass 5338: amp 1.82→2.46 richer tray card breathe primary amplitude — Pass 5704: base 4.48→6.05 richer tray card breathe resting base emissive — Pass 6077: base 6.05→8.17 richer tray card breathe resting base emissive
-                         + 1.21 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing — Pass 5342: 0.20→0.27 richer tray secondary harmonic pulse — Pass 5617: 0.27→0.365 richer card hold emissive breathe secondary harmonic pulse — Pass 5625: 0.365→0.493 richer card reveal ring opacity rate idle hover Z secondary harmonic pulse — Pass 5631: 0.493→0.666 richer slot tray rim LED urgency secondary harmonic pulse — Pass 6047: 0.666→0.899 richer tray breathe secondary harmonic amplitude — Pass 6408: 0.899→1.21 richer tray breathe secondary harmonic amplitude
+                         + 1.63 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing — Pass 5342: 0.20→0.27 richer tray secondary harmonic pulse — Pass 5617: 0.27→0.365 richer card hold emissive breathe secondary harmonic pulse — Pass 5625: 0.365→0.493 richer card reveal ring opacity rate idle hover Z secondary harmonic pulse — Pass 5631: 0.493→0.666 richer slot tray rim LED urgency secondary harmonic pulse — Pass 6047: 0.666→0.899 richer tray breathe secondary harmonic amplitude — Pass 6408: 0.899→1.21 richer tray breathe secondary harmonic amplitude — Pass 6546: 1.21→1.63 richer tray breathe secondary harmonic amplitude
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
