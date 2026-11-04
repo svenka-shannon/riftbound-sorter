@@ -586,7 +586,7 @@ keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
 keyLight.shadow.camera.left = -810; keyLight.shadow.camera.right = 810; // Pass 4882: shadow camera extents -600/600→-810/810 wider shadow coverage
 keyLight.shadow.camera.top = 540;   keyLight.shadow.camera.bottom = -270; // Pass 4883: shadow camera top/bottom 400/-200→540/-270 deeper shadow coverage
-keyLight.shadow.bias = -0.00135; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff
+keyLight.shadow.bias = -0.00182; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff — Pass 5422: -0.00135→-0.00182 stronger shadow bias
 scene.add(keyLight);
 
 const fillLight = new THREE.DirectionalLight(0xc0d8ff, 1.67); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill
@@ -4827,7 +4827,7 @@ function animate(ts) {
 
   // Camera auto-orbit: ellipse + phase-aware target drift + card tracking
   if(!controls.enableRotate || !controls._userInteracted) {
-    const orbitAngle = ts * 0.000081 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit
+    const orbitAngle = ts * 0.000109 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit — Pass 5423: 0.000081→0.000109 faster cinematic orbit
     // Orbit radius tightens slightly during scan for closer scanner view
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
@@ -4875,8 +4875,8 @@ function animate(ts) {
       : { x: -30, y: 30 }; // default: machine center
 
     if(!controls._camTgt) controls._camTgt = { x: -30, y: 30 };
-    controls._camTgt.x += (_tgt.x - controls._camTgt.x) * 0.0243; // slightly faster drift — Pass 4807: camera target drift rate 0.018→0.0243 crisper phase-aware camera drift
-    controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.0243; // Pass 4807: camera target drift rate 0.018→0.0243 crisper phase-aware camera drift
+    controls._camTgt.x += (_tgt.x - controls._camTgt.x) * 0.0328; // slightly faster drift — Pass 4807: camera target drift rate 0.018→0.0243 crisper phase-aware camera drift — Pass 5424: 0.0243→0.0328 crisper camera drift
+    controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.0328; // Pass 4807: camera target drift rate 0.018→0.0243 crisper phase-aware camera drift — Pass 5424: 0.0243→0.0328 crisper camera drift
     // Pass 138: Z lead — camera subluminally pre-pans toward destination column post-reveal
     // Pass 221: stronger Z pre-roll in last 20% of conveyorOut — card commits to its lane,
     // camera follows more eagerly (ramps from 0.25 → 0.65 of slotZ in the final stretch).
@@ -4887,7 +4887,7 @@ function animate(ts) {
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
       ? ct.slotZ * (0.34 + _coZBoost + _sdZBoost) : 0; // Pass 4922: camera Z base lean 0.25→0.34 more committed destination follow
     if (!controls._camTgtZ) controls._camTgtZ = 0;
-    controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.0216; // Pass 4838: camera Z target tracking rate 0.016→0.0216 crisper camera Z lean
+    controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.0292; // Pass 4838: camera Z target tracking rate 0.016→0.0216 crisper camera Z lean — Pass 5425: 0.0216→0.0292 crisper camera Z lean
     controls.target.set(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
   }
@@ -5140,7 +5140,7 @@ function animate(ts) {
       hopperLight.color.setHex(ct.hex);
       // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 — Pass 1444: →4.50 brighter during arm cycle
       const _hTarget = _hBase + 166.1; // Pass 2461: hopper pick intensity 8.21→11.1 — Pass 2707: 11.1→15.0 — Pass 2803: 15.0→20.3 — Pass 2935: 20.3→27.4 — Pass 3142: 27.4→37.0 — Pass 3314: 37.0→50.0 — Pass 3466: 50.0→67.5 — Pass 4167: 67.5→91.1 brighter hopper during pick — Pass 5360: 91.1→123.0 brighter pick spotlight — Pass 5408: 123.0→166.1 brighter hopper pick spotlight
-      hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 5.4); // Pass 4471: hopper pick light tracking rate 4→5.4 snappier pick spotlight
+      hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 7.29); // Pass 4471: hopper pick light tracking rate 4→5.4 snappier pick spotlight — Pass 5426: 5.4→7.29 snappier pick spotlight
       // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 — Pass 1445: →58 light follows arm deeper
       const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 1573 : 0; // Pass 2462: descent Y-track 105→142 — Pass 2708: 142→192 — Pass 2804: 192→259 — Pass 2936: 259→350 — Pass 3143: 350→473 — Pass 3315: 473→639 — Pass 4168: 639→863 light follows arm deeper — Pass 5361: 863→1165 light follows arm deeper — Pass 5409: 1165→1573 light follows arm even deeper
       // Pass 360: X-drift during armSwing — Pass 1043: drift 55→80 — Pass 1446: →110 light tracks wider card arc
@@ -5181,12 +5181,12 @@ function animate(ts) {
       _ledColor = ct.hex;
       _ledGlow = 100.4 + 44.3 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2466: pick pulse base 9.11→12.3 Pass 2467: amp 4.01→5.41 — Pass 2711: 12.3→16.6, 5.41→7.30 — Pass 2805: 16.6→22.4 Pass 2806: 7.30→9.86 — Pass 2939/2940: 22.4+9.86→30.2+13.3 — Pass 3146: base 30.2→40.8 Pass 3147: amp 13.3→18.0 — Pass 3317: 40.8+18.0→55.1+24.3 — Pass 4171: base 55.1→74.4 — Pass 4172: amp 24.3→32.8 blazing pick LED — Pass 5363: base 74.4→100.4 — Pass 5364: amp 32.8→44.3 blazing pick LED pulse
     } else if (_visibleCards >= 5) {
-      _ledColor = 0x00ff44; _ledGlow = 2.70; // green: full — Pass 4392: 2.0→2.70 brighter full-stack LED
+      _ledColor = 0x00ff44; _ledGlow = 3.65; // green: full — Pass 4392: 2.0→2.70 brighter full-stack LED — Pass 5427: 2.70→3.65 brighter full-stack LED
     } else if (_visibleCards >= 3) {
-      _ledColor = 0xffcc00; _ledGlow = 2.97; // yellow: half-full — Pass 4393: 2.2→2.97 brighter half-stack LED
+      _ledColor = 0xffcc00; _ledGlow = 4.01; // yellow: half-full — Pass 4393: 2.2→2.97 brighter half-stack LED — Pass 5428: 2.97→4.01 brighter half-stack LED
     } else if (_visibleCards >= 1) {
       // Red: low — fast 4Hz blink for urgency (fix: was ts*0.012, far too slow)
-      const _blinkOn = Math.sin(ts * Math.PI * 2 * 5.4) > 0; // Pass 4887: hopper LED low-stack blink frequency 4→5.4 more urgent warning flash
+      const _blinkOn = Math.sin(ts * Math.PI * 2 * 7.29) > 0; // Pass 4887: hopper LED low-stack blink frequency 4→5.4 more urgent warning flash — Pass 5429: 5.4→7.29 more urgent low-stack blink
       _ledColor = 0xff2200; _ledGlow = _blinkOn ? 3.78 : 0.54; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink
     } else {
       _ledColor = 0xff6600; _ledGlow = 2.19; // orange: empty (refilling) — Pass 4395: 1.2→1.62 brighter empty/refilling LED — Pass 5421: 1.62→2.19 brighter empty/refilling LED
