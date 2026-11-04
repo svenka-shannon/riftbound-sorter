@@ -553,7 +553,7 @@ camera.position.set(-30, 350, 800);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(W, H);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 6.66)); // Pass 4916: renderer max pixel ratio 2→2.70 crisper high-DPI rendering — Pass 5414: 2.70→3.65 crisper high-DPI rendering — Pass 6332: 3.65→4.93 crisper high-DPI rendering — Pass 6492: 4.93→6.66 crisper high-DPI rendering
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 9.0)); // Pass 4916: renderer max pixel ratio 2→2.70 crisper high-DPI rendering — Pass 5414: 2.70→3.65 crisper high-DPI rendering — Pass 6332: 3.65→4.93 crisper high-DPI rendering — Pass 6492: 4.93→6.66 crisper high-DPI rendering — Pass 7136: 6.66→9.0 crisper high-DPI rendering cap
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
@@ -745,11 +745,11 @@ scene.add(hopperGroup);
 // Angled inner guide walls inside hopper (funnel shape to direct cards to exit)
 const guideL = makeBox(6, 127.6, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry — Pass 6387: 94.5→127.6 taller slot tray guide rail geometry
 guideL.position.set(HOPPER_X + 15, 40, -30);
-guideL.rotation.z = 0.616; // Pass 4868: hopper guide L tilt angle 0.25→0.338 steeper funnel — Pass 5471: 0.338→0.456 steeper hopper left guide funnel angle — Pass 6341: 0.456→0.616 steeper hopper left guide funnel angle
+guideL.rotation.z = 0.832; // Pass 4868: hopper guide L tilt angle 0.25→0.338 steeper funnel — Pass 5471: 0.338→0.456 steeper hopper left guide funnel angle — Pass 6341: 0.456→0.616 steeper hopper left guide funnel angle — Pass 7137: 0.616→0.832 steeper hopper left guide funnel angle
 scene.add(guideL);
 const guideR = makeBox(6, 127.6, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry — Pass 6387: 94.5→127.6 taller slot tray guide rail geometry
 guideR.position.set(HOPPER_X + 15, 40, 30);
-guideR.rotation.z = 0.616; // Pass 4868: hopper guide R tilt angle 0.25→0.338 steeper funnel — Pass 5472: 0.338→0.456 steeper hopper right guide funnel angle — Pass 6342: 0.456→0.616 steeper hopper right guide funnel angle
+guideR.rotation.z = 0.832; // Pass 4868: hopper guide R tilt angle 0.25→0.338 steeper funnel — Pass 5472: 0.338→0.456 steeper hopper right guide funnel angle — Pass 6342: 0.456→0.616 steeper hopper right guide funnel angle — Pass 7138: 0.616→0.832 steeper hopper right guide funnel angle
 scene.add(guideR);
 
 const hopperWire = makeWireBox(72, 108, 80, 0x444466);
@@ -1086,7 +1086,7 @@ paddlePivot.add(shaftMesh);
 // Tip indicator on paddle bottom (contact face)
 const tipMesh = new THREE.Mesh(
   new THREE.BoxGeometry(6, 4, 20),
-  new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.4, emissive: 0x442200, emissiveIntensity: 1.364 }) // Pass 4332: paddle tip emissive 0.3→0.41 brighter contact face glow — Pass 5000: 0.41→0.554 brighter paddle tip glow — Pass 5730: 0.554→0.748 brighter paddle contact tip glow — Pass 6260: 0.748→1.010 brighter paddle contact tip glow — Pass 6447: 1.010→1.364 brighter paddle contact tip glow
+  new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.4, emissive: 0x442200, emissiveIntensity: 1.84 }) // Pass 4332: paddle tip emissive 0.3→0.41 brighter contact face glow — Pass 5000: 0.41→0.554 brighter paddle tip glow — Pass 5730: 0.554→0.748 brighter paddle contact tip glow — Pass 6260: 0.748→1.010 brighter paddle contact tip glow — Pass 6447: 1.010→1.364 brighter paddle contact tip glow — Pass 7139: 1.364→1.84 brighter paddle contact tip glow
 );
 tipMesh.position.set(0, -30, 0);
 paddlePivot.add(tipMesh);
@@ -1524,7 +1524,7 @@ scene.add(routeTarget);
 
 // ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
 // Creates a motion-blur wake effect; opacity decreases with distance behind active card
-const GHOST_COUNT = 5; // Pass 4989: ghost trail card count 3→4 richer motion blur — Pass 6348: 4→5 richer motion blur trail card count
+const GHOST_COUNT = 7; // Pass 4989: ghost trail card count 3→4 richer motion blur — Pass 6348: 4→5 richer motion blur trail card count — Pass 7140: 5→7 richer motion blur trail card count
 const ghostCards = [];
 for (let _gi = 0; _gi < GHOST_COUNT; _gi++) {
   const _gMat = new THREE.MeshStandardMaterial({
@@ -5186,8 +5186,8 @@ function animate(ts) {
       _ledColor = 0xffcc00; _ledGlow = 5.41; // yellow: half-full — Pass 4393: 2.2→2.97 brighter half-stack LED — Pass 5428: 2.97→4.01 brighter half-stack LED — Pass 6247: 4.01→5.41 brighter half-stack hopper LED glow
     } else if (_visibleCards >= 1) {
       // Red: low — fast 4Hz blink for urgency (fix: was ts*0.012, far too slow)
-      const _blinkOn = Math.sin(ts * Math.PI * 2 * 9.84) > 0; // Pass 4887: hopper LED low-stack blink frequency 4→5.4 more urgent warning flash — Pass 5429: 5.4→7.29 more urgent low-stack blink — Pass 6248: 7.29→9.84 more urgent low-stack blink frequency
-      _ledColor = 0xff2200; _ledGlow = _blinkOn ? 6.89 : 0.985; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink — Pass 5681: on 3.78→5.10, off 0.54→0.73 brighter low-stack red blink — Pass 6256: on 5.10→6.89, off 0.73→0.985 brighter low-stack red blink
+      const _blinkOn = Math.sin(ts * Math.PI * 2 * 13.3) > 0; // Pass 4887: hopper LED low-stack blink frequency 4→5.4 more urgent warning flash — Pass 5429: 5.4→7.29 more urgent low-stack blink — Pass 6248: 7.29→9.84 more urgent low-stack blink frequency — Pass 7141: 9.84→13.3 more urgent low-stack blink frequency
+      _ledColor = 0xff2200; _ledGlow = _blinkOn ? 9.30 : 1.33; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink — Pass 5681: on 3.78→5.10, off 0.54→0.73 brighter low-stack red blink — Pass 6256: on 5.10→6.89, off 0.73→0.985 brighter low-stack red blink — Pass 7142: on 6.89→9.30 brighter low-stack blink peak — Pass 7143: off 0.985→1.33 brighter low-stack blink floor
     } else {
       _ledColor = 0xff6600; _ledGlow = 2.96; // orange: empty (refilling) — Pass 4395: 1.2→1.62 brighter empty/refilling LED — Pass 5421: 1.62→2.19 brighter empty/refilling LED — Pass 6249: 2.19→2.96 brighter empty/refilling hopper LED glow
     }
