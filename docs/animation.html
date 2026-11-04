@@ -2746,7 +2746,7 @@ function animate(ts) {
         vacuumRing.position.set(_cupX, _cupY + 1, 0);
         // Pass 307: vacuum ring spin — ring rotates on its local axis, accelerating as cup descends
         if (!controls._vacRingAngle) controls._vacRingAngle = 0;
-        controls._vacRingAngle += dt * (15.7 + _vt * 56.4); // Pass 2265: vacuum ring spin 4.7+22.95→6.35+30.98 — Pass 3173: base 6.35→8.57 Pass 3174: ramp 30.98→41.8 — Pass 3573: base 8.57→11.6, ramp 41.8→56.4 — Pass 3668: base 11.6→15.7
+        controls._vacRingAngle += dt * (21.2 + _vt * 56.4); // Pass 2265: vacuum ring spin 4.7+22.95→6.35+30.98 — Pass 3173: base 6.35→8.57 Pass 3174: ramp 30.98→41.8 — Pass 3573: base 8.57→11.6, ramp 41.8→56.4 — Pass 3668: base 11.6→15.7 — Pass 3975: base 15.7→21.2
         vacuumRing.rotation.z = controls._vacRingAngle;
         const _vacBaseScale = THREE.MathUtils.lerp(12.1, 0.25, _vt); // Pass 2266: vacuum ring max scale 2.70→3.65 — Pass 3417: 3.65→4.93 — Pass 3529: 4.93→6.66 — Pass 3713: 6.66→8.99 — Pass 3821: 8.99→12.1
         vacuumRingMat.color.setHex(ct.hex);
@@ -2956,7 +2956,7 @@ function animate(ts) {
     // Pass 1063: apex boost 1.20→1.65 — Pass 1349: →2.20 for brighter cardGlow at swing closest-point — Pass 1581: →3.00; Pass 1582: base 1.85→2.50
     if (inPhase(PH.armSwing)) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
-      cardGlow.intensity = _armCardEmissive * (8.32 + _swZ299 * 7.38); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38
+      cardGlow.intensity = _armCardEmissive * (11.2 + _swZ299 * 9.96); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96
     } else {
       cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 2.50 : 0;
     }
@@ -3153,7 +3153,7 @@ function animate(ts) {
     }
     // Pass 105/448: scan strobe — Pass 604: amplitude 0.18→0.28 — Pass 621: add 7Hz secondary beat — Pass 1239: primary 0.28→0.42 — Pass 1508: →0.58 for more vivid scanner strobe flicker
     // Two-frequency scan strobe: primary 12Hz + secondary 7Hz creates interference pattern
-    const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 1.92 + Math.sin(ts * 7 * Math.PI * 2) * 0.35) * flashIntensity; // Pass 1764: primary 0.58→0.78 — Pass 1865: →1.05; Pass 1765: secondary 0.10→0.14 — Pass 1866: →0.19 — Pass 3433: primary 1.05→1.42 Pass 3434: secondary 0.19→0.26 — Pass 3537: primary 1.42→1.92 Pass 3538: secondary 0.26→0.35
+    const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 2.59 + Math.sin(ts * 7 * Math.PI * 2) * 0.473) * flashIntensity; // Pass 1764: primary 0.58→0.78 — Pass 1865: →1.05; Pass 1765: secondary 0.10→0.14 — Pass 1866: →0.19 — Pass 3433: primary 1.05→1.42 Pass 3434: secondary 0.19→0.26 — Pass 3537: primary 1.42→1.92 Pass 3538: secondary 0.26→0.35 — Pass 3978: primary 1.92→2.59 — Pass 3979: secondary 0.35→0.473
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 — Pass 1514: →dt*2.8 (longer burst visibility)
     if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 2.1); // Pass 1740: burst decay 2.8→2.1 (longer visible burst)
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
@@ -3185,7 +3185,7 @@ function animate(ts) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 3.8);
       // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5 — Pass 1151: →6.5 — Pass 1413: →9.0
       const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 54.1; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0 — Pass 3432: 22.0→29.7 — Pass 3455: 29.7→40.1 — Pass 3645: 40.1→54.1
-      hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.35 + _revStrobe; // Pass 738: 1.10→1.35
+      hoodMat.emissiveIntensity = 0.35 + flashIntensity * 1.82 + _revStrobe; // Pass 738: 1.10→1.35 — Pass 3980: flash multiplier 1.35→1.82
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
       // Pass 500: scanner hood scan intensity 0.35+1.10→0.40+1.40 — Pass 739: →0.45+1.70 — Pass 1414: →0.45+2.30
@@ -3987,7 +3987,7 @@ function animate(ts) {
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     // Pass 226: tumble-correlated glow — Pass 417: 0.28→0.40 — Pass 465: base+peak 0.80+0.60
     // Pass 761: base 0.80→1.05, peak 0.60→0.80 — Pass 980: base 1.05→1.35, peak 0.80→1.10 — Pass 1189: base 1.35→1.80, peak 1.10→1.55 for brighter arc glow
-    cardGlow.intensity = (19.8 + 12.6 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z)); // Pass 2380: glow base 4.43→5.98, peak 3.81→5.14 — Pass 2600: 5.98→8.07, 5.14→6.94 — Pass 3039: 8.07→10.9, 6.94→9.37 — Pass 3396: base 10.9→14.7 peak 9.37→12.6 — Pass 3458: base 14.7→19.8
+    cardGlow.intensity = (26.7 + 17.0 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z)); // Pass 2380: glow base 4.43→5.98, peak 3.81→5.14 — Pass 2600: 5.98→8.07, 5.14→6.94 — Pass 3039: 8.07→10.9, 6.94→9.37 — Pass 3396: base 10.9→14.7 peak 9.37→12.6 — Pass 3458: base 14.7→19.8 — Pass 3973: base 19.8→26.7 — Pass 3974: peak 12.6→17.0
     cardGlow.position.copy(activeCard.position);
     // Pass 250: deflect tumble emissive — Pass 415: 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
     // Pass 762: base 0.55→0.45, peak 0.72→0.95 for more dynamic emissive swing during tumble
