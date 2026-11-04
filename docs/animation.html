@@ -1050,7 +1050,7 @@ scene.add(gateBase);
 // Pass 60: Sort gate column indicator LEDs — 4 small spheres showing destination Z column
 const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x224466, emissive: 0x112233, emissiveIntensity: 0.738, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs
+    color: 0x224466, emissive: 0x112233, emissiveIntensity: 0.996, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs
     roughness: 0.05, metalness: 0.0,
   });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 14, 14), mat); // Pass 4988: gate column LED sphere segments 10→14 smoother gate indicators
@@ -1497,7 +1497,7 @@ scene.add(_shadowMesh);
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
 // Narrow bright band swept across the card face during scan — simulates specular
 // reflection of the scanner beam reading the card surface (X=fullwidth, thin Z=7).
-const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 1.65, 12.76); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band
+const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 1.65, 17.2); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band — Pass 5115: Z width 12.76→17.2 wider card Z spread during scan
 const cardShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false,
 });
@@ -2362,7 +2362,7 @@ function animate(ts) {
     const _jPhase = i * 2.67; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
     const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 2.30 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.85; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 1.15; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2639,7 +2639,7 @@ function animate(ts) {
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
       const jitter = 12.8 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting
         Math.sin(ts * 19.7 * Math.PI * 2) * 0.945 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter — Pass 5087: 10.8→14.6 Hz crisper arm tremor oscillation — Pass 5109: arm descent servo hunt frequency 14.6→19.7 Hz crisper pre-pick tremor
-        Math.sin(ts * 17.6 * Math.PI * 2) * 0.405 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone
+        Math.sin(ts * 17.6 * Math.PI * 2) * 0.547 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone — Pass 5112: 0.405→0.547 richer descent overtone texture
       );
       // Pass 243: terminal servo micro-tap — precision down-push in final 5% of descent
       const _tapOffset = pt > 0.95 ? -1.08 * ((pt - 0.95) / 0.05) : 0; // Pass 4439: terminal tap magnitude 0.8→1.08 stronger precision tap
@@ -3071,7 +3071,7 @@ function animate(ts) {
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
     // Belt scroll target: conveyorIn full speed
-    _beltScrollSpeed = 0.108; // Pass 5020: conveyorIn belt scroll speed 0.08→0.108 faster belt motion
+    _beltScrollSpeed = 0.146; // Pass 5020: conveyorIn belt scroll speed 0.08→0.108 faster belt motion — Pass 5114: 0.108→0.146 faster conveyor in-feed approach speed
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
@@ -3124,7 +3124,7 @@ function animate(ts) {
     const _revealTilt = THREE.MathUtils.lerp(-0.05, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
     // Pass 746: pre-reveal vibration scale 0.8→1.3 for more visible scanner tremor buildup
-    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 3.19; // Pass 1707: pre-reveal vibration scale 1.3→1.75 — Pass 3937: 1.75→2.36 — Pass 4234: 2.36→3.19 more visible scanner tremor
+    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 4.31; // Pass 1707: pre-reveal vibration scale 1.3→1.75 — Pass 3937: 1.75→2.36 — Pass 4234: 2.36→3.19 more visible scanner tremor — Pass 5112: 3.19→4.31 more intense scanner body jitter amplitude
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.00338 + Math.sin(ts * 73 * Math.PI * 2) * 0.00203) * _scanVibScale; // Pass 4361: scan vib primary 0.0025→0.00338 — Pass 4362: secondary 0.0015→0.00203 stronger scanner tremor
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
     // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 — Pass 1279: →0.62 for sharper card-edge flash at identity reveal
@@ -3601,7 +3601,7 @@ function animate(ts) {
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
     const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 44.3 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3 — Pass 3579: 13.3→18.0 — Pass 3674: 18.0→24.3 — Pass 3992: 24.3→32.8 — Pass 4133: 32.8→44.3 brighter cone flare
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
-    scanCone.position.z = 147 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03 — Pass 5088: 80.7→109 wider scan cone sweep arc — Pass 5102: 109→147 wider scanner head rotation limit sweep arc
+    scanCone.position.z = 198 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03 — Pass 5088: 80.7→109 wider scan cone sweep arc — Pass 5102: 109→147 wider scanner head rotation limit sweep arc — Pass 5117: 147→198 wider slot approach orbit scan sweep
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
     scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 21.2 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7 — Pass 4135: 15.7→21.2 taller cone punch
@@ -4556,7 +4556,7 @@ function animate(ts) {
     // Two overlapping sine waves at different frequencies simulate motor holding dither — Pass 1605: 0.009→0.013, 0.004→0.006
     suctionPivot.rotation.z = -0.35
       + 0.259 * Math.sin(ts * 0.783 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043 — Pass 2879: 0.043→0.058 — Pass 3089: 0.058→0.078 — Pass 3265: 0.078→0.105 — Pass 3605: 0.105→0.142 — Pass 4010: 0.142→0.192 — Pass 4498: pick suction hold oscillation frequency 0.58→0.783 livelier motor dither — Pass 4704: sway 0.192→0.259 more visible arm hold dither
-      + 0.120 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020 — Pass 2880: 0.020→0.027 — Pass 3090: 0.027→0.036 — Pass 3266: 0.036→0.049 — Pass 3606: 0.049→0.066 — Pass 4011: 0.066→0.089 — Pass 4705: 0.089→0.120 livelier arm tremor
+      + 0.162 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020 — Pass 2880: 0.020→0.027 — Pass 3090: 0.027→0.036 — Pass 3266: 0.036→0.049 — Pass 3606: 0.049→0.066 — Pass 4011: 0.066→0.089 — Pass 4705: 0.089→0.120 livelier arm tremor — Pass 5113: 0.120→0.162 livelier idle arm oscillation secondary amplitude
     // Pass 492: gate LED domain afterglow — during pause, active column retains a faint 0.4Hz
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
     // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory — Pass 1603: base 0.14→0.20, amp 0.12→0.18
@@ -4570,7 +4570,7 @@ function animate(ts) {
       });
     }
     // Pass 246: pause arm hover Y float — soft PID hold oscillation — Pass 1056: ±0.6→±1.4 more visible hover — Pass 1604: →±2.0
-    suctionPivot.position.y = 108 + 40.1 * Math.sin(ts * 0.405 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 — Pass 4706: 29.7→40.1 more dramatic arm hover float // Pass 4485: hover freq 0.30→0.405 livelier hover bob
+    suctionPivot.position.y = 108 + 54.1 * Math.sin(ts * 0.405 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 — Pass 4706: 29.7→40.1 more dramatic arm hover float // Pass 4485: hover freq 0.30→0.405 livelier hover bob — Pass 5119: 40.1→54.1 more dramatic idle arm oscillation amplitude
     // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
     // on the scanner hood emissive, as if it's slowly cooling down between cycles. — Pass 1606: 0.04→0.06
     {
