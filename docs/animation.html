@@ -2701,7 +2701,7 @@ function animate(ts) {
               _cp.mesh.visible = true;
               _cp.vx = (Math.random() - 0.5) * 1052; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 — Pass 1672: →95 — Pass 3910: 95→128.3 wider pick burst — Pass 4375: 128.3→173.2 even wider suction puff — Pass 5123: 173.2→233.8 even wider pick dust spread — Pass 6006: 233.8→316 wider pick dust horizontal spread — Pass 6610: 316→427 wider pick dust horizontal spread — Pass 6836: 427→577 wider pick dust horizontal spread — Pass 7119: 577→779 wider pick dust horizontal spread — Pass 7130: 779→1052 wider pick dust horizontal spread
               _cp.vy = 339 + Math.random() * 187.0;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 — Pass 1673: →56+76 — Pass 3909: 56+76→75.6+102.6 higher pick dust loft — Pass 4376: base 75.6→102.1 — Pass 4377: rand 102.6→138.5 more forceful pick dust launch — Pass 5130: 102.1→137.8 higher pick dust loft base — Pass 5932: rand 138.5→187.0 more forceful pick dust vy launch rand — Pass 6719: base 137.8→186.0 higher pick dust loft base — Pass 6837: base 186.0→251 higher pick dust vertical launch velocity — Pass 7120: base 251→339 higher pick dust vertical launch velocity
-              _cp.vz = (Math.random() - 0.5) * 230; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread — Pass 4378: 37.8→51.0 even wider pick dust Z — Pass 5124: 51.0→68.9 even wider pick dust Z spread — Pass 6007: 68.9→93.0 wider pick dust Z spread — Pass 6611: 93.0→126 wider pick dust Z spread — Pass 6956: 126→170 wider pick dust Z spread — Pass 7439: 170→230 wider pick dust Z spread
+              _cp.vz = (Math.random() - 0.5) * 311; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread — Pass 4378: 37.8→51.0 even wider pick dust Z — Pass 5124: 51.0→68.9 even wider pick dust Z spread — Pass 6007: 68.9→93.0 wider pick dust Z spread — Pass 6611: 93.0→126 wider pick dust Z spread — Pass 6956: 126→170 wider pick dust Z spread — Pass 7439: 170→230 wider pick dust Z spread — Pass 8046: 230→311 wider pick dust Z spread
               _cp.mat.color.setRGB(0.85, 0.88, 0.92); // cool pale grey (displaced air)
               _cpSpawned++;
             }
@@ -2715,7 +2715,7 @@ function animate(ts) {
       // Pass 571: armDescend air trail spawn interval 0.09→0.065s — Pass 1678: →0.045s — Pass 4065: →0.030s denser descent trail — Pass 5794: 0.030→0.019 denser armDescend contrail
       if (pt > 0.25) {
         _trailSpawnAcc += dt;
-        if (_trailSpawnAcc >= 0.019) { // Pass 5794: 0.030→0.019 denser armDescend contrail
+        if (_trailSpawnAcc >= 0.026) { // Pass 5794: 0.030→0.019 denser armDescend contrail — Pass 8028: 0.019→0.026 wider armDescend contrail particle gap
           _trailSpawnAcc = 0;
           const _dRot = suctionPivot.rotation.z;
           const _dCupX = PIV_X + 83 * Math.sin(_dRot);
@@ -2824,9 +2824,9 @@ function animate(ts) {
           const spd = 2714 + Math.random() * 282; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread — Pass 4948: base 246→332 — Pass 4949: rand 155→209 more energetic grab particle burst — Pass 5200: base 332→448 — Pass 5201: rand 209→282 more energetic grab particle burst — Pass 6216: base 448→605 more energetic grab particle burst base speed — Pass 6287: base 605→817 more energetic grab particle burst base speed — Pass 6508: base 817→1103 more energetic grab particle burst base speed — Pass 6624: base 1103→1489 more energetic grab particle burst base speed — Pass 6840: base 1489→2010 more energetic grab particle burst base speed — Pass 7359: 2010→2714 more energetic grab particle burst base speed
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.493; // Pass 4921: grab particle downward bias 0.15→0.20 more pick-disturbed stack puff — Pass 5526: 0.20→0.27 stronger pick-disturbed downward puff bias — Pass 6651: 0.27→0.365 stronger grab particle downward puff bias — Pass 7443: 0.365→0.493 stronger grab particle downward puff bias
-          p.vx = Math.cos(angle) * spd * 2.46; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst — Pass 5080: 0.74→1.00 wider grab burst — Pass 5778: 1.00→1.35 wider grab particle X burst spread — Pass 6845: 1.35→1.82 wider grab particle X burst spread — Pass 7444: 1.82→2.46 wider grab particle X burst spread
+          p.vx = Math.cos(angle) * spd * 3.32; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst — Pass 5080: 0.74→1.00 wider grab burst — Pass 5778: 1.00→1.35 wider grab particle X burst spread — Pass 6845: 1.35→1.82 wider grab particle X burst spread — Pass 7444: 1.82→2.46 wider grab particle X burst spread — Pass 8044: 2.46→3.32 wider grab particle X burst spread
           p.vy = _goDown ? -spd * (0.74 + Math.random() * 0.73) : spd * (0.55 + Math.random() * 0.45); // Pass 4264: grab particle vy down factor 0.3→0.41, rand 0.4→0.54 more forceful suction puff — Pass 5172: 0.41→0.55 rand 0.54→0.73 stronger grab particle pull-down — Pass 6524: 0.55→0.74 stronger grab particle pull-down force
-          p.vz = Math.sin(angle) * spd * 2.26; // Pass 4265: grab particle vz spread 0.5→0.68 deeper Z burst — Pass 5081: 0.68→0.92 deeper grab Z burst — Pass 5779: 0.92→1.24 deeper grab particle Z burst spread — Pass 6846: 1.24→1.67 deeper grab particle Z burst spread — Pass 7445: 1.67→2.26 deeper grab particle Z burst spread
+          p.vz = Math.sin(angle) * spd * 3.05; // Pass 4265: grab particle vz spread 0.5→0.68 deeper Z burst — Pass 5081: 0.68→0.92 deeper grab Z burst — Pass 5779: 0.92→1.24 deeper grab particle Z burst spread — Pass 6846: 1.24→1.67 deeper grab particle Z burst spread — Pass 7445: 1.67→2.26 deeper grab particle Z burst spread — Pass 8045: 2.26→3.05 deeper grab particle Z burst spread
           p.mesh.position.set(_bx, _by, (Math.random() - 0.5) * 35.9); // Pass 4627: grab particle initial Z spawn spread 8→10.8 wider burst footprint — Pass 5180: 10.8→14.6 wider grab burst footprint — Pass 6217: 14.6→19.7 wider grab burst Z spawn footprint — Pass 7362: 19.7→26.6 wider grab burst Z spawn footprint — Pass 7867: 26.6→35.9 wider grab burst Z spawn footprint
           // Pass 85: color variety — highlight (25%), domain (50%), shadow (25%)
           const _cr = Math.random();
@@ -2865,7 +2865,7 @@ function animate(ts) {
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
       // Reuses the TRAIL_PARTICLES pool (armSwing and deflect phases don't overlap).
       // Pass 256: spawn density ramp — faster particles at midswing when arm moves fastest
-      const _swingInt = 0.022 + 0.054 * (1 - Math.sin(st * Math.PI)); // Pass 4366: armSwing trail spawn interval 0.030→0.022 denser arc contrail; 30ms mid → 62ms ends — Pass 5565: arc contrail end interval 0.040→0.054 denser arc contrail ends
+      const _swingInt = 0.022 + 0.073 * (1 - Math.sin(st * Math.PI)); // Pass 4366: armSwing trail spawn interval 0.030→0.022 denser arc contrail; 30ms mid → 62ms ends — Pass 5565: arc contrail end interval 0.040→0.054 denser arc contrail ends — Pass 8029: arc contrail end interval 0.054→0.073 wider arc contrail end spacing
       _trailSpawnAcc += dt;
       if (_trailSpawnAcc >= _swingInt) {
         _trailSpawnAcc = 0;
@@ -3003,9 +3003,9 @@ function animate(ts) {
           _dp.mesh.position.set(-111 + (Math.random()-0.5)*8, CONV_Y_TOP + 4, (Math.random()-0.5)*17.2); // Pass 4613: belt entry dust Z spread 7→9.45 wider dust scatter — Pass 5337: 9.45→12.76 wider belt entry dust volume — Pass 6507: 12.76→17.2 wider belt entry dust Z spawn volume
           _dp.mesh.visible = true;
           const _side = Math.random() < 0.5 ? 1 : -1;
-          _dp.vx = _side * (242 + Math.random() * 216); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 — Pass 1687: →40+65 — Pass 1848: →54+88 — Pass 3934: 54+88→72.9+118.8 — Pass 4205: base 72.9→98.4 — Pass 4212: rand 118.8→160 wider belt deposit burst — Pass 5338: base 98.4→132.8 — Pass 5339: rand 160→216 wider belt deposit burst — Pass 6525: base 132.8→179.3 wider belt deposit burst — Pass 7420: base 179.3→242 wider belt deposit burst
-          _dp.vy = 278.1 + Math.random() * 256; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 — Pass 1688: →34+42 — Pass 1849: →46+57 — Pass 3437: →62+77 — Pass 3916: 62+77→83.7+104.0 — Pass 4206: base 83.7→113.0, rand 104.0→140.4 higher belt deposit dust — Pass 5340: base 113.0→152.6, rand 140.4→189.5 higher belt deposit dust loft — Pass 6501: base 152.6→206.0 rand 189.5→256 higher belt deposit dust loft — Pass 7421: base 206.0→278.1 higher belt deposit dust loft
-          _dp.vz = (Math.random() - 0.5) * 134; // Pass 1486: 16→22 — Pass 1689: →30 — Pass 3953: 30→40.5 wider slot drop Z spread — Pass 4420: 40.5→54.7 even wider belt dust Z spread — Pass 5341: 54.7→73.8 even wider belt deposit dust Z spread — Pass 6502: 73.8→99.6 even wider belt deposit dust Z spread — Pass 7422: 99.6→134 even wider belt deposit dust Z spread
+          _dp.vx = _side * (327 + Math.random() * 216); // Pass 1096: 18+30→22+38 — Pass 1484: →30+50 — Pass 1687: →40+65 — Pass 1848: →54+88 — Pass 3934: 54+88→72.9+118.8 — Pass 4205: base 72.9→98.4 — Pass 4212: rand 118.8→160 wider belt deposit burst — Pass 5338: base 98.4→132.8 — Pass 5339: rand 160→216 wider belt deposit burst — Pass 6525: base 132.8→179.3 wider belt deposit burst — Pass 7420: base 179.3→242 wider belt deposit burst — Pass 8048: base 242→327 wider belt deposit burst vx
+          _dp.vy = 278.1 + Math.random() * 346; // Pass 1096: 12+18→18+24 — Pass 1485: →25+32 — Pass 1688: →34+42 — Pass 1849: →46+57 — Pass 3437: →62+77 — Pass 3916: 62+77→83.7+104.0 — Pass 4206: base 83.7→113.0, rand 104.0→140.4 higher belt deposit dust — Pass 5340: base 113.0→152.6, rand 140.4→189.5 higher belt deposit dust loft — Pass 6501: base 152.6→206.0 rand 189.5→256 higher belt deposit dust loft — Pass 7421: base 206.0→278.1 higher belt deposit dust loft — Pass 8049: rand 256→346 wider belt deposit dust loft variance
+          _dp.vz = (Math.random() - 0.5) * 181; // Pass 1486: 16→22 — Pass 1689: →30 — Pass 3953: 30→40.5 wider slot drop Z spread — Pass 4420: 40.5→54.7 even wider belt dust Z spread — Pass 5341: 54.7→73.8 even wider belt deposit dust Z spread — Pass 6502: 73.8→99.6 even wider belt deposit dust Z spread — Pass 7422: 99.6→134 even wider belt deposit dust Z spread — Pass 8047: 134→181 even wider belt deposit dust Z spread
           // Pale domain-tinted dust: 35% domain + 65% white
           _dp.mat.color.setRGB(
             Math.min(1, _rr / 255 * 0.857 + 0.65), // Pass 4856: belt deposit dust domain saturation 0.35→0.47 — Pass 5551: 0.47→0.635 richer belt dust domain saturation — Pass 6660: 0.635→0.857 richer belt deposit dust domain color saturation
@@ -3467,7 +3467,7 @@ function animate(ts) {
     // Reuses TRAIL_PARTICLES (idle during scan since no arm-swing/deflect overlap).
     // Pass 535: 0.14→0.10s — Pass 722: →0.07s — Pass 842: →0.048s for denser exhaust
     _scanExhaustAcc += dt;
-    if (_scanExhaustAcc >= 0.014 && flashIntensity > 0.15) { // Pass 2541: exhaust interval 0.048→0.030 denser — Pass 4294: 0.030→0.022 even denser exhaust plume — Pass 5795: 0.022→0.014 even denser exhaust plume
+    if (_scanExhaustAcc >= 0.019 && flashIntensity > 0.15) { // Pass 2541: exhaust interval 0.048→0.030 denser — Pass 4294: 0.030→0.022 even denser exhaust plume — Pass 5795: 0.022→0.014 even denser exhaust plume — Pass 8030: 0.014→0.019 wider scan exhaust particle gap
       _scanExhaustAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -3489,7 +3489,7 @@ function animate(ts) {
     // 3 rings staggered by 0.33s each; repeat as long as scan phase is active
     {
       // Pass 633: ping period 0.55→0.42 — Pass 720: →0.35 — Pass 796: →0.27 — Pass 1163: →0.20 for even faster scan rhythm
-      const pingPeriod = 0.200; // Pass 1163: one ping every 0.20s — Pass 4279: 0.20→0.148 faster scan rhythm — Pass 5567: 0.148→0.200 deeper scan rhythm
+      const pingPeriod = 0.270; // Pass 1163: one ping every 0.20s — Pass 4279: 0.20→0.148 faster scan rhythm — Pass 5567: 0.148→0.200 deeper scan rhythm — Pass 8031: 0.200→0.270 deeper scan ping rhythm
       scanPings.forEach((p, pi) => {
         // Stagger start times across the phase: pi × (pingPeriod/3)
         const staggerOffset = pi * (pingPeriod / SCAN_PING_COUNT);
@@ -3808,7 +3808,7 @@ function animate(ts) {
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 19.7); // Pass 4821: paddle charge emissive tracking rate 8→10.8 — Pass 5556: 10.8→14.6 snappier paddle charge emissive tracking — Pass 6655: 14.6→19.7 snappier paddle charge emissive tracking rate
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
-    if (ot > 0.17) { // Pass 2075: corona spawn start 0.45→0.35 — Pass 4295: 0.35→0.26 earlier gate corona — Pass 5796: 0.26→0.17 earlier gate corona spawn
+    if (ot > 0.23) { // Pass 2075: corona spawn start 0.45→0.35 — Pass 4295: 0.35→0.26 earlier gate corona — Pass 5796: 0.26→0.17 earlier gate corona spawn — Pass 8032: 0.17→0.23 wider gate corona emergence window
       _trailSpawnAcc += dt;
       const _coronaRate = 0.18 - (ot - 0.45) * 0.246; // faster spawn as charge peaks // Pass 4516: corona spawn interval minimum 0.10→0.135 denser corona burst at peak charge — Pass 5568: coefficient 0.135→0.182 denser peak corona — Pass 6665: 0.182→0.246 denser peak gate corona spawn rate coefficient
       if (_trailSpawnAcc >= _coronaRate) {
@@ -3858,7 +3858,7 @@ function animate(ts) {
     // Pass 459: final-approach trail density boost — last 35% of conveyorOut spawns at 38ms
     // instead of 70ms, creating a denser contrail "surge" as card punches toward the gate.
     // Pass 459: final-approach density — Pass 823: early 0.07→0.05, final 0.038→0.026 for denser contrail
-    const _convTrailRate = ot > 0.65 ? 0.012 : 0.018; // Pass 2080: early trail density 0.05→0.038 — Pass 4296: early 0.038→0.028 final 0.026→0.019 denser conveyor trail — Pass 5797: early 0.028→0.018 final 0.019→0.012 denser conveyor trail
+    const _convTrailRate = ot > 0.65 ? 0.016 : 0.024; // Pass 2080: early trail density 0.05→0.038 — Pass 4296: early 0.038→0.028 final 0.026→0.019 denser conveyor trail — Pass 5797: early 0.028→0.018 final 0.019→0.012 denser conveyor trail — Pass 8033: early 0.018→0.024 final 0.012→0.016 wider conveyor trail particle gap
     _trailSpawnAcc += dt;
     if (_trailSpawnAcc >= _convTrailRate) {
       _trailSpawnAcc = 0;
@@ -3925,7 +3925,7 @@ function animate(ts) {
           const _spd = 3218 + Math.random() * 2047; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst — Pass 5516: base 1766→2384 faster gate spark burst — Pass 5498: rand 1516→2047 wider gate spark speed burst — Pass 6645: base 2384→3218 faster gate spark burst base speed
           _sp.vx = Math.cos(_ang) * _spd * 2.34; // Pass 4794: gate spark vx spread 0.7→0.945 — Pass 5084: 0.945→1.28 wider gate spark vx — Pass 5782: 1.28→1.73 wider gate spark vx spread — Pass 6849: 1.73→2.34 wider gate spark vx spread
           _sp.vy = 2213 + Math.random() * 1328; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft — Pass 5507: base 1214→1639 higher gate spark loft — Pass 5508: rand 984→1328 higher gate spark loft range — Pass 6644: base 1639→2213 higher gate spark loft base
-          _sp.vz = Math.sin(_ang) * _spd * 1.66 + Math.sign(ct.slotZ || 1) * 27.4; // Pass 4795: gate spark vz spread 0.5→0.675 — Pass 5085: 0.675→0.911 wider gate spark vz — Pass 5783: 0.911→1.23 wider gate spark vz spread, lateral 15→20.3 stronger gate routing bias — Pass 6950: 1.23→1.66 wider gate spark vz spread — Pass 6951: 20.3→27.4 stronger gate routing lateral bias
+          _sp.vz = Math.sin(_ang) * _spd * 2.24 + Math.sign(ct.slotZ || 1) * 37.0; // Pass 4795: gate spark vz spread 0.5→0.675 — Pass 5085: 0.675→0.911 wider gate spark vz — Pass 5783: 0.911→1.23 wider gate spark vz spread, lateral 15→20.3 stronger gate routing bias — Pass 6950: 1.23→1.66 wider gate spark vz spread — Pass 6951: 20.3→27.4 stronger gate routing lateral bias — Pass 8050: 1.66→2.24 wider gate spark vz spread — Pass 8051: 27.4→37.0 stronger gate routing lateral bias
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
           _sp.mat.color.setHex(
@@ -4051,7 +4051,7 @@ function animate(ts) {
     _beltScrollSpeed = 0.0985; // half speed while card arcs off belt — Pass 4876: deflect belt speed 0.04→0.054 livelier belt during arc — Pass 5091: 0.054→0.0729 livelier belt scroll during arc flight — Pass 6270: 0.0729→0.0985 livelier belt scroll speed during arc deflect
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.014) { // Pass 2102: deflect trail spawn 0.040→0.030 denser — Pass 4297: 0.030→0.022 even denser deflect contrail — Pass 5798: 0.022→0.014 even denser deflect contrail
+    if (_trailSpawnAcc >= 0.019) { // Pass 2102: deflect trail spawn 0.040→0.030 denser — Pass 4297: 0.030→0.022 even denser deflect contrail — Pass 5798: 0.022→0.014 even denser deflect contrail — Pass 8034: 0.014→0.019 wider deflect contrail particle gap
       _trailSpawnAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -4523,7 +4523,7 @@ function animate(ts) {
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
     // Pass 557: armReturn trail spawn interval 0.07→0.05s — Pass 672: →0.038s — Pass 1055: →0.026s denser trail
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.0062) { // Pass 2151: armReturn trail interval 0.018→0.013 denser — Pass 4342: 0.013→0.0096 denser return contrail — Pass 5799: 0.0096→0.0062 denser return contrail
+    if (_trailSpawnAcc >= 0.0084) { // Pass 2151: armReturn trail interval 0.018→0.013 denser — Pass 4342: 0.013→0.0096 denser return contrail — Pass 5799: 0.0096→0.0062 denser return contrail — Pass 8035: 0.0062→0.0084 wider return contrail particle gap
       _trailSpawnAcc = 0;
       const _aRot = suctionPivot.rotation.z;
       const _aCupX = PIV_X + 83 * Math.sin(_aRot);
