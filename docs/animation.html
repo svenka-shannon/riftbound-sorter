@@ -925,14 +925,14 @@ const scanBarMesh = new THREE.Mesh(
 );
 // Positioned on front face of scanner hood (Z=-50 is front edge of 100-deep hood)
 // Hood centre X=-40, top Y=CONV_Y_TOP+65; bar sits 3u below top on front face
-scanBarMesh.position.set(-40, CONV_Y_TOP + 83.7, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 higher scan bar mount
+scanBarMesh.position.set(-40, CONV_Y_TOP + 113.0, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 higher scan bar mount — Pass 5056: 83.7→113.0 higher scan bar mount
 scanBarMesh.visible = false;
 scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
 const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(8.63, 8.63, 8.63), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block
-scanBarCursor.position.set(-40, CONV_Y_TOP + 83.7, -51); // Pass 4650: scan bar reveal lift distance 62→83.7
+scanBarCursor.position.set(-40, CONV_Y_TOP + 113.0, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
 
@@ -1741,7 +1741,7 @@ function addCardToTray(ct) {
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 40.5; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5
   const zJitter    = (Math.random() - 0.5) * 3.65;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread
-  const yRotJitter = (Math.random() - 0.5) * 0.162;  // ±0.081 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle
+  const yRotJitter = (Math.random() - 0.5) * 0.219;  // ±0.110 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle
   mesh.position.set(
     TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
     startY,
@@ -2167,7 +2167,7 @@ function updateStatsUI(cardType) {
   CARD_TYPES.forEach(t => {
     const count = domainCounts[t.name] || 0;
     if(count > 0) {
-      const barW = Math.min(80, count * 11); // Pass 4603: slot fill bar width per card 8→11px wider domain count bars
+      const barW = Math.min(80, count * 14.9); // Pass 4603: slot fill bar width per card 8→11px wider domain count bars — Pass 5058: 11→14.9px wider domain count bars
       breakdownHtml +=
         `<div style="display:flex;align-items:center;gap:4px">` +
         `<span style="color:${t.css}">●</span> ` +
@@ -2371,7 +2371,7 @@ function animate(ts) {
       const _cardDelay = (stackTopIdx - 1 - i) * 0.108; // top-most remaining card fires first — Pass 4779: stack pick recoil stagger delay 0.08→0.108 wider cascade timing
       const _delayedT = Math.max(0, _lt2 - _cardDelay);
       // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 — Pass 1228: →2.4 — Pass 1661: →3.2 — Pass 4062: →4.32 deeper suction-break recoil
-      if (_delayedT < 0.45) _recoilDip = -5.83 * Math.sin(_delayedT / 0.45 * Math.PI); // Pass 4780: stack pick recoil dip 4.32→5.83 deeper suction-break recoil
+      if (_delayedT < 0.45) _recoilDip = -7.87 * Math.sin(_delayedT / 0.45 * Math.PI); // Pass 4780: stack pick recoil dip 4.32→5.83 deeper suction-break recoil — Pass 5059: 5.83→7.87 deeper suction-break recoil
     }
     sc.position.y = _baseY + _jY + _recoilDip;
     // Pass 178: deck "charge" shimmer — ripples bottom→top at 0.6 Hz during idle/approach
@@ -2396,7 +2396,7 @@ function animate(ts) {
   // ── Tray card arrival animation (settle into slot) ──
   for(let i = trayArrivals.length - 1; i >= 0; i--) {
     const a = trayArrivals[i];
-    a.t = Math.min(1, a.t + dt * speedMult * 4.73); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle
+    a.t = Math.min(1, a.t + dt * speedMult * 6.39); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle — Pass 5060: 4.73→6.39 snappier slot settle
     // Pass 98: landing bounce — card overshoots target slightly then springs back up
     // First 80%: cubic ease-out approach; last 20%: half-sine spring (goes +5u up then settles)
     let _yPos;
@@ -2429,7 +2429,7 @@ function animate(ts) {
         const inFlight = trayArrivals.some(a => a.mesh === mesh);
         if (!inFlight && mesh.material) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
-          const _phase = _globalCardIdx * 1.66; // Pass 4781: tray card breathing phase spread 1.23→1.66 more organic card desync
+          const _phase = _globalCardIdx * 2.24; // Pass 4781: tray card breathing phase spread 1.23→1.66 more organic card desync — Pass 5063: 1.66→2.24 more organic card desync
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61 — Pass 4771: amp 2.17→2.93 richer settled breathing
           mesh.material.emissiveIntensity = 1.40 + 2.93 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway — Pass 4772: 0.051→0.069 deeper deck sway
@@ -2503,7 +2503,7 @@ function animate(ts) {
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
-      const pulse = 0.5 + 9.86 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.675)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41 — Pass 4287: 5.41→7.30 wider slot LED swing — Pass 4514: slot entry pulse timing 0.5→0.675 faster slot LED pulse — Pass 4686: 7.30→9.86 brighter active slot LED pulse
+      const pulse = 0.5 + 13.3 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.675)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41 — Pass 4287: 5.41→7.30 wider slot LED swing — Pass 4514: slot entry pulse timing 0.5→0.675 faster slot LED pulse — Pass 4686: 7.30→9.86 brighter active slot LED pulse — Pass 5061: 9.86→13.3 brighter active slot LED pulse
       // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 — Pass 1647: →7.0 brighter active slot LED
       mat.emissiveIntensity = 17.2 + pulse; // Pass 2518: slot LED active base 7.0→9.45 — Pass 4046: 9.45→12.76 brighter active routing LED — Pass 5004: 12.76→17.2 brighter active routing LED
     } else if (_ledCooloff[_li] > 0) {
@@ -2542,7 +2542,7 @@ function animate(ts) {
     cardHaloMat.emissive.setHex(_haloHex);
     // Pass 331: halo emissive 1.2+0.50→1.4+0.70 — Pass 710: →1.8+0.90 — Pass 831: →2.6+1.3 — Pass 1460: →3.5+1.8 for brighter halo
     const _haloEmissive331 = (_identityRevealed && (beltActive || airActive))
-      ? 15.7 + 8.07 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo
+      ? 21.2 + 8.07 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo — Pass 5062: base 15.7→21.2 brighter card halo
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
     const _haloScale332 = beltActive ? 1.0 + 0.199 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse
