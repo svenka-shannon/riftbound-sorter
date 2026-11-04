@@ -1967,23 +1967,23 @@ function fireCelebration() {
     const domCt = CARD_TYPES[pi % CARD_TYPES.length];
     const angle = (pi / CELEB_COUNT) * Math.PI * 2;
     // Pass 594: confetti burst speed 60+90 — Pass 652: →80+120 — Pass 728: →100+150 — Pass 755: →125+180 — Pass 892: →155+220 — Pass 1009: →190+260 — Pass 1633: →255+350 — Pass 3461: base 255→344 — Pass 3462: rand 350→473
-    const spd = 464 + Math.random() * 638; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638
+    const spd = 626 + Math.random() * 861; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638 — Pass 4096: base 464→626 — Pass 4097: rand 638→861 faster burst
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
     p.vx = Math.cos(angle) * spd * 1.01; // Pass 4069: confetti vx spread 0.75→1.01 wider horizontal burst
     // Pass 729: upward bias 0.6+0.6→0.75+0.70 — Pass 893: →0.90+0.85 — Pass 1010: →1.10+1.00 — Pass 1634: →1.40+1.30 stronger launch
-    p.vy = spd * (3.44 + Math.random() * 3.21); // Pass 2501: celeb launch bias 1.40+1.30→1.89+1.76 — Pass 3549: 1.89+1.76→2.55+2.38 — Pass 3664: 2.55+2.38→3.44+3.21
+    p.vy = spd * (4.64 + Math.random() * 4.33); // Pass 2501: celeb launch bias 1.40+1.30→1.89+1.76 — Pass 3549: 1.89+1.76→2.55+2.38 — Pass 3664: 2.55+2.38→3.44+3.21 — Pass 4098: base 3.44→4.64 — Pass 4099: rand 3.21→4.33 higher loft
     p.vz = Math.sin(angle) * spd * 0.88; // Pass 3903: confetti vz spread 0.65→0.88 wider Z burst
     // Pass 652: randomize spawn position within ±25 units of tray center for wider burst area
     p.mesh.position.set(TX_MID + (Math.random()-0.5)*25, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*20);
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
-    p.life = 3.5 + Math.random() * 2.7; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 longer airtime
+    p.life = 4.73 + Math.random() * 3.65; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 — Pass 4100: 3.5+2.7→4.73+3.65 even longer airtime
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98
-    p.rx = (Math.random() - 0.5) * 161; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161
-    p.ry = (Math.random() - 0.5) * 192; // Pass 2503: tumble ry 78→105 — Pass 3551: 105→142 — Pass 3634: 142→192
-    p.rz = (Math.random() - 0.5) * 437; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178 — Pass 3635: 178→240 — Pass 3777: 240→324 — Pass 3884: 324→437
+    p.rx = (Math.random() - 0.5) * 217; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161 — Pass 4093: 161→217 wilder tumble
+    p.ry = (Math.random() - 0.5) * 259; // Pass 2503: tumble ry 78→105 — Pass 3551: 105→142 — Pass 3634: 142→192 — Pass 4094: 192→259
+    p.rz = (Math.random() - 0.5) * 590; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178 — Pass 3635: 178→240 — Pass 3777: 240→324 — Pass 3884: 324→437 — Pass 4095: 437→590
     p.active = true;
     p.mesh.visible = true;
   });
