@@ -4883,11 +4883,11 @@ function animate(ts) {
     const _coRaw = inPhase(PH.conveyorOut) ? phaseRaw(PH.conveyorOut) : 0;
     const _coZBoost = inPhase(PH.conveyorOut) ? 5.99 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0; // Pass 2540: conveyorOut Z lean boost 0.40→0.54 — Pass 2680: 0.54→0.73 — Pass 2776: 0.73→0.99 — Pass 2910: 0.99→1.34 — Pass 3121: 1.34→1.81 — Pass 3292: 1.81→2.44 — Pass 3611: 2.44→3.29 — Pass 4157: 3.29→4.44 more committed lean — Pass 5577: 4.44→5.99 more committed camera Z lean
     // Pass 297: slotDrop Z camera lead boost — camera leans further into destination column as card falls — Pass 1608: 0.20→0.28
-    const _sdZBoost = inPhase(PH.slotDrop) ? 4.20 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38 — Pass 2681: 0.38→0.51 — Pass 2777: 0.51→0.69 — Pass 2911: 0.69→0.93 — Pass 3122: 0.93→1.26 — Pass 3293: 1.26→1.70 — Pass 3621: 1.70→2.30 — Pass 4158: 2.30→3.11 deeper slot lean — Pass 5578: 3.11→4.20 deeper slot drop camera Z lean
+    const _sdZBoost = inPhase(PH.slotDrop) ? 5.67 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38 — Pass 2681: 0.38→0.51 — Pass 2777: 0.51→0.69 — Pass 2911: 0.69→0.93 — Pass 3122: 0.93→1.26 — Pass 3293: 1.26→1.70 — Pass 3621: 1.70→2.30 — Pass 4158: 2.30→3.11 deeper slot lean — Pass 5578: 3.11→4.20 deeper slot drop camera Z lean — Pass 6236: 4.20→5.67 deeper slot drop camera Z lean
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
       ? ct.slotZ * (0.459 + _coZBoost + _sdZBoost) : 0; // Pass 4922: camera Z base lean 0.25→0.34 more committed destination follow — Pass 5759: 0.34→0.459 more committed camera Z base lean
     if (!controls._camTgtZ) controls._camTgtZ = 0;
-    controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.0292; // Pass 4838: camera Z target tracking rate 0.016→0.0216 crisper camera Z lean — Pass 5425: 0.0216→0.0292 crisper camera Z lean
+    controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.0394; // Pass 4838: camera Z target tracking rate 0.016→0.0216 crisper camera Z lean — Pass 5425: 0.0216→0.0292 crisper camera Z lean — Pass 6237: 0.0292→0.0394 crisper camera Z lean tracking rate
     controls.target.set(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
   }
@@ -4963,13 +4963,13 @@ function animate(ts) {
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
       const _altFrac = Math.min(1, _altitude / 548); // Pass 2195: floor disc altitude 67→90 — Pass 2784: 90→122 — Pass 2917: 122→165 — Pass 3127: 165→223 — Pass 3297: 223→301 — Pass 4159: 301→406 disc follows higher lifts — Pass 5792: 406→548 disc follows higher lifts
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
-      const _fdScale = 1.0 + _altFrac * 94.9; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo — Pass 5406: 70.3→94.9 bigger domain halo altitude expansion
+      const _fdScale = 1.0 + _altFrac * 128; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo — Pass 5406: 70.3→94.9 bigger domain halo altitude expansion — Pass 6238: 94.9→128 bigger domain halo altitude expansion scale
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
-      const _fdPulse514 = (1 - _altFrac) * 0.140 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe — Pass 4558: 0.077→0.104 stronger floor disc breathe — Pass 5407: 0.104→0.140 stronger floor disc breathe pulse
+      const _fdPulse514 = (1 - _altFrac) * 0.189 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe — Pass 4558: 0.077→0.104 stronger floor disc breathe — Pass 5407: 0.104→0.140 stronger floor disc breathe pulse — Pass 6239: 0.140→0.189 stronger floor disc breathe pulse amplitude
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
       const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.100, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00 — Pass 4751: altitude floor 0.055→0.074 more visible floor disc at altitude — Pass 5721: altitude floor 0.074→0.100 more visible floor disc at altitude
       floorDisc.scale.setScalar(_fdScale);
-      floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.27; // Pass 4690: floor disc opacity tracking rate 0.15→0.20 snappier domain halo fade — Pass 5419: 0.20→0.27 snappier floor disc opacity tracking
+      floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.365; // Pass 4690: floor disc opacity tracking rate 0.15→0.20 snappier domain halo fade — Pass 5419: 0.20→0.27 snappier floor disc opacity tracking — Pass 6240: 0.27→0.365 snappier floor disc opacity tracking rate
     } else {
       floorDiscMat.opacity *= 0.82; // smooth fade-out when card hidden
       if (floorDiscMat.opacity < 0.005) { floorDiscMat.opacity = 0; floorDisc.scale.setScalar(1.0); }
@@ -5008,10 +5008,10 @@ function animate(ts) {
         // Dim preview: next card's domain glows subtly on the top hopper card
         // Pass 480: next-card preview slow pulse — 0.6Hz breathing for "anticipate" feel
         const nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
-        topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 2.74)); // Pass 4831: top card next-domain color tracking rate 1.5→2.03 — Pass 5463: 2.03→2.74 snappier top card domain color tracking
+        topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 3.70)); // Pass 4831: top card next-domain color tracking rate 1.5→2.03 — Pass 5463: 2.03→2.74 snappier top card domain color tracking — Pass 6241: 2.74→3.70 snappier top card next-domain color tracking rate
         const _prevT = inPhase(PH.pause) ? phaseRaw(PH.pause) : phaseRaw(PH.armReturn);
         const _prevPulse = 9.37 + 2.59 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 2482: preview pulse base 0.63→0.85 Pass 2483: amp 0.32→0.43 — Pass 2694: 0.85→1.15, 0.43→0.58 — Pass 2789: base 1.15→1.55 Pass 2790: amp 0.58→0.78 — Pass 2922/2923: 1.55+0.78→2.09+1.05 — Pass 3133: base 2.09→2.82 Pass 3134: amp 1.05→1.42 — Pass 3302: 2.82+1.42→3.81+1.92 — Pass 4164: base 3.81→5.14, amp 1.92→2.59 — Pass 5397: 5.14→6.94 richer next-domain preview pulse base — Pass 5872: 6.94→9.37 richer next-domain preview pulse base
-        topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 3.65); // Pass 4839: top card preview emissive tracking rate 2→2.70 snappier next-domain preview glow — Pass 5464: 2.70→3.65 snappier top card preview glow tracking
+        topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 4.93); // Pass 4839: top card preview emissive tracking rate 2→2.70 snappier next-domain preview glow — Pass 5464: 2.70→3.65 snappier top card preview glow tracking — Pass 6242: 3.65→4.93 snappier top card preview emissive glow tracking rate
       } else {
         topCard.material.emissiveIntensity *= 0.85; // decay when not in pick phase
       }
@@ -5048,7 +5048,7 @@ function animate(ts) {
         // Pass 667: ghost emissive base 0.28→0.36 — Pass 821: →0.50 — Pass 1030: →0.65, decay 0.12→0.10
         mat.emissiveIntensity = ((59.0 - gi * 0.10) + _ghostRevealBoost378) * _speedFactor; // Pass 2487: ghost emissive base 1.19→1.61 — Pass 2698: 1.61→2.17 — Pass 2793: 2.17→2.93 — Pass 2926: 2.93→3.96 — Pass 3137: 3.96→5.35 — Pass 3305: 5.35→7.22 — Pass 3626: 7.22→9.75 — Pass 4166: 9.75→13.2 brighter ghost trail — Pass 5369: 13.2→17.8 brighter ghost trail emissive — Pass 5405: 17.8→24.0 brighter ghost trail emissive base — Pass 5714: 24.0→32.4 brighter ghost trail emissive base — Pass 5874: 32.4→43.7 brighter ghost trail emissive base — Pass 6012: 43.7→59.0 brighter ghost trail emissive base
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
-        mat.opacity += (targetOp - mat.opacity) * 0.635; // Pass 4850: ghost trail opacity tracking rate 0.35→0.47 snappier trail fade-in — Pass 5420: 0.47→0.635 snappier ghost trail opacity tracking
+        mat.opacity += (targetOp - mat.opacity) * 0.857; // Pass 4850: ghost trail opacity tracking rate 0.35→0.47 snappier trail fade-in — Pass 5420: 0.47→0.635 snappier ghost trail opacity tracking — Pass 6243: 0.635→0.857 snappier ghost trail opacity tracking rate
       } else {
         mat.opacity *= 0.97; // decay toward 0 // Pass 4849: ghost trail fade rate 0.72→0.97 slower trail dissipation
         if (mat.opacity < 0.005) {
