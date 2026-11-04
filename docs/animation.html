@@ -745,11 +745,11 @@ scene.add(hopperGroup);
 // Angled inner guide walls inside hopper (funnel shape to direct cards to exit)
 const guideL = makeBox(6, 94.5, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry
 guideL.position.set(HOPPER_X + 15, 40, -30);
-guideL.rotation.z = 0.338; // Pass 4868: hopper guide L tilt angle 0.25→0.338 steeper funnel
+guideL.rotation.z = 0.456; // Pass 4868: hopper guide L tilt angle 0.25→0.338 steeper funnel — Pass 5471: 0.338→0.456 steeper hopper left guide funnel angle
 scene.add(guideL);
 const guideR = makeBox(6, 94.5, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry
 guideR.position.set(HOPPER_X + 15, 40, 30);
-guideR.rotation.z = 0.338; // Pass 4868: hopper guide R tilt angle 0.25→0.338 steeper funnel
+guideR.rotation.z = 0.456; // Pass 4868: hopper guide R tilt angle 0.25→0.338 steeper funnel — Pass 5472: 0.338→0.456 steeper hopper right guide funnel angle
 scene.add(guideR);
 
 const hopperWire = makeWireBox(72, 108, 80, 0x444466);
@@ -920,7 +920,7 @@ const scanBarMat = new THREE.MeshStandardMaterial({
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 4.56, 4.56), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar — Pass 4905: 3.38→4.56 chunkier scan bar
+  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 6.16, 6.16), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar — Pass 4905: 3.38→4.56 chunkier scan bar — Pass 5473: 4.56→6.16 chunkier scan progress bar cross-section
   scanBarMat
 );
 // Positioned on front face of scanner hood (Z=-50 is front edge of 100-deep hood)
@@ -956,7 +956,7 @@ const scanConeMat = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide, depthWrite: false
 });
 const scanCone = new THREE.Mesh(
-  new THREE.ConeGeometry(65.6, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone
+  new THREE.ConeGeometry(88.6, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius
   scanConeMat
 );
 // Tip at scanner lens; open base toward card — rotate 180° so tip is up, base down
@@ -1252,7 +1252,7 @@ suctionPivot.add(armRod);
 
 // Pivot flange ring at servo joint
 const flange = new THREE.Mesh(
-  new THREE.TorusGeometry(6, 2, 11, 16), // Pass 4956: flange torus tube segments 8→11 smoother servo flange ring
+  new THREE.TorusGeometry(6, 2, 15, 16), // Pass 4956: flange torus tube segments 8→11 smoother servo flange ring — Pass 5477: 11→15 smoother servo flange torus tube segments
   new THREE.MeshStandardMaterial({ color: 0x555566, roughness: 0.4, metalness: 0.5 })
 );
 flange.position.set(0, 0, 0);
@@ -1528,7 +1528,7 @@ const GHOST_COUNT = 4; // Pass 4989: ghost trail card count 3→4 richer motion 
 const ghostCards = [];
 for (let _gi = 0; _gi < GHOST_COUNT; _gi++) {
   const _gMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.73, // Pass 4029: ghost card emissive 0.4→0.54 brighter motion-blur wake — Pass 4892: 0.54→0.73 brighter ghost trail
+    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.986, // Pass 4029: ghost card emissive 0.4→0.54 brighter motion-blur wake — Pass 4892: 0.54→0.73 brighter ghost trail — Pass 5470: 0.73→0.986 brighter ghost trail motion-blur cards
     transparent: true, opacity: 0,
     roughness: 0.6, metalness: 0.0, depthWrite: false,
   });
@@ -1576,7 +1576,7 @@ let _confirmRingT2 = -1; // -1=idle; 0..1=animation progress (fires 0.12s after 
 const grabRingMat = new THREE.MeshBasicMaterial({
   color: 0xccddff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 1.82, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring — Pass 4978: 1.35→1.82 fatter grab suction ring
+const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 2.46, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring — Pass 4978: 1.35→1.82 fatter grab suction ring — Pass 5475: 1.82→2.46 fatter grab suction ring tube
 grabRing.rotation.x = -Math.PI / 2; // lie flat in the belt plane
 grabRing.visible = false;
 scene.add(grabRing);
@@ -2469,7 +2469,7 @@ function animate(ts) {
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
     const _fbRest = 6.55 + 2.30 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26 — Pass 4684: base 2.66→3.59 — Pass 4685: amp 1.26→1.70 brighter fill bar breathe — Pass 5120: 3.59→4.85 brighter fill bar resting glow — Pass 5191: 4.85→6.55 brighter fill bar resting base glow — Pass 5204: amp 1.70→2.30 bigger fill bar breathe amplitude
-    if(bar.material.emissiveIntensity > _fbRest + 0.081) { // Pass 4921: fill bar phase transition threshold 0.06→0.081 wider emissive hysteresis
+    if(bar.material.emissiveIntensity > _fbRest + 0.109) { // Pass 4921: fill bar phase transition threshold 0.06→0.081 wider emissive hysteresis — Pass 5476: 0.081→0.109 wider fill bar emissive hysteresis window
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
     } else {
