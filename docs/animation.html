@@ -1600,7 +1600,7 @@ const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
   });
-  const mesh = new THREE.Mesh(new THREE.TorusGeometry(6, 1.35, 6, 24), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 1.35, 6, 24), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings
   mesh.visible = false;
   // Oriented flat (XZ plane) at card level, centered on scanner X
   mesh.rotation.x = -Math.PI / 2;
@@ -2431,7 +2431,7 @@ function animate(ts) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 1.23;
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61
-          mesh.material.emissiveIntensity = 1.40 + 1.61 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow
+          mesh.material.emissiveIntensity = 1.40 + 2.17 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway
           const _swayPhase = _globalCardIdx * 1.83;
           mesh.rotation.z = 0.051 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking
@@ -2492,7 +2492,7 @@ function animate(ts) {
       // Capacity warning: flash amber — slot is nearly full
       // Pass 187: fix capacity warning pulse — was ts*0.008 (~785s period = never visible).
       // Fixed to 0.8Hz: slots flash urgently when nearly full.
-      const _warnPulse = 0.6 + 0.4 * Math.sin(ts * 0.8 * Math.PI * 2);
+      const _warnPulse = 0.6 + 0.54 * Math.sin(ts * 0.8 * Math.PI * 2); // Pass 4461: slot overflow pulse amplitude 0.4→0.54 stronger overflow flash
       mat.color.setHex(0xffaa00);
       mat.emissive.setHex(0xffaa00);
       mat.emissiveIntensity = 4.37 + _warnPulse * 3.65; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70 — Pass 4045: base 3.24→4.37, amp 2.70→3.65 brighter slot overflow warning
@@ -4457,7 +4457,7 @@ function animate(ts) {
     } else {
       const _osT = (art - 0.82) / 0.18;
       // Pass 673: arm overshoot spring 0.06→0.10 — Pass 862: →0.16 — Pass 1050: →0.26 — Pass 1268: →0.36 more dramatic rebound
-      suctionPivot.rotation.z = -0.35 - 2.19 * Math.sin(_osT * Math.PI); // Pass 2407: arm overshoot spring 0.66→0.89 — Pass 2641: 0.89→1.20 — Pass 2869: 1.20→1.62 — Pass 3079: 1.62→2.19
+      suctionPivot.rotation.z = -0.35 - 2.96 * Math.sin(_osT * Math.PI); // Pass 2407: arm overshoot spring 0.66→0.89 — Pass 2641: 0.89→1.20 — Pass 2869: 1.20→1.62 — Pass 3079: 1.62→2.19 — Pass 4462: 2.19→2.96 more dramatic arm swing overshoot
       // Pass 196: arm end-stop mechanical clunk — tiny camera shake when arm hits its rest stop.
       // Fires once at art=0.82 (first frame of overshoot), very small so it's felt not seen.
       if (!_armReturnThunkFired) {
@@ -4466,7 +4466,7 @@ function animate(ts) {
         _cameraShake = Math.max(_cameraShake, 19.3); // Pass 2408: arm end-stop camera shake 5.83→7.87 — Pass 2642: 7.87→10.6 — Pass 2870: 10.6→14.3 — Pass 3080: 14.3→19.3
         // Pass 267: cup end-stop emissive spike — Pass 864: 2.8→4.5 — Pass 1051: →7.5 — Pass 1270: →12.0 brighter hard stop flash
         suctionCupMat.emissive.set(1, 1, 1);
-        suctionCupMat.emissiveIntensity = 72.9; // Pass 2409: cup end-stop emissive spike 21.9→29.6 — Pass 2643: 29.6→40.0 — Pass 2871: 40.0→54.0 — Pass 3081: 54.0→72.9
+        suctionCupMat.emissiveIntensity = 98.4; // Pass 2409: cup end-stop emissive spike 21.9→29.6 — Pass 2643: 29.6→40.0 — Pass 2871: 40.0→54.0 — Pass 3081: 54.0→72.9 — Pass 4459: 72.9→98.4 brighter cup end-stop emissive spike
         // Pass 260: cup arrival dust puff — 3 pale particles burst from cup as arm hits stopper
         const _arRot = suctionPivot.rotation.z;
         const _arCupX = PIV_X + 83 * Math.sin(_arRot);
@@ -4603,7 +4603,7 @@ function animate(ts) {
   }
 
   // Belt emissive flicker implies motion throughout the cycle (base scales with speed)
-  const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.05;
+  const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.068; // Pass 4463: belt idle emissive base 0.05→0.068 stronger belt idle glow
   // Pass 143: speed-proportional strobe frequency (3 Hz idle → 9 Hz at full belt speed)
   const _beltStrobeFreq = 4.05 + _beltScrollSpeed * 101; // Pass 4248: belt idle strobe freq 3→4.05 — Pass 4249: speed mult 75→101 busier belt strobe
   // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 — Pass 1059: →0.10 reactive belt
@@ -4799,7 +4799,7 @@ function animate(ts) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
                      inPhase(PH.armLift)    ? 1.0 : 0.5;
     suctionCupMat.emissive.setHex(ct.hex);
-    suctionCupMat.emissiveIntensity = cupGlowT * 37.7; // Pass 2184: cup peak glow 4.59→6.20 — Pass 2676: 6.20→8.37 — Pass 2768: 8.37→11.3 — Pass 2906: 11.3→15.3 — Pass 3116: 15.3→20.7 — Pass 3288: 20.7→27.9 — Pass 3368: 27.9→37.7
+    suctionCupMat.emissiveIntensity = cupGlowT * 50.9; // Pass 2184: cup peak glow 4.59→6.20 — Pass 2676: 6.20→8.37 — Pass 2768: 8.37→11.3 — Pass 2906: 11.3→15.3 — Pass 3116: 15.3→20.7 — Pass 3288: 20.7→27.9 — Pass 3368: 27.9→37.7 — Pass 4457: 37.7→50.9 brighter cup down-thrust emissive
   } else if (inPhase(PH.armReturn)) {
     // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
     // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
@@ -4807,7 +4807,7 @@ function animate(ts) {
     const _memFade = Math.max(0, 1 - _arMemT / 1.35); // Pass 2185: cup memory window 0.41→0.55 — Pass 2769: 0.55→0.74 — Pass 2907: 0.74→1.00 — Pass 4299: 1.00→1.35 longer cup domain memory glow
     if (_memFade > 0.01) {
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (_memFade * 4.48 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2186: cup memory intensity 0.74→1.00 — Pass 2770: 1.00→1.35 — Pass 2908: 1.35→1.82 — Pass 3117: 1.82→2.46 — Pass 3289: 2.46→3.32 — Pass 3369: 3.32→4.48
+      suctionCupMat.emissiveIntensity += (_memFade * 6.05 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2186: cup memory intensity 0.74→1.00 — Pass 2770: 1.00→1.35 — Pass 2908: 1.35→1.82 — Pass 3117: 1.82→2.46 — Pass 3289: 2.46→3.32 — Pass 3369: 3.32→4.48 — Pass 4458: 4.48→6.05 brighter cup memory glow
     } else {
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.15;
     }
