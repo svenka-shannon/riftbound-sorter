@@ -704,7 +704,7 @@ scene.add(baseMesh);
 const HOPPER_X = -230;
 
 // Point light above hopper to spotlight the pick-up action
-const hopperLight = new THREE.PointLight(0xffeedd, 10.1, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight — Pass 5930: 2.26→3.05 stronger hopper pick spotlight intensity — Pass 5955: 3.05→4.12 stronger hopper pick spotlight intensity — Pass 6053: 4.12→5.56 stronger hopper pick spotlight intensity — Pass 6493: 5.56→7.51 stronger hopper pick spotlight intensity — Pass 6652: 7.51→10.1 stronger hopper pick spotlight intensity
+const hopperLight = new THREE.PointLight(0xffeedd, 13.6, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight — Pass 5930: 2.26→3.05 stronger hopper pick spotlight intensity — Pass 5955: 3.05→4.12 stronger hopper pick spotlight intensity — Pass 6053: 4.12→5.56 stronger hopper pick spotlight intensity — Pass 6493: 5.56→7.51 stronger hopper pick spotlight intensity — Pass 6652: 7.51→10.1 stronger hopper pick spotlight intensity — Pass 6882: 10.1→13.6 stronger hopper pick spotlight intensity
 hopperLight.position.set(HOPPER_X + 33, 200, 0);
 scene.add(hopperLight);
 
@@ -908,7 +908,7 @@ scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
-const scanBloom = new THREE.PointLight(0x0088ff, 0, 2457); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach — Pass 6314: 1348→1820 even wider scan bloom light reach — Pass 6473: 1820→2457 even wider scan bloom light reach
+const scanBloom = new THREE.PointLight(0x0088ff, 0, 3317); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach — Pass 6314: 1348→1820 even wider scan bloom light reach — Pass 6473: 1820→2457 even wider scan bloom light reach — Pass 6883: 2457→3317 even wider scan bloom light reach
 scanBloom.decay = 16.3; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff — Pass 5906: 3.65→4.93 tighter scan bloom falloff — Pass 5966: 4.93→6.66 tighter scan bloom falloff — Pass 6056: 6.66→8.99 tighter scan bloom falloff — Pass 6434: 8.99→12.1 tighter scan bloom falloff — Pass 6879: 12.1→16.3 tighter scan bloom falloff decay
 scene.add(scanBloom);
 
@@ -931,19 +931,19 @@ scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(15.8, 15.8, 15.8), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block — Pass 5744: 8.63→11.7 larger scan bar leading-edge cursor block — Pass 6437: 11.7→15.8 larger scan bar leading-edge cursor block
+const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(21.3, 21.3, 21.3), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block — Pass 5744: 8.63→11.7 larger scan bar leading-edge cursor block — Pass 6437: 11.7→15.8 larger scan bar leading-edge cursor block — Pass 6884: 15.8→21.3 larger scan bar leading-edge cursor block
 scanBarCursor.position.set(-40, CONV_Y_TOP + 206, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount — Pass 6351: 113.0→152.6 higher scan bar cursor mount — Pass 6513: 152.6→206 higher scan bar cursor mount
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
 
 // Scan destination target light — illuminates the slot the card is going to
 // during scan phase so viewer immediately knows the routing decision
-const scanTargetLight = new THREE.PointLight(0xffffff, 0, 548); // Pass 4022: scanTargetLight range 90→122 — Pass 4907: 122→165 wider scan target reach — Pass 5152: 165→223 wider scan target light reach — Pass 5187: 223→301 wider scan target light reach — Pass 5741: 301→406 wider scan target light reach — Pass 6438: 406→548 wider scan target light reach
+const scanTargetLight = new THREE.PointLight(0xffffff, 0, 740); // Pass 4022: scanTargetLight range 90→122 — Pass 4907: 122→165 wider scan target reach — Pass 5152: 165→223 wider scan target light reach — Pass 5187: 223→301 wider scan target light reach — Pass 5741: 301→406 wider scan target light reach — Pass 6438: 406→548 wider scan target light reach — Pass 6885: 548→740 wider scan target light reach
 scanTargetLight.decay = 16.3; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff — Pass 5153: 2.70→3.65 tighter scan target spotlight falloff — Pass 5188: 3.65→4.93 tighter scan target spotlight falloff — Pass 5904: 4.93→6.66 tighter scan target spotlight falloff — Pass 5967: 6.66→8.99 tighter scan target spotlight falloff — Pass 6057: 8.99→12.1 tighter scan target spotlight falloff — Pass 6439: 12.1→16.3 tighter scan target spotlight falloff
 scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
-const slotSweepLight = new THREE.PointLight(0xffffff, 0, 332); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach — Pass 5708: 135→182 wider slot sweep light reach — Pass 6306: 182→246 wider slot sweep light reach — Pass 6440: 246→332 wider slot sweep light reach
+const slotSweepLight = new THREE.PointLight(0xffffff, 0, 448); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach — Pass 5708: 135→182 wider slot sweep light reach — Pass 6306: 182→246 wider slot sweep light reach — Pass 6440: 246→332 wider slot sweep light reach — Pass 6886: 332→448 wider slot sweep light reach
 slotSweepLight.decay = 12.1; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff — Pass 5907: 3.65→4.93 tighter slot sweep beam falloff — Pass 5968: 4.93→6.66 tighter slot sweep beam falloff — Pass 6058: 6.66→8.99 tighter slot sweep beam falloff — Pass 6441: 8.99→12.1 tighter slot sweep beam falloff
 scene.add(slotSweepLight);
 
@@ -968,7 +968,7 @@ const scanBeamMat = new THREE.MeshBasicMaterial({
   color: 0x00ff88, transparent: true, opacity: 0, depthWrite: false
 });
 const scanBeam = new THREE.Mesh(
-  new THREE.CylinderGeometry(8.99, 8.99, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core — Pass 5456: 2.70→3.65 even fatter scan laser beam core — Pass 5868: 3.65→4.93 even fatter scan laser beam core radius — Pass 6311: 4.93→6.66 even fatter scan laser beam core radius — Pass 6650: 6.66→8.99 even fatter scan laser beam core radius
+  new THREE.CylinderGeometry(12.1, 12.1, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core — Pass 5456: 2.70→3.65 even fatter scan laser beam core — Pass 5868: 3.65→4.93 even fatter scan laser beam core radius — Pass 6311: 4.93→6.66 even fatter scan laser beam core radius — Pass 6650: 6.66→8.99 even fatter scan laser beam core radius — Pass 6887: 8.99→12.1 even fatter scan laser beam core radius
   scanBeamMat
 );
 scanBeam.position.set(-40, CONV_Y_TOP + 10, 0);
@@ -989,8 +989,8 @@ scene.add(scanLine);
 const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
-  emissiveIntensity: 37.1, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive — Pass 5995: 11.2→15.1 brighter scan crosshair secondary sweep bar emissive — Pass 6061: 15.1→20.4 brighter scan crosshair secondary sweep bar emissive — Pass 6441: 20.4→27.5 brighter scan crosshair secondary sweep bar emissive — Pass 6651: 27.5→37.1 brighter scan crosshair secondary sweep bar emissive
-  transparent: true, opacity: 2.93 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep — Pass 5880: 1.19→1.61 overdrive scan crosshair secondary sweep opacity — Pass 6308: 1.61→2.17 overdrive scan crosshair secondary sweep opacity — Pass 6442: 2.17→2.93 overdrive scan crosshair secondary sweep opacity
+  emissiveIntensity: 50.1, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive — Pass 5995: 11.2→15.1 brighter scan crosshair secondary sweep bar emissive — Pass 6061: 15.1→20.4 brighter scan crosshair secondary sweep bar emissive — Pass 6441: 20.4→27.5 brighter scan crosshair secondary sweep bar emissive — Pass 6651: 27.5→37.1 brighter scan crosshair secondary sweep bar emissive — Pass 6888: 37.1→50.1 brighter scan crosshair secondary sweep bar emissive
+  transparent: true, opacity: 3.96 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep — Pass 5880: 1.19→1.61 overdrive scan crosshair secondary sweep opacity — Pass 6308: 1.61→2.17 overdrive scan crosshair secondary sweep opacity — Pass 6442: 2.17→2.93 overdrive scan crosshair secondary sweep opacity — Pass 6889: 2.93→3.96 overdrive scan crosshair secondary sweep opacity
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 221), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height — Pass 5072: 121.5→164 wider secondary scan sweep — Pass 6310: 164→221 wider secondary scan crosshair sweep span
 scanLine2.visible = false;
