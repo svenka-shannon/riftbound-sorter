@@ -4987,7 +4987,7 @@ function animate(ts) {
     if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
     // Pass 163: shimmer pressure lift — Pass 1023: lift 5.5→8.0 — Pass 1403: →11.0 higher card float under stripe
     if (_glint > 0.005 && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)))
-      activeCard.position.y += _glint * 543; // Pass 2480: shimmer lift 20.0→27.0 — Pass 2690: 27.0→36.5 — Pass 2787: 36.5→49.3 — Pass 2920: 49.3→66.6 — Pass 3130: 66.6→89.9 — Pass 3300: 89.9→121.4 — Pass 3624: 121.4→163.9 — Pass 4162: 163.9→221 bigger lift — Pass 5396: 221→298 bigger shimmer pressure lift — Pass 5870: 298→402 bigger shimmer pressure lift — Pass 6571: 402→543 bigger belt shimmer pressure lift
+      activeCard.position.y += _glint * 733; // Pass 2480: shimmer lift 20.0→27.0 — Pass 2690: 27.0→36.5 — Pass 2787: 36.5→49.3 — Pass 2920: 49.3→66.6 — Pass 3130: 66.6→89.9 — Pass 3300: 89.9→121.4 — Pass 3624: 121.4→163.9 — Pass 4162: 163.9→221 bigger lift — Pass 5396: 221→298 bigger shimmer pressure lift — Pass 5870: 298→402 bigger shimmer pressure lift — Pass 6571: 402→543 bigger belt shimmer pressure lift — Pass 7610: 543→733 bigger belt shimmer pressure lift
   }
 
   // ── Hopper top card domain preview ──────────────────────────────────────────
