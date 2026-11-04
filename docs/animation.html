@@ -122,7 +122,7 @@
     45%  { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-4px); }
   }
-  #scan-confirm.confirm-pop { animation: scanConfirmPop 2.16s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop */
+  #scan-confirm.confirm-pop { animation: scanConfirmPop 2.92s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop — Pass 7226: 2.16s→2.92s longer domain reveal pop */
 
   #hint {
     position: fixed; bottom: 20px; right: 20px;
@@ -192,7 +192,7 @@
     font-weight: 800;
     z-index: 30;
     letter-spacing: 0.04em;
-    animation: fadeUp 1.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards; /* Pass 7088: fadeUp popup animation duration 1.0s→1.35s longer visible popup */
+    animation: fadeUp 1.82s cubic-bezier(0.25,0.46,0.45,0.94) forwards; /* Pass 7088: fadeUp popup animation duration 1.0s→1.35s longer visible popup — Pass 7231: 1.35s→1.82s longer visible popup */
   }
 
   @keyframes rippleOut {
@@ -205,8 +205,8 @@
     z-index: 28;
     width: 40px; height: 40px;
     border-radius: 50%;
-    border: 3.65px solid; /* Pass 7089: slot ripple ring border 2px→2.70px thicker ring — Pass 7181: 2.70→3.65px thicker slot ripple ring border */
-    animation: rippleOut 1.28s ease-out forwards; /* Pass 7090: rippleOut ring animation duration 0.7s→0.945s slower more dramatic ring — Pass 7182: 0.945s→1.28s slower more dramatic slot ripple ring */
+    border: 4.93px solid; /* Pass 7089: slot ripple ring border 2px→2.70px thicker ring — Pass 7181: 2.70→3.65px thicker slot ripple ring border — Pass 7227: 3.65→4.93px thicker slot ripple ring border */
+    animation: rippleOut 1.73s ease-out forwards; /* Pass 7090: rippleOut ring animation duration 0.7s→0.945s slower more dramatic ring — Pass 7182: 0.945s→1.28s slower more dramatic slot ripple ring — Pass 7228: 1.28s→1.73s slower more dramatic slot ripple ring */
   }
 
   /* ── Stats count bounce ─────────────────────────────────────────────── */
@@ -217,7 +217,7 @@
     100% { transform: scale(1); }
   }
   .count-bounce {
-    animation: countBounce 0.608s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; /* Pass 7091: countBounce animation duration 0.45s→0.608s longer bounce pop */
+    animation: countBounce 0.820s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; /* Pass 7091: countBounce animation duration 0.45s→0.608s longer bounce pop — Pass 7225: 0.608s→0.820s longer bounce pop */
   }
 
   /* ── Scan flash overlay ─────────────────────────────────────────────── */
@@ -321,7 +321,7 @@
   /* Pass 131 — dot pop on phase activation */
   @keyframes ph-dot-pop {
     0%   { transform: scale(1.0); }
-    30%  { transform: scale(35.2); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation — Pass 5805: 5.83→7.87 punchier phase dot pop peak scale — Pass 5944: 7.87→10.6 punchier phase dot pop peak scale — Pass 6224: 10.6→14.3 punchier phase dot pop peak scale — Pass 6472: 14.3→19.3 punchier phase dot pop peak scale — Pass 6869: 19.3→26.1 punchier phase dot pop peak scale — Pass 6961: 26.1→35.2 punchier phase dot pop peak scale */
+    30%  { transform: scale(47.5); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation — Pass 5805: 5.83→7.87 punchier phase dot pop peak scale — Pass 5944: 7.87→10.6 punchier phase dot pop peak scale — Pass 6224: 10.6→14.3 punchier phase dot pop peak scale — Pass 6472: 14.3→19.3 punchier phase dot pop peak scale — Pass 6869: 19.3→26.1 punchier phase dot pop peak scale — Pass 6961: 26.1→35.2 punchier phase dot pop peak scale — Pass 7224: 35.2→47.5 punchier phase dot pop peak scale */
     65%  { transform: scale(0.85); }
     100% { transform: scale(1.0); }
   }
@@ -1935,7 +1935,7 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 2124; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool — Pass 6411: 192→259 richer deflect trail particle pool — Pass 6502: 259→350 richer deflect trail particle pool — Pass 6510: 350→473 richer deflect trail particle pool — Pass 6656: 473→639 richer deflect trail particle pool — Pass 6683: 639→863 richer deflect trail particle pool — Pass 6770: 863→1165 richer deflect trail particle pool — Pass 6977: 1165→1573 richer deflect trail particle pool — Pass 7203: 1573→2124 richer deflect trail particle pool
+const TRAIL_PARTICLE_COUNT = 2867; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool — Pass 6411: 192→259 richer deflect trail particle pool — Pass 6502: 259→350 richer deflect trail particle pool — Pass 6510: 350→473 richer deflect trail particle pool — Pass 6656: 473→639 richer deflect trail particle pool — Pass 6683: 639→863 richer deflect trail particle pool — Pass 6770: 863→1165 richer deflect trail particle pool — Pass 6977: 1165→1573 richer deflect trail particle pool — Pass 7203: 1573→2124 richer deflect trail particle pool — Pass 7230: 2124→2867 richer deflect trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(59.8, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius — Pass 6037: 7.30→9.86 chunkier arm arc trail contrail particle radius — Pass 6457: 9.86→13.3 chunkier arm arc trail contrail particle radius — Pass 6503: 13.3→18.0 chunkier arm arc trail contrail particle radius — Pass 6687: 18.0→24.3 chunkier arm arc trail contrail particle radius — Pass 6771: 24.3→32.8 chunkier arm arc trail contrail particle radius — Pass 6846: 32.8→44.3 chunkier arm arc trail contrail particle radius — Pass 7001: 44.3→59.8 chunkier arm arc trail contrail particle radius
@@ -1950,7 +1950,7 @@ let _trailSpawnAcc = 0;    // time accumulator for spawn rate
 // 32 spheres in all 8 domain colors fire upward from above the tray when
 // a complete sort round (all 8 domains) finishes. Each domain gets 4 particles.
 const CELEB_PARTICLES = [];
-const CELEB_COUNT = 1573; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst — Pass 5959: 105→142 even more confetti per celebration burst — Pass 5999: 142→192 even more confetti per celebration burst — Pass 6530: 192→259 more confetti per celebration burst — Pass 6655: 259→350 more confetti per celebration burst — Pass 6682: 350→473 more confetti per celebration burst — Pass 6691: 473→639 more confetti per celebration burst — Pass 6772: 639→863 more confetti per celebration burst — Pass 6979: 863→1165 more confetti per celebration burst — Pass 7204: 1165→1573 more confetti per celebration burst
+const CELEB_COUNT = 2124; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst — Pass 5959: 105→142 even more confetti per celebration burst — Pass 5999: 142→192 even more confetti per celebration burst — Pass 6530: 192→259 more confetti per celebration burst — Pass 6655: 259→350 more confetti per celebration burst — Pass 6682: 350→473 more confetti per celebration burst — Pass 6691: 473→639 more confetti per celebration burst — Pass 6772: 639→863 more confetti per celebration burst — Pass 6979: 863→1165 more confetti per celebration burst — Pass 7204: 1165→1573 more confetti per celebration burst — Pass 7229: 1573→2124 more confetti per celebration burst
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
