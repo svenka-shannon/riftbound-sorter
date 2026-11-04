@@ -2495,7 +2495,7 @@ function animate(ts) {
       const _warnPulse = 0.6 + 0.4 * Math.sin(ts * 0.8 * Math.PI * 2);
       mat.color.setHex(0xffaa00);
       mat.emissive.setHex(0xffaa00);
-      mat.emissiveIntensity = 3.24 + _warnPulse * 2.70; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70
+      mat.emissiveIntensity = 4.37 + _warnPulse * 3.65; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70 — Pass 4045: base 3.24→4.37, amp 2.70→3.65 brighter slot overflow warning
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
       // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
@@ -2505,7 +2505,7 @@ function animate(ts) {
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
       const pulse = 0.5 + 5.41 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.5)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41
       // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 — Pass 1647: →7.0 brighter active slot LED
-      mat.emissiveIntensity = 9.45 + pulse; // Pass 2518: slot LED active base 7.0→9.45
+      mat.emissiveIntensity = 12.76 + pulse; // Pass 2518: slot LED active base 7.0→9.45 — Pass 4046: 9.45→12.76 brighter active routing LED
     } else if (_ledCooloff[_li] > 0) {
       // Pass 52: afterglow — Pass 835: 1.8→2.8s — Pass 829: peak intensity 0.9+2.4 → 1.2+3.8 — Pass 1649: →1.5+5.0
       const afterT = _ledCooloff[_li] / 5.1; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration
@@ -2516,7 +2516,7 @@ function animate(ts) {
       // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 — Pass 1651: →1.9 brighter resting LEDs
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity += (2.57 - mat.emissiveIntensity) * 0.12; // Pass 2520: slot LED idle 1.9→2.57
+      mat.emissiveIntensity += (3.47 - mat.emissiveIntensity) * 0.12; // Pass 2520: slot LED idle 1.9→2.57 — Pass 4047: 2.57→3.47 warmer slot LED idle glow
     }
   });
 
@@ -3312,7 +3312,7 @@ function animate(ts) {
           mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 3.21)); // Pass 2535: dot beam proximity 1.30→1.76 — Pass 3558: 1.76→2.38 — Pass 3719: 2.38→3.21
           // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× — Pass 1319: →3.2× — Pass 1696: →3.0× harder pop
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
-            ? 1.0 + 4.05 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0; // Pass 2536: dot pop scale 3.00×→4.05×
+            ? 1.0 + 5.47 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0; // Pass 2536: dot pop scale 3.00×→4.05× — Pass 4048: 4.05→5.47 sharper scan dot reveal pop
           mesh.scale.setScalar(_dotRevealScale);
         } else {
           mesh.visible = false;
@@ -3440,7 +3440,7 @@ function animate(ts) {
           scanBarMat.emissive.set(0xaaddff);
           // Pass 326: pre-reveal urgency breath — Pass 836: 0.35→0.58 — Pass 1137: →0.85 for more vivid scan bar pulse
           const _preBreath326 = barFill * 2.09 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)); // Pass 2328: urgency breath 1.15→1.55 — Pass 2988: 1.55→2.09
-          scanBarMat.emissiveIntensity = 1.2 + flashIntensity * 3.24 + _preBreath326; // Pass 1715: pre-reveal flash contribution 1.8→2.4 — Pass 3964: 2.4→3.24 brighter scan bar flash
+          scanBarMat.emissiveIntensity = 1.62 + flashIntensity * 4.37 + _preBreath326; // Pass 1715: pre-reveal flash contribution 1.8→2.4 — Pass 3964: 2.4→3.24 brighter scan bar flash — Pass 4049: base 1.2→1.62, flash 3.24→4.37 more vivid pre-reveal scan bar
         } else {
           scanBarMat.color.copy(_blendC);
           scanBarMat.emissive.copy(_blendC);
@@ -3647,7 +3647,7 @@ function animate(ts) {
       // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 — Pass 855: →1.40 — Pass 1438: →2.00 for bolder arc flash at lock-on
       const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 22.0 : 0; // Pass 2562: arc reveal spike 3.65→4.93 — Pass 3003: 4.93→6.66 — Pass 3197: 6.66→8.99 — Pass 3425: 8.99→12.1 — Pass 3539: 12.1→16.3 — Pass 3993: 16.3→22.0
       // Pass 644: post-reveal arc opacity 0.35→0.50 — Pass 856: →0.80 — Pass 1075: →1.10 — Pass 1439: →1.55 for more solid confirmed-route arc
-      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 2.82 : 0)) + _arcStrobeMod + _arcRevealSpike; // Pass 1731: arc post-reveal opacity 1.55→2.09 — Pass 3946: 2.09→2.82 bolder confirmed-route arc
+      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 3.81 : 0)) + _arcStrobeMod + _arcRevealSpike; // Pass 1731: arc post-reveal opacity 1.55→2.09 — Pass 3946: 2.09→2.82 bolder confirmed-route arc — Pass 4050: 2.82→3.81 brighter route arc after identity lock
       // Target sphere pulses at destination
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
@@ -3658,7 +3658,7 @@ function animate(ts) {
       routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 10.3 : 0)) + _tgtRevealSpike339; // Pass 1728: post-reveal emissive boost 4.2→5.67 — Pass 3199: 5.67→7.65 — Pass 3994: 7.65→10.3
       routeTargetMat.opacity = flashIntensity * 1.0; // Pass 1538: 0.9→1.0
       // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 — Pass 858: →1.20 — Pass 1068: →1.55 — Pass 1442: →2.10 — Pass 1539: →2.80 for bigger destination sphere pulse
-      const _tgtScale304 = 1.0 + flashIntensity * 17.0 * Math.sin(ts * 4 * Math.PI * 2); // Pass 2564: sphere scale pulse 5.10→6.89 — Pass 3200: 6.89→9.30 — Pass 3620: 9.30→12.6 — Pass 3995: 12.6→17.0
+      const _tgtScale304 = 1.0 + flashIntensity * 22.95 * Math.sin(ts * 4 * Math.PI * 2); // Pass 2564: sphere scale pulse 5.10→6.89 — Pass 3200: 6.89→9.30 — Pass 3620: 9.30→12.6 — Pass 3995: 12.6→17.0 — Pass 4051: 17.0→22.95 bigger destination sphere throb
       routeTarget.scale.setScalar(Math.max(0.1, _tgtScale304));
     }
     // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
@@ -4416,7 +4416,7 @@ function animate(ts) {
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
         tp2.mat.opacity = 0.85 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2
-        tp2.age = 0; tp2.life = 2.55 + Math.random() * 1.70; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26 — Pass 3260: 1.89+1.26→2.55+1.70
+        tp2.age = 0; tp2.life = 3.44 + Math.random() * 2.30; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26 — Pass 3260: 1.89+1.26→2.55+1.70 — Pass 4052: 2.55+1.70→3.44+2.30 longer reject secondary sparks
         tp2.active = true; tp2.mesh.visible = true;
         _rb2++;
       }
