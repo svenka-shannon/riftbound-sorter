@@ -321,7 +321,7 @@
   /* Pass 131 — dot pop on phase activation */
   @keyframes ph-dot-pop {
     0%   { transform: scale(1.0); }
-    30%  { transform: scale(4.32); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation */
+    30%  { transform: scale(5.83); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation */
     65%  { transform: scale(0.85); }
     100% { transform: scale(1.0); }
   }
@@ -603,7 +603,7 @@ gridHelper.position.y = -2;
 scene.add(gridHelper);
 
 // ─── Ambient Dust Particles ───────────────────────────────────────────────────
-const DUST_COUNT = 92; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere
+const DUST_COUNT = 124; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
 const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
@@ -759,7 +759,7 @@ scene.add(hopperWire);
 // Pass 59: Hopper status LED — small indicator sphere on hopper front face
 // Color: green (full) → yellow (half) → red (low) → fast-blink when empty+refilling
 const hopperLEDMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 6.66, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED
+  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 8.99, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED — Pass 5066: 6.66→8.99 brighter hopper LED
   roughness: 0.05, metalness: 0.0,
 });
 const hopperLED = new THREE.Mesh(new THREE.SphereGeometry(3.5, 14, 14), hopperLEDMat); // Pass 4984: hopper LED sphere segments 10→14 smoother status indicator
@@ -806,7 +806,7 @@ beltTex.wrapS = THREE.RepeatWrapping;
 beltTex.repeat.set(4, 1); // fewer repeats for wider visible pattern
 const beltSurfMat = new THREE.MeshStandardMaterial({
   map: beltTex, roughness: 0.55, metalness: 0.1,
-  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.394 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline
+  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.532 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline
 });
 const beltSurf = new THREE.Mesh(new THREE.BoxGeometry(248, 2, 76), beltSurfMat);
 beltSurf.position.set(-40, CONV_Y_TOP + 1, 0);
@@ -903,7 +903,7 @@ scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
 // Flash point light inside scanner (animated during scan phase)
-const scanFlash = new THREE.PointLight(0xffffff, 0, 246); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach — Pass 5045: 182→246 wider scan flash reach
+const scanFlash = new THREE.PointLight(0xffffff, 0, 332); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach — Pass 5045: 182→246 wider scan flash reach — Pass 5068: 246→332 wider scan flash reach
 scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
@@ -2167,7 +2167,7 @@ function updateStatsUI(cardType) {
   CARD_TYPES.forEach(t => {
     const count = domainCounts[t.name] || 0;
     if(count > 0) {
-      const barW = Math.min(80, count * 14.9); // Pass 4603: slot fill bar width per card 8→11px wider domain count bars — Pass 5058: 11→14.9px wider domain count bars
+      const barW = Math.min(80, count * 20.1); // Pass 4603: slot fill bar width per card 8→11px wider domain count bars — Pass 5058: 11→14.9px wider domain count bars — Pass 5069: 14.9→20.1px wider domain count bars
       breakdownHtml +=
         `<div style="display:flex;align-items:center;gap:4px">` +
         `<span style="color:${t.css}">●</span> ` +
@@ -2371,7 +2371,7 @@ function animate(ts) {
       const _cardDelay = (stackTopIdx - 1 - i) * 0.108; // top-most remaining card fires first — Pass 4779: stack pick recoil stagger delay 0.08→0.108 wider cascade timing
       const _delayedT = Math.max(0, _lt2 - _cardDelay);
       // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 — Pass 1228: →2.4 — Pass 1661: →3.2 — Pass 4062: →4.32 deeper suction-break recoil
-      if (_delayedT < 0.45) _recoilDip = -7.87 * Math.sin(_delayedT / 0.45 * Math.PI); // Pass 4780: stack pick recoil dip 4.32→5.83 deeper suction-break recoil — Pass 5059: 5.83→7.87 deeper suction-break recoil
+      if (_delayedT < 0.45) _recoilDip = -10.6 * Math.sin(_delayedT / 0.45 * Math.PI); // Pass 4780: stack pick recoil dip 4.32→5.83 deeper suction-break recoil — Pass 5059: 5.83→7.87 deeper suction-break recoil — Pass 5070: 7.87→10.6 deeper suction-break recoil
     }
     sc.position.y = _baseY + _jY + _recoilDip;
     // Pass 178: deck "charge" shimmer — ripples bottom→top at 0.6 Hz during idle/approach
@@ -2396,7 +2396,7 @@ function animate(ts) {
   // ── Tray card arrival animation (settle into slot) ──
   for(let i = trayArrivals.length - 1; i >= 0; i--) {
     const a = trayArrivals[i];
-    a.t = Math.min(1, a.t + dt * speedMult * 6.39); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle — Pass 5060: 4.73→6.39 snappier slot settle
+    a.t = Math.min(1, a.t + dt * speedMult * 8.63); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle — Pass 5060: 4.73→6.39 snappier slot settle — Pass 5071: 6.39→8.63 snappier slot settle
     // Pass 98: landing bounce — card overshoots target slightly then springs back up
     // First 80%: cubic ease-out approach; last 20%: half-sine spring (goes +5u up then settles)
     let _yPos;
