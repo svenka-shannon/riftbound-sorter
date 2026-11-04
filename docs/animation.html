@@ -4254,9 +4254,9 @@ function animate(ts) {
         _pp.vz = (Math.random() - 0.5) * 180; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread — Pass 5482: 98.4→133 wider landing puff vz spread — Pass 5490: 133→180 wider landing puff vy decay rate Z spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
-          Math.min(1, _rr / 255 * 0.61 + 0.55), // Pass 4860: landing puff domain tint 0.45→0.61
-          Math.min(1, _gg / 255 * 0.61 + 0.55), // Pass 4860: landing puff domain tint 0.45→0.61
-          Math.min(1, _bb / 255 * 0.61 + 0.55) // Pass 4860: landing puff domain tint 0.45→0.61
+          Math.min(1, _rr / 255 * 0.824 + 0.55), // Pass 4860: landing puff domain tint 0.45→0.61 — Pass 5760: 0.61→0.824 stronger landing puff domain tint
+          Math.min(1, _gg / 255 * 0.824 + 0.55), // Pass 4860: landing puff domain tint 0.45→0.61 — Pass 5760: 0.61→0.824 stronger landing puff domain tint
+          Math.min(1, _bb / 255 * 0.824 + 0.55) // Pass 4860: landing puff domain tint 0.45→0.61 — Pass 5760: 0.61→0.824 stronger landing puff domain tint
         );
         _puffSpawned++;
       }
@@ -4355,9 +4355,9 @@ function animate(ts) {
           _mp.vy = 100 + Math.random() * 201; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7 — Pass 3915: 40.8+81.7→55.1+110.3 — Pass 4407: 55.1+110.3→74.4+148.9 taller mote fountain — Pass 5146: 74.4+148.9→100+201 taller arrival mote fountain
           _mp.vz = (Math.random() - 0.5) * 29.6; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread — Pass 5086: 16.2→21.9 wider arrival mote Z spread — Pass 5148: 21.9→29.6 wider arrival mote Z spread
           _mp.mat.color.setRGB(
-            Math.min(1, _rr3 / 255 * 0.68 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68
-            Math.min(1, _gg3 / 255 * 0.68 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68
-            Math.min(1, _bb3 / 255 * 0.68 + 0.50) // Pass 4862: upper floor motes domain tint 0.50→0.68
+            Math.min(1, _rr3 / 255 * 0.918 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint
+            Math.min(1, _gg3 / 255 * 0.918 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint
+            Math.min(1, _bb3 / 255 * 0.918 + 0.50) // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint
           );
           _upMotes++;
         }
@@ -4516,7 +4516,7 @@ function animate(ts) {
     {
       const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 1.55; // dampens in first ~45% of phase // Pass 4411: scanner flicker amp 0.85→1.15 stronger LED power-down oscillation — Pass 5565: 1.15→1.55 stronger scanner LED power-down oscillation
       const _flickVal = 2.19 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp // Pass 4412: scanner flicker base 1.2→1.62 brighter LED reset floor — Pass 5566: 1.62→2.19 brighter scanner LED reset floor
-                            + (Math.random() - 0.5) * _flickAmp * 0.47; // Pass 4703: scanner LED flicker noise amplitude 0.35→0.47 more chaotic power-down oscillation
+                            + (Math.random() - 0.5) * _flickAmp * 0.635; // Pass 4703: scanner LED flicker noise amplitude 0.35→0.47 more chaotic power-down oscillation — Pass 5754: 0.47→0.635 more chaotic scanner LED power-down oscillation
       scanLEDMat.emissiveIntensity = Math.max(0.554, Math.min(95.7, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak — Pass 4502: scanner LED power-down minimum floor 0.30→0.41 brighter LED floor — Pass 5717: 70.9→95.7 higher scanner LED flicker peak — Pass 5718: 0.41→0.554 brighter scanner LED power-down floor
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
@@ -4705,7 +4705,7 @@ function animate(ts) {
     if (inPhase(PH.conveyorOut)) {
       const _ot2 = phaseRaw(PH.conveyorOut);
       const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 8.17 : 0; // Pass 2430: iris snap-close overshoot 0.41→0.55 — Pass 2668: 0.55→0.74 — Pass 2759: 0.74→1.00 — Pass 2897: 1.00→1.35 — Pass 3106: 1.35→1.82 — Pass 3279: 1.82→2.46 — Pass 3357: 2.46→3.32 — Pass 4388: 3.32→4.48 — Pass 4714: 4.48→6.05 bigger iris snap-close bounce — Pass 5594: 6.05→8.17 bigger iris snap-close overshoot bounce
-      lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 13.5); // Pass 4842: iris snap-close scale tracking rate 10→13.5 snappier iris settle
+      lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 18.2); // Pass 4842: iris snap-close scale tracking rate 10→13.5 snappier iris settle — Pass 5755: 13.5→18.2 snappier iris snap-close scale tracking
       lens.scale.z = lens.scale.x;
     } else {
       lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 7.29); // Pass 4843: iris idle X return rate 4→5.40 crisper lens retract — Pass 5684: 5.40→7.29 crisper iris idle X return
@@ -4797,7 +4797,7 @@ function animate(ts) {
   const cupPickActive = cycleT < PH.armSwing[1]; // during descend + lift + swing
   if (cupPickActive) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
-                     inPhase(PH.armLift)    ? 1.0 : 0.68; // Pass 4889: armSwing cup glow coefficient 0.5→0.68
+                     inPhase(PH.armLift)    ? 1.0 : 0.918; // Pass 4889: armSwing cup glow coefficient 0.5→0.68 — Pass 5756: 0.68→0.918 stronger armSwing cup glow coefficient
     suctionCupMat.emissive.setHex(ct.hex);
     suctionCupMat.emissiveIntensity = cupGlowT * 68.7; // Pass 2184: cup peak glow 4.59→6.20 — Pass 2676: 6.20→8.37 — Pass 2768: 8.37→11.3 — Pass 2906: 11.3→15.3 — Pass 3116: 15.3→20.7 — Pass 3288: 20.7→27.9 — Pass 3368: 27.9→37.7 — Pass 4457: 37.7→50.9 brighter cup down-thrust emissive — Pass 5164: 50.9→68.7 brighter cup down-thrust glow
   } else if (inPhase(PH.armReturn)) {
@@ -4836,14 +4836,14 @@ function animate(ts) {
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.0365; // smooth zoom — Pass 4759: orbit smooth rate 0.02→0.027 — Pass 5418: 0.027→0.0365 snappier orbit zoom
     const orbitR = controls._orbitR;
-    camera.position.x = orbitR * 0.608 * Math.cos(orbitAngle) - 30; // Pass 4886: orbit X ellipse factor 0.45→0.608 rounder orbit arc
+    camera.position.x = orbitR * 0.821 * Math.cos(orbitAngle) - 30; // Pass 4886: orbit X ellipse factor 0.45→0.608 rounder orbit arc — Pass 5757: 0.608→0.821 rounder camera orbit X ellipse factor
     camera.position.z = orbitR * Math.sin(orbitAngle);
     // Slight vertical bob for cinematic feel; lower elevation during scan to see belt better
     // Pass 295: armLift camera Y dip — lower target during pickup for better card-peel view
     // Pass 1020: scan Y 260→240 for deeper camera dive into scanner, armLift 290→270 for peel view
     const yTarget = 270; // Hotfix 3333g: unified camera Y — was scan=200/armLift=230/rest=280 (80-unit phase-dependent swings caused "jiggling up and down")
     if(!controls._camY) controls._camY = yTarget;
-    controls._camY += (yTarget - controls._camY) * 0.027; // Pass 4837: camera Y tracking rate 0.02→0.027 crisper camera height settle
+    controls._camY += (yTarget - controls._camY) * 0.0365; // Pass 4837: camera Y tracking rate 0.02→0.027 crisper camera height settle — Pass 5758: 0.027→0.0365 crisper camera Y tracking
     // Pass 185: fix camera Y bob — was ts*0.00008 (~21h period = invisible).
     // Fixed to ts*0.05 (~126s = 2-minute slow breathing bob, cinematic and gentle).
     camera.position.y = controls._camY + 15 * Math.sin(ts * 0.05); // Hotfix 3333f: Y bob rolled back 105.7→15 (was boosted 18→105.7 across passes 2537→3290)
@@ -4885,7 +4885,7 @@ function animate(ts) {
     // Pass 297: slotDrop Z camera lead boost — camera leans further into destination column as card falls — Pass 1608: 0.20→0.28
     const _sdZBoost = inPhase(PH.slotDrop) ? 4.20 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38 — Pass 2681: 0.38→0.51 — Pass 2777: 0.51→0.69 — Pass 2911: 0.69→0.93 — Pass 3122: 0.93→1.26 — Pass 3293: 1.26→1.70 — Pass 3621: 1.70→2.30 — Pass 4158: 2.30→3.11 deeper slot lean — Pass 5578: 3.11→4.20 deeper slot drop camera Z lean
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
-      ? ct.slotZ * (0.34 + _coZBoost + _sdZBoost) : 0; // Pass 4922: camera Z base lean 0.25→0.34 more committed destination follow
+      ? ct.slotZ * (0.459 + _coZBoost + _sdZBoost) : 0; // Pass 4922: camera Z base lean 0.25→0.34 more committed destination follow — Pass 5759: 0.34→0.459 more committed camera Z base lean
     if (!controls._camTgtZ) controls._camTgtZ = 0;
     controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.0292; // Pass 4838: camera Z target tracking rate 0.016→0.0216 crisper camera Z lean — Pass 5425: 0.0216→0.0292 crisper camera Z lean
     controls.target.set(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
