@@ -586,7 +586,7 @@ keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
 keyLight.shadow.camera.left = -600; keyLight.shadow.camera.right = 600;
 keyLight.shadow.camera.top = 400;   keyLight.shadow.camera.bottom = -200;
-keyLight.shadow.bias = -0.001;
+keyLight.shadow.bias = -0.00135; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff
 scene.add(keyLight);
 
 const fillLight = new THREE.DirectionalLight(0xc0d8ff, 0.918); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill
@@ -3521,7 +3521,7 @@ function animate(ts) {
       });
     }
     // Belt crawls slowly while card sits under scanner
-    _beltScrollSpeed = 0.02;
+    _beltScrollSpeed = 0.027; // Pass 4874: scan belt crawl speed 0.02→0.027 livelier scan belt motion
     // Pass 156: gate LED chase — cycles scan-blue through columns pre-reveal (machine "deciding")
     // then snaps to domain color on correct column at identity confirm
     {
@@ -3750,7 +3750,7 @@ function animate(ts) {
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 3.38); // Pass 4788: route arc fade rate 2.5→3.38 crisper routing arc dismissal
     routeTargetMat.opacity = routeArcMat.opacity;
-    routeTargetMat.emissiveIntensity = routeArcMat.opacity * 2;
+    routeTargetMat.emissiveIntensity = routeArcMat.opacity * 2.7; // Pass 4878: route target emissive multiplier 2→2.7 brighter routing indicator
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
     const ot = phaseRaw(PH.conveyorOut); // LINEAR for card position (belt speed)
@@ -3852,7 +3852,7 @@ function animate(ts) {
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
-    _beltScrollSpeed = 0.08;
+    _beltScrollSpeed = 0.108; // Pass 4875: conveyorOut belt speed 0.08→0.108 faster exit belt sweep
     // Pass 212: conveyorOut domain exhaust trail — card leaves a brief domain-colored contrail
     // as it accelerates toward the gate. Spawns every ~70ms, short life.
     // Pass 459: final-approach trail density boost — last 35% of conveyorOut spawns at 38ms
@@ -3950,7 +3950,7 @@ function animate(ts) {
     const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
     const cz = THREE.MathUtils.lerp(0, ct.slotZ, dt2);
     // Pass 147: parabolic arc — Pass 416: arc height boost floor-0 10→13, floor-1 18→22
-    const arcY = ct.floor === 1 ? CONV_Y_TOP + 30 : CONV_Y_TOP + 20;
+    const arcY = ct.floor === 1 ? CONV_Y_TOP + 40 : CONV_Y_TOP + 27; // Pass 4872: deflect arc floor-1 target height 30→40 — Pass 4873: deflect arc floor-0 target height 20→27
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
     // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 — Pass 1559: floor-0 →38, floor-1 →40 for even higher card flight arc during deflect
     const _arcBump = (ct.floor === 1 ? 1474 : 1395) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599 — Pass 3688: floor-0 567→765, floor-1 599→809 — Pass 3799: floor-0 765→1033 — Pass 3800: floor-1 809→1092 — Pass 4560: floor-0 1033→1395 floor-1 1092→1474 higher slot entry arc
@@ -4048,7 +4048,7 @@ function animate(ts) {
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
     gateColLight.intensity += (329 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0 — Pass 3689: 99.0→134 — Pass 3801: 134→181 — Pass 3901: 181→244 — Pass 4741: 244→329 brighter gate column tracking
-    _beltScrollSpeed = 0.04; // half speed while card arcs off belt
+    _beltScrollSpeed = 0.054; // half speed while card arcs off belt — Pass 4876: deflect belt speed 0.04→0.054 livelier belt during arc
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
     if (_trailSpawnAcc >= 0.022) { // Pass 2102: deflect trail spawn 0.040→0.030 denser — Pass 4297: 0.030→0.022 even denser deflect contrail
@@ -4429,7 +4429,7 @@ function animate(ts) {
       window._flashLights.push({ light: _ral2, age: 0, peak: _ral2.intensity });
     }
     cardGlow.position.copy(activeCard.position);
-    _beltScrollSpeed = 0.04; // belt coasts slowly during slot drop
+    _beltScrollSpeed = 0.054; // belt coasts slowly during slot drop — Pass 4877: slot drop coast speed 0.04→0.054 snappier slot entry coast
     // Route confirmation overlay — pulse once at start of drop
     const routePulseAlpha = dt3 < 0.4 ? Math.sin(dt3 / 0.4 * Math.PI) : 0;
     if(routePulseAlpha > 0) {
