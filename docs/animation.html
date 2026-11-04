@@ -1507,7 +1507,7 @@ scene.add(cardShimmerMesh);
 
 // ─── Routing arc: scanner → target slot ──────────────────────────────────────
 // Quadratic bezier arc drawn during scan phase — makes routing decision unmistakable
-const ROUTE_SEGS = 38; // Pass 5828: 28→38 smoother routing arc bezier segments
+const ROUTE_SEGS = 51; // Pass 5828: 28→38 smoother routing arc bezier segments — Pass 7030: 38→51 smoother routing arc bezier segments
 const routeArcGeo = new THREE.BufferGeometry();
 const routeArcPts = new Float32Array((ROUTE_SEGS + 1) * 3);
 routeArcGeo.setAttribute('position', new THREE.BufferAttribute(routeArcPts, 3));
@@ -1595,12 +1595,12 @@ vacuumRing.visible = false;
 scene.add(vacuumRing);
 
 // Pass 63: Scanner sonar ping rings — 3 concentric rings that expand from scanner during scan
-const SCAN_PING_COUNT = 7; // Pass 4990: scan ping ring count 3→4 denser sonar burst — Pass 6349: 4→5 denser sonar burst ring count — Pass 6779: 5→7 denser sonar burst ring count
+const SCAN_PING_COUNT = 9; // Pass 4990: scan ping ring count 3→4 denser sonar burst — Pass 6349: 4→5 denser sonar burst ring count — Pass 6779: 5→7 denser sonar burst ring count — Pass 7031: 7→9 denser sonar burst ring count
 const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
   });
-  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 4.48, 11, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube — Pass 5829: tube segments 8→11 smoother sonar ring cross-section — Pass 6647: 2.46→3.32 fatter sonar ping ring tube — Pass 6894: 3.32→4.48 fatter sonar ping ring tube
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 6.05, 11, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube — Pass 5829: tube segments 8→11 smoother sonar ring cross-section — Pass 6647: 2.46→3.32 fatter sonar ping ring tube — Pass 6894: 3.32→4.48 fatter sonar ping ring tube — Pass 7032: 4.48→6.05 fatter sonar ping ring tube
   mesh.visible = false;
   // Oriented flat (XZ plane) at card level, centered on scanner X
   mesh.rotation.x = -Math.PI / 2;
@@ -1627,8 +1627,8 @@ const SCAN_DOT_OFFSETS = [];
 for (let _dr = 0; _dr < 3; _dr++) {
   for (let _dc = 0; _dc < 3; _dc++) {
     SCAN_DOT_OFFSETS.push({
-      x: THREE.MathUtils.lerp(-CARD_W * 1.435, CARD_W * 1.435, _dc / 2), // Pass 4865: scan grid X spread 0.32→0.432 wider dot array — Pass 5447: 0.432→0.583 wider scan grid X span — Pass 5860: 0.583→0.787 wider scan grid dot array X span — Pass 6362: 0.787→1.063 wider scan grid dot array X span — Pass 6864: 1.063→1.435 wider scan grid dot array X span
-      z: THREE.MathUtils.lerp(-CARD_H * 1.345, CARD_H * 1.345, _dr / 2), // Pass 4866: scan grid Z spread 0.3→0.405 deeper dot array — Pass 5448: 0.405→0.547 deeper scan grid Z span — Pass 5861: 0.547→0.738 deeper scan grid dot array Z span — Pass 6348: 0.738→0.996 deeper scan grid dot array Z span — Pass 6865: 0.996→1.345 deeper scan grid dot array Z span
+      x: THREE.MathUtils.lerp(-CARD_W * 1.937, CARD_W * 1.937, _dc / 2), // Pass 4865: scan grid X spread 0.32→0.432 wider dot array — Pass 5447: 0.432→0.583 wider scan grid X span — Pass 5860: 0.583→0.787 wider scan grid dot array X span — Pass 6362: 0.787→1.063 wider scan grid dot array X span — Pass 6864: 1.063→1.435 wider scan grid dot array X span — Pass 7033: 1.435→1.937 wider scan grid dot array X span
+      z: THREE.MathUtils.lerp(-CARD_H * 1.816, CARD_H * 1.816, _dr / 2), // Pass 4866: scan grid Z spread 0.3→0.405 deeper dot array — Pass 5448: 0.405→0.547 deeper scan grid Z span — Pass 5861: 0.547→0.738 deeper scan grid dot array Z span — Pass 6348: 0.738→0.996 deeper scan grid dot array Z span — Pass 6865: 0.996→1.345 deeper scan grid dot array Z span — Pass 7034: 1.345→1.816 deeper scan grid dot array Z span
     });
   }
 }
@@ -1640,7 +1640,7 @@ const floorDiscMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0,
   depthWrite: false, side: THREE.DoubleSide,
 });
-const floorDisc = new THREE.Mesh(new THREE.CircleGeometry(63.9, 32), floorDiscMat); // Pass 6349: floor halo disc radius 35→47.3 wider card floor glow halo — Pass 6843: 47.3→63.9 wider card floor glow halo disc
+const floorDisc = new THREE.Mesh(new THREE.CircleGeometry(86.3, 32), floorDiscMat); // Pass 6349: floor halo disc radius 35→47.3 wider card floor glow halo — Pass 6843: 47.3→63.9 wider card floor glow halo disc — Pass 7035: 63.9→86.3 wider card floor glow halo disc
 floorDisc.rotation.x = -Math.PI / 2; // lay flat on grid floor
 floorDisc.position.y = 1.5;          // just above grid floor (avoids z-fighting)
 scene.add(floorDisc);
@@ -1733,13 +1733,13 @@ function addCardToTray(ct) {
   const geo = new THREE.BoxGeometry(CARD_T, TRAY_CARD_H, CARD_W);
   const mat = new THREE.MeshStandardMaterial({
     color: 0xffffff, roughness: 0.18, metalness: 0.0,
-    emissive: ct.hex, emissiveIntensity: 2.04, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow — Pass 5058: 0.456→0.616 richer card base glow — Pass 5773: 0.616→0.832 richer tray card initial base glow — Pass 6341: 0.832→1.12 richer tray card initial base glow — Pass 6503: 1.12→1.51 richer tray card initial base glow — Pass 6700: 1.51→2.04 richer tray card initial base glow
+    emissive: ct.hex, emissiveIntensity: 2.75, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow — Pass 5058: 0.456→0.616 richer card base glow — Pass 5773: 0.616→0.832 richer tray card initial base glow — Pass 6341: 0.832→1.12 richer tray card initial base glow — Pass 6503: 1.12→1.51 richer tray card initial base glow — Pass 6700: 1.51→2.04 richer tray card initial base glow — Pass 7036: 2.04→2.75 richer tray card initial base glow
     map: cardTextures[ct.slot]
   });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
-  const startY  = targetY + 246; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5 — Pass 5468: 40.5→54.7 higher slot tray arrival drop height — Pass 5909: 54.7→73.8 higher slot tray arrival drop height — Pass 6233: 73.8→99.6 higher slot tray arrival drop height — Pass 6453: 99.6→134.5 higher slot tray arrival drop height — Pass 6576: 134.5→182 higher slot tray arrival drop height — Pass 6761: 182→246 higher slot tray arrival drop height
+  const startY  = targetY + 332; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5 — Pass 5468: 40.5→54.7 higher slot tray arrival drop height — Pass 5909: 54.7→73.8 higher slot tray arrival drop height — Pass 6233: 73.8→99.6 higher slot tray arrival drop height — Pass 6453: 99.6→134.5 higher slot tray arrival drop height — Pass 6576: 134.5→182 higher slot tray arrival drop height — Pass 6761: 182→246 higher slot tray arrival drop height — Pass 7037: 246→332 higher slot tray arrival drop height
   const zJitter    = (Math.random() - 0.5) * 8.99;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle — Pass 5423: 4.93→6.66 wider card Z spread during belt idle — Pass 6383: 6.66→8.99 wider slot tray card Z spread
   const yRotJitter = (Math.random() - 0.5) * 1.329;  // ±0.492 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter — Pass 5409: 0.540→0.729 wilder slot entry guided arc card tilt range — Pass 6345: 0.729→0.984 wilder slot entry guided arc card tilt range — Pass 6384: 0.984→1.329 wilder slot entry guided arc card tilt range
   mesh.position.set(
@@ -2362,7 +2362,7 @@ function animate(ts) {
     const _jPhase = i * 6.56; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync — Pass 5332: 2.67→3.60 more organic slot ring initial color saturation desync — Pass 5918: 3.60→4.86 more organic stack card jitter phase desync — Pass 6602: 4.86→6.56 more organic stack card jitter phase desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26 — Pass 6719: primary 10.3→13.9 livelier stack jitter
     const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 13.9 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter — Pass 5313: 2.30→3.11 livelier pre-pick stack jitter primary amplitude — Pass 5334: 3.11→4.20 livelier pre-pick stack jitter primary amplitude — Pass 5424: 4.20→5.67 livelier card hold oscillation primary amplitude — Pass 5518: 5.67→7.65 livelier arm descent oscillation primary amplitude — Pass 6318: 7.65→10.3 livelier pre-pick stack jitter primary amplitude — Pass 6719: 10.3→13.9 livelier pre-pick stack jitter primary amplitude
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 76.5; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary — Pass 5326: 1.15→1.55 livelier arm descent oscillation secondary amplitude — Pass 5335: 1.55→2.09 livelier idle arm sway Y secondary amplitude — Pass 5345: 2.09→2.82 livelier card Y jitter hold secondary amplitude — Pass 5425: 2.82→3.81 livelier card hold oscillation secondary amplitude — Pass 5436: 3.81→5.14 livelier arm extension secondary oscillation Y amplitude — Pass 5486: 5.14→6.94 livelier arm descent oscillation tertiary secondary Y amplitude — Pass 5519: 6.94→9.37 livelier arm descent oscillation quaternary secondary Y amplitude — Pass 5581: 9.37→12.6 livelier arm descent oscillation quaternary secondary Y amplitude — Pass 5610: 12.6→17.0 livelier arm descent servo hunt secondary oscillation Y amplitude — Pass 5618: 17.0→23.0 livelier arm descent oscillation tertiary Y secondary amplitude — Pass 5634: 23.0→31.1 livelier arm sway Y tertiary secondary oscillation amplitude — Pass 6319: 31.1→42.0 livelier pre-pick stack jitter secondary amplitude — Pass 6359: 42.0→56.7 livelier pre-pick stack jitter secondary amplitude — Pass 7017: 56.7→76.5 livelier pre-pick stack jitter secondary amplitude
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 103; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary — Pass 5326: 1.15→1.55 livelier arm descent oscillation secondary amplitude — Pass 5335: 1.55→2.09 livelier idle arm sway Y secondary amplitude — Pass 5345: 2.09→2.82 livelier card Y jitter hold secondary amplitude — Pass 5425: 2.82→3.81 livelier card hold oscillation secondary amplitude — Pass 5436: 3.81→5.14 livelier arm extension secondary oscillation Y amplitude — Pass 5486: 5.14→6.94 livelier arm descent oscillation tertiary secondary Y amplitude — Pass 5519: 6.94→9.37 livelier arm descent oscillation quaternary secondary Y amplitude — Pass 5581: 9.37→12.6 livelier arm descent oscillation quaternary secondary Y amplitude — Pass 5610: 12.6→17.0 livelier arm descent servo hunt secondary oscillation Y amplitude — Pass 5618: 17.0→23.0 livelier arm descent oscillation tertiary Y secondary amplitude — Pass 5634: 23.0→31.1 livelier arm sway Y tertiary secondary oscillation amplitude — Pass 6319: 31.1→42.0 livelier pre-pick stack jitter secondary amplitude — Pass 6359: 42.0→56.7 livelier pre-pick stack jitter secondary amplitude — Pass 7017: 56.7→76.5 livelier pre-pick stack jitter secondary amplitude — Pass 7030: 76.5→103 livelier pre-pick stack jitter secondary amplitude
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
