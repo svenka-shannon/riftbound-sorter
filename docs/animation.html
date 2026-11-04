@@ -4555,13 +4555,13 @@ function animate(ts) {
     // Pass 136: arm holds home position with realistic multi-frequency servo tremor
     // Two overlapping sine waves at different frequencies simulate motor holding dither — Pass 1605: 0.009→0.013, 0.004→0.006
     suctionPivot.rotation.z = -0.35
-      + 0.192 * Math.sin(ts * 0.783 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043 — Pass 2879: 0.043→0.058 — Pass 3089: 0.058→0.078 — Pass 3265: 0.078→0.105 — Pass 3605: 0.105→0.142 — Pass 4010: 0.142→0.192 — Pass 4498: pick suction hold oscillation frequency 0.58→0.783 livelier motor dither
-      + 0.089 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020 — Pass 2880: 0.020→0.027 — Pass 3090: 0.027→0.036 — Pass 3266: 0.036→0.049 — Pass 3606: 0.049→0.066 — Pass 4011: 0.066→0.089
+      + 0.259 * Math.sin(ts * 0.783 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043 — Pass 2879: 0.043→0.058 — Pass 3089: 0.058→0.078 — Pass 3265: 0.078→0.105 — Pass 3605: 0.105→0.142 — Pass 4010: 0.142→0.192 — Pass 4498: pick suction hold oscillation frequency 0.58→0.783 livelier motor dither — Pass 4704: sway 0.192→0.259 more visible arm hold dither
+      + 0.120 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020 — Pass 2880: 0.020→0.027 — Pass 3090: 0.027→0.036 — Pass 3266: 0.036→0.049 — Pass 3606: 0.049→0.066 — Pass 4011: 0.066→0.089 — Pass 4705: 0.089→0.120 livelier arm tremor
     // Pass 492: gate LED domain afterglow — during pause, active column retains a faint 0.4Hz
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
     // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory — Pass 1603: base 0.14→0.20, amp 0.12→0.18
     {
-      const _pausePulse492 = 1.62 + 1.42 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2)); // Pass 2415: afterglow base 0.36→0.49 Pass 2416: amp 0.32→0.43 — Pass 2650: 0.49→0.66, 0.43→0.58 — Pass 2881/2882: 0.66→0.89, 0.58→0.78 — Pass 3108: 0.89→1.20, 0.78→1.05 — Pass 4344: base 1.20→1.62 — Pass 4345: amp 1.05→1.42 richer gate afterglow
+      const _pausePulse492 = 2.19 + 1.92 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2)); // Pass 2415: afterglow base 0.36→0.49 Pass 2416: amp 0.32→0.43 — Pass 2650: 0.49→0.66, 0.43→0.58 — Pass 2881/2882: 0.66→0.89, 0.58→0.78 — Pass 3108: 0.89→1.20, 0.78→1.05 — Pass 4344: base 1.20→1.62 — Pass 4345: amp 1.05→1.42 — Pass 4707: base 1.62→2.19 — Pass 4708: amp 1.42→1.92 richer gate afterglow
       GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
         if (gi === ct.col) {
           gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
@@ -4570,7 +4570,7 @@ function animate(ts) {
       });
     }
     // Pass 246: pause arm hover Y float — soft PID hold oscillation — Pass 1056: ±0.6→±1.4 more visible hover — Pass 1604: →±2.0
-    suctionPivot.position.y = 108 + 29.7 * Math.sin(ts * 0.405 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 more dramatic arm hover float // Pass 4485: hover freq 0.30→0.405 livelier hover bob
+    suctionPivot.position.y = 108 + 40.1 * Math.sin(ts * 0.405 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 — Pass 4706: 29.7→40.1 more dramatic arm hover float // Pass 4485: hover freq 0.30→0.405 livelier hover bob
     // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
     // on the scanner hood emissive, as if it's slowly cooling down between cycles. — Pass 1606: 0.04→0.06
     {
@@ -4595,10 +4595,10 @@ function animate(ts) {
     // ~0.35Hz (2.2 rad/s) so one full breath spans ~2.9s (6× the 0.5s pause — natural)
     // Pass 1058: breathing base 0.12→0.20, amp 0.07→0.14 for more visible scanner idle pulse
     {
-      const _breathe = 2.96 + 2.09 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 brighter standby breathe
+      const _breathe = 4.00 + 2.82 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe
       scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 3.38); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 1.5));
-      hoodMat.emissiveIntensity += (_breathe * 2.55 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe
+      hoodMat.emissiveIntensity += (_breathe * 3.44 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 — Pass 4711: 2.55→3.44 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe
     }
   }
 
