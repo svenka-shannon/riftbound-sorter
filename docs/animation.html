@@ -603,7 +603,7 @@ gridHelper.position.y = -2;
 scene.add(gridHelper);
 
 // ─── Ambient Dust Particles ───────────────────────────────────────────────────
-const DUST_COUNT = 304; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count
+const DUST_COUNT = 411; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
 const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
@@ -1134,7 +1134,7 @@ function makeTrayFloor(yBase, colorHex) {
     const capMat = new THREE.MeshStandardMaterial({
       color: capColor,
       emissive: new THREE.Color(capColor),
-      emissiveIntensity: 2.66, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest
+      emissiveIntensity: 3.59, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest — Pass 5407: 2.66→3.59 brighter slot tray floor cap guide rail emissive
       roughness: 0.3,
       metalness: 0.2
     });
@@ -1192,7 +1192,7 @@ CARD_TYPES.forEach(ct => {
   const stripGeo = new THREE.BoxGeometry(2, 60, 2);
   const stripMat = new THREE.MeshStandardMaterial({
     color: ct.hex, roughness: 0.4, metalness: 0.2,
-    emissive: ct.hex, emissiveIntensity: 0.493 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips — Pass 4890: 0.20→0.27 more vivid tray entry strips — Pass 5056: 0.27→0.365 richer tray entry strip glow — Pass 5325: 0.365→0.493 richer slot tray emissive at rest
+    emissive: ct.hex, emissiveIntensity: 0.666 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips — Pass 4890: 0.20→0.27 more vivid tray entry strips — Pass 5056: 0.27→0.365 richer tray entry strip glow — Pass 5325: 0.365→0.493 richer slot tray emissive at rest — Pass 5408: 0.493→0.666 richer slot entry guide rail emissive
   });
   const stripMesh = new THREE.Mesh(stripGeo, stripMat);
   stripMesh.position.set(TRAY_X_START, ct.slotFloorY + 1, ct.slotZ);
@@ -1741,7 +1741,7 @@ function addCardToTray(ct) {
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 40.5; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5
   const zJitter    = (Math.random() - 0.5) * 4.93;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle
-  const yRotJitter = (Math.random() - 0.5) * 0.540;  // ±0.270 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter
+  const yRotJitter = (Math.random() - 0.5) * 0.729;  // ±0.365 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter — Pass 5409: 0.540→0.729 wilder slot entry guided arc card tilt range
   mesh.position.set(
     TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
     startY,
@@ -1760,7 +1760,7 @@ function addCardToTray(ct) {
   _ledCooloff[ct.slot] = 17.0; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5299: slot LED afterglow 12.6→17.0s even longer slot domain glow
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
-  const flashLight = new THREE.PointLight(ct.hex, 22.4, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst
+  const flashLight = new THREE.PointLight(ct.hex, 30.2, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst — Pass 5410: 22.4→30.2 brighter card deal slot arrival burst flash
   flashLight.position.copy(mesh.position);
   scene.add(flashLight);
   if(!window._flashLights) window._flashLights = [];
@@ -2413,7 +2413,7 @@ function animate(ts) {
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9 — Pass 4770: 93.0→126 brighter landing flash
-        a.mesh.material.emissiveIntensity = 0.15 + 230 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash — Pass 4770: emissive 93.0→126 brighter landing flash — Pass 5066: 126→170 brighter landing flash — Pass 5249: slot tray arrival emissive flash peak 170→230 brighter landing pop
+        a.mesh.material.emissiveIntensity = 0.15 + 311 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash — Pass 4770: emissive 93.0→126 brighter landing flash — Pass 5066: 126→170 brighter landing flash — Pass 5249: slot tray arrival emissive flash peak 170→230 brighter landing pop — Pass 5411: 230→311 brighter card deal slot tray arrival emissive pop
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2503,7 +2503,7 @@ function animate(ts) {
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
-      const pulse = 0.5 + 24.3 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.675)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41 — Pass 4287: 5.41→7.30 wider slot LED swing — Pass 4514: slot entry pulse timing 0.5→0.675 faster slot LED pulse — Pass 4686: 7.30→9.86 brighter active slot LED pulse — Pass 5061: 9.86→13.3 brighter active slot LED pulse — Pass 5213: 13.3→18.0 brighter active slot LED pulse — Pass 5307: 18.0→24.3 more urgent slot wall LED pulse
+      const pulse = 0.5 + 32.8 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.675)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41 — Pass 4287: 5.41→7.30 wider slot LED swing — Pass 4514: slot entry pulse timing 0.5→0.675 faster slot LED pulse — Pass 4686: 7.30→9.86 brighter active slot LED pulse — Pass 5061: 9.86→13.3 brighter active slot LED pulse — Pass 5213: 13.3→18.0 brighter active slot LED pulse — Pass 5307: 18.0→24.3 more urgent slot wall LED pulse — Pass 5412: 24.3→32.8 more urgent slot entry guide rails LED pulse
       // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 — Pass 1647: →7.0 brighter active slot LED
       mat.emissiveIntensity = 23.2 + pulse; // Pass 2518: slot LED active base 7.0→9.45 — Pass 4046: 9.45→12.76 brighter active routing LED — Pass 5004: 12.76→17.2 brighter active routing LED — Pass 5188: 17.2→23.2 brighter active slot LED base
     } else if (_ledCooloff[_li] > 0) {
@@ -2647,7 +2647,7 @@ function animate(ts) {
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
       // Pass 1125: Z drift peak 2.0→3.2 — Pass 1212: →4.8 — Pass 1309: →6.5 for more visible lateral inertia sway — Pass 3907: 6.5→8.8 deeper lateral swing — Pass 4274: 8.8→11.9 more dramatic lateral sway
-      suctionPivot.position.z = 53.5 * Math.sin(pt * Math.PI) * (1 - pt * 0.95); // Pass 4466: pick suction oscillation decay 0.7→0.95 tighter lateral sway — Pass 5122: 11.9→16.1 more dramatic pick lateral sway — Pass 5157: 16.1→21.7 more dramatic arm descent lateral sway — Pass 5294: arm descent lateral sway 21.7→29.3 more dramatic pick lateral sway — Pass 5328: 29.3→39.6 more dramatic slot entry lateral jitter sway — Pass 5339: 39.6→53.5 more dramatic suction cup descent Z drift
+      suctionPivot.position.z = 72.2 * Math.sin(pt * Math.PI) * (1 - pt * 0.95); // Pass 4466: pick suction oscillation decay 0.7→0.95 tighter lateral sway — Pass 5122: 11.9→16.1 more dramatic pick lateral sway — Pass 5157: 16.1→21.7 more dramatic arm descent lateral sway — Pass 5294: arm descent lateral sway 21.7→29.3 more dramatic pick lateral sway — Pass 5328: 29.3→39.6 more dramatic slot entry lateral jitter sway — Pass 5339: 39.6→53.5 more dramatic suction cup descent Z drift — Pass 5413: 53.5→72.2 more dramatic arm rest oscillation suction Z drift
       // Pass 262: pre-pick targeting spotlight — warm downward spot on hopper card in final approach
       if (pt > 0.75) {
         const _pickTgtT = (pt - 0.75) / 0.25;
@@ -4963,9 +4963,9 @@ function animate(ts) {
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
       const _altFrac = Math.min(1, _altitude / 406); // Pass 2195: floor disc altitude 67→90 — Pass 2784: 90→122 — Pass 2917: 122→165 — Pass 3127: 165→223 — Pass 3297: 223→301 — Pass 4159: 301→406 disc follows higher lifts
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
-      const _fdScale = 1.0 + _altFrac * 70.3; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo
+      const _fdScale = 1.0 + _altFrac * 94.9; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo — Pass 5406: 70.3→94.9 bigger domain halo altitude expansion
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
-      const _fdPulse514 = (1 - _altFrac) * 0.104 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe — Pass 4558: 0.077→0.104 stronger floor disc breathe
+      const _fdPulse514 = (1 - _altFrac) * 0.140 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe — Pass 4558: 0.077→0.104 stronger floor disc breathe — Pass 5407: 0.104→0.140 stronger floor disc breathe pulse
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
       const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.074, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00 — Pass 4751: altitude floor 0.055→0.074 more visible floor disc at altitude
       floorDisc.scale.setScalar(_fdScale);
@@ -5029,7 +5029,7 @@ function animate(ts) {
     ghostCards.forEach(({ mesh, mat }, gi) => {
       if (beltTrail && activeCard.visible) {
         // Pass 377: lag spacing 9→12 — Pass 660: →15 — Pass 822: →19 — Pass 1031: →24 for wider motion-blur spread
-        const lag = (gi + 1) * 638; // Pass 2485: ghost trail lag spacing 43→58 — Pass 2696: 58→78 — Pass 2791: 78→105 — Pass 2924: 105→142 — Pass 3135: 142→192 — Pass 3303: 192→259 — Pass 3625: 259→350 — Pass 4033: 350→473 wider motion-blur trail spread — Pass 5367: 473→638 wider motion-blur trail spread
+        const lag = (gi + 1) * 861; // Pass 2485: ghost trail lag spacing 43→58 — Pass 2696: 58→78 — Pass 2791: 78→105 — Pass 2924: 105→142 — Pass 3135: 142→192 — Pass 3303: 192→259 — Pass 3625: 259→350 — Pass 4033: 350→473 wider motion-blur trail spread — Pass 5367: 473→638 wider motion-blur trail spread — Pass 5411: 638→861 wider ghost trail lag spacing
         mesh.visible = true;
         mesh.position.copy(activeCard.position);
         mesh.position.x -= lag;
@@ -5044,7 +5044,7 @@ function animate(ts) {
         // Pass 286: ghost emissive intensity speed sync — trail glows brighter at full belt speed
         // Pass 378: post-reveal emissive boost — trail blazes in domain color on conveyorOut
         // Pass 504: post-reveal ghost emissive boost 0.30→0.45 — Pass 821: →0.65 — Pass 1029: →0.90 vivid domain trail
-        const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 18.2 : 0; // Pass 2486: post-reveal ghost boost 1.65→2.23 — Pass 2697: 2.23→3.01 — Pass 2792: 3.01→4.06 — Pass 2925: 4.06→5.48 — Pass 3136: 5.48→7.40 — Pass 3304: 7.40→9.99 — Pass 4165: 9.99→13.5 blazing domain trail — Pass 5368: 13.5→18.2 blazing domain trail reveal boost
+        const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 24.6 : 0; // Pass 2486: post-reveal ghost boost 1.65→2.23 — Pass 2697: 2.23→3.01 — Pass 2792: 3.01→4.06 — Pass 2925: 4.06→5.48 — Pass 3136: 5.48→7.40 — Pass 3304: 7.40→9.99 — Pass 4165: 9.99→13.5 blazing domain trail — Pass 5368: 13.5→18.2 blazing domain trail reveal boost — Pass 5412: 18.2→24.6 blazing domain trail reveal boost
         // Pass 667: ghost emissive base 0.28→0.36 — Pass 821: →0.50 — Pass 1030: →0.65, decay 0.12→0.10
         mat.emissiveIntensity = ((24.0 - gi * 0.10) + _ghostRevealBoost378) * _speedFactor; // Pass 2487: ghost emissive base 1.19→1.61 — Pass 2698: 1.61→2.17 — Pass 2793: 2.17→2.93 — Pass 2926: 2.93→3.96 — Pass 3137: 3.96→5.35 — Pass 3305: 5.35→7.22 — Pass 3626: 7.22→9.75 — Pass 4166: 9.75→13.2 brighter ghost trail — Pass 5369: 13.2→17.8 brighter ghost trail emissive — Pass 5405: 17.8→24.0 brighter ghost trail emissive base
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
@@ -5139,12 +5139,12 @@ function animate(ts) {
     if (pickOn) {
       hopperLight.color.setHex(ct.hex);
       // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 — Pass 1444: →4.50 brighter during arm cycle
-      const _hTarget = _hBase + 123.0; // Pass 2461: hopper pick intensity 8.21→11.1 — Pass 2707: 11.1→15.0 — Pass 2803: 15.0→20.3 — Pass 2935: 20.3→27.4 — Pass 3142: 27.4→37.0 — Pass 3314: 37.0→50.0 — Pass 3466: 50.0→67.5 — Pass 4167: 67.5→91.1 brighter hopper during pick — Pass 5360: 91.1→123.0 brighter pick spotlight
+      const _hTarget = _hBase + 166.1; // Pass 2461: hopper pick intensity 8.21→11.1 — Pass 2707: 11.1→15.0 — Pass 2803: 15.0→20.3 — Pass 2935: 20.3→27.4 — Pass 3142: 27.4→37.0 — Pass 3314: 37.0→50.0 — Pass 3466: 50.0→67.5 — Pass 4167: 67.5→91.1 brighter hopper during pick — Pass 5360: 91.1→123.0 brighter pick spotlight — Pass 5408: 123.0→166.1 brighter hopper pick spotlight
       hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 5.4); // Pass 4471: hopper pick light tracking rate 4→5.4 snappier pick spotlight
       // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 — Pass 1445: →58 light follows arm deeper
-      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 1165 : 0; // Pass 2462: descent Y-track 105→142 — Pass 2708: 142→192 — Pass 2804: 192→259 — Pass 2936: 259→350 — Pass 3143: 350→473 — Pass 3315: 473→639 — Pass 4168: 639→863 light follows arm deeper — Pass 5361: 863→1165 light follows arm deeper
+      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 1573 : 0; // Pass 2462: descent Y-track 105→142 — Pass 2708: 142→192 — Pass 2804: 192→259 — Pass 2936: 259→350 — Pass 3143: 350→473 — Pass 3315: 473→639 — Pass 4168: 639→863 light follows arm deeper — Pass 5361: 863→1165 light follows arm deeper — Pass 5409: 1165→1573 light follows arm even deeper
       // Pass 360: X-drift during armSwing — Pass 1043: drift 55→80 — Pass 1446: →110 light tracks wider card arc
-      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 1640 : 0; // Pass 2463: swing X-drift 201→271 — Pass 2709: 271→366 — Pass 2937: 366→494 — Pass 3144: 494→667 — Pass 3316: 667→900 — Pass 4169: 900→1215 light tracks wider arc — Pass 5362: 1215→1640 light tracks wider card arc
+      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 2214 : 0; // Pass 2463: swing X-drift 201→271 — Pass 2709: 271→366 — Pass 2937: 366→494 — Pass 3144: 494→667 — Pass 3316: 667→900 — Pass 4169: 900→1215 light tracks wider arc — Pass 5362: 1215→1640 light tracks wider card arc — Pass 5410: 1640→2214 light tracks even wider card arc
       hopperLight.position.set(HOPPER_X + 33 + _hXDrift360, 200 - _hYTrack359, 0);
     } else if (inPhase(PH.pause)) {
       // Pass 233: hopper LED domain pre-charge — in the final 40% of pause, hopper light
