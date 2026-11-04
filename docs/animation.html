@@ -232,7 +232,7 @@
     100% { opacity: 0; }
   }
   .scan-flash-on {
-    animation: scanFlashFade 0.81s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash */
+    animation: scanFlashFade 1.09s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash */
   }
 
   /* ── Round-complete banner (pass 68) ───────────────────────────────────── */
@@ -603,7 +603,7 @@ gridHelper.position.y = -2;
 scene.add(gridHelper);
 
 // ─── Ambient Dust Particles ───────────────────────────────────────────────────
-const DUST_COUNT = 50;
+const DUST_COUNT = 68; // Pass 4960: ambient dust particle count 50→68 denser atmosphere
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
 const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
@@ -837,7 +837,7 @@ for(let lx of [-140, -40, 60]) {
 }
 
 // Conveyor end rollers at belt ends
-const rollerGeo = new THREE.CylinderGeometry(8, 8, 76, 16);
+const rollerGeo = new THREE.CylinderGeometry(8, 8, 76, 22); // Pass 4961: roller radial segments 16→22 smoother conveyor rollers
 // Pass 101: per-roller materials so each can glow independently when card passes over
 const rollerMats = [-140, 60].map(() => new THREE.MeshStandardMaterial({
   color: 0x606068, roughness: 0.3, metalness: 0.6,
@@ -866,7 +866,7 @@ scannerHood.position.set(-40, CONV_Y_TOP + 32.5, 0);
 scene.add(scannerHood);
 
 // Camera lens aperture on hood underside
-const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 20);
+const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 27); // Pass 4953: lens radial segments 20→27 smoother camera aperture
 const lensMat = new THREE.MeshStandardMaterial({
   color: 0x001122, roughness: 0.05, metalness: 0.9,
   emissive: new THREE.Color(0x002244), emissiveIntensity: 0.54 // Pass 4761: camera lens base emissive 0.4→0.54
@@ -908,7 +908,7 @@ scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
-const scanBloom = new THREE.PointLight(0x0088ff, 0, 547); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach
+const scanBloom = new THREE.PointLight(0x0088ff, 0, 739); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach
 scanBloom.decay = 2.70; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom
 scene.add(scanBloom);
 
@@ -916,7 +916,7 @@ scene.add(scanBloom);
 // Fills left→right as scan progresses; flashes domain color on completion
 const SCAN_BAR_MAX_W = 72; // matches hood width minus margins
 const scanBarMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 8.37, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow
+  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 11.3, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
@@ -1078,7 +1078,7 @@ paddlePivot.add(paddleMesh);
 paddleMesh.position.set(0, 0, 0);
 // Connecting shaft from servo to paddle
 const shaftMesh = new THREE.Mesh(
-  new THREE.CylinderGeometry(3, 3, 10, 10),
+  new THREE.CylinderGeometry(3, 3, 10, 14), // Pass 4954: shaft radial segments 10→14 smoother connector shaft
   new THREE.MeshStandardMaterial({ color: 0x888890, roughness: 0.3, metalness: 0.7 })
 );
 shaftMesh.position.set(0, 8, 0);
@@ -1134,7 +1134,7 @@ function makeTrayFloor(yBase, colorHex) {
     const capMat = new THREE.MeshStandardMaterial({
       color: capColor,
       emissive: new THREE.Color(capColor),
-      emissiveIntensity: 1.08, // Pass 4764: tray floor cap strip emissive 0.8→1.08
+      emissiveIntensity: 1.46, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip
       roughness: 0.3,
       metalness: 0.2
     });
@@ -1240,7 +1240,7 @@ scene.add(suctionPivot);
 
 // Arm rod: cylindrical metal rod
 const armRod = new THREE.Mesh(
-  new THREE.CylinderGeometry(2.5, 2.5, 80, 12),
+  new THREE.CylinderGeometry(2.5, 2.5, 80, 16), // Pass 4955: arm rod radial segments 12→16 smoother arm rod
   new THREE.MeshStandardMaterial({
     color: 0x909098, roughness: 0.2, metalness: 0.7,
     emissive: new THREE.Color(0xffffff), emissiveIntensity: 0
@@ -1252,14 +1252,14 @@ suctionPivot.add(armRod);
 
 // Pivot flange ring at servo joint
 const flange = new THREE.Mesh(
-  new THREE.TorusGeometry(6, 2, 8, 16),
+  new THREE.TorusGeometry(6, 2, 11, 16), // Pass 4956: flange torus tube segments 8→11 smoother servo flange ring
   new THREE.MeshStandardMaterial({ color: 0x555566, roughness: 0.4, metalness: 0.5 })
 );
 flange.position.set(0, 0, 0);
 suctionPivot.add(flange);
 
 // Suction cup — round disc with emissive capability for domain color glow
-const suctionCupGeo = new THREE.CylinderGeometry(7, 5, 4, 12);
+const suctionCupGeo = new THREE.CylinderGeometry(7, 5, 4, 16); // Pass 4957: suction cup radial segments 12→16 smoother grip cup
 const suctionCupMat = new THREE.MeshStandardMaterial({
   color: 0x222233, roughness: 0.8,
   emissive: new THREE.Color(0x000000), emissiveIntensity: 0
@@ -1478,8 +1478,8 @@ activeCardEdge.visible = false;
 scene.add(activeCardEdge);
 
 // Card glow: increased range and physical falloff
-const cardGlow = new THREE.PointLight(0xffffff, 0, 270); // Pass 4020: card glow range 200→270 wider card illumination
-cardGlow.decay = 2.7; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff
+const cardGlow = new THREE.PointLight(0xffffff, 0, 365); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach
+cardGlow.decay = 3.65; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff
 scene.add(cardGlow);
 
 // ─── Pass 177: Card contact shadow disc ──────────────────────────────────────
@@ -1919,7 +1919,7 @@ for (let _gpi = 0; _gpi < 16; _gpi++) {
 const _domFillClr = new THREE.Color();
 // Overhead fill light: large-radius, dim, slowly tinted toward current domain color.
 // Creates a subtle room-level color cast that shifts with each domain.
-const _domainFillLight = new THREE.PointLight(0xffffff, 0.19, 700); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash
+const _domainFillLight = new THREE.PointLight(0xffffff, 0.257, 700); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash
 _domainFillLight.position.set(-30, 280, 0); // centered above the belt, high up
 scene.add(_domainFillLight);
 
@@ -1927,7 +1927,7 @@ scene.add(_domainFillLight);
 // Domain-colored point light that follows the card along the belt surface
 // during conveyorIn and conveyorOut phases, casting a moving pool of color
 // on the belt texture beneath the card. Fades to zero outside belt phases.
-const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 128); // Pass 4039: belt track light range 95→128 wider card pool on belt
+const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 173); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach
 _beltTrackLight.position.set(-40, CONV_Y_TOP + 6, 0);
 scene.add(_beltTrackLight);
 
@@ -1935,7 +1935,7 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 24;
+const TRAIL_PARTICLE_COUNT = 32; // Pass 4959: trail particle pool 24→32 richer deflect wake
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(2.97, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads
