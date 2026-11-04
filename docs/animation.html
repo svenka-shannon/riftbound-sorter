@@ -558,7 +558,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 18.6; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure — Pass 5954: 4.16→5.62 richer tone mapping exposure — Pass 6047: 5.62→7.59 richer tone mapping exposure — Pass 6428: 7.59→10.2 richer tone mapping exposure — Pass 6501: 10.2→13.8 richer tone mapping exposure — Pass 6802: 13.8→18.6 richer tone mapping exposure
+renderer.toneMappingExposure = 25.1; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure — Pass 5954: 4.16→5.62 richer tone mapping exposure — Pass 6047: 5.62→7.59 richer tone mapping exposure — Pass 6428: 7.59→10.2 richer tone mapping exposure — Pass 6501: 10.2→13.8 richer tone mapping exposure — Pass 6802: 13.8→18.6 richer tone mapping exposure — Pass 7075: 18.6→25.1 richer tone mapping exposure
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 // Pass 67: animated clear color — base dark navy tints toward domain on scan/celebration
 const _clearBase = new THREE.Color(0x0a0a12);
@@ -575,12 +575,12 @@ controls.update();
 
 // ─── Lights ───────────────────────────────────────────────────────────────────
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
-const ambientLight = new THREE.AmbientLight(0x202030, 9.11); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill — Pass 5899: 1.50→2.03 stronger ambient fill — Pass 5962: 2.03→2.74 stronger ambient fill — Pass 6048: 2.74→3.70 stronger ambient fill — Pass 6429: 3.70→5.00 stronger ambient fill — Pass 6870: 5.00→6.75 stronger ambient fill — Pass 6962: 6.75→9.11 stronger ambient fill
+const ambientLight = new THREE.AmbientLight(0x202030, 12.3); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill — Pass 5899: 1.50→2.03 stronger ambient fill — Pass 5962: 2.03→2.74 stronger ambient fill — Pass 6048: 2.74→3.70 stronger ambient fill — Pass 6429: 3.70→5.00 stronger ambient fill — Pass 6870: 5.00→6.75 stronger ambient fill — Pass 6962: 6.75→9.11 stronger ambient fill — Pass 7073: 9.11→12.3 stronger ambient fill
 scene.add(ambientLight);
 scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 5.25)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill — Pass 5738: 0.639→0.863 stronger sky/ground hemisphere fill — Pass 5991: 0.863→1.17 stronger sky/ground hemisphere ambient fill — Pass 6049: 1.17→1.58 stronger sky/ground hemisphere ambient fill — Pass 6342: 1.58→2.13 stronger sky/ground hemisphere ambient fill — Pass 6430: 2.13→2.88 stronger sky/ground hemisphere ambient fill — Pass 6871: 2.88→3.89 stronger sky/ground hemisphere ambient fill — Pass 7016: 3.89→5.25 stronger sky/ground hemisphere ambient fill
 
 // Increase key light slightly to compensate for lower ambient
-const keyLight = new THREE.DirectionalLight(0xfff8f0, 34.3); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light — Pass 5963: 5.67→7.65 stronger key light — Pass 6050: 7.65→10.3 stronger key light — Pass 6380: 10.3→13.9 stronger key light — Pass 6436: 13.9→18.8 stronger key light — Pass 6872: 18.8→25.4 stronger key light — Pass 6963: 25.4→34.3 stronger key light
+const keyLight = new THREE.DirectionalLight(0xfff8f0, 46.3); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light — Pass 5963: 5.67→7.65 stronger key light — Pass 6050: 7.65→10.3 stronger key light — Pass 6380: 10.3→13.9 stronger key light — Pass 6436: 13.9→18.8 stronger key light — Pass 6872: 18.8→25.4 stronger key light — Pass 6963: 25.4→34.3 stronger key light — Pass 7070: 34.3→46.3 stronger key light
 keyLight.position.set(400, 600, 400);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
@@ -589,11 +589,11 @@ keyLight.shadow.camera.top = 984;   keyLight.shadow.camera.bottom = -493; // Pas
 keyLight.shadow.bias = -0.00246; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff — Pass 5422: -0.00135→-0.00182 stronger shadow bias — Pass 6340: -0.00182→-0.00246 stronger shadow bias
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xc0d8ff, 13.6); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill — Pass 5964: 2.25→3.04 stronger cool fill — Pass 6051: 3.04→4.10 stronger cool fill — Pass 6381: 4.10→5.54 stronger cool fill — Pass 6437: 5.54→7.48 stronger cool fill — Pass 6873: 7.48→10.1 stronger cool fill light — Pass 6964: 10.1→13.6 stronger cool fill light
+const fillLight = new THREE.DirectionalLight(0xc0d8ff, 18.4); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill — Pass 5964: 2.25→3.04 stronger cool fill — Pass 6051: 3.04→4.10 stronger cool fill — Pass 6381: 4.10→5.54 stronger cool fill — Pass 6437: 5.54→7.48 stronger cool fill — Pass 6873: 7.48→10.1 stronger cool fill light — Pass 6964: 10.1→13.6 stronger cool fill light — Pass 7071: 13.6→18.4 stronger cool fill light
 fillLight.position.set(-400, 300, 200);
 scene.add(fillLight);
 
-const rimLight = new THREE.DirectionalLight(0xffeedd, 9.49); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim — Pass 5965: 1.57→2.12 stronger back rim — Pass 6052: 2.12→2.86 stronger back rim — Pass 6382: 2.86→3.86 stronger back rim — Pass 6438: 3.86→5.21 stronger back rim — Pass 6874: 5.21→7.03 stronger back rim light — Pass 6965: 7.03→9.49 stronger back rim light
+const rimLight = new THREE.DirectionalLight(0xffeedd, 12.8); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim — Pass 5965: 1.57→2.12 stronger back rim — Pass 6052: 2.12→2.86 stronger back rim — Pass 6382: 2.86→3.86 stronger back rim — Pass 6438: 3.86→5.21 stronger back rim — Pass 6874: 5.21→7.03 stronger back rim light — Pass 6965: 7.03→9.49 stronger back rim light — Pass 7072: 9.49→12.8 stronger back rim light
 rimLight.position.set(200, 100, -400);
 scene.add(rimLight);
 
@@ -979,7 +979,7 @@ scene.add(scanBeam);
 const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
   emissive: new THREE.Color(0x00ff88),
-  emissiveIntensity: 109, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive — Pass 5969: 18.1→24.4 brighter scan crosshair primary beam emissive — Pass 6060: 24.4→32.9 brighter scan crosshair primary beam emissive — Pass 6307: 32.9→44.4 brighter scan crosshair primary beam emissive — Pass 6439: 44.4→59.9 brighter scan crosshair primary beam emissive — Pass 6659: 59.9→80.9 brighter scan crosshair primary beam emissive — Pass 6848: 80.9→109 brighter scan crosshair primary beam emissive
+  emissiveIntensity: 147, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive — Pass 5969: 18.1→24.4 brighter scan crosshair primary beam emissive — Pass 6060: 24.4→32.9 brighter scan crosshair primary beam emissive — Pass 6307: 32.9→44.4 brighter scan crosshair primary beam emissive — Pass 6439: 44.4→59.9 brighter scan crosshair primary beam emissive — Pass 6659: 59.9→80.9 brighter scan crosshair primary beam emissive — Pass 6848: 80.9→109 brighter scan crosshair primary beam emissive — Pass 7074: 109→147 brighter scan crosshair primary beam emissive
   transparent: true, opacity: 3.16 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam — Pass 5879: 1.28→1.73 overdrive scan crosshair primary beam opacity — Pass 6307: 1.73→2.34 overdrive scan crosshair primary beam opacity — Pass 6440: 2.34→3.16 overdrive scan crosshair primary beam opacity
 });
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(243, 5.47, 2.70), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span — Pass 5914: 133→180 wider scan crosshair primary beam span — Pass 6228: 180→243 wider scan crosshair primary beam span — Pass 6309: height 4.05→5.47 depth 2→2.70 chunkier scan crosshair primary beam
@@ -1528,7 +1528,7 @@ const GHOST_COUNT = 5; // Pass 4989: ghost trail card count 3→4 richer motion 
 const ghostCards = [];
 for (let _gi = 0; _gi < GHOST_COUNT; _gi++) {
   const _gMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 5.98, // Pass 4029: ghost card emissive 0.4→0.54 brighter motion-blur wake — Pass 4892: 0.54→0.73 brighter ghost trail — Pass 5470: 0.73→0.986 brighter ghost trail motion-blur cards — Pass 5752: 0.986→1.33 brighter ghost trail motion-blur card emissive — Pass 6303: 1.33→1.80 brighter ghost trail motion-blur card emissive — Pass 6502: 1.80→2.43 brighter ghost trail motion-blur card emissive — Pass 6699: 2.43→3.28 brighter ghost trail motion-blur card emissive — Pass 6716: 3.28→4.43 brighter ghost trail motion-blur card emissive — Pass 6847: 4.43→5.98 brighter ghost trail motion-blur card emissive
+    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 8.07, // Pass 4029: ghost card emissive 0.4→0.54 brighter motion-blur wake — Pass 4892: 0.54→0.73 brighter ghost trail — Pass 5470: 0.73→0.986 brighter ghost trail motion-blur cards — Pass 5752: 0.986→1.33 brighter ghost trail motion-blur card emissive — Pass 6303: 1.33→1.80 brighter ghost trail motion-blur card emissive — Pass 6502: 1.80→2.43 brighter ghost trail motion-blur card emissive — Pass 6699: 2.43→3.28 brighter ghost trail motion-blur card emissive — Pass 6716: 3.28→4.43 brighter ghost trail motion-blur card emissive — Pass 6847: 4.43→5.98 brighter ghost trail motion-blur card emissive — Pass 7076: 5.98→8.07 brighter ghost trail motion-blur card emissive
     transparent: true, opacity: 0,
     roughness: 0.6, metalness: 0.0, depthWrite: false,
   });
@@ -1600,7 +1600,7 @@ const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
   });
-  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 6.05, 11, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube — Pass 5829: tube segments 8→11 smoother sonar ring cross-section — Pass 6647: 2.46→3.32 fatter sonar ping ring tube — Pass 6894: 3.32→4.48 fatter sonar ping ring tube — Pass 7032: 4.48→6.05 fatter sonar ping ring tube
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 8.17, 11, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube — Pass 5829: tube segments 8→11 smoother sonar ring cross-section — Pass 6647: 2.46→3.32 fatter sonar ping ring tube — Pass 6894: 3.32→4.48 fatter sonar ping ring tube — Pass 7032: 4.48→6.05 fatter sonar ping ring tube — Pass 7077: 6.05→8.17 fatter sonar ping ring tube
   mesh.visible = false;
   // Oriented flat (XZ plane) at card level, centered on scanner X
   mesh.rotation.x = -Math.PI / 2;
@@ -2396,7 +2396,7 @@ function animate(ts) {
   // ── Tray card arrival animation (settle into slot) ──
   for(let i = trayArrivals.length - 1; i >= 0; i--) {
     const a = trayArrivals[i];
-    a.t = Math.min(1, a.t + dt * speedMult * 15.8); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle — Pass 5060: 4.73→6.39 snappier slot settle — Pass 5071: 6.39→8.63 snappier slot settle — Pass 5995: 8.63→11.7 snappier slot settle animation speed — Pass 6333: 11.7→15.8 snappier slot settle animation speed
+    a.t = Math.min(1, a.t + dt * speedMult * 21.3); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle — Pass 5060: 4.73→6.39 snappier slot settle — Pass 5071: 6.39→8.63 snappier slot settle — Pass 5995: 8.63→11.7 snappier slot settle animation speed — Pass 6333: 11.7→15.8 snappier slot settle animation speed — Pass 7070: 15.8→21.3 snappier slot settle animation speed
     // Pass 98: landing bounce — card overshoots target slightly then springs back up
     // First 80%: cubic ease-out approach; last 20%: half-sine spring (goes +5u up then settles)
     let _yPos;
@@ -2446,10 +2446,10 @@ function animate(ts) {
   if(window._flashLights) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
-      const _fPeak = f.peak || 7.38; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash — Pass 5529: 4.05→5.47 brighter arrival flash fallback peak — Pass 6338: 5.47→7.38 brighter arrival flash fallback peak
+      const _fPeak = f.peak || 9.96; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash — Pass 5529: 4.05→5.47 brighter arrival flash fallback peak — Pass 6338: 5.47→7.38 brighter arrival flash fallback peak — Pass 7071: 7.38→9.96 brighter arrival flash fallback peak
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 17.9)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence — Pass 6339: 13.3→17.9 longer slot arrival flash glow persistence
-      if(f.age > 13.3) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window — Pass 6396: 9.86→13.3 longer flash light removal threshold
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 24.2)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence — Pass 6339: 13.3→17.9 longer slot arrival flash glow persistence — Pass 7072: 17.9→24.2 longer slot arrival flash glow persistence
+      if(f.age > 18.0) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window — Pass 6396: 9.86→13.3 longer flash light removal threshold — Pass 7073: 13.3→18.0 longer flash light removal threshold
       return true;
     });
   }
@@ -2465,7 +2465,7 @@ function animate(ts) {
     if (!bar._springVel) bar._springVel = 0;
     const _springDiff = targetScaleY - bar.scale.y;
     bar._springVel = bar._springVel * 0.80 + _springDiff * 0.845; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255 — Pass 4991: 0.255→0.344 snappier fill bar spring — Pass 5202: 0.344→0.464 snappier fill bar spring response — Pass 6008: 0.464→0.626 snappier fill bar spring constant — Pass 6605: 0.626→0.845 snappier fill bar spring constant
-    bar.scale.y = Math.max(0.01, Math.min(2.90, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce — Pass 5203: 1.59→2.15 bigger fill bar overshoot bounce — Pass 6205: 2.15→2.90 bigger fill bar spring overshoot
+    bar.scale.y = Math.max(0.01, Math.min(3.92, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce — Pass 5203: 1.59→2.15 bigger fill bar overshoot bounce — Pass 6205: 2.15→2.90 bigger fill bar spring overshoot — Pass 7074: 2.90→3.92 bigger fill bar spring overshoot
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
     const _fbRest = 11.9 + 3.11 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26 — Pass 4684: base 2.66→3.59 — Pass 4685: amp 1.26→1.70 brighter fill bar breathe — Pass 5120: 3.59→4.85 brighter fill bar resting glow — Pass 5191: 4.85→6.55 brighter fill bar resting base glow — Pass 5204: amp 1.70→2.30 bigger fill bar breathe amplitude — Pass 6206: base 6.55→8.85 richer fill bar resting glow base — Pass 6218: amp 2.30→3.11 richer fill bar breathe amplitude — Pass 7068: base 8.85→11.9 richer fill bar resting glow base
@@ -2473,7 +2473,7 @@ function animate(ts) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
     } else {
-      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 6.16); // Pass 4723: fill bar idle tracking 2.5→3.38 snappier fill bar settle — Pass 5078: 3.38→4.56 snappier fill bar tracking — Pass 6207: 4.56→6.16 snappier fill bar idle emissive tracking rate
+      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 8.32); // Pass 4723: fill bar idle tracking 2.5→3.38 snappier fill bar settle — Pass 5078: 3.38→4.56 snappier fill bar tracking — Pass 6207: 4.56→6.16 snappier fill bar idle emissive tracking rate — Pass 7075: 6.16→8.32 snappier fill bar idle emissive tracking rate
     }
   });
 
@@ -2499,7 +2499,7 @@ function animate(ts) {
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
       // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
-      const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 43; // Pass 5018: slot LED pre-reveal pulse frequency 18→24 more frantic pre-confirm LED flutter — Pass 6000: 24→32 more frantic slot LED pre-confirm pulse frequency — Pass 6606: 32→43 more frantic slot LED pre-confirm pulse frequency
+      const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 58; // Pass 5018: slot LED pre-reveal pulse frequency 18→24 more frantic pre-confirm LED flutter — Pass 6000: 24→32 more frantic slot LED pre-confirm pulse frequency — Pass 6606: 32→43 more frantic slot LED pre-confirm pulse frequency — Pass 7076: 43→58 more frantic slot LED pre-confirm pulse frequency
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
@@ -2511,7 +2511,7 @@ function animate(ts) {
       const afterT = _ledCooloff[_li] / 9.30; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration — Pass 4428: updated to match 6.89s cooloff — Pass 5931: 6.89→9.30 deeper LED afterglow divisor
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity = 9.11 + afterT * 74.4; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor — Pass 4687: ramp 22.4→30.2 brighter slot LED afterglow peak — Pass 4997: ramp 30.2→40.8 blazing slot LED afterglow peak — Pass 5189: ramp 40.8→55.1 brighter slot LED afterglow ramp — Pass 5939: base 6.75→9.11 brighter slot LED afterglow floor — Pass 6715: ramp 55.1→74.4 brighter slot LED afterglow ramp
+      mat.emissiveIntensity = 9.11 + afterT * 100.5; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor — Pass 4687: ramp 22.4→30.2 brighter slot LED afterglow peak — Pass 4997: ramp 30.2→40.8 blazing slot LED afterglow peak — Pass 5189: ramp 40.8→55.1 brighter slot LED afterglow ramp — Pass 5939: base 6.75→9.11 brighter slot LED afterglow floor — Pass 6715: ramp 55.1→74.4 brighter slot LED afterglow ramp — Pass 7077: ramp 74.4→100.5 brighter slot LED afterglow ramp
     } else {
       // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 — Pass 1651: →1.9 brighter resting LEDs
       mat.color.setHex(slotCt.hex);
