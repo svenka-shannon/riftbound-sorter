@@ -1978,7 +1978,7 @@ function fireCelebration() {
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
-    p.life = 15.8 + Math.random() * 6.66; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 — Pass 4100: 3.5+2.7→4.73+3.65 even longer airtime — Pass 4680: base 4.73→6.39 — Pass 4681: rand 3.65→4.93 even longer confetti airtime — Pass 5073: base 6.39→8.63 longer confetti lifespan — Pass 5884: base 8.63→11.7 longer celebration confetti lifespan base — Pass 6295: base 11.7→15.8 rand 4.93→6.66 longer celebration confetti lifespan
+    p.life = 21.3 + Math.random() * 6.66; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 — Pass 4100: 3.5+2.7→4.73+3.65 even longer airtime — Pass 4680: base 4.73→6.39 — Pass 4681: rand 3.65→4.93 even longer confetti airtime — Pass 5073: base 6.39→8.63 longer confetti lifespan — Pass 5884: base 8.63→11.7 longer celebration confetti lifespan base — Pass 6295: base 11.7→15.8 rand 4.93→6.66 longer celebration confetti lifespan — Pass 6693: base 15.8→21.3 longer celebration confetti lifespan base
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98
     p.rx = (Math.random() - 0.5) * 722; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161 — Pass 4093: 161→217 wilder tumble — Pass 4682: 217→293 even wilder tumble — Pass 5020: 293→396 wilder confetti rotation — Pass 5885: 396→535 wilder confetti tumble X rotation — Pass 6296: 535→722 wilder confetti tumble X rotation
@@ -3500,7 +3500,7 @@ function animate(ts) {
           const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 54.1 : 0; // Pass 2546: ping Z drift 2.00→2.70 — Pass 2837: 2.70→3.65 — Pass 2984: 3.65→4.93 — Pass 3183: 4.93→6.66 — Pass 3424: 6.66→8.99 — Pass 3532: 8.99→12.1 — Pass 3770: 12.1→16.3 — Pass 3877: 16.3→22.0 — Pass 4242: 22.0→29.7 more pronounced destination lean — Pass 5386: 29.7→40.1 more pronounced destination lean — Pass 6490: 40.1→54.1 more pronounced destination lean
           p.mesh.position.z = _pingZ311;
           // Pass 274: post-reveal ping scale — Pass 400: 8.5→11.0 — Pass 716: →14.0 — Pass 797: →19.0 — Pass 1165: →26.0 — Pass 1410: →36.0 — Pass 1524: →50.0 (wider confirm rings)
-          const _pingMaxScale = _identityRevealed ? 409 : 44.8; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1 — Pass 3184: 166.1→224.2 — Pass 3470: pre-reveal 10.0→13.5 — Pass 3769: 13.5→18.2 — Pass 4243: pre-reveal 18.2→24.6 wider pre-reveal ping rings — Pass 5432: pre-reveal 24.6→33.2 wider pre-reveal ping rings — Pass 5825: post-reveal 224.2→303 wider post-reveal ping rings — Pass 6347: pre-reveal 33.2→44.8 wider pre-reveal ping rings — Pass 6496: post-reveal 303→409 wider post-reveal ping rings
+          const _pingMaxScale = _identityRevealed ? 552 : 44.8; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1 — Pass 3184: 166.1→224.2 — Pass 3470: pre-reveal 10.0→13.5 — Pass 3769: 13.5→18.2 — Pass 4243: pre-reveal 18.2→24.6 wider pre-reveal ping rings — Pass 5432: pre-reveal 24.6→33.2 wider pre-reveal ping rings — Pass 5825: post-reveal 224.2→303 wider post-reveal ping rings — Pass 6347: pre-reveal 33.2→44.8 wider pre-reveal ping rings — Pass 6496: post-reveal 303→409 wider post-reveal ping rings — Pass 6697: post-reveal 409→552 wider post-reveal ping rings
           const s = 1 + localFt * _pingMaxScale;
           p.mesh.scale.setScalar(s);
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
@@ -3513,7 +3513,7 @@ function animate(ts) {
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
           const _pingBoost = ft >= 0.85 ? 999 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2 — Pass 3547: 165.2→223 — Pass 3731: 223→301 — Pass 3837: 301→406 — Pass 4223: 406→548 blazing confirm rings — Pass 5269: 548→740 blazing confirm ring ping boost — Pass 6471: 740→999 blazing confirm ring post-reveal ping boost
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
-          p.mat.opacity = _pingFade * flashIntensity * 3.32 * _pingBoost; // Pass 4601: scan ring opacity multiplier 1.0→1.35 brighter off-peak ring fade — Pass 5379: 1.35→1.82 brighter scan ring opacity multiplier — Pass 5524: 1.82→2.46 brighter slot ring opacity fade-out multiplier — Pass 6629: 2.46→3.32 brighter scan ring opacity multiplier
+          p.mat.opacity = _pingFade * flashIntensity * 4.48 * _pingBoost; // Pass 4601: scan ring opacity multiplier 1.0→1.35 brighter off-peak ring fade — Pass 5379: 1.35→1.82 brighter scan ring opacity multiplier — Pass 5524: 1.82→2.46 brighter slot ring opacity fade-out multiplier — Pass 6629: 2.46→3.32 brighter scan ring opacity multiplier — Pass 6696: 3.32→4.48 brighter scan ring opacity multiplier
         } else {
           p.mesh.visible = false;
           p.mat.opacity = 0;
@@ -3521,14 +3521,14 @@ function animate(ts) {
       });
     }
     // Belt crawls slowly while card sits under scanner
-    _beltScrollSpeed = 0.0493; // Pass 4874: scan belt crawl speed 0.02→0.027 livelier scan belt motion — Pass 5502: 0.027→0.0365 livelier scan belt crawl speed — Pass 6345: 0.0365→0.0493 livelier scan belt crawl speed
+    _beltScrollSpeed = 0.0666; // Pass 4874: scan belt crawl speed 0.02→0.027 livelier scan belt motion — Pass 5502: 0.027→0.0365 livelier scan belt crawl speed — Pass 6345: 0.0365→0.0493 livelier scan belt crawl speed — Pass 6695: 0.0493→0.0666 livelier scan belt crawl speed
     // Pass 156: gate LED chase — cycles scan-blue through columns pre-reveal (machine "deciding")
     // then snaps to domain color on correct column at identity confirm
     {
       if (!_identityRevealed) {
         // Pass 319: gate LED chase speed ramp — chase accelerates as scan fills (machine grows impatient)
         // Pass 648: chase range 7→12Hz → 9→18Hz — Pass 802: →10+16Hz (10→26Hz) for even more frantic cycling
-        const _chaseHz = 24.6 + barFill * 21.6; // Pass 802: 9+9 → 10+16 (10→26Hz) — Pass 4321: base 10→13.5 — Pass 4322: range 16→21.6 faster gate LED chase cycle — Pass 5433: base 13.5→18.2 faster gate LED chase base — Pass 6540: 18.2→24.6 faster gate LED chase base frequency
+        const _chaseHz = 33.2 + barFill * 21.6; // Pass 802: 9+9 → 10+16 (10→26Hz) — Pass 4321: base 10→13.5 — Pass 4322: range 16→21.6 faster gate LED chase cycle — Pass 5433: base 13.5→18.2 faster gate LED chase base — Pass 6540: 18.2→24.6 faster gate LED chase base frequency — Pass 6694: base 24.6→33.2 faster gate LED chase base frequency
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 — Pass 1384: →15.0 for more vivid pre-reveal LED cycling
@@ -4080,7 +4080,7 @@ function animate(ts) {
       _btp.mesh.position.set(GATE_X + (Math.random()-0.5)*8, CONV_Y_TOP + 8 + Math.random()*8, ct.slotZ * 0.12 + (Math.random()-0.5)*5);
       _btp.mat.color.setHex(ct.hex);
       _btp.mat.opacity = 2.26 + Math.random() * 0.11; // Pass 1118: 0.80+0.18→0.92+0.08 for brighter gate-contact burst — Pass 4745: 0.92→1.24 brighter gate-contact burst — Pass 5606: 1.24→1.67 brighter gate-contact burst base — Pass 5942: rand 0.08→0.11 wider gate-contact burst opacity variance — Pass 6390: 1.67→2.26 brighter gate-contact burst trail opacity base
-      _btp.age = 0; _btp.life = 14.7 + Math.random() * 8.17; // Pass 2386: gate burst life 0.73+0.41→0.99+0.55 — Pass 2608: 0.99+0.55→1.34+0.74 — Pass 3046: 1.34+0.74→1.81+1.00 — Pass 3231: 1.81+1.00→2.44+1.35 — Pass 3398: 2.44+1.35→3.29+1.82 — Pass 3523: 3.29+1.82→4.44+2.46 — Pass 3736: 4.44+2.46→5.99+3.32 — Pass 3843: base 5.99→8.09 — Pass 3844: rand 3.32→4.48 — Pass 4083: 8.09+4.48→10.9+6.05 — Pass 5607: 10.9+6.05→14.7+8.17 longer gate-contact burst trail
+      _btp.age = 0; _btp.life = 19.8 + Math.random() * 8.17; // Pass 2386: gate burst life 0.73+0.41→0.99+0.55 — Pass 2608: 0.99+0.55→1.34+0.74 — Pass 3046: 1.34+0.74→1.81+1.00 — Pass 3231: 1.81+1.00→2.44+1.35 — Pass 3398: 2.44+1.35→3.29+1.82 — Pass 3523: 3.29+1.82→4.44+2.46 — Pass 3736: 4.44+2.46→5.99+3.32 — Pass 3843: base 5.99→8.09 — Pass 3844: rand 3.32→4.48 — Pass 4083: 8.09+4.48→10.9+6.05 — Pass 5607: 10.9+6.05→14.7+8.17 longer gate-contact burst trail — Pass 6690: 14.7→19.8 longer gate-contact burst trail base life
       _btp.active = true; _btp.mesh.visible = true;
     }
   }
@@ -4140,7 +4140,7 @@ function animate(ts) {
     }
     // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
     // Pass 647: wall lean 0.032→0.055 — Pass 974: →0.082 — Pass 1115: →0.12 for more physical lateral tilt at each wall contact
-    const _wallLean = 1.82 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0); // Pass 2111: wall lean 0.12→0.16 — Pass 2620: 0.16→0.22 — Pass 3050: 0.22→0.30 — Pass 3235: 0.30→0.41 — Pass 3402: 0.41→0.55 — Pass 3447: 0.55→0.74 — Pass 4001: 0.74→1.00 — Pass 4691: 1.00→1.35 harder slot wall-bounce lateral tilt — Pass 5613: 1.35→1.82 harder slot wall-bounce lateral tilt
+    const _wallLean = 2.46 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0); // Pass 2111: wall lean 0.12→0.16 — Pass 2620: 0.16→0.22 — Pass 3050: 0.22→0.30 — Pass 3235: 0.30→0.41 — Pass 3402: 0.41→0.55 — Pass 3447: 0.55→0.74 — Pass 4001: 0.74→1.00 — Pass 4691: 1.00→1.35 harder slot wall-bounce lateral tilt — Pass 5613: 1.35→1.82 harder slot wall-bounce lateral tilt — Pass 6694: 1.82→2.46 harder slot wall-bounce lateral tilt
     activeCard.rotation.z = _wallLean;
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
@@ -4344,10 +4344,10 @@ function animate(ts) {
         for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 20; _mi++) { // Pass 4606: landing mote particle count 8→11 denser upper-floor arrival fountain — Pass 5654: 11→15 denser upper-floor arrival mote fountain — Pass 6400: 15→20 denser upper-floor arrival mote fountain
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
-          _mp.active = true; _mp.age = 0; _mp.life = 13.6 + Math.random() * 6.87; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09 — Pass 5612: 10.1+5.09→13.6+6.87 longer upper-floor arrival mote hang
+          _mp.active = true; _mp.age = 0; _mp.life = 18.4 + Math.random() * 6.87; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09 — Pass 5612: 10.1+5.09→13.6+6.87 longer upper-floor arrival mote hang — Pass 6692: 13.6→18.4 longer upper-floor arrival mote hang base life
           _mp.mesh.position.set(
-            TRAY_X_START + 20 + (Math.random() - 0.5) * 14.6, // Pass 4833: upper floor mote X spawn spread 8→10.8 wider arrival fountain footprint — Pass 5655: 10.8→14.6 wider upper-floor arrival mote X footprint
-            ct.slotFloorY + 54.7 + Math.random() * 8.1, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain — Pass 5078: 40.5→54.7 taller arrival fountain — Pass 5943: rand 6→8.1 taller upper-floor arrival mote Y spread
+            TRAY_X_START + 20 + (Math.random() - 0.5) * 19.7, // Pass 4833: upper floor mote X spawn spread 8→10.8 wider arrival fountain footprint — Pass 5655: 10.8→14.6 wider upper-floor arrival mote X footprint — Pass 6691: 14.6→19.7 wider upper-floor arrival mote X footprint
+            ct.slotFloorY + 73.8 + Math.random() * 10.9, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain — Pass 5078: 40.5→54.7 taller arrival fountain — Pass 5943: rand 6→8.1 taller upper-floor arrival mote Y spread — Pass 6693: 54.7→73.8 rand 8.1→10.9 taller upper-floor arrival mote fountain height
             ct.slotZ + (Math.random() - 0.5) * 29.6 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint — Pass 5456: 16.2→21.9 wider landing mote Z footprint — Pass 6680: 21.9→29.6 wider landing mote Z footprint
           );
           _mp.mesh.visible = true;
@@ -4396,7 +4396,7 @@ function animate(ts) {
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
         tp.mat.opacity = 1.65 + Math.random() * 0.14; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks — Pass 4748: 0.90→1.22 more vivid reject sparks — Pass 5715: 1.22→1.65 more vivid reject sparks — Pass 5944: rand 0.10→0.14 wider reject spark opacity variance
-        tp.age = 0; tp.life = 6.56 + Math.random() * 3.81; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09 — Pass 4008: base 3.60→4.86 — Pass 4009: rand 2.09→2.82 — Pass 5627: base 4.86→6.56 longer reject spark lifespan — Pass 5628: rand 2.82→3.81 longer reject spark lifespan variance
+        tp.age = 0; tp.life = 8.86 + Math.random() * 3.81; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09 — Pass 4008: base 3.60→4.86 — Pass 4009: rand 2.09→2.82 — Pass 5627: base 4.86→6.56 longer reject spark lifespan — Pass 5628: rand 2.82→3.81 longer reject spark lifespan variance — Pass 6697: 6.56→8.86 longer reject spark lifespan base
         tp.active = true; tp.mesh.visible = true;
       }
     }
@@ -4653,10 +4653,10 @@ function animate(ts) {
       convBodyMat.emissive.setHex(ct.hex);
       // Pass 263: conveyor body scanner-approach boost — Pass 692: 0.06→0.10 — Pass 934: →0.18 — Pass 1452: →0.26 for brighter approach
       const _bodyApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.80
-        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 5.14 : 0; // Pass 2426: body approach 0.47→0.63 — Pass 2662: 0.63→0.85 — Pass 2752: 0.85→1.15 — Pass 3101: 1.15→1.55 — Pass 3354: 1.55→2.09 — Pass 4380: 2.09→2.82 — Pass 4718: 2.82→3.81 brighter conveyor body approach glow — Pass 5597: 3.81→5.14 brighter conveyor body scanner approach glow peak
+        ? (phaseRaw(PH.conveyorIn) - 0.80) / 0.20 * 6.94 : 0; // Pass 2426: body approach 0.47→0.63 — Pass 2662: 0.63→0.85 — Pass 2752: 0.85→1.15 — Pass 3101: 1.15→1.55 — Pass 3354: 1.55→2.09 — Pass 4380: 2.09→2.82 — Pass 4718: 2.82→3.81 brighter conveyor body approach glow — Pass 5597: 3.81→5.14 brighter conveyor body scanner approach glow peak — Pass 6695: 5.14→6.94 brighter conveyor body scanner approach glow peak
       // Pass 279: scanner-exit echo — Pass 522: 0.12→0.20 — Pass 933: →0.35 — Pass 1453: →0.50 for stronger departure flash
       const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
-        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 10.1 : 0; // Pass 2427: body exit echo 0.92→1.24 — Pass 2663: 1.24→1.67 — Pass 2753: 1.67→2.25 — Pass 3102: 2.25→3.04 — Pass 3355: 3.04→4.10 — Pass 4381: 4.10→5.54 — Pass 4719: 5.54→7.48 stronger scanner exit echo — Pass 5598: 7.48→10.1 stronger conveyor body scanner exit echo flash
+        ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 13.6 : 0; // Pass 2427: body exit echo 0.92→1.24 — Pass 2663: 1.24→1.67 — Pass 2753: 1.67→2.25 — Pass 3102: 2.25→3.04 — Pass 3355: 3.04→4.10 — Pass 4381: 4.10→5.54 — Pass 4719: 5.54→7.48 stronger scanner exit echo — Pass 5598: 7.48→10.1 stronger conveyor body scanner exit echo flash — Pass 6696: 10.1→13.6 stronger conveyor body scanner exit echo flash
       // Pass 932: conveyor body base glow 0.08→0.14 — Pass 1454: →0.20, pulse amp 0.08→0.12 for more vivid presence
       const _bodyTarget = 2.19 + 1.00 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho; // Pass 2435: body base 0.27→0.36, pulse 0.16→0.22 — Pass 2664: 0.36→0.49, 0.22→0.30 — Pass 2754: base 0.49→0.66 Pass 2755: pulse 0.30→0.41 — Pass 3100: base 0.66→0.89, pulse 0.41→0.55 — Pass 4444: base 0.89→1.20 — Pass 4445: pulse 0.55→0.74 richer conveyor body glow — Pass 5599: 1.20→1.62 richer conveyor body emissive base glow — Pass 5600: 0.74→1.00 richer conveyor body emissive pulse amplitude — Pass 5633: 1.62→2.19 richer conveyor body emissive base glow
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 7.38); // Pass 4814: conveyor body emissive tracking 3→4.05 snappier body glow — Pass 5639: 4.05→5.47 snappier conveyor body emissive tracking — Pass 6364: 5.47→7.38 snappier conveyor body emissive tracking
