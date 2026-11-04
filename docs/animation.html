@@ -122,7 +122,7 @@
     45%  { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-4px); }
   }
-  #scan-confirm.confirm-pop { animation: scanConfirmPop 7.18s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop — Pass 7226: 2.16s→2.92s longer domain reveal pop — Pass 7480: 2.92s→3.94s longer domain reveal pop — Pass 7565: 3.94s→5.32s longer domain reveal pop — Pass 7675: 5.32s→7.18s longer domain reveal pop */
+  #scan-confirm.confirm-pop { animation: scanConfirmPop 9.69s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop — Pass 7226: 2.16s→2.92s longer domain reveal pop — Pass 7480: 2.92s→3.94s longer domain reveal pop — Pass 7565: 3.94s→5.32s longer domain reveal pop — Pass 7675: 5.32s→7.18s longer domain reveal pop — Pass 7796: 7.18s→9.69s longer domain reveal pop */
 
   #hint {
     position: fixed; bottom: 20px; right: 20px;
@@ -206,7 +206,7 @@
     width: 40px; height: 40px;
     border-radius: 50%;
     border: 12.1px solid; /* Pass 7089: slot ripple ring border 2px→2.70px thicker ring — Pass 7181: 2.70→3.65px thicker slot ripple ring border — Pass 7227: 3.65→4.93px thicker slot ripple ring border — Pass 7483: 4.93→6.66px thicker slot ripple ring border — Pass 7568: 6.66→8.99px thicker slot ripple ring border — Pass 7726: 8.99→12.1px thicker slot ripple ring border */
-    animation: rippleOut 4.27s ease-out forwards; /* Pass 7090: rippleOut ring animation duration 0.7s→0.945s slower more dramatic ring — Pass 7182: 0.945s→1.28s slower more dramatic slot ripple ring — Pass 7228: 1.28s→1.73s slower more dramatic slot ripple ring — Pass 7484: 1.73s→2.34s slower more dramatic slot ripple ring — Pass 7572: 2.34s→3.16s slower more dramatic slot ripple ring — Pass 7727: 3.16s→4.27s slower more dramatic slot ripple ring duration */
+    animation: rippleOut 5.76s ease-out forwards; /* Pass 7090: rippleOut ring animation duration 0.7s→0.945s slower more dramatic ring — Pass 7182: 0.945s→1.28s slower more dramatic slot ripple ring — Pass 7228: 1.28s→1.73s slower more dramatic slot ripple ring — Pass 7484: 1.73s→2.34s slower more dramatic slot ripple ring — Pass 7572: 2.34s→3.16s slower more dramatic slot ripple ring — Pass 7727: 3.16s→4.27s slower more dramatic slot ripple ring duration — Pass 7800: 4.27s→5.76s slower more dramatic slot ripple ring duration */
   }
 
   /* ── Stats count bounce ─────────────────────────────────────────────── */
@@ -217,7 +217,7 @@
     100% { transform: scale(1); }
   }
   .count-bounce {
-    animation: countBounce 2.74s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; /* Pass 7091: countBounce animation duration 0.45s→0.608s longer bounce pop — Pass 7225: 0.608s→0.820s longer bounce pop — Pass 7481: 0.820s→1.11s longer bounce pop — Pass 7571: 1.11s→1.50s longer bounce pop — Pass 7691: 1.50s→2.03s longer bounce pop — Pass 7727: 2.03s→2.74s longer bounce pop */
+    animation: countBounce 3.70s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; /* Pass 7091: countBounce animation duration 0.45s→0.608s longer bounce pop — Pass 7225: 0.608s→0.820s longer bounce pop — Pass 7481: 0.820s→1.11s longer bounce pop — Pass 7571: 1.11s→1.50s longer bounce pop — Pass 7691: 1.50s→2.03s longer bounce pop — Pass 7727: 2.03s→2.74s longer bounce pop — Pass 7797: 2.74s→3.70s longer bounce pop */
   }
 
   /* ── Scan flash overlay ─────────────────────────────────────────────── */
@@ -252,7 +252,7 @@
     100% { transform: translateX(-50%) scale(1.0);  opacity: 0; }
   }
   #round-banner.round-bang {
-    animation: roundBannerIn 4.43s ease-out forwards; /* Pass 7374: roundBannerIn duration 1.8s→2.43s longer round complete banner animation — Pass 7473: 2.43s→3.28s longer round complete banner animation — Pass 7660: 3.28s→4.43s longer round complete banner animation */
+    animation: roundBannerIn 5.98s ease-out forwards; /* Pass 7374: roundBannerIn duration 1.8s→2.43s longer round complete banner animation — Pass 7473: 2.43s→3.28s longer round complete banner animation — Pass 7660: 3.28s→4.43s longer round complete banner animation — Pass 7798: 4.43s→5.98s longer round complete banner animation */
   }
 
   /* ── Reject slot alarm vignette ─────────────────────────────────────────── */
@@ -270,7 +270,7 @@
     100% { opacity: 0; }
   }
   .reject-alarm-on {
-    animation: rejectAlarm 2.09s ease-out forwards; /* Pass 7375: rejectAlarm duration 0.85s→1.15s longer reject alarm vignette — Pass 7474: 1.15s→1.55s longer reject alarm vignette — Pass 7661: 1.55s→2.09s longer reject alarm vignette */
+    animation: rejectAlarm 2.82s ease-out forwards; /* Pass 7375: rejectAlarm duration 0.85s→1.15s longer reject alarm vignette — Pass 7474: 1.15s→1.55s longer reject alarm vignette — Pass 7661: 1.55s→2.09s longer reject alarm vignette — Pass 7799: 2.09s→2.82s longer reject alarm vignette */
   }
 
   #hopper-count {
@@ -5330,7 +5330,7 @@ function animate(ts) {
     p.mesh.position.x += p.vx * dt;
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
-    p.vy -= (p.grav || 2534) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417 — Pass 3849: 417→563 — Pass 4187: 563→760 heavier confetti — Pass 5145: 760→1030 heavier celeb particle gravity — Pass 5702: 1030→1390 heavier celeb particle gravity — Pass 6069: 1390→1877 heavier celeb particle gravity — Pass 6780: 1877→2534 heavier celeb particle gravity
+    p.vy -= (p.grav || 3421) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417 — Pass 3849: 417→563 — Pass 4187: 563→760 heavier confetti — Pass 5145: 760→1030 heavier celeb particle gravity — Pass 5702: 1030→1390 heavier celeb particle gravity — Pass 6069: 1390→1877 heavier celeb particle gravity — Pass 6780: 1877→2534 heavier celeb particle gravity — Pass 7797: 2534→3421 heavier celeb particle gravity
     p.vx *= 1 - dt * 3.01; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter) — Pass 4285: 0.9→0.667 even wider confetti scatter — Pass 5352: 0.667→0.900 tighter confetti horizontal drag — Pass 5812: 0.900→1.22 tighter confetti horizontal drag — Pass 6202: 1.22→1.65 tighter confetti horizontal drag — Pass 6784: 1.65→2.23 tighter confetti horizontal drag — Pass 7149: 2.23→3.01 tighter confetti horizontal drag
     p.vz *= 1 - dt * 2.98; // Pass 4426: confetti vz drag 0.667→0.900 tighter Z spread — Pass 5353: 0.900→1.215 tighter confetti Z spread — Pass 5813: 1.215→1.64 tighter confetti vz drag Z spread — Pass 6203: 1.64→2.21 tighter confetti vz drag Z spread — Pass 7057: 2.21→2.98 tighter confetti vz drag Z spread
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
@@ -5338,7 +5338,7 @@ function animate(ts) {
     p.mesh.rotation.y += p.ry * dt;
     p.mesh.rotation.z += p.rz * dt;
     p.rx *= 1 - dt * 2.67; p.ry *= 1 - dt * 2.67; p.rz *= 1 - dt * 2.67; // Pass 1637: angular drag 0.8→0.6 (longer spin) — Pass 4425: 0.6→0.81 stronger confetti tumble damping — Pass 5295: 0.81→1.09 stronger confetti tumble damping — Pass 5703: 1.09→1.47 stronger confetti angular tumble damping — Pass 6070: 1.47→1.98 stronger confetti angular tumble damping — Pass 7058: 1.98→2.67 stronger confetti angular tumble damping
-    p.mat.opacity = (1 - _ct2 * _ct2) * 8.17; // Pass 1472: peak opacity 0.88→1.0 — Pass 4647: landing mote particle fade multiplier 1.0→1.35 brighter confetti fade-out — Pass 5354: 1.35→1.82 brighter confetti particle fade-out — Pass 6193: 1.82→2.46 brighter confetti particle fade-out opacity — Pass 6409: 2.46→3.32 brighter confetti particle fade-out opacity — Pass 7150: 3.32→4.48 brighter confetti particle fade-out opacity — Pass 7640: 4.48→6.05 brighter confetti particle fade-out opacity — Pass 7779: 6.05→8.17 brighter confetti particle fade-out opacity
+    p.mat.opacity = (1 - _ct2 * _ct2) * 11.0; // Pass 1472: peak opacity 0.88→1.0 — Pass 4647: landing mote particle fade multiplier 1.0→1.35 brighter confetti fade-out — Pass 5354: 1.35→1.82 brighter confetti particle fade-out — Pass 6193: 1.82→2.46 brighter confetti particle fade-out opacity — Pass 6409: 2.46→3.32 brighter confetti particle fade-out opacity — Pass 7150: 3.32→4.48 brighter confetti particle fade-out opacity — Pass 7640: 4.48→6.05 brighter confetti particle fade-out opacity — Pass 7779: 6.05→8.17 brighter confetti particle fade-out opacity — Pass 7796: 8.17→11.0 brighter confetti particle fade-out opacity
   });
 
   // ── Fog color — fixed dark navy, no domain tinting (removed per user request) ──
@@ -5362,7 +5362,7 @@ function animate(ts) {
     // Pass 460: edge reveal white flash — at identity lock-on the outline briefly blooms white
     // before settling to domain color. Uses _confirmRingT [0..1] as a proxy timing signal.
     // Pass 628: edge reveal flash window 0.18→0.24 — Pass 1391: →0.34 for longer white bloom at identity lock-on
-    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 5.09) ? (1.0 - _confirmRingT / 5.09) : 0; // Pass 2449: edge reveal window 0.62→0.84 — Pass 4750: 0.84→1.13 longer identity edge reveal flash — Pass 5646: 1.13→1.53 longer identity edge reveal white bloom flash — Pass 6071: 1.53→2.07 longer identity edge reveal white bloom flash window — Pass 6547: 2.07→2.79 longer identity edge reveal white bloom flash window — Pass 7151: 2.79→3.77 longer identity edge reveal white bloom flash window — Pass 7641: 3.77→5.09 longer identity edge reveal white bloom flash window
+    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 6.87) ? (1.0 - _confirmRingT / 6.87) : 0; // Pass 2449: edge reveal window 0.62→0.84 — Pass 4750: 0.84→1.13 longer identity edge reveal flash — Pass 5646: 1.13→1.53 longer identity edge reveal white bloom flash — Pass 6071: 1.53→2.07 longer identity edge reveal white bloom flash window — Pass 6547: 2.07→2.79 longer identity edge reveal white bloom flash window — Pass 7151: 2.79→3.77 longer identity edge reveal white bloom flash window — Pass 7641: 3.77→5.09 longer identity edge reveal white bloom flash window — Pass 7798: 5.09→6.87 longer identity edge reveal white bloom flash window
     if (_edgeRvl > 0.05) activeCardEdgeMat.color.lerp(new THREE.Color(0xffffff), _edgeRvl);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
@@ -5429,8 +5429,8 @@ function animate(ts) {
   // Target set per-phase above; phases not setting it (arm phases, pause) leave it at 0.
   // Lerp rate: 0..target in ~0.15s (dt*7 per frame @ 60fps)
   {
-    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 2.93 // Pass 2245: conveyor belt speed 0.108→0.146 — Pass 2733: 0.146→0.197 — Pass 2965: 0.197→0.266 — Pass 3165: 0.266→0.359 — Pass 3334: 0.359→0.485 // Pass 4480: 0.485→0.655 faster belt scroll — Pass 5382: 0.655→0.884 faster conveyor belt scroll — Pass 5810: 0.884→1.19 faster conveyor belt scroll speed — Pass 6072: 1.19→1.61 faster conveyor belt scroll speed — Pass 6590: 1.61→2.17 faster conveyor belt scroll speed — Pass 7718: 2.17→2.93 faster conveyor belt scroll speed
-                      : inPhase(PH.scan) ? 0.729 // Pass 2246: scan creep 0.027→0.036 — Pass 2734: 0.036→0.049 — Pass 2966: 0.049→0.066 — Pass 3166: 0.066→0.089 — Pass 3335: 0.089→0.120 // Pass 4481: 0.120→0.162 faster scan belt creep — Pass 5383: 0.162→0.219 faster scan belt creep — Pass 5811: 0.219→0.296 faster scan belt creep speed — Pass 6073: 0.296→0.400 faster scan belt creep speed — Pass 6591: 0.400→0.540 faster scan belt creep speed — Pass 7712: 0.540→0.729 faster scan belt creep speed
+    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 3.96 // Pass 2245: conveyor belt speed 0.108→0.146 — Pass 2733: 0.146→0.197 — Pass 2965: 0.197→0.266 — Pass 3165: 0.266→0.359 — Pass 3334: 0.359→0.485 // Pass 4480: 0.485→0.655 faster belt scroll — Pass 5382: 0.655→0.884 faster conveyor belt scroll — Pass 5810: 0.884→1.19 faster conveyor belt scroll speed — Pass 6072: 1.19→1.61 faster conveyor belt scroll speed — Pass 6590: 1.61→2.17 faster conveyor belt scroll speed — Pass 7718: 2.17→2.93 faster conveyor belt scroll speed — Pass 7799: 2.93→3.96 faster conveyor belt scroll speed
+                      : inPhase(PH.scan) ? 0.985 // Pass 2246: scan creep 0.027→0.036 — Pass 2734: 0.036→0.049 — Pass 2966: 0.049→0.066 — Pass 3166: 0.066→0.089 — Pass 3335: 0.089→0.120 // Pass 4481: 0.120→0.162 faster scan belt creep — Pass 5383: 0.162→0.219 faster scan belt creep — Pass 5811: 0.219→0.296 faster scan belt creep speed — Pass 6073: 0.296→0.400 faster scan belt creep speed — Pass 6591: 0.400→0.540 faster scan belt creep speed — Pass 7712: 0.540→0.729 faster scan belt creep speed — Pass 7800: 0.729→0.985 faster scan belt creep speed
                       : (inPhase(PH.deflect) || inPhase(PH.slotDrop)) ? 0.04
                       : 0; // arm phases + pause: belt decelerates to stop
     _beltScrollSpeed += (_beltTarget - _beltScrollSpeed) * Math.min(1, dt * 7);
@@ -5445,13 +5445,13 @@ function animate(ts) {
       if (!t.stripMat) return;
       if (_inSlotDrop && t !== ct) {
         // Non-active strip fades to 0.05 (spotlight yields)
-        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 28.8); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39 — Pass 4553: 6.39→8.63 snappier strip spotlight yield — Pass 5355: 8.63→11.7 snappier rival strip spotlight dim — Pass 5384: 11.7→15.8 snappier rival strip spotlight yield — Pass 6074: 15.8→21.3 snappier rival strip spotlight dim rate — Pass 6592: 21.3→28.8 snappier rival strip spotlight dim rate
+        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 38.9); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39 — Pass 4553: 6.39→8.63 snappier strip spotlight yield — Pass 5355: 8.63→11.7 snappier rival strip spotlight dim — Pass 5384: 11.7→15.8 snappier rival strip spotlight yield — Pass 6074: 15.8→21.3 snappier rival strip spotlight dim rate — Pass 6592: 21.3→28.8 snappier rival strip spotlight dim rate — Pass 7801: 28.8→38.9 snappier rival strip spotlight dim rate
       } else if (!_inSlotDrop && t.stripMat.emissiveIntensity < 0.203) {
         // Recovery to normal idle after spotlight
-        t.stripMat.emissiveIntensity = Math.min(0.203, t.stripMat.emissiveIntensity + dt * 16.3); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65 — Pass 4554: 3.65→4.93 faster strip recovery after spotlight — Pass 4654: belt active emissive floor 0.15→0.203 brighter strip baseline — Pass 5356: 4.93→6.66 faster strip recovery after spotlight — Pass 5385: 6.66→8.99 faster strip recovery after spotlight — Pass 6075: 8.99→12.1 faster strip recovery after spotlight — Pass 6593: 12.1→16.3 faster strip recovery after spotlight
+        t.stripMat.emissiveIntensity = Math.min(0.203, t.stripMat.emissiveIntensity + dt * 22.0); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65 — Pass 4554: 3.65→4.93 faster strip recovery after spotlight — Pass 4654: belt active emissive floor 0.15→0.203 brighter strip baseline — Pass 5356: 4.93→6.66 faster strip recovery after spotlight — Pass 5385: 6.66→8.99 faster strip recovery after spotlight — Pass 6075: 8.99→12.1 faster strip recovery after spotlight — Pass 6593: 12.1→16.3 faster strip recovery after spotlight — Pass 7802: 16.3→22.0 faster strip recovery after spotlight
       } else if (t.stripMat.emissiveIntensity > 0.203) {
         // Pass 69: decay from flash
-        t.stripMat.emissiveIntensity = Math.max(0.203, t.stripMat.emissiveIntensity - dt * 201); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2 — Pass 4511: belt active strip flash decay 33.2→44.8 snappier strobe — Pass 4654: belt active emissive floor 0.15→0.203 — Pass 5357: 44.8→60.5 snappier belt strip flash decay — Pass 5386: 60.5→81.7 snappier belt strip flash decay — Pass 5816: 81.7→110.3 snappier belt strip flash decay — Pass 6076: 110.3→149 snappier belt strip flash decay — Pass 6594: 149→201 snappier belt strip flash decay
+        t.stripMat.emissiveIntensity = Math.max(0.203, t.stripMat.emissiveIntensity - dt * 271); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2 — Pass 4511: belt active strip flash decay 33.2→44.8 snappier strobe — Pass 4654: belt active emissive floor 0.15→0.203 — Pass 5357: 44.8→60.5 snappier belt strip flash decay — Pass 5386: 60.5→81.7 snappier belt strip flash decay — Pass 5816: 81.7→110.3 snappier belt strip flash decay — Pass 6076: 110.3→149 snappier belt strip flash decay — Pass 6594: 149→201 snappier belt strip flash decay — Pass 7803: 201→271 snappier belt strip flash decay
       }
     });
   }
