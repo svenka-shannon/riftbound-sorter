@@ -1989,8 +1989,8 @@ function fireCelebration() {
   });
   // Pass 458: metallic shimmer burst — silver-gold confetti pieces with fast tumble
   // Pass 653: shimmer count 8→12 — Pass 896: →16; speed 90→130 — Pass 895: →165; vy 55+50→75+65 — Pass 895: →95+80
-  const _shimmerColors = [0xffffff, 0xffe0a0, 0xf0f0f0, 0xffd070, 0xeeeeee, 0xffc040, 0xe8e8ff, 0xffeebb, 0xffd0a0, 0xffffff, 0xffe880, 0xf8f8ff, 0xffffff, 0xffd0ff, 0xffe0b0, 0xf8ffff];
-  for (let _mi = 0; _mi < 16; _mi++) { // Pass 896: 12→16 shimmer pieces
+  const _shimmerColors = [0xffffff, 0xffe0a0, 0xf0f0f0, 0xffd070, 0xeeeeee, 0xffc040, 0xe8e8ff, 0xffeebb, 0xffd0a0, 0xffffff, 0xffe880, 0xf8f8ff, 0xffffff, 0xffd0ff, 0xffe0b0, 0xf8ffff, 0xffffd0, 0xffe8b0, 0xf0fff0, 0xffd890, 0xe0e0ff, 0xfff0d0];
+  for (let _mi = 0; _mi < 22; _mi++) { // Pass 896: 12→16 shimmer pieces // Pass 4448: 16→22 more shimmer confetti burst
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
     _mp.vx = (Math.random() - 0.5) * 510; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 wider shimmer spread
     _mp.vy = 514 + Math.random() * 433; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 higher shimmer loft
@@ -3922,9 +3922,9 @@ function animate(ts) {
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 1308 + Math.random() * 1516; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516
+          const _spd = 1766 + Math.random() * 1516; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst
           _sp.vx = Math.cos(_ang) * _spd * 0.7;
-          _sp.vy = 899 + Math.random() * 984; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984
+          _sp.vy = 1214 + Math.random() * 984; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft
           _sp.vz = Math.sin(_ang) * _spd * 0.5 + Math.sign(ct.slotZ || 1) * 15;
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
@@ -3982,7 +3982,7 @@ function animate(ts) {
     const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
     // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020 — Pass 1188: primary →0.062, secondary →0.032 — Pass 1256: primary →0.082, secondary →0.042 for more flutter micro-wobble
-    const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 2.214 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 1.143) * Math.sin(dt2 * Math.PI); // Pass 2379: flutter primary 0.201→0.271, secondary 0.104→0.140 — Pass 2599: 0.271→0.366, 0.140→0.189 — Pass 3037: 0.366→0.494, 0.189→0.255 — Pass 3227: primary 0.494→0.667, secondary 0.255→0.344 — Pass 3393: 0.667→0.900, 0.344→0.465 — Pass 3521: primary 0.900→1.215, secondary 0.465→0.628 — Pass 3734: 1.215→1.640, 0.628→0.847 — Pass 3840: primary 1.640→2.214 — Pass 3841: secondary 0.847→1.143
+    const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 2.989 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 1.543) * Math.sin(dt2 * Math.PI); // Pass 2379: flutter primary 0.201→0.271, secondary 0.104→0.140 — Pass 2599: 0.271→0.366, 0.140→0.189 — Pass 3037: 0.366→0.494, 0.189→0.255 — Pass 3227: primary 0.494→0.667, secondary 0.255→0.344 — Pass 3393: 0.667→0.900, 0.344→0.465 — Pass 3521: primary 0.900→1.215, secondary 0.465→0.628 — Pass 3734: 1.215→1.640, 0.628→0.847 — Pass 3840: primary 1.640→2.214 — Pass 3841: secondary 0.847→1.143 — Pass 4449: primary 2.214→2.989 — Pass 4450: secondary 1.143→1.543 wilder deflect card flutter wobble
     // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
     if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 11);
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
@@ -4109,7 +4109,7 @@ function animate(ts) {
         // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
         // Pass 971: bounce 16→22 — Pass 1108: →30 — Pass 1195: →40 — Pass 1257: →52 for even bigger card-slap landing bounce
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 1407 * Math.sin(bT * Math.PI) * (1 - bT * 0.24); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772 — Pass 3737: 772→1042 — Pass 3845: 1042→1407
+        cy = targetY + 1899 * Math.sin(bT * Math.PI) * (1 - bT * 0.24); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772 — Pass 3737: 772→1042 — Pass 3845: 1042→1407 — Pass 4453: 1407→1899 bigger slot landing bounce
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4250,8 +4250,8 @@ function animate(ts) {
         );
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 51.0; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread
-        _pp.vy = 667 + Math.random() * 589; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589
-        _pp.vz = (Math.random() - 0.5) * 54.0; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 wider landing puff
+        _pp.vy = 901 + Math.random() * 589; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft
+        _pp.vz = (Math.random() - 0.5) * 72.9; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
           Math.min(1, _rr / 255 * 0.45 + 0.55),
