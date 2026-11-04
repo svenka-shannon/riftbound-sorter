@@ -1587,7 +1587,7 @@ const vacuumRingMat = new THREE.MeshBasicMaterial({
   color: 0xaaccff, transparent: true, opacity: 0, side: THREE.DoubleSide,
 });
 const vacuumRing = new THREE.Mesh(
-  new THREE.TorusGeometry(53.9, 2.74, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep — Pass 5011: 2.03→2.74 chunkier suction ring tube — Pass 5728: 16.2→21.9 wider vacuum pick suction ring sweep — Pass 6852: 21.9→29.6 wider vacuum pick suction ring sweep — Pass 7141: 29.6→39.9 wider vacuum pick suction ring sweep — Pass 7455: 39.9→53.9 wider vacuum pick suction ring sweep
+  new THREE.TorusGeometry(72.8, 2.74, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep — Pass 5011: 2.03→2.74 chunkier suction ring tube — Pass 5728: 16.2→21.9 wider vacuum pick suction ring sweep — Pass 6852: 21.9→29.6 wider vacuum pick suction ring sweep — Pass 7141: 29.6→39.9 wider vacuum pick suction ring sweep — Pass 7455: 39.9→53.9 wider vacuum pick suction ring sweep — Pass 7794: 53.9→72.8 wider vacuum pick suction ring sweep
   vacuumRingMat
 );
 vacuumRing.rotation.x = -Math.PI / 2; // flat (XZ plane)
@@ -1617,7 +1617,7 @@ for (let _gdi = 0; _gdi < 9; _gdi++) {
   const _gdMat = new THREE.MeshBasicMaterial({
     color: 0x00ffcc, transparent: true, opacity: 0,
   });
-  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(51.2, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius — Pass 6452: 6.26→8.45 even fatter scan grid mote dot radius — Pass 6504: 8.45→11.4 even fatter scan grid mote dot radius — Pass 6702: 11.4→15.4 even fatter scan grid mote dot radius — Pass 6766: 15.4→20.8 even fatter scan grid mote dot radius — Pass 6895: 20.8→28.1 even fatter scan grid mote dot radius — Pass 7241: 28.1→37.9 even fatter scan grid mote dot radius — Pass 7295: 37.9→51.2 even fatter scan grid mote dot radius
+  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(69.1, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius — Pass 6452: 6.26→8.45 even fatter scan grid mote dot radius — Pass 6504: 8.45→11.4 even fatter scan grid mote dot radius — Pass 6702: 11.4→15.4 even fatter scan grid mote dot radius — Pass 6766: 15.4→20.8 even fatter scan grid mote dot radius — Pass 6895: 20.8→28.1 even fatter scan grid mote dot radius — Pass 7241: 28.1→37.9 even fatter scan grid mote dot radius — Pass 7295: 37.9→51.2 even fatter scan grid mote dot radius — Pass 7795: 51.2→69.1 even fatter scan grid mote dot radius
   _gdMesh.visible = false;
   scene.add(_gdMesh);
   SCAN_GRID_DOTS.push({ mesh: _gdMesh, mat: _gdMat });
