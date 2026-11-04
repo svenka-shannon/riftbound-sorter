@@ -2749,7 +2749,7 @@ function animate(ts) {
         if (!controls._vacRingAngle) controls._vacRingAngle = 0;
         controls._vacRingAngle += dt * (38.6 + _vt * 76.1); // Pass 2265: vacuum ring spin 4.7+22.95→6.35+30.98 — Pass 3173: base 6.35→8.57 Pass 3174: ramp 30.98→41.8 — Pass 3573: base 8.57→11.6, ramp 41.8→56.4 — Pass 3668: base 11.6→15.7 — Pass 3975: base 15.7→21.2 — Pass 4291: 21.2→28.6 faster vacuum ring base spin — Pass 4436: ramp 56.4→76.1 faster ring acceleration — Pass 5126: 28.6→38.6 faster vacuum ring idle spin
         vacuumRing.rotation.z = controls._vacRingAngle;
-        const _vacBaseScale = THREE.MathUtils.lerp(16.3, 0.34, _vt); // Pass 2266: vacuum ring max scale 2.70→3.65 — Pass 3417: 3.65→4.93 — Pass 3529: 4.93→6.66 — Pass 3713: 6.66→8.99 — Pass 3821: 8.99→12.1 — Pass 4222: 12.1→16.3 larger vacuum ring sweep — Pass 4643: pick suction ring min contracted scale 0.25→0.34 wider suction ring footprint
+        const _vacBaseScale = THREE.MathUtils.lerp(22.0, 0.34, _vt); // Pass 2266: vacuum ring max scale 2.70→3.65 — Pass 3417: 3.65→4.93 — Pass 3529: 4.93→6.66 — Pass 3713: 6.66→8.99 — Pass 3821: 8.99→12.1 — Pass 4222: 12.1→16.3 larger vacuum ring sweep — Pass 4643: pick suction ring min contracted scale 0.25→0.34 wider suction ring footprint — Pass 5168: 16.3→22.0 wider vacuum ring expand
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
         // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 — Pass 1249: surge →0.92 — Pass 1361: →1.20 — Pass 1679: →1.60 stronger pump surge
@@ -2767,17 +2767,17 @@ function animate(ts) {
       const lt = phaseT(PH.armLift, easeOut);
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 — Pass 1356: →-0.48 — Pass 1681: →-0.65
       const _ltLurch = lt < 0.243 ? -3.96 * Math.sin((lt / 0.243) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93 — Pass 4224: -2.93→-3.96 more dramatic suction-break strain — Pass 4927: arm pick lift lurch window 0.18→0.243 deeper pick velocity engagement
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.049, 1.08, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position — Pass 4566: arm lift start matches descent end -0.036→-0.049
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.049, 1.46, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position — Pass 4566: arm lift start matches descent end -0.036→-0.049 — Pass 5169: 1.08→1.46 higher arm lift apex
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 — Pass 1682: →7.0 more dramatic dip
       if (lt < 0.22) {
         const _yDip = -31.3 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip — Pass 4902: -23.2→-31.3 more dramatic peel-off lurch
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
         // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 — Pass 1358: →7.00 — Pass 1683: →9.50
-        const _pickStutter = lt < 0.12 ? 31.6 * Math.exp(-lt * 35.1) * (Math.sin(ts * 29.7 * Math.PI * 2) * 0.88 + Math.sin(ts * 51.3 * Math.PI * 2) * 0.47) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear — Pass 4504: pick stutter high freq 38→51.3 sharper micro-jolt — Pass 4527: pick-stutter low-freq amplitude 0.65→0.88 stronger suction-seal shudder — Pass 4529: pick-stutter low-freq seal frequency 22→29.7 sharper suction-seal Hz — Pass 4624: pick-stutter high-freq secondary amplitude 0.35→0.47 more violent seal tear recoil — Pass 4638: pick stutter decay rate 26→35.1 crisper suction-seal shudder
+        const _pickStutter = lt < 0.12 ? 42.7 * Math.exp(-lt * 35.1) * (Math.sin(ts * 29.7 * Math.PI * 2) * 0.88 + Math.sin(ts * 51.3 * Math.PI * 2) * 0.47) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear — Pass 4504: pick stutter high freq 38→51.3 sharper micro-jolt — Pass 4527: pick-stutter low-freq amplitude 0.65→0.88 stronger suction-seal shudder — Pass 4529: pick-stutter low-freq seal frequency 22→29.7 sharper suction-seal Hz — Pass 4624: pick-stutter high-freq secondary amplitude 0.35→0.47 more violent seal tear recoil — Pass 4638: pick stutter decay rate 26→35.1 crisper suction-seal shudder — Pass 5170: 31.6→42.7 more violent suction-seal burst
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 — Pass 1359: →15.0 for more dramatic peel-off sway
-      const _peelZ291 = lt < 0.28 ? 49.8 * Math.sin(lt / 0.28 * Math.PI) : 0; // Pass 2272: peel-off Z drift 20.25→27.34 — Pass 3920: 27.34→36.9 — Pass 4227: 36.9→49.8 wider peel-off sway
+      const _peelZ291 = lt < 0.28 ? 67.2 * Math.sin(lt / 0.28 * Math.PI) : 0; // Pass 2272: peel-off Z drift 20.25→27.34 — Pass 3920: 27.34→36.9 — Pass 4227: 36.9→49.8 wider peel-off sway — Pass 5171: 49.8→67.2 wider peel-off sway arc
       suctionPivot.position.z = _peelZ291;
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
@@ -2825,7 +2825,7 @@ function animate(ts) {
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.20; // Pass 4921: grab particle downward bias 0.15→0.20 more pick-disturbed stack puff
           p.vx = Math.cos(angle) * spd * 1.00; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst — Pass 5080: 0.74→1.00 wider grab burst
-          p.vy = _goDown ? -spd * (0.41 + Math.random() * 0.54) : spd * (0.55 + Math.random() * 0.45); // Pass 4264: grab particle vy down factor 0.3→0.41, rand 0.4→0.54 more forceful suction puff
+          p.vy = _goDown ? -spd * (0.55 + Math.random() * 0.73) : spd * (0.55 + Math.random() * 0.45); // Pass 4264: grab particle vy down factor 0.3→0.41, rand 0.4→0.54 more forceful suction puff — Pass 5172: 0.41→0.55 rand 0.54→0.73 stronger grab particle pull-down
           p.vz = Math.sin(angle) * spd * 0.92; // Pass 4265: grab particle vz spread 0.5→0.68 deeper Z burst — Pass 5081: 0.68→0.92 deeper grab Z burst
           p.mesh.position.set(_bx, _by, (Math.random() - 0.5) * 10.8); // Pass 4627: grab particle initial Z spawn spread 8→10.8 wider burst footprint
           // Pass 85: color variety — highlight (25%), domain (50%), shadow (25%)
@@ -2842,7 +2842,7 @@ function animate(ts) {
           p.mat.color.setHex(_pc);
           p.mat.opacity = 1.55 + Math.random() * 0.15; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst — Pass 4744: 0.85→1.15 more vivid grab burst — Pass 5031: 1.15→1.55 more vivid grab burst
           p.age = 0;
-          p.life = 1.531 + Math.random() * 1.185; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles — Pass 4292: 1.134+0.878→1.531+1.185 longer arc trail persistence
+          p.life = 2.067 + Math.random() * 1.600; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles — Pass 4292: 1.134+0.878→1.531+1.185 longer arc trail persistence — Pass 5173: 1.531→2.067 rand 1.185→1.600 longer arc trail life
           p.active = true;
           p.mesh.visible = true;
         });
@@ -2917,7 +2917,7 @@ function animate(ts) {
     if (inPhase(PH.armSwing)) {
       const _sw = phaseT(PH.armSwing);
       // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050 — Pass 1572: →0.210+0.050 bigger card oscillation — Pass 1573: decay 3.2→2.4 longer wobble tail
-      _swingWobble = (Math.sin(_sw * 25.7) * 0.698 + Math.sin(_sw * 39.2 + 0.6) * 0.167) * Math.exp(-_sw * 3.24); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 — Pass 4196: 0.517+0.124→0.698+0.167 wilder card oscillation — Pass 4508: arm swing wobble secondary freq 29→39.2 crisper angular range oscillation — Pass 4526: arm swing tilt wobble decay 2.4→3.24 crisper swing tilt — Pass 4593: arm swing tilt wobble primary freq 19→25.7 crisper card tilt oscillation
+      _swingWobble = (Math.sin(_sw * 25.7) * 0.942 + Math.sin(_sw * 39.2 + 0.6) * 0.225) * Math.exp(-_sw * 3.24); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 — Pass 4196: 0.517+0.124→0.698+0.167 wilder card oscillation — Pass 4508: arm swing wobble secondary freq 29→39.2 crisper angular range oscillation — Pass 4526: arm swing tilt wobble decay 2.4→3.24 crisper swing tilt — Pass 4593: arm swing tilt wobble primary freq 19→25.7 crisper card tilt oscillation — Pass 5174: 0.698→0.942 0.167→0.225 wilder swing tilt amplitude
       // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt — Pass 1574: →0.30
       _swingDragX = 1.35 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55 — Pass 3925: 0.55→0.743 — Pass 4204: 0.743→1.00 stronger inertia tilt — Pass 5026: 1.00→1.35 more inertia drag lean
     } else if (inPhase(PH.armLift)) {
@@ -2959,7 +2959,7 @@ function animate(ts) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
       cardGlow.intensity = _armCardEmissive * (20.4 + _swZ299 * 18.1); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96 — Pass 4201: base 11.2→15.1 — Pass 4202: boost 9.96→13.4 — Pass 4946: base 15.1→20.4 — Pass 4947: boost 13.4→18.1 brighter arc apex card glow
     } else {
-      cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 3.38 : 0; // Pass 4363: resting cardGlow multiplier 2.50→3.38 brighter card glow outside swing
+      cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 4.56 : 0; // Pass 4363: resting cardGlow multiplier 2.50→3.38 brighter card glow outside swing — Pass 5175: 3.38→4.56 brighter card glow outside swing
     }
     // Pass 242: arm-phase cardGlow domain pre-tint — point light during arc shines domain color
     if (_armCardEmissive > 0) cardGlow.color.setHex(ct.hex);
