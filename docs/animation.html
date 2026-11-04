@@ -4199,7 +4199,7 @@ function animate(ts) {
       const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 81.7 : _sympFlash278; // Pass 2120: target LED spike 10.0→13.5 — Pass 2617: 13.5→18.2 — Pass 3058: 18.2→24.6 — Pass 3570: 24.6→33.2 — Pass 3728: 33.2→44.8 — Pass 4659: 44.8→60.5 brighter target-column LED confirm spike — Pass 5498: 60.5→81.7 brighter target-column LED confirm spike
       const _ledDrop = dt3 < 0.22 ? 6.39 : THREE.MathUtils.lerp(6.39, 0.15, (dt3 - 0.22) / 0.78); // Pass 470 — Pass 4746: LED drop peak 3.5→4.73 brighter slot LED column — Pass 5499: 4.73→6.39 brighter slot LED column drop peak
       const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.20 + _sympFlash278; // Pass 4924: non-target slot LED idle emissive 0.15→0.20 brighter idle LEDs during drop
-      gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 5.40); // Pass 4840: gate col LED slotDrop tracking rate 4→5.40 snappier slot LED response
+      gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 7.29); // Pass 4840: gate col LED slotDrop tracking rate 4→5.40 snappier slot LED response — Pass 5632: 5.40→7.29 snappier gate LED slotDrop tracking
     });
     // Pass 195: slot entrance gate-burst — brief bright point light at slot threshold when
     // card first crosses TRAY_X_START. Separate from the slow-ramping sweep light;
