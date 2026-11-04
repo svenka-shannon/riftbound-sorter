@@ -1958,7 +1958,7 @@ for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   _cpMesh.visible = false;
   scene.add(_cpMesh);
   // Pass 481: randomized gravity factor per particle (18–35) for organic varied fall speed — Pass 4262: base 18→24.3, rand 17→22.95 stronger confetti gravity variance
-  const _gravFactor = 32.8 + Math.random() * 31.0; // Pass 4811: confetti gravity base 24.3→32.8 — Pass 4812: rand 22.95→31.0 heavier confetti
+  const _gravFactor = 44.3 + Math.random() * 41.9; // Pass 4811: confetti gravity base 24.3→32.8 — Pass 4812: rand 22.95→31.0 heavier confetti — Pass 5444: base 32.8→44.3 — Pass 5445: rand 31.0→41.9 heavier confetti gravity variance
   CELEB_PARTICLES.push({ mesh: _cpMesh, mat: _cpMat, vx: 0, vy: 0, vz: 0, rx: 0, ry: 0, rz: 0, age: 0, life: 1.2, active: false, grav: _gravFactor });
 }
 
@@ -3746,7 +3746,7 @@ function animate(ts) {
     // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 — Pass 1369: →30.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (844 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2358: gate col tracking light 103.3→139.5 — Pass 2574: 139.5→188.3 — Pass 3012: 188.3→254.2 — Pass 3210: 254.2→343.2 — Pass 3587: 343.2→463 — Pass 3682: 463→625 — Pass 4374: 625→844 brighter gate column domain pool
+    gateColLight.intensity += (1139 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2358: gate col tracking light 103.3→139.5 — Pass 2574: 139.5→188.3 — Pass 3012: 188.3→254.2 — Pass 3210: 254.2→343.2 — Pass 3587: 343.2→463 — Pass 3682: 463→625 — Pass 4374: 625→844 brighter gate column domain pool — Pass 5438: 844→1139 brighter gate column domain pool
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 3.38); // Pass 4788: route arc fade rate 2.5→3.38 crisper routing arc dismissal
     routeTargetMat.opacity = routeArcMat.opacity;
@@ -4264,10 +4264,10 @@ function animate(ts) {
     // Pass 127: slot entry strip build-up — strip glows brighter as card descends into slot
     // Pass 491: pre-landing urgency pulse — strip flickers at 8Hz in dt3 0.55-0.86 to sell approach
     if (ct.stripMat && dt3 < 0.86) {
-      const _stripApproach = Math.max(0.15, 0.15 + 147 * (dt3 / 0.86)); // Pass 2392: strip approach 7.29→9.84 — Pass 2623: 9.84→13.3 — Pass 2864: 13.3→18.0 — Pass 3062: 18.0→24.3 — Pass 3245: 24.3→32.8 — Pass 3597: 32.8→44.3 — Pass 3693: 44.3→59.8 — Pass 3805: 59.8→80.7 — Pass 3905: 80.7→109 — Pass 4383: 109→147 brighter slot entry build-up
+      const _stripApproach = Math.max(0.15, 0.15 + 198 * (dt3 / 0.86)); // Pass 2392: strip approach 7.29→9.84 — Pass 2623: 9.84→13.3 — Pass 2864: 13.3→18.0 — Pass 3062: 18.0→24.3 — Pass 3245: 24.3→32.8 — Pass 3597: 32.8→44.3 — Pass 3693: 44.3→59.8 — Pass 3805: 59.8→80.7 — Pass 3905: 80.7→109 — Pass 4383: 109→147 brighter slot entry build-up — Pass 5439: 147→198 brighter slot entry build-up
       // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 — Pass 1201: →0.90 — Pass 1262: →1.20 — Pass 1546: →1.60 for more urgent pre-landing flicker
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
-        ? (dt3 - 0.55) / 0.31 * 43.6 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92 — Pass 2624: 2.92→3.94 — Pass 2865: 3.94→5.32 — Pass 3063: 5.32→7.18 — Pass 3246: 7.18→9.69 — Pass 3598: 9.69→13.1 — Pass 3694: 13.1→17.7 — Pass 3806: 17.7→23.9 — Pass 3906: 23.9→32.3 — Pass 4384: 32.3→43.6 stronger pre-landing urgency flicker
+        ? (dt3 - 0.55) / 0.31 * 58.9 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92 — Pass 2624: 2.92→3.94 — Pass 2865: 3.94→5.32 — Pass 3063: 5.32→7.18 — Pass 3246: 7.18→9.69 — Pass 3598: 9.69→13.1 — Pass 3694: 13.1→17.7 — Pass 3806: 17.7→23.9 — Pass 3906: 23.9→32.3 — Pass 4384: 32.3→43.6 stronger pre-landing urgency flicker — Pass 5440: 43.6→58.9 stronger pre-landing urgency flicker
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
         ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 6.75); // Pass 4841: strip emissive tracking rate 5→6.75 snappier pre-landing strip
       }
@@ -4632,9 +4632,9 @@ function animate(ts) {
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response — Pass 1615: ceiling 0.40→0.55, mult 0.05→0.07
     const _shakeBoost   = _cameraShake > 2 ? Math.min(2.46, _cameraShake * 0.316) : 0; // Pass 2530: shake boost ceiling 1.00→1.35, mult 0.128→0.173 — Pass 2748: ceiling 1.35→1.82, mult 0.173→0.234 — Pass 4760: ceiling 1.82→2.46 stronger impact ambient — Pass 4761: shake boost multiplier 0.234→0.316
     // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 — Pass 1607: →1.05
-    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 21.3 : 0; // Pass 2423: slotDrop ambient 1.92→2.59 — Pass 2659: 2.59→3.50 — Pass 2749: 3.50→4.73 — Pass 2890: 4.73→6.39 — Pass 3097: 6.39→8.63 — Pass 3273: 8.63→11.7 — Pass 3351: 11.7→15.8 — Pass 4379: 15.8→21.3 richer slot drop ambient wash
+    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 28.8 : 0; // Pass 2423: slotDrop ambient 1.92→2.59 — Pass 2659: 2.59→3.50 — Pass 2749: 3.50→4.73 — Pass 2890: 4.73→6.39 — Pass 3097: 6.39→8.63 — Pass 3273: 8.63→11.7 — Pass 3351: 11.7→15.8 — Pass 4379: 15.8→21.3 richer slot drop ambient wash — Pass 5441: 21.3→28.8 richer slot drop ambient wash
     // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response — Pass 1610: →0.84
-    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 16.9 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09 — Pass 3098: 5.09→6.87 — Pass 3274: 6.87→9.27 — Pass 3352: 9.27→12.5 — Pass 4316: 12.5→16.9 richer ambient during card flight
+    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 22.8 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09 — Pass 3098: 5.09→6.87 — Pass 3274: 6.87→9.27 — Pass 3352: 9.27→12.5 — Pass 4316: 12.5→16.9 richer ambient during card flight — Pass 5442: 16.9→22.8 richer ambient during card flight
     // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 — Pass 1611: →1.35
     const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 27.1 : 0; // Pass 2425: reveal ambient peak 2.46→3.32 — Pass 2661: 3.32→4.48 — Pass 2751: 4.48→6.05 — Pass 2892: 6.05→8.17 — Pass 3099: 8.17→11.0 — Pass 3275: 11.0→14.9 — Pass 3353: 14.9→20.1 — Pass 4633: 20.1→27.1 stronger identity reveal ambient surge
     const _ambTarget = 1.13 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84 — Pass 4284: 0.84→1.13 brighter scene ambient
@@ -5472,7 +5472,7 @@ function animate(ts) {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
         // Arrival pulse still decaying — let it fall toward breathe target
-        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 13.1); // Pass 2443: tray arrival decay 2.16→2.92 — Pass 2738: 2.92→3.94 — Pass 2970: 3.94→5.32 — Pass 3170: 5.32→7.18 — Pass 3338: 7.18→9.69 — Pass 4722: 9.69→13.1 snappier tray arrival flash decay
+        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 17.7); // Pass 2443: tray arrival decay 2.16→2.92 — Pass 2738: 2.92→3.94 — Pass 2970: 3.94→5.32 — Pass 3170: 5.32→7.18 — Pass 3338: 7.18→9.69 — Pass 4722: 9.69→13.1 snappier tray arrival flash decay — Pass 5443: 13.1→17.7 snappier tray arrival flash decay
       } else {
         // At idle — gently track the breathing target
         m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98 — Pass 4555: 5.98→8.07 snappier tray idle emissive tracking — Pass 5135: 8.07→10.9 snappier tray idle emissive tracking
