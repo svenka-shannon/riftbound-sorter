@@ -2409,7 +2409,7 @@ function animate(ts) {
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
-    if (a.glowAge < 2.19) { // Pass 4431: arrival glow max age 1.2→1.62 longer slot landing flash — Pass 4990: 1.62→2.19 even longer arrival glow
+    if (a.glowAge < 2.96) { // Pass 4431: arrival glow max age 1.2→1.62 longer slot landing flash — Pass 4990: 1.62→2.19 even longer arrival glow — Pass 5522: 2.19→2.96 even longer slot tray arrival glow window
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9 — Pass 4770: 93.0→126 brighter landing flash
@@ -2666,7 +2666,7 @@ function animate(ts) {
         const _earlyT = (pt - 0.50) / 0.30; // 0→1 in early warmup window
         suctionCupMat.emissive.setHex(ct.hex);
         // Pass 1315: early vacuum warmup emissive 0.25→0.40 — Pass 3958: 0.40→0.540 more visible vacuum build — Pass 4290: 0.540→0.729 brighter vacuum warmup
-        suctionCupMat.emissiveIntensity += (0.984 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 6.75); // Pass 4616: suction cup descent emissive track rate 5→6.75 faster warmup tracking — Pass 5095: vacuum warmup emissive 0.729→0.984 brighter gate pre-glow warmup
+        suctionCupMat.emissiveIntensity += (0.984 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4616: suction cup descent emissive track rate 5→6.75 faster warmup tracking — Pass 5095: vacuum warmup emissive 0.729→0.984 brighter gate pre-glow warmup — Pass 5523: track rate 6.75→9.11 faster suction cup warmup tracking
       }
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
@@ -2694,7 +2694,7 @@ function animate(ts) {
             for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 38; _ci++) {
               const _cp = GRAB_PARTICLES[_ci];
               if (_cp.active) continue;
-              _cp.active = true; _cp.age = 0; _cp.life = 0.77 + Math.random() * 0.36; // Pass 1130: 0.20+0.10→0.30+0.15 — Pass 1671: →0.42+0.20 — Pass 4066: →0.57+0.27 longer pick dust — Pass 4898: base 0.57→0.77 — Pass 4899: rand 0.27→0.36 longer contact dust
+              _cp.active = true; _cp.age = 0; _cp.life = 1.04 + Math.random() * 0.36; // Pass 1130: 0.20+0.10→0.30+0.15 — Pass 1671: →0.42+0.20 — Pass 4066: →0.57+0.27 longer pick dust — Pass 4898: base 0.57→0.77 — Pass 4899: rand 0.27→0.36 longer contact dust — Pass 5524: base 0.77→1.04 longer pick dust base life
               const _cpX = PIV_X + 83 * Math.sin(_cfRot);
               const _cpY = PIV_Y - 83 * Math.cos(_cfRot);
               _cp.mesh.position.set(_cpX + (Math.random()-0.5)*10, _cpY - 4, (Math.random()-0.5)*8);
