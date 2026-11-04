@@ -943,7 +943,7 @@ scanTargetLight.decay = 2.70; // Pass 4809: scan target light decay 2→2.70 tig
 scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
-const slotSweepLight = new THREE.PointLight(0xffffff, 0, 99.9); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach
+const slotSweepLight = new THREE.PointLight(0xffffff, 0, 135); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach
 slotSweepLight.decay = 2.70; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff
 scene.add(slotSweepLight);
 
@@ -1061,7 +1061,7 @@ const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
 });
 
 // Pass 141: Gate column tracking light — point light that follows the active LED column
-const gateColLight = new THREE.PointLight(0xffffff, 0, 165); // Pass 4040: gate col light range 90→122 wider column tracking reach — Pass 4910: 122→165 even wider gate column reach
+const gateColLight = new THREE.PointLight(0xffffff, 0, 223); // Pass 4040: gate col light range 90→122 wider column tracking reach — Pass 4910: 122→165 even wider gate column reach — Pass 5073: 165→223 wider gate column reach
 gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, 0);
 scene.add(gateColLight);
 
@@ -1927,7 +1927,7 @@ scene.add(_domainFillLight);
 // Domain-colored point light that follows the card along the belt surface
 // during conveyorIn and conveyorOut phases, casting a moving pool of color
 // on the belt texture beneath the card. Fades to zero outside belt phases.
-const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 173); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach
+const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 234); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach
 _beltTrackLight.position.set(-40, CONV_Y_TOP + 6, 0);
 scene.add(_beltTrackLight);
 
@@ -1941,7 +1941,7 @@ for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(4.01, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads
   _tpMesh.visible = false;
   scene.add(_tpMesh);
-  TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 0.73, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence
+  TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 0.986, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence — Pass 5076: 0.73→0.986 even longer contrail persistence
 }
 let _trailHead = 0;        // ring-buffer head for trail particles
 let _trailSpawnAcc = 0;    // time accumulator for spawn rate
@@ -2733,7 +2733,7 @@ function animate(ts) {
           }
           // Pass 883: descent trail opacity 0.22+0.12→0.32+0.18, life 0.20+0.10→0.28+0.14 — Pass 1091: opacity 0.32+0.18→0.48+0.26, life 0.28+0.14→0.40+0.20 — Pass 1494: opacity →0.65+0.35, Pass 1495: life →0.55+0.28 — Pass 1676: opacity →0.80+0.45, Pass 1677: life →0.72+0.36 — Pass 3908: life 0.72+0.36→0.97+0.49 longer arm trail — Pass 4775: opacity 1.08→1.46 brighter descent trail
           tp.mat.opacity = 1.46 + Math.random() * 0.61; // Pass 4417: arm trail opacity 0.80+0.45→1.08+0.61 brighter descent trail — Pass 4775: opacity 1.08→1.46 brighter descent trail
-          tp.age = 0; tp.life = 1.31 + Math.random() * 0.66; // Pass 4418: arm trail life 0.97+0.49→1.31+0.66 longer descent trail
+          tp.age = 0; tp.life = 1.77 + Math.random() * 0.66; // Pass 4418: arm trail life 0.97+0.49→1.31+0.66 longer descent trail — Pass 5077: 1.31→1.77 longer descent trail
           tp.active = true; tp.mesh.visible = true;
         }
       }
@@ -2797,7 +2797,7 @@ function animate(ts) {
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
         // Pass 524: grab pulse light intensity 6.0→7.5 — Pass 625: →10.0 — Pass 877: →14.0 — Pass 1174: →20.0 — Pass 1669: →28.0, dist→150
-        const grabLight = new THREE.PointLight(ct.hex, 125.6, 274); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 — Pass 4230: 68.9→93.0 intensity, 150→203 range brighter suction grab burst — Pass 4903: range 203→274 wider grab pulse reach — Pass 4945: intensity 93.0→125.6 brighter grab burst
+        const grabLight = new THREE.PointLight(ct.hex, 170, 274); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 — Pass 4230: 68.9→93.0 intensity, 150→203 range brighter suction grab burst — Pass 4903: range 203→274 wider grab pulse reach — Pass 4945: intensity 93.0→125.6 brighter grab burst — Pass 5075: 125.6→170 brighter grab burst
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -4347,11 +4347,11 @@ function animate(ts) {
           _mp.active = true; _mp.age = 0; _mp.life = 10.1 + Math.random() * 5.09; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 10.8, // Pass 4833: upper floor mote X spawn spread 8→10.8 wider arrival fountain footprint
-            ct.slotFloorY + 40.5 + Math.random() * 6, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain
+            ct.slotFloorY + 54.7 + Math.random() * 6, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain — Pass 5078: 40.5→54.7 taller arrival fountain
             ct.slotZ + (Math.random() - 0.5) * 16.2 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint
           );
           _mp.mesh.visible = true;
-          _mp.vx = (Math.random() - 0.5) * 13.5; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst
+          _mp.vx = (Math.random() - 0.5) * 18.2; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst — Pass 5079: 13.5→18.2 wider arrival mote burst
           _mp.vy = 74.4 + Math.random() * 148.9; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7 — Pass 3915: 40.8+81.7→55.1+110.3 — Pass 4407: 55.1+110.3→74.4+148.9 taller mote fountain
           _mp.vz = (Math.random() - 0.5) * 16.2; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread
           _mp.mat.color.setRGB(
