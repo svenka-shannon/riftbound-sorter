@@ -3412,7 +3412,7 @@ function animate(ts) {
         {
           const _bx = activeCard.position.x, _by = CONV_Y_TOP + CARD_T/2 + 2, _bz = activeCard.position.z;
           let _burstSpawned = 0;
-          for (let _bi = 0; _bi < GRAB_PARTICLES.length && _burstSpawned < 32; _bi++) { // Pass 4443: confirm burst count 18→24 more reveal particles — Pass 5431: 24→32 more reveal particles
+          for (let _bi = 0; _bi < GRAB_PARTICLES.length && _burstSpawned < 43; _bi++) { // Pass 4443: confirm burst count 18→24 more reveal particles — Pass 5431: 24→32 more reveal particles — Pass 6548: 32→43 more reveal particles
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
             // Pass 958: burst life 0.36+0.24→0.52+0.32 for longer-lived reveal particles
@@ -3613,7 +3613,7 @@ function animate(ts) {
     // Pass 549: beam reveal boost 0.55→0.80 — Pass 1161: →1.20 for more vivid beam flare at lock-on
     const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 24.3 : 0; // Pass 2344: beam reveal boost 1.62→2.19 — Pass 2827: 2.19→2.96 — Pass 3001: 2.96→4.00 — Pass 3565: 4.00→5.40 — Pass 3725: 5.40→7.29 — Pass 3834: 7.29→9.84 — Pass 4137: 9.84→13.3 brighter beam flare — Pass 5435: 13.3→18.0 brighter beam reveal flare — Pass 6541: 18.0→24.3 brighter beam reveal flare
     // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 — Pass 1162: →1.10 — Pass 1289: →1.45 — Pass 1378: →1.90 for stronger scan column
-    scanBeamMat.opacity = flashIntensity * 28.2 + _strobe + _beamFillBoost + _beamRevealBoost389; // Pass 2345: beam base opacity 2.56→3.46 — Pass 2828: 3.46→4.67 — Pass 3002: 4.67→6.30 — Pass 3566: 6.30→8.51 — Pass 3726: 8.51→11.5 — Pass 3835: 11.5→15.5 — Pass 4138: 15.5→20.9 brighter scan beam — Pass 5436: 20.9→28.2 brighter scan beam flash contribution
+    scanBeamMat.opacity = flashIntensity * 38.1 + _strobe + _beamFillBoost + _beamRevealBoost389; // Pass 2345: beam base opacity 2.56→3.46 — Pass 2828: 3.46→4.67 — Pass 3002: 4.67→6.30 — Pass 3566: 6.30→8.51 — Pass 3726: 8.51→11.5 — Pass 3835: 11.5→15.5 — Pass 4138: 15.5→20.9 brighter scan beam — Pass 5436: 20.9→28.2 brighter scan beam flash contribution — Pass 6549: 28.2→38.1 brighter scan beam flash contribution
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
@@ -3779,7 +3779,7 @@ function animate(ts) {
       const _oWobbleZ = 208 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5 — Pass 3475: 25.5→34.4 — Pass 3543: 34.4→46.4 — Pass 3740: 46.4→62.6 — Pass 3848: 62.6→84.5 — Pass 4081: 84.5→114.1 — Pass 5292: conveyor Z wobble amplitude 114.1→154 stronger lateral belt weave on exit — Pass 6547: 154→208 stronger lateral belt weave conveyorOut
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
       // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview — Pass 1597: →0.68
-      const _z268drift = ct.slotZ * 4.10 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25 — Pass 4320: 2.25→3.04 stronger lane-change preview drift — Pass 5437: 3.04→4.10 stronger lane-change preview drift
+      const _z268drift = ct.slotZ * 5.54 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25 — Pass 4320: 2.25→3.04 stronger lane-change preview drift — Pass 5437: 3.04→4.10 stronger lane-change preview drift — Pass 6550: 4.10→5.54 stronger lane-change preview drift
       activeCard.position.set(
         THREE.MathUtils.lerp(-40, GATE_X, ot),
         CONV_Y_TOP + CARD_T/2 + 3.65, _oWobbleZ + _z268drift // Pass 4567: conveyorOut card belt Y 2→2.70 higher card float on exit belt — Pass 5529: 2.70→3.65 higher card float on exit belt
@@ -3800,7 +3800,7 @@ function animate(ts) {
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
     // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 — Pass 1364: →50.0 — Pass 1556: →68.0 for stronger pre-gate glow
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 4544, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0 — Pass 3017: 226.0→305.1 — Pass 3212: 305.1→411.9 — Pass 3588: 411.9→556 — Pass 3683: 556→751 — Pass 3794: 751→1013 — Pass 3897: 1013→1368 // Pass 4495: gate open emissive max 1368→1847 more intense gate charge bloom — Pass 5030: 1847→2493 more intense gate charge bloom — Pass 5250: gate charge buildup particle emissive max 2493→3366 more intense gate charge bloom — Pass 5422: 3366→4544 more intense gate charge buildup emissive final peak
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 6134, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0 — Pass 3017: 226.0→305.1 — Pass 3212: 305.1→411.9 — Pass 3588: 411.9→556 — Pass 3683: 556→751 — Pass 3794: 751→1013 — Pass 3897: 1013→1368 // Pass 4495: gate open emissive max 1368→1847 more intense gate charge bloom — Pass 5030: 1847→2493 more intense gate charge bloom — Pass 5250: gate charge buildup particle emissive max 2493→3366 more intense gate charge bloom — Pass 5422: 3366→4544 more intense gate charge buildup emissive final peak — Pass 6551: 4544→6134 more intense gate charge buildup emissive final peak
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
     // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 — Pass 1557: primary →4.80, secondary →1.70 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
@@ -3905,7 +3905,7 @@ function animate(ts) {
       // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 — Pass 1194: →0.88 — Pass 1569: →1.20 for harder paddle whack feel
       _paddleRecoil = 44.1 * Math.sign(ct.slotZ); // Pass 2372: paddle recoil kick 2.19→2.96 — Pass 2589: 2.96→4.00 — Pass 2850: 4.00→5.40 — Pass 3028: 5.40→7.29 — Pass 3471: 7.29→9.84 — Pass 3706: 9.84→13.3 — Pass 3820: 13.3→17.9 — Pass 4314: 17.9→24.2 harder paddle recoil — Pass 5430: 24.2→32.7 harder paddle recoil — Pass 6545: 32.7→44.1 harder paddle recoil
       // Pass 216: solenoid jitter — Pass 591: 0.85→1.30 — Pass 1570: →1.80 for stronger lateral vibration
-      _paddleJitterAmt = 19.8; // Pass 2108: solenoid jitter 2.43→3.28 — Pass 2590: 3.28→4.43 — Pass 2851: 4.43→5.98 — Pass 3755: 5.98→8.07 — Pass 3863: 8.07→10.9 — Pass 4315: 10.9→14.7 stronger solenoid buzz — Pass 5431: 14.7→19.8 stronger solenoid buzz
+      _paddleJitterAmt = 26.7; // Pass 2108: solenoid jitter 2.43→3.28 — Pass 2590: 3.28→4.43 — Pass 2851: 4.43→5.98 — Pass 3755: 5.98→8.07 — Pass 3863: 8.07→10.9 — Pass 4315: 10.9→14.7 stronger solenoid buzz — Pass 5431: 14.7→19.8 stronger solenoid buzz — Pass 6552: 19.8→26.7 stronger solenoid buzz
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
       // decays into the normal tumble over ~0.12s, simulating the paddle "whacking" the card sideways.
       _gateZKick = bankSign * 6.05; // Pass 2085: gate Z-kick 0.74→1.00 — Pass 2604: 1.00→1.35 — Pass 2852: 1.35→1.82 — Pass 3029: 1.82→2.46 — Pass 4307: 2.46→3.32 harder deflect kick — Pass 5432: 3.32→4.48 harder deflect kick — Pass 6546: 4.48→6.05 harder deflect kick
@@ -3918,7 +3918,7 @@ function animate(ts) {
           const _sp = GRAB_PARTICLES[_si];
           if (_sp.active) continue;
           // Pass 922: gate spark life 0.28+0.22→0.38+0.28 for longer-lived sparks
-          _sp.active = true; _sp.age = 0; _sp.life = 1.70 + Math.random() * 1.26; // Pass 1814: gate spark life 0.38+0.28→0.51+0.38 — Pass 2591: 0.51+0.38→0.69+0.51 — Pass 3044: 0.69+0.51→0.93+0.69 — Pass 4308: base 0.93→1.26 — Pass 4309: rand 0.69→0.93 longer gate sparks — Pass 5433: base 1.26→1.70 — Pass 5434: rand 0.93→1.26 longer gate sparks
+          _sp.active = true; _sp.age = 0; _sp.life = 2.30 + Math.random() * 1.70; // Pass 1814: gate spark life 0.38+0.28→0.51+0.38 — Pass 2591: 0.51+0.38→0.69+0.51 — Pass 3044: 0.69+0.51→0.93+0.69 — Pass 4308: base 0.93→1.26 — Pass 4309: rand 0.69→0.93 longer gate sparks — Pass 5433: base 1.26→1.70 — Pass 5434: rand 0.93→1.26 longer gate sparks — Pass 6553: base 1.70→2.30 rand 1.26→1.70 longer gate sparks
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
@@ -4047,7 +4047,7 @@ function animate(ts) {
     // Pass 649: deflect column light max 3.0→4.5 — Pass 1193: →6.5 brighter gate column during arc flight
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (444 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0 — Pass 3689: 99.0→134 — Pass 3801: 134→181 — Pass 3901: 181→244 — Pass 4741: 244→329 brighter gate column tracking — Pass 5465: 329→444 brighter gate column tracking light
+    gateColLight.intensity += (599 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0 — Pass 3689: 99.0→134 — Pass 3801: 134→181 — Pass 3901: 181→244 — Pass 4741: 244→329 brighter gate column tracking — Pass 5465: 329→444 brighter gate column tracking light — Pass 6554: 444→599 brighter gate column tracking light
     _beltScrollSpeed = 0.0985; // half speed while card arcs off belt — Pass 4876: deflect belt speed 0.04→0.054 livelier belt during arc — Pass 5091: 0.054→0.0729 livelier belt scroll during arc flight — Pass 6270: 0.0729→0.0985 livelier belt scroll speed during arc deflect
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
@@ -4264,7 +4264,7 @@ function animate(ts) {
     // Pass 127: slot entry strip build-up — strip glows brighter as card descends into slot
     // Pass 491: pre-landing urgency pulse — strip flickers at 8Hz in dt3 0.55-0.86 to sell approach
     if (ct.stripMat && dt3 < 0.86) {
-      const _stripApproach = Math.max(0.15, 0.15 + 198 * (dt3 / 0.86)); // Pass 2392: strip approach 7.29→9.84 — Pass 2623: 9.84→13.3 — Pass 2864: 13.3→18.0 — Pass 3062: 18.0→24.3 — Pass 3245: 24.3→32.8 — Pass 3597: 32.8→44.3 — Pass 3693: 44.3→59.8 — Pass 3805: 59.8→80.7 — Pass 3905: 80.7→109 — Pass 4383: 109→147 brighter slot entry build-up — Pass 5439: 147→198 brighter slot entry build-up
+      const _stripApproach = Math.max(0.15, 0.15 + 267 * (dt3 / 0.86)); // Pass 2392: strip approach 7.29→9.84 — Pass 2623: 9.84→13.3 — Pass 2864: 13.3→18.0 — Pass 3062: 18.0→24.3 — Pass 3245: 24.3→32.8 — Pass 3597: 32.8→44.3 — Pass 3693: 44.3→59.8 — Pass 3805: 59.8→80.7 — Pass 3905: 80.7→109 — Pass 4383: 109→147 brighter slot entry build-up — Pass 5439: 147→198 brighter slot entry build-up — Pass 6555: 198→267 brighter slot entry build-up
       // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 — Pass 1201: →0.90 — Pass 1262: →1.20 — Pass 1546: →1.60 for more urgent pre-landing flicker
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
         ? (dt3 - 0.55) / 0.31 * 58.9 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92 — Pass 2624: 2.92→3.94 — Pass 2865: 3.94→5.32 — Pass 3063: 5.32→7.18 — Pass 3246: 7.18→9.69 — Pass 3598: 9.69→13.1 — Pass 3694: 13.1→17.7 — Pass 3806: 17.7→23.9 — Pass 3906: 23.9→32.3 — Pass 4384: 32.3→43.6 stronger pre-landing urgency flicker — Pass 5440: 43.6→58.9 stronger pre-landing urgency flicker
