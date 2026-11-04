@@ -2499,7 +2499,7 @@ function animate(ts) {
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
       // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
-      const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 18;
+      const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 24; // Pass 5018: slot LED pre-reveal pulse frequency 18→24 more frantic pre-confirm LED flutter
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
@@ -2637,7 +2637,7 @@ function animate(ts) {
       // Pass 182: servo hunt jitter — was ts*0.055 (114-second period = invisible).
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
-      const jitter = 9.45 * (1 - pt) * (
+      const jitter = 12.8 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting
         Math.sin(ts * 10.8 * Math.PI * 2) * 0.945 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter
         Math.sin(ts * 17.6 * Math.PI * 2) * 0.405 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone
       );
@@ -3071,7 +3071,7 @@ function animate(ts) {
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
     // Belt scroll target: conveyorIn full speed
-    _beltScrollSpeed = 0.08;
+    _beltScrollSpeed = 0.108; // Pass 5020: conveyorIn belt scroll speed 0.08→0.108 faster belt motion
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
@@ -3419,7 +3419,7 @@ function animate(ts) {
             _bp.active = true; _bp.age = 0; _bp.life = 1.73 + Math.random() * 1.057; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58 — Pass 3965: 0.95+0.58→1.28+0.783 — Pass 4119: 1.28+0.783→1.73+1.057 longer reveal burst
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
-            const _ang = (_burstSpawned / 18) * Math.PI * 2 + Math.random() * 0.8;
+            const _ang = (_burstSpawned / 24) * Math.PI * 2 + Math.random() * 0.8; // Pass 5021: confirm burst angular divisor 18→24 fuller radial coverage per burst
             const _spd = 1554 + Math.random() * 1432; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582 — Pass 3561: base 632→853, range 582→786 — Pass 3720: 853+786→1151+1061 — Pass 4116: 1151+1061→1554+1432 explosive confirm burst
             _bp.vx = Math.cos(_ang) * _spd * 0.743; // Pass 4792: confirm burst vx spread 0.55→0.743
             _bp.vy = 1025 + Math.random() * 695; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416 — Pass 3560: base 416→562, rand 282→381 — Pass 3721: 562+381→759+515 — Pass 4117: base 759→1025 — Pass 4118: rand 515→695 higher burst
@@ -4390,7 +4390,7 @@ function animate(ts) {
         _trailHead++;
         tp.mesh.position.set(
           TRAY_X_START + 15 + (Math.random() - 0.5) * 16.2, // Pass 4551: reject burst X radius 12→16.2 wider alarm fountain
-          ct.slotFloorY + 30 + Math.random() * 15,
+          ct.slotFloorY + 30 + Math.random() * 20, // Pass 5022: reject alarm spark Y height spread 15→20 taller alarm fountain
           ct.slotZ + (Math.random() - 0.5) * 24.3 // Pass 4535: reject alarm fountain Z radius 18→24.3 wider alarm spread
         );
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
@@ -4412,7 +4412,7 @@ function animate(ts) {
         _trailHead++;
         tp2.mesh.position.set(
           TRAY_X_START + 15 + (Math.random() - 0.5) * 13.5, // Pass 4834: reject burst2 X spawn spread 10→13.5 wider secondary spark burst
-          ct.slotFloorY + 22 + Math.random() * 10,
+          ct.slotFloorY + 22 + Math.random() * 13.5, // Pass 5023: reject burst2 Y height spread 10→13.5 taller secondary alarm burst
           ct.slotZ + (Math.random() - 0.5) * 21.6 // Pass 4835: reject burst2 Z spawn spread 16→21.6 wider reject spark Z footprint
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
