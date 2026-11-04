@@ -944,7 +944,7 @@ scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
 const slotSweepLight = new THREE.PointLight(0xffffff, 0, 135); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach
-slotSweepLight.decay = 2.70; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff
+slotSweepLight.decay = 3.65; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff
 scene.add(slotSweepLight);
 
 // ─── Scanner beam cone ────────────────────────────────────────────────────────
@@ -1491,7 +1491,7 @@ const _shadowMat = new THREE.MeshBasicMaterial({
 const _shadowMesh = new THREE.Mesh(new THREE.CircleGeometry(1, 32), _shadowMat);
 _shadowMesh.rotation.x = -Math.PI / 2; // lie flat on belt surface
 _shadowMesh.scale.set(CARD_H * 0.74, 1, CARD_W * 0.74); // elongated card-proportioned ellipse — Pass 4917: card contact shadow ellipse scale 0.55→0.74 larger belt shadow
-_shadowMesh.position.set(-40, CONV_Y_TOP + 0.54, 0); // Pass 4926: shadow Y offset 0.4→0.54 more elevated belt shadow
+_shadowMesh.position.set(-40, CONV_Y_TOP + 0.729, 0); // Pass 4926: shadow Y offset 0.4→0.54 more elevated belt shadow — Pass 5469: 0.54→0.729 more elevated card contact shadow
 scene.add(_shadowMesh);
 
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
@@ -1739,7 +1739,7 @@ function addCardToTray(ct) {
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
-  const startY  = targetY + 40.5; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5
+  const startY  = targetY + 54.7; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5 — Pass 5468: 40.5→54.7 higher slot tray arrival drop height
   const zJitter    = (Math.random() - 0.5) * 6.66;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle — Pass 5423: 4.93→6.66 wider card Z spread during belt idle
   const yRotJitter = (Math.random() - 0.5) * 0.729;  // ±0.365 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter — Pass 5409: 0.540→0.729 wilder slot entry guided arc card tilt range
   mesh.position.set(
@@ -2104,9 +2104,9 @@ function applySpeed(idx) {
   speedMult = SPEEDS[idx];
   document.getElementById('speed-btn').textContent = speedMult + '× Speed';
   // Baseline belt glow scales with speed
-  beltSurfMat._glowBase = speedMult >= 4 ? 0.41 // Pass 4857: belt high-speed glow base 0.30→0.41
-                        : speedMult >= 2 ? 0.20 // Pass 4858: belt mid-speed glow base 0.15→0.20
-                        : 0.068; // Pass 4859: belt idle glow base 0.05→0.068
+  beltSurfMat._glowBase = speedMult >= 4 ? 0.554 // Pass 4857: belt high-speed glow base 0.30→0.41 — Pass 5465: 0.41→0.554 brighter belt high-speed surface glow
+                        : speedMult >= 2 ? 0.27 // Pass 4858: belt mid-speed glow base 0.15→0.20 — Pass 5466: 0.20→0.27 brighter belt mid-speed surface glow
+                        : 0.0918; // Pass 4859: belt idle glow base 0.05→0.068 — Pass 5467: 0.068→0.0918 brighter belt idle surface glow
   // Pass 87: chromatic aberration + saturation boost on canvas at high speed
   const _canvas = renderer.domElement;
   if (speedMult >= 4) {
@@ -5008,10 +5008,10 @@ function animate(ts) {
         // Dim preview: next card's domain glows subtly on the top hopper card
         // Pass 480: next-card preview slow pulse — 0.6Hz breathing for "anticipate" feel
         const nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
-        topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 2.03)); // Pass 4831: top card next-domain color tracking rate 1.5→2.03
+        topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 2.74)); // Pass 4831: top card next-domain color tracking rate 1.5→2.03 — Pass 5463: 2.03→2.74 snappier top card domain color tracking
         const _prevT = inPhase(PH.pause) ? phaseRaw(PH.pause) : phaseRaw(PH.armReturn);
         const _prevPulse = 6.94 + 2.59 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 2482: preview pulse base 0.63→0.85 Pass 2483: amp 0.32→0.43 — Pass 2694: 0.85→1.15, 0.43→0.58 — Pass 2789: base 1.15→1.55 Pass 2790: amp 0.58→0.78 — Pass 2922/2923: 1.55+0.78→2.09+1.05 — Pass 3133: base 2.09→2.82 Pass 3134: amp 1.05→1.42 — Pass 3302: 2.82+1.42→3.81+1.92 — Pass 4164: base 3.81→5.14, amp 1.92→2.59 — Pass 5397: 5.14→6.94 richer next-domain preview pulse base
-        topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 4839: top card preview emissive tracking rate 2→2.70 snappier next-domain preview glow
+        topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 3.65); // Pass 4839: top card preview emissive tracking rate 2→2.70 snappier next-domain preview glow — Pass 5464: 2.70→3.65 snappier top card preview glow tracking
       } else {
         topCard.material.emissiveIntensity *= 0.85; // decay when not in pick phase
       }
