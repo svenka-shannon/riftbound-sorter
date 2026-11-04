@@ -558,7 +558,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 10.2; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure — Pass 5954: 4.16→5.62 richer tone mapping exposure — Pass 6047: 5.62→7.59 richer tone mapping exposure — Pass 6428: 7.59→10.2 richer tone mapping exposure
+renderer.toneMappingExposure = 13.8; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure — Pass 5954: 4.16→5.62 richer tone mapping exposure — Pass 6047: 5.62→7.59 richer tone mapping exposure — Pass 6428: 7.59→10.2 richer tone mapping exposure — Pass 6501: 10.2→13.8 richer tone mapping exposure
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 // Pass 67: animated clear color — base dark navy tints toward domain on scan/celebration
 const _clearBase = new THREE.Color(0x0a0a12);
@@ -603,7 +603,7 @@ gridHelper.position.y = -2;
 scene.add(gridHelper);
 
 // ─── Ambient Dust Particles ───────────────────────────────────────────────────
-const DUST_COUNT = 2487; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count — Pass 5517: 411→555 denser ambient mote spawn count — Pass 5956: 555→749 denser ambient dust mote count — Pass 6034: 749→1011 denser ambient dust mote count — Pass 6316: 1011→1365 denser ambient dust mote count — Pass 6340: 1365→1843 denser ambient dust mote count — Pass 6404: 1843→2487 denser ambient dust mote count
+const DUST_COUNT = 3358; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count — Pass 5517: 411→555 denser ambient mote spawn count — Pass 5956: 555→749 denser ambient dust mote count — Pass 6034: 749→1011 denser ambient dust mote count — Pass 6316: 1011→1365 denser ambient dust mote count — Pass 6340: 1365→1843 denser ambient dust mote count — Pass 6404: 1843→2487 denser ambient dust mote count — Pass 6500: 2487→3358 denser ambient dust mote count
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
 const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
@@ -1617,7 +1617,7 @@ for (let _gdi = 0; _gdi < 9; _gdi++) {
   const _gdMat = new THREE.MeshBasicMaterial({
     color: 0x00ffcc, transparent: true, opacity: 0,
   });
-  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(8.45, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius — Pass 6452: 6.26→8.45 even fatter scan grid mote dot radius
+  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(11.4, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius — Pass 6452: 6.26→8.45 even fatter scan grid mote dot radius — Pass 6504: 8.45→11.4 even fatter scan grid mote dot radius
   _gdMesh.visible = false;
   scene.add(_gdMesh);
   SCAN_GRID_DOTS.push({ mesh: _gdMesh, mat: _gdMat });
@@ -1820,7 +1820,7 @@ CARD_TYPES.forEach(ct => {
 
 // ─── Card halo ring: spinning domain-colored torus around active card ─────────
 // Visible during belt travel; makes domain color unmistakably obvious
-const cardHaloGeo = new THREE.TorusGeometry(42, 10.9, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring — Pass 6235: 5.98→8.07 chunkier card arrival halo ring tube radius — Pass 6456: 8.07→10.9 chunkier card arrival halo ring tube radius
+const cardHaloGeo = new THREE.TorusGeometry(42, 14.7, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring — Pass 6235: 5.98→8.07 chunkier card arrival halo ring tube radius — Pass 6456: 8.07→10.9 chunkier card arrival halo ring tube radius — Pass 6505: 10.9→14.7 chunkier card arrival halo ring tube radius
 const cardHaloMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 8.99, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow — Pass 6350: 6.66→8.99 more vivid card halo ring birth glow
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
@@ -1935,10 +1935,10 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 259; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool — Pass 6411: 192→259 richer deflect trail particle pool
+const TRAIL_PARTICLE_COUNT = 350; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool — Pass 6411: 192→259 richer deflect trail particle pool — Pass 6502: 259→350 richer deflect trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(13.3, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius — Pass 6037: 7.30→9.86 chunkier arm arc trail contrail particle radius — Pass 6457: 9.86→13.3 chunkier arm arc trail contrail particle radius
+  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(18.0, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius — Pass 6037: 7.30→9.86 chunkier arm arc trail contrail particle radius — Pass 6457: 9.86→13.3 chunkier arm arc trail contrail particle radius — Pass 6503: 13.3→18.0 chunkier arm arc trail contrail particle radius
   _tpMesh.visible = false;
   scene.add(_tpMesh);
   TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 5.98, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence — Pass 5076: 0.73→0.986 even longer contrail persistence — Pass 5366: 0.986→1.33 longer idle scan emit trail particle persistence — Pass 5733: 1.33→1.80 longer deflect trail particle lifetime — Pass 5935: 1.80→2.43 longer deflect trail particle lifetime — Pass 6285: 2.43→3.28 longer arc contrail particle lifetime — Pass 6304: 3.28→4.43 longer arc contrail particle lifetime — Pass 6333: 4.43→5.98 longer arc contrail particle lifetime
@@ -3560,7 +3560,7 @@ function animate(ts) {
     scanTargetLight.color.setHex(ct.hex);
     // Pass 348: target light reveal spike — Pass 547: spike 4.5→6.5, base 3.2→4.2
     // Pass 913: spike 6.5→10.0 — Pass 1425: →14.0 for bigger destination spotlight flash at lock-on
-    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 379 : 0; // Pass 2553: target spotlight spike 25.5→34.4 — Pass 2821: 34.4→46.4 — Pass 2992: 46.4→62.6 — Pass 3191: 62.6→84.5 — Pass 3477: 84.5→114.1 — Pass 3989: 114.1→154 — Pass 4128: 154→208 brighter spotlight flash — Pass 5373: 208→281 bigger destination lock-on spotlight spike — Pass 6498: 281→379 bigger destination lock-on spotlight spike
+    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 512 : 0; // Pass 2553: target spotlight spike 25.5→34.4 — Pass 2821: 34.4→46.4 — Pass 2992: 46.4→62.6 — Pass 3191: 62.6→84.5 — Pass 3477: 84.5→114.1 — Pass 3989: 114.1→154 — Pass 4128: 154→208 brighter spotlight flash — Pass 5373: 208→281 bigger destination lock-on spotlight spike — Pass 6498: 281→379 bigger destination lock-on spotlight spike — Pass 6506: 379→512 bigger destination lock-on spotlight spike
     // Pass 912: base 4.2→6.0 — Pass 1425: →8.5 for stronger destination spotlight during scan
     scanTargetLight.intensity = _identityRevealed ? flashIntensity * 127 + _tgtRevealSpike348 : 0; // Pass 2554: target spotlight base flash 11.5→15.5 — Pass 2822: 15.5→20.9 — Pass 2993: 20.9→28.2 — Pass 3192: 28.2→38.1 — Pass 3478: 38.1→51.4 — Pass 3990: 51.4→69.4 — Pass 4129: 69.4→93.7 stronger spotlight — Pass 5383: 93.7→127 stronger scan target spotlight
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
@@ -3972,7 +3972,7 @@ function animate(ts) {
       const _defEntryT = Math.min(1, dt2 / 0.14);
       const _normTilt = THREE.MathUtils.lerp(0, floorTilt, dt2);
       // Pass 763: launch kick 0.28→0.40 — Pass 1186: →0.58 for more dramatic gate-exit nose-up
-      const _launchKick = 15.7 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 2377: launch kick 1.42→1.92 — Pass 2597: 1.92→2.59 — Pass 2858: 2.59→3.50 — Pass 3036: 3.50→4.73 — Pass 4004: 4.73→6.39 — Pass 4696: 6.39→8.63 stronger gate-exit nose-up kick — Pass 5468: 8.63→11.65 stronger gate-exit nose-up launch kick — Pass 6498: 11.65→15.7 stronger gate-exit nose-up launch kick
+      const _launchKick = 21.2 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 2377: launch kick 1.42→1.92 — Pass 2597: 1.92→2.59 — Pass 2858: 2.59→3.50 — Pass 3036: 3.50→4.73 — Pass 4004: 4.73→6.39 — Pass 4696: 6.39→8.63 stronger gate-exit nose-up kick — Pass 5468: 8.63→11.65 stronger gate-exit nose-up launch kick — Pass 6498: 11.65→15.7 stronger gate-exit nose-up launch kick — Pass 6507: 15.7→21.2 stronger gate-exit nose-up launch kick
       activeCard.rotation.x = THREE.MathUtils.lerp(-0.05, _normTilt, easeOut(_defEntryT)) + _launchKick;
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
