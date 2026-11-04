@@ -593,7 +593,7 @@ const fillLight = new THREE.DirectionalLight(0xc0d8ff, 1.67); // Pass 4037: fill
 fillLight.position.set(-400, 300, 200);
 scene.add(fillLight);
 
-const rimLight = new THREE.DirectionalLight(0xffeedd, 0.857); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim
+const rimLight = new THREE.DirectionalLight(0xffeedd, 1.16); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim
 rimLight.position.set(200, 100, -400);
 scene.add(rimLight);
 
@@ -704,7 +704,7 @@ scene.add(baseMesh);
 const HOPPER_X = -230;
 
 // Point light above hopper to spotlight the pick-up action
-const hopperLight = new THREE.PointLight(0xffeedd, 1.24, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight
+const hopperLight = new THREE.PointLight(0xffeedd, 1.67, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight
 hopperLight.position.set(HOPPER_X + 33, 200, 0);
 scene.add(hopperLight);
 
@@ -931,7 +931,7 @@ scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(6.39, 6.39, 6.39), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block
+const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(8.63, 8.63, 8.63), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block
 scanBarCursor.position.set(-40, CONV_Y_TOP + 83.7, -51); // Pass 4650: scan bar reveal lift distance 62→83.7
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
@@ -1760,7 +1760,7 @@ function addCardToTray(ct) {
   _ledCooloff[ct.slot] = 12.6; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
-  const flashLight = new THREE.PointLight(ct.hex, 9.11, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst
+  const flashLight = new THREE.PointLight(ct.hex, 12.3, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst
   flashLight.position.copy(mesh.position);
   scene.add(flashLight);
   if(!window._flashLights) window._flashLights = [];
