@@ -908,7 +908,7 @@ scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
-const scanBloom = new THREE.PointLight(0x0088ff, 0, 998); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach
+const scanBloom = new THREE.PointLight(0x0088ff, 0, 1348); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach
 scanBloom.decay = 3.65; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff
 scene.add(scanBloom);
 
@@ -1086,7 +1086,7 @@ paddlePivot.add(shaftMesh);
 // Tip indicator on paddle bottom (contact face)
 const tipMesh = new THREE.Mesh(
   new THREE.BoxGeometry(6, 4, 20),
-  new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.4, emissive: 0x442200, emissiveIntensity: 0.554 }) // Pass 4332: paddle tip emissive 0.3→0.41 brighter contact face glow — Pass 5000: 0.41→0.554 brighter paddle tip glow
+  new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.4, emissive: 0x442200, emissiveIntensity: 0.748 }) // Pass 4332: paddle tip emissive 0.3→0.41 brighter contact face glow — Pass 5000: 0.41→0.554 brighter paddle tip glow — Pass 5730: 0.554→0.748 brighter paddle contact tip glow
 );
 tipMesh.position.set(0, -30, 0);
 paddlePivot.add(tipMesh);
@@ -1478,7 +1478,7 @@ activeCardEdge.visible = false;
 scene.add(activeCardEdge);
 
 // Card glow: increased range and physical falloff
-const cardGlow = new THREE.PointLight(0xffffff, 0, 493); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range
+const cardGlow = new THREE.PointLight(0xffffff, 0, 666); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range — Pass 5734: 493→666 wider card glow illumination range
 cardGlow.decay = 4.93; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff
 scene.add(cardGlow);
 
@@ -1557,7 +1557,7 @@ let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.
 const confirmRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 2.96, 4, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring — Pass 5365: 2.19→2.96 chunkier identity confirm ring
+const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 4.00, 4, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring — Pass 5365: 2.19→2.96 chunkier identity confirm ring — Pass 5736: 2.96→4.00 chunkier identity confirm ring tube
 confirmRing.rotation.x = -Math.PI / 2; // lie flat (XZ plane)
 confirmRing.visible = false;
 scene.add(confirmRing);
@@ -1566,7 +1566,7 @@ let _confirmRingT = -1; // -1=idle; 0..1=animation progress
 const confirmRing2Mat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 1.97, 4, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring — Pass 5366: 1.46→1.97 chunkier double-ripple ring
+const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 2.66, 4, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring — Pass 5366: 1.46→1.97 chunkier double-ripple ring — Pass 5737: 1.97→2.66 chunkier double-ripple ring tube
 confirmRing2.rotation.x = -Math.PI / 2;
 confirmRing2.visible = false;
 scene.add(confirmRing2);
@@ -1576,7 +1576,7 @@ let _confirmRingT2 = -1; // -1=idle; 0..1=animation progress (fires 0.12s after 
 const grabRingMat = new THREE.MeshBasicMaterial({
   color: 0xccddff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 2.46, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring — Pass 4978: 1.35→1.82 fatter grab suction ring — Pass 5475: 1.82→2.46 fatter grab suction ring tube
+const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 3.32, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring — Pass 4978: 1.35→1.82 fatter grab suction ring — Pass 5475: 1.82→2.46 fatter grab suction ring tube — Pass 5732: 2.46→3.32 fatter grab contact ring tube
 grabRing.rotation.x = -Math.PI / 2; // lie flat in the belt plane
 grabRing.visible = false;
 scene.add(grabRing);
@@ -1941,7 +1941,7 @@ for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(5.41, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius
   _tpMesh.visible = false;
   scene.add(_tpMesh);
-  TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 1.33, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence — Pass 5076: 0.73→0.986 even longer contrail persistence — Pass 5366: 0.986→1.33 longer idle scan emit trail particle persistence
+  TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 1.80, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence — Pass 5017: 0.54→0.73 even longer contrail persistence — Pass 5076: 0.73→0.986 even longer contrail persistence — Pass 5366: 0.986→1.33 longer idle scan emit trail particle persistence — Pass 5733: 1.33→1.80 longer deflect trail particle lifetime
 }
 let _trailHead = 0;        // ring-buffer head for trail particles
 let _trailSpawnAcc = 0;    // time accumulator for spawn rate
@@ -2325,7 +2325,7 @@ function animate(ts) {
     // just snaps to exactly 0 to clear floating-point residue, then restores color.
     paddlePivot.rotation.y = 0; // accuracy: Y-axis rotation for Z-column deflection
     paddlePivot.rotation.z = 0; // clear any residual Z tilt
-    paddleMat.emissiveIntensity = 1.66; // Pass 4026: paddle resting glow 0.5→0.675 — Pass 5002: 0.675→0.911 warmer paddle resting glow — Pass 5190: 0.911→1.23 warmer paddle resting glow — Pass 5397: 1.23→1.66 warmer arm rest paddle resting glow
+    paddleMat.emissiveIntensity = 2.24; // Pass 4026: paddle resting glow 0.5→0.675 — Pass 5002: 0.675→0.911 warmer paddle resting glow — Pass 5190: 0.911→1.23 warmer paddle resting glow — Pass 5397: 1.23→1.66 warmer arm rest paddle resting glow — Pass 5735: 1.66→2.24 warmer paddle resting glow on arm reset
     paddleMat.color.setHex(0xff6600);   // restore orange at cycle boundary
     paddleMat.emissive.setHex(0xff3300);
 
@@ -4832,7 +4832,7 @@ function animate(ts) {
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
     // Pass 996: scan orbit 600→530 for tighter close-up during identity scan, armSwing 680→620 — Pass 1354: scan→470, armSwing→560
-    const orbitRBase = inPhase(PH.scan) ? 419 : inPhase(PH.armSwing) ? 567 : inPhase(PH.deflect) ? 756 : 837; // Pass 2538: orbit tighten scan 420→310 armSwing 560→420 deflect 700→560 base 750→620 — Pass 4753: scan orbit 310→419 — Pass 4754: armSwing orbit 420→567 — Pass 4755: deflect orbit 560→756 — Pass 4756: base orbit 620→837
+    const orbitRBase = inPhase(PH.scan) ? 419 : inPhase(PH.armSwing) ? 567 : inPhase(PH.deflect) ? 756 : 1130; // Pass 2538: orbit tighten scan 420→310 armSwing 560→420 deflect 700→560 base 750→620 — Pass 4753: scan orbit 310→419 — Pass 4754: armSwing orbit 420→567 — Pass 4755: deflect orbit 560→756 — Pass 4756: base orbit 620→837 — Pass 5720: base orbit 837→1130 wider base camera orbit distance
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.0365; // smooth zoom — Pass 4759: orbit smooth rate 0.02→0.027 — Pass 5418: 0.027→0.0365 snappier orbit zoom
     const orbitR = controls._orbitR;
@@ -4967,7 +4967,7 @@ function animate(ts) {
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
       const _fdPulse514 = (1 - _altFrac) * 0.140 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe — Pass 4558: 0.077→0.104 stronger floor disc breathe — Pass 5407: 0.104→0.140 stronger floor disc breathe pulse
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
-      const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.074, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00 — Pass 4751: altitude floor 0.055→0.074 more visible floor disc at altitude
+      const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.100, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00 — Pass 4751: altitude floor 0.055→0.074 more visible floor disc at altitude — Pass 5721: altitude floor 0.074→0.100 more visible floor disc at altitude
       floorDisc.scale.setScalar(_fdScale);
       floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.27; // Pass 4690: floor disc opacity tracking rate 0.15→0.20 snappier domain halo fade — Pass 5419: 0.20→0.27 snappier floor disc opacity tracking
     } else {
