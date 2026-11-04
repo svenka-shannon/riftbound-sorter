@@ -603,7 +603,7 @@ gridHelper.position.y = -2;
 scene.add(gridHelper);
 
 // ─── Ambient Dust Particles ───────────────────────────────────────────────────
-const DUST_COUNT = 225; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count
+const DUST_COUNT = 304; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
 const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
@@ -759,7 +759,7 @@ scene.add(hopperWire);
 // Pass 59: Hopper status LED — small indicator sphere on hopper front face
 // Color: green (full) → yellow (half) → red (low) → fast-blink when empty+refilling
 const hopperLEDMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 8.99, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED — Pass 5066: 6.66→8.99 brighter hopper LED
+  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 12.1, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED — Pass 5066: 6.66→8.99 brighter hopper LED — Pass 5303: 8.99→12.1 brighter slot wall LED color urgency
   roughness: 0.05, metalness: 0.0,
 });
 const hopperLED = new THREE.Mesh(new THREE.SphereGeometry(3.5, 14, 14), hopperLEDMat); // Pass 4984: hopper LED sphere segments 10→14 smoother status indicator
@@ -1741,7 +1741,7 @@ function addCardToTray(ct) {
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 40.5; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5
   const zJitter    = (Math.random() - 0.5) * 4.93;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle
-  const yRotJitter = (Math.random() - 0.5) * 0.296;  // ±0.148 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter
+  const yRotJitter = (Math.random() - 0.5) * 0.400;  // ±0.200 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt
   mesh.position.set(
     TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
     startY,
@@ -1808,7 +1808,7 @@ const slotLEDs = [];
 CARD_TYPES.forEach(ct => {
   const geo = new THREE.SphereGeometry(5.47, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators — Pass 4981: 4.05→5.47 larger slot LED spheres
   const mat = new THREE.MeshStandardMaterial({
-    color: ct.hex, emissive: ct.hex, emissiveIntensity: 2.23, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs — Pass 5061: 1.65→2.23 brighter slot domain LEDs
+    color: ct.hex, emissive: ct.hex, emissiveIntensity: 3.01, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs — Pass 5061: 1.65→2.23 brighter slot domain LEDs — Pass 5305: 2.23→3.01 brighter slot wall LED color urgency
     roughness: 0.2, metalness: 0.0
   });
   const led = new THREE.Mesh(geo, mat);
@@ -1820,7 +1820,7 @@ CARD_TYPES.forEach(ct => {
 
 // ─── Card halo ring: spinning domain-colored torus around active card ─────────
 // Visible during belt travel; makes domain color unmistakably obvious
-const cardHaloGeo = new THREE.TorusGeometry(42, 3.28, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring
+const cardHaloGeo = new THREE.TorusGeometry(42, 4.43, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale
 const cardHaloMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 4.93, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
@@ -2503,7 +2503,7 @@ function animate(ts) {
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
-      const pulse = 0.5 + 18.0 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.675)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41 — Pass 4287: 5.41→7.30 wider slot LED swing — Pass 4514: slot entry pulse timing 0.5→0.675 faster slot LED pulse — Pass 4686: 7.30→9.86 brighter active slot LED pulse — Pass 5061: 9.86→13.3 brighter active slot LED pulse — Pass 5213: 13.3→18.0 brighter active slot LED pulse
+      const pulse = 0.5 + 24.3 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.675)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41 — Pass 4287: 5.41→7.30 wider slot LED swing — Pass 4514: slot entry pulse timing 0.5→0.675 faster slot LED pulse — Pass 4686: 7.30→9.86 brighter active slot LED pulse — Pass 5061: 9.86→13.3 brighter active slot LED pulse — Pass 5213: 13.3→18.0 brighter active slot LED pulse — Pass 5307: 18.0→24.3 more urgent slot wall LED pulse
       // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 — Pass 1647: →7.0 brighter active slot LED
       mat.emissiveIntensity = 23.2 + pulse; // Pass 2518: slot LED active base 7.0→9.45 — Pass 4046: 9.45→12.76 brighter active routing LED — Pass 5004: 12.76→17.2 brighter active routing LED — Pass 5188: 17.2→23.2 brighter active slot LED base
     } else if (_ledCooloff[_li] > 0) {
@@ -2919,7 +2919,7 @@ function animate(ts) {
       // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050 — Pass 1572: →0.210+0.050 bigger card oscillation — Pass 1573: decay 3.2→2.4 longer wobble tail
       _swingWobble = (Math.sin(_sw * 25.7) * 1.272 + Math.sin(_sw * 39.2 + 0.6) * 0.304) * Math.exp(-_sw * 4.37); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 — Pass 4196: 0.517+0.124→0.698+0.167 wilder card oscillation — Pass 4508: arm swing wobble secondary freq 29→39.2 crisper angular range oscillation — Pass 4526: arm swing tilt wobble decay 2.4→3.24 crisper swing tilt — Pass 4593: arm swing tilt wobble primary freq 19→25.7 crisper card tilt oscillation — Pass 5174: 0.698→0.942 0.167→0.225 wilder swing tilt amplitude — Pass 5216: 0.942→1.272 bigger swing tilt primary — Pass 5217: 0.225→0.304 bigger swing tilt secondary — Pass 5223: 3.24→4.37 crisper swing tilt decay
       // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt — Pass 1574: →0.30
-      _swingDragX = 1.82 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55 — Pass 3925: 0.55→0.743 — Pass 4204: 0.743→1.00 stronger inertia tilt — Pass 5026: 1.00→1.35 more inertia drag lean — Pass 5218: 1.35→1.82 more inertia drag lean
+      _swingDragX = 2.46 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55 — Pass 3925: 0.55→0.743 — Pass 4204: 0.743→1.00 stronger inertia tilt — Pass 5026: 1.00→1.35 more inertia drag lean — Pass 5218: 1.35→1.82 more inertia drag lean — Pass 5306: 1.82→2.46 stronger scanner arm inertia
     } else if (inPhase(PH.armLift)) {
       const _lt3 = phaseRaw(PH.armLift);
       // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter — Pass 1575: →0.20 primary, 0.032→0.044 secondary
@@ -4570,7 +4570,7 @@ function animate(ts) {
       });
     }
     // Pass 246: pause arm hover Y float — soft PID hold oscillation — Pass 1056: ±0.6→±1.4 more visible hover — Pass 1604: →±2.0
-    suctionPivot.position.y = 108 + 73.0 * Math.sin(ts * 0.405 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 — Pass 4706: 29.7→40.1 more dramatic arm hover float // Pass 4485: hover freq 0.30→0.405 livelier hover bob — Pass 5119: 40.1→54.1 more dramatic idle arm oscillation amplitude — Pass 5131: 54.1→73.0 more dramatic idle arm hover float
+    suctionPivot.position.y = 108 + 98.6 * Math.sin(ts * 0.405 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 — Pass 4706: 29.7→40.1 more dramatic arm hover float // Pass 4485: hover freq 0.30→0.405 livelier hover bob — Pass 5119: 40.1→54.1 more dramatic idle arm oscillation amplitude — Pass 5131: 54.1→73.0 more dramatic idle arm hover float — Pass 5308: 73.0→98.6 stronger hover float spring amplitude
     // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
     // on the scanner hood emissive, as if it's slowly cooling down between cycles. — Pass 1606: 0.04→0.06
     {
