@@ -4024,7 +4024,7 @@ function animate(ts) {
     // Accuracy: hold floor diverter at target floor position throughout deflect
     {
       const _diverterTarget2 = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
-      _diverterAngle += (_diverterTarget2 - _diverterAngle) * Math.min(1, dt * 6);
+      _diverterAngle += (_diverterTarget2 - _diverterAngle) * Math.min(1, dt * 8.1); // Pass 4832: diverter tracking rate 6→8.1 snappier floor diverter snap
       floorDiverterPivot.rotation.z = -_diverterAngle;
     }
     // Pass 216: solenoid Z-vibration decay — paddle vibrates laterally at ~42Hz, fading ~0.2s
@@ -4346,7 +4346,7 @@ function animate(ts) {
           if (_mp.active) continue;
           _mp.active = true; _mp.age = 0; _mp.life = 10.1 + Math.random() * 5.09; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09
           _mp.mesh.position.set(
-            TRAY_X_START + 20 + (Math.random() - 0.5) * 8,
+            TRAY_X_START + 20 + (Math.random() - 0.5) * 10.8, // Pass 4833: upper floor mote X spawn spread 8→10.8 wider arrival fountain footprint
             ct.slotFloorY + 40.5 + Math.random() * 6, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain
             ct.slotZ + (Math.random() - 0.5) * 16.2 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint
           );
@@ -4411,9 +4411,9 @@ function animate(ts) {
         if (tp2.active) continue;
         _trailHead++;
         tp2.mesh.position.set(
-          TRAY_X_START + 15 + (Math.random() - 0.5) * 10,
+          TRAY_X_START + 15 + (Math.random() - 0.5) * 13.5, // Pass 4834: reject burst2 X spawn spread 10→13.5 wider secondary spark burst
           ct.slotFloorY + 22 + Math.random() * 10,
-          ct.slotZ + (Math.random() - 0.5) * 16
+          ct.slotZ + (Math.random() - 0.5) * 21.6 // Pass 4835: reject burst2 Z spawn spread 16→21.6 wider reject spark Z footprint
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
         tp2.mat.opacity = 1.15 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2 — Pass 4749: 0.85→1.15 brighter reject secondary burst
@@ -4616,7 +4616,7 @@ function animate(ts) {
     if (onBelt) {
       _beltDomainRGB.setHex(ct.hex);
       // Pass 929: belt domain tint blend rate dt*1.8→dt*2.8 for faster color adoption
-      beltSurfMat.emissive.lerp(_beltDomainRGB, Math.min(1, dt * 2.8));
+      beltSurfMat.emissive.lerp(_beltDomainRGB, Math.min(1, dt * 3.78)); // Pass 4836: belt domain tint tracking rate 2.8→3.78 faster belt color adoption
     } else {
       beltSurfMat.emissive.lerp(_beltBaseRGB, Math.min(1, dt * 1.22)); // Pass 4825: belt idle return color tracking rate 0.9→1.22
     }
@@ -4843,7 +4843,7 @@ function animate(ts) {
     // Pass 1020: scan Y 260→240 for deeper camera dive into scanner, armLift 290→270 for peel view
     const yTarget = 270; // Hotfix 3333g: unified camera Y — was scan=200/armLift=230/rest=280 (80-unit phase-dependent swings caused "jiggling up and down")
     if(!controls._camY) controls._camY = yTarget;
-    controls._camY += (yTarget - controls._camY) * 0.02;
+    controls._camY += (yTarget - controls._camY) * 0.027; // Pass 4837: camera Y tracking rate 0.02→0.027 crisper camera height settle
     // Pass 185: fix camera Y bob — was ts*0.00008 (~21h period = invisible).
     // Fixed to ts*0.05 (~126s = 2-minute slow breathing bob, cinematic and gentle).
     camera.position.y = controls._camY + 15 * Math.sin(ts * 0.05); // Hotfix 3333f: Y bob rolled back 105.7→15 (was boosted 18→105.7 across passes 2537→3290)
@@ -4887,7 +4887,7 @@ function animate(ts) {
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
       ? ct.slotZ * (0.25 + _coZBoost + _sdZBoost) : 0;
     if (!controls._camTgtZ) controls._camTgtZ = 0;
-    controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.016;
+    controls._camTgtZ += (_destZ - controls._camTgtZ) * 0.0216; // Pass 4838: camera Z target tracking rate 0.016→0.0216 crisper camera Z lean
     controls.target.set(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
     camera.lookAt(controls._camTgt.x, controls._camTgt.y, controls._camTgtZ);
   }
@@ -5011,7 +5011,7 @@ function animate(ts) {
         topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 2.03)); // Pass 4831: top card next-domain color tracking rate 1.5→2.03
         const _prevT = inPhase(PH.pause) ? phaseRaw(PH.pause) : phaseRaw(PH.armReturn);
         const _prevPulse = 5.14 + 2.59 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 2482: preview pulse base 0.63→0.85 Pass 2483: amp 0.32→0.43 — Pass 2694: 0.85→1.15, 0.43→0.58 — Pass 2789: base 1.15→1.55 Pass 2790: amp 0.58→0.78 — Pass 2922/2923: 1.55+0.78→2.09+1.05 — Pass 3133: base 2.09→2.82 Pass 3134: amp 1.05→1.42 — Pass 3302: 2.82+1.42→3.81+1.92 — Pass 4164: base 3.81→5.14, amp 1.92→2.59
-        topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 2);
+        topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 4839: top card preview emissive tracking rate 2→2.70 snappier next-domain preview glow
       } else {
         topCard.material.emissiveIntensity *= 0.85; // decay when not in pick phase
       }
