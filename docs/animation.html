@@ -4705,16 +4705,16 @@ function animate(ts) {
     if (inPhase(PH.conveyorOut)) {
       const _ot2 = phaseRaw(PH.conveyorOut);
       const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 8.17 : 0; // Pass 2430: iris snap-close overshoot 0.41→0.55 — Pass 2668: 0.55→0.74 — Pass 2759: 0.74→1.00 — Pass 2897: 1.00→1.35 — Pass 3106: 1.35→1.82 — Pass 3279: 1.82→2.46 — Pass 3357: 2.46→3.32 — Pass 4388: 3.32→4.48 — Pass 4714: 4.48→6.05 bigger iris snap-close bounce — Pass 5594: 6.05→8.17 bigger iris snap-close overshoot bounce
-      lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 18.2); // Pass 4842: iris snap-close scale tracking rate 10→13.5 snappier iris settle — Pass 5755: 13.5→18.2 snappier iris snap-close scale tracking
+      lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 24.6); // Pass 4842: iris snap-close scale tracking rate 10→13.5 snappier iris settle — Pass 5755: 13.5→18.2 snappier iris snap-close scale tracking — Pass 6372: 18.2→24.6 snappier iris snap-close scale tracking
       lens.scale.z = lens.scale.x;
     } else {
-      lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 7.29); // Pass 4843: iris idle X return rate 4→5.40 crisper lens retract — Pass 5684: 5.40→7.29 crisper iris idle X return
-      lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 7.29); // Pass 4844: iris idle Z return rate 4→5.40 crisper lens retract — Pass 5685: 5.40→7.29 crisper iris idle Z return
+      lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 9.84); // Pass 4843: iris idle X return rate 4→5.40 crisper lens retract — Pass 5684: 5.40→7.29 crisper iris idle X return — Pass 6373: 7.29→9.84 crisper iris idle X return
+      lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 9.84); // Pass 4844: iris idle Z return rate 4→5.40 crisper lens retract — Pass 5685: 5.40→7.29 crisper iris idle Z return — Pass 6374: 7.29→9.84 crisper iris idle Z return
     }
-    lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 5.47)); // Pass 4829: lens idle emissive color tracking 3→4.05 — Pass 5686: 4.05→5.47 snappier lens idle emissive color tracking
+    lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 7.38)); // Pass 4829: lens idle emissive color tracking 3→4.05 — Pass 5686: 4.05→5.47 snappier lens idle emissive color tracking — Pass 6375: 5.47→7.38 snappier lens idle emissive color tracking
     lensMat.emissiveIntensity += (19.8 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99 — Pass 2669: 0.99→1.34 — Pass 2760: 1.34→1.81 — Pass 2898: 1.81→2.44 — Pass 3107: 2.44→3.29 — Pass 3280: 3.29→4.44 — Pass 3358: 4.44→5.99 — Pass 4317: 5.99→8.09 — Pass 4715: 8.09→10.9 brighter idle lens glow — Pass 5390: 10.9→14.7 brighter idle lens glow — Pass 6042: 14.7→19.8 brighter idle scanner lens glow
     // Pass 197: hood settles back to Z=0 after scan ends
-    scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 14.6); // Pass 4845: scanner hood Z return rate 8→10.8 crisper hood retract — Pass 5687: 10.8→14.6 crisper scanner hood Z position return
+    scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 19.7); // Pass 4845: scanner hood Z return rate 8→10.8 crisper hood retract — Pass 5687: 10.8→14.6 crisper scanner hood Z position return — Pass 6376: 14.6→19.7 crisper scanner hood Z position return
   }
 
   // Pass 56: Spin rollers proportional to belt scroll speed (synced to smooth ramp from pass 53)
@@ -4737,14 +4737,14 @@ function animate(ts) {
       const _dist = Math.abs(_cardX - _rollerXs[ri]);
       const _prox = Math.max(0, 1 - _dist / 1025); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228 — Pass 3109: 228→308 — Pass 3281: 308→416 — Pass 3359: 416→562 — Pass 4742: 562→759 wider conveyor roller glow range — Pass 5595: 759→1025 wider conveyor roller proximity glow range
       const _targetI = _prox * 103;               // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30 — Pass 2762: 9.30→12.6 — Pass 2900: 12.6→17.0 — Pass 3110: 17.0→23.0 — Pass 3282: 23.0→31.1 — Pass 3360: 31.1→42.0 — Pass 4389: 42.0→56.7 brighter conveyor roller proximity glow — Pass 5391: 56.7→76.5 brighter conveyor roller proximity glow — Pass 6043: 76.5→103 brighter conveyor roller proximity glow peak
-      rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 9.11)); // Pass 4830: roller domain color tracking rate 5→6.75 — Pass 5688: 6.75→9.11 snappier roller domain color adoption
-      rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 4465: roller emissive tracking rate 6→8.1 snappier proximity glow — Pass 5576: 8.1→10.9 snappier roller proximity glow tracking
+      rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 12.3)); // Pass 4830: roller domain color tracking rate 5→6.75 — Pass 5688: 6.75→9.11 snappier roller domain color adoption — Pass 6377: 9.11→12.3 snappier roller domain color adoption
+      rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 14.7); // Pass 4465: roller emissive tracking rate 6→8.1 snappier proximity glow — Pass 5576: 8.1→10.9 snappier roller proximity glow tracking — Pass 6378: 10.9→14.7 snappier roller proximity glow tracking
     });
   }
 
   // Pass 70: belt shimmer stripe sweeps left→right while belt moves
   if (!paused && _beltScrollSpeed > 0.005) {
-    _beltShimmerX += dt * _beltScrollSpeed * 76000 * speedMult; // Pass 2434: shimmer speed 5103→6889 — Pass 2672: 6889→9300 — Pass 2763: 9300→12555 — Pass 2901: 12555→16950 — Pass 3111: 16950→22883 — Pass 3283: 22883→30892 — Pass 3361: 30892→41704 — Pass 4390: 41704→56300 faster belt shimmer scroll — Pass 5162: 56300→76000 faster shimmer stripe animation speed
+    _beltShimmerX += dt * _beltScrollSpeed * 102600 * speedMult; // Pass 2434: shimmer speed 5103→6889 — Pass 2672: 6889→9300 — Pass 2763: 9300→12555 — Pass 2901: 12555→16950 — Pass 3111: 16950→22883 — Pass 3283: 22883→30892 — Pass 3361: 30892→41704 — Pass 4390: 41704→56300 faster belt shimmer scroll — Pass 5162: 56300→76000 faster shimmer stripe animation speed — Pass 6379: 76000→102600 faster belt shimmer stripe animation speed
     if (_beltShimmerX > 68) _beltShimmerX = -148; // wrap: just past right roller → just before left
     beltShimmerMesh.visible = true;
     beltShimmerMesh.position.x = _beltShimmerX;
