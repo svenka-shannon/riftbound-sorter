@@ -3159,7 +3159,7 @@ function animate(ts) {
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
     const _revOsc = _cardRevealBurst * (1.19 + 1.09 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81 — Pass 1867: →1.19+1.09
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 11.2 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16 — Pass 3412: 6.16→8.32 — Pass 3768: 8.32→11.2
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 15.1 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16 — Pass 3412: 6.16→8.32 — Pass 3768: 8.32→11.2 — Pass 3876: 11.2→15.1
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
     const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 126 : 0; // Pass 2300: reveal glow surge 37.8→51.0 — Pass 3376: 51.0→68.9 — Pass 3509: 68.9→93.0 — Pass 3648: 93.0→126
     cardGlow.intensity = 5.9 + flashIntensity * 14.3 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83 — Pass 3377: base 4.4→5.9 Pass 3378: flash 5.83→7.87 — Pass 3510: flash 7.87→10.6 — Pass 3649: flash 10.6→14.3
@@ -3481,7 +3481,7 @@ function animate(ts) {
       tp.mat.color.setHex(_exColor); // pre-confirm: cool blue-white; post-confirm: domain
       // Pass 723: exhaust opacity 0.18+0.15→0.26+0.20 — Pass 843: →0.40+0.32 — Pass 1328: →0.55+0.42 for more vivid scanner exhaust
       tp.mat.opacity = 2.46 + Math.random() * 1.89; // Pass 2542: exhaust opacity 0.55+0.42→0.74+0.57 — Pass 2982: 0.74+0.57→1.00+0.77 — Pass 3181: 1.00+0.77→1.35+1.04 — Pass 3578: 1.35+1.04→1.82+1.40 — Pass 3673: 1.82+1.40→2.46+1.89
-      tp.age = 0; tp.life = 1.82 + Math.random() * 1.34; // Pass 2543: exhaust life 0.55+0.40→0.74+0.54 — Pass 2983: 0.74+0.54→1.00+0.73 — Pass 3182: 1.00+0.73→1.35+0.99 — Pass 3765: base 1.35→1.82 — Pass 3766: rand 0.99→1.34
+      tp.age = 0; tp.life = 2.46 + Math.random() * 1.81; // Pass 2543: exhaust life 0.55+0.40→0.74+0.54 — Pass 2983: 0.74+0.54→1.00+0.73 — Pass 3182: 1.00+0.73→1.35+0.99 — Pass 3765: base 1.35→1.82 — Pass 3766: rand 0.99→1.34 — Pass 3873: base 1.82→2.46 — Pass 3874: rand 1.34→1.81
       tp.active = true; tp.mesh.visible = true;
     }
     // Pass 63: scanner sonar ping rings expand horizontally from scanner during scan
@@ -3508,7 +3508,7 @@ function animate(ts) {
           const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
           // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 — Pass 1411: →4.5 — Pass 1525: →6.5 for brighter confirm ring flash
-          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 53.2 : 0; // Pass 2549: ping reveal spike 11.84→15.98 — Pass 2840: 15.98→21.6 — Pass 2986: 21.6→29.2 — Pass 3185: 29.2→39.4 — Pass 3761: 39.4→53.2
+          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 71.8 : 0; // Pass 2549: ping reveal spike 11.84→15.98 — Pass 2840: 15.98→21.6 — Pass 2986: 21.6→29.2 — Pass 3185: 29.2→39.4 — Pass 3761: 39.4→53.2 — Pass 3869: 53.2→71.8
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
           const _pingBoost = ft >= 0.85 ? 406 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2 — Pass 3547: 165.2→223 — Pass 3731: 223→301 — Pass 3837: 301→406
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
@@ -3531,24 +3531,24 @@ function animate(ts) {
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 — Pass 1384: →15.0 for more vivid pre-reveal LED cycling
-          const _cTarget = gi === _chaseIdx ? 122.4 : 0.1; // Pass 2550: gate LED chase peak 27.3→36.9 — Pass 2842: 36.9→49.8 — Pass 2989: 49.8→67.2 — Pass 3187: 67.2→90.7 — Pass 3762: 90.7→122.4
+          const _cTarget = gi === _chaseIdx ? 165.2 : 0.1; // Pass 2550: gate LED chase peak 27.3→36.9 — Pass 2842: 36.9→49.8 — Pass 2989: 49.8→67.2 — Pass 3187: 67.2→90.7 — Pass 3762: 90.7→122.4 — Pass 3870: 122.4→165.2
           gm.color.setHex(0x0088cc);
           gm.emissive.setHex(0x003366);
-          gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 40.1); // Pass 3188: gate LED chase rate 22→29.7 — Pass 3767: 29.7→40.1
+          gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 54.1); // Pass 3188: gate LED chase rate 22→29.7 — Pass 3767: 29.7→40.1 — Pass 3875: 40.1→54.1
         });
       } else {
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 320: non-target LEDs fade to 0 post-reveal — spotlight narrows to destination
           const _nonTargetDim = Math.max(0, 0.10 - Math.min(1, (ft - 0.85) / 0.05) * 0.10);
           // Pass 545: target LED emissive 4.5→6.0 — Pass 801: →9.0 — Pass 1169: →13.0 — Pass 1344: →18.0 for stronger destination lock-on glow
-          const _cTarget = gi === ct.col ? 108.9 : _nonTargetDim; // Pass 2551: target LED post-reveal 24.3→32.8 — Pass 2843: 32.8→44.3 — Pass 2990: 44.3→59.8 — Pass 3189: 59.8→80.7 — Pass 3763: 80.7→108.9
+          const _cTarget = gi === ct.col ? 147.0 : _nonTargetDim; // Pass 2551: target LED post-reveal 24.3→32.8 — Pass 2843: 32.8→44.3 — Pass 2990: 44.3→59.8 — Pass 3189: 59.8→80.7 — Pass 3763: 80.7→108.9 — Pass 3871: 108.9→147.0
           gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
           gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 20);
         });
         // Pass 321: target gate LED scale pop at reveal — Pass 402: balloon boost 0.85 → 1.30
         // Pass 546: LED scale pop balloon 1.30→1.70 for bigger LED bloat at reveal
-        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 13.9 : 1.0; // Pass 2552: gate LED scale pop 3.11→4.20 — Pass 2844: 4.20→5.67 — Pass 2991: 5.67→7.65 — Pass 3190: 7.65→10.3 — Pass 3764: 10.3→13.9
+        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 18.8 : 1.0; // Pass 2552: gate LED scale pop 3.11→4.20 — Pass 2844: 4.20→5.67 — Pass 2991: 5.67→7.65 — Pass 3190: 7.65→10.3 — Pass 3764: 10.3→13.9 — Pass 3872: 13.9→18.8
         GATE_COL_LEDS.forEach(({ mesh: gMesh }, gi) => {
           gMesh.scale.setScalar(gi === ct.col ? _ledRevealScale : 1.0);
         });
