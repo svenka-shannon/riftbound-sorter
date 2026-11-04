@@ -898,7 +898,7 @@ scanLED.position.set(-40, CONV_Y_TOP + 0.5, 20);
 scene.add(scanLED);
 
 // Scanner opening slot
-const scanSlot = makeBox(2, 8.1, 80, 0x222233); // Pass 4987: scanner slot aperture height 6→8.1 taller scanner slot
+const scanSlot = makeBox(2, 10.9, 80, 0x222233); // Pass 4987: scanner slot aperture height 6→8.1 taller scanner slot — Pass 5833: 8.1→10.9 taller scanner slot aperture
 scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
@@ -1053,7 +1053,7 @@ const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
     color: 0x224466, emissive: 0x112233, emissiveIntensity: 2.44, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs — Pass 5132: 0.996→1.34 brighter gate col width indicator LEDs — Pass 5189: 1.34→1.81 brighter gate column width indicator LEDs — Pass 5746: 1.81→2.44 brighter gate column LED emissive
     roughness: 0.05, metalness: 0.0,
   });
-  const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 14, 14), mat); // Pass 4988: gate column LED sphere segments 10→14 smoother gate indicators
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 19, 19), mat); // Pass 4988: gate column LED sphere segments 10→14 smoother gate indicators — Pass 5826: 14→19 smoother gate column LED sphere
   // Place in a row above the gate base, at each column's Z position
   mesh.position.set(GATE_X + 14, CONV_Y_TOP + 30, z);
   scene.add(mesh);
@@ -1507,7 +1507,7 @@ scene.add(cardShimmerMesh);
 
 // ─── Routing arc: scanner → target slot ──────────────────────────────────────
 // Quadratic bezier arc drawn during scan phase — makes routing decision unmistakable
-const ROUTE_SEGS = 28;
+const ROUTE_SEGS = 38; // Pass 5828: 28→38 smoother routing arc bezier segments
 const routeArcGeo = new THREE.BufferGeometry();
 const routeArcPts = new Float32Array((ROUTE_SEGS + 1) * 3);
 routeArcGeo.setAttribute('position', new THREE.BufferAttribute(routeArcPts, 3));
@@ -1543,7 +1543,7 @@ const impactRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0,
 });
 const impactRing = new THREE.Mesh(
-  new THREE.TorusGeometry(32.8, 7.30, 6, 24), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring — Pass 5104: slot ring Z spread radius 24.3→32.8 wider impact ring — Pass 5248: impact ring toroid tube radius 4.01→5.41 fatter shockwave ring — Pass 5751: 5.41→7.30 fatter slot landing shockwave ring tube
+  new THREE.TorusGeometry(32.8, 7.30, 6, 32), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring — Pass 5104: slot ring Z spread radius 24.3→32.8 wider impact ring — Pass 5248: impact ring toroid tube radius 4.01→5.41 fatter shockwave ring — Pass 5751: 5.41→7.30 fatter slot landing shockwave ring tube — Pass 5830: radial segments 24→32 smoother shockwave ring
   impactRingMat
 );
 impactRing.visible = false;
@@ -1557,7 +1557,7 @@ let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.
 const confirmRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 4.00, 4, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring — Pass 5365: 2.19→2.96 chunkier identity confirm ring — Pass 5736: 2.96→4.00 chunkier identity confirm ring tube
+const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 4.00, 6, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring — Pass 5365: 2.19→2.96 chunkier identity confirm ring — Pass 5736: 2.96→4.00 chunkier identity confirm ring tube — Pass 5831: tube segments 4→6 smoother identity confirm ring cross-section
 confirmRing.rotation.x = -Math.PI / 2; // lie flat (XZ plane)
 confirmRing.visible = false;
 scene.add(confirmRing);
@@ -1566,7 +1566,7 @@ let _confirmRingT = -1; // -1=idle; 0..1=animation progress
 const confirmRing2Mat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 2.66, 4, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring — Pass 5366: 1.46→1.97 chunkier double-ripple ring — Pass 5737: 1.97→2.66 chunkier double-ripple ring tube
+const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 2.66, 6, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring — Pass 5366: 1.46→1.97 chunkier double-ripple ring — Pass 5737: 1.97→2.66 chunkier double-ripple ring tube — Pass 5832: tube segments 4→6 smoother double-ripple ring cross-section
 confirmRing2.rotation.x = -Math.PI / 2;
 confirmRing2.visible = false;
 scene.add(confirmRing2);
@@ -1600,7 +1600,7 @@ const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
   });
-  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 2.46, 8, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 2.46, 11, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube — Pass 5829: tube segments 8→11 smoother sonar ring cross-section
   mesh.visible = false;
   // Oriented flat (XZ plane) at card level, centered on scanner X
   mesh.rotation.x = -Math.PI / 2;
@@ -5208,7 +5208,7 @@ function animate(ts) {
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
       // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5 — Pass 1443: out →13.5, in →6.0
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 271.4 : 218.0; // Pass 2468: revealed-out 33.2→44.8 Pass 2468b: in 14.7→19.8 — Pass 2712: 44.8→60.5, 19.8→26.7 — Pass 2807: 60.5→81.7 Pass 2808: 26.7→36.0 — Pass 2941: 81.7→110.3 Pass 2942: 36.0→48.6 — Pass 3148: out 110.3→148.9, in 48.6→65.6 — Pass 3318: 148.9+65.6→201.0+88.6 — Pass 3456: out 201.0→271.4 — Pass 3457: in 88.6→119.6 // Pass 4494: belt active light target 119.6→161.5 brighter card-tracking beam — Pass 5647: in 161.5→218.0 brighter card-tracking belt light
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 366 : 218.0; // Pass 2468: revealed-out 33.2→44.8 Pass 2468b: in 14.7→19.8 — Pass 2712: 44.8→60.5, 19.8→26.7 — Pass 2807: 60.5→81.7 Pass 2808: 26.7→36.0 — Pass 2941: 81.7→110.3 Pass 2942: 36.0→48.6 — Pass 3148: out 110.3→148.9, in 48.6→65.6 — Pass 3318: 148.9+65.6→201.0+88.6 — Pass 3456: out 201.0→271.4 — Pass 3457: in 88.6→119.6 // Pass 4494: belt active light target 119.6→161.5 brighter card-tracking beam — Pass 5647: in 161.5→218.0 brighter card-tracking belt light — Pass 5827: out 271.4→366 brighter revealed belt spotlight
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 14.7); // Pass 2809: tracking rate 6→8.1 — Pass 4092: 8.1→10.9 crisper belt light snap — Pass 5292: 10.9→14.7 crisper belt light tracking
     } else {
       // Fade card-tracking mode out
