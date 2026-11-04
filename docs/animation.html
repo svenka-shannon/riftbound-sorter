@@ -4011,9 +4011,9 @@ function animate(ts) {
     if (dt2 < 0.18) {
       paddleMat.emissive.setHex(ct.hex);
     } else {
-      paddleMat.emissive.r += (1.0 - paddleMat.emissive.r) * Math.min(1, dt * 6.39); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return — Pass 5610: 4.73→6.39 snappier paddle color channel spring return
-      paddleMat.emissive.g += (0.26 - paddleMat.emissive.g) * Math.min(1, dt * 6.39); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return — Pass 5610: 4.73→6.39 snappier paddle color channel spring return
-      paddleMat.emissive.b *= Math.max(0, 1 - dt * 6.39); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return — Pass 5610: 4.73→6.39 snappier paddle color channel spring return
+      paddleMat.emissive.r += (1.0 - paddleMat.emissive.r) * Math.min(1, dt * 8.63); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return — Pass 5610: 4.73→6.39 snappier paddle color channel spring return — Pass 6834: 6.39→8.63 snappier paddle emissive RGB spring return
+      paddleMat.emissive.g += (0.26 - paddleMat.emissive.g) * Math.min(1, dt * 8.63); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return — Pass 5610: 4.73→6.39 snappier paddle color channel spring return — Pass 6834: 6.39→8.63 snappier paddle emissive RGB spring return
+      paddleMat.emissive.b *= Math.max(0, 1 - dt * 8.63); // Pass 4789: paddle emissive RGB spring rate 3.5→4.73 snappier paddle color return — Pass 5610: 4.73→6.39 snappier paddle color channel spring return — Pass 6834: 6.39→8.63 snappier paddle emissive RGB spring return
     }
     paddleMat.emissiveIntensity = Math.max(0.739, paddleMat.emissiveIntensity * 0.92); // dim slowly // Pass 4802: paddle emissive floor 0.3→0.405 brighter resting gate glow — Pass 5604: 0.405→0.547 brighter paddle resting emissive floor — Pass 6666: 0.547→0.739 brighter paddle resting emissive floor
     // Pass 109: apply paddle recoil offset and spring it back to base target angle
@@ -4123,7 +4123,7 @@ function animate(ts) {
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
     const _bankSign = Math.sign(ct.slotZ || 0);
-    const _bankStart = -1.24 * _bankSign; // Pass 4602: card tumble outer settle bank angle 0.5→0.68 wider slotDrop entry lean — Pass 5611: 0.68→0.919 wider slot entry bank lean — Pass 5639: 0.919→1.24 wider slot entry sweep arc bank lean angle
+    const _bankStart = -1.67 * _bankSign; // Pass 4602: card tumble outer settle bank angle 0.5→0.68 wider slotDrop entry lean — Pass 5611: 0.68→0.919 wider slot entry bank lean — Pass 5639: 0.919→1.24 wider slot entry sweep arc bank lean angle — Pass 6837: 1.24→1.67 wider slot entry bank lean angle
     const _ySettleT = Math.min(1, dt3 / 0.5); // 0→1 over first half of slotDrop
     activeCard.rotation.y = THREE.MathUtils.lerp(_bankStart, 0, easeOut(_ySettleT));
     // Pass 161: landing pitch — card tips forward at bounce impact, springs back
@@ -4133,10 +4133,10 @@ function animate(ts) {
       activeCard.rotation.x = 0.666 * Math.sin(_bT * Math.PI); // Pass 356: bounce pitch boost 0.14 → 0.20 — Pass 3988: 0.20→0.270 — Pass 4403: 0.270→0.365 snappier landing bounce pitch — Pass 5564: 0.365→0.493 stronger slot landing bounce pitch — Pass 6650: 0.493→0.666 stronger slot landing bounce pitch amplitude
     } else if (ct.floor === 0) {
       // Aerodynamic drag: nose-down lean proportional to fall velocity (bell curve)
-      activeCard.rotation.x = -0.128 * Math.sin(dt3 / 0.88 * Math.PI); // Pass 4692: aerodynamic fall nose-down lean 0.07→0.095 deeper gravity fall lean — Pass 5612: 0.095→0.128 deeper aerodynamic nose-down lean
+      activeCard.rotation.x = -0.173 * Math.sin(dt3 / 0.88 * Math.PI); // Pass 4692: aerodynamic fall nose-down lean 0.07→0.095 deeper gravity fall lean — Pass 5612: 0.095→0.128 deeper aerodynamic nose-down lean — Pass 6835: 0.128→0.173 deeper aerodynamic nose-down lean amplitude
     } else {
       // Pass 314: floor-1 guided insert lean — card tips slightly forward during slot insertion
-      activeCard.rotation.x = -0.0986 * Math.sin(dt3 * Math.PI); // Pass 4693: floor-1 guided insert lean 0.04→0.054 more visible upper-slot entry pitch — Pass 5613: 0.054→0.073 deeper upper-slot guided insert pitch — Pass 5640: 0.073→0.0986 deeper idle hover secondary Y base guided insert pitch amplitude
+      activeCard.rotation.x = -0.133 * Math.sin(dt3 * Math.PI); // Pass 4693: floor-1 guided insert lean 0.04→0.054 more visible upper-slot entry pitch — Pass 5613: 0.054→0.073 deeper upper-slot guided insert pitch — Pass 5640: 0.073→0.0986 deeper idle hover secondary Y base guided insert pitch amplitude — Pass 6838: 0.0986→0.133 deeper floor-1 guided insert pitch lean
     }
     // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
     // Pass 647: wall lean 0.032→0.055 — Pass 974: →0.082 — Pass 1115: →0.12 for more physical lateral tilt at each wall contact
@@ -4161,7 +4161,7 @@ function animate(ts) {
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
-    activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 9.11)); // Pass 4575: card slot-drop fade rate 5→6.75 crisper card disappear — Pass 5614: 6.75→9.11 crisper card slot-drop fade
+    activeCardMat.opacity = THREE.MathUtils.lerp(1, 0, Math.max(0, (dt3 - 0.80) * 12.3)); // Pass 4575: card slot-drop fade rate 5→6.75 crisper card disappear — Pass 5614: 6.75→9.11 crisper card slot-drop fade — Pass 6836: 9.11→12.3 crisper card slot-drop fade rate
     // Pass 252: slotDrop bounce face flash — Pass 391: 1.6→2.2 — Pass 528: →3.0 — Pass 671: →3.8
     // Pass 751: peak 3.8→5.2, decay 8.5→11 — Pass 975: peak 5.2→7.5, decay 11→14 — Pass 1111: →11.0 — Pass 1198: →16.0 — Pass 1405: →22.0 — Pass 1548: →30.0 for bigger landing flash
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
@@ -4181,7 +4181,7 @@ function animate(ts) {
       const _sweepX = THREE.MathUtils.lerp(TRAY_X_START + 5, TRAY_X_END - 5, easeInOut(dt3));
       slotSweepLight.color.setHex(ct.hex);
       // Pass 315: sweep light Z oscillation — light sways laterally as it travels into the slot
-      const _sweepZOsc315 = 12.3 * Math.sin(dt3 * Math.PI * 4.05) * Math.max(0, 1 - dt3 * 1.5); // Pass 4008: sweep Z oscillation amplitude 5→6.75 wider slot sweep sway — Pass 4894: slot entry sweep Z oscillation count 3→4.05 — Pass 5629: 6.75→9.11 wider slot entry sweep Z oscillation amplitude — Pass 5641: 9.11→12.3 wider slot entry sweep arc angle oscillation amplitude
+      const _sweepZOsc315 = 16.6 * Math.sin(dt3 * Math.PI * 4.05) * Math.max(0, 1 - dt3 * 1.5); // Pass 4008: sweep Z oscillation amplitude 5→6.75 wider slot sweep sway — Pass 4894: slot entry sweep Z oscillation count 3→4.05 — Pass 5629: 6.75→9.11 wider slot entry sweep Z oscillation amplitude — Pass 5641: 9.11→12.3 wider slot entry sweep arc angle oscillation amplitude — Pass 6839: 12.3→16.6 wider slot entry sweep arc Z oscillation amplitude
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 52.9, ct.slotZ + _sweepZOsc315); // Pass 4853: slot sweep light Y height 29→39.2 higher slot entry spotlight — Pass 5630: 39.2→52.9 higher slot entry sweep spotlight
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
@@ -4429,7 +4429,7 @@ function animate(ts) {
       window._flashLights.push({ light: _ral2, age: 0, peak: _ral2.intensity });
     }
     cardGlow.position.copy(activeCard.position);
-    _beltScrollSpeed = 0.0729; // belt coasts slowly during slot drop — Pass 4877: slot drop coast speed 0.04→0.054 snappier slot entry coast — Pass 5661: 0.054→0.0729 snappier belt coast during slot drop
+    _beltScrollSpeed = 0.0984; // belt coasts slowly during slot drop — Pass 4877: slot drop coast speed 0.04→0.054 snappier slot entry coast — Pass 5661: 0.054→0.0729 snappier belt coast during slot drop — Pass 6840: 0.0729→0.0984 snappier belt coast speed during slot drop
     // Route confirmation overlay — pulse once at start of drop
     const routePulseAlpha = dt3 < 0.4 ? Math.sin(dt3 / 0.4 * Math.PI) : 0;
     if(routePulseAlpha > 0) {
@@ -4680,7 +4680,7 @@ function animate(ts) {
       beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 4.93); // Pass 4605: belt scan emissive intensity tracking 2→2.70 crisper active belt glow response — Pass 5672: 2.70→3.65 crisper belt scan emissive intensity tracking — Pass 6367: 3.65→4.93 crisper belt scan emissive intensity tracking
     } else {
       beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 3.70)); // Pass 4826: belt scan-idle color return tracking 1.5→2.03 — Pass 5671: 2.03→2.74 faster belt scan-idle color return tracking — Pass 6368: 2.74→3.70 faster belt scan-idle color return tracking
-      beltSurfMat.emissiveIntensity += (0.216 - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2.70); // belt idle emissive 0.12→0.16 brighter resting belt (Pass 4034 group) — Pass 4441: idle lerp rate 2→2.70 snappier belt surface idle return — Pass 5673: idle target 0.16→0.216 brighter belt surface idle emissive
+      beltSurfMat.emissiveIntensity += (0.216 - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 3.65); // belt idle emissive 0.12→0.16 brighter resting belt (Pass 4034 group) — Pass 4441: idle lerp rate 2→2.70 snappier belt surface idle return — Pass 5673: idle target 0.16→0.216 brighter belt surface idle emissive — Pass 6841: 2.70→3.65 snappier belt surface idle emissive tracking
     }
   }
   // Pass 74/80: scanner hood + lens decay to resting after scan ends
