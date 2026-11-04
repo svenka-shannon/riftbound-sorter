@@ -2633,16 +2633,16 @@ function animate(ts) {
     if(inPhase(PH.armDescend)) {
       // Gravity-assisted descent: ease-in; end at -0.036 rad to center cup over card stack
       const pt = phaseT(PH.armDescend, easeIn);
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.35, -0.036, pt);
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.47, -0.036, pt); // Pass 4437: arm descend start angle -0.35→-0.47 wider descent arc
       // Pass 182: servo hunt jitter — was ts*0.055 (114-second period = invisible).
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
       const jitter = 9.45 * (1 - pt) * (
-        Math.sin(ts * 8 * Math.PI * 2) * 0.7 +
+        Math.sin(ts * 8 * Math.PI * 2) * 0.945 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt
         Math.sin(ts * 13 * Math.PI * 2) * 0.3
       );
       // Pass 243: terminal servo micro-tap — precision down-push in final 5% of descent
-      const _tapOffset = pt > 0.95 ? -0.8 * ((pt - 0.95) / 0.05) : 0;
+      const _tapOffset = pt > 0.95 ? -1.08 * ((pt - 0.95) / 0.05) : 0; // Pass 4439: terminal tap magnitude 0.8→1.08 stronger precision tap
       suctionPivot.position.y = 108 + jitter + _tapOffset;
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
@@ -2747,7 +2747,7 @@ function animate(ts) {
         vacuumRing.position.set(_cupX, _cupY + 1, 0);
         // Pass 307: vacuum ring spin — ring rotates on its local axis, accelerating as cup descends
         if (!controls._vacRingAngle) controls._vacRingAngle = 0;
-        controls._vacRingAngle += dt * (28.6 + _vt * 56.4); // Pass 2265: vacuum ring spin 4.7+22.95→6.35+30.98 — Pass 3173: base 6.35→8.57 Pass 3174: ramp 30.98→41.8 — Pass 3573: base 8.57→11.6, ramp 41.8→56.4 — Pass 3668: base 11.6→15.7 — Pass 3975: base 15.7→21.2 — Pass 4291: 21.2→28.6 faster vacuum ring base spin
+        controls._vacRingAngle += dt * (28.6 + _vt * 76.1); // Pass 2265: vacuum ring spin 4.7+22.95→6.35+30.98 — Pass 3173: base 6.35→8.57 Pass 3174: ramp 30.98→41.8 — Pass 3573: base 8.57→11.6, ramp 41.8→56.4 — Pass 3668: base 11.6→15.7 — Pass 3975: base 15.7→21.2 — Pass 4291: 21.2→28.6 faster vacuum ring base spin — Pass 4436: ramp 56.4→76.1 faster ring acceleration
         vacuumRing.rotation.z = controls._vacRingAngle;
         const _vacBaseScale = THREE.MathUtils.lerp(16.3, 0.25, _vt); // Pass 2266: vacuum ring max scale 2.70→3.65 — Pass 3417: 3.65→4.93 — Pass 3529: 4.93→6.66 — Pass 3713: 6.66→8.99 — Pass 3821: 8.99→12.1 — Pass 4222: 12.1→16.3 larger vacuum ring sweep
         vacuumRingMat.color.setHex(ct.hex);
@@ -3066,7 +3066,7 @@ function animate(ts) {
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
       ? (ct2 - 0.60) / 0.20 * 2.01 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10 — Pass 3967: 1.10→1.49 — Pass 4216: 1.49→2.01 stronger card-entering-field detection
     // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 — Pass 1306: →10.5 for more vivid warmup before scan
-    const _ledWarmTarget = 0.3 + _warmupT * 25.9 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 — Pass 4217: 19.2→25.9 brighter LED pre-warm
+    const _ledWarmTarget = 0.41 + _warmupT * 25.9 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 — Pass 4217: 19.2→25.9 brighter LED pre-warm — Pass 4434: LED approach warmup base 0.30→0.41 brighter approach floor
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
@@ -4598,7 +4598,7 @@ function animate(ts) {
       const _breathe = 2.96 + 2.09 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 brighter standby breathe
       scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 3.38); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 1.5));
-      hoodMat.emissiveIntensity += (_breathe * 2.55 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 brighter scanner hood idle glow
+      hoodMat.emissiveIntensity += (_breathe * 2.55 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe
     }
   }
 
@@ -4608,7 +4608,7 @@ function animate(ts) {
   const _beltStrobeFreq = 4.05 + _beltScrollSpeed * 101; // Pass 4248: belt idle strobe freq 3→4.05 — Pass 4249: speed mult 75→101 busier belt strobe
   // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 — Pass 1059: →0.10 reactive belt
   const _beltSpeedGlow = _beltScrollSpeed > 0.005
-    ? 0.817 * (_beltScrollSpeed / 0.108) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0; // Pass 2163: belt speed glow amp 0.135→0.182 — Pass 2656: 0.182→0.246 — Pass 2887: 0.246→0.332 — Pass 3094: 0.332→0.448 — Pass 3270: 0.448→0.605 — Pass 3610: 0.605→0.817
+    ? 1.10 * (_beltScrollSpeed / 0.108) * Math.abs(Math.sin(ts * _beltStrobeFreq * Math.PI * 2)) : 0; // Pass 2163: belt speed glow amp 0.135→0.182 — Pass 2656: 0.182→0.246 — Pass 2887: 0.246→0.332 — Pass 3094: 0.332→0.448 — Pass 3270: 0.448→0.605 — Pass 3610: 0.605→0.817 — Pass 4432: 0.817→1.10 brighter belt speed glow
   beltSurfMat.emissiveIntensity = beltBase + 0.03 * Math.sin(cycleT * 10) + _beltSpeedGlow;
   // Belt surface tints subtly toward domain color when active card rides on it
   {
@@ -5162,7 +5162,7 @@ function animate(ts) {
       }
     } else {
       hopperLight.color.set(0xffeedd); // warm neutral when idle
-      hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2);
+      hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 2.70); // Pass 4435: hopper idle tracking 2→2.70 snappier idle intensity
       hopperLight.position.set(HOPPER_X + 33, 200, 0); // reset to home position
     }
   }
