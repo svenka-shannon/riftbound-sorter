@@ -2655,7 +2655,7 @@ function animate(ts) {
         scanTargetLight.position.set(PIV_X, CONV_Y_TOP + 8, 0);
         // Pass 276: rangefinder lock-on flicker — 22Hz strobe in final 12% as arm locks on
         // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 — Pass 4063: sine amp 0.52→0.70 more nervous lock-on hunting
-        const _lockFlicker = pt > 0.88 ? (0.875 + 0.70 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0; // Pass 4590: rangefinder flicker floor 0.48→0.648 brighter suction lock-on baseline — Pass 5144: 0.648→0.875 brighter suction lock-on baseline
+        const _lockFlicker = pt > 0.88 ? (0.875 + 0.945 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0; // Pass 4590: rangefinder flicker floor 0.48→0.648 brighter suction lock-on baseline — Pass 5144: 0.648→0.875 brighter suction lock-on baseline — Pass 5786: flicker amplitude 0.70→0.945 more nervous lock-on hunting
         // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 — Pass 1310: →7.5 — Pass 1426: →10.5 — Pass 3913: 10.5→14.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight
         scanTargetLight.intensity = _pickTgtT * 47.3 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker; // Pass 4416: 14.2→19.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight — Pass 5070: 25.9→35.0 brighter lock-on spotlight — Pass 5771: 35.0→47.3 brighter lock-on targeting spotlight
       }
@@ -2797,7 +2797,7 @@ function animate(ts) {
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
         // Pass 524: grab pulse light intensity 6.0→7.5 — Pass 625: →10.0 — Pass 877: →14.0 — Pass 1174: →20.0 — Pass 1669: →28.0, dist→150
-        const grabLight = new THREE.PointLight(ct.hex, 311, 274); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 — Pass 4230: 68.9→93.0 intensity, 150→203 range brighter suction grab burst — Pass 4903: range 203→274 wider grab pulse reach — Pass 4945: intensity 93.0→125.6 brighter grab burst — Pass 5075: 125.6→170 brighter grab burst — Pass 5195: 170→230 brighter grab pulse flash — Pass 5533: 230→311 brighter suction grab burst light intensity
+        const grabLight = new THREE.PointLight(ct.hex, 311, 370); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 — Pass 4230: 68.9→93.0 intensity, 150→203 range brighter suction grab burst — Pass 4903: range 203→274 wider grab pulse reach — Pass 4945: intensity 93.0→125.6 brighter grab burst — Pass 5075: 125.6→170 brighter grab burst — Pass 5195: 170→230 brighter grab pulse flash — Pass 5533: 230→311 brighter suction grab burst light intensity — Pass 5793: range 274→370 wider grab pulse reach
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -3656,7 +3656,7 @@ function animate(ts) {
       // Pass 339: target emissive reveal spike — Pass 564: boost 2.5→4.0 — Pass 857: →6.5 — Pass 1440: →9.0 — Pass 1536: →13.0 for bigger sphere flare at lock-on
       const _tgtRevealSpike339 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 352 : 0; // Pass 2563: target reveal spike 23.6→31.9 — Pass 3004: 31.9→43.1 — Pass 3198: 43.1→58.2 — Pass 3426: 58.2→78.6 — Pass 3540: 78.6→106.1 — Pass 3738: 106.1→143 — Pass 3846: 143→193 — Pass 4244: 193→261 blazing destination flare — Pass 5493: 261→352 blazing destination flare spike
       // Pass 858: post-reveal emissive add 1.2→2.0 — Pass 1441: →3.0 — Pass 1537: base 2.0→2.8, boost 3.0→4.2 for more vivid destination glow
-      routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 18.8 : 0)) + _tgtRevealSpike339; // Pass 1728: post-reveal emissive boost 4.2→5.67 — Pass 3199: 5.67→7.65 — Pass 3994: 7.65→10.3 — Pass 4422: 10.3→13.9 brighter destination post-reveal glow — Pass 4993: 13.9→18.8 blazing destination post-reveal glow
+      routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 25.4 : 0)) + _tgtRevealSpike339; // Pass 1728: post-reveal emissive boost 4.2→5.67 — Pass 3199: 5.67→7.65 — Pass 3994: 7.65→10.3 — Pass 4422: 10.3→13.9 brighter destination post-reveal glow — Pass 4993: 13.9→18.8 blazing destination post-reveal glow — Pass 5787: 18.8→25.4 blazing destination post-reveal glow
       routeTargetMat.opacity = flashIntensity * 1.82; // Pass 1538: 0.9→1.0 — Pass 4642: scan bar scanline opacity slope 1.0→1.35 brighter destination indicator — Pass 5494: 1.35→1.82 brighter destination indicator
       // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 — Pass 858: →1.20 — Pass 1068: →1.55 — Pass 1442: →2.10 — Pass 1539: →2.80 for bigger destination sphere pulse
       const _tgtScale304 = 1.0 + flashIntensity * 31.0 * Math.sin(ts * 4 * Math.PI * 2); // Pass 2564: sphere scale pulse 5.10→6.89 — Pass 3200: 6.89→9.30 — Pass 3620: 9.30→12.6 — Pass 3995: 12.6→17.0 — Pass 4051: 17.0→22.95 bigger destination sphere throb — Pass 5293: 22.95→31.0 bigger destination sphere throb
@@ -4530,7 +4530,7 @@ function animate(ts) {
       const _aCupY = PIV_Y - 83 * Math.cos(_aRot);
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
-      tp.mesh.position.set(_aCupX + (Math.random()-0.5)*4.05, _aCupY + (Math.random()-0.5)*4.05, suctionPivot.position.z + (Math.random()-0.5)*8.1); // Pass 4250: armReturn trail XY scatter 3→4.05 — Pass 4251: Z scatter 6→8.1 wider return wisps
+      tp.mesh.position.set(_aCupX + (Math.random()-0.5)*5.47, _aCupY + (Math.random()-0.5)*5.47, suctionPivot.position.z + (Math.random()-0.5)*10.9); // Pass 4250: armReturn trail XY scatter 3→4.05 — Pass 4251: Z scatter 6→8.1 wider return wisps — Pass 5788: XY scatter 4.05→5.47 wider return wisps — Pass 5789: Z scatter 8.1→10.9 wider return wisps
       // Pass 245: armReturn domain wisps — first 30% of return trail carries domain color
       // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 — Pass 643: extend wisp to 45%; boost 0.48+0.22→0.62+0.28
       // Pass 865: domain wisp opacity 0.62+0.28→0.80+0.40 — Pass 1052: →0.90+0.48 richer memory trail
@@ -4864,7 +4864,7 @@ function animate(ts) {
       // Pass 194: scan camera lean — lookAt dips toward belt at scan midpoint for drama.
       // Pass 473: reveal camera dip — extra 5-unit dip at identity lock-on for dramatic focus.
       // Pass 707: scan lean dip 18→25 — Pass 1019: →35 for deeper camera dive + reveal dip 5→8
-      ? { x: -40, y: 60 - 27.0 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 6.75 : 0) } // Hotfix 3333d: scan lookAt lean rolled back 155→20; reveal dip 27.1→5.0 — sweep was boosted 35→155 over passes 2528→3291 causing "frenetic panning" (camera look-at swinging 155 world-units/~1s ≈ 487 units/sec) — Pass 4924: scanner forward lean amplitude 20→27.0 deeper scan camera dip — Pass 4925: scanner forward lean reveal dip 5.0→6.75 stronger lock-on dip
+      ? { x: -40, y: 60 - 36.5 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 9.11 : 0) } // Hotfix 3333d: scan lookAt lean rolled back 155→20; reveal dip 27.1→5.0 — sweep was boosted 35→155 over passes 2528→3291 causing "frenetic panning" (camera look-at swinging 155 world-units/~1s ≈ 487 units/sec) — Pass 4924: scanner forward lean amplitude 20→27.0 deeper scan camera dip — Pass 4925: scanner forward lean reveal dip 5.0→6.75 stronger lock-on dip — Pass 5790: lean amplitude 27.0→36.5 deeper scan camera dip — Pass 5791: reveal dip 6.75→9.11 stronger lock-on dip
       : inPhase(PH.conveyorOut)
       ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
       : inPhase(PH.deflect)
@@ -4961,7 +4961,7 @@ function animate(ts) {
       floorDiscMat.color.setHex(ct.hex);
       // Altitude = card Y above belt surface; belt at CONV_Y_TOP+2
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
-      const _altFrac = Math.min(1, _altitude / 406); // Pass 2195: floor disc altitude 67→90 — Pass 2784: 90→122 — Pass 2917: 122→165 — Pass 3127: 165→223 — Pass 3297: 223→301 — Pass 4159: 301→406 disc follows higher lifts
+      const _altFrac = Math.min(1, _altitude / 548); // Pass 2195: floor disc altitude 67→90 — Pass 2784: 90→122 — Pass 2917: 122→165 — Pass 3127: 165→223 — Pass 3297: 223→301 — Pass 4159: 301→406 disc follows higher lifts — Pass 5792: 406→548 disc follows higher lifts
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
       const _fdScale = 1.0 + _altFrac * 94.9; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo — Pass 5406: 70.3→94.9 bigger domain halo altitude expansion
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
