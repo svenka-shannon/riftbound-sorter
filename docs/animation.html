@@ -925,14 +925,14 @@ const scanBarMesh = new THREE.Mesh(
 );
 // Positioned on front face of scanner hood (Z=-50 is front edge of 100-deep hood)
 // Hood centre X=-40, top Y=CONV_Y_TOP+65; bar sits 3u below top on front face
-scanBarMesh.position.set(-40, CONV_Y_TOP + 113.0, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 higher scan bar mount — Pass 5056: 83.7→113.0 higher scan bar mount
+scanBarMesh.position.set(-40, CONV_Y_TOP + 152.6, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 higher scan bar mount — Pass 5056: 83.7→113.0 higher scan bar mount — Pass 6350: 113.0→152.6 higher scan bar mount
 scanBarMesh.visible = false;
 scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
 const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(11.7, 11.7, 11.7), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block — Pass 5744: 8.63→11.7 larger scan bar leading-edge cursor block
-scanBarCursor.position.set(-40, CONV_Y_TOP + 113.0, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount
+scanBarCursor.position.set(-40, CONV_Y_TOP + 152.6, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount — Pass 6351: 113.0→152.6 higher scan bar cursor mount
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
 
@@ -1524,7 +1524,7 @@ scene.add(routeTarget);
 
 // ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
 // Creates a motion-blur wake effect; opacity decreases with distance behind active card
-const GHOST_COUNT = 4; // Pass 4989: ghost trail card count 3→4 richer motion blur
+const GHOST_COUNT = 5; // Pass 4989: ghost trail card count 3→4 richer motion blur — Pass 6348: 4→5 richer motion blur trail card count
 const ghostCards = [];
 for (let _gi = 0; _gi < GHOST_COUNT; _gi++) {
   const _gMat = new THREE.MeshStandardMaterial({
@@ -1595,7 +1595,7 @@ vacuumRing.visible = false;
 scene.add(vacuumRing);
 
 // Pass 63: Scanner sonar ping rings — 3 concentric rings that expand from scanner during scan
-const SCAN_PING_COUNT = 4; // Pass 4990: scan ping ring count 3→4 denser sonar burst
+const SCAN_PING_COUNT = 5; // Pass 4990: scan ping ring count 3→4 denser sonar burst — Pass 6349: 4→5 denser sonar burst ring count
 const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
@@ -2633,7 +2633,7 @@ function animate(ts) {
     if(inPhase(PH.armDescend)) {
       // Gravity-assisted descent: ease-in; end at -0.036 rad to center cup over card stack
       const pt = phaseT(PH.armDescend, easeIn);
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.635, -0.049, pt); // Pass 4437: arm descend start angle -0.35→-0.47 wider descent arc — Pass 4566: arm descent servo end angle -0.036→-0.049 more precise pickup tilt — Pass 5128: -0.47→-0.635 wider arm descent arc
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.858, -0.049, pt); // Pass 4437: arm descend start angle -0.35→-0.47 wider descent arc — Pass 4566: arm descent servo end angle -0.036→-0.049 more precise pickup tilt — Pass 5128: -0.47→-0.635 wider arm descent arc — Pass 6353: -0.635→-0.858 wider arm descent arc
       // Pass 182: servo hunt jitter — was ts*0.055 (114-second period = invisible).
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
@@ -2722,7 +2722,7 @@ function animate(ts) {
           const _dCupY = PIV_Y - 83 * Math.cos(_dRot);
           const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
           _trailHead++;
-          tp.mesh.position.set(_dCupX + (Math.random()-0.5)*4, _dCupY, (Math.random()-0.5)*10.9); // Pass 4636: arm descend trail Z spread 6→8.1 wider descent contrail volume — Pass 5178: 8.1→10.9 wider descent contrail volume
+          tp.mesh.position.set(_dCupX + (Math.random()-0.5)*4, _dCupY, (Math.random()-0.5)*14.7); // Pass 4636: arm descend trail Z spread 6→8.1 wider descent contrail volume — Pass 5178: 8.1→10.9 wider descent contrail volume — Pass 6355: 10.9→14.7 wider descent contrail volume
           // Pass 507: descend trail tint toward domain as cup gets closer (pt > 0.60 = approaching)
           const _descTint507 = pt > 0.60 ? (pt - 0.60) / 0.40 : 0;
           if (_descTint507 > 0) {
@@ -3142,7 +3142,7 @@ function animate(ts) {
     const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 475 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143 — Pass 4235: 143→193 bigger reveal spike — Pass 5202: 193→261 bigger reveal spike — Pass 5239: 261→352 bigger scan reveal spike — Pass 6206: 352→475 bigger scan flash reveal spike
     scanFlash.intensity = flashIntensity * 297 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3 — Pass 3759: 49.3→66.6 — Pass 3867: 66.6→89.9 — Pass 4236: 89.9→121 brighter scan flash — Pass 5203: 121→163 brighter scan flash — Pass 6207: 163→220 brighter scan flash intensity — Pass 6290: 220→297 brighter scan flash intensity multiplier
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
-    const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 1.33 : 0; // Pass 1864: scan flash Z drift 0.40→0.54 — Pass 3939: 0.54→0.729 further Z drift toward slot — Pass 4421: 0.729→0.984 deeper scan flash Z pull — Pass 5150: 0.984→1.33 deeper scan flash Z drift toward slot
+    const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 1.80 : 0; // Pass 1864: scan flash Z drift 0.40→0.54 — Pass 3939: 0.54→0.729 further Z drift toward slot — Pass 4421: 0.729→0.984 deeper scan flash Z pull — Pass 5150: 0.984→1.33 deeper scan flash Z drift toward slot — Pass 6354: 1.33→1.80 deeper scan flash Z drift toward slot
     scanFlash.position.set(-40, CONV_Y_TOP + 10, _flashZ351);
     // Pass 257: scanFlash domain color snap — scan light shifts to domain color at identity reveal
     scanFlash.color.setHex(_identityRevealed ? ct.hex : 0xffffff);
@@ -4239,7 +4239,7 @@ function animate(ts) {
       const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
       let _puffSpawned = 0;
       // Pass 961: puff count 6→10, vy 32+28→45+40; Pass 962: life 0.28+0.15→0.40+0.20
-      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 26; _pi++) { // Pass 4582: landing puff particle count 10→14 denser slot entry air puff — Pass 5013: 14→19 denser slot entry air puff — Pass 5120: 19→26 denser slot landing puff count per frame
+      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 35; _pi++) { // Pass 4582: landing puff particle count 10→14 denser slot entry air puff — Pass 5013: 14→19 denser slot entry air puff — Pass 5120: 19→26 denser slot landing puff count per frame — Pass 6352: 26→35 denser slot landing puff count per frame
         const _pp = GRAB_PARTICLES[_pi];
         if (_pp.active) continue;
         _pp.active = true; _pp.age = 0; _pp.life = 3.16 + Math.random() * 1.26; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69 — Pass 3060: 1.28+0.69→1.73+0.93 — Pass 4323: 1.73+0.93→2.34+1.26 longer landing puff cloud — Pass 5617: base 2.34→3.16 longer landing puff cloud
