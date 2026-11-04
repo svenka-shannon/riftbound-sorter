@@ -617,7 +617,7 @@ for (let i = 0; i < DUST_COUNT; i++) {
 const dustGeo = new THREE.BufferGeometry();
 dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
 const dustMat = new THREE.PointsMaterial({
-  size: 2.70, color: 0x8899bb, transparent: true, opacity: 0.63, // Pass 4015: dust size 1.5→2.0 larger ambient particles — Pass 4016: dust opacity 0.35→0.47 more visible atmosphere — Pass 4888: dust size 2.0→2.70 — Pass 4889: dust opacity 0.47→0.63 denser atmosphere
+  size: 3.65, color: 0x8899bb, transparent: true, opacity: 0.85, // Pass 4015: dust size 1.5→2.0 larger ambient particles — Pass 4016: dust opacity 0.35→0.47 more visible atmosphere — Pass 4888: dust size 2.0→2.70 — Pass 4889: dust opacity 0.47→0.63 denser atmosphere — Pass 5454: size 2.70→3.65 larger ambient dust motes — Pass 5455: opacity 0.63→0.85 denser ambient dust atmosphere
   depthWrite: false, sizeAttenuation: true
 });
 const dustPoints = new THREE.Points(dustGeo, dustMat);
@@ -968,7 +968,7 @@ const scanBeamMat = new THREE.MeshBasicMaterial({
   color: 0x00ff88, transparent: true, opacity: 0, depthWrite: false
 });
 const scanBeam = new THREE.Mesh(
-  new THREE.CylinderGeometry(2.70, 2.70, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core
+  new THREE.CylinderGeometry(3.65, 3.65, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core — Pass 5456: 2.70→3.65 even fatter scan laser beam core
   scanBeamMat
 );
 scanBeam.position.set(-40, CONV_Y_TOP + 10, 0);
@@ -1478,7 +1478,7 @@ activeCardEdge.visible = false;
 scene.add(activeCardEdge);
 
 // Card glow: increased range and physical falloff
-const cardGlow = new THREE.PointLight(0xffffff, 0, 365); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach
+const cardGlow = new THREE.PointLight(0xffffff, 0, 493); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range
 cardGlow.decay = 4.93; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff
 scene.add(cardGlow);
 
@@ -1519,7 +1519,7 @@ scene.add(routeArcLine);
 const routeTargetMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0, roughness: 0.3, transparent: true, opacity: 0
 });
-const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(7.29, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb
+const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(9.84, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb — Pass 5458: 7.29→9.84 even larger slot destination indicator orb
 scene.add(routeTarget);
 
 // ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
@@ -1993,8 +1993,8 @@ function fireCelebration() {
   for (let _mi = 0; _mi < 30; _mi++) { // Pass 896: 12→16 shimmer pieces // Pass 4448: 16→22 more shimmer confetti burst — Pass 5021: 22→30 more shimmer confetti burst
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
     _mp.vx = (Math.random() - 0.5) * 930; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread — Pass 5453: 689→930 wider celebration shimmer X spread
-    _mp.vy = 694 + Math.random() * 585; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft
-    _mp.vz = (Math.random() - 0.5) * 271; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 — Pass 4104: 149→201 even wider Z shimmer — Pass 4936: 201→271 wider shimmer Z spread
+    _mp.vy = 937 + Math.random() * 790; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft — Pass 5459: base 694→937 higher celebration shimmer loft — Pass 5460: rand 585→790 higher shimmer loft variance
+    _mp.vz = (Math.random() - 0.5) * 366; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 — Pass 4104: 149→201 even wider Z shimmer — Pass 4936: 201→271 wider shimmer Z spread — Pass 5461: 271→366 wider celebration shimmer Z spread
     _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*40.5, FLOOR_Y[0] + 85, (Math.random()-0.5)*40); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5
     _mp.mat.color.setHex(_shimmerColors[_mi]);
     _mp.mat.opacity = 1.0;
@@ -2545,7 +2545,7 @@ function animate(ts) {
       ? 28.6 + 8.07 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo — Pass 5062: base 15.7→21.2 brighter card halo — Pass 5196: 21.2→28.6 brighter card halo base emissive
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
-    const _haloScale332 = beltActive ? 1.0 + 0.269 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude
+    const _haloScale332 = beltActive ? 1.0 + 0.363 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5456: 0.269→0.363 bigger card halo breathe rate
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
     const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 4.94 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo — Pass 4951: 2.71→3.66 more dramatic gate slam halo burst — Pass 5198: 3.66→4.94 more dramatic gate slam halo burst
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
@@ -4249,7 +4249,7 @@ function animate(ts) {
           _puffZ + (Math.random() - 0.5) * 16.2 // Pass 4631: landing puff initial Z spawn spread 12→16.2 wider Z footprint
         );
         _pp.mesh.visible = true;
-        _pp.vx = (Math.random() - 0.5) * 51.0; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread
+        _pp.vx = (Math.random() - 0.5) * 68.9; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread — Pass 5454: 51.0→68.9 wider landing puff vx spread
         _pp.vy = 1216 + Math.random() * 795; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft
         _pp.vz = (Math.random() - 0.5) * 98.4; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread
         // Pale tint: blend 55% toward white so they read as "air"
@@ -4827,7 +4827,7 @@ function animate(ts) {
 
   // Camera auto-orbit: ellipse + phase-aware target drift + card tracking
   if(!controls.enableRotate || !controls._userInteracted) {
-    const orbitAngle = ts * 0.000109 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit — Pass 5423: 0.000081→0.000109 faster cinematic orbit
+    const orbitAngle = ts * 0.000147 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit — Pass 5423: 0.000081→0.000109 faster cinematic orbit — Pass 5455: 0.000109→0.000147 faster slot approach orbit speed boost
     // Orbit radius tightens slightly during scan for closer scanner view
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
