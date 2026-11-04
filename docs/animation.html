@@ -1192,7 +1192,7 @@ CARD_TYPES.forEach(ct => {
   const stripGeo = new THREE.BoxGeometry(2, 60, 2);
   const stripMat = new THREE.MeshStandardMaterial({
     color: ct.hex, roughness: 0.4, metalness: 0.2,
-    emissive: ct.hex, emissiveIntensity: 0.27 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips — Pass 4890: 0.20→0.27 more vivid tray entry strips
+    emissive: ct.hex, emissiveIntensity: 0.365 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips — Pass 4890: 0.20→0.27 more vivid tray entry strips — Pass 5056: 0.27→0.365 richer tray entry strip glow
   });
   const stripMesh = new THREE.Mesh(stripGeo, stripMat);
   stripMesh.position.set(TRAY_X_START, ct.slotFloorY + 1, ct.slotZ);
@@ -1214,7 +1214,7 @@ floorDiverterPivot.position.set(DIVERTER_X, CONV_Y_TOP + 3, 0); // CONV_Y_TOP + 
 scene.add(floorDiverterPivot);
 const diverterFlapMat = new THREE.MeshStandardMaterial({
   color: 0xcc7700, roughness: 0.4, metalness: 0.25,
-  emissive: new THREE.Color(0x441f00), emissiveIntensity: 0.41 // Pass 4044: floor diverter emissive 0.22→0.30 brighter routing flap — Pass 4891: 0.30→0.41 more visible diverter
+  emissive: new THREE.Color(0x441f00), emissiveIntensity: 0.554 // Pass 4044: floor diverter emissive 0.22→0.30 brighter routing flap — Pass 4891: 0.30→0.41 more visible diverter — Pass 5057: 0.41→0.554 more vivid diverter flap glow
 });
 const diverterFlapMesh = new THREE.Mesh(
   new THREE.BoxGeometry(TX_DEP + 6, 4.05, TRAY_Z_HALF * 2), // Pass 4991: diverter flap thickness 3→4.05 chunkier routing flap
@@ -1733,7 +1733,7 @@ function addCardToTray(ct) {
   const geo = new THREE.BoxGeometry(CARD_T, TRAY_CARD_H, CARD_W);
   const mat = new THREE.MeshStandardMaterial({
     color: 0xffffff, roughness: 0.18, metalness: 0.0,
-    emissive: ct.hex, emissiveIntensity: 0.456, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow
+    emissive: ct.hex, emissiveIntensity: 0.616, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow — Pass 5058: 0.456→0.616 richer card base glow
     map: cardTextures[ct.slot]
   });
   const mesh = new THREE.Mesh(geo, mat);
@@ -1753,9 +1753,9 @@ function addCardToTray(ct) {
   trayArrivals.push({ mesh, startY, targetY, t: 0, glowAge: 0 });
 
   // Pass 45: pulse ALL existing cards in this slot — "stack reacts to new member" ripple
-  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 1.55; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple
+  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 2.09; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
-  if (mesh.material) mesh.material.emissiveIntensity = 5.83; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop
+  if (mesh.material) mesh.material.emissiveIntensity = 7.87; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow — Pass 4768: →9.3s even longer afterglow
   _ledCooloff[ct.slot] = 12.6; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow
 
@@ -1808,7 +1808,7 @@ const slotLEDs = [];
 CARD_TYPES.forEach(ct => {
   const geo = new THREE.SphereGeometry(5.47, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators — Pass 4981: 4.05→5.47 larger slot LED spheres
   const mat = new THREE.MeshStandardMaterial({
-    color: ct.hex, emissive: ct.hex, emissiveIntensity: 1.65, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs
+    color: ct.hex, emissive: ct.hex, emissiveIntensity: 2.23, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs — Pass 5061: 1.65→2.23 brighter slot domain LEDs
     roughness: 0.2, metalness: 0.0
   });
   const led = new THREE.Mesh(geo, mat);
@@ -1822,7 +1822,7 @@ CARD_TYPES.forEach(ct => {
 // Visible during belt travel; makes domain color unmistakably obvious
 const cardHaloGeo = new THREE.TorusGeometry(42, 3.28, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring
 const cardHaloMat = new THREE.MeshStandardMaterial({
-  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 3.65, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo
+  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 4.93, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
 });
 const cardHalo = new THREE.Mesh(cardHaloGeo, cardHaloMat);
@@ -1838,7 +1838,7 @@ CARD_TYPES.forEach(ct => {
   const mat = new THREE.MeshStandardMaterial({
     color:             ct.hex,
     emissive:          ct.hex,
-    emissiveIntensity: 0.54, // Pass 4801: fill bar initial emissiveIntensity 0.4→0.54 richer domain bar base
+    emissiveIntensity: 0.729, // Pass 4801: fill bar initial emissiveIntensity 0.4→0.54 richer domain bar base — Pass 5063: 0.54→0.729 richer fill bar base glow
     roughness:         0.5,
     metalness:         0.0,
   });
