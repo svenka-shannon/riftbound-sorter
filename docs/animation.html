@@ -577,7 +577,7 @@ controls.update();
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
 const ambientLight = new THREE.AmbientLight(0x202030, 1.50); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill
 scene.add(ambientLight);
-scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.639)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill
+scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.863)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill — Pass 5738: 0.639→0.863 stronger sky/ground hemisphere fill
 
 // Increase key light slightly to compensate for lower ambient
 const keyLight = new THREE.DirectionalLight(0xfff8f0, 4.20); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light
@@ -759,7 +759,7 @@ scene.add(hopperWire);
 // Pass 59: Hopper status LED — small indicator sphere on hopper front face
 // Color: green (full) → yellow (half) → red (low) → fast-blink when empty+refilling
 const hopperLEDMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 12.1, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED — Pass 5066: 6.66→8.99 brighter hopper LED — Pass 5303: 8.99→12.1 brighter slot wall LED color urgency
+  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 16.3, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED — Pass 5066: 6.66→8.99 brighter hopper LED — Pass 5303: 8.99→12.1 brighter slot wall LED color urgency — Pass 5739: 12.1→16.3 brighter hopper status LED emissive
   roughness: 0.05, metalness: 0.0,
 });
 const hopperLED = new THREE.Mesh(new THREE.SphereGeometry(3.5, 14, 14), hopperLEDMat); // Pass 4984: hopper LED sphere segments 10→14 smoother status indicator
@@ -903,7 +903,7 @@ scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
 // Flash point light inside scanner (animated during scan phase)
-const scanFlash = new THREE.PointLight(0xffffff, 0, 332); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach — Pass 5045: 182→246 wider scan flash reach — Pass 5068: 246→332 wider scan flash reach
+const scanFlash = new THREE.PointLight(0xffffff, 0, 448); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach — Pass 5045: 182→246 wider scan flash reach — Pass 5068: 246→332 wider scan flash reach — Pass 5740: 332→448 wider scan flash light reach
 scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
@@ -920,7 +920,7 @@ const scanBarMat = new THREE.MeshStandardMaterial({
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 6.16, 6.16), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar — Pass 4905: 3.38→4.56 chunkier scan bar — Pass 5473: 4.56→6.16 chunkier scan progress bar cross-section
+  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 8.32, 8.32), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar — Pass 4905: 3.38→4.56 chunkier scan bar — Pass 5473: 4.56→6.16 chunkier scan progress bar cross-section — Pass 5743: 6.16→8.32 chunkier scan progress bar cross-section
   scanBarMat
 );
 // Positioned on front face of scanner hood (Z=-50 is front edge of 100-deep hood)
@@ -931,14 +931,14 @@ scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(8.63, 8.63, 8.63), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block
+const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(11.7, 11.7, 11.7), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block — Pass 5744: 8.63→11.7 larger scan bar leading-edge cursor block
 scanBarCursor.position.set(-40, CONV_Y_TOP + 113.0, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
 
 // Scan destination target light — illuminates the slot the card is going to
 // during scan phase so viewer immediately knows the routing decision
-const scanTargetLight = new THREE.PointLight(0xffffff, 0, 301); // Pass 4022: scanTargetLight range 90→122 — Pass 4907: 122→165 wider scan target reach — Pass 5152: 165→223 wider scan target light reach — Pass 5187: 223→301 wider scan target light reach
+const scanTargetLight = new THREE.PointLight(0xffffff, 0, 406); // Pass 4022: scanTargetLight range 90→122 — Pass 4907: 122→165 wider scan target reach — Pass 5152: 165→223 wider scan target light reach — Pass 5187: 223→301 wider scan target light reach — Pass 5741: 301→406 wider scan target light reach
 scanTargetLight.decay = 4.93; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff — Pass 5153: 2.70→3.65 tighter scan target spotlight falloff — Pass 5188: 3.65→4.93 tighter scan target spotlight falloff
 scene.add(scanTargetLight);
 
@@ -1061,7 +1061,7 @@ const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
 });
 
 // Pass 141: Gate column tracking light — point light that follows the active LED column
-const gateColLight = new THREE.PointLight(0xffffff, 0, 301); // Pass 4040: gate col light range 90→122 wider column tracking reach — Pass 4910: 122→165 even wider gate column reach — Pass 5073: 165→223 wider gate column reach — Pass 5154: 223→301 wider gate column tracking reach
+const gateColLight = new THREE.PointLight(0xffffff, 0, 406); // Pass 4040: gate col light range 90→122 wider column tracking reach — Pass 4910: 122→165 even wider gate column reach — Pass 5073: 165→223 wider gate column reach — Pass 5154: 223→301 wider gate column tracking reach — Pass 5742: 301→406 wider gate column tracking light reach
 gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, 0);
 scene.add(gateColLight);
 
@@ -2221,7 +2221,7 @@ function showScanOverlay(cardType, visible, routeText) {
 // Paddle rotates around Y axis (vertical) to deflect cards in the Z direction (column routing).
 // slotZ ∈ {-97.5, -32.5, 32.5, 97.5}  →  angles ±0.73 rad outer, ±0.24 rad inner
 function paddleAngleForSlot(slotZ) {
-  return -(slotZ / 160) * 2.19; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing — Pass 5074: 1.62→2.19 more dramatic gate swing
+  return -(slotZ / 160) * 2.96; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing — Pass 5074: 1.62→2.19 more dramatic gate swing — Pass 5745: 2.19→2.96 more dramatic gate paddle deflect angle
 }
 
 // ─── Hopper stack (dynamic — shrinks each cycle, refills after 6 cards) ───────
