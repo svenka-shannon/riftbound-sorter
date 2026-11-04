@@ -4246,7 +4246,7 @@ function animate(ts) {
         _pp.mesh.position.set(
           _puffX + (Math.random() - 0.5) * 18.2, // Pass 4614: landing puff X spread 10→13.5 wider puff cloud — Pass 5651: 13.5→18.2 wider landing puff X spawn spread
           _puffY + Math.random() * 7.29, // Pass 4653: landing puff Z initial spawn height 4→5.4 taller puff birth zone — Pass 5652: 5.4→7.29 taller landing puff birth zone height
-          _puffZ + (Math.random() - 0.5) * 29.6 // Pass 4631: landing puff initial Z spawn spread 12→16.2 wider Z footprint — Pass 5454: 16.2→21.9 wider landing puff Z footprint — Pass 6663: 21.9→29.6 wider landing puff Z spawn spread
+          _puffZ + (Math.random() - 0.5) * 29.6 // Pass 4631: landing puff initial Z spawn spread 12→16.2 wider Z footprint — Pass 5454: 16.2→21.9 wider landing puff Z footprint — Pass 6677: 21.9→29.6 wider landing puff Z spawn spread
         );
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 93.0; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread — Pass 5478: 51.0→68.9 wider landing puff vx spread — Pass 6499: 68.9→93.0 wider landing puff vx spread
@@ -4301,7 +4301,7 @@ function animate(ts) {
           _lp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 18.2, // Pass 4600: slot entry landing dust X jitter 10→13.5 wider X scatter — Pass 5684: 13.5→18.2 wider landing dust X scatter
             ct.slotFloorY + 3.65, // Pass 4586: slot entry dust Y offset 2→2.7 more airborne impact dust — Pass 5618: 2.7→3.65 more airborne impact dust
-            ct.slotZ + (Math.random() - 0.5) * 44.3 // Pass 4569: slot landing dust Z spread 18→24.3 wider impact footprint — Pass 5455: 24.3→32.8 wider slot landing dust Z spread — Pass 6664: 32.8→44.3 wider slot landing dust Z spread
+            ct.slotZ + (Math.random() - 0.5) * 44.3 // Pass 4569: slot landing dust Z spread 18→24.3 wider impact footprint — Pass 5455: 24.3→32.8 wider slot landing dust Z spread — Pass 6678: 32.8→44.3 wider slot landing dust Z spread
           );
           _lp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
@@ -4323,12 +4323,12 @@ function animate(ts) {
     // expands from the slot face to signal arrival without drama.
     if (ct.floor === 1 && !_impactFired && dt3 >= 0.88) {
       _impactFired = true;
-      _impactRingT = 0; _impactRingScale0 = 1.35; // Pass 4869: floor-1 guided arrival ring start scale 0.55→0.743 bigger ring entry — Pass 5149: 0.743→1.00 bigger ring entry — Pass 6665: 1.00→1.35 bigger ring entry
+      _impactRingT = 0; _impactRingScale0 = 1.35; // Pass 4869: floor-1 guided arrival ring start scale 0.55→0.743 bigger ring entry — Pass 5149: 0.743→1.00 bigger ring entry — Pass 6679: 1.00→1.35 bigger ring entry
       // Stand ring upright (XZ plane, facing the camera) at slot entrance
       impactRing.position.set(TRAY_X_START + 20, ct.slotFloorY + 29, ct.slotZ);
       impactRing.rotation.x = 0; // vertical ring
       impactRingMat.color.setHex(ct.hex);
-      impactRing.scale.setScalar(1.35); // Pass 4869: floor-1 guided arrival ring start scale 0.55→0.743 bigger ring entry — Pass 5149: 0.743→1.00 bigger ring entry — Pass 6665: 1.00→1.35 bigger ring entry
+      impactRing.scale.setScalar(1.35); // Pass 4869: floor-1 guided arrival ring start scale 0.55→0.743 bigger ring entry — Pass 5149: 0.743→1.00 bigger ring entry — Pass 6679: 1.00→1.35 bigger ring entry
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
       // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 — Pass 1267: →22.0 — Pass 1371: →32.0 — Pass 1553: →45.0 for stronger floor-1 arrival
@@ -4348,7 +4348,7 @@ function animate(ts) {
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 14.6, // Pass 4833: upper floor mote X spawn spread 8→10.8 wider arrival fountain footprint — Pass 5655: 10.8→14.6 wider upper-floor arrival mote X footprint
             ct.slotFloorY + 54.7 + Math.random() * 8.1, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain — Pass 5078: 40.5→54.7 taller arrival fountain — Pass 5943: rand 6→8.1 taller upper-floor arrival mote Y spread
-            ct.slotZ + (Math.random() - 0.5) * 29.6 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint — Pass 5456: 16.2→21.9 wider landing mote Z footprint — Pass 6666: 21.9→29.6 wider landing mote Z footprint
+            ct.slotZ + (Math.random() - 0.5) * 29.6 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint — Pass 5456: 16.2→21.9 wider landing mote Z footprint — Pass 6680: 21.9→29.6 wider landing mote Z footprint
           );
           _mp.mesh.visible = true;
           _mp.vx = (Math.random() - 0.5) * 33.2; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst — Pass 5079: 13.5→18.2 wider arrival mote burst — Pass 5147: 18.2→24.6 wider arrival mote X burst — Pass 6276: 24.6→33.2 wider upper floor mote vx burst spread
@@ -4391,7 +4391,7 @@ function animate(ts) {
         tp.mesh.position.set(
           TRAY_X_START + 15 + (Math.random() - 0.5) * 21.9, // Pass 4551: reject burst X radius 12→16.2 wider alarm fountain — Pass 5657: 16.2→21.9 wider reject alarm spark burst X radius
           ct.slotFloorY + 30 + Math.random() * 27.0, // Pass 5022: reject alarm spark Y height spread 15→20 taller alarm fountain — Pass 5658: 20→27.0 taller reject alarm spark launch height
-          ct.slotZ + (Math.random() - 0.5) * 44.3 // Pass 4535: reject alarm fountain Z radius 18→24.3 wider alarm spread — Pass 5457: 24.3→32.8 wider reject alarm fountain Z radius — Pass 6667: 32.8→44.3 wider reject alarm fountain Z radius
+          ct.slotZ + (Math.random() - 0.5) * 44.3 // Pass 4535: reject alarm fountain Z radius 18→24.3 wider alarm spread — Pass 5457: 24.3→32.8 wider reject alarm fountain Z radius — Pass 6681: 32.8→44.3 wider reject alarm fountain Z radius
         );
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
