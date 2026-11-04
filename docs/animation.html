@@ -968,7 +968,7 @@ const scanBeamMat = new THREE.MeshBasicMaterial({
   color: 0x00ff88, transparent: true, opacity: 0, depthWrite: false
 });
 const scanBeam = new THREE.Mesh(
-  new THREE.CylinderGeometry(1.5, 1.5, 55, 8),
+  new THREE.CylinderGeometry(2.0, 2.0, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core
   scanBeamMat
 );
 scanBeam.position.set(-40, CONV_Y_TOP + 10, 0);
@@ -979,8 +979,8 @@ scene.add(scanBeam);
 const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
   emissive: new THREE.Color(0x00ff88),
-  emissiveIntensity: 3.0,
-  transparent: true, opacity: 0.8
+  emissiveIntensity: 4.05, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam
+  transparent: true, opacity: 0.95 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam
 });
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(73, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam
 scanLine.visible = false;
@@ -989,8 +989,8 @@ scene.add(scanLine);
 const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
-  emissiveIntensity: 2.5,
-  transparent: true, opacity: 0.65
+  emissiveIntensity: 3.38, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar
+  transparent: true, opacity: 0.88 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 121.5), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage
 scanLine2.visible = false;
@@ -1068,7 +1068,7 @@ scene.add(gateColLight);
 const paddleGeo = new THREE.BoxGeometry(4, 55, 18);
 const paddleMat = new THREE.MeshStandardMaterial({
   color: 0xff6600, roughness: 0.3,
-  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.18 // pass 72: starts low; charges up
+  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.24 // pass 72: starts low; charges up — Pass 4331: paddle base emissive 0.18→0.24 warmer resting glow
 });
 const paddleMesh = new THREE.Mesh(paddleGeo, paddleMat);
 paddleMesh.castShadow = true;
@@ -1086,7 +1086,7 @@ paddlePivot.add(shaftMesh);
 // Tip indicator on paddle bottom (contact face)
 const tipMesh = new THREE.Mesh(
   new THREE.BoxGeometry(6, 4, 20),
-  new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.4, emissive: 0x442200, emissiveIntensity: 0.3 })
+  new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.4, emissive: 0x442200, emissiveIntensity: 0.41 }) // Pass 4332: paddle tip emissive 0.3→0.41 brighter contact face glow
 );
 tipMesh.position.set(0, -30, 0);
 paddlePivot.add(tipMesh);
@@ -1600,7 +1600,7 @@ const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
   });
-  const mesh = new THREE.Mesh(new THREE.TorusGeometry(6, 1, 6, 24), mat);
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(6, 1.35, 6, 24), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings
   mesh.visible = false;
   // Oriented flat (XZ plane) at card level, centered on scanner X
   mesh.rotation.x = -Math.PI / 2;
