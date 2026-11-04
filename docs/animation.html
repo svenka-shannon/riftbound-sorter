@@ -41,7 +41,7 @@
   #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; transition: color 0.3s; display: inline-block; }
   @keyframes countBump {
     0%   { transform: scale(1.0);   text-shadow: none; }
-    20%  { transform: scale(12.6);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale — Pass 5938: 3.81→5.14 more dramatic score count bump peak scale — Pass 6001: 5.14→6.94 more dramatic score count bump peak scale — Pass 6444: 6.94→9.37 more dramatic score count bump peak scale — Pass 6866: 9.37→12.6 more dramatic score count bump peak scale */
+    20%  { transform: scale(17.0);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale — Pass 5938: 3.81→5.14 more dramatic score count bump peak scale — Pass 6001: 5.14→6.94 more dramatic score count bump peak scale — Pass 6444: 6.94→9.37 more dramatic score count bump peak scale — Pass 6866: 9.37→12.6 more dramatic score count bump peak scale — Pass 6958: 12.6→17.0 more dramatic score count bump peak scale */
     55%  { transform: scale(0.95);  text-shadow: 0 0 8px currentColor; }
     100% { transform: scale(1.0);   text-shadow: none; }
   }
@@ -82,7 +82,7 @@
   }
   /* Pass 62: lock-on snap animation — brackets contract on card ID */
   @keyframes hudLockOn {
-    0%   { transform: translateX(-50%) scale(10.7); opacity: 0.4; } /* Pass 4914: scanner HUD lock-on initial scale 1.3→1.76 bigger bracket snap — Pass 5033: 1.76→2.38 bigger bracket snap — Pass 5851: 2.38→3.21 bigger scanner HUD lock-on initial bracket scale — Pass 5939: 3.21→4.33 bigger scanner HUD lock-on initial bracket scale — Pass 6220: 4.33→5.85 bigger scanner HUD lock-on initial bracket scale — Pass 6445: 5.85→7.90 bigger scanner HUD lock-on initial bracket scale — Pass 6867: 7.90→10.7 bigger scanner HUD lock-on initial bracket scale */
+    0%   { transform: translateX(-50%) scale(14.4); opacity: 0.4; } /* Pass 4914: scanner HUD lock-on initial scale 1.3→1.76 bigger bracket snap — Pass 5033: 1.76→2.38 bigger bracket snap — Pass 5851: 2.38→3.21 bigger scanner HUD lock-on initial bracket scale — Pass 5939: 3.21→4.33 bigger scanner HUD lock-on initial bracket scale — Pass 6220: 4.33→5.85 bigger scanner HUD lock-on initial bracket scale — Pass 6445: 5.85→7.90 bigger scanner HUD lock-on initial bracket scale — Pass 6867: 7.90→10.7 bigger scanner HUD lock-on initial bracket scale — Pass 6959: 10.7→14.4 bigger scanner HUD lock-on initial bracket scale */
     35%  { transform: translateX(-50%) scale(0.95); opacity: 1.0; }
     65%  { transform: translateX(-50%) scale(1.02); opacity: 0.9; }
     100% { transform: translateX(-50%) scale(1.0); opacity: 0.7; }
@@ -212,7 +212,7 @@
   /* ── Stats count bounce ─────────────────────────────────────────────── */
   @keyframes countBounce {
     0%   { transform: scale(1); }
-    35%  { transform: scale(16.3); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop — Pass 5802: 3.65→4.93 more dramatic stats count bounce peak scale — Pass 5942: 4.93→6.66 more dramatic stats count bounce peak scale — Pass 6000: 6.66→8.99 more dramatic stats count bounce peak scale — Pass 6407: 8.99→12.1 more dramatic stats count bounce peak scale — Pass 6868: 12.1→16.3 more dramatic stats count bounce peak scale */
+    35%  { transform: scale(22.0); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop — Pass 5802: 3.65→4.93 more dramatic stats count bounce peak scale — Pass 5942: 4.93→6.66 more dramatic stats count bounce peak scale — Pass 6000: 6.66→8.99 more dramatic stats count bounce peak scale — Pass 6407: 8.99→12.1 more dramatic stats count bounce peak scale — Pass 6868: 12.1→16.3 more dramatic stats count bounce peak scale — Pass 6960: 16.3→22.0 more dramatic stats count bounce peak scale */
     65%  { transform: scale(0.92); }
     100% { transform: scale(1); }
   }
@@ -321,7 +321,7 @@
   /* Pass 131 — dot pop on phase activation */
   @keyframes ph-dot-pop {
     0%   { transform: scale(1.0); }
-    30%  { transform: scale(26.1); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation — Pass 5805: 5.83→7.87 punchier phase dot pop peak scale — Pass 5944: 7.87→10.6 punchier phase dot pop peak scale — Pass 6224: 10.6→14.3 punchier phase dot pop peak scale — Pass 6472: 14.3→19.3 punchier phase dot pop peak scale — Pass 6869: 19.3→26.1 punchier phase dot pop peak scale */
+    30%  { transform: scale(35.2); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation — Pass 5805: 5.83→7.87 punchier phase dot pop peak scale — Pass 5944: 7.87→10.6 punchier phase dot pop peak scale — Pass 6224: 10.6→14.3 punchier phase dot pop peak scale — Pass 6472: 14.3→19.3 punchier phase dot pop peak scale — Pass 6869: 19.3→26.1 punchier phase dot pop peak scale — Pass 6961: 26.1→35.2 punchier phase dot pop peak scale */
     65%  { transform: scale(0.85); }
     100% { transform: scale(1.0); }
   }
@@ -575,12 +575,12 @@ controls.update();
 
 // ─── Lights ───────────────────────────────────────────────────────────────────
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
-const ambientLight = new THREE.AmbientLight(0x202030, 6.75); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill — Pass 5899: 1.50→2.03 stronger ambient fill — Pass 5962: 2.03→2.74 stronger ambient fill — Pass 6048: 2.74→3.70 stronger ambient fill — Pass 6429: 3.70→5.00 stronger ambient fill — Pass 6870: 5.00→6.75 stronger ambient fill
+const ambientLight = new THREE.AmbientLight(0x202030, 9.11); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill — Pass 5899: 1.50→2.03 stronger ambient fill — Pass 5962: 2.03→2.74 stronger ambient fill — Pass 6048: 2.74→3.70 stronger ambient fill — Pass 6429: 3.70→5.00 stronger ambient fill — Pass 6870: 5.00→6.75 stronger ambient fill — Pass 6962: 6.75→9.11 stronger ambient fill
 scene.add(ambientLight);
 scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 3.89)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill — Pass 5738: 0.639→0.863 stronger sky/ground hemisphere fill — Pass 5991: 0.863→1.17 stronger sky/ground hemisphere ambient fill — Pass 6049: 1.17→1.58 stronger sky/ground hemisphere ambient fill — Pass 6342: 1.58→2.13 stronger sky/ground hemisphere ambient fill — Pass 6430: 2.13→2.88 stronger sky/ground hemisphere ambient fill — Pass 6871: 2.88→3.89 stronger sky/ground hemisphere ambient fill
 
 // Increase key light slightly to compensate for lower ambient
-const keyLight = new THREE.DirectionalLight(0xfff8f0, 25.4); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light — Pass 5963: 5.67→7.65 stronger key light — Pass 6050: 7.65→10.3 stronger key light — Pass 6380: 10.3→13.9 stronger key light — Pass 6436: 13.9→18.8 stronger key light — Pass 6872: 18.8→25.4 stronger key light
+const keyLight = new THREE.DirectionalLight(0xfff8f0, 34.3); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light — Pass 5963: 5.67→7.65 stronger key light — Pass 6050: 7.65→10.3 stronger key light — Pass 6380: 10.3→13.9 stronger key light — Pass 6436: 13.9→18.8 stronger key light — Pass 6872: 18.8→25.4 stronger key light — Pass 6963: 25.4→34.3 stronger key light
 keyLight.position.set(400, 600, 400);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
@@ -589,11 +589,11 @@ keyLight.shadow.camera.top = 984;   keyLight.shadow.camera.bottom = -493; // Pas
 keyLight.shadow.bias = -0.00246; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff — Pass 5422: -0.00135→-0.00182 stronger shadow bias — Pass 6340: -0.00182→-0.00246 stronger shadow bias
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xc0d8ff, 10.1); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill — Pass 5964: 2.25→3.04 stronger cool fill — Pass 6051: 3.04→4.10 stronger cool fill — Pass 6381: 4.10→5.54 stronger cool fill — Pass 6437: 5.54→7.48 stronger cool fill — Pass 6873: 7.48→10.1 stronger cool fill light
+const fillLight = new THREE.DirectionalLight(0xc0d8ff, 13.6); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill — Pass 5964: 2.25→3.04 stronger cool fill — Pass 6051: 3.04→4.10 stronger cool fill — Pass 6381: 4.10→5.54 stronger cool fill — Pass 6437: 5.54→7.48 stronger cool fill — Pass 6873: 7.48→10.1 stronger cool fill light — Pass 6964: 10.1→13.6 stronger cool fill light
 fillLight.position.set(-400, 300, 200);
 scene.add(fillLight);
 
-const rimLight = new THREE.DirectionalLight(0xffeedd, 7.03); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim — Pass 5965: 1.57→2.12 stronger back rim — Pass 6052: 2.12→2.86 stronger back rim — Pass 6382: 2.86→3.86 stronger back rim — Pass 6438: 3.86→5.21 stronger back rim — Pass 6874: 5.21→7.03 stronger back rim light
+const rimLight = new THREE.DirectionalLight(0xffeedd, 9.49); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim — Pass 5965: 1.57→2.12 stronger back rim — Pass 6052: 2.12→2.86 stronger back rim — Pass 6382: 2.86→3.86 stronger back rim — Pass 6438: 3.86→5.21 stronger back rim — Pass 6874: 5.21→7.03 stronger back rim light — Pass 6965: 7.03→9.49 stronger back rim light
 rimLight.position.set(200, 100, -400);
 scene.add(rimLight);
 
@@ -3601,7 +3601,7 @@ function animate(ts) {
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
     const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 80.7 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3 — Pass 3579: 13.3→18.0 — Pass 3674: 18.0→24.3 — Pass 3992: 24.3→32.8 — Pass 4133: 32.8→44.3 brighter cone flare — Pass 5385: 44.3→59.8 brighter cone reveal flare — Pass 6546: 59.8→80.7 brighter cone reveal flare
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
-    scanCone.position.z = 886 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03 — Pass 5088: 80.7→109 wider scan cone sweep arc — Pass 5102: 109→147 wider scanner head rotation limit sweep arc — Pass 5117: 147→198 wider slot approach orbit scan sweep — Pass 5346: 198→267 wider scanner idle rotation range sweep — Pass 5368: 267→360 wider scanner idle tilt range sweep — Pass 5576: 360→486 wider pre-pick scan cone rotate speed sweep arc — Pass 5606: 486→656 wider pre-pick scan dome orbit sweep arc — Pass 5637: 656→886 wider pre-pick scan ring expand rate sweep arc angle
+    scanCone.position.z = 1196 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03 — Pass 5088: 80.7→109 wider scan cone sweep arc — Pass 5102: 109→147 wider scanner head rotation limit sweep arc — Pass 5117: 147→198 wider slot approach orbit scan sweep — Pass 5346: 198→267 wider scanner idle rotation range sweep — Pass 5368: 267→360 wider scanner idle tilt range sweep — Pass 5576: 360→486 wider pre-pick scan cone rotate speed sweep arc — Pass 5606: 486→656 wider pre-pick scan dome orbit sweep arc — Pass 5637: 656→886 wider pre-pick scan ring expand rate sweep arc angle — Pass 6958: 886→1196 wider scan cone sweep arc angle
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
     scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 38.6 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7 — Pass 4135: 15.7→21.2 taller cone punch — Pass 5270: 21.2→28.6 taller scan cone reveal punch — Pass 6473: 28.6→38.6 taller scan cone identity reveal Y scale punch
