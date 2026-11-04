@@ -5088,7 +5088,7 @@ function animate(ts) {
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
     const _crs = 1.0 + easeOut(_confirmRingT) * 6134; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring — Pass 5127: 1368→1847 wider slot ring scale speed confirm ring — Pass 5716: 1847→2493 wider identity confirm ring scale — Pass 5875: 2493→3366 wider identity confirm ring max scale — Pass 6014: 3366→4544 wider identity confirm ring max scale — Pass 6401: 4544→6134 wider identity confirm ring max scale
     confirmRing.scale.setScalar(_crs);
-    confirmRingMat.opacity = (1 - _confirmRingT) * 4.48; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash — Pass 5374: 1.35→1.82 brighter identity confirm ring opacity — Pass 6032: 1.82→2.46 brighter identity confirm ring opacity peak — Pass 6272: 2.46→3.32 brighter identity confirm ring opacity peak — Pass 6479: 3.32→4.48 brighter identity confirm ring opacity peak
+    confirmRingMat.opacity = (1 - _confirmRingT) * 6.05; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash — Pass 5374: 1.35→1.82 brighter identity confirm ring opacity — Pass 6032: 1.82→2.46 brighter identity confirm ring opacity peak — Pass 6272: 2.46→3.32 brighter identity confirm ring opacity peak — Pass 6479: 3.32→4.48 brighter identity confirm ring opacity peak — Pass 7185: 4.48→6.05 brighter identity confirm ring opacity peak
     if (_confirmRingT >= 1) {
       _confirmRingT = -1;
       confirmRing.visible = false;
@@ -5104,7 +5104,7 @@ function animate(ts) {
       // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 — Pass 1533: →30.0 for wider second burst
       const _crs2 = 0.6 + easeOut(_confirmRingT2) * 1099; // Pass 2491: second confirm ring scale 73.8→99.6 — Pass 2704: 99.6→134.5 — Pass 2800: 134.5→181.6 — Pass 2932: 181.6→245.2 — Pass 3311: 245.2→331.0 — Pass 4058: 331.0→447 wider secondary confirm ripple — Pass 5371: 447→603 wider secondary confirm ripple — Pass 5878: 603→814 wider secondary confirm ring max scale — Pass 6028: 814→1099 wider secondary confirm ring max scale
       confirmRing2.scale.setScalar(_crs2);
-      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 3.32); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0 — Pass 4689: 1.0→1.35 brighter secondary confirm ring — Pass 5376: 1.35→1.82 brighter secondary confirm ring opacity — Pass 6033: 1.82→2.46 brighter secondary confirm ring opacity peak — Pass 6273: 2.46→3.32 brighter secondary confirm ring opacity peak
+      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 4.48); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0 — Pass 4689: 1.0→1.35 brighter secondary confirm ring — Pass 5376: 1.35→1.82 brighter secondary confirm ring opacity — Pass 6033: 1.82→2.46 brighter secondary confirm ring opacity peak — Pass 6273: 2.46→3.32 brighter secondary confirm ring opacity peak — Pass 7186: 3.32→4.48 brighter secondary confirm ring opacity peak
       if (_confirmRingT2 >= 1) {
         _confirmRingT2 = -1;
         confirmRing2.visible = false;
@@ -5122,7 +5122,7 @@ function animate(ts) {
     const _grs = 1.0 + easeOut(_grabRingT) * 1674; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6 — Pass 3141: 151.6→204.7 — Pass 3313: 204.7→276.3 — Pass 3422: 276.3→373.0 — Pass 3535: 373.0→504 — Pass 4089: 504→680.4 wider suction burst — Pass 5373: 680.4→918.5 wider suction burst ring — Pass 5815: 918.5→1240 wider grab ring suction burst max scale — Pass 6015: 1240→1674 wider grab ring suction burst max scale
     grabRing.scale.setScalar(_grs);
     // Pass 938: grab ring opacity 0.6→0.85 — Pass 1036: →0.95 — Pass 1541: →1.0 for more vivid ring
-    grabRingMat.opacity = (1 - _grabRingT) * 2.46; // Pass 4612: pick suction ring fade rate 1.0→1.35 brighter grab ring fade — Pass 5377: 1.35→1.82 brighter grab ring opacity — Pass 6244: 1.82→2.46 brighter grab ring suction fade opacity
+    grabRingMat.opacity = (1 - _grabRingT) * 3.32; // Pass 4612: pick suction ring fade rate 1.0→1.35 brighter grab ring fade — Pass 5377: 1.35→1.82 brighter grab ring opacity — Pass 6244: 1.82→2.46 brighter grab ring suction fade opacity — Pass 7184: 2.46→3.32 brighter grab ring suction fade opacity
     if (_grabRingT >= 1) {
       _grabRingT = -1;
       grabRing.visible = false;
@@ -5140,7 +5140,7 @@ function animate(ts) {
       hopperLight.color.setHex(ct.hex);
       // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 — Pass 1444: →4.50 brighter during arm cycle
       const _hTarget = _hBase + 302.7; // Pass 2461: hopper pick intensity 8.21→11.1 — Pass 2707: 11.1→15.0 — Pass 2803: 15.0→20.3 — Pass 2935: 20.3→27.4 — Pass 3142: 27.4→37.0 — Pass 3314: 37.0→50.0 — Pass 3466: 50.0→67.5 — Pass 4167: 67.5→91.1 brighter hopper during pick — Pass 5360: 91.1→123.0 brighter pick spotlight — Pass 5408: 123.0→166.1 brighter hopper pick spotlight — Pass 5718: 166.1→224.2 brighter hopper pick spotlight intensity — Pass 6016: 224.2→302.7 brighter hopper pick spotlight intensity
-      hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 9.84); // Pass 4471: hopper pick light tracking rate 4→5.4 snappier pick spotlight — Pass 5426: 5.4→7.29 snappier pick spotlight — Pass 6245: 7.29→9.84 snappier hopper pick spotlight intensity tracking rate
+      hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 13.3); // Pass 4471: hopper pick light tracking rate 4→5.4 snappier pick spotlight — Pass 5426: 5.4→7.29 snappier pick spotlight — Pass 6245: 7.29→9.84 snappier hopper pick spotlight intensity tracking rate — Pass 7187: 9.84→13.3 snappier hopper pick spotlight intensity tracking rate
       // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 — Pass 1445: →58 light follows arm deeper
       const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 2124 : 0; // Pass 2462: descent Y-track 105→142 — Pass 2708: 142→192 — Pass 2804: 192→259 — Pass 2936: 259→350 — Pass 3143: 350→473 — Pass 3315: 473→639 — Pass 4168: 639→863 light follows arm deeper — Pass 5361: 863→1165 light follows arm deeper — Pass 5409: 1165→1573 light follows arm even deeper — Pass 6029: 1573→2124 light follows arm even deeper Y-track
       // Pass 360: X-drift during armSwing — Pass 1043: drift 55→80 — Pass 1446: →110 light tracks wider card arc
@@ -5154,7 +5154,7 @@ function animate(ts) {
         const _nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
         const _preT = (_pauseRaw - 0.60) / 0.40; // 0→1 in last 40% of pause
         // Pass 635: pre-charge tint blend 0.32→0.52 — Pass 1041: →0.75 + intensity delta 0.55→0.90 stronger herald
-        hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 1.84); // Pass 4920: pre-charge tint blend 0.75→1.01 richer domain herald — Pass 5766: 1.01→1.36 richer hopper pre-charge domain herald tint blend — Pass 6257: 1.36→1.84 richer hopper pre-charge domain herald tint blend
+        hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 2.48); // Pass 4920: pre-charge tint blend 0.75→1.01 richer domain herald — Pass 5766: 1.01→1.36 richer hopper pre-charge domain herald tint blend — Pass 6257: 1.36→1.84 richer hopper pre-charge domain herald tint blend — Pass 7188: 1.84→2.48 richer hopper pre-charge domain herald tint blend
         hopperLight.intensity += (_hBase + _preT * 18.2 - hopperLight.intensity) * Math.min(1, dt * 2.5); // Pass 2464: pre-charge delta 1.65→2.23 — Pass 2710: 2.23→3.01 — Pass 2938: 3.01→4.06 — Pass 3145: 4.06→5.48 — Pass 3627: 5.48→7.40 — Pass 4170: 7.40→9.99 richer domain herald — Pass 5014: 9.99→13.5 brighter pre-charge intensity — Pass 6020: 13.5→18.2 brighter hopper pre-charge domain herald intensity delta
       } else {
         hopperLight.color.set(0xffeedd);
@@ -5181,15 +5181,15 @@ function animate(ts) {
       _ledColor = ct.hex;
       _ledGlow = 135.5 + 59.8 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2466: pick pulse base 9.11→12.3 Pass 2467: amp 4.01→5.41 — Pass 2711: 12.3→16.6, 5.41→7.30 — Pass 2805: 16.6→22.4 Pass 2806: 7.30→9.86 — Pass 2939/2940: 22.4+9.86→30.2+13.3 — Pass 3146: base 30.2→40.8 Pass 3147: amp 13.3→18.0 — Pass 3317: 40.8+18.0→55.1+24.3 — Pass 4171: base 55.1→74.4 — Pass 4172: amp 24.3→32.8 blazing pick LED — Pass 5363: base 74.4→100.4 — Pass 5364: amp 32.8→44.3 blazing pick LED pulse — Pass 5719: base 100.4→135.5 blazing pick LED pulse base — Pass 6263: amp 44.3→59.8 blazing pick LED pulse amplitude
     } else if (_visibleCards >= 5) {
-      _ledColor = 0x00ff44; _ledGlow = 4.93; // green: full — Pass 4392: 2.0→2.70 brighter full-stack LED — Pass 5427: 2.70→3.65 brighter full-stack LED — Pass 6246: 3.65→4.93 brighter full-stack hopper LED glow
+      _ledColor = 0x00ff44; _ledGlow = 6.66; // green: full — Pass 4392: 2.0→2.70 brighter full-stack LED — Pass 5427: 2.70→3.65 brighter full-stack LED — Pass 6246: 3.65→4.93 brighter full-stack hopper LED glow — Pass 7189: 4.93→6.66 brighter full-stack hopper LED glow
     } else if (_visibleCards >= 3) {
-      _ledColor = 0xffcc00; _ledGlow = 5.41; // yellow: half-full — Pass 4393: 2.2→2.97 brighter half-stack LED — Pass 5428: 2.97→4.01 brighter half-stack LED — Pass 6247: 4.01→5.41 brighter half-stack hopper LED glow
+      _ledColor = 0xffcc00; _ledGlow = 7.30; // yellow: half-full — Pass 4393: 2.2→2.97 brighter half-stack LED — Pass 5428: 2.97→4.01 brighter half-stack LED — Pass 6247: 4.01→5.41 brighter half-stack hopper LED glow — Pass 7190: 5.41→7.30 brighter half-stack hopper LED glow
     } else if (_visibleCards >= 1) {
       // Red: low — fast 4Hz blink for urgency (fix: was ts*0.012, far too slow)
       const _blinkOn = Math.sin(ts * Math.PI * 2 * 13.3) > 0; // Pass 4887: hopper LED low-stack blink frequency 4→5.4 more urgent warning flash — Pass 5429: 5.4→7.29 more urgent low-stack blink — Pass 6248: 7.29→9.84 more urgent low-stack blink frequency — Pass 7141: 9.84→13.3 more urgent low-stack blink frequency
       _ledColor = 0xff2200; _ledGlow = _blinkOn ? 9.30 : 1.33; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink — Pass 5681: on 3.78→5.10, off 0.54→0.73 brighter low-stack red blink — Pass 6256: on 5.10→6.89, off 0.73→0.985 brighter low-stack red blink — Pass 7142: on 6.89→9.30 brighter low-stack blink peak — Pass 7143: off 0.985→1.33 brighter low-stack blink floor
     } else {
-      _ledColor = 0xff6600; _ledGlow = 2.96; // orange: empty (refilling) — Pass 4395: 1.2→1.62 brighter empty/refilling LED — Pass 5421: 1.62→2.19 brighter empty/refilling LED — Pass 6249: 2.19→2.96 brighter empty/refilling hopper LED glow
+      _ledColor = 0xff6600; _ledGlow = 3.99; // orange: empty (refilling) — Pass 4395: 1.2→1.62 brighter empty/refilling LED — Pass 5421: 1.62→2.19 brighter empty/refilling LED — Pass 6249: 2.19→2.96 brighter empty/refilling hopper LED glow — Pass 7191: 2.96→3.99 brighter empty/refilling hopper LED glow
     }
     hopperLEDMat.color.setHex(_ledColor);
     hopperLEDMat.emissive.setHex(_ledColor);
