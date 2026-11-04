@@ -889,7 +889,7 @@ scene.add(lensRing);
 const scanLEDMat = new THREE.MeshStandardMaterial({
   color: 0x00aaff,
   emissive: new THREE.Color(0x0055cc),
-  emissiveIntensity: 5.40, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive
+  emissiveIntensity: 7.29, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
@@ -979,7 +979,7 @@ scene.add(scanBeam);
 const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
   emissive: new THREE.Color(0x00ff88),
-  emissiveIntensity: 9.96, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair
+  emissiveIntensity: 13.4, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam
   transparent: true, opacity: 0.95 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam
 });
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(133, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span
@@ -989,7 +989,7 @@ scene.add(scanLine);
 const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
-  emissiveIntensity: 6.16, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar
+  emissiveIntensity: 8.32, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar
   transparent: true, opacity: 0.88 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 164), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height — Pass 5072: 121.5→164 wider secondary scan sweep
@@ -2361,7 +2361,7 @@ function animate(ts) {
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
     const _jPhase = i * 2.67; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
-    const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 2.30 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter
+    const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 3.11 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter — Pass 5313: 2.30→3.11 livelier pre-pick stack jitter primary amplitude
               + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 1.15; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
@@ -2383,7 +2383,7 @@ function animate(ts) {
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
         const _waveAmp301 = inPhase(PH.armDescend) ? 2.82 + phaseRaw(PH.armDescend) * 6.05 : 2.82; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp // Pass 4493: deck shimmer wave base 1.15→1.55 richer deck energy floor — Pass 4896: base 1.55→2.09 — Pass 4897: ramp 3.32→4.48 brighter deck charge surge — Pass 5208: base 2.09→2.82 — Pass 5209: ramp 4.48→6.05 brighter deck charge surge
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 — Pass 4061: →0.49 richer deck energy base
-        sc.material.emissiveIntensity = 1.20 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor — Pass 5096: 0.66→0.891 richer deck shimmer base glow — Pass 5210: 0.891→1.20 richer deck shimmer base emissive
+        sc.material.emissiveIntensity = 1.62 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor — Pass 5096: 0.66→0.891 richer deck shimmer base glow — Pass 5210: 0.891→1.20 richer deck shimmer base emissive — Pass 5315: 1.20→1.62 richer deck shimmer base emissive
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
         sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 4.05); // Pass 4813: deck shimmer idle tracking 3→4.05 snappier deck energy decay
@@ -2431,7 +2431,7 @@ function animate(ts) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 2.24; // Pass 4781: tray card breathing phase spread 1.23→1.66 more organic card desync — Pass 5063: 1.66→2.24 more organic card desync
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61 — Pass 4771: amp 2.17→2.93 richer settled breathing
-          mesh.material.emissiveIntensity = 1.89 + 3.96 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing — Pass 5067: base 1.40→1.89 richer settled card glow — Pass 5068: amp 2.93→3.96 richer settled card breathing
+          mesh.material.emissiveIntensity = 2.55 + 3.96 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing — Pass 5067: base 1.40→1.89 richer settled card glow — Pass 5068: amp 2.93→3.96 richer settled card breathing — Pass 5314: base 1.89→2.55 richer settled card breathe base glow
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway — Pass 4772: 0.051→0.069 deeper deck sway
           const _swayPhase = _globalCardIdx * 4.50; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync — Pass 5077: 2.47→3.33 more organic sway desync — Pass 5155: 3.33→4.50 more organic settled card sway desync
           mesh.rotation.z = 0.126 * Math.sin(ts * 0.513 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway — Pass 5069: 0.069→0.093 deeper deck sway — Pass 5156: 0.093→0.126 deeper settled card Z micro-rocking
@@ -4595,7 +4595,7 @@ function animate(ts) {
     // ~0.35Hz (2.2 rad/s) so one full breath spans ~2.9s (6× the 0.5s pause — natural)
     // Pass 1058: breathing base 0.12→0.20, amp 0.07→0.14 for more visible scanner idle pulse
     {
-      const _breathe = 4.00 + 3.81 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe — Pass 5296: scanner idle rotation breathe amplitude 2.82→3.81 deeper standby pulse
+      const _breathe = 5.40 + 3.81 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe — Pass 5296: scanner idle rotation breathe amplitude 2.82→3.81 deeper standby pulse — Pass 5316: base 4.00→5.40 brighter scanner standby breathe base
       scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 3.38); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.03)); // Pass 4824: hood standby emissive color tracking rate 1.5→2.03
       hoodMat.emissiveIntensity += (_breathe * 4.64 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 — Pass 4711: 2.55→3.44 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe — Pass 5142: 3.44→4.64 brighter scanner head idle emissive breathe
@@ -5466,7 +5466,7 @@ function animate(ts) {
     // Pass 493: breathe amplitude boost 0.08→0.14 — Pass 544: 0.14→0.20 for more tray card life
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
     // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
-    const _breathe = 3.32 + 1.82 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35 — Pass 4720: base 1.82→2.46 — Pass 4721: amp 1.35→1.82 richer tray card breathe — Pass 5134: 2.46→3.32 richer tray card resting glow
+    const _breathe = 4.48 + 1.82 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35 — Pass 4720: base 1.82→2.46 — Pass 4721: amp 1.35→1.82 richer tray card breathe — Pass 5134: 2.46→3.32 richer tray card resting glow — Pass 5317: base 3.32→4.48 richer tray card breathe resting base
                          + 0.20 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing
     slotArr.forEach(m => {
       if (!m.material) return;
