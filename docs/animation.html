@@ -1757,7 +1757,7 @@ function addCardToTray(ct) {
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 10.6; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop — Pass 5774: 7.87→10.6 brighter new card arrival emissive flash
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow — Pass 4768: →9.3s even longer afterglow
-  _ledCooloff[ct.slot] = 17.0; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5299: slot LED afterglow 12.6→17.0s even longer slot domain glow
+  _ledCooloff[ct.slot] = 23.0; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5299: slot LED afterglow 12.6→17.0s even longer slot domain glow — Pass 5882: 17.0→23.0 even longer slot LED afterglow duration
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
   const flashLight = new THREE.PointLight(ct.hex, 55.1, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst — Pass 5410: 22.4→30.2 brighter card deal slot arrival burst flash — Pass 5534: 30.2→40.8 brighter card deal slot arrival burst flash peak — Pass 5854: 40.8→55.1 brighter card deal slot arrival burst flash peak
@@ -1958,7 +1958,7 @@ for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   _cpMesh.visible = false;
   scene.add(_cpMesh);
   // Pass 481: randomized gravity factor per particle (18–35) for organic varied fall speed — Pass 4262: base 18→24.3, rand 17→22.95 stronger confetti gravity variance
-  const _gravFactor = 44.3 + Math.random() * 41.9; // Pass 4811: confetti gravity base 24.3→32.8 — Pass 4812: rand 22.95→31.0 heavier confetti — Pass 5444: base 32.8→44.3 — Pass 5445: rand 31.0→41.9 heavier confetti gravity variance
+  const _gravFactor = 44.3 + Math.random() * 56.6; // Pass 4811: confetti gravity base 24.3→32.8 — Pass 4812: rand 22.95→31.0 heavier confetti — Pass 5444: base 32.8→44.3 — Pass 5445: rand 31.0→41.9 heavier confetti gravity variance — Pass 5883: rand 41.9→56.6 heavier confetti gravity variance spread
   CELEB_PARTICLES.push({ mesh: _cpMesh, mat: _cpMat, vx: 0, vy: 0, vz: 0, rx: 0, ry: 0, rz: 0, age: 0, life: 1.2, active: false, grav: _gravFactor });
 }
 
@@ -1978,12 +1978,12 @@ function fireCelebration() {
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
-    p.life = 8.63 + Math.random() * 4.93; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 — Pass 4100: 3.5+2.7→4.73+3.65 even longer airtime — Pass 4680: base 4.73→6.39 — Pass 4681: rand 3.65→4.93 even longer confetti airtime — Pass 5073: base 6.39→8.63 longer confetti lifespan
+    p.life = 11.7 + Math.random() * 4.93; // Pass 1106: 1.4+1.0→2.0+1.5 — Pass 1627: →2.6+2.0 longer celebration confetti — Pass 3902: 2.6+2.0→3.5+2.7 — Pass 4100: 3.5+2.7→4.73+3.65 even longer airtime — Pass 4680: base 4.73→6.39 — Pass 4681: rand 3.65→4.93 even longer confetti airtime — Pass 5073: base 6.39→8.63 longer confetti lifespan — Pass 5884: base 8.63→11.7 longer celebration confetti lifespan base
     // Pass 84: random angular velocity for tumbling confetti effect
     // Pass 614: confetti tumble boost rx 18→26, ry 22→32, rz 28→42 — Pass 894: →35/42/55 — Pass 1012: →48/58/72 — Pass 1628: →65/78/98
-    p.rx = (Math.random() - 0.5) * 396; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161 — Pass 4093: 161→217 wilder tumble — Pass 4682: 217→293 even wilder tumble — Pass 5020: 293→396 wilder confetti rotation
-    p.ry = (Math.random() - 0.5) * 473; // Pass 2503: tumble ry 78→105 — Pass 3551: 105→142 — Pass 3634: 142→192 — Pass 4094: 192→259 — Pass 4928: 259→350 wilder confetti tumble Y — Pass 5184: 350→473 wilder confetti tumble Y
-    p.rz = (Math.random() - 0.5) * 1076; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178 — Pass 3635: 178→240 — Pass 3777: 240→324 — Pass 3884: 324→437 — Pass 4095: 437→590 — Pass 4929: 590→797 wilder confetti tumble Z — Pass 5185: 797→1076 wilder confetti tumble Z
+    p.rx = (Math.random() - 0.5) * 535; // Pass 2502: tumble rx 65→88 — Pass 3550: 88→119 — Pass 3633: 119→161 — Pass 4093: 161→217 wilder tumble — Pass 4682: 217→293 even wilder tumble — Pass 5020: 293→396 wilder confetti rotation — Pass 5885: 396→535 wilder confetti tumble X rotation
+    p.ry = (Math.random() - 0.5) * 639; // Pass 2503: tumble ry 78→105 — Pass 3551: 105→142 — Pass 3634: 142→192 — Pass 4094: 192→259 — Pass 4928: 259→350 wilder confetti tumble Y — Pass 5184: 350→473 wilder confetti tumble Y — Pass 5886: 473→639 wilder confetti tumble Y rotation
+    p.rz = (Math.random() - 0.5) * 1453; // Pass 2504: tumble rz 98→132 — Pass 3613: 132→178 — Pass 3635: 178→240 — Pass 3777: 240→324 — Pass 3884: 324→437 — Pass 4095: 437→590 — Pass 4929: 590→797 wilder confetti tumble Z — Pass 5185: 797→1076 wilder confetti tumble Z — Pass 5887: 1076→1453 wilder confetti tumble Z rotation
     p.active = true;
     p.mesh.visible = true;
   });
@@ -1993,12 +1993,12 @@ function fireCelebration() {
   for (let _mi = 0; _mi < 30; _mi++) { // Pass 896: 12→16 shimmer pieces // Pass 4448: 16→22 more shimmer confetti burst — Pass 5021: 22→30 more shimmer confetti burst
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
     _mp.vx = (Math.random() - 0.5) * 930; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread — Pass 5453: 689→930 wider celebration shimmer X spread
-    _mp.vy = 937 + Math.random() * 790; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft — Pass 5459: base 694→937 higher celebration shimmer loft — Pass 5460: rand 585→790 higher shimmer loft variance
+    _mp.vy = 1265 + Math.random() * 790; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft — Pass 5459: base 694→937 higher celebration shimmer loft — Pass 5460: rand 585→790 higher shimmer loft variance — Pass 5888: base 937→1265 higher celebration shimmer loft base velocity
     _mp.vz = (Math.random() - 0.5) * 366; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 — Pass 4104: 149→201 even wider Z shimmer — Pass 4936: 201→271 wider shimmer Z spread — Pass 5461: 271→366 wider celebration shimmer Z spread
     _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*54.7, FLOOR_Y[0] + 85, (Math.random()-0.5)*40); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5 — Pass 5521: 40.5→54.7 wider shimmer confetti X spawn spread
     _mp.mat.color.setHex(_shimmerColors[_mi]);
     _mp.mat.opacity = 1.0;
-    _mp.age = 0; _mp.life = 3.655 + Math.random() * 1.968; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 — Pass 4108: 1.485+1.080→2.005+1.458 longer shimmer life — Pass 4937: 2.005+1.458→2.707+1.968 longer shimmer life — Pass 5520: 2.707→3.655 longer shimmer particle life base
+    _mp.age = 0; _mp.life = 4.93 + Math.random() * 1.968; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 — Pass 4108: 1.485+1.080→2.005+1.458 longer shimmer life — Pass 4937: 2.005+1.458→2.707+1.968 longer shimmer life — Pass 5520: 2.707→3.655 longer shimmer particle life base — Pass 5889: 3.655→4.93 longer celebration shimmer particle lifespan
     _mp.rx = (Math.random() - 0.5) * 412; // Pass 2506: shimmer rx 50→68 — Pass 3629: 68→92 — Pass 3774: 92→124 — Pass 3881: 124→167 — Pass 4105: 167→226 — Pass 4933: 226→305 wilder shimmer tumble X — Pass 5517: 305→412 wilder shimmer tumble X spin
     _mp.ry = (Math.random() - 0.5) * 487; // Pass 2507: shimmer ry 60→81 — Pass 3630: 81→109 — Pass 3775: 109→147 — Pass 3882: 147→198 — Pass 4106: 198→267 — Pass 4934: 267→361 wilder shimmer tumble Y — Pass 5518: 361→487 wilder shimmer tumble Y spin
     _mp.rz = (Math.random() - 0.5) * 577; // Pass 2508: shimmer rz 70→95 — Pass 3631: 95→128 — Pass 3776: 128→173 — Pass 3883: 173→234 — Pass 4107: 234→316 — Pass 4938: 316→427 wilder shimmer tumble Z — Pass 5519: 427→577 wilder shimmer tumble Z spin
