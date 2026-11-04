@@ -3214,10 +3214,10 @@ function animate(ts) {
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 53.5 + _lensReveal370; // Pass 2315: lens emissive flash contribution 8.78→11.9 — Pass 3384: 11.9→16.1 — Pass 3515: 16.1→21.7 — Pass 3652: 21.7→29.3 — Pass 3983: 29.3→39.6 — Pass 4111: 39.6→53.5 brighter scanner lens
     // Wide bloom soft halo around scanner
     // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 — Pass 1082: →16.0 — Pass 1285: →22.0 — Pass 1375: →30.0 — Pass 1522: →40.0 for bigger bloom burst at lock-on
-    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 180 : 0; // Pass 2308: bloom reveal surge 54.0→72.9 — Pass 3372: 72.9→98.4 — Pass 3758: 98.4→133 — Pass 3866: 133→180
+    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 243 : 0; // Pass 2308: bloom reveal surge 54.0→72.9 — Pass 3372: 72.9→98.4 — Pass 3758: 98.4→133 — Pass 3866: 133→180 — Pass 4123: 180→243 bigger bloom surge
     scanBloom.color.setHex(_identityRevealed ? ct.hex : 0x0088ff);
     // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 — Pass 1238: →2.8 — Pass 1521: →3.8 for stronger soft scan halo
-    scanBloom.intensity = flashIntensity * 23.0 + _bloomRevealSurge; // Pass 2316: bloom flash contribution 5.13→6.93 — Pass 3385: 6.93→9.36 — Pass 3516: 9.36→12.6 — Pass 3656: 12.6→17.0 — Pass 3984: 17.0→23.0
+    scanBloom.intensity = flashIntensity * 31.1 + _bloomRevealSurge; // Pass 2316: bloom flash contribution 5.13→6.93 — Pass 3385: 6.93→9.36 — Pass 3516: 9.36→12.6 — Pass 3656: 12.6→17.0 — Pass 3984: 17.0→23.0 — Pass 4124: 23.0→31.1 brighter bloom
     // Pass 347: bloom Z drift toward destination slot after identity reveal — Pass 4068: drift multiplier 0.30→0.41 further bloom Z drift
     const _bloomZ347 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.20) * 0.41 : 0;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, _bloomZ347);
@@ -3394,9 +3394,9 @@ function animate(ts) {
         _hoodRevealFlash = 0.001; // just above 0 to activate
         // Pass 125: card face emissive burst at identity reveal — card "powers up"
         // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 — Pass 1131: →16.0 — Pass 1412: →22.0 for bigger face power-up flash
-        _cardRevealBurst = 246; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8 — Pass 3431: 73.8→99.6 — Pass 3472: 99.6→134.5 — Pass 3548: 134.5→182 — Pass 3714: 182→246
+        _cardRevealBurst = 332; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8 — Pass 3431: 73.8→99.6 — Pass 3472: 99.6→134.5 — Pass 3548: 134.5→182 — Pass 3714: 182→246 — Pass 4120: 246→332 bigger reveal flash
         // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 — Pass 1415: →7.0 for stronger pop
-        if (ct.stripMat) ct.stripMat.emissiveIntensity = 31.6; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3 — Pass 3428: 17.3→23.4 — Pass 3653: 23.4→31.6
+        if (ct.stripMat) ct.stripMat.emissiveIntensity = 42.7; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3 — Pass 3428: 17.3→23.4 — Pass 3653: 23.4→31.6 — Pass 4121: 31.6→42.7 brighter strip flash
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
         // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 — Pass 1323: →12.0 — Pass 1416: →17.0 for prominent lock-on jolt
@@ -3405,7 +3405,7 @@ function animate(ts) {
         _fovBump = Math.max(_fovBump, 79.7); // Pass 2323: reveal FOV zoom-punch 32.4→43.7 — Pass 2830: 43.7→59.0 — Pass 2976: 59.0→79.7
         // Pass 222: scanner LED domain flash — LED switches to domain color at confirm.
         // Pass 271: LED intensity spike at reveal — Pass 890: 5.5→8.5 — Pass 1134: →13.0 — Pass 1386: →18.0 for brighter lock-on flash
-        scanLEDMat.emissiveIntensity = 147; // Pass 2324: reveal LED intensity spike 24.3→32.8 — Pass 2831: 32.8→44.3 — Pass 2977: 44.3→59.8 — Pass 3415: 59.8→80.7 — Pass 3527: 80.7→109 — Pass 3660: 109→147
+        scanLEDMat.emissiveIntensity = 198; // Pass 2324: reveal LED intensity spike 24.3→32.8 — Pass 2831: 32.8→44.3 — Pass 2977: 44.3→59.8 — Pass 3415: 59.8→80.7 — Pass 3527: 80.7→109 — Pass 3660: 109→147 — Pass 4122: 147→198 blinding LED spike
         _scanLEDRevealT = 0;
         // Pass 235: scanner confirmation particle burst — Pass 532: speed 38+42→55+55, vy 20+35→30+50
         // Pass 956: burst count 6→12 — Pass 957: speed 55+55→80+75, vy 30+50→50+70 — Pass 1324: count →18, Pass 1325: speed →145+130, Pass 1326: vy →95+120 for bigger reveal pop
@@ -3416,13 +3416,13 @@ function animate(ts) {
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
             // Pass 958: burst life 0.36+0.24→0.52+0.32 for longer-lived reveal particles
-            _bp.active = true; _bp.age = 0; _bp.life = 1.28 + Math.random() * 0.783; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58 — Pass 3965: 0.95+0.58→1.28+0.783 longer reveal burst
+            _bp.active = true; _bp.age = 0; _bp.life = 1.73 + Math.random() * 1.057; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58 — Pass 3965: 0.95+0.58→1.28+0.783 — Pass 4119: 1.28+0.783→1.73+1.057 longer reveal burst
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 18) * Math.PI * 2 + Math.random() * 0.8;
             const _spd = 1554 + Math.random() * 1432; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582 — Pass 3561: base 632→853, range 582→786 — Pass 3720: 853+786→1151+1061 — Pass 4116: 1151+1061→1554+1432 explosive confirm burst
             _bp.vx = Math.cos(_ang) * _spd * 0.55;
-            _bp.vy = 759 + Math.random() * 515; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416 — Pass 3560: base 416→562, rand 282→381 — Pass 3721: 562+381→759+515
+            _bp.vy = 1025 + Math.random() * 695; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416 — Pass 3560: base 416→562, rand 282→381 — Pass 3721: 562+381→759+515 — Pass 4117: base 759→1025 — Pass 4118: rand 515→695 higher burst
             _bp.vz = Math.sin(_ang) * _spd * 0.55;
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
