@@ -1990,7 +1990,7 @@ function fireCelebration() {
   // Pass 458: metallic shimmer burst — silver-gold confetti pieces with fast tumble
   // Pass 653: shimmer count 8→12 — Pass 896: →16; speed 90→130 — Pass 895: →165; vy 55+50→75+65 — Pass 895: →95+80
   const _shimmerColors = [0xffffff, 0xffe0a0, 0xf0f0f0, 0xffd070, 0xeeeeee, 0xffc040, 0xe8e8ff, 0xffeebb, 0xffd0a0, 0xffffff, 0xffe880, 0xf8f8ff, 0xffffff, 0xffd0ff, 0xffe0b0, 0xf8ffff, 0xffffd0, 0xffe8b0, 0xf0fff0, 0xffd890, 0xe0e0ff, 0xfff0d0];
-  for (let _mi = 0; _mi < 30; _mi++) { // Pass 896: 12→16 shimmer pieces // Pass 4448: 16→22 more shimmer confetti burst — Pass 5021: 22→30 more shimmer confetti burst
+  for (let _mi = 0; _mi < 41; _mi++) { // Pass 896: 12→16 shimmer pieces // Pass 4448: 16→22 more shimmer confetti burst — Pass 5021: 22→30 more shimmer confetti burst — Pass 6275: 30→41 more shimmer confetti burst pieces
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
     _mp.vx = (Math.random() - 0.5) * 1256; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread — Pass 5453: 689→930 wider celebration shimmer X spread — Pass 5911: 930→1256 wider celebration shimmer X spread
     _mp.vy = 1265 + Math.random() * 790; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft — Pass 5459: base 694→937 higher celebration shimmer loft — Pass 5460: rand 585→790 higher shimmer loft variance — Pass 5888: base 937→1265 higher celebration shimmer loft base velocity
@@ -2773,7 +2773,7 @@ function animate(ts) {
         const _yDip = -57.1 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip — Pass 4902: -23.2→-31.3 more dramatic peel-off lurch — Pass 5178: -31.3→-42.3 more dramatic pivot dip — Pass 5979: -42.3→-57.1 deeper suction-break pivot Y dip
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
         // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 — Pass 1358: →7.00 — Pass 1683: →9.50
-        const _pickStutter = lt < 0.12 ? 42.7 * Math.exp(-lt * 35.1) * (Math.sin(ts * 29.7 * Math.PI * 2) * 0.88 + Math.sin(ts * 51.3 * Math.PI * 2) * 0.47) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear — Pass 4504: pick stutter high freq 38→51.3 sharper micro-jolt — Pass 4527: pick-stutter low-freq amplitude 0.65→0.88 stronger suction-seal shudder — Pass 4529: pick-stutter low-freq seal frequency 22→29.7 sharper suction-seal Hz — Pass 4624: pick-stutter high-freq secondary amplitude 0.35→0.47 more violent seal tear recoil — Pass 4638: pick stutter decay rate 26→35.1 crisper suction-seal shudder — Pass 5170: 31.6→42.7 more violent suction-seal burst
+        const _pickStutter = lt < 0.12 ? 57.6 * Math.exp(-lt * 35.1) * (Math.sin(ts * 29.7 * Math.PI * 2) * 0.88 + Math.sin(ts * 51.3 * Math.PI * 2) * 0.47) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear — Pass 4504: pick stutter high freq 38→51.3 sharper micro-jolt — Pass 4527: pick-stutter low-freq amplitude 0.65→0.88 stronger suction-seal shudder — Pass 4529: pick-stutter low-freq seal frequency 22→29.7 sharper suction-seal Hz — Pass 4624: pick-stutter high-freq secondary amplitude 0.35→0.47 more violent seal tear recoil — Pass 4638: pick stutter decay rate 26→35.1 crisper suction-seal shudder — Pass 5170: 31.6→42.7 more violent suction-seal burst — Pass 6274: 42.7→57.6 more violent pick stutter suction-seal burst amplitude
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 — Pass 1359: →15.0 for more dramatic peel-off sway
@@ -3394,7 +3394,7 @@ function animate(ts) {
         _hoodRevealFlash = 0.001; // just above 0 to activate
         // Pass 125: card face emissive burst at identity reveal — card "powers up"
         // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 — Pass 1131: →16.0 — Pass 1412: →22.0 for bigger face power-up flash
-        _cardRevealBurst = 448; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8 — Pass 3431: 73.8→99.6 — Pass 3472: 99.6→134.5 — Pass 3548: 134.5→182 — Pass 3714: 182→246 — Pass 4120: 246→332 bigger reveal flash — Pass 5122: 332→448 card reveal emissive hold time bigger burst
+        _cardRevealBurst = 605; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8 — Pass 3431: 73.8→99.6 — Pass 3472: 99.6→134.5 — Pass 3548: 134.5→182 — Pass 3714: 182→246 — Pass 4120: 246→332 bigger reveal flash — Pass 5122: 332→448 card reveal emissive hold time bigger burst — Pass 6269: 448→605 bigger card reveal emissive burst
         // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 — Pass 1415: →7.0 for stronger pop
         if (ct.stripMat) ct.stripMat.emissiveIntensity = 57.6; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3 — Pass 3428: 17.3→23.4 — Pass 3653: 23.4→31.6 — Pass 4121: 31.6→42.7 brighter strip flash — Pass 5266: 42.7→57.6 brighter domain strip flash
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
@@ -4048,7 +4048,7 @@ function animate(ts) {
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
     gateColLight.intensity += (444 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0 — Pass 3689: 99.0→134 — Pass 3801: 134→181 — Pass 3901: 181→244 — Pass 4741: 244→329 brighter gate column tracking — Pass 5465: 329→444 brighter gate column tracking light
-    _beltScrollSpeed = 0.0729; // half speed while card arcs off belt — Pass 4876: deflect belt speed 0.04→0.054 livelier belt during arc — Pass 5091: 0.054→0.0729 livelier belt scroll during arc flight
+    _beltScrollSpeed = 0.0985; // half speed while card arcs off belt — Pass 4876: deflect belt speed 0.04→0.054 livelier belt during arc — Pass 5091: 0.054→0.0729 livelier belt scroll during arc flight — Pass 6270: 0.0729→0.0985 livelier belt scroll speed during arc deflect
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
     if (_trailSpawnAcc >= 0.014) { // Pass 2102: deflect trail spawn 0.040→0.030 denser — Pass 4297: 0.030→0.022 even denser deflect contrail — Pass 5798: 0.022→0.014 even denser deflect contrail
@@ -4194,7 +4194,7 @@ function animate(ts) {
     // Pass 470: target LED hold-then-snap — holds at 3.5 for first 22%, then snaps to 0.15 quickly
     // Pass 530: sympathetic flash amplitude 0.55→0.75; target LED spike 1.8→2.6 for stronger confirm flash
     // Pass 963: sympathetic flash 0.75→1.20, target spike 2.6→4.0 — Pass 1390: sympath →1.70, target →5.5
-    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 62.5 : 0; // Pass 2119: sympathetic flash 3.11→4.20 — Pass 2616: 4.20→5.67 — Pass 3057: 5.67→7.65 — Pass 3244: 7.65→10.3 — Pass 3596: 10.3→13.9 — Pass 3692: 13.9→18.8 — Pass 3804: 18.8→25.4 — Pass 3904: 25.4→34.3 — Pass 4658: 34.3→46.3 brighter gate LED sympathy flash — Pass 5105: 46.3→62.5 brighter gate LED sympathy flash
+    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 84.4 : 0; // Pass 2119: sympathetic flash 3.11→4.20 — Pass 2616: 4.20→5.67 — Pass 3057: 5.67→7.65 — Pass 3244: 7.65→10.3 — Pass 3596: 10.3→13.9 — Pass 3692: 13.9→18.8 — Pass 3804: 18.8→25.4 — Pass 3904: 25.4→34.3 — Pass 4658: 34.3→46.3 brighter gate LED sympathy flash — Pass 5105: 46.3→62.5 brighter gate LED sympathy flash — Pass 6271: 62.5→84.4 brighter gate LED sympathy flash
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 81.7 : _sympFlash278; // Pass 2120: target LED spike 10.0→13.5 — Pass 2617: 13.5→18.2 — Pass 3058: 18.2→24.6 — Pass 3570: 24.6→33.2 — Pass 3728: 33.2→44.8 — Pass 4659: 44.8→60.5 brighter target-column LED confirm spike — Pass 5498: 60.5→81.7 brighter target-column LED confirm spike
       const _ledDrop = dt3 < 0.22 ? 6.39 : THREE.MathUtils.lerp(6.39, 0.15, (dt3 - 0.22) / 0.78); // Pass 470 — Pass 4746: LED drop peak 3.5→4.73 brighter slot LED column — Pass 5499: 4.73→6.39 brighter slot LED column drop peak
@@ -4352,7 +4352,7 @@ function animate(ts) {
           );
           _mp.mesh.visible = true;
           _mp.vx = (Math.random() - 0.5) * 24.6; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst — Pass 5079: 13.5→18.2 wider arrival mote burst — Pass 5147: 18.2→24.6 wider arrival mote X burst
-          _mp.vy = 100 + Math.random() * 201; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7 — Pass 3915: 40.8+81.7→55.1+110.3 — Pass 4407: 55.1+110.3→74.4+148.9 taller mote fountain — Pass 5146: 74.4+148.9→100+201 taller arrival mote fountain
+          _mp.vy = 135 + Math.random() * 271; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7 — Pass 3915: 40.8+81.7→55.1+110.3 — Pass 4407: 55.1+110.3→74.4+148.9 taller mote fountain — Pass 5146: 74.4+148.9→100+201 taller arrival mote fountain — Pass 6273: 100+201→135+271 taller upper floor mote vy fountain
           _mp.vz = (Math.random() - 0.5) * 29.6; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread — Pass 5086: 16.2→21.9 wider arrival mote Z spread — Pass 5148: 21.9→29.6 wider arrival mote Z spread
           _mp.mat.color.setRGB(
             Math.min(1, _rr3 / 255 * 0.918 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68 — Pass 5761: 0.68→0.918 richer upper floor motes domain tint
@@ -4697,7 +4697,7 @@ function animate(ts) {
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 7.29); // Pass 4791: hood warm-up emissive tracking rate 4→5.40 snappier scanner heat-up response — Pass 5641: 5.40→7.29 snappier scanner hood warm-up emissive tracking
     } else {
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 4.56)); // Pass 4828: hood cooldown color tracking 2.5→3.38 — Pass 5683: 3.38→4.56 snappier scanner hood cooldown color return
-      hoodMat.emissiveIntensity += (0.510 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5); // Pass 4805: scanner hood idle emissive target 0.28→0.378 warmer scanner cooldown floor — Pass 5143: 0.378→0.510 warmer scanner head idle emissive cooldown floor
+      hoodMat.emissiveIntensity += (0.689 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5); // Pass 4805: scanner hood idle emissive target 0.28→0.378 warmer scanner cooldown floor — Pass 5143: 0.378→0.510 warmer scanner head idle emissive cooldown floor — Pass 6272: 0.510→0.689 warmer scanner hood idle emissive cooldown floor
     }
     // Pass 80: lens iris closes back to resting size
     // Pass 238: iris snap-close overshoot — at conveyorOut start, iris briefly overshoots
