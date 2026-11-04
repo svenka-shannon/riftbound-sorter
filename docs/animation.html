@@ -3064,10 +3064,10 @@ function animate(ts) {
     // Pass 888: early detect amplitude 0.5→0.8 for stronger card-entering-field detection
     const _warmupT = Math.max(0, (ct2 - 0.80) / 0.20); // 0→1 in last 20%
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
-      ? (ct2 - 0.60) / 0.20 * 2.71 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10 — Pass 3967: 1.10→1.49 — Pass 4216: 1.49→2.01 stronger card-entering-field detection — Pass 5028: 2.01→2.71 more vivid early detection flicker
+      ? (ct2 - 0.60) / 0.20 * 3.66 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10 — Pass 3967: 1.10→1.49 — Pass 4216: 1.49→2.01 stronger card-entering-field detection — Pass 5028: 2.01→2.71 more vivid early detection flicker — Pass 5229: 2.71→3.66 more vivid early card detection flicker
     // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 — Pass 1306: →10.5 for more vivid warmup before scan
-    const _ledWarmTarget = 0.41 + _warmupT * 35.0 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 — Pass 4217: 19.2→25.9 brighter LED pre-warm — Pass 4434: LED approach warmup base 0.30→0.41 brighter approach floor — Pass 5029: 25.9→35.0 brighter LED pre-warm peak
-    scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6.75); // Pass 4584: LED warmup spring 5→6.75 crisper approach warmup tracking
+    const _ledWarmTarget = 0.41 + _warmupT * 47.3 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 — Pass 4217: 19.2→25.9 brighter LED pre-warm — Pass 4434: LED approach warmup base 0.30→0.41 brighter approach floor — Pass 5029: 25.9→35.0 brighter LED pre-warm peak — Pass 5230: 35.0→47.3 brighter LED pre-warm peak
+    scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4584: LED warmup spring 5→6.75 crisper approach warmup tracking — Pass 5231: 6.75→9.11 snappier LED warmup tracking
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
     // Belt scroll target: conveyorIn full speed
