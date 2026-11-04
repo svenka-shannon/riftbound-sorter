@@ -4832,9 +4832,9 @@ function animate(ts) {
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
     // Pass 996: scan orbit 600→530 for tighter close-up during identity scan, armSwing 680→620 — Pass 1354: scan→470, armSwing→560
-    const orbitRBase = inPhase(PH.scan) ? 310 : inPhase(PH.armSwing) ? 420 : inPhase(PH.deflect) ? 560 : 620; // Pass 2538: orbit tighten scan 420→310 armSwing 560→420 deflect 700→560 base 750→620
+    const orbitRBase = inPhase(PH.scan) ? 419 : inPhase(PH.armSwing) ? 567 : inPhase(PH.deflect) ? 756 : 837; // Pass 2538: orbit tighten scan 420→310 armSwing 560→420 deflect 700→560 base 750→620 — Pass 4753: scan orbit 310→419 — Pass 4754: armSwing orbit 420→567 — Pass 4755: deflect orbit 560→756 — Pass 4756: base orbit 620→837
     if(!controls._orbitR) controls._orbitR = orbitRBase;
-    controls._orbitR += (orbitRBase - controls._orbitR) * 0.02; // smooth zoom
+    controls._orbitR += (orbitRBase - controls._orbitR) * 0.027; // smooth zoom — Pass 4759: orbit smooth rate 0.02→0.027
     const orbitR = controls._orbitR;
     camera.position.x = orbitR * 0.45 * Math.cos(orbitAngle) - 30;
     camera.position.z = orbitR * Math.sin(orbitAngle);
@@ -4920,7 +4920,7 @@ function animate(ts) {
     _shakePhase2 += dt * 239; // ~38Hz
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
-    const _h2 = Math.sin(_shakePhase2) * 10.5;            // Pass 2531: second harmonic 1.28→1.73 — Pass 2685: 1.73→2.34 — Pass 2781: 2.34→3.16 — Pass 2915: 3.16→4.27 — Pass 3125: 4.27→5.76 — Pass 3296: 5.76→7.78 — Pass 3612: 7.78→10.5
+    const _h2 = Math.sin(_shakePhase2) * 14.2;            // Pass 2531: second harmonic 1.28→1.73 — Pass 2685: 1.73→2.34 — Pass 2781: 2.34→3.16 — Pass 2915: 3.16→4.27 — Pass 3125: 4.27→5.76 — Pass 3296: 5.76→7.78 — Pass 3612: 7.78→10.5 — Pass 4752: 10.5→14.2
     // Hotfix 3333a: clamp effective shake to prevent runaway displacement — shake values & multipliers
     // have been individually boosted over many passes; compound product was reaching 10,000+ world units.
     // Hotfix 3333b: camera shake DISABLED — shake magnitudes (up to 397) and displacement
@@ -5243,7 +5243,7 @@ function animate(ts) {
                      && activeCard.visible;
     // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
     const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 1.62 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20 — Pass 4175: 1.20→1.62 deeper scan shadow pulse
-    const _shadowTarget = _onBelt ? 1.0 + _shadowScanPulse : 0; // Pass 2472: shadow opacity 0.93→1.0
+    const _shadowTarget = _onBelt ? 1.35 + _shadowScanPulse : 0; // Pass 2472: shadow opacity 0.93→1.0 — Pass 4757: shadow base 1.0→1.35
     _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 10.8); // Pass 4398: shadow tracking rate 8→10.8 snappier shadow response
     if (_onBelt) {
       _shadowMesh.position.set(activeCard.position.x, CONV_Y_TOP + 0.4, activeCard.position.z);
@@ -5275,7 +5275,7 @@ function animate(ts) {
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
     // then bleach normally — so the arc trail stays vivid near the arm and fades away.
-    if (tp._birthHex && _tt < 0.99) { // Pass 2513: domain color hold 0.54→0.73 — Pass 2950: 0.73→0.99
+    if (tp._birthHex && _tt < 1.34) { // Pass 2513: domain color hold 0.54→0.73 — Pass 2950: 0.73→0.99 — Pass 4758: 0.99→1.34
       tp.mat.color.setHex(tp._birthHex); // hold domain color fresh near the arm
     } else {
       tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 5.98); // Pass 2815: bleach R rate 1.8→2.43 — Pass 3324: 2.43→3.28 — Pass 3498: 3.28→4.43 — Pass 4571: 4.43→5.98 faster arm trail cool-white fade
