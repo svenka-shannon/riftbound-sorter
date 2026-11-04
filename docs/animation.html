@@ -1757,7 +1757,7 @@ function addCardToTray(ct) {
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 7.87; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow — Pass 4768: →9.3s even longer afterglow
-  _ledCooloff[ct.slot] = 17.0; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5271: slot LED afterglow 12.6→17.0s even longer slot domain glow
+  _ledCooloff[ct.slot] = 17.0; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5299: slot LED afterglow 12.6→17.0s even longer slot domain glow
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
   const flashLight = new THREE.PointLight(ct.hex, 22.4, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst
@@ -1778,7 +1778,7 @@ function addCardToTray(ct) {
   const legSlot = document.getElementById('lc-' + ct.name.toLowerCase());
   if(legSlot) {
     legSlot.style.textShadow = `0 0 18.9px ${ct.css}`; // Pass 4429: legend slot flash size 10→14px brighter slot entry flare — Pass 4988: 14→18.9px more vivid slot entry flare
-    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 1477); // Pass 4430: legend slot flash duration 600→810ms longer entry flash — Pass 4989: 810→1094ms even longer entry flash — Pass 5269: slot LED pre-reveal flash duration 1094→1477ms even longer entry flash
+    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 1477); // Pass 4430: legend slot flash duration 600→810ms longer entry flash — Pass 4989: 810→1094ms even longer entry flash — Pass 5297: slot LED pre-reveal flash duration 1094→1477ms even longer entry flash
   }
 
   // Flash stats counter in domain color + bounce animation on each card sorted
@@ -2647,7 +2647,7 @@ function animate(ts) {
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
       // Pass 1125: Z drift peak 2.0→3.2 — Pass 1212: →4.8 — Pass 1309: →6.5 for more visible lateral inertia sway — Pass 3907: 6.5→8.8 deeper lateral swing — Pass 4274: 8.8→11.9 more dramatic lateral sway
-      suctionPivot.position.z = 29.3 * Math.sin(pt * Math.PI) * (1 - pt * 0.95); // Pass 4466: pick suction oscillation decay 0.7→0.95 tighter lateral sway — Pass 5122: 11.9→16.1 more dramatic pick lateral sway — Pass 5157: 16.1→21.7 more dramatic arm descent lateral sway — Pass 5266: arm descent lateral sway 21.7→29.3 more dramatic pick lateral sway
+      suctionPivot.position.z = 29.3 * Math.sin(pt * Math.PI) * (1 - pt * 0.95); // Pass 4466: pick suction oscillation decay 0.7→0.95 tighter lateral sway — Pass 5122: 11.9→16.1 more dramatic pick lateral sway — Pass 5157: 16.1→21.7 more dramatic arm descent lateral sway — Pass 5294: arm descent lateral sway 21.7→29.3 more dramatic pick lateral sway
       // Pass 262: pre-pick targeting spotlight — warm downward spot on hopper card in final approach
       if (pt > 0.75) {
         const _pickTgtT = (pt - 0.75) / 0.25;
@@ -2792,7 +2792,7 @@ function animate(ts) {
       // Pass 181: cup holds bright domain glow while actively carrying the card (armLift)
       // Pass 501: cup pick glow boost 1.5→2.0 — Pass 1173: →3.0 for more vivid suction-hold visualization
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (80.9 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 2273: cup hold glow 4.05→5.47 — Pass 3418: 5.47→7.38 — Pass 3530: 7.38→9.96 — Pass 3712: 9.96→13.4 — Pass 3822: 13.4→18.1 — Pass 4229: 18.1→24.4 stronger suction hold glow — Pass 4596: suction cup lift emissive lerp rate 8→10.8 snappier cup glow response — Pass 4944: 24.4→32.9 brighter suction cup hold glow — Pass 5124: 32.9→44.4 brighter suction release flash hold glow — Pass 5199: 44.4→59.9 brighter suction cup hold glow — Pass 5267: suction cup release bounce glow 59.9→80.9 brighter suction hold flash
+      suctionCupMat.emissiveIntensity += (80.9 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 2273: cup hold glow 4.05→5.47 — Pass 3418: 5.47→7.38 — Pass 3530: 7.38→9.96 — Pass 3712: 9.96→13.4 — Pass 3822: 13.4→18.1 — Pass 4229: 18.1→24.4 stronger suction hold glow — Pass 4596: suction cup lift emissive lerp rate 8→10.8 snappier cup glow response — Pass 4944: 24.4→32.9 brighter suction cup hold glow — Pass 5124: 32.9→44.4 brighter suction release flash hold glow — Pass 5199: 44.4→59.9 brighter suction cup hold glow — Pass 5295: suction cup release bounce glow 59.9→80.9 brighter suction hold flash
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
@@ -2946,7 +2946,7 @@ function animate(ts) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 359, 344); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7 — Pass 3772: 79.7→108 — Pass 3879: 108→146 — Pass 4200: 146→197 — Pass 4919: 197→266 brighter arc apex flash — Pass 5270: arc apex flash intensity 266→359 brighter slot entry arc apex pop
+        const _spfl = new THREE.PointLight(ct.hex, 359, 344); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7 — Pass 3772: 79.7→108 — Pass 3879: 108→146 — Pass 4200: 146→197 — Pass 4919: 197→266 brighter arc apex flash — Pass 5298: arc apex flash intensity 266→359 brighter slot entry arc apex pop
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
@@ -3776,7 +3776,7 @@ function animate(ts) {
       const _oFadeIn  = Math.min(1, ot / 0.05);
       const _oFadeOut = Math.max(0, 1 - Math.max(0, (ot - 0.70) / 0.30));
       // Pass 714: conveyorOut Z wobble 1.2→1.8 — Pass 774: →2.5 — Pass 969: →3.2 — Pass 1299: →4.2 for more lateral belt weave on exit — Pass 1596: →5.7
-      const _oWobbleZ = 154 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5 — Pass 3475: 25.5→34.4 — Pass 3543: 34.4→46.4 — Pass 3740: 46.4→62.6 — Pass 3848: 62.6→84.5 — Pass 4081: 84.5→114.1 — Pass 5264: conveyor Z wobble amplitude 114.1→154 stronger lateral belt weave on exit
+      const _oWobbleZ = 154 * Math.sin(ts * 4.7 * Math.PI * 2) * _oFadeIn * _oFadeOut; // Pass 2360: conveyorOut Z wobble 10.4→14.0 — Pass 2577: 14.0→18.9 — Pass 3015: 18.9→25.5 — Pass 3475: 25.5→34.4 — Pass 3543: 34.4→46.4 — Pass 3740: 46.4→62.6 — Pass 3848: 62.6→84.5 — Pass 4081: 84.5→114.1 — Pass 5292: conveyor Z wobble amplitude 114.1→154 stronger lateral belt weave on exit
       // Pass 268: conveyorOut Z-drift toward destination column — card subtly migrates toward ct.slotZ
       // Pass 610: Z-drift 0.08→0.16 — Pass 715: →0.24 — Pass 775: →0.34 — Pass 1223: →0.50 for even stronger lane-change preview — Pass 1597: →0.68
       const _z268drift = ct.slotZ * 3.04 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25 — Pass 4320: 2.25→3.04 stronger lane-change preview drift
@@ -3953,7 +3953,7 @@ function animate(ts) {
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 40 : CONV_Y_TOP + 27; // Pass 4872: deflect arc floor-1 target height 30→40 — Pass 4873: deflect arc floor-0 target height 20→27
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
     // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 — Pass 1559: floor-0 →38, floor-1 →40 for even higher card flight arc during deflect
-    const _arcBump = (ct.floor === 1 ? 3630 : 3430) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599 — Pass 3688: floor-0 567→765, floor-1 599→809 — Pass 3799: floor-0 765→1033 — Pass 3800: floor-1 809→1092 — Pass 4560: floor-0 1033→1395 floor-1 1092→1474 higher slot entry arc — Pass 5090: floor-0 1395→1883 floor-1 1474→1990 higher guided arc travel — Pass 5252: card deal arc height mid-point floor-0 1883→2542 floor-1 1990→2687 higher deflect arc — Pass 5265: arc apex height floor-0 2542→3430 floor-1 2687→3630 higher slot entry arc apex
+    const _arcBump = (ct.floor === 1 ? 3630 : 3430) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599 — Pass 3688: floor-0 567→765, floor-1 599→809 — Pass 3799: floor-0 765→1033 — Pass 3800: floor-1 809→1092 — Pass 4560: floor-0 1033→1395 floor-1 1092→1474 higher slot entry arc — Pass 5090: floor-0 1395→1883 floor-1 1474→1990 higher guided arc travel — Pass 5252: card deal arc height mid-point floor-0 1883→2542 floor-1 1990→2687 higher deflect arc — Pass 5293: arc apex height floor-0 2542→3430 floor-1 2687→3630 higher slot entry arc apex
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
@@ -4595,7 +4595,7 @@ function animate(ts) {
     // ~0.35Hz (2.2 rad/s) so one full breath spans ~2.9s (6× the 0.5s pause — natural)
     // Pass 1058: breathing base 0.12→0.20, amp 0.07→0.14 for more visible scanner idle pulse
     {
-      const _breathe = 4.00 + 3.81 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe — Pass 5268: scanner idle rotation breathe amplitude 2.82→3.81 deeper standby pulse
+      const _breathe = 4.00 + 3.81 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe — Pass 5296: scanner idle rotation breathe amplitude 2.82→3.81 deeper standby pulse
       scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 3.38); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.03)); // Pass 4824: hood standby emissive color tracking rate 1.5→2.03
       hoodMat.emissiveIntensity += (_breathe * 4.64 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 — Pass 4711: 2.55→3.44 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe — Pass 5142: 3.44→4.64 brighter scanner head idle emissive breathe
@@ -5212,7 +5212,7 @@ function animate(ts) {
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 10.9); // Pass 2809: tracking rate 6→8.1 — Pass 4092: 8.1→10.9 crisper belt light snap
     } else {
       // Fade card-tracking mode out
-      _beltTrackLight.intensity *= 1 - dt * 5.47; // Pass 2812: belt track fade-out rate 3→4.05 — Pass 4035: 4.05→5.47 faster belt track light fade
+      _beltTrackLight.intensity *= 1 - dt * 7.38; // Pass 2812: belt track fade-out rate 3→4.05 — Pass 4035: 4.05→5.47 faster belt track light fade — Pass 5291: 5.47→7.38 faster belt track light fade
       if (_beltTrackLight.intensity < 0.054) _beltTrackLight.intensity = 0; // Pass 4536: idle belt track light minimum floor 0.04→0.054 brighter idle belt LED floor
       // Idle shimmer: sweep light back and forth along belt (HOPPER_X → GATE_X)
       const _beltIdle = inPhase(PH.armReturn) || inPhase(PH.pause) ||
@@ -5269,9 +5269,9 @@ function animate(ts) {
     tp.age += dt;
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
-    tp.mesh.position.y += dt * (59.9 + _tt * 88.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail
+    tp.mesh.position.y += dt * (80.9 + _tt * 119.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail — Pass 5288: base 59.9→80.9 — Pass 5289: ramp 88.6→119.6 more buoyant contrail
     tp.mat.opacity = (1 - _tt) * 1.61; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth — Pass 4521: arm trail contrail birth opacity 1.19→1.61 brighter sphere trail
-    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 8.24)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper
+    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 11.1)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper — Pass 5290: 8.24→11.1 faster trail shrink taper
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
     // then bleach normally — so the arc trail stays vivid near the arm and fades away.
