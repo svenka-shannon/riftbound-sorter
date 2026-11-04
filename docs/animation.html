@@ -1967,7 +1967,7 @@ function fireCelebration() {
     const domCt = CARD_TYPES[pi % CARD_TYPES.length];
     const angle = (pi / CELEB_COUNT) * Math.PI * 2;
     // Pass 594: confetti burst speed 60+90 — Pass 652: →80+120 — Pass 728: →100+150 — Pass 755: →125+180 — Pass 892: →155+220 — Pass 1009: →190+260 — Pass 1633: →255+350 — Pass 3461: base 255→344 — Pass 3462: rand 350→473
-    const spd = 1140 + Math.random() * 861; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638 — Pass 4096: base 464→626 — Pass 4097: rand 638→861 faster burst — Pass 4943: base 626→845 faster celebration burst — Pass 5039: base 845→1140 faster celebration burst
+    const spd = 1540 + Math.random() * 861; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638 — Pass 4096: base 464→626 — Pass 4097: rand 638→861 faster burst — Pass 4943: base 626→845 faster celebration burst — Pass 5039: base 845→1140 faster celebration burst — Pass 5994: 1140→1540 faster confetti base burst speed
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
     p.vx = Math.cos(angle) * spd * 1.84; // Pass 4069: confetti vx spread 0.75→1.01 wider horizontal burst — Pass 5018: 1.01→1.36 wider confetti horizontal burst — Pass 5891: 1.36→1.84 wider confetti horizontal burst spread
     // Pass 729: upward bias 0.6+0.6→0.75+0.70 — Pass 893: →0.90+0.85 — Pass 1010: →1.10+1.00 — Pass 1634: →1.40+1.30 stronger launch
@@ -2396,7 +2396,7 @@ function animate(ts) {
   // ── Tray card arrival animation (settle into slot) ──
   for(let i = trayArrivals.length - 1; i >= 0; i--) {
     const a = trayArrivals[i];
-    a.t = Math.min(1, a.t + dt * speedMult * 8.63); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle — Pass 5060: 4.73→6.39 snappier slot settle — Pass 5071: 6.39→8.63 snappier slot settle
+    a.t = Math.min(1, a.t + dt * speedMult * 11.7); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle — Pass 5060: 4.73→6.39 snappier slot settle — Pass 5071: 6.39→8.63 snappier slot settle — Pass 5995: 8.63→11.7 snappier slot settle animation speed
     // Pass 98: landing bounce — card overshoots target slightly then springs back up
     // First 80%: cubic ease-out approach; last 20%: half-sine spring (goes +5u up then settles)
     let _yPos;
@@ -2405,7 +2405,7 @@ function animate(ts) {
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
       // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 — Pass 3783: →78.3 — Pass 3888: →106 for more physical slot landing — Pass 4769: →193 stronger slot landing
-      _yPos = a.targetY + 352 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy
+      _yPos = a.targetY + 475 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy — Pass 5996: 352→475 stronger slot landing bounce energy
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
@@ -2413,7 +2413,7 @@ function animate(ts) {
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9 — Pass 4770: 93.0→126 brighter landing flash
-        a.mesh.material.emissiveIntensity = 0.15 + 311 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash — Pass 4770: emissive 93.0→126 brighter landing flash — Pass 5066: 126→170 brighter landing flash — Pass 5249: slot tray arrival emissive flash peak 170→230 brighter landing pop — Pass 5411: 230→311 brighter card deal slot tray arrival emissive pop
+        a.mesh.material.emissiveIntensity = 0.15 + 420 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash — Pass 4770: emissive 93.0→126 brighter landing flash — Pass 5066: 126→170 brighter landing flash — Pass 5249: slot tray arrival emissive flash peak 170→230 brighter landing pop — Pass 5411: 230→311 brighter card deal slot tray arrival emissive pop — Pass 5997: 311→420 brighter slot tray arrival emissive flash peak
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2429,9 +2429,9 @@ function animate(ts) {
         const inFlight = trayArrivals.some(a => a.mesh === mesh);
         if (!inFlight && mesh.material) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
-          const _phase = _globalCardIdx * 2.24; // Pass 4781: tray card breathing phase spread 1.23→1.66 more organic card desync — Pass 5063: 1.66→2.24 more organic card desync
+          const _phase = _globalCardIdx * 3.02; // Pass 4781: tray card breathing phase spread 1.23→1.66 more organic card desync — Pass 5063: 1.66→2.24 more organic card desync — Pass 5998: 2.24→3.02 more organic card breathing phase desync
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61 — Pass 4771: amp 2.17→2.93 richer settled breathing
-          mesh.material.emissiveIntensity = 2.55 + 5.35 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing — Pass 5067: base 1.40→1.89 richer settled card glow — Pass 5068: amp 2.93→3.96 richer settled card breathing — Pass 5314: base 1.89→2.55 richer settled card breathe base glow — Pass 5347: amp 3.96→5.35 richer card emissive breathe amplitude
+          mesh.material.emissiveIntensity = 2.55 + 7.22 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing — Pass 5067: base 1.40→1.89 richer settled card glow — Pass 5068: amp 2.93→3.96 richer settled card breathing — Pass 5314: base 1.89→2.55 richer settled card breathe base glow — Pass 5347: amp 3.96→5.35 richer card emissive breathe amplitude — Pass 5999: 5.35→7.22 richer settled card emissive breathe amplitude
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway — Pass 4772: 0.051→0.069 deeper deck sway
           const _swayPhase = _globalCardIdx * 8.21; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync — Pass 5077: 2.47→3.33 more organic sway desync — Pass 5155: 3.33→4.50 more organic settled card sway desync — Pass 5712: 4.50→6.08 more organic settled card sway phase desync — Pass 5936: 6.08→8.21 more organic settled card sway phase desync
           mesh.rotation.z = 0.170 * Math.sin(ts * 0.693 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway — Pass 5069: 0.069→0.093 deeper deck sway — Pass 5156: 0.093→0.126 deeper settled card Z micro-rocking — Pass 5336: 0.126→0.170 deeper settled card Z sway amplitude — Pass 5648: 0.513→0.693 livelier settled card Z sway frequency
@@ -2499,13 +2499,13 @@ function animate(ts) {
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
       // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
-      const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 24; // Pass 5018: slot LED pre-reveal pulse frequency 18→24 more frantic pre-confirm LED flutter
+      const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 32; // Pass 5018: slot LED pre-reveal pulse frequency 18→24 more frantic pre-confirm LED flutter — Pass 6000: 24→32 more frantic slot LED pre-confirm pulse frequency
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
       const pulse = 0.5 + 32.8 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.912)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41 — Pass 4287: 5.41→7.30 wider slot LED swing — Pass 4514: slot entry pulse timing 0.5→0.675 faster slot LED pulse — Pass 4686: 7.30→9.86 brighter active slot LED pulse — Pass 5061: 9.86→13.3 brighter active slot LED pulse — Pass 5213: 13.3→18.0 brighter active slot LED pulse — Pass 5307: 18.0→24.3 more urgent slot wall LED pulse — Pass 5412: 24.3→32.8 more urgent slot entry guide rails LED pulse — Pass 5938: 0.675→0.912 faster slot LED active pulse timing
       // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 — Pass 1647: →7.0 brighter active slot LED
-      mat.emissiveIntensity = 23.2 + pulse; // Pass 2518: slot LED active base 7.0→9.45 — Pass 4046: 9.45→12.76 brighter active routing LED — Pass 5004: 12.76→17.2 brighter active routing LED — Pass 5188: 17.2→23.2 brighter active slot LED base
+      mat.emissiveIntensity = 31.3 + pulse; // Pass 2518: slot LED active base 7.0→9.45 — Pass 4046: 9.45→12.76 brighter active routing LED — Pass 5004: 12.76→17.2 brighter active routing LED — Pass 5188: 17.2→23.2 brighter active slot LED base — Pass 6001: 23.2→31.3 brighter active routing slot LED base intensity
     } else if (_ledCooloff[_li] > 0) {
       // Pass 52: afterglow — Pass 835: 1.8→2.8s — Pass 829: peak intensity 0.9+2.4 → 1.2+3.8 — Pass 1649: →1.5+5.0
       const afterT = _ledCooloff[_li] / 9.30; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration — Pass 4428: updated to match 6.89s cooloff — Pass 5931: 6.89→9.30 deeper LED afterglow divisor
