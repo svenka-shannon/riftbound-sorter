@@ -2503,7 +2503,7 @@ function animate(ts) {
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
-      const pulse = 0.5 + 32.8 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.675)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41 — Pass 4287: 5.41→7.30 wider slot LED swing — Pass 4514: slot entry pulse timing 0.5→0.675 faster slot LED pulse — Pass 4686: 7.30→9.86 brighter active slot LED pulse — Pass 5061: 9.86→13.3 brighter active slot LED pulse — Pass 5213: 13.3→18.0 brighter active slot LED pulse — Pass 5307: 18.0→24.3 more urgent slot wall LED pulse — Pass 5412: 24.3→32.8 more urgent slot entry guide rails LED pulse
+      const pulse = 0.5 + 32.8 * Math.abs(Math.sin(ts * _slotPulseFreq * 0.912)); // Pass 2517: slot LED pulse amp 2.2→2.97 — Pass 3473: 2.97→4.01 — Pass 3644: 4.01→5.41 — Pass 4287: 5.41→7.30 wider slot LED swing — Pass 4514: slot entry pulse timing 0.5→0.675 faster slot LED pulse — Pass 4686: 7.30→9.86 brighter active slot LED pulse — Pass 5061: 9.86→13.3 brighter active slot LED pulse — Pass 5213: 13.3→18.0 brighter active slot LED pulse — Pass 5307: 18.0→24.3 more urgent slot wall LED pulse — Pass 5412: 24.3→32.8 more urgent slot entry guide rails LED pulse — Pass 5938: 0.675→0.912 faster slot LED active pulse timing
       // Pass 828: routing target base 2.5→3.5 — Pass 999: →5.0 — Pass 1647: →7.0 brighter active slot LED
       mat.emissiveIntensity = 23.2 + pulse; // Pass 2518: slot LED active base 7.0→9.45 — Pass 4046: 9.45→12.76 brighter active routing LED — Pass 5004: 12.76→17.2 brighter active routing LED — Pass 5188: 17.2→23.2 brighter active slot LED base
     } else if (_ledCooloff[_li] > 0) {
@@ -2511,12 +2511,12 @@ function animate(ts) {
       const afterT = _ledCooloff[_li] / 9.30; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration — Pass 4428: updated to match 6.89s cooloff — Pass 5931: 6.89→9.30 deeper LED afterglow divisor
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity = 6.75 + afterT * 55.1; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor — Pass 4687: ramp 22.4→30.2 brighter slot LED afterglow peak — Pass 4997: ramp 30.2→40.8 blazing slot LED afterglow peak — Pass 5189: ramp 40.8→55.1 brighter slot LED afterglow ramp
+      mat.emissiveIntensity = 9.11 + afterT * 55.1; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor — Pass 4687: ramp 22.4→30.2 brighter slot LED afterglow peak — Pass 4997: ramp 30.2→40.8 blazing slot LED afterglow peak — Pass 5189: ramp 40.8→55.1 brighter slot LED afterglow ramp — Pass 5939: base 6.75→9.11 brighter slot LED afterglow floor
     } else {
       // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 — Pass 1651: →1.9 brighter resting LEDs
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity += (6.32 - mat.emissiveIntensity) * 0.162; // Pass 2520: slot LED idle 1.9→2.57 — Pass 4047: 2.57→3.47 warmer slot LED idle glow — Pass 4610: tracking rate 0.12→0.162 snappier LED settle — Pass 5005: 3.47→4.68 warmer slot LED idle glow — Pass 5190: 4.68→6.32 warmer slot LED idle glow
+      mat.emissiveIntensity += (6.32 - mat.emissiveIntensity) * 0.219; // Pass 2520: slot LED idle 1.9→2.57 — Pass 4047: 2.57→3.47 warmer slot LED idle glow — Pass 4610: tracking rate 0.12→0.162 snappier LED settle — Pass 5005: 3.47→4.68 warmer slot LED idle glow — Pass 5190: 4.68→6.32 warmer slot LED idle glow — Pass 5940: tracking rate 0.162→0.219 snappier slot LED idle tracking
     }
   });
 
@@ -3295,7 +3295,7 @@ function animate(ts) {
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
           // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 — Pass 1240: →1.40 — Pass 1317: →1.90 — Pass 1419: →2.60 — Pass 1693: →3.50
-          const _dotFloat = _identityRevealed ? 0 : 38.6 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp; // Pass 2533: grid dot float amp 3.50→4.73 — Pass 3555: 4.73→6.39 — Pass 3717: 6.39→8.63 — Pass 3827: 8.63→11.6 — Pass 4146: 11.6→15.7 — Pass 4673: 15.7→21.2 more nervous scan dot float — Pass 5265: 21.2→28.6 bigger scan dot float amplitude — Pass 5839: 28.6→38.6 bigger scan dot float amplitude
+          const _dotFloat = _identityRevealed ? 0 : 52.1 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp; // Pass 2533: grid dot float amp 3.50→4.73 — Pass 3555: 4.73→6.39 — Pass 3717: 6.39→8.63 — Pass 3827: 8.63→11.6 — Pass 4146: 11.6→15.7 — Pass 4673: 15.7→21.2 more nervous scan dot float — Pass 5265: 21.2→28.6 bigger scan dot float amplitude — Pass 5839: 28.6→38.6 bigger scan dot float amplitude — Pass 5951: 38.6→52.1 bigger scan dot float amplitude
           // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 — Pass 1318: →2.60 — Pass 1694: →3.50
           const _dotLockJitter = _identityRevealed && ft < 0.91 ? 28.6 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0; // Pass 2534: dot lock jitter 3.50→4.73 — Pass 3556: 4.73→6.39 — Pass 3718: 6.39→8.63 — Pass 3828: 8.63→11.6 — Pass 4147: 11.6→15.7 wilder lock jitter — Pass 5266: 15.7→21.2 wilder scan dot lock jitter — Pass 5838: 21.2→28.6 wilder scan dot lock jitter
           // Pass 366: post-reveal dots Z drift toward destination slot — Pass 1699: 0.20→0.28
@@ -3310,7 +3310,7 @@ function animate(ts) {
           // crosses its Z position, creating a sweep highlight that travels with the beam.
           // Pass 577: dot beam-proximity brightening 0.60→0.95 — Pass 1695: →1.30 for more vivid sweep highlight
           const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 20.1); // Pass 4765: dot beam proximity radius 11→14.9 wider scan highlight zone — Pass 5377: 14.9→20.1 wider dot beam proximity radius
-          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 10.7)); // Pass 2535: dot beam proximity 1.30→1.76 — Pass 3558: 1.76→2.38 — Pass 3719: 2.38→3.21 — Pass 4148: 3.21→4.33 — Pass 4674: 4.33→5.85 stronger scan dot beam proximity highlight — Pass 5267: 5.85→7.90 stronger scan dot beam proximity highlight — Pass 5842: 7.90→10.7 stronger scan dot beam proximity highlight
+          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 14.4)); // Pass 2535: dot beam proximity 1.30→1.76 — Pass 3558: 1.76→2.38 — Pass 3719: 2.38→3.21 — Pass 4148: 3.21→4.33 — Pass 4674: 4.33→5.85 stronger scan dot beam proximity highlight — Pass 5267: 5.85→7.90 stronger scan dot beam proximity highlight — Pass 5842: 7.90→10.7 stronger scan dot beam proximity highlight — Pass 5952: 10.7→14.4 stronger scan dot beam proximity highlight
           // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× — Pass 1319: →3.2× — Pass 1696: →3.0× harder pop
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
             ? 1.0 + 9.96 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0; // Pass 2536: dot pop scale 3.00×→4.05× — Pass 4048: 4.05→5.47 sharper scan dot reveal pop — Pass 5268: 5.47→7.38 sharper scan dot reveal pop — Pass 5843: 7.38→9.96 sharper scan dot reveal pop
@@ -3323,13 +3323,13 @@ function animate(ts) {
     }
     // Pass 55: scan progress LED bar — fills left-to-right as ft 0→1
     // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 — Pass 1320: →8.0 — Pass 1697: →11.0 for bigger scanner power-on test
-    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 51.3) * 66.7 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1 — Pass 3860: 20.1→27.1 — Pass 4149: 27.1→36.6 bigger power-on pop — Pass 4528: scan bar init flash decay 38→51.3 sharper power-on pop — Pass 5269: 36.6→49.4 bigger scan bar power-on flash — Pass 5841: 49.4→66.7 bigger scan bar power-on flash
+    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 51.3) * 90.0 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1 — Pass 3860: 20.1→27.1 — Pass 4149: 27.1→36.6 bigger power-on pop — Pass 4528: scan bar init flash decay 38→51.3 sharper power-on pop — Pass 5269: 36.6→49.4 bigger scan bar power-on flash — Pass 5841: 49.4→66.7 bigger scan bar power-on flash — Pass 5953: 66.7→90.0 bigger scan bar power-on flash
     {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
       // Pass 247: reveal overshoot — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 — Pass 733: →0.68 — Pass 1321: →0.95 — Pass 1698: →1.30
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 7.90 : 0; // Pass 2318: bar overshoot 1.30→1.76 — Pass 3753: 1.76→2.38 — Pass 3861: 2.38→3.21 — Pass 4150: 3.21→4.33 bouncier bar overshoot — Pass 5270: 4.33→5.85 bouncier scan bar reveal overshoot — Pass 5844: 5.85→7.90 bouncier scan bar reveal overshoot
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 10.7 : 0; // Pass 2318: bar overshoot 1.30→1.76 — Pass 3753: 1.76→2.38 — Pass 3861: 2.38→3.21 — Pass 4150: 3.21→4.33 bouncier bar overshoot — Pass 5270: 4.33→5.85 bouncier scan bar reveal overshoot — Pass 5844: 5.85→7.90 bouncier scan bar reveal overshoot — Pass 5946: 7.90→10.7 bouncier scan bar reveal overshoot
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
@@ -3344,13 +3344,13 @@ function animate(ts) {
       // Pass 227: cursor flicker slows post-reveal — frantic 18Hz uncertainty → calm 3Hz domain pulse
       // Pass 608: boost pre-reveal flicker amplitude 0.10→0.22; post-reveal breath 0.20→0.30 for more visible cursor
       scanBarCursorMat.opacity = _identityRevealed
-        ? 0.72 + 1.39 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // Pass 1700: post-reveal breath 0.30→0.42 — Pass 3956: 0.42→0.567 — Pass 4151: 0.567→0.765 stronger post-reveal cursor breathe — Pass 5272: 0.765→1.033 stronger post-reveal cursor breathe — Pass 5845: 1.033→1.39 stronger post-reveal cursor breathe
-        : 0.78 + 0.998 * Math.abs(Math.sin(ts * 24 * Math.PI * 2)); // Pass 1701: pre-reveal flicker amp 0.22→0.30 — Pass 3963: 0.30→0.405 — Pass 4152: 0.405→0.547 more nervous pre-reveal flicker — Pass 4440: freq 18→24 faster scan bar cursor flicker — Pass 5273: 0.547→0.739 more nervous pre-reveal cursor flicker — Pass 5846: 0.739→0.998 more nervous pre-reveal cursor flicker
+        ? 0.72 + 1.88 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // Pass 1700: post-reveal breath 0.30→0.42 — Pass 3956: 0.42→0.567 — Pass 4151: 0.567→0.765 stronger post-reveal cursor breathe — Pass 5272: 0.765→1.033 stronger post-reveal cursor breathe — Pass 5845: 1.033→1.39 stronger post-reveal cursor breathe — Pass 5947: 1.39→1.88 stronger post-reveal cursor breathe
+        : 0.78 + 1.35 * Math.abs(Math.sin(ts * 24 * Math.PI * 2)); // Pass 1701: pre-reveal flicker amp 0.22→0.30 — Pass 3963: 0.30→0.405 — Pass 4152: 0.405→0.547 more nervous pre-reveal flicker — Pass 4440: freq 18→24 faster scan bar cursor flicker — Pass 5273: 0.547→0.739 more nervous pre-reveal cursor flicker — Pass 5846: 0.739→0.998 more nervous pre-reveal cursor flicker — Pass 5948: 0.998→1.35 more nervous pre-reveal cursor flicker
       // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 — Pass 853: →2.5 — Pass 1322: →3.5 for bigger swell
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
-      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.832 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25 — Pass 3945: 0.25→0.338 — Pass 4153: 0.338→0.456 bigger cursor search pulse — Pass 5274: 0.456→0.616 bigger cursor search scale pulse — Pass 5847: 0.616→0.832 bigger cursor search scale pulse
+      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 1.12 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25 — Pass 3945: 0.25→0.338 — Pass 4153: 0.338→0.456 bigger cursor search pulse — Pass 5274: 0.456→0.616 bigger cursor search scale pulse — Pass 5847: 0.616→0.832 bigger cursor search scale pulse — Pass 5949: 0.832→1.12 bigger cursor search scale pulse
       const _cursorScale290 = _identityRevealed && ft < 0.91
-        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 21.5 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75 — Pass 4154: 8.75→11.8 bigger cursor pop — Pass 5275: 11.8→15.9 bigger cursor reveal scale punch — Pass 5848: 15.9→21.5 bigger cursor reveal scale punch
+        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 29.0 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75 — Pass 4154: 8.75→11.8 bigger cursor pop — Pass 5275: 11.8→15.9 bigger cursor reveal scale punch — Pass 5848: 15.9→21.5 bigger cursor reveal scale punch — Pass 5950: 21.5→29.0 bigger cursor reveal scale punch
         : _cursorPreScale300;
       scanBarCursor.scale.setScalar(_cursorScale290);
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
