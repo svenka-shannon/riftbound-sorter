@@ -956,7 +956,7 @@ const scanConeMat = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide, depthWrite: false
 });
 const scanCone = new THREE.Mesh(
-  new THREE.ConeGeometry(119.6, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius — Pass 5748: 88.6→119.6 even wider scan flash cone radius
+  new THREE.ConeGeometry(161.5, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius — Pass 5748: 88.6→119.6 even wider scan flash cone radius — Pass 5881: 119.6→161.5 even wider scan flash cone radius
   scanConeMat
 );
 // Tip at scanner lens; open base toward card — rotate 180° so tip is up, base down
@@ -980,7 +980,7 @@ const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
   emissive: new THREE.Color(0x00ff88),
   emissiveIntensity: 18.1, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive
-  transparent: true, opacity: 1.28 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam
+  transparent: true, opacity: 1.73 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam — Pass 5879: 1.28→1.73 overdrive scan crosshair primary beam opacity
 });
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(133, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span
 scanLine.visible = false;
@@ -990,7 +990,7 @@ const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
   emissiveIntensity: 11.2, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive
-  transparent: true, opacity: 1.19 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep
+  transparent: true, opacity: 1.61 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep — Pass 5880: 1.19→1.61 overdrive scan crosshair secondary sweep opacity
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 164), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height — Pass 5072: 121.5→164 wider secondary scan sweep
 scanLine2.visible = false;
@@ -5046,7 +5046,7 @@ function animate(ts) {
         // Pass 504: post-reveal ghost emissive boost 0.30→0.45 — Pass 821: →0.65 — Pass 1029: →0.90 vivid domain trail
         const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 33.2 : 0; // Pass 2486: post-reveal ghost boost 1.65→2.23 — Pass 2697: 2.23→3.01 — Pass 2792: 3.01→4.06 — Pass 2925: 4.06→5.48 — Pass 3136: 5.48→7.40 — Pass 3304: 7.40→9.99 — Pass 4165: 9.99→13.5 blazing domain trail — Pass 5368: 13.5→18.2 blazing domain trail reveal boost — Pass 5412: 18.2→24.6 blazing domain trail reveal boost — Pass 5873: 24.6→33.2 blazing domain trail reveal boost
         // Pass 667: ghost emissive base 0.28→0.36 — Pass 821: →0.50 — Pass 1030: →0.65, decay 0.12→0.10
-        mat.emissiveIntensity = ((32.4 - gi * 0.10) + _ghostRevealBoost378) * _speedFactor; // Pass 2487: ghost emissive base 1.19→1.61 — Pass 2698: 1.61→2.17 — Pass 2793: 2.17→2.93 — Pass 2926: 2.93→3.96 — Pass 3137: 3.96→5.35 — Pass 3305: 5.35→7.22 — Pass 3626: 7.22→9.75 — Pass 4166: 9.75→13.2 brighter ghost trail — Pass 5369: 13.2→17.8 brighter ghost trail emissive — Pass 5405: 17.8→24.0 brighter ghost trail emissive base — Pass 5714: 24.0→32.4 brighter ghost trail emissive base
+        mat.emissiveIntensity = ((43.7 - gi * 0.10) + _ghostRevealBoost378) * _speedFactor; // Pass 2487: ghost emissive base 1.19→1.61 — Pass 2698: 1.61→2.17 — Pass 2793: 2.17→2.93 — Pass 2926: 2.93→3.96 — Pass 3137: 3.96→5.35 — Pass 3305: 5.35→7.22 — Pass 3626: 7.22→9.75 — Pass 4166: 9.75→13.2 brighter ghost trail — Pass 5369: 13.2→17.8 brighter ghost trail emissive — Pass 5405: 17.8→24.0 brighter ghost trail emissive base — Pass 5714: 24.0→32.4 brighter ghost trail emissive base — Pass 5874: 32.4→43.7 brighter ghost trail emissive base
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
         mat.opacity += (targetOp - mat.opacity) * 0.635; // Pass 4850: ghost trail opacity tracking rate 0.35→0.47 snappier trail fade-in — Pass 5420: 0.47→0.635 snappier ghost trail opacity tracking
       } else {
@@ -5084,9 +5084,9 @@ function animate(ts) {
   // Pass 100: confirm ring expands from scanner center at identity reveal
   // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 — Pass 944: →dt*3.5 — Pass 1432: →dt*2.6 for longer ring
   if (_confirmRingT >= 0) {
-    _confirmRingT = Math.min(1, _confirmRingT + dt * 52.1); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring — Pass 5029: 38.6→52.1 faster identity confirm ring
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 70.3); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring — Pass 5029: 38.6→52.1 faster identity confirm ring — Pass 5876: 52.1→70.3 faster identity confirm ring speed
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
-    const _crs = 1.0 + easeOut(_confirmRingT) * 2493; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring — Pass 5127: 1368→1847 wider slot ring scale speed confirm ring — Pass 5716: 1847→2493 wider identity confirm ring scale
+    const _crs = 1.0 + easeOut(_confirmRingT) * 3366; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring — Pass 5127: 1368→1847 wider slot ring scale speed confirm ring — Pass 5716: 1847→2493 wider identity confirm ring scale — Pass 5875: 2493→3366 wider identity confirm ring max scale
     confirmRing.scale.setScalar(_crs);
     confirmRingMat.opacity = (1 - _confirmRingT) * 1.82; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash — Pass 5374: 1.35→1.82 brighter identity confirm ring opacity
     if (_confirmRingT >= 1) {
@@ -5098,11 +5098,11 @@ function animate(ts) {
   // Pass 184: second confirm ring — fires 0.12s after first, smaller and faster
   if (_confirmRingT2 > -1) {
     // Pass 945: second ring speed dt*2.2→dt*2.8 — Pass 1434: →dt*2.2 for longer second ring duration
-    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 44.3); // Pass 2500: second confirm ring speed 4.01→5.41 — Pass 2703: 5.41→7.30 — Pass 2799: 7.30→9.86 — Pass 3310: 9.86→13.3 — Pass 3420: 13.3→18.0 — Pass 3533: 18.0→24.3 — Pass 4057: 24.3→32.8 faster secondary ripple — Pass 5375: 32.8→44.3 faster secondary confirm ripple
+    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 59.8); // Pass 2500: second confirm ring speed 4.01→5.41 — Pass 2703: 5.41→7.30 — Pass 2799: 7.30→9.86 — Pass 3310: 9.86→13.3 — Pass 3420: 13.3→18.0 — Pass 3533: 18.0→24.3 — Pass 4057: 24.3→32.8 faster secondary ripple — Pass 5375: 32.8→44.3 faster secondary confirm ripple — Pass 5877: 44.3→59.8 faster secondary confirm ring speed
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
       // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 — Pass 1533: →30.0 for wider second burst
-      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 603; // Pass 2491: second confirm ring scale 73.8→99.6 — Pass 2704: 99.6→134.5 — Pass 2800: 134.5→181.6 — Pass 2932: 181.6→245.2 — Pass 3311: 245.2→331.0 — Pass 4058: 331.0→447 wider secondary confirm ripple — Pass 5371: 447→603 wider secondary confirm ripple
+      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 814; // Pass 2491: second confirm ring scale 73.8→99.6 — Pass 2704: 99.6→134.5 — Pass 2800: 134.5→181.6 — Pass 2932: 181.6→245.2 — Pass 3311: 245.2→331.0 — Pass 4058: 331.0→447 wider secondary confirm ripple — Pass 5371: 447→603 wider secondary confirm ripple — Pass 5878: 603→814 wider secondary confirm ring max scale
       confirmRing2.scale.setScalar(_crs2);
       confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 1.82); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0 — Pass 4689: 1.0→1.35 brighter secondary confirm ring — Pass 5376: 1.35→1.82 brighter secondary confirm ring opacity
       if (_confirmRingT2 >= 1) {
