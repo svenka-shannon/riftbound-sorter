@@ -3031,7 +3031,7 @@ function animate(ts) {
     const _beltWobbleZ = (18.9 * Math.sin(ts * 4.7 * Math.PI * 2) + 5.82 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
     const _beltYBump = 5.00 * Math.sin(ts * 29.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 — Pass 4208: 3.70→5.00 more tactile belt feel — Pass 4505: belt Y micro-bump freq 22→29.7 livelier tactile bump
-    activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2 + _settleY + _beltYBump, _beltWobbleZ);
+    activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2.70 + _settleY + _beltYBump, _beltWobbleZ); // Pass 4542: card-on-belt height above belt surface 2→2.70 higher card float
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     // Pass 1235: lean -0.18→-0.05 (bugfix: at -0.18 the card front edge was 4.9u below belt; safe max ≈0.05rad)
     const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
@@ -3606,7 +3606,7 @@ function animate(ts) {
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
     scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 21.2 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7 — Pass 4135: 15.7→21.2 taller cone punch
     // Pass 515: scan cone base opacity boost 0.09→0.14 — Pass 1159: →0.22 for more visible beam cone during scan
-    scanConeMat.opacity = flashIntensity * 1.00 + _strobe * 0.5 + _coneRevealBoost; // Pass 2561: cone base opacity 0.41→0.55 — Pass 2826: 0.55→0.74 — Pass 2999: 0.74→1.00
+    scanConeMat.opacity = flashIntensity * 1.00 + _strobe * 0.675 + _coneRevealBoost; // Pass 2561: cone base opacity 0.41→0.55 — Pass 2826: 0.55→0.74 — Pass 2999: 0.74→1.00 — Pass 4541: scan strobe cone brightness 0.5→0.675 richer scan bar color brightness
     // Pass 287: scan beam strength scales with bar fill — Pass 1160: boost 0.20→0.35 for more data-accumulation feel
     const _beamFillBoost = barFill * 0.85; // Pass 1719: beam fill boost 0.35→0.47 — Pass 3000: 0.47→0.63 — Pass 4136: 0.63→0.85 stronger data-fill glow
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
@@ -3685,7 +3685,7 @@ function animate(ts) {
       // Opacity: standard bell + extra brightness after reveal — Pass 403: 0.18→0.28 — Pass 816: →0.42 — Pass 1448: →0.60
       const _shimBoost = _identityRevealed ? 8.86 : 0; // Pass 2566: shimmer post-reveal boost 1.09→1.47 — Pass 3006: 1.47→1.98 — Pass 3202: 1.98→2.67 — Pass 3440: 2.67→3.60 — Pass 3704: 3.60→4.86 — Pass 3818: 4.86→6.56 — Pass 4423: 6.56→8.86 richer shimmer at identity reveal
       // Pass 349: shimmer opacity reveal spike — Pass 563: 0.30→0.55 — Pass 626: →0.75 — Pass 815: →1.0 — Pass 1070: →1.40 — Pass 1449: →1.90 for brighter shimmer at reveal
-      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 15.5 : 0; // Pass 2567: shimmer reveal spike 3.46→4.67 — Pass 3007: 4.67→6.30 — Pass 3203: 6.30→8.51 — Pass 3619: 8.51→11.5 — Pass 3996: 11.5→15.5
+      const _shimRevealSpike349 = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 20.9 : 0; // Pass 2567: shimmer reveal spike 3.46→4.67 — Pass 3007: 4.67→6.30 — Pass 3203: 6.30→8.51 — Pass 3619: 8.51→11.5 — Pass 3996: 11.5→15.5 — Pass 4537: 15.5→20.9 richer card shimmer emissive at reveal
       // Pass 626: base bell 0.52→0.62 — Pass 816: →0.75 — Pass 1450: →1.0 for brighter shimmer throughout scan
       cardShimmerMat.opacity = Math.sin(ft * Math.PI) * (1.0 + _shimBoost) + _shimRevealSpike349;
     }
@@ -4172,7 +4172,7 @@ function animate(ts) {
     // Pass 976: impact glow spike 3.0→4.8, decay 22→18 — Pass 1112: →7.5 — Pass 1199: →11.5 — Pass 1406: →16.0 — Pass 1549: →22.0 for stronger slot impact glow
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
       ? Math.exp(-(dt3 - 0.88) * 18) * 443 : 0; // Pass 2116: impact glow spike 40.1→54.1 — Pass 2613: 54.1→73.0 — Pass 3054: 73.0→98.6 — Pass 3241: 98.6→133.1 — Pass 3595: 133.1→180 — Pass 3691: 180→243 — Pass 3803: 243→328 — Pass 3903: 328→443
-    cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
+    cardGlow.intensity = THREE.MathUtils.lerp(0.81, 0, dt3) + _glowImpact313; // Pass 4543: slot drop approach card glow start 0.6→0.81 warmer approach emissive
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     // Pass 979: start from 2.8 — Pass 1550: →4.0 for brighter slot target spotlight at drop entry
     scanTargetLight.intensity = THREE.MathUtils.lerp(44.4, 0, easeInOut(dt3)); // Pass 2388: slot target spotlight entry 7.3→9.9 — Pass 2614: 9.9→13.4 — Pass 3055: 13.4→18.1 — Pass 3242: 18.1→24.4 — Pass 3483: 24.4→32.9 — Pass 4003: 32.9→44.4
@@ -4294,7 +4294,7 @@ function animate(ts) {
         // Pass 583: landing scatter count 5→8 — Pass 584: speed 22+32→35+50 — Pass 807: speed →60+80
         // Pass 983: count 8→12 — Pass 1370: →18 for bigger floor impact dust cloud
         let _landScattered = 0;
-        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 24; _li++) { // Pass 3486: landing scatter count 18→24
+        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 32; _li++) { // Pass 3486: landing scatter count 18→24 — Pass 4539: 24→32 bigger grab particle scatter cloud
           const _lp = GRAB_PARTICLES[_li];
           if (_lp.active) continue;
           _lp.active = true; _lp.age = 0; _lp.life = 2.26 + Math.random() * 1.42; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58 — Pass 2628: 0.92+0.58→1.24+0.78 — Pass 3067: 1.24+0.78→1.67+1.05 — Pass 4356: 1.67+1.05→2.26+1.42 longer floor impact dust cloud
@@ -4488,7 +4488,7 @@ function animate(ts) {
     // Arm dips toward viewer at midpoint of return sweep for 3-D parabolic path
     // Pass 288: final Z ring oscillation — Pass 861: 0.50→0.80 — Pass 1271: →1.10 — Pass 1351: →1.55 for bigger settling ring
     const _artZRing = art > 0.88 ? 30.9 * Math.sin((art - 0.88) / 0.12 * Math.PI * 3.38) * (1 - (art - 0.88) / 0.12) : 0; // Pass 2411: arm return Z ring 2.82→3.81 — Pass 2644: 3.81→5.14 — Pass 2875: 5.14→6.94 — Pass 3085: 6.94→9.37 — Pass 3261: 9.37→12.6 — Pass 3602: 12.6→17.0 — Pass 3698: 17.0→22.9 — Pass 3811: 22.9→30.9 — Pass 4509: suction ring oscillation count 2.5→3.38 busier settle ring
-    suctionPivot.position.z = Math.sin(art * Math.PI) * 443 + _artZRing; // Pass 2412: arm return Z-depth arc 40.1→54.1 — Pass 2645: 54.1→73.0 — Pass 2876: 73.0→98.6 — Pass 3086: 98.6→133.1 — Pass 3262: 133.1→179.7 — Pass 3603: 179.7→243 — Pass 3699: 243→328 — Pass 3812: 328→443
+    suctionPivot.position.z = Math.sin(art * Math.PI) * 598 + _artZRing; // Pass 2412: arm return Z-depth arc 40.1→54.1 — Pass 2645: 54.1→73.0 — Pass 2876: 73.0→98.6 — Pass 3086: 98.6→133.1 — Pass 3262: 133.1→179.7 — Pass 3603: 179.7→243 — Pass 3699: 243→328 — Pass 3812: 328→443 — Pass 4540: 443→598 deeper arm descent oscillation arc
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 8.24); // Pass 1973: paddle return 4.5→6.1 — Pass 4074: 6.1→8.24 snappier paddle spring-back
     // Return floor diverter to flat (lower floor default) during arm return
@@ -4626,7 +4626,7 @@ function animate(ts) {
     // Scan phase: flash ambient up with the domain color
     // Celebration (impactRing or camera shake): spike ambient white briefly
     // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 — Pass 1083: →0.92 — Pass 1380: →1.25 — Pass 1612: →1.70
-    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 18.8 : 0; // Pass 2421: scan ambient boost 3.11→4.20 — Pass 2657: 4.20→5.67 — Pass 2888: 5.67→7.65 — Pass 3095: 7.65→10.3 — Pass 3271: 10.3→13.9 — Pass 3349: 13.9→18.8
+    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 25.4 : 0; // Pass 2421: scan ambient boost 3.11→4.20 — Pass 2657: 4.20→5.67 — Pass 2888: 5.67→7.65 — Pass 3095: 7.65→10.3 — Pass 3271: 10.3→13.9 — Pass 3349: 13.9→18.8 — Pass 4538: 18.8→25.4 stronger slot entry ambient peak
     // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy — Pass 1614: →0.38
     const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 4.20 : 0; // Pass 2422: grab ambient boost 0.69→0.93 — Pass 2658: 0.93→1.26 — Pass 2889: 1.26→1.70 — Pass 3096: 1.70→2.30 — Pass 3272: 2.30→3.11 — Pass 3350: 3.11→4.20
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response — Pass 1615: ceiling 0.40→0.55, mult 0.05→0.07
@@ -5213,7 +5213,7 @@ function animate(ts) {
     } else {
       // Fade card-tracking mode out
       _beltTrackLight.intensity *= 1 - dt * 5.47; // Pass 2812: belt track fade-out rate 3→4.05 — Pass 4035: 4.05→5.47 faster belt track light fade
-      if (_beltTrackLight.intensity < 0.04) _beltTrackLight.intensity = 0;
+      if (_beltTrackLight.intensity < 0.054) _beltTrackLight.intensity = 0; // Pass 4536: idle belt track light minimum floor 0.04→0.054 brighter idle belt LED floor
       // Idle shimmer: sweep light back and forth along belt (HOPPER_X → GATE_X)
       const _beltIdle = inPhase(PH.armReturn) || inPhase(PH.pause) ||
                         inPhase(PH.armDescend) || inPhase(PH.armLift);
