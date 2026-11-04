@@ -878,7 +878,7 @@ scene.add(lens);
 
 // Lens retaining ring
 const lensRing = new THREE.Mesh(
-  new THREE.TorusGeometry(8, 5.00, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring — Pass 5016: 2.03→2.74 chunkier scanner lens ring — Pass 5903: 2.74→3.70 chunkier scanner lens ring — Pass 6226: 3.70→5.00 chunkier scanner lens ring tube radius
+  new THREE.TorusGeometry(8, 6.75, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring — Pass 5016: 2.03→2.74 chunkier scanner lens ring — Pass 5903: 2.74→3.70 chunkier scanner lens ring — Pass 6226: 3.70→5.00 chunkier scanner lens ring tube radius — Pass 6442: 5.00→6.75 chunkier scanner lens ring tube radius
   new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.5, metalness: 0.6 })
 );
 lensRing.rotation.x = Math.PI / 2;
@@ -903,7 +903,7 @@ scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
 // Flash point light inside scanner (animated during scan phase)
-const scanFlash = new THREE.PointLight(0xffffff, 0, 605); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach — Pass 5045: 182→246 wider scan flash reach — Pass 5068: 246→332 wider scan flash reach — Pass 5740: 332→448 wider scan flash light reach — Pass 6313: 448→605 wider scan flash light reach
+const scanFlash = new THREE.PointLight(0xffffff, 0, 817); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach — Pass 5045: 182→246 wider scan flash reach — Pass 5068: 246→332 wider scan flash reach — Pass 5740: 332→448 wider scan flash light reach — Pass 6313: 448→605 wider scan flash light reach — Pass 6443: 605→817 wider scan flash light reach
 scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
@@ -920,7 +920,7 @@ const scanBarMat = new THREE.MeshStandardMaterial({
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 8.32, 8.32), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar — Pass 4905: 3.38→4.56 chunkier scan bar — Pass 5473: 4.56→6.16 chunkier scan progress bar cross-section — Pass 5743: 6.16→8.32 chunkier scan progress bar cross-section
+  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 11.2, 11.2), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar — Pass 4905: 3.38→4.56 chunkier scan bar — Pass 5473: 4.56→6.16 chunkier scan progress bar cross-section — Pass 5743: 6.16→8.32 chunkier scan progress bar cross-section — Pass 6436: 8.32→11.2 chunkier scan progress bar cross-section
   scanBarMat
 );
 // Positioned on front face of scanner hood (Z=-50 is front edge of 100-deep hood)
@@ -931,20 +931,20 @@ scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(11.7, 11.7, 11.7), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block — Pass 5744: 8.63→11.7 larger scan bar leading-edge cursor block
+const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(15.8, 15.8, 15.8), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block — Pass 5744: 8.63→11.7 larger scan bar leading-edge cursor block — Pass 6437: 11.7→15.8 larger scan bar leading-edge cursor block
 scanBarCursor.position.set(-40, CONV_Y_TOP + 152.6, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount — Pass 6351: 113.0→152.6 higher scan bar cursor mount
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
 
 // Scan destination target light — illuminates the slot the card is going to
 // during scan phase so viewer immediately knows the routing decision
-const scanTargetLight = new THREE.PointLight(0xffffff, 0, 406); // Pass 4022: scanTargetLight range 90→122 — Pass 4907: 122→165 wider scan target reach — Pass 5152: 165→223 wider scan target light reach — Pass 5187: 223→301 wider scan target light reach — Pass 5741: 301→406 wider scan target light reach
-scanTargetLight.decay = 12.1; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff — Pass 5153: 2.70→3.65 tighter scan target spotlight falloff — Pass 5188: 3.65→4.93 tighter scan target spotlight falloff — Pass 5904: 4.93→6.66 tighter scan target spotlight falloff — Pass 5967: 6.66→8.99 tighter scan target spotlight falloff — Pass 6057: 8.99→12.1 tighter scan target spotlight falloff
+const scanTargetLight = new THREE.PointLight(0xffffff, 0, 548); // Pass 4022: scanTargetLight range 90→122 — Pass 4907: 122→165 wider scan target reach — Pass 5152: 165→223 wider scan target light reach — Pass 5187: 223→301 wider scan target light reach — Pass 5741: 301→406 wider scan target light reach — Pass 6438: 406→548 wider scan target light reach
+scanTargetLight.decay = 16.3; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff — Pass 5153: 2.70→3.65 tighter scan target spotlight falloff — Pass 5188: 3.65→4.93 tighter scan target spotlight falloff — Pass 5904: 4.93→6.66 tighter scan target spotlight falloff — Pass 5967: 6.66→8.99 tighter scan target spotlight falloff — Pass 6057: 8.99→12.1 tighter scan target spotlight falloff — Pass 6439: 12.1→16.3 tighter scan target spotlight falloff
 scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
-const slotSweepLight = new THREE.PointLight(0xffffff, 0, 246); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach — Pass 5708: 135→182 wider slot sweep light reach — Pass 6306: 182→246 wider slot sweep light reach
-slotSweepLight.decay = 8.99; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff — Pass 5907: 3.65→4.93 tighter slot sweep beam falloff — Pass 5968: 4.93→6.66 tighter slot sweep beam falloff — Pass 6058: 6.66→8.99 tighter slot sweep beam falloff
+const slotSweepLight = new THREE.PointLight(0xffffff, 0, 332); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach — Pass 5708: 135→182 wider slot sweep light reach — Pass 6306: 182→246 wider slot sweep light reach — Pass 6440: 246→332 wider slot sweep light reach
+slotSweepLight.decay = 12.1; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff — Pass 5907: 3.65→4.93 tighter slot sweep beam falloff — Pass 5968: 4.93→6.66 tighter slot sweep beam falloff — Pass 6058: 6.66→8.99 tighter slot sweep beam falloff — Pass 6441: 8.99→12.1 tighter slot sweep beam falloff
 scene.add(slotSweepLight);
 
 // ─── Scanner beam cone ────────────────────────────────────────────────────────
