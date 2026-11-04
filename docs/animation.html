@@ -916,7 +916,7 @@ scene.add(scanBloom);
 // Fills left→right as scan progresses; flashes domain color on completion
 const SCAN_BAR_MAX_W = 72; // matches hood width minus margins
 const scanBarMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 15.3, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow
+  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 20.7, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow — Pass 5747: 15.3→20.7 brighter scan progress bar base glow
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
@@ -956,7 +956,7 @@ const scanConeMat = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide, depthWrite: false
 });
 const scanCone = new THREE.Mesh(
-  new THREE.ConeGeometry(88.6, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius
+  new THREE.ConeGeometry(119.6, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius — Pass 5748: 88.6→119.6 even wider scan flash cone radius
   scanConeMat
 );
 // Tip at scanner lens; open base toward card — rotate 180° so tip is up, base down
@@ -1033,7 +1033,7 @@ scene.add(scanLine2);
   const _nTex = new THREE.CanvasTexture(_nc);
   const _nMat = new THREE.MeshStandardMaterial({
     map: _nTex, roughness: 0.4, metalness: 0.3,
-    emissive: new THREE.Color(0x203060), emissiveIntensity: 0.832, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow
+    emissive: new THREE.Color(0x203060), emissiveIntensity: 1.12, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow — Pass 5753: 0.832→1.12 more vivid scanner nameplate emissive
   });
   const _nMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 18), _nMat);
   // Front face of scanner hood: hood center is (-40, CONV_Y_TOP+32.5, 0), depth=100, front at Z=+50
@@ -1050,7 +1050,7 @@ scene.add(gateBase);
 // Pass 60: Sort gate column indicator LEDs — 4 small spheres showing destination Z column
 const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x224466, emissive: 0x112233, emissiveIntensity: 1.81, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs — Pass 5132: 0.996→1.34 brighter gate col width indicator LEDs — Pass 5189: 1.34→1.81 brighter gate column width indicator LEDs
+    color: 0x224466, emissive: 0x112233, emissiveIntensity: 2.44, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs — Pass 5132: 0.996→1.34 brighter gate col width indicator LEDs — Pass 5189: 1.34→1.81 brighter gate column width indicator LEDs — Pass 5746: 1.81→2.44 brighter gate column LED emissive
     roughness: 0.05, metalness: 0.0,
   });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 14, 14), mat); // Pass 4988: gate column LED sphere segments 10→14 smoother gate indicators
@@ -1497,7 +1497,7 @@ scene.add(_shadowMesh);
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
 // Narrow bright band swept across the card face during scan — simulates specular
 // reflection of the scanner beam reading the card surface (X=fullwidth, thin Z=7).
-const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 2.23, 17.2); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band — Pass 5115: Z width 12.76→17.2 wider card Z spread during scan — Pass 5710: stripe height 1.65→2.23 bolder card shimmer stripe band
+const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 2.23, 23.2); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band — Pass 5115: Z width 12.76→17.2 wider card Z spread during scan — Pass 5710: stripe height 1.65→2.23 bolder card shimmer stripe band — Pass 5750: Z width 17.2→23.2 wider card shimmer Z spread during scan
 const cardShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false,
 });
@@ -1519,7 +1519,7 @@ scene.add(routeArcLine);
 const routeTargetMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0, roughness: 0.3, transparent: true, opacity: 0
 });
-const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(9.84, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb — Pass 5458: 7.29→9.84 even larger slot destination indicator orb
+const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(13.3, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb — Pass 5458: 7.29→9.84 even larger slot destination indicator orb — Pass 5749: 9.84→13.3 larger slot destination indicator orb
 scene.add(routeTarget);
 
 // ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
@@ -1528,7 +1528,7 @@ const GHOST_COUNT = 4; // Pass 4989: ghost trail card count 3→4 richer motion 
 const ghostCards = [];
 for (let _gi = 0; _gi < GHOST_COUNT; _gi++) {
   const _gMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.986, // Pass 4029: ghost card emissive 0.4→0.54 brighter motion-blur wake — Pass 4892: 0.54→0.73 brighter ghost trail — Pass 5470: 0.73→0.986 brighter ghost trail motion-blur cards
+    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1.33, // Pass 4029: ghost card emissive 0.4→0.54 brighter motion-blur wake — Pass 4892: 0.54→0.73 brighter ghost trail — Pass 5470: 0.73→0.986 brighter ghost trail motion-blur cards — Pass 5752: 0.986→1.33 brighter ghost trail motion-blur card emissive
     transparent: true, opacity: 0,
     roughness: 0.6, metalness: 0.0, depthWrite: false,
   });
@@ -1543,7 +1543,7 @@ const impactRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0,
 });
 const impactRing = new THREE.Mesh(
-  new THREE.TorusGeometry(32.8, 5.41, 6, 24), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring — Pass 5104: slot ring Z spread radius 24.3→32.8 wider impact ring — Pass 5248: impact ring toroid tube radius 4.01→5.41 fatter shockwave ring
+  new THREE.TorusGeometry(32.8, 7.30, 6, 24), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring — Pass 5104: slot ring Z spread radius 24.3→32.8 wider impact ring — Pass 5248: impact ring toroid tube radius 4.01→5.41 fatter shockwave ring — Pass 5751: 5.41→7.30 fatter slot landing shockwave ring tube
   impactRingMat
 );
 impactRing.visible = false;
