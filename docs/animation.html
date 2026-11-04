@@ -759,7 +759,7 @@ scene.add(hopperWire);
 // Pass 59: Hopper status LED — small indicator sphere on hopper front face
 // Color: green (full) → yellow (half) → red (low) → fast-blink when empty+refilling
 const hopperLEDMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 4.93, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED
+  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 6.66, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED
   roughness: 0.05, metalness: 0.0,
 });
 const hopperLED = new THREE.Mesh(new THREE.SphereGeometry(3.5, 14, 14), hopperLEDMat); // Pass 4984: hopper LED sphere segments 10→14 smoother status indicator
@@ -806,7 +806,7 @@ beltTex.wrapS = THREE.RepeatWrapping;
 beltTex.repeat.set(4, 1); // fewer repeats for wider visible pattern
 const beltSurfMat = new THREE.MeshStandardMaterial({
   map: beltTex, roughness: 0.55, metalness: 0.1,
-  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.292 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline
+  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.394 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline
 });
 const beltSurf = new THREE.Mesh(new THREE.BoxGeometry(248, 2, 76), beltSurfMat);
 beltSurf.position.set(-40, CONV_Y_TOP + 1, 0);
@@ -903,12 +903,12 @@ scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
 // Flash point light inside scanner (animated during scan phase)
-const scanFlash = new THREE.PointLight(0xffffff, 0, 182); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach
+const scanFlash = new THREE.PointLight(0xffffff, 0, 246); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach — Pass 5045: 182→246 wider scan flash reach
 scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
-const scanBloom = new THREE.PointLight(0x0088ff, 0, 739); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach
+const scanBloom = new THREE.PointLight(0x0088ff, 0, 998); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach
 scanBloom.decay = 2.70; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom
 scene.add(scanBloom);
 
@@ -916,7 +916,7 @@ scene.add(scanBloom);
 // Fills left→right as scan progresses; flashes domain color on completion
 const SCAN_BAR_MAX_W = 72; // matches hood width minus margins
 const scanBarMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 11.3, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow
+  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 15.3, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
