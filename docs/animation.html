@@ -3045,14 +3045,14 @@ function animate(ts) {
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
     scanBloom.intensity = 0;
-    gateColLight.intensity *= Math.max(0, 1 - dt * 4); // pass 141: fade gate column light on belt entry
+    gateColLight.intensity *= Math.max(0, 1 - dt * 5.4); // pass 141: fade gate column light on belt entry — Pass 4762: gate col fade rate 4→5.4 crisper dismiss
     // Pass 144: scan anticipation — card brightens in final 15% of conveyorIn as scanner looms
     const _approachT = Math.max(0, (ct2 - 0.85) / 0.15); // 0→1 in last 15%
     // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap) — Pass 1592: →1.9
     const _entryBoost = Math.exp(-ct2 * 27.0) * 6.32; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 — Pass 4209: 4.68→6.32 bigger entry flash — Pass 4523: belt entry flash decay rate 20→27.0 snappier entry flash
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
-    const _approachFreq272 = 8 + _approachT * 20;
+    const _approachFreq272 = 8 + _approachT * 27; // Pass 4764: approach flicker ramp 20→27 more nervous pre-pick tension
     activeCardMat.emissiveIntensity = 0.74 + _approachT * 2.82 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card
       + _approachT * 3.01 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65 — Pass 3961: 1.65→2.23 — Pass 4214: 2.23→3.01 more vivid approach pulse
       + _approachT * 0.14 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat — Pass 4269: secondary amplitude 0.10→0.14 stronger interference beat
@@ -3309,7 +3309,7 @@ function animate(ts) {
           // Pass 215: beam-proximity brightening — each dot brightens as the Z-sweep beam
           // crosses its Z position, creating a sweep highlight that travels with the beam.
           // Pass 577: dot beam-proximity brightening 0.60→0.95 — Pass 1695: →1.30 for more vivid sweep highlight
-          const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 11);
+          const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 14.9); // Pass 4765: dot beam proximity radius 11→14.9 wider scan highlight zone
           mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 5.85)); // Pass 2535: dot beam proximity 1.30→1.76 — Pass 3558: 1.76→2.38 — Pass 3719: 2.38→3.21 — Pass 4148: 3.21→4.33 — Pass 4674: 4.33→5.85 stronger scan dot beam proximity highlight
           // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× — Pass 1319: →3.2× — Pass 1696: →3.0× harder pop
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
@@ -3732,7 +3732,7 @@ function animate(ts) {
     // Pass 455: urgency pulse frequency ramp — target column beats faster as card approaches.
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
     // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
-    const _ledUrgencyHz = 8 + ot * 22; // 8→30Hz
+    const _ledUrgencyHz = 8 + ot * 29.7; // 8→30Hz // Pass 4763: LED urgency Hz ramp 22→29.7 more frantic gate pulse
     const _ledUrgencyPulse = 0.18 + 22.3 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5 — Pass 4373: 16.5→22.3 deeper gate LED urgency throb
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
@@ -3824,7 +3824,7 @@ function animate(ts) {
         );
         tp.mat.color.setHex(ct.hex);
         // Pass 489: corona opacity 0.15+0.12→0.22+0.18 — Pass 713: →0.30+0.24 — Pass 951: →0.42+0.32 — Pass 1226: →0.58+0.44 — Pass 1298: →0.75+0.55 — Pass 1562: opacity capped at 1.0
-        tp.mat.opacity = Math.min(1.0, 0.75 + Math.random() * 0.55);
+        tp.mat.opacity = Math.min(1.0, 1.01 + Math.random() * 0.55); // Pass 4767: corona base opacity 0.75→1.01 always-full gate corona
         // Pass 952: corona particle life 0.22+0.18→0.30+0.24 — Pass 1563: →0.42+0.32 for longer-lived charge aura
         tp.age = 0; tp.life = 8.45 + Math.random() * 6.39; // Pass 2363: gate corona particle life 0.57+0.43→0.77+0.58 — Pass 2581: 0.77+0.58→1.04+0.78 — Pass 3019: 1.04+0.78→1.40+1.05 — Pass 3213: 1.40+1.05→1.89+1.42 — Pass 3589: 1.89+1.42→2.55+1.92 — Pass 3684: 2.55+1.92→3.44+2.59 — Pass 3795: base 3.44→4.64 — Pass 3796: rand 2.59→3.50 — Pass 3898: base 4.64→6.26 — Pass 3899: rand 3.50→4.73 — Pass 4736: base 6.26→8.45 longer corona aura — Pass 4737: rand 4.73→6.39
         tp.active = true; tp.mesh.visible = true;
@@ -4065,7 +4065,7 @@ function animate(ts) {
       tp.mat.color.setHex(ct.hex);
       // Pass 385: opacity boost — base 0.45→0.60, peak multiplier 0.38→0.45
       // Pass 965: base 0.60→0.75, peak 0.45→0.60 — Pass 1116: base 0.75→0.88, peak 0.60→0.78 — Pass 1503: base 0.92, peak 1.00 for denser deflect arc contrail
-      tp.mat.opacity = Math.min(1.0, 0.92 + _arcMid * 1.00);
+      tp.mat.opacity = Math.min(1.0, 0.92 + _arcMid * 1.35); // Pass 4766: arc particle opacity multiplier 1.00→1.35 more vivid arc trail
       tp.age = 0;
       // Pass 387: life boost — 0.38-0.52 → 0.45-0.65s — Pass 506: extend 0.45-0.65 → 0.55-0.75s
       // Pass 527: deflect trail life 0.55+0.20 → 0.65+0.25 — Pass 966: →0.82+0.32 — Pass 1117: →1.05+0.42 — Pass 1504: →1.35+0.55 longer hang
@@ -4630,7 +4630,7 @@ function animate(ts) {
     // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy — Pass 1614: →0.38
     const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 5.67 : 0; // Pass 2422: grab ambient boost 0.69→0.93 — Pass 2658: 0.93→1.26 — Pass 2889: 1.26→1.70 — Pass 3096: 1.70→2.30 — Pass 3272: 2.30→3.11 — Pass 3350: 3.11→4.20 — Pass 4619: 4.20→5.67 stronger slot entry ambient surge
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response — Pass 1615: ceiling 0.40→0.55, mult 0.05→0.07
-    const _shakeBoost   = _cameraShake > 2 ? Math.min(1.82, _cameraShake * 0.234) : 0; // Pass 2530: shake boost ceiling 1.00→1.35, mult 0.128→0.173 — Pass 2748: ceiling 1.35→1.82, mult 0.173→0.234
+    const _shakeBoost   = _cameraShake > 2 ? Math.min(2.46, _cameraShake * 0.316) : 0; // Pass 2530: shake boost ceiling 1.00→1.35, mult 0.128→0.173 — Pass 2748: ceiling 1.35→1.82, mult 0.173→0.234 — Pass 4760: ceiling 1.82→2.46 stronger impact ambient — Pass 4761: shake boost multiplier 0.234→0.316
     // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 — Pass 1607: →1.05
     const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 21.3 : 0; // Pass 2423: slotDrop ambient 1.92→2.59 — Pass 2659: 2.59→3.50 — Pass 2749: 3.50→4.73 — Pass 2890: 4.73→6.39 — Pass 3097: 6.39→8.63 — Pass 3273: 8.63→11.7 — Pass 3351: 11.7→15.8 — Pass 4379: 15.8→21.3 richer slot drop ambient wash
     // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response — Pass 1610: →0.84
