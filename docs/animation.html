@@ -1957,8 +1957,8 @@ for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMesh = new THREE.Mesh(new THREE.BoxGeometry(5, 4, 0.8), _cpMat);
   _cpMesh.visible = false;
   scene.add(_cpMesh);
-  // Pass 481: randomized gravity factor per particle (18–35) for organic varied fall speed
-  const _gravFactor = 18 + Math.random() * 17;
+  // Pass 481: randomized gravity factor per particle (18–35) for organic varied fall speed — Pass 4262: base 18→24.3, rand 17→22.95 stronger confetti gravity variance
+  const _gravFactor = 24.3 + Math.random() * 22.95;
   CELEB_PARTICLES.push({ mesh: _cpMesh, mat: _cpMat, vx: 0, vy: 0, vz: 0, rx: 0, ry: 0, rz: 0, age: 0, life: 1.2, active: false, grav: _gravFactor });
 }
 
@@ -2431,10 +2431,10 @@ function animate(ts) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 1.23;
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61
-          mesh.material.emissiveIntensity = 1.04 + 1.61 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase);
+          mesh.material.emissiveIntensity = 1.40 + 1.61 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway
           const _swayPhase = _globalCardIdx * 1.83;
-          mesh.rotation.z = 0.038 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase);
+          mesh.rotation.z = 0.051 * Math.sin(ts * 0.38 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking
         }
         _globalCardIdx++;
       });
@@ -2824,9 +2824,9 @@ function animate(ts) {
           const spd = 246 + Math.random() * 155; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.15;
-          p.vx = Math.cos(angle) * spd * 0.55;
-          p.vy = _goDown ? -spd * (0.3 + Math.random() * 0.4) : spd * (0.55 + Math.random() * 0.45);
-          p.vz = Math.sin(angle) * spd * 0.5;
+          p.vx = Math.cos(angle) * spd * 0.74; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst
+          p.vy = _goDown ? -spd * (0.41 + Math.random() * 0.54) : spd * (0.55 + Math.random() * 0.45); // Pass 4264: grab particle vy down factor 0.3→0.41, rand 0.4→0.54 more forceful suction puff
+          p.vz = Math.sin(angle) * spd * 0.68; // Pass 4265: grab particle vz spread 0.5→0.68 deeper Z burst
           p.mesh.position.set(_bx, _by, (Math.random() - 0.5) * 8);
           // Pass 85: color variety — highlight (25%), domain (50%), shadow (25%)
           const _cr = Math.random();
@@ -3053,9 +3053,9 @@ function animate(ts) {
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 20;
-    activeCardMat.emissiveIntensity = 0.55 + _approachT * 2.82 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension
+    activeCardMat.emissiveIntensity = 0.74 + _approachT * 2.82 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card
       + _approachT * 3.01 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65 — Pass 3961: 1.65→2.23 — Pass 4214: 2.23→3.01 more vivid approach pulse
-      + _approachT * 0.10 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat
+      + _approachT * 0.14 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat — Pass 4269: secondary amplitude 0.10→0.14 stronger interference beat
       + _entryBoost;
     // Pass 560: approach glow ramp peak boost 1.8→2.8 — Pass 875: →4.2 — Pass 1085: →5.8 — Pass 1207: →8.5 — Pass 1304: →12.0 for stronger tension glow — Pass 1591: →16.0
     cardGlow.intensity = 1.4 + _approachT * 39.4; // Pass 1858: approach glow ramp 16.0→21.6 — Pass 3940: 21.6→29.2 — Pass 4215: 29.2→39.4 stronger approach tension glow
