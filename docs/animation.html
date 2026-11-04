@@ -2448,7 +2448,7 @@ function animate(ts) {
       f.age += dt;
       const _fPeak = f.peak || 4.05; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 13.3)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5488: 9.86→13.3 longer slot arrival flash glow persistence
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 13.3)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5496: 9.86→13.3 longer slot arrival flash glow persistence
       if(f.age > 7.30) { scene.remove(f.light); return false; }
       return true;
     });
@@ -3922,7 +3922,7 @@ function animate(ts) {
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 2384 + Math.random() * 2047; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst — Pass 5489: base 1766→2384 faster gate spark burst — Pass 5490: rand 1516→2047 wider gate spark speed burst
+          const _spd = 2384 + Math.random() * 2047; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst — Pass 5497: base 1766→2384 faster gate spark burst — Pass 5498: rand 1516→2047 wider gate spark speed burst
           _sp.vx = Math.cos(_ang) * _spd * 1.28; // Pass 4794: gate spark vx spread 0.7→0.945 — Pass 5084: 0.945→1.28 wider gate spark vx
           _sp.vy = 1214 + Math.random() * 984; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft
           _sp.vz = Math.sin(_ang) * _spd * 0.911 + Math.sign(ct.slotZ || 1) * 15; // Pass 4795: gate spark vz spread 0.5→0.675 — Pass 5085: 0.675→0.911 wider gate spark vz
@@ -4109,7 +4109,7 @@ function animate(ts) {
         // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
         // Pass 971: bounce 16→22 — Pass 1108: →30 — Pass 1195: →40 — Pass 1257: →52 for even bigger card-slap landing bounce
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 2564 * Math.sin(bT * Math.PI) * (1 - bT * 0.32); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772 — Pass 3737: 772→1042 — Pass 3845: 1042→1407 — Pass 4453: 1407→1899 bigger slot landing bounce — Pass 4594: slot drop bounce Y floor damping 0.24→0.32 snappier landing bounce decay — Pass 5491: 1899→2564 bigger slot landing bounce height
+        cy = targetY + 2564 * Math.sin(bT * Math.PI) * (1 - bT * 0.32); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772 — Pass 3737: 772→1042 — Pass 3845: 1042→1407 — Pass 4453: 1407→1899 bigger slot landing bounce — Pass 4594: slot drop bounce Y floor damping 0.24→0.32 snappier landing bounce decay — Pass 5499: 1899→2564 bigger slot landing bounce height
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4250,7 +4250,7 @@ function animate(ts) {
         );
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 68.9; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread — Pass 5478: 51.0→68.9 wider landing puff vx spread
-        _pp.vy = 1642 + Math.random() * 1073; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft — Pass 5486: base 1216→1642 stronger slot entry air puff loft — Pass 5487: rand 795→1073 stronger slot entry loft burst
+        _pp.vy = 1642 + Math.random() * 1073; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft — Pass 5494: base 1216→1642 stronger slot entry air puff loft — Pass 5495: rand 795→1073 stronger slot entry loft burst
         _pp.vz = (Math.random() - 0.5) * 180; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread — Pass 5482: 98.4→133 wider landing puff vz spread — Pass 5490: 133→180 wider landing puff vy decay rate Z spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
@@ -4305,7 +4305,7 @@ function animate(ts) {
           );
           _lp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 2827 + Math.random() * 3202; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757 — Pass 4405: 1551+1757→2094+2372 faster impact radial spray — Pass 5492: base 2094→2827 faster impact radial spray — Pass 5493: rand 2372→3202 wider impact radial spray
+          const _spd = 2827 + Math.random() * 3202; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757 — Pass 4405: 1551+1757→2094+2372 faster impact radial spray — Pass 5500: base 2094→2827 faster impact radial spray — Pass 5501: rand 2372→3202 wider impact radial spray
           _lp.vx = Math.cos(_ang) * _spd * 0.61; // Pass 4357: landing dust vx factor 0.45→0.61 wider radial scatter
           _lp.vy = 151.6 + Math.random() * 351.0; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft — Pass 4621: base 112.3→151.6 bigger landing puff vy spread
           _lp.vz = Math.sin(_ang) * _spd * 1.35; // Pass 4358: landing dust vz factor 1.0→1.35 deeper Z floor spray
