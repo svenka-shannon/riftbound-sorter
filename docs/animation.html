@@ -743,11 +743,11 @@ hopperGroup.position.set(HOPPER_X, 0, 0);
 scene.add(hopperGroup);
 
 // Angled inner guide walls inside hopper (funnel shape to direct cards to exit)
-const guideL = makeBox(6, 94.5, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry
+const guideL = makeBox(6, 127.6, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry — Pass 6387: 94.5→127.6 taller slot tray guide rail geometry
 guideL.position.set(HOPPER_X + 15, 40, -30);
 guideL.rotation.z = 0.616; // Pass 4868: hopper guide L tilt angle 0.25→0.338 steeper funnel — Pass 5471: 0.338→0.456 steeper hopper left guide funnel angle — Pass 6341: 0.456→0.616 steeper hopper left guide funnel angle
 scene.add(guideL);
-const guideR = makeBox(6, 94.5, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry
+const guideR = makeBox(6, 127.6, 5, 0xb8b8c4); // Pass 5167: guide rail height 70→94.5 taller slot tray guide rail geometry — Pass 6387: 94.5→127.6 taller slot tray guide rail geometry
 guideR.position.set(HOPPER_X + 15, 40, 30);
 guideR.rotation.z = 0.616; // Pass 4868: hopper guide R tilt angle 0.25→0.338 steeper funnel — Pass 5472: 0.338→0.456 steeper hopper right guide funnel angle — Pass 6342: 0.456→0.616 steeper hopper right guide funnel angle
 scene.add(guideR);
@@ -1753,7 +1753,7 @@ function addCardToTray(ct) {
   trayArrivals.push({ mesh, startY, targetY, t: 0, glowAge: 0 });
 
   // Pass 45: pulse ALL existing cards in this slot — "stack reacts to new member" ripple
-  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 6.94; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash — Pass 5134: 2.09→2.82 stronger stack ripple flash — Pass 5711: 2.82→3.81 stronger stack ripple emissive flash — Pass 5937: 3.81→5.14 stronger stack ripple emissive flash — Pass 6234: 5.14→6.94 stronger stack ripple emissive flash
+  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 9.37; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash — Pass 5134: 2.09→2.82 stronger stack ripple flash — Pass 5711: 2.82→3.81 stronger stack ripple emissive flash — Pass 5937: 3.81→5.14 stronger stack ripple emissive flash — Pass 6234: 5.14→6.94 stronger stack ripple emissive flash — Pass 6402: 6.94→9.37 stronger stack ripple emissive flash
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 14.3; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop — Pass 5774: 7.87→10.6 brighter new card arrival emissive flash — Pass 6196: 10.6→14.3 brighter new card arrival emissive flash
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow — Pass 4768: →9.3s even longer afterglow
@@ -1908,9 +1908,9 @@ const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 // ─── Pass 34: Grab particle burst pool + domain fill light ───────────────────
 // 16 small spheres scatter from grab point when arm picks up a card.
 const GRAB_PARTICLES = [];
-for (let _gpi = 0; _gpi < 30; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir — Pass 6268: 22→30 larger grab burst particle reservoir
+for (let _gpi = 0; _gpi < 41; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir — Pass 6268: 22→30 larger grab burst particle reservoir — Pass 6396: 30→41 larger grab burst particle reservoir
   const _gpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(3.44, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst — Pass 5916: 2.55→3.44 chunkier grab burst particle sphere
+  const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(4.64, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst — Pass 5916: 2.55→3.44 chunkier grab burst particle sphere — Pass 6397: 3.44→4.64 chunkier grab burst particle sphere
   _gpMesh.visible = false;
   scene.add(_gpMesh);
   GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 5.54, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence — Pass 5318: 0.68→0.918 longer grab burst particle persistence — Pass 5398: 0.918→1.24 longer idle scan emit grab particle persistence — Pass 5917: 1.24→1.67 longer grab burst particle persistence — Pass 6035: 1.67→2.25 longer grab burst particle persistence — Pass 6305: 2.25→3.04 longer grab burst particle persistence — Pass 6337: 3.04→4.10 longer grab burst particle persistence — Pass 6385: 4.10→5.54 longer grab burst particle persistence
@@ -3848,7 +3848,7 @@ function animate(ts) {
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
     // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 — Pass 1372: →*3.8 for bigger gate approach glow
-    const _coGlowSurge = ot > 0.80 ? 128.1 + (ot - 0.80) / 0.20 * 76.0 : 128.1; // Pass 2366: glow base 6.39→8.63, surge 6.93→9.36 — Pass 2583: 8.63→11.6, 9.36→12.6 — Pass 3023: 11.6→15.7, 12.6→17.0 — Pass 3215: base 15.7→21.2 Pass 3216: surge 17.0→22.9 — Pass 3591: base 21.2→28.6, surge 22.9→30.9 — Pass 3686: base 28.6→38.6 — Pass 3687: surge 30.9→41.7 — Pass 3797: base 38.6→52.1 — Pass 3798: surge 41.7→56.3 — Pass 3900: base 52.1→70.3 — Pass 4688: surge 56.3→76.0 — Pass 4767: base 70.3→94.9 brighter conveyorOut approach glow — Pass 5467: base 94.9→128.1 brighter conveyorOut approach glow
+    const _coGlowSurge = ot > 0.80 ? 128.1 + (ot - 0.80) / 0.20 * 102.6 : 128.1; // Pass 2366: glow base 6.39→8.63, surge 6.93→9.36 — Pass 2583: 8.63→11.6, 9.36→12.6 — Pass 3023: 11.6→15.7, 12.6→17.0 — Pass 3215: base 15.7→21.2 Pass 3216: surge 17.0→22.9 — Pass 3591: base 21.2→28.6, surge 22.9→30.9 — Pass 3686: base 28.6→38.6 — Pass 3687: surge 30.9→41.7 — Pass 3797: base 38.6→52.1 — Pass 3798: surge 41.7→56.3 — Pass 3900: base 52.1→70.3 — Pass 4688: surge 56.3→76.0 — Pass 4767: base 70.3→94.9 brighter conveyorOut approach glow — Pass 5467: base 94.9→128.1 brighter conveyorOut approach glow — Pass 6403: surge 76.0→102.6 brighter conveyorOut approach glow surge peak
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
@@ -3914,7 +3914,7 @@ function animate(ts) {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
         let _spawned = 0;
         // Pass 592: gate sparks 12→18 — Pass 785: 18→16 faster — Pass 919: →24, Pass 921: speed 95+110→120+140, Pass 920: vy 65+70→85+90
-        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 43; _si++) { // Pass 4607: grab particle count per gate event 24→32 bigger gate impact burst — Pass 5558: 32→43 bigger gate impact burst
+        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 58; _si++) { // Pass 4607: grab particle count per gate event 24→32 bigger gate impact burst — Pass 5558: 32→43 bigger gate impact burst — Pass 6398: 43→58 bigger gate impact burst
           const _sp = GRAB_PARTICLES[_si];
           if (_sp.active) continue;
           // Pass 922: gate spark life 0.28+0.22→0.38+0.28 for longer-lived sparks
@@ -4294,7 +4294,7 @@ function animate(ts) {
         // Pass 583: landing scatter count 5→8 — Pass 584: speed 22+32→35+50 — Pass 807: speed →60+80
         // Pass 983: count 8→12 — Pass 1370: →18 for bigger floor impact dust cloud
         let _landScattered = 0;
-        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 43; _li++) { // Pass 3486: landing scatter count 18→24 — Pass 4539: 24→32 bigger grab particle scatter cloud — Pass 5683: 32→43 bigger floor impact scatter cloud
+        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 58; _li++) { // Pass 3486: landing scatter count 18→24 — Pass 4539: 24→32 bigger grab particle scatter cloud — Pass 5683: 32→43 bigger floor impact scatter cloud — Pass 6399: 43→58 bigger floor impact scatter cloud
           const _lp = GRAB_PARTICLES[_li];
           if (_lp.active) continue;
           _lp.active = true; _lp.age = 0; _lp.life = 3.05 + Math.random() * 1.92; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58 — Pass 2628: 0.92+0.58→1.24+0.78 — Pass 3067: 1.24+0.78→1.67+1.05 — Pass 4356: 1.67+1.05→2.26+1.42 longer floor impact dust cloud — Pass 5674: 2.26+1.42→3.05+1.92 longer floor impact dust cloud
@@ -4341,7 +4341,7 @@ function animate(ts) {
         const _rr3 = (ct.hex >> 16) & 0xff, _gg3 = (ct.hex >> 8) & 0xff, _bb3 = ct.hex & 0xff;
         // Pass 586: upper floor arrival motes 3→5 — Pass 987: →8, life 0.35+0.18→0.50+0.25
         let _upMotes = 0;
-        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 15; _mi++) { // Pass 4606: landing mote particle count 8→11 denser upper-floor arrival fountain — Pass 5654: 11→15 denser upper-floor arrival mote fountain
+        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 20; _mi++) { // Pass 4606: landing mote particle count 8→11 denser upper-floor arrival fountain — Pass 5654: 11→15 denser upper-floor arrival mote fountain — Pass 6400: 15→20 denser upper-floor arrival mote fountain
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
           _mp.active = true; _mp.age = 0; _mp.life = 13.6 + Math.random() * 6.87; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09 — Pass 5612: 10.1+5.09→13.6+6.87 longer upper-floor arrival mote hang
@@ -4595,8 +4595,8 @@ function animate(ts) {
     // ~0.35Hz (2.2 rad/s) so one full breath spans ~2.9s (6× the 0.5s pause — natural)
     // Pass 1058: breathing base 0.12→0.20, amp 0.07→0.14 for more visible scanner idle pulse
     {
-      const _breathe = 5.40 + 6.94 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe — Pass 5296: scanner idle rotation breathe amplitude 2.82→3.81 deeper standby pulse — Pass 5316: base 4.00→5.40 brighter scanner standby breathe base — Pass 5337: amp 3.81→5.14 deeper scanner standby breathe amplitude — Pass 5349: 5.14→6.94 deeper scanner idle hover breathe amplitude
-      scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6.16); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse — Pass 5394: 3.38→4.56 snappier scanner idle LED breathe tracking — Pass 5483: 4.56→6.16 snappier idle scan LED breathe tracking rate
+      const _breathe = 5.40 + 9.37 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe — Pass 5296: scanner idle rotation breathe amplitude 2.82→3.81 deeper standby pulse — Pass 5316: base 4.00→5.40 brighter scanner standby breathe base — Pass 5337: amp 3.81→5.14 deeper scanner standby breathe amplitude — Pass 5349: 5.14→6.94 deeper scanner idle hover breathe amplitude — Pass 6380: 6.94→9.37 deeper scanner standby breathe amplitude
+      scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 8.32); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse — Pass 5394: 3.38→4.56 snappier scanner idle LED breathe tracking — Pass 5483: 4.56→6.16 snappier idle scan LED breathe tracking rate — Pass 6381: 6.16→8.32 snappier idle scan LED breathe tracking rate
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.74)); // Pass 4824: hood standby emissive color tracking rate 1.5→2.03 — Pass 5667: 2.03→2.74 snappier scanner hood standby color tracking
       hoodMat.emissiveIntensity += (_breathe * 6.26 - hoodMat.emissiveIntensity) * Math.min(1, dt * 3.65); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 — Pass 4711: 2.55→3.44 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe — Pass 5142: 3.44→4.64 brighter scanner head idle emissive breathe — Pass 5395: 4.64→6.26 brighter scanner hood idle breathe multiplier — Pass 5666: tracking 2.70→3.65 snappier scanner hood idle breathe tracking
     }
@@ -4632,9 +4632,9 @@ function animate(ts) {
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response — Pass 1615: ceiling 0.40→0.55, mult 0.05→0.07
     const _shakeBoost   = _cameraShake > 2 ? Math.min(3.32, _cameraShake * 0.316) : 0; // Pass 2530: shake boost ceiling 1.00→1.35, mult 0.128→0.173 — Pass 2748: ceiling 1.35→1.82, mult 0.173→0.234 — Pass 4760: ceiling 1.82→2.46 stronger impact ambient — Pass 4761: shake boost multiplier 0.234→0.316 — Pass 5719: ceiling 2.46→3.32 stronger impact ambient boost ceiling
     // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 — Pass 1607: →1.05
-    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 28.8 : 0; // Pass 2423: slotDrop ambient 1.92→2.59 — Pass 2659: 2.59→3.50 — Pass 2749: 3.50→4.73 — Pass 2890: 4.73→6.39 — Pass 3097: 6.39→8.63 — Pass 3273: 8.63→11.7 — Pass 3351: 11.7→15.8 — Pass 4379: 15.8→21.3 richer slot drop ambient wash — Pass 5441: 21.3→28.8 richer slot drop ambient wash
+    const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 38.9 : 0; // Pass 2423: slotDrop ambient 1.92→2.59 — Pass 2659: 2.59→3.50 — Pass 2749: 3.50→4.73 — Pass 2890: 4.73→6.39 — Pass 3097: 6.39→8.63 — Pass 3273: 8.63→11.7 — Pass 3351: 11.7→15.8 — Pass 4379: 15.8→21.3 richer slot drop ambient wash — Pass 5441: 21.3→28.8 richer slot drop ambient wash — Pass 6382: 28.8→38.9 richer slot drop ambient wash
     // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response — Pass 1610: →0.84
-    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 22.8 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09 — Pass 3098: 5.09→6.87 — Pass 3274: 6.87→9.27 — Pass 3352: 9.27→12.5 — Pass 4316: 12.5→16.9 richer ambient during card flight — Pass 5442: 16.9→22.8 richer ambient during card flight
+    const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 30.8 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09 — Pass 3098: 5.09→6.87 — Pass 3274: 6.87→9.27 — Pass 3352: 9.27→12.5 — Pass 4316: 12.5→16.9 richer ambient during card flight — Pass 5442: 16.9→22.8 richer ambient during card flight — Pass 6383: 22.8→30.8 richer ambient during card flight
     // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 — Pass 1611: →1.35
     const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 36.6 : 0; // Pass 2425: reveal ambient peak 2.46→3.32 — Pass 2661: 3.32→4.48 — Pass 2751: 4.48→6.05 — Pass 2892: 6.05→8.17 — Pass 3099: 8.17→11.0 — Pass 3275: 11.0→14.9 — Pass 3353: 14.9→20.1 — Pass 4633: 20.1→27.1 stronger identity reveal ambient surge — Pass 5636: 27.1→36.6 stronger identity reveal ambient surge
     const _ambTarget = 1.52 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84 — Pass 4284: 0.84→1.13 brighter scene ambient — Pass 5567: 1.13→1.52 brighter scene ambient base
@@ -4676,7 +4676,7 @@ function animate(ts) {
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
       beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 3.70)); // Pass 4604: belt scan emissive color lerp rate 1.5→2.03 snappier domain tint adoption — Pass 5679: 2.03→2.74 snappier belt scan color adoption — Pass 6366: 2.74→3.70 snappier belt scan emissive color adoption
       // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14 — Pass 1455: →0.28+0.20
-      const _bsTarget = 7.65 + 4.00 * Math.sin(cycleT * 6); // Pass 2436: belt active emissive base 0.38→0.51, pulse 0.27→0.36 — Pass 2665: 0.51→0.69, 0.36→0.49 — Pass 2756: base 0.69→0.93 — Pass 2893/2894: 0.93+0.49→1.26+0.66 — Pass 3103: 1.26→1.70, 0.66→0.89 — Pass 3276: 1.70+0.89→2.30+1.20 — Pass 3356: 2.30+1.20→3.11+1.62 — Pass 4382: base 3.11→4.20, pulse 1.62→2.19 — Pass 4716: base 4.20→5.67 — Pass 4717: pulse 2.19→2.96 richer belt active glow — Pass 5461: base 5.67→7.65 pulse 2.96→4.00 richer belt active emissive
+      const _bsTarget = 10.3 + 5.40 * Math.sin(cycleT * 6); // Pass 2436: belt active emissive base 0.38→0.51, pulse 0.27→0.36 — Pass 2665: 0.51→0.69, 0.36→0.49 — Pass 2756: base 0.69→0.93 — Pass 2893/2894: 0.93+0.49→1.26+0.66 — Pass 3103: 1.26→1.70, 0.66→0.89 — Pass 3276: 1.70+0.89→2.30+1.20 — Pass 3356: 2.30+1.20→3.11+1.62 — Pass 4382: base 3.11→4.20, pulse 1.62→2.19 — Pass 4716: base 4.20→5.67 — Pass 4717: pulse 2.19→2.96 richer belt active glow — Pass 5461: base 5.67→7.65 pulse 2.96→4.00 richer belt active emissive — Pass 6386: base 7.65→10.3 pulse 4.00→5.40 richer belt active emissive
       beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 4.93); // Pass 4605: belt scan emissive intensity tracking 2→2.70 crisper active belt glow response — Pass 5672: 2.70→3.65 crisper belt scan emissive intensity tracking — Pass 6367: 3.65→4.93 crisper belt scan emissive intensity tracking
     } else {
       beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 3.70)); // Pass 4826: belt scan-idle color return tracking 1.5→2.03 — Pass 5671: 2.03→2.74 faster belt scan-idle color return tracking — Pass 6368: 2.74→3.70 faster belt scan-idle color return tracking
@@ -4753,7 +4753,7 @@ function animate(ts) {
     const _edgeFade = Math.sin(_belFrac * Math.PI); // 0→1→0
     beltShimmerMat.color.set(beltSurfMat.emissive); // tint to belt emissive (domain color)
     // Pass 472: shimmer opacity 0.38→0.50 — Pass 696: →0.65 — Pass 993: →0.85 — Pass 1401: →1.0 for stronger belt shimmer stripe
-    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 1.82; // Pass 4615: slot shimmer halo opacity 1.0→1.35 brighter belt shimmer stripe — Pass 5394: 1.35→1.82 brighter belt shimmer stripe opacity
+    beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 2.46; // Pass 4615: slot shimmer halo opacity 1.0→1.35 brighter belt shimmer stripe — Pass 5394: 1.35→1.82 brighter belt shimmer stripe opacity — Pass 6384: 1.82→2.46 brighter belt shimmer stripe opacity
   } else {
     beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 44.3); // Pass 2004: shimmer fade 4→5.4 — Pass 2764: 5.4→7.29 — Pass 2902: 7.29→9.84 — Pass 3112: 9.84→13.3 — Pass 3284: 13.3→18.0 — Pass 3362: 18.0→24.3 — Pass 4552: 24.3→32.8 faster slot shimmer halo fade — Pass 5596: 32.8→44.3 faster belt shimmer stripe fade rate
     if (beltShimmerMat.opacity < 0.01) beltShimmerMesh.visible = false;
@@ -4786,7 +4786,7 @@ function animate(ts) {
     // Pass 225: vacuum pick spike — arm rod briefly superflares at armLift start (peak suction load)
     // Pass 617: lift pick spike 0.85→1.30, armSwing rod glow 0.55→0.75 — Pass 989: spike →1.80 Pass 990: swing →1.0 — Pass 1362: spike →2.50 — Pass 1363: swing →1.35 — Pass 1458: armDesc 0.18→0.26, convIn 0.25→0.35
     // Pass 1662: spike 2.50→3.40; Pass 1663: swing 1.35→1.80; Pass 1664: lift base 0.42→0.58
-    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 169.0 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7 — Pass 3285: 20.7→27.9 — Pass 3365: 27.9→37.7 — Pass 3503: 37.7→50.9 — Pass 3744: 50.9→68.7 — Pass 3852: 68.7→92.7 — Pass 4661: 92.7→125.1 bigger suction-break energy spike — Pass 5392: 125.1→169.0 bigger suction-break energy spike
+    const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 228.2 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7 — Pass 3285: 20.7→27.9 — Pass 3365: 27.9→37.7 — Pass 3503: 37.7→50.9 — Pass 3744: 50.9→68.7 — Pass 3852: 68.7→92.7 — Pass 4661: 92.7→125.1 bigger suction-break energy spike — Pass 5392: 125.1→169.0 bigger suction-break energy spike — Pass 6385: 169.0→228.2 bigger suction-break energy spike
     const _rodGlow = Math.max(_armDescT * 0.63, _armLiftT * 1.05 + _liftPickSpike, _armSwingT * 120, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07 — Pass 3114: 8.07→10.9 — Pass 3286: 10.9→14.7 — Pass 3366: 14.7→19.8 — Pass 3504: 19.8→26.7 — Pass 3745: 26.7→36.0 — Pass 3853: 36.0→48.6 — Pass 4252: armDesc 0.47→0.63 — Pass 4253: armLift 0.78→1.05 brighter arm rod during descend/lift — Pass 4662: swing 48.6→65.6 brighter arm rod swing glow — Pass 5393: swing 65.6→88.6 brighter arm rod swing glow — Pass 6044: swing 88.6→120 brighter arm rod swing glow
     armRod.material.emissive.setHex(ct.hex);
     armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 396); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161 — Pass 3854: 161→217 — Pass 4663: 217→293 snappier arm rod emissive response — Pass 5680: 293→396 snappier arm rod emissive response
@@ -5086,7 +5086,7 @@ function animate(ts) {
   if (_confirmRingT >= 0) {
     _confirmRingT = Math.min(1, _confirmRingT + dt * 128.1); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring — Pass 5029: 38.6→52.1 faster identity confirm ring — Pass 5876: 52.1→70.3 faster identity confirm ring speed — Pass 6026: 70.3→94.9 faster identity confirm ring expansion speed — Pass 6269: 94.9→128.1 faster identity confirm ring expansion speed
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
-    const _crs = 1.0 + easeOut(_confirmRingT) * 4544; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring — Pass 5127: 1368→1847 wider slot ring scale speed confirm ring — Pass 5716: 1847→2493 wider identity confirm ring scale — Pass 5875: 2493→3366 wider identity confirm ring max scale — Pass 6014: 3366→4544 wider identity confirm ring max scale
+    const _crs = 1.0 + easeOut(_confirmRingT) * 6134; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring — Pass 5127: 1368→1847 wider slot ring scale speed confirm ring — Pass 5716: 1847→2493 wider identity confirm ring scale — Pass 5875: 2493→3366 wider identity confirm ring max scale — Pass 6014: 3366→4544 wider identity confirm ring max scale — Pass 6401: 4544→6134 wider identity confirm ring max scale
     confirmRing.scale.setScalar(_crs);
     confirmRingMat.opacity = (1 - _confirmRingT) * 3.32; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash — Pass 5374: 1.35→1.82 brighter identity confirm ring opacity — Pass 6032: 1.82→2.46 brighter identity confirm ring opacity peak — Pass 6272: 2.46→3.32 brighter identity confirm ring opacity peak
     if (_confirmRingT >= 1) {
