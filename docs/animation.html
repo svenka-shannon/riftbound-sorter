@@ -122,7 +122,7 @@
     45%  { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-4px); }
   }
-  #scan-confirm.confirm-pop { animation: scanConfirmPop 1.6s ease-out forwards; }
+  #scan-confirm.confirm-pop { animation: scanConfirmPop 2.16s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop */
 
   #hint {
     position: fixed; bottom: 20px; right: 20px;
@@ -182,8 +182,8 @@
 
   @keyframes fadeUp {
     0%   { transform: translateY(0) scale(1);   opacity: 1; }
-    30%  { transform: translateY(-10px) scale(9.84); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop — Pass 5034: 1.62→2.19 more emphatic +1 pop — Pass 5852: 2.19→2.96 more emphatic slot score popup peak scale — Pass 5940: 2.96→4.00 more emphatic slot score popup peak scale — Pass 6221: 4.00→5.40 more emphatic slot score popup peak scale — Pass 6406: 5.40→7.29 more emphatic slot score popup peak scale — Pass 6468: 7.29→9.84 more emphatic slot score popup peak scale */
-    100% { transform: translateY(-45px) scale(0.8); opacity: 0; }
+    30%  { transform: translateY(-13.5px) scale(9.84); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop — Pass 5034: 1.62→2.19 more emphatic +1 pop — Pass 5852: 2.19→2.96 more emphatic slot score popup peak scale — Pass 5940: 2.96→4.00 more emphatic slot score popup peak scale — Pass 6221: 4.00→5.40 more emphatic slot score popup peak scale — Pass 6406: 5.40→7.29 more emphatic slot score popup peak scale — Pass 6468: 7.29→9.84 more emphatic slot score popup peak scale — Pass 7086: fadeUp 30% Y offset -10px→-13.5px taller popup float */
+    100% { transform: translateY(-60.75px) scale(0.8); opacity: 0; } /* Pass 7087: fadeUp 100% Y offset -45px→-60.75px higher popup exit */
   }
   .slot-plusone {
     position: fixed;
@@ -192,7 +192,7 @@
     font-weight: 800;
     z-index: 30;
     letter-spacing: 0.04em;
-    animation: fadeUp 1.0s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+    animation: fadeUp 1.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards; /* Pass 7088: fadeUp popup animation duration 1.0s→1.35s longer visible popup */
   }
 
   @keyframes rippleOut {
@@ -205,8 +205,8 @@
     z-index: 28;
     width: 40px; height: 40px;
     border-radius: 50%;
-    border: 2px solid;
-    animation: rippleOut 0.7s ease-out forwards;
+    border: 2.70px solid; /* Pass 7089: slot ripple ring border 2px→2.70px thicker ring */
+    animation: rippleOut 0.945s ease-out forwards; /* Pass 7090: rippleOut ring animation duration 0.7s→0.945s slower more dramatic ring */
   }
 
   /* ── Stats count bounce ─────────────────────────────────────────────── */
@@ -217,7 +217,7 @@
     100% { transform: scale(1); }
   }
   .count-bounce {
-    animation: countBounce 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+    animation: countBounce 0.608s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; /* Pass 7091: countBounce animation duration 0.45s→0.608s longer bounce pop */
   }
 
   /* ── Scan flash overlay ─────────────────────────────────────────────── */
@@ -956,7 +956,7 @@ const scanConeMat = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide, depthWrite: false
 });
 const scanCone = new THREE.Mesh(
-  new THREE.ConeGeometry(724, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius — Pass 5748: 88.6→119.6 even wider scan flash cone radius — Pass 5881: 119.6→161.5 even wider scan flash cone radius — Pass 5957: 161.5→218.0 even wider scan flash cone radius — Pass 6227: 218.0→294 even wider scan flash cone radius — Pass 6646: 294→397 even wider scan flash cone radius — Pass 6756: 397→536 even wider scan flash cone radius — Pass 6845: 536→724 even wider scan flash cone radius
+  new THREE.ConeGeometry(977, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius — Pass 5748: 88.6→119.6 even wider scan flash cone radius — Pass 5881: 119.6→161.5 even wider scan flash cone radius — Pass 5957: 161.5→218.0 even wider scan flash cone radius — Pass 6227: 218.0→294 even wider scan flash cone radius — Pass 6646: 294→397 even wider scan flash cone radius — Pass 6756: 397→536 even wider scan flash cone radius — Pass 6845: 536→724 even wider scan flash cone radius — Pass 7136: 724→977 even wider scan flash cone radius
   scanConeMat
 );
 // Tip at scanner lens; open base toward card — rotate 180° so tip is up, base down
@@ -968,7 +968,7 @@ const scanBeamMat = new THREE.MeshBasicMaterial({
   color: 0x00ff88, transparent: true, opacity: 0, depthWrite: false
 });
 const scanBeam = new THREE.Mesh(
-  new THREE.CylinderGeometry(12.1, 12.1, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core — Pass 5456: 2.70→3.65 even fatter scan laser beam core — Pass 5868: 3.65→4.93 even fatter scan laser beam core radius — Pass 6311: 4.93→6.66 even fatter scan laser beam core radius — Pass 6650: 6.66→8.99 even fatter scan laser beam core radius — Pass 6887: 8.99→12.1 even fatter scan laser beam core radius
+  new THREE.CylinderGeometry(16.3, 16.3, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core — Pass 5456: 2.70→3.65 even fatter scan laser beam core — Pass 5868: 3.65→4.93 even fatter scan laser beam core radius — Pass 6311: 4.93→6.66 even fatter scan laser beam core radius — Pass 6650: 6.66→8.99 even fatter scan laser beam core radius — Pass 6887: 8.99→12.1 even fatter scan laser beam core radius — Pass 7137: 12.1→16.3 even fatter scan laser beam core radius
   scanBeamMat
 );
 scanBeam.position.set(-40, CONV_Y_TOP + 10, 0);
@@ -1543,7 +1543,7 @@ const impactRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0,
 });
 const impactRing = new THREE.Mesh(
-  new THREE.TorusGeometry(32.8, 9.86, 6, 32), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring — Pass 5104: slot ring Z spread radius 24.3→32.8 wider impact ring — Pass 5248: impact ring toroid tube radius 4.01→5.41 fatter shockwave ring — Pass 5751: 5.41→7.30 fatter slot landing shockwave ring tube — Pass 5830: radial segments 24→32 smoother shockwave ring — Pass 6787: impact ring tube radius 7.30→9.86 fatter shockwave ring tube
+  new THREE.TorusGeometry(32.8, 13.3, 6, 32), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring — Pass 5104: slot ring Z spread radius 24.3→32.8 wider impact ring — Pass 5248: impact ring toroid tube radius 4.01→5.41 fatter shockwave ring — Pass 5751: 5.41→7.30 fatter slot landing shockwave ring tube — Pass 5830: radial segments 24→32 smoother shockwave ring — Pass 6787: impact ring tube radius 7.30→9.86 fatter shockwave ring tube — Pass 7142: 9.86→13.3 fatter slot landing shockwave ring tube
   impactRingMat
 );
 impactRing.visible = false;
@@ -1557,7 +1557,7 @@ let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.
 const confirmRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 7.29, 6, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring — Pass 5365: 2.19→2.96 chunkier identity confirm ring — Pass 5736: 2.96→4.00 chunkier identity confirm ring tube — Pass 5831: tube segments 4→6 smoother identity confirm ring cross-section — Pass 6649: 4.00→5.40 chunkier identity confirm ring tube — Pass 6892: 5.40→7.29 chunkier identity confirm ring tube
+const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 9.84, 6, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring — Pass 5365: 2.19→2.96 chunkier identity confirm ring — Pass 5736: 2.96→4.00 chunkier identity confirm ring tube — Pass 5831: tube segments 4→6 smoother identity confirm ring cross-section — Pass 6649: 4.00→5.40 chunkier identity confirm ring tube — Pass 6892: 5.40→7.29 chunkier identity confirm ring tube — Pass 7138: 7.29→9.84 chunkier identity confirm ring tube
 confirmRing.rotation.x = -Math.PI / 2; // lie flat (XZ plane)
 confirmRing.visible = false;
 scene.add(confirmRing);
@@ -1566,7 +1566,7 @@ let _confirmRingT = -1; // -1=idle; 0..1=animation progress
 const confirmRing2Mat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 4.85, 6, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring — Pass 5366: 1.46→1.97 chunkier double-ripple ring — Pass 5737: 1.97→2.66 chunkier double-ripple ring tube — Pass 5832: tube segments 4→6 smoother double-ripple ring cross-section — Pass 6786: confirm ring 2 tube radius 2.66→3.59 chunkier identity double-ripple ring — Pass 6893: 3.59→4.85 chunkier identity double-ripple ring tube
+const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 6.55, 6, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring — Pass 5366: 1.46→1.97 chunkier double-ripple ring — Pass 5737: 1.97→2.66 chunkier double-ripple ring tube — Pass 5832: tube segments 4→6 smoother double-ripple ring cross-section — Pass 6786: confirm ring 2 tube radius 2.66→3.59 chunkier identity double-ripple ring — Pass 6893: 3.59→4.85 chunkier identity double-ripple ring tube — Pass 7139: 4.85→6.55 chunkier identity double-ripple ring tube
 confirmRing2.rotation.x = -Math.PI / 2;
 confirmRing2.visible = false;
 scene.add(confirmRing2);
@@ -1576,7 +1576,7 @@ let _confirmRingT2 = -1; // -1=idle; 0..1=animation progress (fires 0.12s after 
 const grabRingMat = new THREE.MeshBasicMaterial({
   color: 0xccddff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 4.48, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring — Pass 4978: 1.35→1.82 fatter grab suction ring — Pass 5475: 1.82→2.46 fatter grab suction ring tube — Pass 5732: 2.46→3.32 fatter grab contact ring tube — Pass 6844: 3.32→4.48 fatter grab contact ring tube
+const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 6.05, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring — Pass 4978: 1.35→1.82 fatter grab suction ring — Pass 5475: 1.82→2.46 fatter grab suction ring tube — Pass 5732: 2.46→3.32 fatter grab contact ring tube — Pass 6844: 3.32→4.48 fatter grab contact ring tube — Pass 7140: 4.48→6.05 fatter grab contact ring tube
 grabRing.rotation.x = -Math.PI / 2; // lie flat in the belt plane
 grabRing.visible = false;
 scene.add(grabRing);
@@ -1587,7 +1587,7 @@ const vacuumRingMat = new THREE.MeshBasicMaterial({
   color: 0xaaccff, transparent: true, opacity: 0, side: THREE.DoubleSide,
 });
 const vacuumRing = new THREE.Mesh(
-  new THREE.TorusGeometry(29.6, 2.74, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep — Pass 5011: 2.03→2.74 chunkier suction ring tube — Pass 5728: 16.2→21.9 wider vacuum pick suction ring sweep — Pass 6852: 21.9→29.6 wider vacuum pick suction ring sweep
+  new THREE.TorusGeometry(39.9, 2.74, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep — Pass 5011: 2.03→2.74 chunkier suction ring tube — Pass 5728: 16.2→21.9 wider vacuum pick suction ring sweep — Pass 6852: 21.9→29.6 wider vacuum pick suction ring sweep — Pass 7141: 29.6→39.9 wider vacuum pick suction ring sweep
   vacuumRingMat
 );
 vacuumRing.rotation.x = -Math.PI / 2; // flat (XZ plane)
@@ -1820,7 +1820,7 @@ CARD_TYPES.forEach(ct => {
 
 // ─── Card halo ring: spinning domain-colored torus around active card ─────────
 // Visible during belt travel; makes domain color unmistakably obvious
-const cardHaloGeo = new THREE.TorusGeometry(42, 48.6, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring — Pass 6235: 5.98→8.07 chunkier card arrival halo ring tube radius — Pass 6456: 8.07→10.9 chunkier card arrival halo ring tube radius — Pass 6505: 10.9→14.7 chunkier card arrival halo ring tube radius — Pass 6514: 14.7→19.8 chunkier card arrival halo ring tube radius — Pass 6703: 19.8→26.7 chunkier card arrival halo ring tube radius — Pass 6749: 26.7→36.0 chunkier card arrival halo ring tube radius — Pass 6987: 36.0→48.6 chunkier card arrival halo ring tube radius
+const cardHaloGeo = new THREE.TorusGeometry(42, 65.6, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring — Pass 6235: 5.98→8.07 chunkier card arrival halo ring tube radius — Pass 6456: 8.07→10.9 chunkier card arrival halo ring tube radius — Pass 6505: 10.9→14.7 chunkier card arrival halo ring tube radius — Pass 6514: 14.7→19.8 chunkier card arrival halo ring tube radius — Pass 6703: 19.8→26.7 chunkier card arrival halo ring tube radius — Pass 6749: 26.7→36.0 chunkier card arrival halo ring tube radius — Pass 6987: 36.0→48.6 chunkier card arrival halo ring tube radius — Pass 7143: 48.6→65.6 chunkier card arrival halo ring tube radius
 const cardHaloMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 22.0, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow — Pass 6350: 6.66→8.99 more vivid card halo ring birth glow — Pass 6704: 8.99→12.1 more vivid card halo ring birth glow emissive — Pass 6750: 12.1→16.3 more vivid card halo ring birth glow emissive — Pass 6995: 16.3→22.0 more vivid card halo ring birth glow emissive
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
@@ -4275,7 +4275,7 @@ function animate(ts) {
     // Fire impact shockwave ring once when floor-0 card hits the tray floor
     if (ct.floor === 0 && !_impactFired && dt3 >= 0.86) {
       _impactFired = true;
-      _impactRingT = 0; _impactRingScale0 = 1.0;
+      _impactRingT = 0; _impactRingScale0 = 1.35; // Pass 7093: floor-0 impact ring starting scale 1.0→1.35 bigger shockwave initial size
       impactRing.position.set(TRAY_X_START + 48.6, ct.slotFloorY + 2, ct.slotZ); // Pass 4628: slot drop landing impact ring X overshoot 20→27 deeper lateral landing reach — Pass 5682: 27→36 deeper impact ring lateral overshoot — Pass 6819: 36→48.6 deeper impact ring lateral overshoot
       impactRing.rotation.x = -Math.PI / 2; // ring lies flat on floor plane
       impactRingMat.color.setHex(ct.hex);
