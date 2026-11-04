@@ -857,7 +857,7 @@ for (let _ri = 0; _ri < 2; _ri++) {
 // --- Scanner hood --- dedicated matte-black material
 const hoodMat = new THREE.MeshStandardMaterial({
   color: 0x111118, roughness: 0.85, metalness: 0.15,
-  emissive: new THREE.Color(0x001122), emissiveIntensity: 0.547 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow
+  emissive: new THREE.Color(0x001122), emissiveIntensity: 0.738 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow — Pass 5051: 0.547→0.738 stronger scanner hood glow
 });
 const scannerHood = new THREE.Mesh(new THREE.BoxGeometry(80, 65, 100), hoodMat);
 scannerHood.castShadow = true;
@@ -889,7 +889,7 @@ scene.add(lensRing);
 const scanLEDMat = new THREE.MeshStandardMaterial({
   color: 0x00aaff,
   emissive: new THREE.Color(0x0055cc),
-  emissiveIntensity: 2.96, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip
+  emissiveIntensity: 4.00, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
@@ -979,7 +979,7 @@ scene.add(scanBeam);
 const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
   emissive: new THREE.Color(0x00ff88),
-  emissiveIntensity: 7.38, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair
+  emissiveIntensity: 9.96, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair
   transparent: true, opacity: 0.95 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam
 });
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(133, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span
@@ -989,7 +989,7 @@ scene.add(scanLine);
 const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
-  emissiveIntensity: 4.56, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar
+  emissiveIntensity: 6.16, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar
   transparent: true, opacity: 0.88 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 121.5), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height
@@ -1033,7 +1033,7 @@ scene.add(scanLine2);
   const _nTex = new THREE.CanvasTexture(_nc);
   const _nMat = new THREE.MeshStandardMaterial({
     map: _nTex, roughness: 0.4, metalness: 0.3,
-    emissive: new THREE.Color(0x203060), emissiveIntensity: 0.456, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate
+    emissive: new THREE.Color(0x203060), emissiveIntensity: 0.616, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate
   });
   const _nMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 18), _nMat);
   // Front face of scanner hood: hood center is (-40, CONV_Y_TOP+32.5, 0), depth=100, front at Z=+50
@@ -1050,7 +1050,7 @@ scene.add(gateBase);
 // Pass 60: Sort gate column indicator LEDs — 4 small spheres showing destination Z column
 const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x224466, emissive: 0x112233, emissiveIntensity: 0.547, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs
+    color: 0x224466, emissive: 0x112233, emissiveIntensity: 0.738, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs
     roughness: 0.05, metalness: 0.0,
   });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 14, 14), mat); // Pass 4988: gate column LED sphere segments 10→14 smoother gate indicators
@@ -1068,7 +1068,7 @@ scene.add(gateColLight);
 const paddleGeo = new THREE.BoxGeometry(4, 55, 18);
 const paddleMat = new THREE.MeshStandardMaterial({
   color: 0xff6600, roughness: 0.3,
-  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.324 // pass 72: starts low; charges up — Pass 4331: paddle base emissive 0.18→0.24 warmer resting glow — Pass 4972: 0.24→0.324 stronger paddle resting glow
+  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.437 // pass 72: starts low; charges up — Pass 4331: paddle base emissive 0.18→0.24 warmer resting glow — Pass 4972: 0.24→0.324 stronger paddle resting glow — Pass 5054: 0.324→0.437 stronger paddle resting glow
 });
 const paddleMesh = new THREE.Mesh(paddleGeo, paddleMat);
 paddleMesh.castShadow = true;
@@ -1134,7 +1134,7 @@ function makeTrayFloor(yBase, colorHex) {
     const capMat = new THREE.MeshStandardMaterial({
       color: capColor,
       emissive: new THREE.Color(capColor),
-      emissiveIntensity: 1.46, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip
+      emissiveIntensity: 1.97, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip
       roughness: 0.3,
       metalness: 0.2
     });
