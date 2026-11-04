@@ -228,11 +228,11 @@
   }
   @keyframes scanFlashFade {
     0%   { opacity: 0; }
-    8%   { opacity: 1.80; } /* Pass 4867: scan flash overlay peak opacity 0.22→0.297 more vivid flash — Pass 5037: 0.297→0.401 more vivid flash — Pass 5136: 0.401→0.541 more vivid scan flash — Pass 5185: 0.541→0.730 more vivid scan flash overlay — Pass 5803: 0.730→0.986 more vivid scan flash overlay peak opacity — Pass 6336: 0.986→1.33 more vivid scan flash overlay peak opacity — Pass 6470: 1.33→1.80 more vivid scan flash overlay peak opacity */
+    8%   { opacity: 2.43; } /* Pass 4867: scan flash overlay peak opacity 0.22→0.297 more vivid flash — Pass 5037: 0.297→0.401 more vivid flash — Pass 5136: 0.401→0.541 more vivid scan flash — Pass 5185: 0.541→0.730 more vivid scan flash overlay — Pass 5803: 0.730→0.986 more vivid scan flash overlay peak opacity — Pass 6336: 0.986→1.33 more vivid scan flash overlay peak opacity — Pass 6470: 1.33→1.80 more vivid scan flash overlay peak opacity — Pass 6722: 1.80→2.43 more vivid scan flash overlay peak opacity */
     100% { opacity: 0; }
   }
   .scan-flash-on {
-    animation: scanFlashFade 12.0s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash — Pass 5186: 1.47→1.98s even longer scan flash fade — Pass 5804: 1.98→2.67s even longer scan flash fade duration — Pass 5943: 2.67→3.60s even longer scan flash fade duration — Pass 6223: 3.60→4.86s even longer scan flash fade duration — Pass 6335: 4.86→6.56s even longer scan flash fade duration — Pass 6356: 6.56→8.86s even longer scan flash fade duration — Pass 6471: 8.86→12.0s even longer scan flash fade duration */
+    animation: scanFlashFade 16.2s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash — Pass 5186: 1.47→1.98s even longer scan flash fade — Pass 5804: 1.98→2.67s even longer scan flash fade duration — Pass 5943: 2.67→3.60s even longer scan flash fade duration — Pass 6223: 3.60→4.86s even longer scan flash fade duration — Pass 6335: 4.86→6.56s even longer scan flash fade duration — Pass 6356: 6.56→8.86s even longer scan flash fade duration — Pass 6471: 8.86→12.0s even longer scan flash fade duration — Pass 6723: 12.0→16.2s even longer scan flash fade duration */
   }
 
   /* ── Round-complete banner (pass 68) ───────────────────────────────────── */
@@ -617,7 +617,7 @@ for (let i = 0; i < DUST_COUNT; i++) {
 const dustGeo = new THREE.BufferGeometry();
 dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
 const dustMat = new THREE.PointsMaterial({
-  size: 16.3, color: 0x8899bb, transparent: true, opacity: 0.85, // Pass 4015: dust size 1.5→2.0 larger ambient particles — Pass 4016: dust opacity 0.35→0.47 more visible atmosphere — Pass 4888: dust size 2.0→2.70 — Pass 4889: dust opacity 0.47→0.63 denser atmosphere — Pass 5454: size 2.70→3.65 larger ambient dust motes — Pass 5455: opacity 0.63→0.85 denser ambient dust atmosphere — Pass 6284: size 3.65→4.93 larger ambient dust mote particle size — Pass 6301: size 4.93→6.66 larger ambient dust mote particle size — Pass 6357: size 6.66→8.99 larger ambient dust mote particle size — Pass 6527: 8.99→12.1 larger ambient dust mote particle size — Pass 6698: 12.1→16.3 larger ambient dust mote particle size
+  size: 22.0, color: 0x8899bb, transparent: true, opacity: 0.85, // Pass 4015: dust size 1.5→2.0 larger ambient particles — Pass 4016: dust opacity 0.35→0.47 more visible atmosphere — Pass 4888: dust size 2.0→2.70 — Pass 4889: dust opacity 0.47→0.63 denser atmosphere — Pass 5454: size 2.70→3.65 larger ambient dust motes — Pass 5455: opacity 0.63→0.85 denser ambient dust atmosphere — Pass 6284: size 3.65→4.93 larger ambient dust mote particle size — Pass 6301: size 4.93→6.66 larger ambient dust mote particle size — Pass 6357: size 6.66→8.99 larger ambient dust mote particle size — Pass 6527: 8.99→12.1 larger ambient dust mote particle size — Pass 6698: 12.1→16.3 larger ambient dust mote particle size — Pass 6724: 16.3→22.0 larger ambient dust mote particle size
   depthWrite: false, sizeAttenuation: true
 });
 const dustPoints = new THREE.Points(dustGeo, dustMat);
@@ -1820,9 +1820,9 @@ CARD_TYPES.forEach(ct => {
 
 // ─── Card halo ring: spinning domain-colored torus around active card ─────────
 // Visible during belt travel; makes domain color unmistakably obvious
-const cardHaloGeo = new THREE.TorusGeometry(42, 26.7, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring — Pass 6235: 5.98→8.07 chunkier card arrival halo ring tube radius — Pass 6456: 8.07→10.9 chunkier card arrival halo ring tube radius — Pass 6505: 10.9→14.7 chunkier card arrival halo ring tube radius — Pass 6514: 14.7→19.8 chunkier card arrival halo ring tube radius — Pass 6703: 19.8→26.7 chunkier card arrival halo ring tube radius
+const cardHaloGeo = new THREE.TorusGeometry(42, 36.0, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring — Pass 6235: 5.98→8.07 chunkier card arrival halo ring tube radius — Pass 6456: 8.07→10.9 chunkier card arrival halo ring tube radius — Pass 6505: 10.9→14.7 chunkier card arrival halo ring tube radius — Pass 6514: 14.7→19.8 chunkier card arrival halo ring tube radius — Pass 6703: 19.8→26.7 chunkier card arrival halo ring tube radius — Pass 6725: 26.7→36.0 chunkier card arrival halo ring tube radius
 const cardHaloMat = new THREE.MeshStandardMaterial({
-  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 12.1, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow — Pass 6350: 6.66→8.99 more vivid card halo ring birth glow — Pass 6704: 8.99→12.1 more vivid card halo ring birth glow emissive
+  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 16.3, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow — Pass 6350: 6.66→8.99 more vivid card halo ring birth glow — Pass 6704: 8.99→12.1 more vivid card halo ring birth glow emissive — Pass 6726: 12.1→16.3 more vivid card halo ring birth glow emissive
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
 });
 const cardHalo = new THREE.Mesh(cardHaloGeo, cardHaloMat);
@@ -1919,7 +1919,7 @@ for (let _gpi = 0; _gpi < 74; _gpi++) { // Pass 5016: grab particle pool size 16
 const _domFillClr = new THREE.Color();
 // Overhead fill light: large-radius, dim, slowly tinted toward current domain color.
 // Creates a subtle room-level color cast that shifts with each domain.
-const _domainFillLight = new THREE.PointLight(0xffffff, 2.10, 700); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash — Pass 5358: 0.257→0.347 stronger ambient color wash — Pass 5725: 0.347→0.469 stronger ambient domain color wash — Pass 5933: 0.469→0.633 stronger ambient domain color wash intensity — Pass 6201: 0.633→0.855 stronger ambient domain color wash intensity — Pass 6386: 0.855→1.154 stronger ambient domain color wash intensity — Pass 6653: 1.154→1.558 stronger ambient domain color wash intensity — Pass 6685: 1.558→2.10 stronger ambient domain color wash intensity
+const _domainFillLight = new THREE.PointLight(0xffffff, 2.84, 700); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash — Pass 5358: 0.257→0.347 stronger ambient color wash — Pass 5725: 0.347→0.469 stronger ambient domain color wash — Pass 5933: 0.469→0.633 stronger ambient domain color wash intensity — Pass 6201: 0.633→0.855 stronger ambient domain color wash intensity — Pass 6386: 0.855→1.154 stronger ambient domain color wash intensity — Pass 6653: 1.154→1.558 stronger ambient domain color wash intensity — Pass 6685: 1.558→2.10 stronger ambient domain color wash intensity — Pass 6729: 2.10→2.84 stronger ambient domain color wash intensity
 _domainFillLight.position.set(-30, 280, 0); // centered above the belt, high up
 scene.add(_domainFillLight);
 
@@ -2405,7 +2405,7 @@ function animate(ts) {
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
       // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 — Pass 3783: →78.3 — Pass 3888: →106 for more physical slot landing — Pass 4769: →193 stronger slot landing
-      _yPos = a.targetY + 1577 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy — Pass 5996: 352→475 stronger slot landing bounce energy — Pass 6323: 475→641 stronger slot tray arrival bounce energy — Pass 6339: 641→865 stronger slot tray arrival bounce energy — Pass 6360: 865→1168 stronger slot tray arrival bounce energy — Pass 6515: 1168→1577 stronger slot tray arrival bounce energy
+      _yPos = a.targetY + 2129 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy — Pass 5996: 352→475 stronger slot landing bounce energy — Pass 6323: 475→641 stronger slot tray arrival bounce energy — Pass 6339: 641→865 stronger slot tray arrival bounce energy — Pass 6360: 865→1168 stronger slot tray arrival bounce energy — Pass 6515: 1168→1577 stronger slot tray arrival bounce energy — Pass 6728: 1577→2129 stronger slot tray arrival bounce energy
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
@@ -2495,7 +2495,7 @@ function animate(ts) {
       const _warnPulse = 1.47 + 0.986 * Math.sin(ts * 1.08 * Math.PI * 2); // Pass 4461: slot overflow pulse amplitude 0.4→0.54 stronger overflow flash // Pass 4482: overflow ripple freq 0.8→1.08 more urgent overflow flash — Pass 4655: slot overflow indicator pulse intensity base 0.6→0.81 brighter warning floor — Pass 5097: 0.81→1.09 brighter overflow warning floor — Pass 5784: base 1.09→1.47 amp 0.54→0.73 stronger slot overflow urgency pulse — Pass 6721: amp 0.73→0.986 stronger slot overflow urgency pulse
       mat.color.setHex(0xffaa00);
       mat.emissive.setHex(0xffaa00);
-      mat.emissiveIntensity = 10.8 + _warnPulse * 4.93; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70 — Pass 4045: base 3.24→4.37, amp 2.70→3.65 brighter slot overflow warning — Pass 5003: base 4.37→5.90 more vivid overflow warning — Pass 5785: base 5.90→7.97 amp 3.65→4.93 more vivid slot overflow warning flash — Pass 6717: base 7.97→10.8 brighter slot overflow warning floor
+      mat.emissiveIntensity = 14.6 + _warnPulse * 4.93; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70 — Pass 4045: base 3.24→4.37, amp 2.70→3.65 brighter slot overflow warning — Pass 5003: base 4.37→5.90 more vivid overflow warning — Pass 5785: base 5.90→7.97 amp 3.65→4.93 more vivid slot overflow warning flash — Pass 6717: base 7.97→10.8 brighter slot overflow warning floor — Pass 6727: 10.8→14.6 brighter slot overflow warning floor
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
       // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
@@ -4497,7 +4497,7 @@ function animate(ts) {
     // Pass 72: decay paddle back to resting orange glow after charge discharge
     paddleMat.emissive.lerp(new THREE.Color(0xff3300), Math.min(1, dt * 7.38)); // Pass 1974: paddle emissive decay 3→4.05 — Pass 4075: 4.05→5.47 faster paddle glow return — Pass 5676: 5.47→7.38 faster paddle emissive return
     paddleMat.color.lerp(new THREE.Color(0xff6600), Math.min(1, dt * 7.38)); // Pass 4587: arm return paddle color spring 4.05→5.47 snappier return — Pass 5677: 5.47→7.38 snappier paddle color return
-    paddleMat.emissiveIntensity += (0.18 - paddleMat.emissiveIntensity) * Math.min(1, dt * 7.38); // Pass 4790: paddle emissive intensity tracking rate 4.05→5.47 snappier paddle glow settle — Pass 5678: 5.47→7.38 snappier paddle emissive intensity settle
+    paddleMat.emissiveIntensity += (0.18 - paddleMat.emissiveIntensity) * Math.min(1, dt * 9.96); // Pass 4790: paddle emissive intensity tracking rate 4.05→5.47 snappier paddle glow settle — Pass 5678: 5.47→7.38 snappier paddle emissive intensity settle — Pass 6730: 7.38→9.96 snappier paddle emissive intensity settle
     activeCard.visible = false;
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
@@ -4516,7 +4516,7 @@ function animate(ts) {
     {
       const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 2.09; // dampens in first ~45% of phase // Pass 4411: scanner flicker amp 0.85→1.15 stronger LED power-down oscillation — Pass 5565: 1.15→1.55 stronger scanner LED power-down oscillation — Pass 6584: 1.55→2.09 stronger scanner LED power-down oscillation
       const _flickVal = 2.96 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp // Pass 4412: scanner flicker base 1.2→1.62 brighter LED reset floor — Pass 5566: 1.62→2.19 brighter scanner LED reset floor — Pass 6585: 2.19→2.96 brighter scanner LED reset floor
-                            + (Math.random() - 0.5) * _flickAmp * 0.635; // Pass 4703: scanner LED flicker noise amplitude 0.35→0.47 more chaotic power-down oscillation — Pass 5754: 0.47→0.635 more chaotic scanner LED power-down oscillation
+                            + (Math.random() - 0.5) * _flickAmp * 0.857; // Pass 4703: scanner LED flicker noise amplitude 0.35→0.47 more chaotic power-down oscillation — Pass 5754: 0.47→0.635 more chaotic scanner LED power-down oscillation — Pass 6731: 0.635→0.857 more chaotic scanner LED power-down oscillation noise
       scanLEDMat.emissiveIntensity = Math.max(0.554, Math.min(95.7, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak — Pass 4502: scanner LED power-down minimum floor 0.30→0.41 brighter LED floor — Pass 5717: 70.9→95.7 higher scanner LED flicker peak — Pass 5718: 0.41→0.554 brighter scanner LED power-down floor
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
@@ -4530,7 +4530,7 @@ function animate(ts) {
       const _aCupY = PIV_Y - 83 * Math.cos(_aRot);
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
-      tp.mesh.position.set(_aCupX + (Math.random()-0.5)*5.47, _aCupY + (Math.random()-0.5)*5.47, suctionPivot.position.z + (Math.random()-0.5)*10.9); // Pass 4250: armReturn trail XY scatter 3→4.05 — Pass 4251: Z scatter 6→8.1 wider return wisps — Pass 5788: XY scatter 4.05→5.47 wider return wisps — Pass 5789: Z scatter 8.1→10.9 wider return wisps
+      tp.mesh.position.set(_aCupX + (Math.random()-0.5)*7.38, _aCupY + (Math.random()-0.5)*7.38, suctionPivot.position.z + (Math.random()-0.5)*14.7); // Pass 4250: armReturn trail XY scatter 3→4.05 — Pass 4251: Z scatter 6→8.1 wider return wisps — Pass 5788: XY scatter 4.05→5.47 wider return wisps — Pass 5789: Z scatter 8.1→10.9 wider return wisps — Pass 6732: XY scatter 5.47→7.38 wider return wisps — Pass 6733: Z scatter 10.9→14.7 wider return wisps
       // Pass 245: armReturn domain wisps — first 30% of return trail carries domain color
       // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 — Pass 643: extend wisp to 45%; boost 0.48+0.22→0.62+0.28
       // Pass 865: domain wisp opacity 0.62+0.28→0.80+0.40 — Pass 1052: →0.90+0.48 richer memory trail
@@ -4542,7 +4542,7 @@ function animate(ts) {
       } else {
         // Pass 674: mechanical return trail — Pass 866: →0.58+0.26 — Pass 1053: →0.72+0.28 — Pass 1600: →0.88+0.35
         tp.mat.color.set(0x8899bb); // pale steel-blue (mechanical, not domain-colored)
-        tp.mat.opacity = 1.0 + Math.random() * 0.851; // Pass 1977: mech trail opacity 0.88+0.35→1.0+0.47 — Pass 4641: arm trail rand 0.47→0.63 brighter mechanical return contrail — Pass 5664: rand 0.63→0.851 brighter armReturn mechanical contrail opacity variance
+        tp.mat.opacity = 1.0 + Math.random() * 1.15; // Pass 1977: mech trail opacity 0.88+0.35→1.0+0.47 — Pass 4641: arm trail rand 0.47→0.63 brighter mechanical return contrail — Pass 5664: rand 0.63→0.851 brighter armReturn mechanical contrail opacity variance — Pass 6734: 0.851→1.15 brighter armReturn mechanical contrail opacity variance
       }
       // Pass 867: trail life 0.32+0.12→0.46+0.18 — Pass 1054: →0.62+0.24 — Pass 1506: →0.80+0.32 — Pass 1601: →1.05+0.42 longer-lived contrail
       tp.age = 0; tp.life = 15.7 + Math.random() * 4.64; // Pass 2152: armReturn trail life 1.42+0.57→1.92+0.77 — Pass 2647: 1.92+0.77→2.59+1.04 — Pass 2878: 2.59+1.04→3.50+1.40 — Pass 3088: 3.50+1.40→4.73+1.89 — Pass 3264: 4.73+1.89→6.39+2.55 — Pass 4343: 6.39+2.55→8.63+3.44 longer return contrail — Pass 5586: 8.63→11.6 longer arm return contrail base life — Pass 5587: 3.44→4.64 longer arm return contrail life variance — Pass 6683: 11.6→15.7 longer arm return contrail base life
@@ -4565,7 +4565,7 @@ function animate(ts) {
       GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
         if (gi === ct.col) {
           gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
-          gm.emissiveIntensity += (_pausePulse492 - gm.emissiveIntensity) * Math.min(1, dt * 2.74); // Pass 4414: gate LED pause tracking 1.5→2.03 snappier gate afterglow response — Pass 5561: 2.03→2.74 snappier gate LED pause tracking
+          gm.emissiveIntensity += (_pausePulse492 - gm.emissiveIntensity) * Math.min(1, dt * 3.70); // Pass 4414: gate LED pause tracking 1.5→2.03 snappier gate afterglow response — Pass 5561: 2.03→2.74 snappier gate LED pause tracking — Pass 6735: 2.74→3.70 snappier gate LED pause tracking rate
         }
       });
     }
@@ -4574,7 +4574,7 @@ function animate(ts) {
     // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
     // on the scanner hood emissive, as if it's slowly cooling down between cycles. — Pass 1606: 0.04→0.06
     {
-      const _hoodEmber = 1.20 * Math.sin(ts * 0.4 * Math.PI * 2) * Math.sin(ts * 1.3 * Math.PI * 2); // Pass 2418: hood ember amp 0.109→0.147 — Pass 2654: 0.147→0.198 — Pass 2884: 0.198→0.267 — Pass 3092: 0.267→0.360 — Pass 3268: 0.360→0.486 — Pass 3608: 0.486→0.656 — Pass 4570: 0.656→0.886 richer arm-hover thermal glow — Pass 5590: 0.886→1.20 richer pause hood thermal ember amplitude
+      const _hoodEmber = 1.62 * Math.sin(ts * 0.4 * Math.PI * 2) * Math.sin(ts * 1.3 * Math.PI * 2); // Pass 2418: hood ember amp 0.109→0.147 — Pass 2654: 0.147→0.198 — Pass 2884: 0.198→0.267 — Pass 3092: 0.267→0.360 — Pass 3268: 0.360→0.486 — Pass 3608: 0.486→0.656 — Pass 4570: 0.656→0.886 richer arm-hover thermal glow — Pass 5590: 0.886→1.20 richer pause hood thermal ember amplitude — Pass 6736: 1.20→1.62 richer pause hood thermal ember amplitude
       hoodMat.emissiveIntensity = Math.max(0.10, hoodMat.emissiveIntensity + _hoodEmber * dt * 8.63); // Pass 4246: hood ember apply rate 3.5→4.73 more reactive thermal ember — Pass 5562: 4.73→6.39 more reactive thermal ember apply rate — Pass 6557: 6.39→8.63 more reactive hood thermal ember apply rate
     }
     activeCard.visible = false;
@@ -4597,7 +4597,7 @@ function animate(ts) {
     {
       const _breathe = 5.40 + 9.37 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe — Pass 5296: scanner idle rotation breathe amplitude 2.82→3.81 deeper standby pulse — Pass 5316: base 4.00→5.40 brighter scanner standby breathe base — Pass 5337: amp 3.81→5.14 deeper scanner standby breathe amplitude — Pass 5349: 5.14→6.94 deeper scanner idle hover breathe amplitude — Pass 6380: 6.94→9.37 deeper scanner standby breathe amplitude
       scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 8.32); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse — Pass 5394: 3.38→4.56 snappier scanner idle LED breathe tracking — Pass 5483: 4.56→6.16 snappier idle scan LED breathe tracking rate — Pass 6381: 6.16→8.32 snappier idle scan LED breathe tracking rate
-      hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.74)); // Pass 4824: hood standby emissive color tracking rate 1.5→2.03 — Pass 5667: 2.03→2.74 snappier scanner hood standby color tracking
+      hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 3.70)); // Pass 4824: hood standby emissive color tracking rate 1.5→2.03 — Pass 5667: 2.03→2.74 snappier scanner hood standby color tracking — Pass 6737: 2.74→3.70 snappier scanner hood standby color tracking rate
       hoodMat.emissiveIntensity += (_breathe * 8.45 - hoodMat.emissiveIntensity) * Math.min(1, dt * 3.65); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 — Pass 4711: 2.55→3.44 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe — Pass 5142: 3.44→4.64 brighter scanner head idle emissive breathe — Pass 5395: 4.64→6.26 brighter scanner hood idle breathe multiplier — Pass 5666: tracking 2.70→3.65 snappier scanner hood idle breathe tracking — Pass 6558: 6.26→8.45 brighter scanner hood idle breathe multiplier
     }
   }
