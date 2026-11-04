@@ -2946,7 +2946,7 @@ function animate(ts) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 655, 344); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7 — Pass 3772: 79.7→108 — Pass 3879: 108→146 — Pass 4200: 146→197 — Pass 4919: 197→266 brighter arc apex flash — Pass 5298: arc apex flash intensity 266→359 brighter slot entry arc apex pop — Pass 5588: 359→485 brighter arc apex flash intensity — Pass 5603: 485→655 brighter grab burst light range arc apex flash intensity
+        const _spfl = new THREE.PointLight(ct.hex, 884, 344); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7 — Pass 3772: 79.7→108 — Pass 3879: 108→146 — Pass 4200: 146→197 — Pass 4919: 197→266 brighter arc apex flash — Pass 5298: arc apex flash intensity 266→359 brighter slot entry arc apex pop — Pass 5588: 359→485 brighter arc apex flash intensity — Pass 5603: 485→655 brighter grab burst light range arc apex flash intensity — Pass 6658: 655→884 brighter armSwing arc-peak flash intensity
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
@@ -3577,10 +3577,10 @@ function animate(ts) {
       const _preAimT = Math.min(1, (ft - 0.85) / 0.15); // 0→1 in window after reveal
       // Pass 609: paddle pre-aim coefficient 0.15→0.28 — machine visibly commits to lane post-reveal
       const _preAimAngle = paddleAngleForSlot(ct.slotZ) * 1.70 * _preAimT; // Pass 2558: paddle pre-aim coefficient 0.28→0.38 — Pass 3756: 0.38→0.51 — Pass 3864: 0.51→0.69 — Pass 4132: 0.69→0.93 more committed pre-aim — Pass 5389: 0.93→1.26 more committed pre-aim — Pass 6544: 1.26→1.70 more committed paddle pre-aim
-      paddlePivot.rotation.y += (_preAimAngle - paddlePivot.rotation.y) * Math.min(1, dt * 3.65); // accuracy: Y-axis — Pass 4818: paddle pre-aim tracking rate 2→2.7 — Pass 5547: 2.7→3.65 snappier paddle pre-aim tracking
+      paddlePivot.rotation.y += (_preAimAngle - paddlePivot.rotation.y) * Math.min(1, dt * 4.93); // accuracy: Y-axis — Pass 4818: paddle pre-aim tracking rate 2→2.7 — Pass 5547: 2.7→3.65 snappier paddle pre-aim tracking — Pass 6652: 3.65→4.93 snappier paddle pre-aim tracking rate
       // Pre-position floor diverter: start moving to target floor during identity reveal
       const _diverterTarget = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
-      _diverterAngle += (_diverterTarget - _diverterAngle) * Math.min(1, dt * 5.47); // Pass 4819: diverter pre-aim tracking rate 3→4.05 — Pass 5548: 4.05→5.47 snappier diverter pre-aim tracking
+      _diverterAngle += (_diverterTarget - _diverterAngle) * Math.min(1, dt * 7.38); // Pass 4819: diverter pre-aim tracking rate 3→4.05 — Pass 5548: 4.05→5.47 snappier diverter pre-aim tracking — Pass 6653: 5.47→7.38 snappier diverter pre-aim tracking rate
       floorDiverterPivot.rotation.z = -_diverterAngle; // negative = far end tilts up
     }
     // ── Scanner beam cone + core column ──
@@ -3740,7 +3740,7 @@ function animate(ts) {
       const _target = _isTarget ? (366 * ot) * _ledUrgencyPulse : 0.1; // Pass 2357: gate LED target max 24.6→33.2 — Pass 2573: 33.2→44.8 — Pass 3011: 44.8→60.5 — Pass 3209: 60.5→81.7 — Pass 3586: 81.7→110.3 — Pass 3681: 110.3→149 — Pass 4732: 149→201 brighter gate approach LED urgency — Pass 5535: 201→271 brighter gate approach LED urgency — Pass 6635: 271→366 brighter gate approach LED urgency max
       gm.color.setHex(_isTarget ? ct.hex : 0x224466);
       gm.emissive.setHex(_isTarget ? ct.hex : 0x112233);
-      gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 4820: gate approach LED tracking rate 6→8.1 — Pass 5555: 8.1→10.9 snappier gate approach LED tracking
+      gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 14.7); // Pass 4820: gate approach LED tracking rate 6→8.1 — Pass 5555: 8.1→10.9 snappier gate approach LED tracking — Pass 6654: 10.9→14.7 snappier gate approach LED tracking rate
     });
     // Pass 141: gate column tracking light — colored pool on tray at active LED column
     // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 — Pass 1369: →30.0 for stronger domain pool
@@ -3806,7 +3806,7 @@ function animate(ts) {
     const _gateFlicker = ot > 0.70
       ? (96.4 * Math.sin(ts * 6 * Math.PI * 2) + 18.8 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 2362: flicker primary 8.75→11.8, secondary 3.11→4.20 — Pass 2580: 11.8→15.9, 4.20→5.67 — Pass 3018: 15.9→21.5, 5.67→7.65 — Pass 4318: 21.5→29.0 — Pass 4319: 7.65→10.3 wilder gate charge flicker — Pass 5126: primary 29.0→39.2 wilder gate charge buildup emissive ramp — Pass 5139: secondary 10.3→13.9 wilder gate charge flicker secondary — Pass 5251: gate charge buildup flicker primary 39.2→52.9 wilder gate charge buildup — Pass 5344: 52.9→71.4 wilder gate charge pre-flash flicker primary — Pass 5488: 71.4→96.4 wilder gate charge buildup flicker primary emissive texture — Pass 6495: 13.9→18.8 wilder gate charge flicker secondary emissive
       : 0;
-    paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 14.6); // Pass 4821: paddle charge emissive tracking rate 8→10.8 — Pass 5556: 10.8→14.6 snappier paddle charge emissive tracking
+    paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 19.7); // Pass 4821: paddle charge emissive tracking rate 8→10.8 — Pass 5556: 10.8→14.6 snappier paddle charge emissive tracking — Pass 6655: 14.6→19.7 snappier paddle charge emissive tracking rate
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
     if (ot > 0.17) { // Pass 2075: corona spawn start 0.45→0.35 — Pass 4295: 0.35→0.26 earlier gate corona — Pass 5796: 0.26→0.17 earlier gate corona spawn
       _trailSpawnAcc += dt;
@@ -4069,7 +4069,7 @@ function animate(ts) {
       tp.age = 0;
       // Pass 387: life boost — 0.38-0.52 → 0.45-0.65s — Pass 506: extend 0.45-0.65 → 0.55-0.75s
       // Pass 527: deflect trail life 0.55+0.20 → 0.65+0.25 — Pass 966: →0.82+0.32 — Pass 1117: →1.05+0.42 — Pass 1504: →1.35+0.55 longer hang
-      tp.life = 27.0 + Math.random() * 11.0; // Pass 2385: deflect trail life 3.32+1.35→4.48+1.82 — Pass 2607: 4.48+1.82→6.05+2.46 — Pass 3045: 6.05+2.46→8.17+3.32 — Pass 3230: 8.17+3.32→11.0+4.48 — Pass 3397: 11.0+4.48→14.85+6.05 — Pass 4082: 14.85+6.05→20.0+8.17 — Pass 5605: 20.0+8.17→27.0+11.0 longer deflect contrail hang
+      tp.life = 36.5 + Math.random() * 11.0; // Pass 2385: deflect trail life 3.32+1.35→4.48+1.82 — Pass 2607: 4.48+1.82→6.05+2.46 — Pass 3045: 6.05+2.46→8.17+3.32 — Pass 3230: 8.17+3.32→11.0+4.48 — Pass 3397: 11.0+4.48→14.85+6.05 — Pass 4082: 14.85+6.05→20.0+8.17 — Pass 5605: 20.0+8.17→27.0+11.0 longer deflect contrail hang — Pass 6657: base 27.0→36.5 longer deflect contrail hang base life
       tp.active = true;
       tp.mesh.visible = true;
     }
@@ -4250,7 +4250,7 @@ function animate(ts) {
         );
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 93.0; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread — Pass 5478: 51.0→68.9 wider landing puff vx spread — Pass 6499: 68.9→93.0 wider landing puff vx spread
-        _pp.vy = 2220 + Math.random() * 1073; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft — Pass 5513: base 1216→1642 stronger slot entry air puff loft — Pass 5514: rand 795→1073 stronger slot entry loft burst — Pass 5586: base 1642→2220 stronger slot entry air puff loft
+        _pp.vy = 2997 + Math.random() * 1073; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft — Pass 5513: base 1216→1642 stronger slot entry air puff loft — Pass 5514: rand 795→1073 stronger slot entry loft burst — Pass 5586: base 1642→2220 stronger slot entry air puff loft — Pass 6656: base 2220→2997 stronger slot entry air puff loft base
         _pp.vz = (Math.random() - 0.5) * 243; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread — Pass 5482: 98.4→133 wider landing puff vz spread — Pass 5490: 133→180 wider landing puff vy decay rate Z spread — Pass 6494: 180→243 wider landing puff vz spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
@@ -4307,7 +4307,7 @@ function animate(ts) {
           const _ang = Math.random() * Math.PI * 2;
           const _spd = 3817 + Math.random() * 4323; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757 — Pass 4405: 1551+1757→2094+2372 faster impact radial spray — Pass 5500: base 2094→2827 faster impact radial spray — Pass 5501: rand 2372→3202 wider impact radial spray — Pass 6575: base 2827→3817 faster impact radial spray — Pass 6576: rand 3202→4323 wider impact radial spray
           _lp.vx = Math.cos(_ang) * _spd * 0.824; // Pass 4357: landing dust vx factor 0.45→0.61 wider radial scatter — Pass 5619: 0.61→0.824 wider radial scatter
-          _lp.vy = 205 + Math.random() * 474; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft — Pass 4621: base 112.3→151.6 bigger landing puff vy spread — Pass 5611: 151.6+351.0→205+474 more explosive slot-impact dust loft
+          _lp.vy = 277 + Math.random() * 474; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft — Pass 4621: base 112.3→151.6 bigger landing puff vy spread — Pass 5611: 151.6+351.0→205+474 more explosive slot-impact dust loft — Pass 6659: base 205→277 more explosive landing dust loft base
           _lp.vz = Math.sin(_ang) * _spd * 1.82; // Pass 4358: landing dust vz factor 1.0→1.35 deeper Z floor spray — Pass 5620: 1.35→1.82 deeper Z floor spray
           _lp.mat.color.setRGB(
             Math.min(1, _rr2 / 255 * 1.00 + 0.45), // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint
