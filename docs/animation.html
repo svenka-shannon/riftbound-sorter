@@ -1627,7 +1627,7 @@ const SCAN_DOT_OFFSETS = [];
 for (let _dr = 0; _dr < 3; _dr++) {
   for (let _dc = 0; _dc < 3; _dc++) {
     SCAN_DOT_OFFSETS.push({
-      x: THREE.MathUtils.lerp(-CARD_W * 0.787, CARD_W * 0.787, _dc / 2), // Pass 4865: scan grid X spread 0.32→0.432 wider dot array — Pass 5447: 0.432→0.583 wider scan grid X span — Pass 5860: 0.583→0.787 wider scan grid dot array X span
+      x: THREE.MathUtils.lerp(-CARD_W * 1.063, CARD_W * 1.063, _dc / 2), // Pass 4865: scan grid X spread 0.32→0.432 wider dot array — Pass 5447: 0.432→0.583 wider scan grid X span — Pass 5860: 0.583→0.787 wider scan grid dot array X span — Pass 6362: 0.787→1.063 wider scan grid dot array X span
       z: THREE.MathUtils.lerp(-CARD_H * 0.996, CARD_H * 0.996, _dr / 2), // Pass 4866: scan grid Z spread 0.3→0.405 deeper dot array — Pass 5448: 0.405→0.547 deeper scan grid Z span — Pass 5861: 0.547→0.738 deeper scan grid dot array Z span — Pass 6348: 0.738→0.996 deeper scan grid dot array Z span
     });
   }
@@ -1927,7 +1927,7 @@ scene.add(_domainFillLight);
 // Domain-colored point light that follows the card along the belt surface
 // during conveyorIn and conveyorOut phases, casting a moving pool of color
 // on the belt texture beneath the card. Fades to zero outside belt phases.
-const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 427); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach — Pass 5726: 234→316 wider belt track light reach — Pass 5934: 316→427 wider belt track light reach
+const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 576); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach — Pass 5726: 234→316 wider belt track light reach — Pass 5934: 316→427 wider belt track light reach — Pass 6363: 427→576 wider belt track light reach
 _beltTrackLight.position.set(-40, CONV_Y_TOP + 6, 0);
 scene.add(_beltTrackLight);
 
@@ -2018,14 +2018,14 @@ function fireCelebration() {
   // Pass 106: FOV zoom-punch — Pass 422: 8°→11° — Pass 725: →14° — Pass 819: →19° — Pass 1006: →26° — Pass 1103: →36° — Pass 1346: →50° — Pass 1621: →68°
   _fovBump = 167; // Pass 2494: celebration FOV punch 124→167
   // Spawn a bright white point light burst at tray center — Pass 726: 8.0→14.0 — Pass 897: →20.0 — Pass 1007: →30.0, dist →500 — Pass 1104: →45.0, dist→650 — Pass 1347: →64.0, dist→800 — Pass 1631: →86.0, dist→1050
-  const _cfl = new THREE.PointLight(0xffffff, 2334, 1418); // Pass 2495: celebration white burst 156.7→211.6 — Pass 3413: 211.6→285.7 — Pass 3525: 285.7→386 — Pass 3661: 386→521 — Pass 3780: 521→703 — Pass 3885: 703→949 — Pass 4112: 949→1281 bigger celebration flash — Pass 4939: 1281→1729 brighter celebration white burst — Pass 4940: range 1050→1418 wider celebration burst reach — Pass 5191: 1729→2334 brighter celebration white burst
+  const _cfl = new THREE.PointLight(0xffffff, 3151, 1914); // Pass 2495: celebration white burst 156.7→211.6 — Pass 3413: 211.6→285.7 — Pass 3525: 285.7→386 — Pass 3661: 386→521 — Pass 3780: 521→703 — Pass 3885: 703→949 — Pass 4112: 949→1281 bigger celebration flash — Pass 4939: 1281→1729 brighter celebration white burst — Pass 4940: range 1050→1418 wider celebration burst reach — Pass 5191: 1729→2334 brighter celebration white burst — Pass 6356: 2334→3151 brighter celebration white burst intensity — Pass 6357: 1418→1914 wider celebration white burst reach
   _cfl.position.set(TX_MID, FLOOR_Y[0] + 100, 0);
   scene.add(_cfl);
   if (!window._flashLights) window._flashLights = [];
   window._flashLights.push({ light: _cfl, age: 0, peak: _cfl.intensity });
   // Pass 150: rainbow tray burst — Pass 423: 5.5→8.0 — Pass 727: →12.0 — Pass 898: →18.0 — Pass 1008: →26.0, dist →300 — Pass 1105: →38.0, dist→400 — Pass 1451: →52.0, dist→520 — Pass 1635: →70.0, dist→690
   CARD_TYPES.forEach(dct => {
-    const _dfl = new THREE.PointLight(dct.hex, 1042, 932); // Pass 2496: celebration rainbow burst 127.6→172.3 — Pass 3414: 172.3→232.6 — Pass 3526: 232.6→314 — Pass 3662: 314→424 — Pass 4113: 424→572 more vivid rainbow burst — Pass 4941: 572→772 stronger rainbow tray burst — Pass 5214: 772→1042 brighter rainbow tray burst — Pass 5215: range 690→932 wider rainbow burst reach
+    const _dfl = new THREE.PointLight(dct.hex, 1407, 1258); // Pass 2496: celebration rainbow burst 127.6→172.3 — Pass 3414: 172.3→232.6 — Pass 3526: 232.6→314 — Pass 3662: 314→424 — Pass 4113: 424→572 more vivid rainbow burst — Pass 4941: 572→772 stronger rainbow tray burst — Pass 5214: 772→1042 brighter rainbow tray burst — Pass 5215: range 690→932 wider rainbow burst reach — Pass 6358: 1042→1407 brighter rainbow tray burst intensity — Pass 6359: 932→1258 wider rainbow tray burst reach
     _dfl.position.set(TX_MID, dct.slotFloorY + 55, dct.slotZ);
     scene.add(_dfl);
     window._flashLights.push({ light: _dfl, age: 0, peak: _dfl.intensity });
@@ -2325,7 +2325,7 @@ function animate(ts) {
     // just snaps to exactly 0 to clear floating-point residue, then restores color.
     paddlePivot.rotation.y = 0; // accuracy: Y-axis rotation for Z-column deflection
     paddlePivot.rotation.z = 0; // clear any residual Z tilt
-    paddleMat.emissiveIntensity = 2.24; // Pass 4026: paddle resting glow 0.5→0.675 — Pass 5002: 0.675→0.911 warmer paddle resting glow — Pass 5190: 0.911→1.23 warmer paddle resting glow — Pass 5397: 1.23→1.66 warmer arm rest paddle resting glow — Pass 5735: 1.66→2.24 warmer paddle resting glow on arm reset
+    paddleMat.emissiveIntensity = 3.02; // Pass 4026: paddle resting glow 0.5→0.675 — Pass 5002: 0.675→0.911 warmer paddle resting glow — Pass 5190: 0.911→1.23 warmer paddle resting glow — Pass 5397: 1.23→1.66 warmer arm rest paddle resting glow — Pass 5735: 1.66→2.24 warmer paddle resting glow on arm reset — Pass 6360: 2.24→3.02 warmer paddle resting glow on arm reset
     paddleMat.color.setHex(0xff6600);   // restore orange at cycle boundary
     paddleMat.emissive.setHex(0xff3300);
 
@@ -2348,7 +2348,7 @@ function animate(ts) {
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
         // Spike the hopper light for visual emphasis — Pass 1014: 2.5→5.0
-        hopperLight.intensity = 22.4; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash — Pass 4271: 6.75→9.11 even brighter hopper spike — Pass 5027: 9.11→12.3 even brighter hopper spike — Pass 5211: 12.3→16.6 even brighter hopper refill spike — Pass 5913: 16.6→22.4 even brighter hopper refill spike
+        hopperLight.intensity = 30.2; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash — Pass 4271: 6.75→9.11 even brighter hopper spike — Pass 5027: 9.11→12.3 even brighter hopper spike — Pass 5211: 12.3→16.6 even brighter hopper refill spike — Pass 5913: 16.6→22.4 even brighter hopper refill spike — Pass 6361: 22.4→30.2 even brighter hopper refill spike intensity
         hopperLight.color.set(0xfff0cc);
       }
     }
