@@ -82,7 +82,7 @@
   }
   /* Pass 62: lock-on snap animation — brackets contract on card ID */
   @keyframes hudLockOn {
-    0%   { transform: translateX(-50%) scale(1.3); opacity: 0.4; }
+    0%   { transform: translateX(-50%) scale(1.76); opacity: 0.4; } /* Pass 4914: scanner HUD lock-on initial scale 1.3→1.76 bigger bracket snap */
     35%  { transform: translateX(-50%) scale(0.95); opacity: 1.0; }
     65%  { transform: translateX(-50%) scale(1.02); opacity: 0.9; }
     100% { transform: translateX(-50%) scale(1.0); opacity: 0.7; }
@@ -182,7 +182,7 @@
 
   @keyframes fadeUp {
     0%   { transform: translateY(0) scale(1);   opacity: 1; }
-    30%  { transform: translateY(-10px) scale(1.2); opacity: 1; }
+    30%  { transform: translateY(-10px) scale(1.62); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop */
     100% { transform: translateY(-45px) scale(0.8); opacity: 0; }
   }
   .slot-plusone {
@@ -212,7 +212,7 @@
   /* ── Stats count bounce ─────────────────────────────────────────────── */
   @keyframes countBounce {
     0%   { transform: scale(1); }
-    35%  { transform: scale(1.5); }
+    35%  { transform: scale(2.0); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop */
     65%  { transform: scale(0.92); }
     100% { transform: scale(1); }
   }
@@ -321,7 +321,7 @@
   /* Pass 131 — dot pop on phase activation */
   @keyframes ph-dot-pop {
     0%   { transform: scale(1.0); }
-    30%  { transform: scale(2.4); }
+    30%  { transform: scale(3.2); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation */
     65%  { transform: scale(0.85); }
     100% { transform: scale(1.0); }
   }
@@ -553,7 +553,7 @@ camera.position.set(-30, 350, 800);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(W, H);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.70)); // Pass 4916: renderer max pixel ratio 2→2.70 crisper high-DPI rendering
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
@@ -1490,7 +1490,7 @@ const _shadowMat = new THREE.MeshBasicMaterial({
 });
 const _shadowMesh = new THREE.Mesh(new THREE.CircleGeometry(1, 32), _shadowMat);
 _shadowMesh.rotation.x = -Math.PI / 2; // lie flat on belt surface
-_shadowMesh.scale.set(CARD_H * 0.55, 1, CARD_W * 0.55); // elongated card-proportioned ellipse
+_shadowMesh.scale.set(CARD_H * 0.74, 1, CARD_W * 0.74); // elongated card-proportioned ellipse — Pass 4917: card contact shadow ellipse scale 0.55→0.74 larger belt shadow
 _shadowMesh.position.set(-40, CONV_Y_TOP + 0.4, 0);
 scene.add(_shadowMesh);
 
@@ -2446,7 +2446,7 @@ function animate(ts) {
   if(window._flashLights) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
-      const _fPeak = f.peak || 3.0; // use stored creation intensity; fallback 3.0
+      const _fPeak = f.peak || 4.05; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
       f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 7.30)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30
       if(f.age > 7.30) { scene.remove(f.light); return false; }
@@ -3623,7 +3623,7 @@ function animate(ts) {
       const arcMid   = new THREE.Vector3(
         (arcStart.x + arcEnd.x) / 2 + 13.5, // Pass 4572: routing arc X midpoint bias 10→13.5 deeper slot arc lean
         // Pass 685: route arc loft 55→68 for more dramatic predicted-path arc — Pass 4077: 68→91.8 taller arc
-        Math.max(arcStart.y, arcEnd.y) + 91.8,  // loft the arc well above the machine
+        Math.max(arcStart.y, arcEnd.y) + 124,  // loft the arc well above the machine — Pass 4919: route arc loft 91.8→124 higher predicted-path arc
         arcEnd.z * _arcZBias305                // bias midpoint toward destination Z
       );
       const arcPts = routeArcGeo.attributes.position.array;
