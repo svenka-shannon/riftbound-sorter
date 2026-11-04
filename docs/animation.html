@@ -806,7 +806,7 @@ beltTex.wrapS = THREE.RepeatWrapping;
 beltTex.repeat.set(4, 1); // fewer repeats for wider visible pattern
 const beltSurfMat = new THREE.MeshStandardMaterial({
   map: beltTex, roughness: 0.55, metalness: 0.1,
-  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 1.31 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline — Pass 5723: 0.532→0.719 brighter belt surface baseline emissive — Pass 5932: 0.719→0.971 brighter belt surface baseline emissive — Pass 5971: 0.971→1.31 brighter belt surface baseline emissive
+  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 1.77 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline — Pass 5723: 0.532→0.719 brighter belt surface baseline emissive — Pass 5932: 0.719→0.971 brighter belt surface baseline emissive — Pass 5971: 0.971→1.31 brighter belt surface baseline emissive — Pass 6055: 1.31→1.77 brighter belt surface baseline emissive
 });
 const beltSurf = new THREE.Mesh(new THREE.BoxGeometry(248, 2, 76), beltSurfMat);
 beltSurf.position.set(-40, CONV_Y_TOP + 1, 0);
@@ -889,7 +889,7 @@ scene.add(lensRing);
 const scanLEDMat = new THREE.MeshStandardMaterial({
   color: 0x00aaff,
   emissive: new THREE.Color(0x0055cc),
-  emissiveIntensity: 32.8, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor — Pass 5862: 13.3→18.0 brighter scanner body idle LED emissive floor — Pass 5945: 18.0→24.3 brighter scanner body idle LED emissive floor — Pass 5958: 24.3→32.8 brighter scanner body idle LED emissive floor
+  emissiveIntensity: 44.3, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor — Pass 5862: 13.3→18.0 brighter scanner body idle LED emissive floor — Pass 5945: 18.0→24.3 brighter scanner body idle LED emissive floor — Pass 5958: 24.3→32.8 brighter scanner body idle LED emissive floor — Pass 6059: 32.8→44.3 brighter scanner body idle LED emissive floor
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
@@ -909,7 +909,7 @@ scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
 const scanBloom = new THREE.PointLight(0x0088ff, 0, 1348); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach
-scanBloom.decay = 6.66; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff — Pass 5906: 3.65→4.93 tighter scan bloom falloff — Pass 5966: 4.93→6.66 tighter scan bloom falloff
+scanBloom.decay = 8.99; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff — Pass 5906: 3.65→4.93 tighter scan bloom falloff — Pass 5966: 4.93→6.66 tighter scan bloom falloff — Pass 6056: 6.66→8.99 tighter scan bloom falloff
 scene.add(scanBloom);
 
 // Pass 55: Scan progress LED bar — thin strip on scanner hood front face
@@ -939,12 +939,12 @@ scene.add(scanBarCursor);
 // Scan destination target light — illuminates the slot the card is going to
 // during scan phase so viewer immediately knows the routing decision
 const scanTargetLight = new THREE.PointLight(0xffffff, 0, 406); // Pass 4022: scanTargetLight range 90→122 — Pass 4907: 122→165 wider scan target reach — Pass 5152: 165→223 wider scan target light reach — Pass 5187: 223→301 wider scan target light reach — Pass 5741: 301→406 wider scan target light reach
-scanTargetLight.decay = 8.99; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff — Pass 5153: 2.70→3.65 tighter scan target spotlight falloff — Pass 5188: 3.65→4.93 tighter scan target spotlight falloff — Pass 5904: 4.93→6.66 tighter scan target spotlight falloff — Pass 5967: 6.66→8.99 tighter scan target spotlight falloff
+scanTargetLight.decay = 12.1; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff — Pass 5153: 2.70→3.65 tighter scan target spotlight falloff — Pass 5188: 3.65→4.93 tighter scan target spotlight falloff — Pass 5904: 4.93→6.66 tighter scan target spotlight falloff — Pass 5967: 6.66→8.99 tighter scan target spotlight falloff — Pass 6057: 8.99→12.1 tighter scan target spotlight falloff
 scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
 const slotSweepLight = new THREE.PointLight(0xffffff, 0, 182); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach — Pass 5708: 135→182 wider slot sweep light reach
-slotSweepLight.decay = 6.66; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff — Pass 5907: 3.65→4.93 tighter slot sweep beam falloff — Pass 5968: 4.93→6.66 tighter slot sweep beam falloff
+slotSweepLight.decay = 8.99; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff — Pass 5907: 3.65→4.93 tighter slot sweep beam falloff — Pass 5968: 4.93→6.66 tighter slot sweep beam falloff — Pass 6058: 6.66→8.99 tighter slot sweep beam falloff
 scene.add(slotSweepLight);
 
 // ─── Scanner beam cone ────────────────────────────────────────────────────────
@@ -979,7 +979,7 @@ scene.add(scanBeam);
 const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
   emissive: new THREE.Color(0x00ff88),
-  emissiveIntensity: 24.4, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive — Pass 5969: 18.1→24.4 brighter scan crosshair primary beam emissive
+  emissiveIntensity: 32.9, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive — Pass 5969: 18.1→24.4 brighter scan crosshair primary beam emissive — Pass 6060: 24.4→32.9 brighter scan crosshair primary beam emissive
   transparent: true, opacity: 1.73 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam — Pass 5879: 1.28→1.73 overdrive scan crosshair primary beam opacity
 });
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(180, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span — Pass 5914: 133→180 wider scan crosshair primary beam span
@@ -989,7 +989,7 @@ scene.add(scanLine);
 const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
-  emissiveIntensity: 15.1, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive — Pass 5995: 11.2→15.1 brighter scan crosshair secondary sweep bar emissive
+  emissiveIntensity: 20.4, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive — Pass 5995: 11.2→15.1 brighter scan crosshair secondary sweep bar emissive — Pass 6061: 15.1→20.4 brighter scan crosshair secondary sweep bar emissive
   transparent: true, opacity: 1.61 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep — Pass 5880: 1.19→1.61 overdrive scan crosshair secondary sweep opacity
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 164), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height — Pass 5072: 121.5→164 wider secondary scan sweep
@@ -1134,7 +1134,7 @@ function makeTrayFloor(yBase, colorHex) {
     const capMat = new THREE.MeshStandardMaterial({
       color: capColor,
       emissive: new THREE.Color(capColor),
-      emissiveIntensity: 6.55, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest — Pass 5407: 2.66→3.59 brighter slot tray floor cap guide rail emissive — Pass 5863: 3.59→4.85 brighter slot tray floor cap guide rail emissive — Pass 5996: 4.85→6.55 brighter slot tray floor cap guide rail emissive
+      emissiveIntensity: 8.84, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest — Pass 5407: 2.66→3.59 brighter slot tray floor cap guide rail emissive — Pass 5863: 3.59→4.85 brighter slot tray floor cap guide rail emissive — Pass 5996: 4.85→6.55 brighter slot tray floor cap guide rail emissive — Pass 6062: 6.55→8.84 brighter slot tray floor cap guide rail emissive
       roughness: 0.3,
       metalness: 0.2
     });
@@ -3030,7 +3030,7 @@ function animate(ts) {
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
     const _beltWobbleZ = (25.5 * Math.sin(ts * 4.7 * Math.PI * 2) + 10.6 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave — Pass 5089: primary 18.9→25.5 deeper card belt Z weave — Pass 5103: secondary 5.82→7.86 deeper card Z spacing on belt weave — Pass 5151: secondary 7.86→10.6 deeper belt wobble secondary amplitude
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
-    const _beltYBump = 9.11 * Math.sin(ts * 29.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 — Pass 4208: 3.70→5.00 more tactile belt feel — Pass 4505: belt Y micro-bump freq 22→29.7 livelier tactile bump — Pass 5183: 5.00→6.75 more tactile belt Y bump — Pass 5988: 6.75→9.11 more tactile belt Y micro-bump amplitude
+    const _beltYBump = 12.3 * Math.sin(ts * 29.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 — Pass 4208: 3.70→5.00 more tactile belt feel — Pass 4505: belt Y micro-bump freq 22→29.7 livelier tactile bump — Pass 5183: 5.00→6.75 more tactile belt Y bump — Pass 5988: 6.75→9.11 more tactile belt Y micro-bump amplitude — Pass 6053: 9.11→12.3 more tactile belt Y micro-bump amplitude
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 3.65 + _settleY + _beltYBump, _beltWobbleZ); // Pass 4542: card-on-belt height above belt surface 2→2.70 higher card float — Pass 5387: 2.70→3.65 higher card float
     // Pass 120: card settle lean — nose tips down smoothly as card settles onto belt
     // Pass 1235: lean -0.18→-0.05 (bugfix: at -0.18 the card front edge was 4.9u below belt; safe max ≈0.05rad)
@@ -3295,7 +3295,7 @@ function animate(ts) {
           // per-dot stagger (phase = di*0.7), creating a floating hover effect.
           // Post-reveal they snap to still (locked on).
           // Pass 365: float amplitude 0.5→0.75 — Pass 705: →1.0 — Pass 1240: →1.40 — Pass 1317: →1.90 — Pass 1419: →2.60 — Pass 1693: →3.50
-          const _dotFloat = _identityRevealed ? 0 : 52.1 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp; // Pass 2533: grid dot float amp 3.50→4.73 — Pass 3555: 4.73→6.39 — Pass 3717: 6.39→8.63 — Pass 3827: 8.63→11.6 — Pass 4146: 11.6→15.7 — Pass 4673: 15.7→21.2 more nervous scan dot float — Pass 5265: 21.2→28.6 bigger scan dot float amplitude — Pass 5839: 28.6→38.6 bigger scan dot float amplitude — Pass 5951: 38.6→52.1 bigger scan dot float amplitude
+          const _dotFloat = _identityRevealed ? 0 : 70.3 * Math.sin(ts * 3 * Math.PI * 2 + di * 0.7) * dotOp; // Pass 2533: grid dot float amp 3.50→4.73 — Pass 3555: 4.73→6.39 — Pass 3717: 6.39→8.63 — Pass 3827: 8.63→11.6 — Pass 4146: 11.6→15.7 — Pass 4673: 15.7→21.2 more nervous scan dot float — Pass 5265: 21.2→28.6 bigger scan dot float amplitude — Pass 5839: 28.6→38.6 bigger scan dot float amplitude — Pass 5951: 38.6→52.1 bigger scan dot float amplitude — Pass 6050: 52.1→70.3 bigger scan dot float amplitude
           // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 — Pass 1318: →2.60 — Pass 1694: →3.50
           const _dotLockJitter = _identityRevealed && ft < 0.91 ? 28.6 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0; // Pass 2534: dot lock jitter 3.50→4.73 — Pass 3556: 4.73→6.39 — Pass 3718: 6.39→8.63 — Pass 3828: 8.63→11.6 — Pass 4147: 11.6→15.7 wilder lock jitter — Pass 5266: 15.7→21.2 wilder scan dot lock jitter — Pass 5838: 21.2→28.6 wilder scan dot lock jitter
           // Pass 366: post-reveal dots Z drift toward destination slot — Pass 1699: 0.20→0.28
@@ -3310,7 +3310,7 @@ function animate(ts) {
           // crosses its Z position, creating a sweep highlight that travels with the beam.
           // Pass 577: dot beam-proximity brightening 0.60→0.95 — Pass 1695: →1.30 for more vivid sweep highlight
           const _dotBeamProx = Math.max(0, 1 - Math.abs(scanLine.position.z - (activeCard.position.z + SCAN_DOT_OFFSETS[di].z)) / 20.1); // Pass 4765: dot beam proximity radius 11→14.9 wider scan highlight zone — Pass 5377: 14.9→20.1 wider dot beam proximity radius
-          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 14.4)); // Pass 2535: dot beam proximity 1.30→1.76 — Pass 3558: 1.76→2.38 — Pass 3719: 2.38→3.21 — Pass 4148: 3.21→4.33 — Pass 4674: 4.33→5.85 stronger scan dot beam proximity highlight — Pass 5267: 5.85→7.90 stronger scan dot beam proximity highlight — Pass 5842: 7.90→10.7 stronger scan dot beam proximity highlight — Pass 5952: 10.7→14.4 stronger scan dot beam proximity highlight
+          mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 19.4)); // Pass 2535: dot beam proximity 1.30→1.76 — Pass 3558: 1.76→2.38 — Pass 3719: 2.38→3.21 — Pass 4148: 3.21→4.33 — Pass 4674: 4.33→5.85 stronger scan dot beam proximity highlight — Pass 5267: 5.85→7.90 stronger scan dot beam proximity highlight — Pass 5842: 7.90→10.7 stronger scan dot beam proximity highlight — Pass 5952: 10.7→14.4 stronger scan dot beam proximity highlight — Pass 6051: 14.4→19.4 stronger scan dot beam proximity highlight multiplier
           // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× — Pass 1319: →3.2× — Pass 1696: →3.0× harder pop
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
             ? 1.0 + 9.96 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0; // Pass 2536: dot pop scale 3.00×→4.05× — Pass 4048: 4.05→5.47 sharper scan dot reveal pop — Pass 5268: 5.47→7.38 sharper scan dot reveal pop — Pass 5843: 7.38→9.96 sharper scan dot reveal pop
@@ -3350,7 +3350,7 @@ function animate(ts) {
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
       const _cursorPreScale300 = !_identityRevealed ? 1.0 + 1.51 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25 — Pass 3945: 0.25→0.338 — Pass 4153: 0.338→0.456 bigger cursor search pulse — Pass 5274: 0.456→0.616 bigger cursor search scale pulse — Pass 5847: 0.616→0.832 bigger cursor search scale pulse — Pass 5949: 0.832→1.12 bigger cursor search scale pulse — Pass 6039: 1.12→1.51 bigger cursor pre-reveal search scale pulse
       const _cursorScale290 = _identityRevealed && ft < 0.91
-        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 39.2 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75 — Pass 4154: 8.75→11.8 bigger cursor pop — Pass 5275: 11.8→15.9 bigger cursor reveal scale punch — Pass 5848: 15.9→21.5 bigger cursor reveal scale punch — Pass 5950: 21.5→29.0 bigger cursor reveal scale punch — Pass 5998: 29.0→39.2 bigger cursor reveal scale punch
+        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 52.9 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75 — Pass 4154: 8.75→11.8 bigger cursor pop — Pass 5275: 11.8→15.9 bigger cursor reveal scale punch — Pass 5848: 15.9→21.5 bigger cursor reveal scale punch — Pass 5950: 21.5→29.0 bigger cursor reveal scale punch — Pass 5998: 29.0→39.2 bigger cursor reveal scale punch — Pass 6052: 39.2→52.9 bigger cursor reveal scale punch
         : _cursorPreScale300;
       scanBarCursor.scale.setScalar(_cursorScale290);
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
