@@ -2752,7 +2752,7 @@ function animate(ts) {
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
         // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 — Pass 1249: surge →0.92 — Pass 1361: →1.20 — Pass 1679: →1.60 stronger pump surge
-        const _vacSurge = pt > 0.85 ? 5.32 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0; // Pass 2267: vacuum surge 2.16→2.92 — Pass 3180: 2.92→3.94 — Pass 3757: 3.94→5.32
+        const _vacSurge = pt > 0.85 ? 7.18 * Math.sin((pt - 0.85) / 0.15 * Math.PI) : 0; // Pass 2267: vacuum surge 2.16→2.92 — Pass 3180: 2.92→3.94 — Pass 3757: 3.94→5.32 — Pass 3865: 5.32→7.18
         vacuumRingMat.opacity = Math.min(1, Math.sin(_vt * Math.PI) * 0.95 + _vacSurge); // Pass 1092: opacity 0.75→0.95
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
         // Pass 1250: elongation scale 0.55→0.82 — Pass 1275: →1.10 — Pass 1360: →1.50 — Pass 1680: →2.00
@@ -3139,7 +3139,7 @@ function animate(ts) {
     // Pass 350: scanFlash reveal spike — Pass 601: spike 3.5→6.0, base 5→8
     // Pass 741: base 8→11 — Pass 742: spike 6.0→8.5 — Pass 1079: base 11→15, spike 8.5→12.0 — Pass 1281: spike 12.0→17.0 — Pass 1373: →23.0 — Pass 1517: →32.0 for bigger scan flash and lock-on pop
     const _flashRevealSpike350 = _identityRevealed ? Math.exp(-(ft - 0.85) * 18) * 143 : 0; // Pass 2298: scan flash reveal spike 43.2→58.3 — Pass 3373: 58.3→78.7 — Pass 3448: 78.7→106.2 — Pass 3639: 106.2→143
-    scanFlash.intensity = flashIntensity * 66.6 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3 — Pass 3759: 49.3→66.6
+    scanFlash.intensity = flashIntensity * 89.9 + _flashRevealSpike350; // Pass 2299: scanFlash base 27→36.5 — Pass 3374: 36.5→49.3 — Pass 3759: 49.3→66.6 — Pass 3867: 66.6→89.9
     // Pass 351: scanFlash Z drift toward destination after reveal — Pass 1523: 0.25→0.40 further Z drift
     const _flashZ351 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 0.54 : 0; // Pass 1864: scan flash Z drift 0.40→0.54
     scanFlash.position.set(-40, CONV_Y_TOP + 10, _flashZ351);
@@ -3204,7 +3204,7 @@ function animate(ts) {
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.07 ? easeOut(ft / 0.07) : 1.0;
     // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 — Pass 1237: →2.20 — Pass 1288: →3.00 for even bigger iris pop at reveal
-    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 13.9 : 0; // Pass 2306: iris reveal pulse 5.67→7.65 — Pass 3370: 7.65→10.3 — Pass 3760: 10.3→13.9
+    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 18.8 : 0; // Pass 2306: iris reveal pulse 5.67→7.65 — Pass 3370: 7.65→10.3 — Pass 3760: 10.3→13.9 — Pass 3868: 13.9→18.8
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 — Pass 1374: →19.0 — Pass 1519: →26.0 bigger lens pop
@@ -3213,7 +3213,7 @@ function animate(ts) {
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 29.3 + _lensReveal370; // Pass 2315: lens emissive flash contribution 8.78→11.9 — Pass 3384: 11.9→16.1 — Pass 3515: 16.1→21.7 — Pass 3652: 21.7→29.3
     // Wide bloom soft halo around scanner
     // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 — Pass 1082: →16.0 — Pass 1285: →22.0 — Pass 1375: →30.0 — Pass 1522: →40.0 for bigger bloom burst at lock-on
-    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 133 : 0; // Pass 2308: bloom reveal surge 54.0→72.9 — Pass 3372: 72.9→98.4 — Pass 3758: 98.4→133
+    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 180 : 0; // Pass 2308: bloom reveal surge 54.0→72.9 — Pass 3372: 72.9→98.4 — Pass 3758: 98.4→133 — Pass 3866: 133→180
     scanBloom.color.setHex(_identityRevealed ? ct.hex : 0x0088ff);
     // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 — Pass 1238: →2.8 — Pass 1521: →3.8 for stronger soft scan halo
     scanBloom.intensity = flashIntensity * 17.0 + _bloomRevealSurge; // Pass 2316: bloom flash contribution 5.13→6.93 — Pass 3385: 6.93→9.36 — Pass 3516: 9.36→12.6 — Pass 3656: 12.6→17.0
@@ -3328,7 +3328,7 @@ function animate(ts) {
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
       // Pass 247: reveal overshoot — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 — Pass 733: →0.68 — Pass 1321: →0.95 — Pass 1698: →1.30
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 2.38 : 0; // Pass 2318: bar overshoot 1.30→1.76 — Pass 3753: 1.76→2.38
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 3.21 : 0; // Pass 2318: bar overshoot 1.30→1.76 — Pass 3753: 1.76→2.38 — Pass 3861: 2.38→3.21
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
@@ -3387,7 +3387,7 @@ function animate(ts) {
         // Pass 121: destination fill bar spikes at identity reveal — pre-announces incoming card
         // Pass 565: fill bar reveal spike 2.2→4.0 — Pass 735: →5.8 for bigger reveal announcement
         if (fillBars[ct.slot] && fillBars[ct.slot].material) {
-          fillBars[ct.slot].material.emissiveIntensity = 14.2; // Pass 2319: fill bar reveal spike 7.8→10.5 — Pass 3754: 10.5→14.2
+          fillBars[ct.slot].material.emissiveIntensity = 19.2; // Pass 2319: fill bar reveal spike 7.8→10.5 — Pass 3754: 10.5→14.2 — Pass 3862: 14.2→19.2
         }
         // Pass 123: hood reveal strobe — rapid 3-pulse flash as scanner confirms identity
         _hoodRevealFlash = 0.001; // just above 0 to activate
@@ -3575,7 +3575,7 @@ function animate(ts) {
     if (_identityRevealed) {
       const _preAimT = Math.min(1, (ft - 0.85) / 0.15); // 0→1 in window after reveal
       // Pass 609: paddle pre-aim coefficient 0.15→0.28 — machine visibly commits to lane post-reveal
-      const _preAimAngle = paddleAngleForSlot(ct.slotZ) * 0.51 * _preAimT; // Pass 2558: paddle pre-aim coefficient 0.28→0.38 — Pass 3756: 0.38→0.51
+      const _preAimAngle = paddleAngleForSlot(ct.slotZ) * 0.69 * _preAimT; // Pass 2558: paddle pre-aim coefficient 0.28→0.38 — Pass 3756: 0.38→0.51 — Pass 3864: 0.51→0.69
       paddlePivot.rotation.y += (_preAimAngle - paddlePivot.rotation.y) * Math.min(1, dt * 2); // accuracy: Y-axis
       // Pre-position floor diverter: start moving to target floor during identity reveal
       const _diverterTarget = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
@@ -3904,7 +3904,7 @@ function animate(ts) {
       // Pass 109: recoil kick — Pass 590: 0.26→0.42 — Pass 787: 0.42→0.62 — Pass 1194: →0.88 — Pass 1569: →1.20 for harder paddle whack feel
       _paddleRecoil = 17.9 * Math.sign(ct.slotZ); // Pass 2372: paddle recoil kick 2.19→2.96 — Pass 2589: 2.96→4.00 — Pass 2850: 4.00→5.40 — Pass 3028: 5.40→7.29 — Pass 3471: 7.29→9.84 — Pass 3706: 9.84→13.3 — Pass 3820: 13.3→17.9
       // Pass 216: solenoid jitter — Pass 591: 0.85→1.30 — Pass 1570: →1.80 for stronger lateral vibration
-      _paddleJitterAmt = 8.07; // Pass 2108: solenoid jitter 2.43→3.28 — Pass 2590: 3.28→4.43 — Pass 2851: 4.43→5.98 — Pass 3755: 5.98→8.07
+      _paddleJitterAmt = 10.9; // Pass 2108: solenoid jitter 2.43→3.28 — Pass 2590: 3.28→4.43 — Pass 2851: 4.43→5.98 — Pass 3755: 5.98→8.07 — Pass 3863: 8.07→10.9
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
       // decays into the normal tumble over ~0.12s, simulating the paddle "whacking" the card sideways.
       _gateZKick = bankSign * 2.46; // Pass 2085: gate Z-kick 0.74→1.00 — Pass 2604: 1.00→1.35 — Pass 2852: 1.35→1.82 — Pass 3029: 1.82→2.46
