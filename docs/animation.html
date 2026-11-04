@@ -1733,7 +1733,7 @@ function addCardToTray(ct) {
   const geo = new THREE.BoxGeometry(CARD_T, TRAY_CARD_H, CARD_W);
   const mat = new THREE.MeshStandardMaterial({
     color: 0xffffff, roughness: 0.18, metalness: 0.0,
-    emissive: ct.hex, emissiveIntensity: 0.616, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow — Pass 5058: 0.456→0.616 richer card base glow
+    emissive: ct.hex, emissiveIntensity: 0.832, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow — Pass 5058: 0.456→0.616 richer card base glow — Pass 5773: 0.616→0.832 richer tray card initial base glow
     map: cardTextures[ct.slot]
   });
   const mesh = new THREE.Mesh(geo, mat);
@@ -1755,7 +1755,7 @@ function addCardToTray(ct) {
   // Pass 45: pulse ALL existing cards in this slot — "stack reacts to new member" ripple
   arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 3.81; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash — Pass 5134: 2.09→2.82 stronger stack ripple flash — Pass 5711: 2.82→3.81 stronger stack ripple emissive flash
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
-  if (mesh.material) mesh.material.emissiveIntensity = 7.87; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop
+  if (mesh.material) mesh.material.emissiveIntensity = 10.6; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop — Pass 5774: 7.87→10.6 brighter new card arrival emissive flash
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow — Pass 4768: →9.3s even longer afterglow
   _ledCooloff[ct.slot] = 17.0; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5299: slot LED afterglow 12.6→17.0s even longer slot domain glow
 
@@ -1822,7 +1822,7 @@ CARD_TYPES.forEach(ct => {
 // Visible during belt travel; makes domain color unmistakably obvious
 const cardHaloGeo = new THREE.TorusGeometry(42, 4.43, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale
 const cardHaloMat = new THREE.MeshStandardMaterial({
-  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 4.93, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow
+  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 6.66, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
 });
 const cardHalo = new THREE.Mesh(cardHaloGeo, cardHaloMat);
@@ -2657,7 +2657,7 @@ function animate(ts) {
         // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 — Pass 4063: sine amp 0.52→0.70 more nervous lock-on hunting
         const _lockFlicker = pt > 0.88 ? (0.875 + 0.70 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0; // Pass 4590: rangefinder flicker floor 0.48→0.648 brighter suction lock-on baseline — Pass 5144: 0.648→0.875 brighter suction lock-on baseline
         // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 — Pass 1310: →7.5 — Pass 1426: →10.5 — Pass 3913: 10.5→14.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight
-        scanTargetLight.intensity = _pickTgtT * 35.0 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker; // Pass 4416: 14.2→19.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight — Pass 5070: 25.9→35.0 brighter lock-on spotlight
+        scanTargetLight.intensity = _pickTgtT * 47.3 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker; // Pass 4416: 14.2→19.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight — Pass 5070: 25.9→35.0 brighter lock-on spotlight — Pass 5771: 35.0→47.3 brighter lock-on targeting spotlight
       }
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       // Pass 462: early cup pre-glow — from pt=0.50 the cup begins a faint domain warmup
@@ -2675,7 +2675,7 @@ function animate(ts) {
         const _cupApproach = _sq;
         suctionCupMat.emissive.setHex(ct.hex);
         // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 — Pass 1214: →3.6 — Pass 1311: →5.2 — Pass 1427: →7.0 — Pass 3959: 7.0→9.45 more vivid suction warmup — Pass 4774: 12.76→17.2 more vivid suction warmup
-        suctionCupMat.emissiveIntensity += (23.2 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10); // Pass 4223: cup approach emissive 9.45→12.76 more vivid suction warmup — Pass 4774: emissive 12.76→17.2 more vivid suction warmup — Pass 5071: 17.2→23.2 more vivid suction warmup
+        suctionCupMat.emissiveIntensity += (31.3 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10); // Pass 4223: cup approach emissive 9.45→12.76 more vivid suction warmup — Pass 4774: emissive 12.76→17.2 more vivid suction warmup — Pass 5071: 17.2→23.2 more vivid suction warmup — Pass 5772: 23.2→31.3 more vivid suction cup pre-contact glow
         // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
         if (!_contactFlashFired) {
           _contactFlashFired = true;
@@ -2689,9 +2689,9 @@ function animate(ts) {
           // Pass 203: cup contact dust puff — tiny displaced air burst upward from card surface.
           // 4 particles shoot upward and sideways, simulating air compressed under the cup.
           {
-            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 — Pass 1313: →20 — Pass 1670: →28 — Pass 4064: →38 bigger suction contact burst
+            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 — Pass 1313: →20 — Pass 1670: →28 — Pass 4064: →38 bigger suction contact burst — Pass 5770: 38→51 bigger suction contact burst
           let _cpSpawned = 0;
-            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 38; _ci++) {
+            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 51; _ci++) {
               const _cp = GRAB_PARTICLES[_ci];
               if (_cp.active) continue;
               _cp.active = true; _cp.age = 0; _cp.life = 1.04 + Math.random() * 0.49; // Pass 1130: 0.20+0.10→0.30+0.15 — Pass 1671: →0.42+0.20 — Pass 4066: →0.57+0.27 longer pick dust — Pass 4898: base 0.57→0.77 — Pass 4899: rand 0.27→0.36 longer contact dust — Pass 5524: base 0.77→1.04 longer pick dust base life — Pass 5525: rand 0.36→0.49 longer pick dust life variance
@@ -2732,8 +2732,8 @@ function animate(ts) {
             tp.mat.color.set(0x9aaabb); // cool steel-gray (no domain reveal yet)
           }
           // Pass 883: descent trail opacity 0.22+0.12→0.32+0.18, life 0.20+0.10→0.28+0.14 — Pass 1091: opacity 0.32+0.18→0.48+0.26, life 0.28+0.14→0.40+0.20 — Pass 1494: opacity →0.65+0.35, Pass 1495: life →0.55+0.28 — Pass 1676: opacity →0.80+0.45, Pass 1677: life →0.72+0.36 — Pass 3908: life 0.72+0.36→0.97+0.49 longer arm trail — Pass 4775: opacity 1.08→1.46 brighter descent trail
-          tp.mat.opacity = 1.97 + Math.random() * 0.61; // Pass 4417: arm trail opacity 0.80+0.45→1.08+0.61 brighter descent trail — Pass 4775: opacity 1.08→1.46 brighter descent trail — Pass 5125: 1.46→1.97 brighter arm descent trail
-          tp.age = 0; tp.life = 1.77 + Math.random() * 0.66; // Pass 4418: arm trail life 0.97+0.49→1.31+0.66 longer descent trail — Pass 5077: 1.31→1.77 longer descent trail
+          tp.mat.opacity = 2.66 + Math.random() * 0.82; // Pass 4417: arm trail opacity 0.80+0.45→1.08+0.61 brighter descent trail — Pass 4775: opacity 1.08→1.46 brighter descent trail — Pass 5125: 1.46→1.97 brighter arm descent trail — Pass 5776: 1.97→2.66 brighter arm descent contrail opacity
+          tp.age = 0; tp.life = 2.39 + Math.random() * 0.89; // Pass 4418: arm trail life 0.97+0.49→1.31+0.66 longer descent trail — Pass 5077: 1.31→1.77 longer descent trail — Pass 5777: 1.77→2.39 longer arm descent contrail particle lifetime
           tp.active = true; tp.mesh.visible = true;
         }
       }
