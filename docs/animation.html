@@ -2896,7 +2896,7 @@ function animate(ts) {
     if(inPhase(PH.armLift) && stackCards[stackTopIdx]) {
       const lt = phaseRaw(PH.armLift);
       const baseY = CARD_T/2 + 6 + stackTopIdx * (CARD_T + 0.5);
-      stackCards[stackTopIdx].position.y = baseY + lt * 57; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 — Pass 1838: →lt*57 higher card elevation during lift
+      stackCards[stackTopIdx].position.y = baseY + lt * 77.0; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 — Pass 1838: →lt*57 — Pass 3948: 57→77.0 higher card elevation during lift
     }
 
     // Card tracks suction cup (pass 154: Z follows pivot during arm phases)
@@ -3111,7 +3111,7 @@ function animate(ts) {
     // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
     // confirmed (ft 0.85→1.0), giving a subtle "recognition" gesture.
     // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 — Pass 1077: →12.0 — Pass 1209: →17.0 — Pass 1277: →24.0 for more prominent "recognized!" rise
-    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 43.2 : 0; // Pass 2296: reveal lift 32.0→43.2
+    const _revealLift = _identityRevealed ? Math.min(1, (ft - 0.85) / 0.12) * 58.3 : 0; // Pass 2296: reveal lift 32.0→43.2 — Pass 3943: 43.2→58.3 more prominent recognition rise
     activeCard.position.set(-40, CONV_Y_TOP + CARD_T/2 + 2 + _levitate + _revealLift, 0);
     // Face-reveal tilt: card tips toward camera during scan so domain artwork is unmistakable.
     // Pass 139: blend from conveyorIn's belt lean into the reveal bell curve over first 10%
@@ -3347,7 +3347,7 @@ function animate(ts) {
         : 0.78 + 0.30 * Math.abs(Math.sin(ts * 18 * Math.PI * 2)); // Pass 1701: pre-reveal flicker amp 0.22→0.30
       // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 — Pass 853: →2.5 — Pass 1322: →3.5 for bigger swell
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
-      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.25 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25
+      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.338 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25 — Pass 3945: 0.25→0.338 bigger cursor search pulse
       const _cursorScale290 = _identityRevealed && ft < 0.91
         ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 8.75 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75
         : _cursorPreScale300;
@@ -3647,7 +3647,7 @@ function animate(ts) {
       // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 — Pass 855: →1.40 — Pass 1438: →2.00 for bolder arc flash at lock-on
       const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 16.3 : 0; // Pass 2562: arc reveal spike 3.65→4.93 — Pass 3003: 4.93→6.66 — Pass 3197: 6.66→8.99 — Pass 3425: 8.99→12.1 — Pass 3539: 12.1→16.3
       // Pass 644: post-reveal arc opacity 0.35→0.50 — Pass 856: →0.80 — Pass 1075: →1.10 — Pass 1439: →1.55 for more solid confirmed-route arc
-      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 2.09 : 0)) + _arcStrobeMod + _arcRevealSpike; // Pass 1731: arc post-reveal opacity 1.55→2.09
+      routeArcMat.opacity = flashIntensity * (0.90 + (_identityRevealed ? 2.82 : 0)) + _arcStrobeMod + _arcRevealSpike; // Pass 1731: arc post-reveal opacity 1.55→2.09 — Pass 3946: 2.09→2.82 bolder confirmed-route arc
       // Target sphere pulses at destination
       routeTarget.position.copy(arcEnd);
       routeTargetMat.color.copy(_arcColor);
@@ -3872,7 +3872,7 @@ function animate(ts) {
       // Pass 475: final-approach trail opacity boost — Pass 824/825: early 0.28+0.12→0.42+0.18, final 0.42+0.20→0.60+0.30 — Pass 1496: early →0.56+0.24, final →0.80+0.40
       tp.mat.opacity = ot > 0.65 ? Math.min(1, 0.80 + Math.random() * 0.40) : 0.76 + Math.random() * 0.32; // Pass 1882: contrail early opacity 0.56+0.24→0.76+0.32
       // Pass 826: trail life 0.22+0.10→0.30+0.14 — Pass 1497: →0.40+0.18 for longer exhaust contrail
-      tp.age = 0; tp.life = 0.54 + Math.random() * 0.24; // Pass 1883: contrail trail life 0.40+0.18→0.54+0.24
+      tp.age = 0; tp.life = 0.729 + Math.random() * 0.324; // Pass 1883: contrail trail life 0.40+0.18→0.54+0.24 — Pass 3947: 0.54+0.24→0.729+0.324 longer exhaust contrail
       tp.active = true; tp.mesh.visible = true;
     }
   }
@@ -3957,7 +3957,7 @@ function animate(ts) {
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
     const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 387 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387
-      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 2.97; // Pass 2107: Z tremor tertiary 2.2→2.97
+      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 4.01; // Pass 2107: Z tremor tertiary 2.2→2.97 — Pass 3941: 2.97→4.01 stronger deflect air buffet
     // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 — Pass 1072: →3.2 — Pass 1253: →4.4 for more 3D turbulence in deflect arc
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 161; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
@@ -4250,7 +4250,7 @@ function animate(ts) {
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 28; // Pass 1489: 20→28 wider spread
         _pp.vy = 667 + Math.random() * 589; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589
-        _pp.vz = (Math.random() - 0.5) * 40; // Pass 2124: puff vz spread 30→40
+        _pp.vz = (Math.random() - 0.5) * 54.0; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 wider landing puff
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
           Math.min(1, _rr / 255 * 0.45 + 0.55),
@@ -4964,7 +4964,7 @@ function animate(ts) {
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
       const _fdScale = 1.0 + _altFrac * 52.1; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
-      const _fdPulse514 = (1 - _altFrac) * 0.057 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057
+      const _fdPulse514 = (1 - _altFrac) * 0.077 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
       const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.055, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00
       floorDisc.scale.setScalar(_fdScale);
