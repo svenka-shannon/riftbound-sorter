@@ -3186,7 +3186,7 @@ function animate(ts) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 5.13); // Pass 4787: hood reveal flash progression rate 3.8→5.13 snappier reveal strobe
       // Pass 373/374: strobe 1.4→2.0, 3→4.5 pulses — Pass 598: 2.0→3.0 — Pass 738: →4.5 — Pass 1151: →6.5 — Pass 1413: →9.0
       const _revStrobe = Math.abs(Math.sin(_hoodRevealFlash * Math.PI * 4.5)) * (1 - _hoodRevealFlash) * 98.6; // Pass 2304: hood reveal strobe 12.1→16.3 — Pass 3381: 16.3→22.0 — Pass 3432: 22.0→29.7 — Pass 3455: 29.7→40.1 — Pass 3645: 40.1→54.1 — Pass 4340: 54.1→73.0 brighter hood reveal strobe — Pass 5248: 73.0→98.6 brighter hood reveal strobe
-      hoodMat.emissiveIntensity = 0.47 + flashIntensity * 1.82 + _revStrobe; // Pass 738: 1.10→1.35 — Pass 3980: flash multiplier 1.35→1.82 — Pass 4364: base 0.35→0.47 brighter hood reveal base
+      hoodMat.emissiveIntensity = 0.635 + flashIntensity * 1.82 + _revStrobe; // Pass 738: 1.10→1.35 — Pass 3980: flash multiplier 1.35→1.82 — Pass 4364: base 0.35→0.47 brighter hood reveal base — Pass 5369: 0.47→0.635 brighter hood reveal strobe base
       if (_hoodRevealFlash >= 1) _hoodRevealFlash = 0;
     } else {
       // Pass 500: scanner hood scan intensity 0.35+1.10→0.40+1.40 — Pass 739: →0.45+1.70 — Pass 1414: →0.45+2.30
@@ -3532,7 +3532,7 @@ function animate(ts) {
         const _chaseIdx = Math.floor(ts * _chaseHz) % 4;
         GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
           // Pass 648: chase peak 1.8→2.8 — Pass 721: →3.8 — Pass 800: →5.5 — Pass 1168: →8.0 — Pass 1331: →11.0 — Pass 1384: →15.0 for more vivid pre-reveal LED cycling
-          const _cTarget = gi === _chaseIdx ? 223.0 : 0.1; // Pass 2550: gate LED chase peak 27.3→36.9 — Pass 2842: 36.9→49.8 — Pass 2989: 49.8→67.2 — Pass 3187: 67.2→90.7 — Pass 3762: 90.7→122.4 — Pass 3870: 122.4→165.2 — Pass 4125: 165.2→223.0
+          const _cTarget = gi === _chaseIdx ? 301 : 0.1; // Pass 2550: gate LED chase peak 27.3→36.9 — Pass 2842: 36.9→49.8 — Pass 2989: 49.8→67.2 — Pass 3187: 67.2→90.7 — Pass 3762: 90.7→122.4 — Pass 3870: 122.4→165.2 — Pass 4125: 165.2→223.0 — Pass 5370: 223.0→301 more vivid scan gate LED chase
           gm.color.setHex(0x0088cc);
           gm.emissive.setHex(0x003366);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 73.0); // Pass 3188: gate LED chase rate 22→29.7 — Pass 3767: 29.7→40.1 — Pass 3875: 40.1→54.1 — Pass 4622: 54.1→73.0 faster scan bar reveal advance speed
@@ -3542,14 +3542,14 @@ function animate(ts) {
           // Pass 320: non-target LEDs fade to 0 post-reveal — spotlight narrows to destination
           const _nonTargetDim = Math.max(0, 0.10 - Math.min(1, (ft - 0.85) / 0.05) * 0.10);
           // Pass 545: target LED emissive 4.5→6.0 — Pass 801: →9.0 — Pass 1169: →13.0 — Pass 1344: →18.0 for stronger destination lock-on glow
-          const _cTarget = gi === ct.col ? 198.5 : _nonTargetDim; // Pass 2551: target LED post-reveal 24.3→32.8 — Pass 2843: 32.8→44.3 — Pass 2990: 44.3→59.8 — Pass 3189: 59.8→80.7 — Pass 3763: 80.7→108.9 — Pass 3871: 108.9→147.0 — Pass 4126: 147.0→198.5
+          const _cTarget = gi === ct.col ? 268 : _nonTargetDim; // Pass 2551: target LED post-reveal 24.3→32.8 — Pass 2843: 32.8→44.3 — Pass 2990: 44.3→59.8 — Pass 3189: 59.8→80.7 — Pass 3763: 80.7→108.9 — Pass 3871: 108.9→147.0 — Pass 4126: 147.0→198.5 — Pass 5371: 198.5→268 stronger lock-on LED target
           gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
           gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
           gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 27); // Pass 4817: post-reveal gate LED tracking rate 20→27
         });
         // Pass 321: target gate LED scale pop at reveal — Pass 402: balloon boost 0.85 → 1.30
         // Pass 546: LED scale pop balloon 1.30→1.70 for bigger LED bloat at reveal
-        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 25.4 : 1.0; // Pass 2552: gate LED scale pop 3.11→4.20 — Pass 2844: 4.20→5.67 — Pass 2991: 5.67→7.65 — Pass 3190: 7.65→10.3 — Pass 3764: 10.3→13.9 — Pass 3872: 13.9→18.8 — Pass 4127: 18.8→25.4 bigger LED pop
+        const _ledRevealScale = ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 34.3 : 1.0; // Pass 2552: gate LED scale pop 3.11→4.20 — Pass 2844: 4.20→5.67 — Pass 2991: 5.67→7.65 — Pass 3190: 7.65→10.3 — Pass 3764: 10.3→13.9 — Pass 3872: 13.9→18.8 — Pass 4127: 18.8→25.4 bigger LED pop — Pass 5372: 25.4→34.3 bigger gate LED reveal scale pop
         GATE_COL_LEDS.forEach(({ mesh: gMesh }, gi) => {
           gMesh.scale.setScalar(gi === ct.col ? _ledRevealScale : 1.0);
         });
@@ -3560,7 +3560,7 @@ function animate(ts) {
     scanTargetLight.color.setHex(ct.hex);
     // Pass 348: target light reveal spike — Pass 547: spike 4.5→6.5, base 3.2→4.2
     // Pass 913: spike 6.5→10.0 — Pass 1425: →14.0 for bigger destination spotlight flash at lock-on
-    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 208 : 0; // Pass 2553: target spotlight spike 25.5→34.4 — Pass 2821: 34.4→46.4 — Pass 2992: 46.4→62.6 — Pass 3191: 62.6→84.5 — Pass 3477: 84.5→114.1 — Pass 3989: 114.1→154 — Pass 4128: 154→208 brighter spotlight flash
+    const _tgtRevealSpike348 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 281 : 0; // Pass 2553: target spotlight spike 25.5→34.4 — Pass 2821: 34.4→46.4 — Pass 2992: 46.4→62.6 — Pass 3191: 62.6→84.5 — Pass 3477: 84.5→114.1 — Pass 3989: 114.1→154 — Pass 4128: 154→208 brighter spotlight flash — Pass 5373: 208→281 bigger destination lock-on spotlight spike
     // Pass 912: base 4.2→6.0 — Pass 1425: →8.5 for stronger destination spotlight during scan
     scanTargetLight.intensity = _identityRevealed ? flashIntensity * 93.7 + _tgtRevealSpike348 : 0; // Pass 2554: target spotlight base flash 11.5→15.5 — Pass 2822: 15.5→20.9 — Pass 2993: 20.9→28.2 — Pass 3192: 28.2→38.1 — Pass 3478: 38.1→51.4 — Pass 3990: 51.4→69.4 — Pass 4129: 69.4→93.7 stronger spotlight
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, ct.slotZ);
@@ -5429,8 +5429,8 @@ function animate(ts) {
   // Target set per-phase above; phases not setting it (arm phases, pause) leave it at 0.
   // Lerp rate: 0..target in ~0.15s (dt*7 per frame @ 60fps)
   {
-    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 0.655 // Pass 2245: conveyor belt speed 0.108→0.146 — Pass 2733: 0.146→0.197 — Pass 2965: 0.197→0.266 — Pass 3165: 0.266→0.359 — Pass 3334: 0.359→0.485 // Pass 4480: 0.485→0.655 faster belt scroll
-                      : inPhase(PH.scan) ? 0.162 // Pass 2246: scan creep 0.027→0.036 — Pass 2734: 0.036→0.049 — Pass 2966: 0.049→0.066 — Pass 3166: 0.066→0.089 — Pass 3335: 0.089→0.120 // Pass 4481: 0.120→0.162 faster scan belt creep
+    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 0.884 // Pass 2245: conveyor belt speed 0.108→0.146 — Pass 2733: 0.146→0.197 — Pass 2965: 0.197→0.266 — Pass 3165: 0.266→0.359 — Pass 3334: 0.359→0.485 // Pass 4480: 0.485→0.655 faster belt scroll — Pass 5382: 0.655→0.884 faster conveyor belt scroll
+                      : inPhase(PH.scan) ? 0.219 // Pass 2246: scan creep 0.027→0.036 — Pass 2734: 0.036→0.049 — Pass 2966: 0.049→0.066 — Pass 3166: 0.066→0.089 — Pass 3335: 0.089→0.120 // Pass 4481: 0.120→0.162 faster scan belt creep — Pass 5383: 0.162→0.219 faster scan belt creep
                       : (inPhase(PH.deflect) || inPhase(PH.slotDrop)) ? 0.04
                       : 0; // arm phases + pause: belt decelerates to stop
     _beltScrollSpeed += (_beltTarget - _beltScrollSpeed) * Math.min(1, dt * 7);
@@ -5445,13 +5445,13 @@ function animate(ts) {
       if (!t.stripMat) return;
       if (_inSlotDrop && t !== ct) {
         // Non-active strip fades to 0.05 (spotlight yields)
-        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 11.7); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39 — Pass 4553: 6.39→8.63 snappier strip spotlight yield — Pass 5355: 8.63→11.7 snappier rival strip spotlight dim
+        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 15.8); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39 — Pass 4553: 6.39→8.63 snappier strip spotlight yield — Pass 5355: 8.63→11.7 snappier rival strip spotlight dim — Pass 5384: 11.7→15.8 snappier rival strip spotlight yield
       } else if (!_inSlotDrop && t.stripMat.emissiveIntensity < 0.203) {
         // Recovery to normal idle after spotlight
-        t.stripMat.emissiveIntensity = Math.min(0.203, t.stripMat.emissiveIntensity + dt * 6.66); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65 — Pass 4554: 3.65→4.93 faster strip recovery after spotlight — Pass 4654: belt active emissive floor 0.15→0.203 brighter strip baseline — Pass 5356: 4.93→6.66 faster strip recovery after spotlight
+        t.stripMat.emissiveIntensity = Math.min(0.203, t.stripMat.emissiveIntensity + dt * 8.99); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65 — Pass 4554: 3.65→4.93 faster strip recovery after spotlight — Pass 4654: belt active emissive floor 0.15→0.203 brighter strip baseline — Pass 5356: 4.93→6.66 faster strip recovery after spotlight — Pass 5385: 6.66→8.99 faster strip recovery after spotlight
       } else if (t.stripMat.emissiveIntensity > 0.203) {
         // Pass 69: decay from flash
-        t.stripMat.emissiveIntensity = Math.max(0.203, t.stripMat.emissiveIntensity - dt * 60.5); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2 — Pass 4511: belt active strip flash decay 33.2→44.8 snappier strobe — Pass 4654: belt active emissive floor 0.15→0.203 — Pass 5357: 44.8→60.5 snappier belt strip flash decay
+        t.stripMat.emissiveIntensity = Math.max(0.203, t.stripMat.emissiveIntensity - dt * 81.7); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2 — Pass 4511: belt active strip flash decay 33.2→44.8 snappier strobe — Pass 4654: belt active emissive floor 0.15→0.203 — Pass 5357: 44.8→60.5 snappier belt strip flash decay — Pass 5386: 60.5→81.7 snappier belt strip flash decay
       }
     });
   }
