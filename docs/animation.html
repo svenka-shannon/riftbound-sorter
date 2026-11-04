@@ -1479,7 +1479,7 @@ scene.add(activeCardEdge);
 
 // Card glow: increased range and physical falloff
 const cardGlow = new THREE.PointLight(0xffffff, 0, 270); // Pass 4020: card glow range 200→270 wider card illumination
-cardGlow.decay = 2;
+cardGlow.decay = 2.7; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff
 scene.add(cardGlow);
 
 // ─── Pass 177: Card contact shadow disc ──────────────────────────────────────
@@ -1497,7 +1497,7 @@ scene.add(_shadowMesh);
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
 // Narrow bright band swept across the card face during scan — simulates specular
 // reflection of the scanner beam reading the card surface (X=fullwidth, thin Z=7).
-const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 0.9, 7);
+const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 0.9, 9.45); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread
 const cardShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false,
 });
@@ -1587,7 +1587,7 @@ const vacuumRingMat = new THREE.MeshBasicMaterial({
   color: 0xaaccff, transparent: true, opacity: 0, side: THREE.DoubleSide,
 });
 const vacuumRing = new THREE.Mesh(
-  new THREE.TorusGeometry(12, 1.5, 6, 24),
+  new THREE.TorusGeometry(12, 2.03, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring
   vacuumRingMat
 );
 vacuumRing.rotation.x = -Math.PI / 2; // flat (XZ plane)
@@ -2492,7 +2492,7 @@ function animate(ts) {
       // Capacity warning: flash amber — slot is nearly full
       // Pass 187: fix capacity warning pulse — was ts*0.008 (~785s period = never visible).
       // Fixed to 0.8Hz: slots flash urgently when nearly full.
-      const _warnPulse = 0.6 + 0.54 * Math.sin(ts * 0.8 * Math.PI * 2); // Pass 4461: slot overflow pulse amplitude 0.4→0.54 stronger overflow flash
+      const _warnPulse = 0.6 + 0.54 * Math.sin(ts * 1.08 * Math.PI * 2); // Pass 4461: slot overflow pulse amplitude 0.4→0.54 stronger overflow flash // Pass 4482: overflow ripple freq 0.8→1.08 more urgent overflow flash
       mat.color.setHex(0xffaa00);
       mat.emissive.setHex(0xffaa00);
       mat.emissiveIntensity = 4.37 + _warnPulse * 3.65; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70 — Pass 4045: base 3.24→4.37, amp 2.70→3.65 brighter slot overflow warning
@@ -2767,7 +2767,7 @@ function animate(ts) {
       const lt = phaseT(PH.armLift, easeOut);
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 — Pass 1356: →-0.48 — Pass 1681: →-0.65
       const _ltLurch = lt < 0.18 ? -3.96 * Math.sin((lt / 0.18) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93 — Pass 4224: -2.93→-3.96 more dramatic suction-break strain
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt) + _ltLurch;
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 1.08, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 — Pass 1682: →7.0 more dramatic dip
       if (lt < 0.22) {
         const _yDip = -23.2 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip
@@ -2850,7 +2850,7 @@ function animate(ts) {
     } else if(inPhase(PH.armSwing)) {
       // Servo swing toward belt deposit position (+1.57 = horizontal right)
       const st = phaseT(PH.armSwing);
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(0.80, 1.57, st);
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(1.08, 1.57, st); // Pass 4487: arm swing start 0.80→1.08 matches lift endpoint
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
       // Pass 676: Z-depth arc 14→17 — Pass 764: →23 — Pass 1176: →32 — Pass 1244: →44 — Pass 1340: →60 for even more dramatic 3D depth sweep
       suctionPivot.position.z = Math.sin(st * Math.PI) * 198; // Pass 2275: armSwing Z-depth arc 81→109 — Pass 3957: 109→147 — Pass 4189: 147→198 deeper 3D sweep
@@ -4570,7 +4570,7 @@ function animate(ts) {
       });
     }
     // Pass 246: pause arm hover Y float — soft PID hold oscillation — Pass 1056: ±0.6→±1.4 more visible hover — Pass 1604: →±2.0
-    suctionPivot.position.y = 108 + 29.7 * Math.sin(ts * 0.30 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 more dramatic arm hover float
+    suctionPivot.position.y = 108 + 29.7 * Math.sin(ts * 0.405 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 more dramatic arm hover float // Pass 4485: hover freq 0.30→0.405 livelier hover bob
     // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
     // on the scanner hood emissive, as if it's slowly cooling down between cycles. — Pass 1606: 0.04→0.06
     {
@@ -5429,8 +5429,8 @@ function animate(ts) {
   // Target set per-phase above; phases not setting it (arm phases, pause) leave it at 0.
   // Lerp rate: 0..target in ~0.15s (dt*7 per frame @ 60fps)
   {
-    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 0.485 // Pass 2245: conveyor belt speed 0.108→0.146 — Pass 2733: 0.146→0.197 — Pass 2965: 0.197→0.266 — Pass 3165: 0.266→0.359 — Pass 3334: 0.359→0.485
-                      : inPhase(PH.scan) ? 0.120 // Pass 2246: scan creep 0.027→0.036 — Pass 2734: 0.036→0.049 — Pass 2966: 0.049→0.066 — Pass 3166: 0.066→0.089 — Pass 3335: 0.089→0.120
+    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 0.655 // Pass 2245: conveyor belt speed 0.108→0.146 — Pass 2733: 0.146→0.197 — Pass 2965: 0.197→0.266 — Pass 3165: 0.266→0.359 — Pass 3334: 0.359→0.485 // Pass 4480: 0.485→0.655 faster belt scroll
+                      : inPhase(PH.scan) ? 0.162 // Pass 2246: scan creep 0.027→0.036 — Pass 2734: 0.036→0.049 — Pass 2966: 0.049→0.066 — Pass 3166: 0.066→0.089 — Pass 3335: 0.089→0.120 // Pass 4481: 0.120→0.162 faster scan belt creep
                       : (inPhase(PH.deflect) || inPhase(PH.slotDrop)) ? 0.04
                       : 0; // arm phases + pause: belt decelerates to stop
     _beltScrollSpeed += (_beltTarget - _beltScrollSpeed) * Math.min(1, dt * 7);
