@@ -1050,7 +1050,7 @@ scene.add(gateBase);
 // Pass 60: Sort gate column indicator LEDs — 4 small spheres showing destination Z column
 const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x224466, emissive: 0x112233, emissiveIntensity: 3.29, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs — Pass 5132: 0.996→1.34 brighter gate col width indicator LEDs — Pass 5189: 1.34→1.81 brighter gate column width indicator LEDs — Pass 5746: 1.81→2.44 brighter gate column LED emissive — Pass 6304: 2.44→3.29 brighter gate column LED emissive
+    color: 0x224466, emissive: 0x112233, emissiveIntensity: 4.44, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs — Pass 5053: 0.547→0.738 brighter gate column LEDs — Pass 5118: 0.738→0.996 brighter gate col width indicator LEDs — Pass 5132: 0.996→1.34 brighter gate col width indicator LEDs — Pass 5189: 1.34→1.81 brighter gate column width indicator LEDs — Pass 5746: 1.81→2.44 brighter gate column LED emissive — Pass 6304: 2.44→3.29 brighter gate column LED emissive — Pass 6500: 3.29→4.44 brighter gate column LED emissive
     roughness: 0.05, metalness: 0.0,
   });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 19, 19), mat); // Pass 4988: gate column LED sphere segments 10→14 smoother gate indicators — Pass 5826: 14→19 smoother gate column LED sphere
@@ -1061,7 +1061,7 @@ const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
 });
 
 // Pass 141: Gate column tracking light — point light that follows the active LED column
-const gateColLight = new THREE.PointLight(0xffffff, 0, 548); // Pass 4040: gate col light range 90→122 wider column tracking reach — Pass 4910: 122→165 even wider gate column reach — Pass 5073: 165→223 wider gate column reach — Pass 5154: 223→301 wider gate column tracking reach — Pass 5742: 301→406 wider gate column tracking light reach — Pass 6333: 406→548 wider gate column tracking light reach
+const gateColLight = new THREE.PointLight(0xffffff, 0, 740); // Pass 4040: gate col light range 90→122 wider column tracking reach — Pass 4910: 122→165 even wider gate column reach — Pass 5073: 165→223 wider gate column reach — Pass 5154: 223→301 wider gate column tracking reach — Pass 5742: 301→406 wider gate column tracking light reach — Pass 6333: 406→548 wider gate column tracking light reach — Pass 6501: 548→740 wider gate column tracking light reach
 gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, 0);
 scene.add(gateColLight);
 
@@ -1528,7 +1528,7 @@ const GHOST_COUNT = 5; // Pass 4989: ghost trail card count 3→4 richer motion 
 const ghostCards = [];
 for (let _gi = 0; _gi < GHOST_COUNT; _gi++) {
   const _gMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1.80, // Pass 4029: ghost card emissive 0.4→0.54 brighter motion-blur wake — Pass 4892: 0.54→0.73 brighter ghost trail — Pass 5470: 0.73→0.986 brighter ghost trail motion-blur cards — Pass 5752: 0.986→1.33 brighter ghost trail motion-blur card emissive — Pass 6303: 1.33→1.80 brighter ghost trail motion-blur card emissive
+    color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 2.43, // Pass 4029: ghost card emissive 0.4→0.54 brighter motion-blur wake — Pass 4892: 0.54→0.73 brighter ghost trail — Pass 5470: 0.73→0.986 brighter ghost trail motion-blur cards — Pass 5752: 0.986→1.33 brighter ghost trail motion-blur card emissive — Pass 6303: 1.33→1.80 brighter ghost trail motion-blur card emissive — Pass 6502: 1.80→2.43 brighter ghost trail motion-blur card emissive
     transparent: true, opacity: 0,
     roughness: 0.6, metalness: 0.0, depthWrite: false,
   });
@@ -1733,7 +1733,7 @@ function addCardToTray(ct) {
   const geo = new THREE.BoxGeometry(CARD_T, TRAY_CARD_H, CARD_W);
   const mat = new THREE.MeshStandardMaterial({
     color: 0xffffff, roughness: 0.18, metalness: 0.0,
-    emissive: ct.hex, emissiveIntensity: 1.12, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow — Pass 5058: 0.456→0.616 richer card base glow — Pass 5773: 0.616→0.832 richer tray card initial base glow — Pass 6341: 0.832→1.12 richer tray card initial base glow
+    emissive: ct.hex, emissiveIntensity: 1.51, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow — Pass 5058: 0.456→0.616 richer card base glow — Pass 5773: 0.616→0.832 richer tray card initial base glow — Pass 6341: 0.832→1.12 richer tray card initial base glow — Pass 6503: 1.12→1.51 richer tray card initial base glow
     map: cardTextures[ct.slot]
   });
   const mesh = new THREE.Mesh(geo, mat);
@@ -1760,7 +1760,7 @@ function addCardToTray(ct) {
   _ledCooloff[ct.slot] = 42.0; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow — Pass 5299: slot LED afterglow 12.6→17.0s even longer slot domain glow — Pass 5882: 17.0→23.0 even longer slot LED afterglow duration — Pass 6195: 23.0→31.1 even longer slot LED afterglow duration — Pass 6455: 31.1→42.0 even longer slot LED afterglow duration
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
-  const flashLight = new THREE.PointLight(ct.hex, 74.4, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst — Pass 5410: 22.4→30.2 brighter card deal slot arrival burst flash — Pass 5534: 30.2→40.8 brighter card deal slot arrival burst flash peak — Pass 5854: 40.8→55.1 brighter card deal slot arrival burst flash peak — Pass 6197: 55.1→74.4 brighter slot arrival burst flash peak intensity
+  const flashLight = new THREE.PointLight(ct.hex, 100.4, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst — Pass 5410: 22.4→30.2 brighter card deal slot arrival burst flash — Pass 5534: 30.2→40.8 brighter card deal slot arrival burst flash peak — Pass 5854: 40.8→55.1 brighter card deal slot arrival burst flash peak — Pass 6197: 55.1→74.4 brighter slot arrival burst flash peak intensity — Pass 6504: 74.4→100.4 brighter slot arrival burst flash peak intensity
   flashLight.position.copy(mesh.position);
   scene.add(flashLight);
   if(!window._flashLights) window._flashLights = [];
@@ -1768,7 +1768,7 @@ function addCardToTray(ct) {
 
   // Pulse fill bar brightness on arrival — Pass 398: 1.5→2.8 — Pass 851: →5.0 for vivid fill animation
   if(fillBars[ct.slot]) {
-    fillBars[ct.slot].material.emissiveIntensity = 16.6; // Pass 4025: fill bar arrival pulse 5.0→6.75 — Pass 5001: 6.75→9.11 brighter arrival bar flash — Pass 5890: 9.11→12.3 brighter slot fill bar arrival emissive pulse — Pass 6198: 12.3→16.6 brighter slot fill bar arrival emissive pulse
+    fillBars[ct.slot].material.emissiveIntensity = 22.4; // Pass 4025: fill bar arrival pulse 5.0→6.75 — Pass 5001: 6.75→9.11 brighter arrival bar flash — Pass 5890: 9.11→12.3 brighter slot fill bar arrival emissive pulse — Pass 6198: 12.3→16.6 brighter slot fill bar arrival emissive pulse — Pass 6505: 16.6→22.4 brighter slot fill bar arrival emissive pulse
   }
 
   // Track per-domain sort count
@@ -5269,7 +5269,7 @@ function animate(ts) {
     tp.age += dt;
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
-    tp.mesh.position.y += dt * (147 + _tt * 161); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail — Pass 5288: base 59.9→80.9 — Pass 5289: ramp 88.6→119.6 more buoyant contrail — Pass 5720: base 80.9→109.2 more buoyant arm trail contrail — Pass 6010: ramp 119.6→161 more buoyant contrail rise rate — Pass 6189: base 109.2→147 more buoyant arm trail contrail rise base
+    tp.mesh.position.y += dt * (198 + _tt * 217); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail — Pass 5288: base 59.9→80.9 — Pass 5289: ramp 88.6→119.6 more buoyant contrail — Pass 5720: base 80.9→109.2 more buoyant arm trail contrail — Pass 6010: ramp 119.6→161 more buoyant contrail rise rate — Pass 6189: base 109.2→147 more buoyant arm trail contrail rise base — Pass 6506: base 147→198 more buoyant arm trail contrail rise base — Pass 6507: ramp 161→217 more buoyant arm trail contrail rise rate
     tp.mat.opacity = (1 - _tt) * 7.22; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth — Pass 4521: arm trail contrail birth opacity 1.19→1.61 brighter sphere trail — Pass 5345: 1.61→2.17 brighter arm trail contrail birth opacity — Pass 5695: 2.17→2.93 brighter arm trail contrail birth opacity — Pass 5974: 2.93→3.96 brighter arm trail contrail birth opacity — Pass 6190: 3.96→5.35 brighter arm trail contrail birth opacity — Pass 6413: 5.35→7.22 brighter arm trail contrail birth opacity
     tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 27.4)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper — Pass 5290: 8.24→11.1 faster trail shrink taper — Pass 5807: 11.1→15.0 faster arm trail shrink taper — Pass 6191: 15.0→20.3 faster arm trail shrink taper rate — Pass 6414: 20.3→27.4 faster arm trail shrink taper rate
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
