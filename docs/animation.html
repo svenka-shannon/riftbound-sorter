@@ -3467,7 +3467,7 @@ function animate(ts) {
     // Reuses TRAIL_PARTICLES (idle during scan since no arm-swing/deflect overlap).
     // Pass 535: 0.14→0.10s — Pass 722: →0.07s — Pass 842: →0.048s for denser exhaust
     _scanExhaustAcc += dt;
-    if (_scanExhaustAcc >= 0.030 && flashIntensity > 0.15) { // Pass 2541: exhaust interval 0.048→0.030 denser
+    if (_scanExhaustAcc >= 0.022 && flashIntensity > 0.15) { // Pass 2541: exhaust interval 0.048→0.030 denser — Pass 4294: 0.030→0.022 even denser exhaust plume
       _scanExhaustAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -3506,7 +3506,7 @@ function animate(ts) {
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
           p.mat.color.setHex(ft < 0.85 ? 0xaaddff : ct.hex);
           // Pass 135: non-linear doppler fade — ring dissipates faster as it expands
-          const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
+          const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 2.30); // Pass 4300: ping fade exponent 1.7→2.30 sharper ring dissolution
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
           // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 — Pass 1411: →4.5 — Pass 1525: →6.5 for brighter confirm ring flash
           const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 96.9 : 0; // Pass 2549: ping reveal spike 11.84→15.98 — Pass 2840: 15.98→21.6 — Pass 2986: 21.6→29.2 — Pass 3185: 29.2→39.4 — Pass 3761: 39.4→53.2 — Pass 3869: 53.2→71.8 — Pass 4224: 71.8→96.9 brighter confirm ring flash
@@ -3808,7 +3808,7 @@ function animate(ts) {
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
-    if (ot > 0.35) { // Pass 2075: corona spawn start 0.45→0.35
+    if (ot > 0.26) { // Pass 2075: corona spawn start 0.45→0.35 — Pass 4295: 0.35→0.26 earlier gate corona
       _trailSpawnAcc += dt;
       const _coronaRate = 0.18 - (ot - 0.45) * 0.10; // faster spawn as charge peaks
       if (_trailSpawnAcc >= _coronaRate) {
@@ -3858,7 +3858,7 @@ function animate(ts) {
     // Pass 459: final-approach trail density boost — last 35% of conveyorOut spawns at 38ms
     // instead of 70ms, creating a denser contrail "surge" as card punches toward the gate.
     // Pass 459: final-approach density — Pass 823: early 0.07→0.05, final 0.038→0.026 for denser contrail
-    const _convTrailRate = ot > 0.65 ? 0.026 : 0.038; // Pass 2080: early trail density 0.05→0.038
+    const _convTrailRate = ot > 0.65 ? 0.019 : 0.028; // Pass 2080: early trail density 0.05→0.038 — Pass 4296: early 0.038→0.028 final 0.026→0.019 denser conveyor trail
     _trailSpawnAcc += dt;
     if (_trailSpawnAcc >= _convTrailRate) {
       _trailSpawnAcc = 0;
@@ -4051,7 +4051,7 @@ function animate(ts) {
     _beltScrollSpeed = 0.04; // half speed while card arcs off belt
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.030) { // Pass 2102: deflect trail spawn 0.040→0.030 denser
+    if (_trailSpawnAcc >= 0.022) { // Pass 2102: deflect trail spawn 0.040→0.030 denser — Pass 4297: 0.030→0.022 even denser deflect contrail
       _trailSpawnAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -4406,7 +4406,7 @@ function animate(ts) {
       _rejectBurst2Fired = true;
       let _rb2 = 0;
       // Pass 1048: reject burst2 count 8→12
-      for (let _ri2 = 0; _ri2 < TRAIL_PARTICLES.length && _rb2 < 16; _ri2++) { // Pass 2142: reject burst2 count 12→16
+      for (let _ri2 = 0; _ri2 < TRAIL_PARTICLES.length && _rb2 < 22; _ri2++) { // Pass 2142: reject burst2 count 12→16 — Pass 4298: 16→22 bigger reject secondary spark burst
         const tp2 = TRAIL_PARTICLES[(_trailHead + _ri2) % TRAIL_PARTICLE_COUNT];
         if (tp2.active) continue;
         _trailHead++;
@@ -4804,7 +4804,7 @@ function animate(ts) {
     // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
     // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
     const _arMemT = phaseRaw(PH.armReturn);
-    const _memFade = Math.max(0, 1 - _arMemT / 1.00); // Pass 2185: cup memory window 0.41→0.55 — Pass 2769: 0.55→0.74 — Pass 2907: 0.74→1.00
+    const _memFade = Math.max(0, 1 - _arMemT / 1.35); // Pass 2185: cup memory window 0.41→0.55 — Pass 2769: 0.55→0.74 — Pass 2907: 0.74→1.00 — Pass 4299: 1.00→1.35 longer cup domain memory glow
     if (_memFade > 0.01) {
       suctionCupMat.emissive.setHex(ct.hex);
       suctionCupMat.emissiveIntensity += (_memFade * 4.48 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2186: cup memory intensity 0.74→1.00 — Pass 2770: 1.00→1.35 — Pass 2908: 1.35→1.82 — Pass 3117: 1.82→2.46 — Pass 3289: 2.46→3.32 — Pass 3369: 3.32→4.48
@@ -5467,7 +5467,7 @@ function animate(ts) {
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
     // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
     const _breathe = 1.82 + 1.35 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35
-                         + 0.15 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15
+                         + 0.20 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
