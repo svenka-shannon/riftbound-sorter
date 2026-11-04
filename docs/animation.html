@@ -1995,13 +1995,13 @@ function fireCelebration() {
     _mp.vx = (Math.random() - 0.5) * 930; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread — Pass 5453: 689→930 wider celebration shimmer X spread
     _mp.vy = 937 + Math.random() * 790; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft — Pass 5459: base 694→937 higher celebration shimmer loft — Pass 5460: rand 585→790 higher shimmer loft variance
     _mp.vz = (Math.random() - 0.5) * 366; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 — Pass 4104: 149→201 even wider Z shimmer — Pass 4936: 201→271 wider shimmer Z spread — Pass 5461: 271→366 wider celebration shimmer Z spread
-    _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*40.5, FLOOR_Y[0] + 85, (Math.random()-0.5)*40); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5
+    _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*54.7, FLOOR_Y[0] + 85, (Math.random()-0.5)*40); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5 — Pass 5521: 40.5→54.7 wider shimmer confetti X spawn spread
     _mp.mat.color.setHex(_shimmerColors[_mi]);
     _mp.mat.opacity = 1.0;
-    _mp.age = 0; _mp.life = 2.707 + Math.random() * 1.968; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 — Pass 4108: 1.485+1.080→2.005+1.458 longer shimmer life — Pass 4937: 2.005+1.458→2.707+1.968 longer shimmer life
-    _mp.rx = (Math.random() - 0.5) * 305; // Pass 2506: shimmer rx 50→68 — Pass 3629: 68→92 — Pass 3774: 92→124 — Pass 3881: 124→167 — Pass 4105: 167→226 — Pass 4933: 226→305 wilder shimmer tumble X
-    _mp.ry = (Math.random() - 0.5) * 361; // Pass 2507: shimmer ry 60→81 — Pass 3630: 81→109 — Pass 3775: 109→147 — Pass 3882: 147→198 — Pass 4106: 198→267 — Pass 4934: 267→361 wilder shimmer tumble Y
-    _mp.rz = (Math.random() - 0.5) * 427; // Pass 2508: shimmer rz 70→95 — Pass 3631: 95→128 — Pass 3776: 128→173 — Pass 3883: 173→234 — Pass 4107: 234→316 — Pass 4938: 316→427 wilder shimmer tumble Z
+    _mp.age = 0; _mp.life = 3.655 + Math.random() * 1.968; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 — Pass 4108: 1.485+1.080→2.005+1.458 longer shimmer life — Pass 4937: 2.005+1.458→2.707+1.968 longer shimmer life — Pass 5520: 2.707→3.655 longer shimmer particle life base
+    _mp.rx = (Math.random() - 0.5) * 412; // Pass 2506: shimmer rx 50→68 — Pass 3629: 68→92 — Pass 3774: 92→124 — Pass 3881: 124→167 — Pass 4105: 167→226 — Pass 4933: 226→305 wilder shimmer tumble X — Pass 5517: 305→412 wilder shimmer tumble X spin
+    _mp.ry = (Math.random() - 0.5) * 487; // Pass 2507: shimmer ry 60→81 — Pass 3630: 81→109 — Pass 3775: 109→147 — Pass 3882: 147→198 — Pass 4106: 198→267 — Pass 4934: 267→361 wilder shimmer tumble Y — Pass 5518: 361→487 wilder shimmer tumble Y spin
+    _mp.rz = (Math.random() - 0.5) * 577; // Pass 2508: shimmer rz 70→95 — Pass 3631: 95→128 — Pass 3776: 128→173 — Pass 3883: 173→234 — Pass 4107: 234→316 — Pass 4938: 316→427 wilder shimmer tumble Z — Pass 5519: 427→577 wilder shimmer tumble Z spin
     _mp.active = true; _mp.mesh.visible = true;
   }
   // Pass 54: full-scene celebration enhancement
@@ -3513,7 +3513,7 @@ function animate(ts) {
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
           const _pingBoost = ft >= 0.85 ? 740 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2 — Pass 3547: 165.2→223 — Pass 3731: 223→301 — Pass 3837: 301→406 — Pass 4223: 406→548 blazing confirm rings — Pass 5269: 548→740 blazing confirm ring ping boost
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
-          p.mat.opacity = _pingFade * flashIntensity * 1.82 * _pingBoost; // Pass 4601: scan ring opacity multiplier 1.0→1.35 brighter off-peak ring fade — Pass 5379: 1.35→1.82 brighter scan ring opacity multiplier
+          p.mat.opacity = _pingFade * flashIntensity * 2.46 * _pingBoost; // Pass 4601: scan ring opacity multiplier 1.0→1.35 brighter off-peak ring fade — Pass 5379: 1.35→1.82 brighter scan ring opacity multiplier — Pass 5524: 1.82→2.46 brighter slot ring opacity fade-out multiplier
         } else {
           p.mesh.visible = false;
           p.mat.opacity = 0;
