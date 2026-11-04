@@ -4297,7 +4297,7 @@ function animate(ts) {
         for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 32; _li++) { // Pass 3486: landing scatter count 18→24 — Pass 4539: 24→32 bigger grab particle scatter cloud
           const _lp = GRAB_PARTICLES[_li];
           if (_lp.active) continue;
-          _lp.active = true; _lp.age = 0; _lp.life = 3.05 + Math.random() * 1.92; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58 — Pass 2628: 0.92+0.58→1.24+0.78 — Pass 3067: 1.24+0.78→1.67+1.05 — Pass 4356: 1.67+1.05→2.26+1.42 longer floor impact dust cloud — Pass 5650: 2.26+1.42→3.05+1.92 longer floor impact dust cloud
+          _lp.active = true; _lp.age = 0; _lp.life = 3.05 + Math.random() * 1.92; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58 — Pass 2628: 0.92+0.58→1.24+0.78 — Pass 3067: 1.24+0.78→1.67+1.05 — Pass 4356: 1.67+1.05→2.26+1.42 longer floor impact dust cloud — Pass 5674: 2.26+1.42→3.05+1.92 longer floor impact dust cloud
           _lp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 13.5, // Pass 4600: slot entry landing dust X jitter 10→13.5 wider X scatter
             ct.slotFloorY + 3.65, // Pass 4586: slot entry dust Y offset 2→2.7 more airborne impact dust — Pass 5618: 2.7→3.65 more airborne impact dust
@@ -4490,14 +4490,14 @@ function animate(ts) {
     const _artZRing = art > 0.88 ? 56.3 * Math.sin((art - 0.88) / 0.12 * Math.PI * 3.38) * (1 - (art - 0.88) / 0.12) : 0; // Pass 2411: arm return Z ring 2.82→3.81 — Pass 2644: 3.81→5.14 — Pass 2875: 5.14→6.94 — Pass 3085: 6.94→9.37 — Pass 3261: 9.37→12.6 — Pass 3602: 12.6→17.0 — Pass 3698: 17.0→22.9 — Pass 3811: 22.9→30.9 — Pass 4509: suction ring oscillation count 2.5→3.38 busier settle ring — Pass 4556: ring amplitude 30.9→41.7 deeper arm return Z arc — Pass 5630: ring amplitude 41.7→56.3 deeper arm return Z arc
     suctionPivot.position.z = Math.sin(art * Math.PI) * 807 + _artZRing; // Pass 2412: arm return Z-depth arc 40.1→54.1 — Pass 2645: 54.1→73.0 — Pass 2876: 73.0→98.6 — Pass 3086: 98.6→133.1 — Pass 3262: 133.1→179.7 — Pass 3603: 179.7→243 — Pass 3699: 243→328 — Pass 3812: 328→443 — Pass 4540: 443→598 deeper arm descent oscillation arc — Pass 5631: 598→807 deeper arm descent oscillation arc
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
-    paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 15.0); // Pass 1973: paddle return 4.5→6.1 — Pass 4074: 6.1→8.24 — Pass 4702: 8.24→11.1 snappier paddle spring-back — Pass 5651: 11.1→15.0 snappier paddle spring-back
+    paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 15.0); // Pass 1973: paddle return 4.5→6.1 — Pass 4074: 6.1→8.24 — Pass 4702: 8.24→11.1 snappier paddle spring-back — Pass 5675: 11.1→15.0 snappier paddle spring-back
     // Return floor diverter to flat (lower floor default) during arm return
     _diverterAngle += (DIVERTER_FLOOR0 - _diverterAngle) * Math.min(1, dt * 5.47); // Pass 4503: arm return diverter velocity 3→4.05 snappier servo return — Pass 5649: 4.05→5.47 snappier diverter floor servo return
     floorDiverterPivot.rotation.z = -_diverterAngle;
     // Pass 72: decay paddle back to resting orange glow after charge discharge
-    paddleMat.emissive.lerp(new THREE.Color(0xff3300), Math.min(1, dt * 7.38)); // Pass 1974: paddle emissive decay 3→4.05 — Pass 4075: 4.05→5.47 faster paddle glow return — Pass 5652: 5.47→7.38 faster paddle emissive return
-    paddleMat.color.lerp(new THREE.Color(0xff6600), Math.min(1, dt * 7.38)); // Pass 4587: arm return paddle color spring 4.05→5.47 snappier return — Pass 5653: 5.47→7.38 snappier paddle color return
-    paddleMat.emissiveIntensity += (0.18 - paddleMat.emissiveIntensity) * Math.min(1, dt * 7.38); // Pass 4790: paddle emissive intensity tracking rate 4.05→5.47 snappier paddle glow settle — Pass 5654: 5.47→7.38 snappier paddle emissive intensity settle
+    paddleMat.emissive.lerp(new THREE.Color(0xff3300), Math.min(1, dt * 7.38)); // Pass 1974: paddle emissive decay 3→4.05 — Pass 4075: 4.05→5.47 faster paddle glow return — Pass 5676: 5.47→7.38 faster paddle emissive return
+    paddleMat.color.lerp(new THREE.Color(0xff6600), Math.min(1, dt * 7.38)); // Pass 4587: arm return paddle color spring 4.05→5.47 snappier return — Pass 5677: 5.47→7.38 snappier paddle color return
+    paddleMat.emissiveIntensity += (0.18 - paddleMat.emissiveIntensity) * Math.min(1, dt * 7.38); // Pass 4790: paddle emissive intensity tracking rate 4.05→5.47 snappier paddle glow settle — Pass 5678: 5.47→7.38 snappier paddle emissive intensity settle
     activeCard.visible = false;
     activeCardMat.opacity = 0;
     cardGlow.intensity = 0;
@@ -4674,7 +4674,7 @@ function animate(ts) {
       // After reveal (or in conveyorOut which follows scan), switch to domain color.
       const _beltRevealedOrPost = _identityRevealed || inPhase(PH.conveyorOut);
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
-      beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 2.74)); // Pass 4604: belt scan emissive color lerp rate 1.5→2.03 snappier domain tint adoption — Pass 5655: 2.03→2.74 snappier belt scan color adoption
+      beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 2.74)); // Pass 4604: belt scan emissive color lerp rate 1.5→2.03 snappier domain tint adoption — Pass 5679: 2.03→2.74 snappier belt scan color adoption
       // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14 — Pass 1455: →0.28+0.20
       const _bsTarget = 7.65 + 4.00 * Math.sin(cycleT * 6); // Pass 2436: belt active emissive base 0.38→0.51, pulse 0.27→0.36 — Pass 2665: 0.51→0.69, 0.36→0.49 — Pass 2756: base 0.69→0.93 — Pass 2893/2894: 0.93+0.49→1.26+0.66 — Pass 3103: 1.26→1.70, 0.66→0.89 — Pass 3276: 1.70+0.89→2.30+1.20 — Pass 3356: 2.30+1.20→3.11+1.62 — Pass 4382: base 3.11→4.20, pulse 1.62→2.19 — Pass 4716: base 4.20→5.67 — Pass 4717: pulse 2.19→2.96 richer belt active glow — Pass 5461: base 5.67→7.65 pulse 2.96→4.00 richer belt active emissive
       beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 3.65); // Pass 4605: belt scan emissive intensity tracking 2→2.70 crisper active belt glow response — Pass 5672: 2.70→3.65 crisper belt scan emissive intensity tracking
@@ -4789,7 +4789,7 @@ function animate(ts) {
     const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 169.0 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7 — Pass 3285: 20.7→27.9 — Pass 3365: 27.9→37.7 — Pass 3503: 37.7→50.9 — Pass 3744: 50.9→68.7 — Pass 3852: 68.7→92.7 — Pass 4661: 92.7→125.1 bigger suction-break energy spike — Pass 5392: 125.1→169.0 bigger suction-break energy spike
     const _rodGlow = Math.max(_armDescT * 0.63, _armLiftT * 1.05 + _liftPickSpike, _armSwingT * 88.6, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07 — Pass 3114: 8.07→10.9 — Pass 3286: 10.9→14.7 — Pass 3366: 14.7→19.8 — Pass 3504: 19.8→26.7 — Pass 3745: 26.7→36.0 — Pass 3853: 36.0→48.6 — Pass 4252: armDesc 0.47→0.63 — Pass 4253: armLift 0.78→1.05 brighter arm rod during descend/lift — Pass 4662: swing 48.6→65.6 brighter arm rod swing glow — Pass 5393: swing 65.6→88.6 brighter arm rod swing glow
     armRod.material.emissive.setHex(ct.hex);
-    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 396); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161 — Pass 3854: 161→217 — Pass 4663: 217→293 snappier arm rod emissive response — Pass 5656: 293→396 snappier arm rod emissive response
+    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 396); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161 — Pass 3854: 161→217 — Pass 4663: 217→293 snappier arm rod emissive response — Pass 5680: 293→396 snappier arm rod emissive response
   }
 
   // ── Suction cup domain glow ──
@@ -5187,7 +5187,7 @@ function animate(ts) {
     } else if (_visibleCards >= 1) {
       // Red: low — fast 4Hz blink for urgency (fix: was ts*0.012, far too slow)
       const _blinkOn = Math.sin(ts * Math.PI * 2 * 7.29) > 0; // Pass 4887: hopper LED low-stack blink frequency 4→5.4 more urgent warning flash — Pass 5429: 5.4→7.29 more urgent low-stack blink
-      _ledColor = 0xff2200; _ledGlow = _blinkOn ? 5.10 : 0.73; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink — Pass 5657: on 3.78→5.10, off 0.54→0.73 brighter low-stack red blink
+      _ledColor = 0xff2200; _ledGlow = _blinkOn ? 5.10 : 0.73; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink — Pass 5681: on 3.78→5.10, off 0.54→0.73 brighter low-stack red blink
     } else {
       _ledColor = 0xff6600; _ledGlow = 2.19; // orange: empty (refilling) — Pass 4395: 1.2→1.62 brighter empty/refilling LED — Pass 5421: 1.62→2.19 brighter empty/refilling LED
     }
