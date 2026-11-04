@@ -3601,7 +3601,7 @@ function animate(ts) {
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
     const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 59.8 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3 — Pass 3579: 13.3→18.0 — Pass 3674: 18.0→24.3 — Pass 3992: 24.3→32.8 — Pass 4133: 32.8→44.3 brighter cone flare — Pass 5385: 44.3→59.8 brighter cone reveal flare
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
-    scanCone.position.z = 486 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03 — Pass 5088: 80.7→109 wider scan cone sweep arc — Pass 5102: 109→147 wider scanner head rotation limit sweep arc — Pass 5117: 147→198 wider slot approach orbit scan sweep — Pass 5346: 198→267 wider scanner idle rotation range sweep — Pass 5368: 267→360 wider scanner idle tilt range sweep — Pass 5576: 360→486 wider pre-pick scan cone rotate speed sweep arc
+    scanCone.position.z = 656 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03 — Pass 5088: 80.7→109 wider scan cone sweep arc — Pass 5102: 109→147 wider scanner head rotation limit sweep arc — Pass 5117: 147→198 wider slot approach orbit scan sweep — Pass 5346: 198→267 wider scanner idle rotation range sweep — Pass 5368: 267→360 wider scanner idle tilt range sweep — Pass 5576: 360→486 wider pre-pick scan cone rotate speed sweep arc — Pass 5590: 486→656 wider pre-pick scan dome orbit sweep arc
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
     scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 28.6 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7 — Pass 4135: 15.7→21.2 taller cone punch — Pass 5270: 21.2→28.6 taller scan cone reveal punch
@@ -3957,7 +3957,7 @@ function animate(ts) {
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
-    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 953 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387 — Pass 4408: 387→523 stronger deflect Z air buffet — Pass 5537: 523→706 stronger card deal arc Z air buffet amplitude — Pass 5585: 706→953 stronger card deal arc Z air buffet amplitude
+    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 1290 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387 — Pass 4408: 387→523 stronger deflect Z air buffet — Pass 5537: 523→706 stronger card deal arc Z air buffet amplitude — Pass 5585: 706→953 stronger card deal arc Z air buffet amplitude — Pass 5589: 953→1290 stronger deflect Z air buffet amplitude
       + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 7.30; // Pass 2107: Z tremor tertiary 2.2→2.97 — Pass 3941: 2.97→4.01 — Pass 4402: 4.01→5.41 stronger deflect air buffet — Pass 5561: 5.41→7.30 stronger deflect Z tertiary tremor
     // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 — Pass 1072: →3.2 — Pass 1253: →4.4 for more 3D turbulence in deflect arc
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 293; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161 — Pass 4084: 161→217 — Pass 5562: 217→293 stronger deflect Y tremor
@@ -4545,7 +4545,7 @@ function animate(ts) {
         tp.mat.opacity = 1.0 + Math.random() * 0.63; // Pass 1977: mech trail opacity 0.88+0.35→1.0+0.47 — Pass 4641: arm trail rand 0.47→0.63 brighter mechanical return contrail
       }
       // Pass 867: trail life 0.32+0.12→0.46+0.18 — Pass 1054: →0.62+0.24 — Pass 1506: →0.80+0.32 — Pass 1601: →1.05+0.42 longer-lived contrail
-      tp.age = 0; tp.life = 8.63 + Math.random() * 3.44; // Pass 2152: armReturn trail life 1.42+0.57→1.92+0.77 — Pass 2647: 1.92+0.77→2.59+1.04 — Pass 2878: 2.59+1.04→3.50+1.40 — Pass 3088: 3.50+1.40→4.73+1.89 — Pass 3264: 4.73+1.89→6.39+2.55 — Pass 4343: 6.39+2.55→8.63+3.44 longer return contrail
+      tp.age = 0; tp.life = 11.6 + Math.random() * 4.64; // Pass 2152: armReturn trail life 1.42+0.57→1.92+0.77 — Pass 2647: 1.92+0.77→2.59+1.04 — Pass 2878: 2.59+1.04→3.50+1.40 — Pass 3088: 3.50+1.40→4.73+1.89 — Pass 3264: 4.73+1.89→6.39+2.55 — Pass 4343: 6.39+2.55→8.63+3.44 longer return contrail — Pass 5586: 8.63→11.6 longer arm return contrail base life — Pass 5587: 3.44→4.64 longer arm return contrail life variance
       tp.active = true; tp.mesh.visible = true;
     }
   }
@@ -4561,7 +4561,7 @@ function animate(ts) {
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
     // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory — Pass 1603: base 0.14→0.20, amp 0.12→0.18
     {
-      const _pausePulse492 = 2.19 + 1.92 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2)); // Pass 2415: afterglow base 0.36→0.49 Pass 2416: amp 0.32→0.43 — Pass 2650: 0.49→0.66, 0.43→0.58 — Pass 2881/2882: 0.66→0.89, 0.58→0.78 — Pass 3108: 0.89→1.20, 0.78→1.05 — Pass 4344: base 1.20→1.62 — Pass 4345: amp 1.05→1.42 — Pass 4707: base 1.62→2.19 — Pass 4708: amp 1.42→1.92 richer gate afterglow
+      const _pausePulse492 = 2.96 + 2.59 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2)); // Pass 2415: afterglow base 0.36→0.49 Pass 2416: amp 0.32→0.43 — Pass 2650: 0.49→0.66, 0.43→0.58 — Pass 2881/2882: 0.66→0.89, 0.58→0.78 — Pass 3108: 0.89→1.20, 0.78→1.05 — Pass 4344: base 1.20→1.62 — Pass 4345: amp 1.05→1.42 — Pass 4707: base 1.62→2.19 — Pass 4708: amp 1.42→1.92 richer gate afterglow — Pass 5588: 2.19→2.96 richer gate afterglow base — Pass 5589: 1.92→2.59 richer gate afterglow amplitude
       GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
         if (gi === ct.col) {
           gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
@@ -4574,7 +4574,7 @@ function animate(ts) {
     // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
     // on the scanner hood emissive, as if it's slowly cooling down between cycles. — Pass 1606: 0.04→0.06
     {
-      const _hoodEmber = 0.886 * Math.sin(ts * 0.4 * Math.PI * 2) * Math.sin(ts * 1.3 * Math.PI * 2); // Pass 2418: hood ember amp 0.109→0.147 — Pass 2654: 0.147→0.198 — Pass 2884: 0.198→0.267 — Pass 3092: 0.267→0.360 — Pass 3268: 0.360→0.486 — Pass 3608: 0.486→0.656 — Pass 4570: 0.656→0.886 richer arm-hover thermal glow
+      const _hoodEmber = 1.20 * Math.sin(ts * 0.4 * Math.PI * 2) * Math.sin(ts * 1.3 * Math.PI * 2); // Pass 2418: hood ember amp 0.109→0.147 — Pass 2654: 0.147→0.198 — Pass 2884: 0.198→0.267 — Pass 3092: 0.267→0.360 — Pass 3268: 0.360→0.486 — Pass 3608: 0.486→0.656 — Pass 4570: 0.656→0.886 richer arm-hover thermal glow — Pass 5590: 0.886→1.20 richer pause hood thermal ember amplitude
       hoodMat.emissiveIntensity = Math.max(0.10, hoodMat.emissiveIntensity + _hoodEmber * dt * 6.39); // Pass 4246: hood ember apply rate 3.5→4.73 more reactive thermal ember — Pass 5562: 4.73→6.39 more reactive thermal ember apply rate
     }
     activeCard.visible = false;
@@ -4626,9 +4626,9 @@ function animate(ts) {
     // Scan phase: flash ambient up with the domain color
     // Celebration (impactRing or camera shake): spike ambient white briefly
     // Pass 521: scan ambient boost 0.30→0.38 — Pass 698: →0.50 — Pass 924: →0.70 — Pass 1083: →0.92 — Pass 1380: →1.25 — Pass 1612: →1.70
-    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 25.4 : 0; // Pass 2421: scan ambient boost 3.11→4.20 — Pass 2657: 4.20→5.67 — Pass 2888: 5.67→7.65 — Pass 3095: 7.65→10.3 — Pass 3271: 10.3→13.9 — Pass 3349: 13.9→18.8 — Pass 4538: 18.8→25.4 stronger slot entry ambient peak
+    const _scanAmbBoost = inPhase(PH.scan) ? Math.sin(phaseRaw(PH.scan) * Math.PI) * 34.3 : 0; // Pass 2421: scan ambient boost 3.11→4.20 — Pass 2657: 4.20→5.67 — Pass 2888: 5.67→7.65 — Pass 3095: 7.65→10.3 — Pass 3271: 10.3→13.9 — Pass 3349: 13.9→18.8 — Pass 4538: 18.8→25.4 stronger slot entry ambient peak — Pass 5591: 25.4→34.3 stronger scan phase ambient surge peak
     // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy — Pass 1614: →0.38
-    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 5.67 : 0; // Pass 2422: grab ambient boost 0.69→0.93 — Pass 2658: 0.93→1.26 — Pass 2889: 1.26→1.70 — Pass 3096: 1.70→2.30 — Pass 3272: 2.30→3.11 — Pass 3350: 3.11→4.20 — Pass 4619: 4.20→5.67 stronger slot entry ambient surge
+    const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 7.65 : 0; // Pass 2422: grab ambient boost 0.69→0.93 — Pass 2658: 0.93→1.26 — Pass 2889: 1.26→1.70 — Pass 3096: 1.70→2.30 — Pass 3272: 2.30→3.11 — Pass 3350: 3.11→4.20 — Pass 4619: 4.20→5.67 stronger slot entry ambient surge — Pass 5592: 5.67→7.65 stronger arm lift ambient surge
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response — Pass 1615: ceiling 0.40→0.55, mult 0.05→0.07
     const _shakeBoost   = _cameraShake > 2 ? Math.min(2.46, _cameraShake * 0.316) : 0; // Pass 2530: shake boost ceiling 1.00→1.35, mult 0.128→0.173 — Pass 2748: ceiling 1.35→1.82, mult 0.173→0.234 — Pass 4760: ceiling 1.82→2.46 stronger impact ambient — Pass 4761: shake boost multiplier 0.234→0.316
     // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 — Pass 1607: →1.05
@@ -4691,7 +4691,7 @@ function animate(ts) {
       const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
       hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 4.05)); // Pass 4827: hood approach warm-up color tracking 3→4.05
       // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 — Pass 1456: →0.28+1.80 for dramatic heat-up
-      const _warmTarget = 0.378 + _warmT * 119.6; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7 — Pass 3277: 14.7→19.8 — Pass 3363: 19.8→26.7 — Pass 3501: 26.7→36.0 — Pass 3742: 36.0→48.6 — Pass 3850: 48.6→65.6 — Pass 4386: 65.6→88.6 — Pass 4712: 88.6→119.6 brighter scanner hood warm-up — Pass 4804: warm-up base 0.28→0.378 brighter hood warm-up floor
+      const _warmTarget = 0.378 + _warmT * 161.5; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7 — Pass 3277: 14.7→19.8 — Pass 3363: 19.8→26.7 — Pass 3501: 26.7→36.0 — Pass 3742: 36.0→48.6 — Pass 3850: 48.6→65.6 — Pass 4386: 65.6→88.6 — Pass 4712: 88.6→119.6 brighter scanner hood warm-up — Pass 4804: warm-up base 0.28→0.378 brighter hood warm-up floor — Pass 5593: 119.6→161.5 brighter scanner hood approach warm-up ceiling
       // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 — Pass 1457: →0.14 for more visible heat flicker
       const _hoodShimmer = 12.6 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15 — Pass 3278: 1.15→1.55 — Pass 3364: 1.55→2.09 — Pass 3502: 2.09→2.82 — Pass 3743: 2.82→3.81 — Pass 3851: 3.81→5.14 — Pass 4387: 5.14→6.94 — Pass 4713: 6.94→9.37 more vivid hood shimmer — Pass 5460: 9.37→12.6 more vivid scanner hood shimmer amplitude
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 5.40); // Pass 4791: hood warm-up emissive tracking rate 4→5.40 snappier scanner heat-up response
