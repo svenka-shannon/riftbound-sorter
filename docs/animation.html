@@ -558,7 +558,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 4.16; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure
+renderer.toneMappingExposure = 5.62; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure — Pass 5954: 4.16→5.62 richer tone mapping exposure
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 // Pass 67: animated clear color — base dark navy tints toward domain on scan/celebration
 const _clearBase = new THREE.Color(0x0a0a12);
@@ -603,7 +603,7 @@ gridHelper.position.y = -2;
 scene.add(gridHelper);
 
 // ─── Ambient Dust Particles ───────────────────────────────────────────────────
-const DUST_COUNT = 555; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count — Pass 5517: 411→555 denser ambient mote spawn count
+const DUST_COUNT = 749; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere — Pass 5065: 92→124 denser atmosphere — Pass 5100: 124→167 denser ambient dust spawn rate — Pass 5184: 167→225 denser ambient dust particle count — Pass 5302: 225→304 denser ambient dust sparkle count — Pass 5406: 304→411 denser idle scan emit ambient dust count — Pass 5517: 411→555 denser ambient mote spawn count — Pass 5956: 555→749 denser ambient dust mote count
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
 const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
@@ -704,7 +704,7 @@ scene.add(baseMesh);
 const HOPPER_X = -230;
 
 // Point light above hopper to spotlight the pick-up action
-const hopperLight = new THREE.PointLight(0xffeedd, 3.05, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight — Pass 5930: 2.26→3.05 stronger hopper pick spotlight intensity
+const hopperLight = new THREE.PointLight(0xffeedd, 4.12, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight — Pass 5930: 2.26→3.05 stronger hopper pick spotlight intensity — Pass 5955: 3.05→4.12 stronger hopper pick spotlight intensity
 hopperLight.position.set(HOPPER_X + 33, 200, 0);
 scene.add(hopperLight);
 
@@ -889,7 +889,7 @@ scene.add(lensRing);
 const scanLEDMat = new THREE.MeshStandardMaterial({
   color: 0x00aaff,
   emissive: new THREE.Color(0x0055cc),
-  emissiveIntensity: 24.3, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor — Pass 5862: 13.3→18.0 brighter scanner body idle LED emissive floor — Pass 5945: 18.0→24.3 brighter scanner body idle LED emissive floor
+  emissiveIntensity: 32.8, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor — Pass 5862: 13.3→18.0 brighter scanner body idle LED emissive floor — Pass 5945: 18.0→24.3 brighter scanner body idle LED emissive floor — Pass 5958: 24.3→32.8 brighter scanner body idle LED emissive floor
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
@@ -956,7 +956,7 @@ const scanConeMat = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide, depthWrite: false
 });
 const scanCone = new THREE.Mesh(
-  new THREE.ConeGeometry(161.5, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius — Pass 5748: 88.6→119.6 even wider scan flash cone radius — Pass 5881: 119.6→161.5 even wider scan flash cone radius
+  new THREE.ConeGeometry(218.0, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius — Pass 5748: 88.6→119.6 even wider scan flash cone radius — Pass 5881: 119.6→161.5 even wider scan flash cone radius — Pass 5957: 161.5→218.0 even wider scan flash cone radius
   scanConeMat
 );
 // Tip at scanner lens; open base toward card — rotate 180° so tip is up, base down
@@ -1478,7 +1478,7 @@ activeCardEdge.visible = false;
 scene.add(activeCardEdge);
 
 // Card glow: increased range and physical falloff
-const cardGlow = new THREE.PointLight(0xffffff, 0, 666); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range — Pass 5734: 493→666 wider card glow illumination range
+const cardGlow = new THREE.PointLight(0xffffff, 0, 899); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range — Pass 5734: 493→666 wider card glow illumination range — Pass 5960: 666→899 wider card glow illumination range
 cardGlow.decay = 4.93; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff
 scene.add(cardGlow);
 
@@ -1950,7 +1950,7 @@ let _trailSpawnAcc = 0;    // time accumulator for spawn rate
 // 32 spheres in all 8 domain colors fire upward from above the tray when
 // a complete sort round (all 8 domains) finishes. Each domain gets 4 particles.
 const CELEB_PARTICLES = [];
-const CELEB_COUNT = 105; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst
+const CELEB_COUNT = 142; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst — Pass 5959: 105→142 even more confetti per celebration burst
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
@@ -3963,7 +3963,7 @@ function animate(ts) {
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 293; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161 — Pass 4084: 161→217 — Pass 5562: 217→293 stronger deflect Y tremor
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
-    const floorTilt = ct.floor === 1 ? 0.365 : -0.1; // upper: nose up; lower: nose down // Pass 4893: floor-1 guided deflect arc nose-up tilt 0.20→0.27 — Pass 5559: 0.27→0.365 steeper floor-1 nose-up tilt
+    const floorTilt = ct.floor === 1 ? 0.365 : -0.135; // upper: nose up; lower: nose down // Pass 4893: floor-1 guided deflect arc nose-up tilt 0.20→0.27 — Pass 5559: 0.27→0.365 steeper floor-1 nose-up tilt — Pass 5941: -0.1→-0.135 steeper floor-0 nose-down deflect tilt
     activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.918 * bankSign, dt2); // Pass 4695: deflect flight bank angle 0.5→0.68 harder card lean during arc — Pass 5560: 0.68→0.918 harder card lean during deflect arc
     // Pass 159: smooth conveyorOut exit lean → floorTilt + brief nose-up launch kick
     // Eliminates the snap at the conveyorOut/deflect rotation.x boundary
@@ -4079,7 +4079,7 @@ function animate(ts) {
       _trailHead++;
       _btp.mesh.position.set(GATE_X + (Math.random()-0.5)*8, CONV_Y_TOP + 8 + Math.random()*8, ct.slotZ * 0.12 + (Math.random()-0.5)*5);
       _btp.mat.color.setHex(ct.hex);
-      _btp.mat.opacity = 1.67 + Math.random() * 0.08; // Pass 1118: 0.80+0.18→0.92+0.08 for brighter gate-contact burst — Pass 4745: 0.92→1.24 brighter gate-contact burst — Pass 5606: 1.24→1.67 brighter gate-contact burst base
+      _btp.mat.opacity = 1.67 + Math.random() * 0.11; // Pass 1118: 0.80+0.18→0.92+0.08 for brighter gate-contact burst — Pass 4745: 0.92→1.24 brighter gate-contact burst — Pass 5606: 1.24→1.67 brighter gate-contact burst base — Pass 5942: rand 0.08→0.11 wider gate-contact burst opacity variance
       _btp.age = 0; _btp.life = 14.7 + Math.random() * 8.17; // Pass 2386: gate burst life 0.73+0.41→0.99+0.55 — Pass 2608: 0.99+0.55→1.34+0.74 — Pass 3046: 1.34+0.74→1.81+1.00 — Pass 3231: 1.81+1.00→2.44+1.35 — Pass 3398: 2.44+1.35→3.29+1.82 — Pass 3523: 3.29+1.82→4.44+2.46 — Pass 3736: 4.44+2.46→5.99+3.32 — Pass 3843: base 5.99→8.09 — Pass 3844: rand 3.32→4.48 — Pass 4083: 8.09+4.48→10.9+6.05 — Pass 5607: 10.9+6.05→14.7+8.17 longer gate-contact burst trail
       _btp.active = true; _btp.mesh.visible = true;
     }
@@ -4347,7 +4347,7 @@ function animate(ts) {
           _mp.active = true; _mp.age = 0; _mp.life = 13.6 + Math.random() * 6.87; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09 — Pass 5612: 10.1+5.09→13.6+6.87 longer upper-floor arrival mote hang
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 14.6, // Pass 4833: upper floor mote X spawn spread 8→10.8 wider arrival fountain footprint — Pass 5655: 10.8→14.6 wider upper-floor arrival mote X footprint
-            ct.slotFloorY + 54.7 + Math.random() * 6, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain — Pass 5078: 40.5→54.7 taller arrival fountain
+            ct.slotFloorY + 54.7 + Math.random() * 8.1, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain — Pass 5078: 40.5→54.7 taller arrival fountain — Pass 5943: rand 6→8.1 taller upper-floor arrival mote Y spread
             ct.slotZ + (Math.random() - 0.5) * 21.9 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint — Pass 5456: 16.2→21.9 wider landing mote Z footprint
           );
           _mp.mesh.visible = true;
@@ -4395,7 +4395,7 @@ function animate(ts) {
         );
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
-        tp.mat.opacity = 1.65 + Math.random() * 0.10; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks — Pass 4748: 0.90→1.22 more vivid reject sparks — Pass 5715: 1.22→1.65 more vivid reject sparks
+        tp.mat.opacity = 1.65 + Math.random() * 0.14; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks — Pass 4748: 0.90→1.22 more vivid reject sparks — Pass 5715: 1.22→1.65 more vivid reject sparks — Pass 5944: rand 0.10→0.14 wider reject spark opacity variance
         tp.age = 0; tp.life = 6.56 + Math.random() * 3.81; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09 — Pass 4008: base 3.60→4.86 — Pass 4009: rand 2.09→2.82 — Pass 5627: base 4.86→6.56 longer reject spark lifespan — Pass 5628: rand 2.82→3.81 longer reject spark lifespan variance
         tp.active = true; tp.mesh.visible = true;
       }
@@ -4416,7 +4416,7 @@ function animate(ts) {
           ct.slotZ + (Math.random() - 0.5) * 29.2 // Pass 4835: reject burst2 Z spawn spread 16→21.6 wider reject spark Z footprint — Pass 5660: 21.6→29.2 wider reject secondary burst Z spread
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
-        tp2.mat.opacity = 1.55 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2 — Pass 4749: 0.85→1.15 brighter reject secondary burst — Pass 5716: 1.15→1.55 brighter reject secondary burst
+        tp2.mat.opacity = 1.55 + Math.random() * 0.20; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2 — Pass 4749: 0.85→1.15 brighter reject secondary burst — Pass 5716: 1.15→1.55 brighter reject secondary burst — Pass 5945: rand 0.15→0.20 wider reject secondary burst opacity variance
         tp2.age = 0; tp2.life = 4.64 + Math.random() * 3.11; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26 — Pass 3260: 1.89+1.26→2.55+1.70 — Pass 4052: 2.55+1.70→3.44+2.30 longer reject secondary sparks — Pass 5459: 3.44+2.30→4.64+3.11 longer reject secondary spark life
         tp2.active = true; tp2.mesh.visible = true;
         _rb2++;
