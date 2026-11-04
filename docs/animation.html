@@ -3848,7 +3848,7 @@ function animate(ts) {
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
     // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 — Pass 1372: →*3.8 for bigger gate approach glow
-    const _coGlowSurge = ot > 0.80 ? 94.9 + (ot - 0.80) / 0.20 * 76.0 : 94.9; // Pass 2366: glow base 6.39→8.63, surge 6.93→9.36 — Pass 2583: 8.63→11.6, 9.36→12.6 — Pass 3023: 11.6→15.7, 12.6→17.0 — Pass 3215: base 15.7→21.2 Pass 3216: surge 17.0→22.9 — Pass 3591: base 21.2→28.6, surge 22.9→30.9 — Pass 3686: base 28.6→38.6 — Pass 3687: surge 30.9→41.7 — Pass 3797: base 38.6→52.1 — Pass 3798: surge 41.7→56.3 — Pass 3900: base 52.1→70.3 — Pass 4688: surge 56.3→76.0 — Pass 4767: base 70.3→94.9 brighter conveyorOut approach glow
+    const _coGlowSurge = ot > 0.80 ? 128.1 + (ot - 0.80) / 0.20 * 76.0 : 128.1; // Pass 2366: glow base 6.39→8.63, surge 6.93→9.36 — Pass 2583: 8.63→11.6, 9.36→12.6 — Pass 3023: 11.6→15.7, 12.6→17.0 — Pass 3215: base 15.7→21.2 Pass 3216: surge 17.0→22.9 — Pass 3591: base 21.2→28.6, surge 22.9→30.9 — Pass 3686: base 28.6→38.6 — Pass 3687: surge 30.9→41.7 — Pass 3797: base 38.6→52.1 — Pass 3798: surge 41.7→56.3 — Pass 3900: base 52.1→70.3 — Pass 4688: surge 56.3→76.0 — Pass 4767: base 70.3→94.9 brighter conveyorOut approach glow — Pass 5467: base 94.9→128.1 brighter conveyorOut approach glow
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
@@ -3893,7 +3893,7 @@ function animate(ts) {
       // Pass 72: peak spike on gate contact — Pass 412: boost 5.5 → 8.0 — Pass 917: →12.0 — Pass 1180: →17.0 — Pass 1565: →24.0
       paddleMat.emissiveIntensity = 652; // Pass 2368: paddle spike 43.7→59.0 — Pass 2585: 59.0→79.7 — Pass 2846: 79.7→107.6 — Pass 3025: 107.6→145.3 — Pass 3218: 145.3→196.2 — Pass 3387: 196.2→264.9 — Pass 3518: 264.9→358 — Pass 4313: 358→483 brighter paddle smack flash — Pass 5271: 483→652 brighter paddle gate-contact flash
       // Pass 269/411: gate-contact card face flash — Pass 587: 3.5→5.5 — Pass 681: →7.0 — Pass 781: →10.0 — Pass 1181: →15.0 — Pass 1566: →22.0 hotter blaze
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 443); // Pass 2369: gate-contact card flash 40.1→54.1 — Pass 2586: 54.1→73.0 — Pass 2847: 73.0→98.6 — Pass 3026: 98.6→133.1 — Pass 3219: 133.1→179.7 — Pass 3388: 179.7→242.6 — Pass 3519: 242.6→328 — Pass 4729: 328→443 hotter gate-contact card blaze
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 598); // Pass 2369: gate-contact card flash 40.1→54.1 — Pass 2586: 54.1→73.0 — Pass 2847: 73.0→98.6 — Pass 3026: 98.6→133.1 — Pass 3219: 133.1→179.7 — Pass 3388: 179.7→242.6 — Pass 3519: 242.6→328 — Pass 4729: 328→443 hotter gate-contact card blaze — Pass 5466: 443→598 hotter gate-contact card blaze
       // Pass 298: gate-contact camera shake — Pass 588: 1.8→3.0 for more physical paddle impact
       _cameraShake = 3.0;
       // Pass 369: gate-contact camera shake — Pass 782: →6.5 — Pass 923: →9.5 — Pass 1182: →14.0 — Pass 1567: →20.0 for bigger paddle hit feel
@@ -3972,7 +3972,7 @@ function animate(ts) {
       const _defEntryT = Math.min(1, dt2 / 0.14);
       const _normTilt = THREE.MathUtils.lerp(0, floorTilt, dt2);
       // Pass 763: launch kick 0.28→0.40 — Pass 1186: →0.58 for more dramatic gate-exit nose-up
-      const _launchKick = 8.63 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 2377: launch kick 1.42→1.92 — Pass 2597: 1.92→2.59 — Pass 2858: 2.59→3.50 — Pass 3036: 3.50→4.73 — Pass 4004: 4.73→6.39 — Pass 4696: 6.39→8.63 stronger gate-exit nose-up kick
+      const _launchKick = 11.65 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 2377: launch kick 1.42→1.92 — Pass 2597: 1.92→2.59 — Pass 2858: 2.59→3.50 — Pass 3036: 3.50→4.73 — Pass 4004: 4.73→6.39 — Pass 4696: 6.39→8.63 stronger gate-exit nose-up kick — Pass 5468: 8.63→11.65 stronger gate-exit nose-up launch kick
       activeCard.rotation.x = THREE.MathUtils.lerp(-0.05, _normTilt, easeOut(_defEntryT)) + _launchKick;
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
@@ -3993,7 +3993,7 @@ function animate(ts) {
     // Pass 250: deflect tumble emissive — Pass 415: 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
     // Pass 762: base 0.55→0.45, peak 0.72→0.95 for more dynamic emissive swing during tumble
     // Pass 968: base 0.45→0.55, peak 0.95→1.25 — Pass 1190: peak 1.25→1.65 — Pass 1255: peak 1.65→2.10 for even brighter deflect tumble arc glow
-    const _tumbleEmissive = 0.55 + 189 * Math.max(0, Math.cos(2 * activeCard.rotation.z)); // Pass 2381: tumble emissive peak 5.17→6.98 — Pass 2601: 6.98→9.42 — Pass 2860: 9.42→12.7 — Pass 3040: 12.7→17.1 — Pass 3228: 17.1→23.1 — Pass 3394: 23.1→31.2 — Pass 3459: 31.2→42.1 — Pass 3522: 42.1→56.8 — Pass 3735: 56.8→76.7 — Pass 3842: 76.7→103.5 — Pass 4311: 103.5→139.7 — Pass 4699: 139.7→189 hotter deflect tumble arc glow
+    const _tumbleEmissive = 0.55 + 255 * Math.max(0, Math.cos(2 * activeCard.rotation.z)); // Pass 2381: tumble emissive peak 5.17→6.98 — Pass 2601: 6.98→9.42 — Pass 2860: 9.42→12.7 — Pass 3040: 12.7→17.1 — Pass 3228: 17.1→23.1 — Pass 3394: 23.1→31.2 — Pass 3459: 31.2→42.1 — Pass 3522: 42.1→56.8 — Pass 3735: 56.8→76.7 — Pass 3842: 76.7→103.5 — Pass 4311: 103.5→139.7 — Pass 4699: 139.7→189 hotter deflect tumble arc glow — Pass 5469: 189→255 hotter deflect tumble arc glow
     activeCardMat.emissiveIntensity += (_tumbleEmissive - activeCardMat.emissiveIntensity) * Math.min(1, dt * 9.5); // Pass 4700: deflect tumble emissive tracking dt*7→dt*9.5 snappier arc glow response
     // Pass 57: target slot spotlight ramps up as card arcs toward tray
     // Pass 126: color warms from neutral white to domain color as card approaches
@@ -4038,7 +4038,7 @@ function animate(ts) {
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       if (gi === ct.col) {
         gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
-        gm.emissiveIntensity += (150.1 - gm.emissiveIntensity) * Math.min(1, dt * 10); // Pass 2383: deflect LED target 18.4→24.8 — Pass 2605: 24.8→33.5 — Pass 3042: 33.5→45.2 — Pass 3569: 45.2→61.0 — Pass 3727: 61.0→82.4 — Pass 3836: 82.4→111.2 — Pass 4734: 111.2→150.1 brighter deflect domain LED column
+        gm.emissiveIntensity += (202.6 - gm.emissiveIntensity) * Math.min(1, dt * 10); // Pass 2383: deflect LED target 18.4→24.8 — Pass 2605: 24.8→33.5 — Pass 3042: 33.5→45.2 — Pass 3569: 45.2→61.0 — Pass 3727: 61.0→82.4 — Pass 3836: 82.4→111.2 — Pass 4734: 111.2→150.1 brighter deflect domain LED column — Pass 5464: 150.1→202.6 brighter deflect domain LED column
       } else {
         gm.emissiveIntensity += (0.203 - gm.emissiveIntensity) * Math.min(1, dt * 5); // Pass 4803: inactive gate column LED idle target 0.15→0.203 warmer idle column glow
       }
@@ -4047,7 +4047,7 @@ function animate(ts) {
     // Pass 649: deflect column light max 3.0→4.5 — Pass 1193: →6.5 brighter gate column during arc flight
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (329 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0 — Pass 3689: 99.0→134 — Pass 3801: 134→181 — Pass 3901: 181→244 — Pass 4741: 244→329 brighter gate column tracking
+    gateColLight.intensity += (444 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0 — Pass 3689: 99.0→134 — Pass 3801: 134→181 — Pass 3901: 181→244 — Pass 4741: 244→329 brighter gate column tracking — Pass 5465: 329→444 brighter gate column tracking light
     _beltScrollSpeed = 0.0729; // half speed while card arcs off belt — Pass 4876: deflect belt speed 0.04→0.054 livelier belt during arc — Pass 5091: 0.054→0.0729 livelier belt scroll during arc flight
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
