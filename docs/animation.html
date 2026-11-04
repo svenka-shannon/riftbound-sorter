@@ -3871,7 +3871,7 @@ function animate(ts) {
       );
       tp.mat.color.setHex(ct.hex);
       // Pass 475: final-approach trail opacity boost — Pass 824/825: early 0.28+0.12→0.42+0.18, final 0.42+0.20→0.60+0.30 — Pass 1496: early →0.56+0.24, final →0.80+0.40
-      tp.mat.opacity = ot > 0.65 ? Math.min(1, 0.80 + Math.random() * 0.40) : 1.39 + Math.random() * 0.43; // Pass 1882: contrail early opacity 0.56+0.24→0.76+0.32 — Pass 4350: 0.76+0.32→1.03+0.43 denser exhaust contrail — Pass 5685: 1.03→1.39 denser early contrail exhaust opacity
+      tp.mat.opacity = ot > 0.65 ? Math.min(1, 0.80 + Math.random() * 0.40) : 1.88 + Math.random() * 0.43; // Pass 1882: contrail early opacity 0.56+0.24→0.76+0.32 — Pass 4350: 0.76+0.32→1.03+0.43 denser exhaust contrail — Pass 5685: 1.03→1.39 denser early contrail exhaust opacity — Pass 7008: 1.39→1.88 denser conveyor contrail early opacity
       // Pass 826: trail life 0.22+0.10→0.30+0.14 — Pass 1497: →0.40+0.18 for longer exhaust contrail
       tp.age = 0; tp.life = 2.43 + Math.random() * 1.08; // Pass 1883: contrail trail life 0.40+0.18→0.54+0.24 — Pass 3947: 0.54+0.24→0.729+0.324 — Pass 4400: base 0.729→0.984 — Pass 4401: rand 0.324→0.437 longer exhaust contrail — Pass 5560: base 0.984→1.33, rand 0.437→0.590 longer contrail lifetime — Pass 6388: 1.33+0.590→1.80+0.797 longer conveyorOut contrail particle lifetime — Pass 6410: 1.80+0.797→2.43+1.08 longer conveyorOut contrail particle lifetime
       tp.active = true; tp.mesh.visible = true;
@@ -4395,7 +4395,7 @@ function animate(ts) {
         );
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
-        tp.mat.opacity = 1.65 + Math.random() * 0.14; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks — Pass 4748: 0.90→1.22 more vivid reject sparks — Pass 5715: 1.22→1.65 more vivid reject sparks — Pass 5944: rand 0.10→0.14 wider reject spark opacity variance
+        tp.mat.opacity = 2.23 + Math.random() * 0.14; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks — Pass 4748: 0.90→1.22 more vivid reject sparks — Pass 5715: 1.22→1.65 more vivid reject sparks — Pass 5944: rand 0.10→0.14 wider reject spark opacity variance — Pass 7012: 1.65→2.23 more vivid reject spark opacity
         tp.age = 0; tp.life = 12.0 + Math.random() * 3.81; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09 — Pass 4008: base 3.60→4.86 — Pass 4009: rand 2.09→2.82 — Pass 5627: base 4.86→6.56 longer reject spark lifespan — Pass 5628: rand 2.82→3.81 longer reject spark lifespan variance — Pass 6697: 6.56→8.86 longer reject spark lifespan base — Pass 6997: 8.86→12.0 longer reject spark lifespan base
         tp.active = true; tp.mesh.visible = true;
       }
@@ -4416,7 +4416,7 @@ function animate(ts) {
           ct.slotZ + (Math.random() - 0.5) * 39.4 // Pass 4835: reject burst2 Z spawn spread 16→21.6 wider reject spark Z footprint — Pass 5660: 21.6→29.2 wider reject secondary burst Z spread — Pass 6827: 29.2→39.4 wider reject secondary burst Z spread
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
-        tp2.mat.opacity = 1.55 + Math.random() * 0.20; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2 — Pass 4749: 0.85→1.15 brighter reject secondary burst — Pass 5716: 1.15→1.55 brighter reject secondary burst — Pass 5945: rand 0.15→0.20 wider reject secondary burst opacity variance
+        tp2.mat.opacity = 2.09 + Math.random() * 0.20; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2 — Pass 4749: 0.85→1.15 brighter reject secondary burst — Pass 5716: 1.15→1.55 brighter reject secondary burst — Pass 5945: rand 0.15→0.20 wider reject secondary burst opacity variance — Pass 7013: 1.55→2.09 more vivid reject secondary burst opacity
         tp2.age = 0; tp2.life = 6.26 + Math.random() * 4.20; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26 — Pass 3260: 1.89+1.26→2.55+1.70 — Pass 4052: 2.55+1.70→3.44+2.30 longer reject secondary sparks — Pass 5459: 3.44+2.30→4.64+3.11 longer reject secondary spark life — Pass 6581: base 4.64→6.26 longer reject secondary spark life — Pass 6582: rand 3.11→4.20 longer reject secondary spark life variance
         tp2.active = true; tp2.mesh.visible = true;
         _rb2++;
@@ -4517,7 +4517,7 @@ function animate(ts) {
       const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 2.09; // dampens in first ~45% of phase // Pass 4411: scanner flicker amp 0.85→1.15 stronger LED power-down oscillation — Pass 5565: 1.15→1.55 stronger scanner LED power-down oscillation — Pass 6584: 1.55→2.09 stronger scanner LED power-down oscillation
       const _flickVal = 2.96 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp // Pass 4412: scanner flicker base 1.2→1.62 brighter LED reset floor — Pass 5566: 1.62→2.19 brighter scanner LED reset floor — Pass 6585: 2.19→2.96 brighter scanner LED reset floor
                             + (Math.random() - 0.5) * _flickAmp * 0.857; // Pass 4703: scanner LED flicker noise amplitude 0.35→0.47 more chaotic power-down oscillation — Pass 5754: 0.47→0.635 more chaotic scanner LED power-down oscillation — Pass 6731: 0.635→0.857 more chaotic scanner LED power-down oscillation noise
-      scanLEDMat.emissiveIntensity = Math.max(0.554, Math.min(95.7, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak — Pass 4502: scanner LED power-down minimum floor 0.30→0.41 brighter LED floor — Pass 5717: 70.9→95.7 higher scanner LED flicker peak — Pass 5718: 0.41→0.554 brighter scanner LED power-down floor
+      scanLEDMat.emissiveIntensity = Math.max(0.748, Math.min(129, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak — Pass 4502: scanner LED power-down minimum floor 0.30→0.41 brighter LED floor — Pass 5717: 70.9→95.7 higher scanner LED flicker peak — Pass 5718: 0.41→0.554 brighter scanner LED power-down floor — Pass 7006: 95.7→129 higher scanner LED flicker peak — Pass 7007: 0.554→0.748 brighter scanner LED power-down floor
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
@@ -4836,7 +4836,7 @@ function animate(ts) {
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.0493; // smooth zoom — Pass 4759: orbit smooth rate 0.02→0.027 — Pass 5418: 0.027→0.0365 snappier orbit zoom — Pass 6725: 0.0365→0.0493 snappier orbit zoom
     const orbitR = controls._orbitR;
-    camera.position.x = orbitR * 0.821 * Math.cos(orbitAngle) - 30; // Pass 4886: orbit X ellipse factor 0.45→0.608 rounder orbit arc — Pass 5757: 0.608→0.821 rounder camera orbit X ellipse factor
+    camera.position.x = orbitR * 1.11 * Math.cos(orbitAngle) - 30; // Pass 4886: orbit X ellipse factor 0.45→0.608 rounder orbit arc — Pass 5757: 0.608→0.821 rounder camera orbit X ellipse factor — Pass 7009: 0.821→1.11 wider camera orbit X ellipse factor
     camera.position.z = orbitR * Math.sin(orbitAngle);
     // Slight vertical bob for cinematic feel; lower elevation during scan to see belt better
     // Pass 295: armLift camera Y dip — lower target during pickup for better card-peel view
@@ -4864,7 +4864,7 @@ function animate(ts) {
       // Pass 194: scan camera lean — lookAt dips toward belt at scan midpoint for drama.
       // Pass 473: reveal camera dip — extra 5-unit dip at identity lock-on for dramatic focus.
       // Pass 707: scan lean dip 18→25 — Pass 1019: →35 for deeper camera dive + reveal dip 5→8
-      ? { x: -40, y: 60 - 36.5 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 9.11 : 0) } // Hotfix 3333d: scan lookAt lean rolled back 155→20; reveal dip 27.1→5.0 — sweep was boosted 35→155 over passes 2528→3291 causing "frenetic panning" (camera look-at swinging 155 world-units/~1s ≈ 487 units/sec) — Pass 4924: scanner forward lean amplitude 20→27.0 deeper scan camera dip — Pass 4925: scanner forward lean reveal dip 5.0→6.75 stronger lock-on dip — Pass 5790: lean amplitude 27.0→36.5 deeper scan camera dip — Pass 5791: reveal dip 6.75→9.11 stronger lock-on dip
+      ? { x: -40, y: 60 - 49.3 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 12.3 : 0) } // Hotfix 3333d: scan lookAt lean rolled back 155→20; reveal dip 27.1→5.0 — sweep was boosted 35→155 over passes 2528→3291 causing "frenetic panning" (camera look-at swinging 155 world-units/~1s ≈ 487 units/sec) — Pass 4924: scanner forward lean amplitude 20→27.0 deeper scan camera dip — Pass 4925: scanner forward lean reveal dip 5.0→6.75 stronger lock-on dip — Pass 5790: lean amplitude 27.0→36.5 deeper scan camera dip — Pass 5791: reveal dip 6.75→9.11 stronger lock-on dip — Pass 7010: lean amplitude 36.5→49.3 deeper scan camera dip — Pass 7011: reveal dip 9.11→12.3 stronger scan lock-on dip
       : inPhase(PH.conveyorOut)
       ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
       : inPhase(PH.deflect)
