@@ -1757,7 +1757,7 @@ function addCardToTray(ct) {
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 4.32; // Pass 4024: new card arrival flash 3.2→4.32
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow
-  _ledCooloff[ct.slot] = 5.1;
+  _ledCooloff[ct.slot] = 6.89; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
   const flashLight = new THREE.PointLight(ct.hex, 6.75, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162
@@ -1777,8 +1777,8 @@ function addCardToTray(ct) {
   // Flash the tray legend slot entry
   const legSlot = document.getElementById('lc-' + ct.name.toLowerCase());
   if(legSlot) {
-    legSlot.style.textShadow = `0 0 10px ${ct.css}`;
-    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 600);
+    legSlot.style.textShadow = `0 0 14px ${ct.css}`; // Pass 4429: legend slot flash size 10→14px brighter slot entry flare
+    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 810); // Pass 4430: legend slot flash duration 600→810ms longer entry flash
   }
 
   // Flash stats counter in domain color + bounce animation on each card sorted
@@ -2409,7 +2409,7 @@ function animate(ts) {
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
-    if (a.glowAge < 1.2) {
+    if (a.glowAge < 1.62) { // Pass 4431: arrival glow max age 1.2→1.62 longer slot landing flash
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9
@@ -2508,7 +2508,7 @@ function animate(ts) {
       mat.emissiveIntensity = 12.76 + pulse; // Pass 2518: slot LED active base 7.0→9.45 — Pass 4046: 9.45→12.76 brighter active routing LED
     } else if (_ledCooloff[_li] > 0) {
       // Pass 52: afterglow — Pass 835: 1.8→2.8s — Pass 829: peak intensity 0.9+2.4 → 1.2+3.8 — Pass 1649: →1.5+5.0
-      const afterT = _ledCooloff[_li] / 5.1; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration
+      const afterT = _ledCooloff[_li] / 6.89; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration — Pass 4428: updated to match 6.89s cooloff
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       mat.emissiveIntensity = 6.75 + afterT * 22.4; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor
@@ -5299,7 +5299,7 @@ function animate(ts) {
     p.vx *= 1 - dt * 30.9; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9 — Pass 4182: 22.9→30.9 snappier particle decel
     p.vz *= 1 - dt * 31.1; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread
     p.mat.opacity = (1 - _pt * _pt) * 1.00; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00
-    p.mesh.scale.setScalar(Math.max(0.05, 1.0 - _pt * 0.95)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95
+    p.mesh.scale.setScalar(Math.max(0.05, 1.0 - _pt * 1.28)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95 — Pass 4424: 0.95→1.28 crisper particle shrink
   });
 
   // ── Pass 34: Domain fill light — overhead tint shifts to current domain color ─
@@ -5332,12 +5332,12 @@ function animate(ts) {
     p.mesh.position.z += p.vz * dt;
     p.vy -= (p.grav || 760) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417 — Pass 3849: 417→563 — Pass 4187: 563→760 heavier confetti
     p.vx *= 1 - dt * 0.667; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter) — Pass 4285: 0.9→0.667 even wider confetti scatter
-    p.vz *= 1 - dt * 0.667;
+    p.vz *= 1 - dt * 0.900; // Pass 4426: confetti vz drag 0.667→0.900 tighter Z spread
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
     p.mesh.rotation.x += p.rx * dt;
     p.mesh.rotation.y += p.ry * dt;
     p.mesh.rotation.z += p.rz * dt;
-    p.rx *= 1 - dt * 0.6; p.ry *= 1 - dt * 0.6; p.rz *= 1 - dt * 0.6; // Pass 1637: angular drag 0.8→0.6 (longer spin)
+    p.rx *= 1 - dt * 0.81; p.ry *= 1 - dt * 0.81; p.rz *= 1 - dt * 0.81; // Pass 1637: angular drag 0.8→0.6 (longer spin) — Pass 4425: 0.6→0.81 stronger confetti tumble damping
     p.mat.opacity = (1 - _ct2 * _ct2) * 1.0; // Pass 1472: peak opacity 0.88→1.0
   });
 
