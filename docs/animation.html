@@ -4109,7 +4109,7 @@ function animate(ts) {
         // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
         // Pass 971: bounce 16→22 — Pass 1108: →30 — Pass 1195: →40 — Pass 1257: →52 for even bigger card-slap landing bounce
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 2564 * Math.sin(bT * Math.PI) * (1 - bT * 0.32); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772 — Pass 3737: 772→1042 — Pass 3845: 1042→1407 — Pass 4453: 1407→1899 bigger slot landing bounce — Pass 4594: slot drop bounce Y floor damping 0.24→0.32 snappier landing bounce decay — Pass 5499: 1899→2564 bigger slot landing bounce height
+        cy = targetY + 3462 * Math.sin(bT * Math.PI) * (1 - bT * 0.32); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772 — Pass 3737: 772→1042 — Pass 3845: 1042→1407 — Pass 4453: 1407→1899 bigger slot landing bounce — Pass 4594: slot drop bounce Y floor damping 0.24→0.32 snappier landing bounce decay — Pass 5499: 1899→2564 bigger slot landing bounce height — Pass 6393: 2564→3462 bigger slot landing bounce height
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4157,7 +4157,7 @@ function animate(ts) {
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
     // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 — Pass 1197: →0.65+(dt3/0.88)*2.20 — Pass 1404: →0.65+(dt3/0.88)*3.00 — Pass 1547: →0.65+(dt3/0.88)*4.00 brighter fall glow
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.88 + (dt3 / 0.88) * 109; // Pass 4927: slot drop fall emissive base 0.65→0.88 brighter gravity fall glow — Pass 2114: fall ramp peak 7.29→9.84 — Pass 2611: 9.84→13.3 — Pass 3052: 13.3→18.0 — Pass 3239: 18.0→24.3 — Pass 3403: 24.3→32.8 — Pass 3408: 32.8→44.3 — Pass 3446: 44.3→59.8 — Pass 4002: 59.8→80.7 — Pass 5627: 80.7→109 brighter gravity fall glow ramp peak
+      const _fallRamp = 0.88 + (dt3 / 0.88) * 147; // Pass 4927: slot drop fall emissive base 0.65→0.88 brighter gravity fall glow — Pass 2114: fall ramp peak 7.29→9.84 — Pass 2611: 9.84→13.3 — Pass 3052: 13.3→18.0 — Pass 3239: 18.0→24.3 — Pass 3403: 24.3→32.8 — Pass 3408: 32.8→44.3 — Pass 3446: 44.3→59.8 — Pass 4002: 59.8→80.7 — Pass 5627: 80.7→109 brighter gravity fall glow ramp peak — Pass 6394: 109→147 brighter gravity fall glow ramp peak
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
@@ -4166,7 +4166,7 @@ function animate(ts) {
     // Pass 751: peak 3.8→5.2, decay 8.5→11 — Pass 975: peak 5.2→7.5, decay 11→14 — Pass 1111: →11.0 — Pass 1198: →16.0 — Pass 1405: →22.0 — Pass 1548: →30.0 for bigger landing flash
     if (ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94) {
       const _bFlashT = (dt3 - 0.88) / 0.06;
-      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 1099 * Math.exp(-_bFlashT * 14)); // Pass 2115: bounce flash 54.7→73.8 — Pass 2612: 73.8→99.6 — Pass 3053: 99.6→134.5 — Pass 3240: 134.5→181.6 — Pass 3594: 181.6→245 — Pass 3690: 245→331 — Pass 3802: 331→447 — Pass 3902: 447→603 — Pass 4656: 603→814 bigger floor-bounce emissive flash — Pass 5608: 814→1099 bigger floor-bounce emissive flash peak
+      activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, 1484 * Math.exp(-_bFlashT * 14)); // Pass 2115: bounce flash 54.7→73.8 — Pass 2612: 73.8→99.6 — Pass 3053: 99.6→134.5 — Pass 3240: 134.5→181.6 — Pass 3594: 181.6→245 — Pass 3690: 245→331 — Pass 3802: 331→447 — Pass 3902: 447→603 — Pass 4656: 603→814 bigger floor-bounce emissive flash — Pass 5608: 814→1099 bigger floor-bounce emissive flash peak — Pass 6395: 1099→1484 bigger floor-bounce emissive flash peak
     }
     // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: 1.2→1.8, decay 30→25 — Pass 754: 1.8→3.0, decay 25→22
     // Pass 976: impact glow spike 3.0→4.8, decay 22→18 — Pass 1112: →7.5 — Pass 1199: →11.5 — Pass 1406: →16.0 — Pass 1549: →22.0 for stronger slot impact glow
@@ -4175,7 +4175,7 @@ function animate(ts) {
     cardGlow.intensity = THREE.MathUtils.lerp(1.47, 0, dt3) + _glowImpact313; // Pass 4543: slot drop approach card glow start 0.6→0.81 warmer approach emissive — Pass 5628: 0.81→1.09 warmer slot drop approach card glow start — Pass 6391: 1.09→1.47 warmer slot drop approach card glow start intensity
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     // Pass 979: start from 2.8 — Pass 1550: →4.0 for brighter slot target spotlight at drop entry
-    scanTargetLight.intensity = THREE.MathUtils.lerp(59.9, 0, easeInOut(dt3)); // Pass 2388: slot target spotlight entry 7.3→9.9 — Pass 2614: 9.9→13.4 — Pass 3055: 13.4→18.1 — Pass 3242: 18.1→24.4 — Pass 3483: 24.4→32.9 — Pass 4003: 32.9→44.4 — Pass 5610: 44.4→59.9 brighter slot-drop target spotlight
+    scanTargetLight.intensity = THREE.MathUtils.lerp(80.9, 0, easeInOut(dt3)); // Pass 2388: slot target spotlight entry 7.3→9.9 — Pass 2614: 9.9→13.4 — Pass 3055: 13.4→18.1 — Pass 3242: 18.1→24.4 — Pass 3483: 24.4→32.9 — Pass 4003: 32.9→44.4 — Pass 5610: 44.4→59.9 brighter slot-drop target spotlight — Pass 6392: 59.9→80.9 brighter slot-drop target spotlight entry intensity
     // Pass 81: slot sweep light travels from entrance to back wall as card inserts
     {
       const _sweepX = THREE.MathUtils.lerp(TRAY_X_START + 5, TRAY_X_END - 5, easeInOut(dt3));
