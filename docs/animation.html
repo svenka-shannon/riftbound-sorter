@@ -232,7 +232,7 @@
     100% { opacity: 0; }
   }
   .scan-flash-on {
-    animation: scanFlashFade 6.56s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash — Pass 5186: 1.47→1.98s even longer scan flash fade — Pass 5804: 1.98→2.67s even longer scan flash fade duration — Pass 5943: 2.67→3.60s even longer scan flash fade duration — Pass 6223: 3.60→4.86s even longer scan flash fade duration — Pass 6335: 4.86→6.56s even longer scan flash fade duration */
+    animation: scanFlashFade 8.86s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash — Pass 5186: 1.47→1.98s even longer scan flash fade — Pass 5804: 1.98→2.67s even longer scan flash fade duration — Pass 5943: 2.67→3.60s even longer scan flash fade duration — Pass 6223: 3.60→4.86s even longer scan flash fade duration — Pass 6335: 4.86→6.56s even longer scan flash fade duration — Pass 6356: 6.56→8.86s even longer scan flash fade duration */
   }
 
   /* ── Round-complete banner (pass 68) ───────────────────────────────────── */
@@ -617,7 +617,7 @@ for (let i = 0; i < DUST_COUNT; i++) {
 const dustGeo = new THREE.BufferGeometry();
 dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
 const dustMat = new THREE.PointsMaterial({
-  size: 6.66, color: 0x8899bb, transparent: true, opacity: 0.85, // Pass 4015: dust size 1.5→2.0 larger ambient particles — Pass 4016: dust opacity 0.35→0.47 more visible atmosphere — Pass 4888: dust size 2.0→2.70 — Pass 4889: dust opacity 0.47→0.63 denser atmosphere — Pass 5454: size 2.70→3.65 larger ambient dust motes — Pass 5455: opacity 0.63→0.85 denser ambient dust atmosphere — Pass 6284: size 3.65→4.93 larger ambient dust mote particle size — Pass 6301: size 4.93→6.66 larger ambient dust mote particle size
+  size: 8.99, color: 0x8899bb, transparent: true, opacity: 0.85, // Pass 4015: dust size 1.5→2.0 larger ambient particles — Pass 4016: dust opacity 0.35→0.47 more visible atmosphere — Pass 4888: dust size 2.0→2.70 — Pass 4889: dust opacity 0.47→0.63 denser atmosphere — Pass 5454: size 2.70→3.65 larger ambient dust motes — Pass 5455: opacity 0.63→0.85 denser ambient dust atmosphere — Pass 6284: size 3.65→4.93 larger ambient dust mote particle size — Pass 6301: size 4.93→6.66 larger ambient dust mote particle size — Pass 6357: size 6.66→8.99 larger ambient dust mote particle size
   depthWrite: false, sizeAttenuation: true
 });
 const dustPoints = new THREE.Points(dustGeo, dustMat);
@@ -1935,7 +1935,7 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 142; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool
+const TRAIL_PARTICLE_COUNT = 192; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(9.86, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius — Pass 6037: 7.30→9.86 chunkier arm arc trail contrail particle radius
@@ -2362,7 +2362,7 @@ function animate(ts) {
     const _jPhase = i * 4.86; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync — Pass 5332: 2.67→3.60 more organic slot ring initial color saturation desync — Pass 5918: 3.60→4.86 more organic stack card jitter phase desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
     const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 10.3 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter — Pass 5313: 2.30→3.11 livelier pre-pick stack jitter primary amplitude — Pass 5334: 3.11→4.20 livelier pre-pick stack jitter primary amplitude — Pass 5424: 4.20→5.67 livelier card hold oscillation primary amplitude — Pass 5518: 5.67→7.65 livelier arm descent oscillation primary amplitude — Pass 6318: 7.65→10.3 livelier pre-pick stack jitter primary amplitude
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 42.0; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary — Pass 5326: 1.15→1.55 livelier arm descent oscillation secondary amplitude — Pass 5335: 1.55→2.09 livelier idle arm sway Y secondary amplitude — Pass 5345: 2.09→2.82 livelier card Y jitter hold secondary amplitude — Pass 5425: 2.82→3.81 livelier card hold oscillation secondary amplitude — Pass 5436: 3.81→5.14 livelier arm extension secondary oscillation Y amplitude — Pass 5486: 5.14→6.94 livelier arm descent oscillation tertiary secondary Y amplitude — Pass 5519: 6.94→9.37 livelier arm descent oscillation quaternary secondary Y amplitude — Pass 5581: 9.37→12.6 livelier arm descent oscillation quaternary secondary Y amplitude — Pass 5610: 12.6→17.0 livelier arm descent servo hunt secondary oscillation Y amplitude — Pass 5618: 17.0→23.0 livelier arm descent oscillation tertiary Y secondary amplitude — Pass 5634: 23.0→31.1 livelier arm sway Y tertiary secondary oscillation amplitude — Pass 6319: 31.1→42.0 livelier pre-pick stack jitter secondary amplitude
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 56.7; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary — Pass 5326: 1.15→1.55 livelier arm descent oscillation secondary amplitude — Pass 5335: 1.55→2.09 livelier idle arm sway Y secondary amplitude — Pass 5345: 2.09→2.82 livelier card Y jitter hold secondary amplitude — Pass 5425: 2.82→3.81 livelier card hold oscillation secondary amplitude — Pass 5436: 3.81→5.14 livelier arm extension secondary oscillation Y amplitude — Pass 5486: 5.14→6.94 livelier arm descent oscillation tertiary secondary Y amplitude — Pass 5519: 6.94→9.37 livelier arm descent oscillation quaternary secondary Y amplitude — Pass 5581: 9.37→12.6 livelier arm descent oscillation quaternary secondary Y amplitude — Pass 5610: 12.6→17.0 livelier arm descent servo hunt secondary oscillation Y amplitude — Pass 5618: 17.0→23.0 livelier arm descent oscillation tertiary Y secondary amplitude — Pass 5634: 23.0→31.1 livelier arm sway Y tertiary secondary oscillation amplitude — Pass 6319: 31.1→42.0 livelier pre-pick stack jitter secondary amplitude — Pass 6359: 42.0→56.7 livelier pre-pick stack jitter secondary amplitude
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2405,11 +2405,11 @@ function animate(ts) {
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
       // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 — Pass 3783: →78.3 — Pass 3888: →106 for more physical slot landing — Pass 4769: →193 stronger slot landing
-      _yPos = a.targetY + 865 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy — Pass 5996: 352→475 stronger slot landing bounce energy — Pass 6323: 475→641 stronger slot tray arrival bounce energy — Pass 6339: 641→865 stronger slot tray arrival bounce energy
+      _yPos = a.targetY + 1168 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy — Pass 5996: 352→475 stronger slot landing bounce energy — Pass 6323: 475→641 stronger slot tray arrival bounce energy — Pass 6339: 641→865 stronger slot tray arrival bounce energy — Pass 6360: 865→1168 stronger slot tray arrival bounce energy
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
-    if (a.glowAge < 4.00) { // Pass 4431: arrival glow max age 1.2→1.62 longer slot landing flash — Pass 4990: 1.62→2.19 even longer arrival glow — Pass 5522: 2.19→2.96 even longer slot tray arrival glow window — Pass 6334: 2.96→4.00 even longer slot tray arrival glow window
+    if (a.glowAge < 5.40) { // Pass 4431: arrival glow max age 1.2→1.62 longer slot landing flash — Pass 4990: 1.62→2.19 even longer arrival glow — Pass 5522: 2.19→2.96 even longer slot tray arrival glow window — Pass 6334: 2.96→4.00 even longer slot tray arrival glow window — Pass 6361: 4.00→5.40 even longer slot tray arrival glow window
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9 — Pass 4770: 93.0→126 brighter landing flash
@@ -4659,9 +4659,9 @@ function animate(ts) {
         ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 10.1 : 0; // Pass 2427: body exit echo 0.92→1.24 — Pass 2663: 1.24→1.67 — Pass 2753: 1.67→2.25 — Pass 3102: 2.25→3.04 — Pass 3355: 3.04→4.10 — Pass 4381: 4.10→5.54 — Pass 4719: 5.54→7.48 stronger scanner exit echo — Pass 5598: 7.48→10.1 stronger conveyor body scanner exit echo flash
       // Pass 932: conveyor body base glow 0.08→0.14 — Pass 1454: →0.20, pulse amp 0.08→0.12 for more vivid presence
       const _bodyTarget = 2.19 + 1.00 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho; // Pass 2435: body base 0.27→0.36, pulse 0.16→0.22 — Pass 2664: 0.36→0.49, 0.22→0.30 — Pass 2754: base 0.49→0.66 Pass 2755: pulse 0.30→0.41 — Pass 3100: base 0.66→0.89, pulse 0.41→0.55 — Pass 4444: base 0.89→1.20 — Pass 4445: pulse 0.55→0.74 richer conveyor body glow — Pass 5599: 1.20→1.62 richer conveyor body emissive base glow — Pass 5600: 0.74→1.00 richer conveyor body emissive pulse amplitude — Pass 5633: 1.62→2.19 richer conveyor body emissive base glow
-      convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 5.47); // Pass 4814: conveyor body emissive tracking 3→4.05 snappier body glow — Pass 5639: 4.05→5.47 snappier conveyor body emissive tracking
+      convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 7.38); // Pass 4814: conveyor body emissive tracking 3→4.05 snappier body glow — Pass 5639: 4.05→5.47 snappier conveyor body emissive tracking — Pass 6364: 5.47→7.38 snappier conveyor body emissive tracking
     } else {
-      convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3.65); // Pass 4815: conveyor body idle decay 2→2.70 crisper conveyor body fade — Pass 5640: 2.70→3.65 crisper conveyor body idle emissive fade
+      convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 4.93); // Pass 4815: conveyor body idle decay 2→2.70 crisper conveyor body fade — Pass 5640: 2.70→3.65 crisper conveyor body idle emissive fade — Pass 6365: 3.65→4.93 crisper conveyor body idle emissive fade
     }
   }
   // Pass 83: belt surface domain emissive — subtle tint while card rides the belt
@@ -4674,12 +4674,12 @@ function animate(ts) {
       // After reveal (or in conveyorOut which follows scan), switch to domain color.
       const _beltRevealedOrPost = _identityRevealed || inPhase(PH.conveyorOut);
       const _beltTargetColor = _beltRevealedOrPost ? ct.hex : 0x004477;
-      beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 2.74)); // Pass 4604: belt scan emissive color lerp rate 1.5→2.03 snappier domain tint adoption — Pass 5679: 2.03→2.74 snappier belt scan color adoption
+      beltSurfMat.emissive.lerp(new THREE.Color(_beltTargetColor), Math.min(1, dt * 3.70)); // Pass 4604: belt scan emissive color lerp rate 1.5→2.03 snappier domain tint adoption — Pass 5679: 2.03→2.74 snappier belt scan color adoption — Pass 6366: 2.74→3.70 snappier belt scan emissive color adoption
       // Pass 523: belt surface active emissive 0.07+0.04→0.10+0.06 — Pass 694: →0.14+0.09 — Pass 935: →0.20+0.14 — Pass 1455: →0.28+0.20
       const _bsTarget = 7.65 + 4.00 * Math.sin(cycleT * 6); // Pass 2436: belt active emissive base 0.38→0.51, pulse 0.27→0.36 — Pass 2665: 0.51→0.69, 0.36→0.49 — Pass 2756: base 0.69→0.93 — Pass 2893/2894: 0.93+0.49→1.26+0.66 — Pass 3103: 1.26→1.70, 0.66→0.89 — Pass 3276: 1.70+0.89→2.30+1.20 — Pass 3356: 2.30+1.20→3.11+1.62 — Pass 4382: base 3.11→4.20, pulse 1.62→2.19 — Pass 4716: base 4.20→5.67 — Pass 4717: pulse 2.19→2.96 richer belt active glow — Pass 5461: base 5.67→7.65 pulse 2.96→4.00 richer belt active emissive
-      beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 3.65); // Pass 4605: belt scan emissive intensity tracking 2→2.70 crisper active belt glow response — Pass 5672: 2.70→3.65 crisper belt scan emissive intensity tracking
+      beltSurfMat.emissiveIntensity += (_bsTarget - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 4.93); // Pass 4605: belt scan emissive intensity tracking 2→2.70 crisper active belt glow response — Pass 5672: 2.70→3.65 crisper belt scan emissive intensity tracking — Pass 6367: 3.65→4.93 crisper belt scan emissive intensity tracking
     } else {
-      beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 2.74)); // Pass 4826: belt scan-idle color return tracking 1.5→2.03 — Pass 5671: 2.03→2.74 faster belt scan-idle color return tracking
+      beltSurfMat.emissive.lerp(new THREE.Color(0x8888a0), Math.min(1, dt * 3.70)); // Pass 4826: belt scan-idle color return tracking 1.5→2.03 — Pass 5671: 2.03→2.74 faster belt scan-idle color return tracking — Pass 6368: 2.74→3.70 faster belt scan-idle color return tracking
       beltSurfMat.emissiveIntensity += (0.216 - beltSurfMat.emissiveIntensity) * Math.min(1, dt * 2.70); // belt idle emissive 0.12→0.16 brighter resting belt (Pass 4034 group) — Pass 4441: idle lerp rate 2→2.70 snappier belt surface idle return — Pass 5673: idle target 0.16→0.216 brighter belt surface idle emissive
     }
   }
@@ -4689,14 +4689,14 @@ function animate(ts) {
     const _inApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.60;
     if (_inApproach) {
       const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
-      hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 5.47)); // Pass 4827: hood approach warm-up color tracking 3→4.05 — Pass 5682: 4.05→5.47 snappier scanner hood approach color tracking
+      hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 7.38)); // Pass 4827: hood approach warm-up color tracking 3→4.05 — Pass 5682: 4.05→5.47 snappier scanner hood approach color tracking — Pass 6369: 5.47→7.38 snappier scanner hood approach color tracking
       // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 — Pass 1456: →0.28+1.80 for dramatic heat-up
       const _warmTarget = 0.510 + _warmT * 161.5; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7 — Pass 3277: 14.7→19.8 — Pass 3363: 19.8→26.7 — Pass 3501: 26.7→36.0 — Pass 3742: 36.0→48.6 — Pass 3850: 48.6→65.6 — Pass 4386: 65.6→88.6 — Pass 4712: 88.6→119.6 brighter scanner hood warm-up — Pass 4804: warm-up base 0.28→0.378 brighter hood warm-up floor — Pass 5593: 119.6→161.5 brighter scanner hood approach warm-up ceiling — Pass 5831: warm-up base 0.378→0.510 brighter hood warm-up floor
       // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 — Pass 1457: →0.14 for more visible heat flicker
       const _hoodShimmer = 23.0 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15 — Pass 3278: 1.15→1.55 — Pass 3364: 1.55→2.09 — Pass 3502: 2.09→2.82 — Pass 3743: 2.82→3.81 — Pass 3851: 3.81→5.14 — Pass 4387: 5.14→6.94 — Pass 4713: 6.94→9.37 more vivid hood shimmer — Pass 5460: 9.37→12.6 more vivid scanner hood shimmer amplitude — Pass 5601: 12.6→17.0 more vivid scanner hood approach thermal shimmer — Pass 5630: 17.0→23.0 more vivid pre-pick scan dome ring thermal shimmer amplitude
-      hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 7.29); // Pass 4791: hood warm-up emissive tracking rate 4→5.40 snappier scanner heat-up response — Pass 5641: 5.40→7.29 snappier scanner hood warm-up emissive tracking
+      hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 9.84); // Pass 4791: hood warm-up emissive tracking rate 4→5.40 snappier scanner heat-up response — Pass 5641: 5.40→7.29 snappier scanner hood warm-up emissive tracking — Pass 6370: 7.29→9.84 snappier scanner hood warm-up emissive tracking
     } else {
-      hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 4.56)); // Pass 4828: hood cooldown color tracking 2.5→3.38 — Pass 5683: 3.38→4.56 snappier scanner hood cooldown color return
+      hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 6.16)); // Pass 4828: hood cooldown color tracking 2.5→3.38 — Pass 5683: 3.38→4.56 snappier scanner hood cooldown color return — Pass 6371: 4.56→6.16 snappier scanner hood cooldown color return
       hoodMat.emissiveIntensity += (0.689 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5); // Pass 4805: scanner hood idle emissive target 0.28→0.378 warmer scanner cooldown floor — Pass 5143: 0.378→0.510 warmer scanner head idle emissive cooldown floor — Pass 6272: 0.510→0.689 warmer scanner hood idle emissive cooldown floor
     }
     // Pass 80: lens iris closes back to resting size
@@ -4827,7 +4827,7 @@ function animate(ts) {
 
   // Camera auto-orbit: ellipse + phase-aware target drift + card tracking
   if(!controls.enableRotate || !controls._userInteracted) {
-    const orbitAngle = ts * 0.000147 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit — Pass 5423: 0.000081→0.000109 faster cinematic orbit — Pass 5479: 0.000109→0.000147 faster slot approach orbit speed boost
+    const orbitAngle = ts * 0.000199 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit — Pass 5423: 0.000081→0.000109 faster cinematic orbit — Pass 5479: 0.000109→0.000147 faster slot approach orbit speed boost — Pass 6363: 0.000147→0.000199 faster cinematic orbit speed
     // Orbit radius tightens slightly during scan for closer scanner view
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
@@ -4875,8 +4875,8 @@ function animate(ts) {
       : { x: -30, y: 30 }; // default: machine center
 
     if(!controls._camTgt) controls._camTgt = { x: -30, y: 30 };
-    controls._camTgt.x += (_tgt.x - controls._camTgt.x) * 0.0443; // slightly faster drift — Pass 4807: camera target drift rate 0.018→0.0243 crisper phase-aware camera drift — Pass 5424: 0.0243→0.0328 crisper camera drift — Pass 6266: 0.0328→0.0443 crisper camera target drift rate
-    controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.0443; // Pass 4807: camera target drift rate 0.018→0.0243 crisper phase-aware camera drift — Pass 5424: 0.0243→0.0328 crisper camera drift — Pass 6266: 0.0328→0.0443 crisper camera target drift rate
+    controls._camTgt.x += (_tgt.x - controls._camTgt.x) * 0.0598; // slightly faster drift — Pass 4807: camera target drift rate 0.018→0.0243 crisper phase-aware camera drift — Pass 5424: 0.0243→0.0328 crisper camera drift — Pass 6266: 0.0328→0.0443 crisper camera target drift rate — Pass 6362: 0.0443→0.0598 crisper camera target drift rate
+    controls._camTgt.y += (_tgt.y - controls._camTgt.y) * 0.0598; // Pass 4807: camera target drift rate 0.018→0.0243 crisper phase-aware camera drift — Pass 5424: 0.0243→0.0328 crisper camera drift — Pass 6266: 0.0328→0.0443 crisper camera target drift rate — Pass 6362: 0.0443→0.0598 crisper camera target drift rate
     // Pass 138: Z lead — camera subluminally pre-pans toward destination column post-reveal
     // Pass 221: stronger Z pre-roll in last 20% of conveyorOut — card commits to its lane,
     // camera follows more eagerly (ramps from 0.25 → 0.65 of slotZ in the final stretch).
