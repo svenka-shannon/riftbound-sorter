@@ -3209,7 +3209,7 @@ function animate(ts) {
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 — Pass 1374: →19.0 — Pass 1519: →26.0 bigger lens pop
-    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 212 : 0; // Pass 2307: lens reveal spike 35.1→47.4 — Pass 3371: 47.4→64.0 — Pass 3479: 64.0→86.4 — Pass 3545: 86.4→116.6 — Pass 3732: 116.6→157 — Pass 3838: 157→212
+    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 286 : 0; // Pass 2307: lens reveal spike 35.1→47.4 — Pass 3371: 47.4→64.0 — Pass 3479: 64.0→86.4 — Pass 3545: 86.4→116.6 — Pass 3732: 116.6→157 — Pass 3838: 157→212 — Pass 4156: 212→286 bigger lens spike
     // Pass 793: lens flash base 3.5→4.8 — Pass 1518: →6.5 for brighter scanner lens during scan
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 53.5 + _lensReveal370; // Pass 2315: lens emissive flash contribution 8.78→11.9 — Pass 3384: 11.9→16.1 — Pass 3515: 16.1→21.7 — Pass 3652: 21.7→29.3 — Pass 3983: 29.3→39.6 — Pass 4111: 39.6→53.5 brighter scanner lens
     // Wide bloom soft halo around scanner
@@ -3323,13 +3323,13 @@ function animate(ts) {
     }
     // Pass 55: scan progress LED bar — fills left-to-right as ft 0→1
     // Pass 469: scan bar init pulse — Pass 732: 3.5→5.5 — Pass 1320: →8.0 — Pass 1697: →11.0 for bigger scanner power-on test
-    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 27.1 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1 — Pass 3860: 20.1→27.1
+    const _barInitFlash469 = ft < 0.04 ? Math.exp(-ft * 38) * 36.6 : 0; // Pass 2317: scan bar init flash 11.0→14.9 — Pass 3752: 14.9→20.1 — Pass 3860: 20.1→27.1 — Pass 4149: 27.1→36.6 bigger power-on pop
     {
       scanBarMesh.visible = true;
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
       // Pass 247: reveal overshoot — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 — Pass 733: →0.68 — Pass 1321: →0.95 — Pass 1698: →1.30
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 3.21 : 0; // Pass 2318: bar overshoot 1.30→1.76 — Pass 3753: 1.76→2.38 — Pass 3861: 2.38→3.21
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 4.33 : 0; // Pass 2318: bar overshoot 1.30→1.76 — Pass 3753: 1.76→2.38 — Pass 3861: 2.38→3.21 — Pass 4150: 3.21→4.33 bouncier bar overshoot
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
@@ -3344,19 +3344,19 @@ function animate(ts) {
       // Pass 227: cursor flicker slows post-reveal — frantic 18Hz uncertainty → calm 3Hz domain pulse
       // Pass 608: boost pre-reveal flicker amplitude 0.10→0.22; post-reveal breath 0.20→0.30 for more visible cursor
       scanBarCursorMat.opacity = _identityRevealed
-        ? 0.72 + 0.567 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // Pass 1700: post-reveal breath 0.30→0.42 — Pass 3956: 0.42→0.567 stronger post-reveal cursor breathe
-        : 0.78 + 0.405 * Math.abs(Math.sin(ts * 18 * Math.PI * 2)); // Pass 1701: pre-reveal flicker amp 0.22→0.30 — Pass 3963: 0.30→0.405 more nervous pre-reveal cursor flicker
+        ? 0.72 + 0.765 * Math.abs(Math.sin(ts * 3 * Math.PI * 2))  // Pass 1700: post-reveal breath 0.30→0.42 — Pass 3956: 0.42→0.567 — Pass 4151: 0.567→0.765 stronger post-reveal cursor breathe
+        : 0.78 + 0.547 * Math.abs(Math.sin(ts * 18 * Math.PI * 2)); // Pass 1701: pre-reveal flicker amp 0.22→0.30 — Pass 3963: 0.30→0.405 — Pass 4152: 0.405→0.547 more nervous pre-reveal flicker
       // Pass 290: cursor scale punch at reveal — Pass 737: exp amplitude 1.0→1.6 — Pass 853: →2.5 — Pass 1322: →3.5 for bigger swell
       // Pass 300: cursor pre-reveal scale search pulse — Pass 852: breathing amp 0.10→0.18
-      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.338 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25 — Pass 3945: 0.25→0.338 bigger cursor search pulse
+      const _cursorPreScale300 = !_identityRevealed ? 1.0 + 0.456 * Math.sin(ts * 3 * Math.PI * 2) : 1.0; // Pass 1703: breathing 0.18→0.25 — Pass 3945: 0.25→0.338 — Pass 4153: 0.338→0.456 bigger cursor search pulse
       const _cursorScale290 = _identityRevealed && ft < 0.91
-        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 8.75 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75
+        ? 1.0 + Math.exp(-(ft - 0.85) * 18) * 11.8 // Pass 1702: reveal scale punch 3.5→4.8 — Pass 3449: 4.8→6.48 — Pass 3654: 6.48→8.75 — Pass 4154: 8.75→11.8 bigger cursor pop
         : _cursorPreScale300;
       scanBarCursor.scale.setScalar(_cursorScale290);
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
       if (barFill >= 0.85 && !_identityRevealed) {
         _identityRevealed = true;
-        _domainFillBoost = 2.09; // Pass 439: reveal domain fill boost 0.55→0.85 — Pass 3435: 0.85→1.15 — Pass 3489: 1.15→1.55 — Pass 3655: 1.55→2.09
+        _domainFillBoost = 2.82; // Pass 439: reveal domain fill boost 0.55→0.85 — Pass 3435: 0.85→1.15 — Pass 3489: 1.15→1.55 — Pass 3655: 1.55→2.09 — Pass 4155: 2.09→2.82 richer domain fill at reveal
         // Pass 100: launch confirm ring expansion from scanner center
         _confirmRingT = 0;
         confirmRing.position.set(-40, CONV_Y_TOP + CARD_T + 1, 0);
