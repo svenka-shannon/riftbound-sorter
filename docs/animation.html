@@ -593,7 +593,7 @@ const fillLight = new THREE.DirectionalLight(0xc0d8ff, 10.1); // Pass 4037: fill
 fillLight.position.set(-400, 300, 200);
 scene.add(fillLight);
 
-const rimLight = new THREE.DirectionalLight(0xffeedd, 5.21); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim — Pass 5965: 1.57→2.12 stronger back rim — Pass 6052: 2.12→2.86 stronger back rim — Pass 6382: 2.86→3.86 stronger back rim — Pass 6438: 3.86→5.21 stronger back rim
+const rimLight = new THREE.DirectionalLight(0xffeedd, 7.03); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim — Pass 5965: 1.57→2.12 stronger back rim — Pass 6052: 2.12→2.86 stronger back rim — Pass 6382: 2.86→3.86 stronger back rim — Pass 6438: 3.86→5.21 stronger back rim — Pass 6874: 5.21→7.03 stronger back rim light
 rimLight.position.set(200, 100, -400);
 scene.add(rimLight);
 
@@ -857,7 +857,7 @@ for (let _ri = 0; _ri < 2; _ri++) {
 // --- Scanner hood --- dedicated matte-black material
 const hoodMat = new THREE.MeshStandardMaterial({
   color: 0x111118, roughness: 0.85, metalness: 0.15,
-  emissive: new THREE.Color(0x001122), emissiveIntensity: 1.82 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow — Pass 5051: 0.547→0.738 stronger scanner hood glow — Pass 5129: 0.738→0.997 stronger scanner hood glow — Pass 5706: 0.997→1.35 stronger scanner hood base emissive — Pass 6431: 1.35→1.82 stronger scanner hood base emissive
+  emissive: new THREE.Color(0x001122), emissiveIntensity: 2.46 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow — Pass 5051: 0.547→0.738 stronger scanner hood glow — Pass 5129: 0.738→0.997 stronger scanner hood glow — Pass 5706: 0.997→1.35 stronger scanner hood base emissive — Pass 6431: 1.35→1.82 stronger scanner hood base emissive — Pass 6875: 1.82→2.46 stronger scanner hood base emissive
 });
 const scannerHood = new THREE.Mesh(new THREE.BoxGeometry(80, 65, 100), hoodMat);
 scannerHood.castShadow = true;
@@ -869,7 +869,7 @@ scene.add(scannerHood);
 const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 36); // Pass 4953: lens radial segments 20→27 smoother camera aperture — Pass 5819: 27→36 smoother camera aperture
 const lensMat = new THREE.MeshStandardMaterial({
   color: 0x001122, roughness: 0.05, metalness: 0.9,
-  emissive: new THREE.Color(0x002244), emissiveIntensity: 1.80 // Pass 4761: camera lens base emissive 0.4→0.54 — Pass 4969: 0.54→0.729 brighter camera lens aperture — Pass 5130: 0.729→0.984 brighter camera lens aperture — Pass 5707: 0.984→1.33 brighter camera lens aperture emissive — Pass 6432: 1.33→1.80 brighter camera lens aperture emissive
+  emissive: new THREE.Color(0x002244), emissiveIntensity: 2.43 // Pass 4761: camera lens base emissive 0.4→0.54 — Pass 4969: 0.54→0.729 brighter camera lens aperture — Pass 5130: 0.729→0.984 brighter camera lens aperture — Pass 5707: 0.984→1.33 brighter camera lens aperture emissive — Pass 6432: 1.33→1.80 brighter camera lens aperture emissive — Pass 6876: 1.80→2.43 brighter camera lens aperture emissive
 });
 const lens = new THREE.Mesh(lensGeo, lensMat);
 lens.rotation.x = Math.PI / 2;
@@ -878,7 +878,7 @@ scene.add(lens);
 
 // Lens retaining ring
 const lensRing = new THREE.Mesh(
-  new THREE.TorusGeometry(8, 6.75, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring — Pass 5016: 2.03→2.74 chunkier scanner lens ring — Pass 5903: 2.74→3.70 chunkier scanner lens ring — Pass 6226: 3.70→5.00 chunkier scanner lens ring tube radius — Pass 6442: 5.00→6.75 chunkier scanner lens ring tube radius
+  new THREE.TorusGeometry(8, 9.11, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring — Pass 5016: 2.03→2.74 chunkier scanner lens ring — Pass 5903: 2.74→3.70 chunkier scanner lens ring — Pass 6226: 3.70→5.00 chunkier scanner lens ring tube radius — Pass 6442: 5.00→6.75 chunkier scanner lens ring tube radius — Pass 6877: 6.75→9.11 chunkier scanner lens ring tube radius
   new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.5, metalness: 0.6 })
 );
 lensRing.rotation.x = Math.PI / 2;
@@ -903,24 +903,24 @@ scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
 // Flash point light inside scanner (animated during scan phase)
-const scanFlash = new THREE.PointLight(0xffffff, 0, 817); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach — Pass 5045: 182→246 wider scan flash reach — Pass 5068: 246→332 wider scan flash reach — Pass 5740: 332→448 wider scan flash light reach — Pass 6313: 448→605 wider scan flash light reach — Pass 6443: 605→817 wider scan flash light reach
+const scanFlash = new THREE.PointLight(0xffffff, 0, 1103); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach — Pass 5045: 182→246 wider scan flash reach — Pass 5068: 246→332 wider scan flash reach — Pass 5740: 332→448 wider scan flash light reach — Pass 6313: 448→605 wider scan flash light reach — Pass 6443: 605→817 wider scan flash light reach — Pass 6878: 817→1103 wider scan flash light reach
 scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
 const scanBloom = new THREE.PointLight(0x0088ff, 0, 2457); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach — Pass 6314: 1348→1820 even wider scan bloom light reach — Pass 6473: 1820→2457 even wider scan bloom light reach
-scanBloom.decay = 12.1; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff — Pass 5906: 3.65→4.93 tighter scan bloom falloff — Pass 5966: 4.93→6.66 tighter scan bloom falloff — Pass 6056: 6.66→8.99 tighter scan bloom falloff — Pass 6434: 8.99→12.1 tighter scan bloom falloff
+scanBloom.decay = 16.3; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff — Pass 5906: 3.65→4.93 tighter scan bloom falloff — Pass 5966: 4.93→6.66 tighter scan bloom falloff — Pass 6056: 6.66→8.99 tighter scan bloom falloff — Pass 6434: 8.99→12.1 tighter scan bloom falloff — Pass 6879: 12.1→16.3 tighter scan bloom falloff decay
 scene.add(scanBloom);
 
 // Pass 55: Scan progress LED bar — thin strip on scanner hood front face
 // Fills left→right as scan progresses; flashes domain color on completion
 const SCAN_BAR_MAX_W = 72; // matches hood width minus margins
 const scanBarMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 50.9, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow — Pass 5747: 15.3→20.7 brighter scan progress bar base glow — Pass 6336: 20.7→27.9 brighter scan progress bar base glow — Pass 6435: 27.9→37.7 brighter scan progress bar base glow — Pass 6474: 37.7→50.9 brighter scan progress bar base glow
+  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 68.7, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow — Pass 5747: 15.3→20.7 brighter scan progress bar base glow — Pass 6336: 20.7→27.9 brighter scan progress bar base glow — Pass 6435: 27.9→37.7 brighter scan progress bar base glow — Pass 6474: 37.7→50.9 brighter scan progress bar base glow — Pass 6880: 50.9→68.7 brighter scan progress bar base glow emissive
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 11.2, 11.2), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar — Pass 4905: 3.38→4.56 chunkier scan bar — Pass 5473: 4.56→6.16 chunkier scan progress bar cross-section — Pass 5743: 6.16→8.32 chunkier scan progress bar cross-section — Pass 6436: 8.32→11.2 chunkier scan progress bar cross-section
+  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 15.1, 15.1), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar — Pass 4905: 3.38→4.56 chunkier scan bar — Pass 5473: 4.56→6.16 chunkier scan progress bar cross-section — Pass 5743: 6.16→8.32 chunkier scan progress bar cross-section — Pass 6436: 8.32→11.2 chunkier scan progress bar cross-section — Pass 6881: 11.2→15.1 chunkier scan progress bar cross-section
   scanBarMat
 );
 // Positioned on front face of scanner hood (Z=-50 is front edge of 100-deep hood)
@@ -2701,7 +2701,7 @@ function animate(ts) {
               _cp.mesh.visible = true;
               _cp.vx = (Math.random() - 0.5) * 577; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 — Pass 1672: →95 — Pass 3910: 95→128.3 wider pick burst — Pass 4375: 128.3→173.2 even wider suction puff — Pass 5123: 173.2→233.8 even wider pick dust spread — Pass 6006: 233.8→316 wider pick dust horizontal spread — Pass 6610: 316→427 wider pick dust horizontal spread — Pass 6836: 427→577 wider pick dust horizontal spread
               _cp.vy = 251 + Math.random() * 187.0;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 — Pass 1673: →56+76 — Pass 3909: 56+76→75.6+102.6 higher pick dust loft — Pass 4376: base 75.6→102.1 — Pass 4377: rand 102.6→138.5 more forceful pick dust launch — Pass 5130: 102.1→137.8 higher pick dust loft base — Pass 5932: rand 138.5→187.0 more forceful pick dust vy launch rand — Pass 6719: base 137.8→186.0 higher pick dust loft base — Pass 6837: base 186.0→251 higher pick dust vertical launch velocity
-              _cp.vz = (Math.random() - 0.5) * 126; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread — Pass 4378: 37.8→51.0 even wider pick dust Z — Pass 5124: 51.0→68.9 even wider pick dust Z spread — Pass 6007: 68.9→93.0 wider pick dust Z spread — Pass 6611: 93.0→126 wider pick dust Z spread
+              _cp.vz = (Math.random() - 0.5) * 170; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread — Pass 4378: 37.8→51.0 even wider pick dust Z — Pass 5124: 51.0→68.9 even wider pick dust Z spread — Pass 6007: 68.9→93.0 wider pick dust Z spread — Pass 6611: 93.0→126 wider pick dust Z spread — Pass 6871: 126→170 wider pick dust Z spread
               _cp.mat.color.setRGB(0.85, 0.88, 0.92); // cool pale grey (displaced air)
               _cpSpawned++;
             }
@@ -2884,10 +2884,10 @@ function animate(ts) {
         // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: →0.85+0.62 — Pass 1060: →0.95+0.80 — Pass 1247: apex →1.15 for brighter arc midpoint
         const _swT482 = phaseRaw(PH.armSwing);
         // Pass 482: trail opacity peak — Pass 1352: 0.95+1.15→0.95+1.55 — Pass 1500: apex →2.00 for brighter arc peak
-        tp.mat.opacity = Math.min(1, 0.95 + 16.3 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65 — Pass 3950: 3.65→4.93 — Pass 4192: 4.93→6.66 brighter arc-apex trail — Pass 5024: 6.66→8.99 brighter arc apex trail — Pass 5205: 8.99→12.1 brighter arc apex trail opacity — Pass 5984: 12.1→16.3 brighter arc apex trail opacity multiplier
+        tp.mat.opacity = Math.min(1, 0.95 + 22.0 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65 — Pass 3950: 3.65→4.93 — Pass 4192: 4.93→6.66 brighter arc-apex trail — Pass 5024: 6.66→8.99 brighter arc apex trail — Pass 5205: 8.99→12.1 brighter arc apex trail opacity — Pass 5984: 12.1→16.3 brighter arc apex trail opacity multiplier — Pass 6870: 16.3→22.0 brighter arm swing arc apex trail opacity multiplier
         tp.age = 0;
         // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 — Pass 1501: →1.10+0.55 longer arc trail
-        tp.life = 134.9 + Math.random() * 6.05; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82 — Pass 3672: 3.66+1.82→4.94+2.46 — Pass 4193: base 4.94→6.67 — Pass 4194: rand 2.46→3.32 — Pass 4917: base 6.67→9.00 — Pass 4918: rand 3.32→4.48 longer arc trail — Pass 5206: 9.00→12.2 longer arc trail base life — Pass 5221: rand 4.48→6.05 longer arc trail rand life — Pass 5393: 12.2→16.5 longer card deal arc trail base life — Pass 5575: 16.5→22.3 longer card deal arc trail base life — Pass 5584: 22.3→30.1 longer card deal arc trail base life — Pass 5607: 30.1→40.6 longer slot entry arc card spin trail base life — Pass 5615: 40.6→54.8 longer slot tray secondary bounce energy arc trail base life — Pass 5622: 54.8→74.0 longer slot approach landing flare arc trail base life — Pass 6401: 74.0→99.9 longer arc trail particle base life — Pass 6621: 99.9→134.9 longer arc trail particle base life
+        tp.life = 182 + Math.random() * 6.05; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82 — Pass 3672: 3.66+1.82→4.94+2.46 — Pass 4193: base 4.94→6.67 — Pass 4194: rand 2.46→3.32 — Pass 4917: base 6.67→9.00 — Pass 4918: rand 3.32→4.48 longer arc trail — Pass 5206: 9.00→12.2 longer arc trail base life — Pass 5221: rand 4.48→6.05 longer arc trail rand life — Pass 5393: 12.2→16.5 longer card deal arc trail base life — Pass 5575: 16.5→22.3 longer card deal arc trail base life — Pass 5584: 22.3→30.1 longer card deal arc trail base life — Pass 5607: 30.1→40.6 longer slot entry arc card spin trail base life — Pass 5615: 40.6→54.8 longer slot tray secondary bounce energy arc trail base life — Pass 5622: 54.8→74.0 longer slot approach landing flare arc trail base life — Pass 6401: 74.0→99.9 longer arc trail particle base life — Pass 6621: 99.9→134.9 longer arc trail particle base life — Pass 6869: 134.9→182 longer arm swing arc trail particle base life
         tp.active = true;
         tp.mesh.visible = true;
       }
@@ -2946,7 +2946,7 @@ function animate(ts) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 884, 344); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7 — Pass 3772: 79.7→108 — Pass 3879: 108→146 — Pass 4200: 146→197 — Pass 4919: 197→266 brighter arc apex flash — Pass 5298: arc apex flash intensity 266→359 brighter slot entry arc apex pop — Pass 5588: 359→485 brighter arc apex flash intensity — Pass 5603: 485→655 brighter grab burst light range arc apex flash intensity — Pass 6658: 655→884 brighter armSwing arc-peak flash intensity
+        const _spfl = new THREE.PointLight(ct.hex, 884, 465); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7 — Pass 3772: 79.7→108 — Pass 3879: 108→146 — Pass 4200: 146→197 — Pass 4919: 197→266 brighter arc apex flash — Pass 5298: arc apex flash intensity 266→359 brighter slot entry arc apex pop — Pass 5588: 359→485 brighter arc apex flash intensity — Pass 5603: 485→655 brighter grab burst light range arc apex flash intensity — Pass 6658: 655→884 brighter armSwing arc-peak flash intensity — Pass 6872: 344→465 wider armSwing arc-peak flash light range
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
