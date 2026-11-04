@@ -2381,7 +2381,7 @@ function animate(ts) {
         const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
-        const _waveAmp301 = inPhase(PH.armDescend) ? 1.15 + phaseRaw(PH.armDescend) * 2.46 : 1.15; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15
+        const _waveAmp301 = inPhase(PH.armDescend) ? 1.15 + phaseRaw(PH.armDescend) * 3.32 : 1.15; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 — Pass 4061: →0.49 richer deck energy base
         sc.material.emissiveIntensity = 0.49 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
@@ -2545,7 +2545,7 @@ function animate(ts) {
       ? 11.6 + 5.98 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
-    const _haloScale332 = beltActive ? 1.0 + 0.109 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 stronger belt halo pulse
+    const _haloScale332 = beltActive ? 1.0 + 0.147 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
     const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 2.01 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
@@ -2675,7 +2675,7 @@ function animate(ts) {
         const _cupApproach = _sq;
         suctionCupMat.emissive.setHex(ct.hex);
         // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 — Pass 1214: →3.6 — Pass 1311: →5.2 — Pass 1427: →7.0 — Pass 3959: 7.0→9.45 more vivid suction warmup
-        suctionCupMat.emissiveIntensity += (9.45 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10);
+        suctionCupMat.emissiveIntensity += (12.76 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10); // Pass 4223: cup approach emissive 9.45→12.76 more vivid suction warmup
         // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
         if (!_contactFlashFired) {
           _contactFlashFired = true;
@@ -2749,7 +2749,7 @@ function animate(ts) {
         if (!controls._vacRingAngle) controls._vacRingAngle = 0;
         controls._vacRingAngle += dt * (21.2 + _vt * 56.4); // Pass 2265: vacuum ring spin 4.7+22.95→6.35+30.98 — Pass 3173: base 6.35→8.57 Pass 3174: ramp 30.98→41.8 — Pass 3573: base 8.57→11.6, ramp 41.8→56.4 — Pass 3668: base 11.6→15.7 — Pass 3975: base 15.7→21.2
         vacuumRing.rotation.z = controls._vacRingAngle;
-        const _vacBaseScale = THREE.MathUtils.lerp(12.1, 0.25, _vt); // Pass 2266: vacuum ring max scale 2.70→3.65 — Pass 3417: 3.65→4.93 — Pass 3529: 4.93→6.66 — Pass 3713: 6.66→8.99 — Pass 3821: 8.99→12.1
+        const _vacBaseScale = THREE.MathUtils.lerp(16.3, 0.25, _vt); // Pass 2266: vacuum ring max scale 2.70→3.65 — Pass 3417: 3.65→4.93 — Pass 3529: 4.93→6.66 — Pass 3713: 6.66→8.99 — Pass 3821: 8.99→12.1 — Pass 4222: 12.1→16.3 larger vacuum ring sweep
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
         // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 — Pass 1249: surge →0.92 — Pass 1361: →1.20 — Pass 1679: →1.60 stronger pump surge
@@ -2766,18 +2766,18 @@ function animate(ts) {
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 — Pass 1356: →-0.48 — Pass 1681: →-0.65
-      const _ltLurch = lt < 0.18 ? -2.93 * Math.sin((lt / 0.18) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93
+      const _ltLurch = lt < 0.18 ? -3.96 * Math.sin((lt / 0.18) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93 — Pass 4224: -2.93→-3.96 more dramatic suction-break strain
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt) + _ltLurch;
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 — Pass 1682: →7.0 more dramatic dip
       if (lt < 0.22) {
-        const _yDip = -17.2 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 deeper suction-break dip
+        const _yDip = -23.2 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
         // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 — Pass 1358: →7.00 — Pass 1683: →9.50
-        const _pickStutter = lt < 0.12 ? 23.4 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 more violent suction-seal tear
+        const _pickStutter = lt < 0.12 ? 31.6 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 — Pass 1359: →15.0 for more dramatic peel-off sway
-      const _peelZ291 = lt < 0.28 ? 36.9 * Math.sin(lt / 0.28 * Math.PI) : 0; // Pass 2272: peel-off Z drift 20.25→27.34 — Pass 3920: 27.34→36.9 wider peel-off sway
+      const _peelZ291 = lt < 0.28 ? 49.8 * Math.sin(lt / 0.28 * Math.PI) : 0; // Pass 2272: peel-off Z drift 20.25→27.34 — Pass 3920: 27.34→36.9 — Pass 4227: 36.9→49.8 wider peel-off sway
       suctionPivot.position.z = _peelZ291;
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
@@ -3198,7 +3198,7 @@ function animate(ts) {
     {
       const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.10) : 1.0;
       // Pass 1152: hood sway primary 1.20→1.65, secondary 0.42→0.60 — Pass 1420: primary →2.20, secondary →0.82 for more resonant scanner oscillation
-      scannerHood.position.z = (4.01 * Math.sin(ts * 2.8 * Math.PI * 2) + 1.49 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10 — Pass 3936: 2.97+1.10→4.01+1.49 deeper scanner hood sway
+      scannerHood.position.z = (5.41 * Math.sin(ts * 2.8 * Math.PI * 2) + 2.01 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10 — Pass 3936: 2.97+1.10→4.01+1.49 deeper scanner hood sway — Pass 4221: primary 4.01→5.41 — Pass 4222: secondary 1.49→2.01 wilder hood resonance
     }
     // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 — Pass 1236: →1.30 — Pass 1421: →1.75 for more dramatic iris breathing
     const _irisScale = 0.75 + flashIntensity * 10.6; // Pass 1745: iris scale amplitude 1.75→2.36 — Pass 3383: 2.36→3.19 — Pass 3514: 3.19→4.31 — Pass 3651: 4.31→5.82 — Pass 3982: 5.82→7.86 — Pass 4110: 7.86→10.6 bigger iris throb
@@ -3509,9 +3509,9 @@ function animate(ts) {
           const _pingFade = Math.pow(Math.max(0, 1 - localFt / 0.85), 1.7);
           // Pass 337: ping reveal spike — transient brightness burst at identity lock-on
           // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 — Pass 1411: →4.5 — Pass 1525: →6.5 for brighter confirm ring flash
-          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 71.8 : 0; // Pass 2549: ping reveal spike 11.84→15.98 — Pass 2840: 15.98→21.6 — Pass 2986: 21.6→29.2 — Pass 3185: 29.2→39.4 — Pass 3761: 39.4→53.2 — Pass 3869: 53.2→71.8
+          const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 96.9 : 0; // Pass 2549: ping reveal spike 11.84→15.98 — Pass 2840: 15.98→21.6 — Pass 2986: 21.6→29.2 — Pass 3185: 29.2→39.4 — Pass 3761: 39.4→53.2 — Pass 3869: 53.2→71.8 — Pass 4224: 71.8→96.9 brighter confirm ring flash
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
-          const _pingBoost = ft >= 0.85 ? 406 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2 — Pass 3547: 165.2→223 — Pass 3731: 223→301 — Pass 3837: 301→406
+          const _pingBoost = ft >= 0.85 ? 548 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2 — Pass 3547: 165.2→223 — Pass 3731: 223→301 — Pass 3837: 301→406 — Pass 4223: 406→548 blazing confirm rings
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
           p.mat.opacity = _pingFade * flashIntensity * 1.0 * _pingBoost;
         } else {
