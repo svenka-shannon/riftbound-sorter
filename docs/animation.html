@@ -1974,7 +1974,7 @@ function fireCelebration() {
     p.vy = spd * (11.4 + Math.random() * 7.90); // Pass 2501: celeb launch bias 1.40+1.30→1.89+1.76 — Pass 3549: 1.89+1.76→2.55+2.38 — Pass 3664: 2.55+2.38→3.44+3.21 — Pass 4098: base 3.44→4.64 — Pass 4099: rand 3.21→4.33 higher loft — Pass 4912: base 4.64→6.26 — Pass 4913: rand 4.33→5.85 bigger confetti loft — Pass 5186: 6.26→8.45 bigger confetti vy launch base — Pass 5187: 5.85→7.90 bigger confetti vy launch rand — Pass 5892: base 8.45→11.4 bigger confetti upward launch velocity base
     p.vz = Math.sin(angle) * spd * 2.17; // Pass 3903: confetti vz spread 0.65→0.88 wider Z burst — Pass 4286: 0.88→1.19 wider confetti Z burst — Pass 5019: 1.19→1.61 wider confetti Z burst — Pass 5893: 1.61→2.17 wider confetti Z burst spread
     // Pass 652: randomize spawn position within ±25 units of tray center for wider burst area
-    p.mesh.position.set(TX_MID + (Math.random()-0.5)*45.6, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*36.5); // Pass 4472: confetti Z spawn spread 20→27.0 wider burst footprint — Pass 4500: confetti spawn X spread 25→33.8 wider burst footprint — Pass 5176: confetti spawn X spread 33.8→45.6 wider burst footprint — Pass 5177: confetti Z spawn spread 27.0→36.5 wider burst footprint
+    p.mesh.position.set(TX_MID + (Math.random()-0.5)*61.6, floorY, domCt.slotZ * 0.4 + (Math.random()-0.5)*49.3); // Pass 4472: confetti Z spawn spread 20→27.0 wider burst footprint — Pass 4500: confetti spawn X spread 25→33.8 wider burst footprint — Pass 5176: confetti spawn X spread 33.8→45.6 wider burst footprint — Pass 5177: confetti Z spawn spread 27.0→36.5 wider burst footprint — Pass 6214: X spread 45.6→61.6 wider celebration confetti X spawn area — Pass 6215: Z spread 36.5→49.3 wider celebration confetti Z spawn area
     p.mat.color.setHex(domCt.hex);
     p.mat.opacity = 0.95; // slightly more vivid
     p.age = 0;
@@ -2468,7 +2468,7 @@ function animate(ts) {
     bar.scale.y = Math.max(0.01, Math.min(2.90, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce — Pass 5203: 1.59→2.15 bigger fill bar overshoot bounce — Pass 6205: 2.15→2.90 bigger fill bar spring overshoot
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
-    const _fbRest = 8.85 + 2.30 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26 — Pass 4684: base 2.66→3.59 — Pass 4685: amp 1.26→1.70 brighter fill bar breathe — Pass 5120: 3.59→4.85 brighter fill bar resting glow — Pass 5191: 4.85→6.55 brighter fill bar resting base glow — Pass 5204: amp 1.70→2.30 bigger fill bar breathe amplitude — Pass 6206: base 6.55→8.85 richer fill bar resting glow base
+    const _fbRest = 8.85 + 3.11 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26 — Pass 4684: base 2.66→3.59 — Pass 4685: amp 1.26→1.70 brighter fill bar breathe — Pass 5120: 3.59→4.85 brighter fill bar resting glow — Pass 5191: 4.85→6.55 brighter fill bar resting base glow — Pass 5204: amp 1.70→2.30 bigger fill bar breathe amplitude — Pass 6206: base 6.55→8.85 richer fill bar resting glow base — Pass 6218: amp 2.30→3.11 richer fill bar breathe amplitude
     if(bar.material.emissiveIntensity > _fbRest + 0.109) { // Pass 4921: fill bar phase transition threshold 0.06→0.081 wider emissive hysteresis — Pass 5476: 0.081→0.109 wider fill bar emissive hysteresis window
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
@@ -2821,13 +2821,13 @@ function animate(ts) {
         GRAB_PARTICLES.forEach((p, _gi) => {
           const angle = Math.random() * Math.PI * 2;
           // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 — Pass 1098: →40+90 — Pass 1218: →55+115 for more energetic burst
-          const spd = 448 + Math.random() * 282; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread — Pass 4948: base 246→332 — Pass 4949: rand 155→209 more energetic grab particle burst — Pass 5200: base 332→448 — Pass 5201: rand 209→282 more energetic grab particle burst
+          const spd = 605 + Math.random() * 282; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread — Pass 4948: base 246→332 — Pass 4949: rand 155→209 more energetic grab particle burst — Pass 5200: base 332→448 — Pass 5201: rand 209→282 more energetic grab particle burst — Pass 6216: base 448→605 more energetic grab particle burst base speed
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.27; // Pass 4921: grab particle downward bias 0.15→0.20 more pick-disturbed stack puff — Pass 5526: 0.20→0.27 stronger pick-disturbed downward puff bias
           p.vx = Math.cos(angle) * spd * 1.35; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst — Pass 5080: 0.74→1.00 wider grab burst — Pass 5778: 1.00→1.35 wider grab particle X burst spread
           p.vy = _goDown ? -spd * (0.55 + Math.random() * 0.73) : spd * (0.55 + Math.random() * 0.45); // Pass 4264: grab particle vy down factor 0.3→0.41, rand 0.4→0.54 more forceful suction puff — Pass 5172: 0.41→0.55 rand 0.54→0.73 stronger grab particle pull-down
           p.vz = Math.sin(angle) * spd * 1.24; // Pass 4265: grab particle vz spread 0.5→0.68 deeper Z burst — Pass 5081: 0.68→0.92 deeper grab Z burst — Pass 5779: 0.92→1.24 deeper grab particle Z burst spread
-          p.mesh.position.set(_bx, _by, (Math.random() - 0.5) * 14.6); // Pass 4627: grab particle initial Z spawn spread 8→10.8 wider burst footprint — Pass 5180: 10.8→14.6 wider grab burst footprint
+          p.mesh.position.set(_bx, _by, (Math.random() - 0.5) * 19.7); // Pass 4627: grab particle initial Z spawn spread 8→10.8 wider burst footprint — Pass 5180: 10.8→14.6 wider grab burst footprint — Pass 6217: 14.6→19.7 wider grab burst Z spawn footprint
           // Pass 85: color variety — highlight (25%), domain (50%), shadow (25%)
           const _cr = Math.random();
           const _r = (ct.hex >> 16) & 0xff, _g = (ct.hex >> 8) & 0xff, _b = ct.hex & 0xff;
@@ -2861,7 +2861,7 @@ function animate(ts) {
       const _swingEndBounce = st > 0.88 ? 54.0 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0; // Pass 2276: armSwing end bounce 4.86→6.56 — Pass 3176: 6.56→8.86 — Pass 3575: 8.86→12.0 — Pass 3670: 12.0→16.2 — Pass 4190: 16.2→21.9 — Pass 4914: 21.9→29.6 bouncier deposit — Pass 5193: 29.6→40.0 bouncier arm deposit end-bounce — Pass 6211: 40.0→54.0 bouncier arm deposit end-bounce amplitude
       suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 170 + _swingEndBounce; // Pass 2277: armSwing Y sag 11.5→15.5 — Pass 3177: 15.5→20.9 — Pass 3576: 20.9→28.2 — Pass 3671: 28.2→38.1 — Pass 4191: 38.1→51.4 — Pass 4915: 51.4→69.4 deeper weight sag — Pass 5194: 69.4→93.7 deeper arm swing weight sag — Pass 5485: 93.7→126 deeper arm extension Y amplitude — Pass 5983: 126→170 deeper arm swing weight sag Y amplitude
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
-      suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 7.3); // Pass 4646: arm swing vibration damping constant 4→5.4 snappier cup emissive fade during swing — Pass 5106: arm extension damping 5.4→7.3 snappier cup emissive fade during swing
+      suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 9.86); // Pass 4646: arm swing vibration damping constant 4→5.4 snappier cup emissive fade during swing — Pass 5106: arm extension damping 5.4→7.3 snappier cup emissive fade during swing — Pass 6219: 7.3→9.86 snappier suction cup emissive fade during arm swing
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
       // Reuses the TRAIL_PARTICLES pool (armSwing and deflect phases don't overlap).
       // Pass 256: spawn density ramp — faster particles at midswing when arm moves fastest
@@ -3167,7 +3167,7 @@ function animate(ts) {
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Pass 372: scanner LED boost 2.0→2.5 — Pass 603: 2.5→3.5 + flashIntensity 3.0→4.5 — Pass 1513: base 3.5→5.0, flash 4.5→6.0
-    scanLEDMat.emissiveIntensity = 22.4 + flashIntensity * 48.7; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7 — Pass 3511: base 12.3→16.6 Pass 3512: flash 14.7→19.8 — Pass 3646: base 16.6→22.4 — Pass 3647: flash 19.8→26.7 — Pass 4372: flash 26.7→36.1 brighter scan LED flash — Pass 5247: 36.1→48.7 brighter scan LED flash
+    scanLEDMat.emissiveIntensity = 22.4 + flashIntensity * 65.7; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7 — Pass 3511: base 12.3→16.6 Pass 3512: flash 14.7→19.8 — Pass 3646: base 16.6→22.4 — Pass 3647: flash 19.8→26.7 — Pass 4372: flash 26.7→36.1 brighter scan LED flash — Pass 5247: 36.1→48.7 brighter scan LED flash — Pass 6212: 48.7→65.7 brighter scan LED flash peak intensity
     // Pass 222: scanner LED domain flash — at identity reveal, LED color switches to domain
     // Pass 270: hold domain color 0.12s before fading (was immediate fade) — more visual lock-on impact
     if (_scanLEDRevealT >= 0) {
@@ -3180,7 +3180,7 @@ function animate(ts) {
       scanLEDMat.emissive.setHex(0x0055cc);
     }
     // Pass 74/438: scanner hood deep pulse — Pass 438: domain lerp dt*2→dt*3, flashIntensity 0.8→1.2
-    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 3 + flashIntensity * 2.96)); // Pass 4796: scanner hood emissive lerp flash contribution 1.2→1.62 — Pass 5094: 1.62→2.19 more vivid scanner hood domain flash — Pass 5255: 2.19→2.96 more vivid scanner hood domain flash
+    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 3 + flashIntensity * 4.00)); // Pass 4796: scanner hood emissive lerp flash contribution 1.2→1.62 — Pass 5094: 1.62→2.19 more vivid scanner hood domain flash — Pass 5255: 2.19→2.96 more vivid scanner hood domain flash — Pass 6213: 2.96→4.00 more vivid scanner hood domain color flash
     // Pass 123: hood reveal strobe — Pass 437: duration dt*5.5→dt*3.8 (longer visible strobe)
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 6.93); // Pass 4787: hood reveal flash progression rate 3.8→5.13 snappier reveal strobe — Pass 5374: 5.13→6.93 snappier hood reveal flash progression
