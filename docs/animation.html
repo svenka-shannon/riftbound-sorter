@@ -1935,7 +1935,7 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 58; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool
+const TRAIL_PARTICLE_COUNT = 78; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(7.30, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius
