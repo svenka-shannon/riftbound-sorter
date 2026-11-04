@@ -4693,7 +4693,7 @@ function animate(ts) {
       // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 — Pass 1456: →0.28+1.80 for dramatic heat-up
       const _warmTarget = 0.510 + _warmT * 161.5; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7 — Pass 3277: 14.7→19.8 — Pass 3363: 19.8→26.7 — Pass 3501: 26.7→36.0 — Pass 3742: 36.0→48.6 — Pass 3850: 48.6→65.6 — Pass 4386: 65.6→88.6 — Pass 4712: 88.6→119.6 brighter scanner hood warm-up — Pass 4804: warm-up base 0.28→0.378 brighter hood warm-up floor — Pass 5593: 119.6→161.5 brighter scanner hood approach warm-up ceiling — Pass 5831: warm-up base 0.378→0.510 brighter hood warm-up floor
       // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 — Pass 1457: →0.14 for more visible heat flicker
-      const _hoodShimmer = 23.0 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15 — Pass 3278: 1.15→1.55 — Pass 3364: 1.55→2.09 — Pass 3502: 2.09→2.82 — Pass 3743: 2.82→3.81 — Pass 3851: 3.81→5.14 — Pass 4387: 5.14→6.94 — Pass 4713: 6.94→9.37 more vivid hood shimmer — Pass 5460: 9.37→12.6 more vivid scanner hood shimmer amplitude — Pass 5601: 12.6→17.0 more vivid scanner hood approach thermal shimmer — Pass 5630: 17.0→23.0 more vivid pre-pick scan dome ring thermal shimmer amplitude
+      const _hoodShimmer = 31.1 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15 — Pass 3278: 1.15→1.55 — Pass 3364: 1.55→2.09 — Pass 3502: 2.09→2.82 — Pass 3743: 2.82→3.81 — Pass 3851: 3.81→5.14 — Pass 4387: 5.14→6.94 — Pass 4713: 6.94→9.37 more vivid hood shimmer — Pass 5460: 9.37→12.6 more vivid scanner hood shimmer amplitude — Pass 5601: 12.6→17.0 more vivid scanner hood approach thermal shimmer — Pass 5630: 17.0→23.0 more vivid pre-pick scan dome ring thermal shimmer amplitude — Pass 6564: 23.0→31.1 more vivid scanner hood thermal shimmer amplitude
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 9.84); // Pass 4791: hood warm-up emissive tracking rate 4→5.40 snappier scanner heat-up response — Pass 5641: 5.40→7.29 snappier scanner hood warm-up emissive tracking — Pass 6370: 7.29→9.84 snappier scanner hood warm-up emissive tracking
     } else {
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 6.16)); // Pass 4828: hood cooldown color tracking 2.5→3.38 — Pass 5683: 3.38→4.56 snappier scanner hood cooldown color return — Pass 6371: 4.56→6.16 snappier scanner hood cooldown color return
@@ -4704,7 +4704,7 @@ function animate(ts) {
     // resting scale (peaks at +0.22 extra) then settles, mirroring the pass 162 snap-open.
     if (inPhase(PH.conveyorOut)) {
       const _ot2 = phaseRaw(PH.conveyorOut);
-      const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 8.17 : 0; // Pass 2430: iris snap-close overshoot 0.41→0.55 — Pass 2668: 0.55→0.74 — Pass 2759: 0.74→1.00 — Pass 2897: 1.00→1.35 — Pass 3106: 1.35→1.82 — Pass 3279: 1.82→2.46 — Pass 3357: 2.46→3.32 — Pass 4388: 3.32→4.48 — Pass 4714: 4.48→6.05 bigger iris snap-close bounce — Pass 5594: 6.05→8.17 bigger iris snap-close overshoot bounce
+      const _irisOvershoot = _ot2 < 0.12 ? Math.sin(_ot2 / 0.12 * Math.PI) * 11.0 : 0; // Pass 2430: iris snap-close overshoot 0.41→0.55 — Pass 2668: 0.55→0.74 — Pass 2759: 0.74→1.00 — Pass 2897: 1.00→1.35 — Pass 3106: 1.35→1.82 — Pass 3279: 1.82→2.46 — Pass 3357: 2.46→3.32 — Pass 4388: 3.32→4.48 — Pass 4714: 4.48→6.05 bigger iris snap-close bounce — Pass 5594: 6.05→8.17 bigger iris snap-close overshoot bounce — Pass 6565: 8.17→11.0 bigger iris snap-close overshoot bounce
       lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 24.6); // Pass 4842: iris snap-close scale tracking rate 10→13.5 snappier iris settle — Pass 5755: 13.5→18.2 snappier iris snap-close scale tracking — Pass 6372: 18.2→24.6 snappier iris snap-close scale tracking
       lens.scale.z = lens.scale.x;
     } else {
@@ -4735,7 +4735,7 @@ function animate(ts) {
     const _cardX = activeCard.visible ? activeCard.position.x : 9999;
     rollerMats.forEach((rm, ri) => {
       const _dist = Math.abs(_cardX - _rollerXs[ri]);
-      const _prox = Math.max(0, 1 - _dist / 1025); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228 — Pass 3109: 228→308 — Pass 3281: 308→416 — Pass 3359: 416→562 — Pass 4742: 562→759 wider conveyor roller glow range — Pass 5595: 759→1025 wider conveyor roller proximity glow range
+      const _prox = Math.max(0, 1 - _dist / 1384); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228 — Pass 3109: 228→308 — Pass 3281: 308→416 — Pass 3359: 416→562 — Pass 4742: 562→759 wider conveyor roller glow range — Pass 5595: 759→1025 wider conveyor roller proximity glow range — Pass 6566: 1025→1384 wider conveyor roller proximity glow range
       const _targetI = _prox * 103;               // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30 — Pass 2762: 9.30→12.6 — Pass 2900: 12.6→17.0 — Pass 3110: 17.0→23.0 — Pass 3282: 23.0→31.1 — Pass 3360: 31.1→42.0 — Pass 4389: 42.0→56.7 brighter conveyor roller proximity glow — Pass 5391: 56.7→76.5 brighter conveyor roller proximity glow — Pass 6043: 76.5→103 brighter conveyor roller proximity glow peak
       rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 12.3)); // Pass 4830: roller domain color tracking rate 5→6.75 — Pass 5688: 6.75→9.11 snappier roller domain color adoption — Pass 6377: 9.11→12.3 snappier roller domain color adoption
       rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 14.7); // Pass 4465: roller emissive tracking rate 6→8.1 snappier proximity glow — Pass 5576: 8.1→10.9 snappier roller proximity glow tracking — Pass 6378: 10.9→14.7 snappier roller proximity glow tracking
@@ -4755,7 +4755,7 @@ function animate(ts) {
     // Pass 472: shimmer opacity 0.38→0.50 — Pass 696: →0.65 — Pass 993: →0.85 — Pass 1401: →1.0 for stronger belt shimmer stripe
     beltShimmerMat.opacity = _edgeFade * Math.min(1, _beltScrollSpeed / 0.06) * 2.46; // Pass 4615: slot shimmer halo opacity 1.0→1.35 brighter belt shimmer stripe — Pass 5394: 1.35→1.82 brighter belt shimmer stripe opacity — Pass 6384: 1.82→2.46 brighter belt shimmer stripe opacity
   } else {
-    beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 44.3); // Pass 2004: shimmer fade 4→5.4 — Pass 2764: 5.4→7.29 — Pass 2902: 7.29→9.84 — Pass 3112: 9.84→13.3 — Pass 3284: 13.3→18.0 — Pass 3362: 18.0→24.3 — Pass 4552: 24.3→32.8 faster slot shimmer halo fade — Pass 5596: 32.8→44.3 faster belt shimmer stripe fade rate
+    beltShimmerMat.opacity = Math.max(0, beltShimmerMat.opacity - dt * 59.8); // Pass 2004: shimmer fade 4→5.4 — Pass 2764: 5.4→7.29 — Pass 2902: 7.29→9.84 — Pass 3112: 9.84→13.3 — Pass 3284: 13.3→18.0 — Pass 3362: 18.0→24.3 — Pass 4552: 24.3→32.8 faster slot shimmer halo fade — Pass 5596: 32.8→44.3 faster belt shimmer stripe fade rate — Pass 6567: 44.3→59.8 faster belt shimmer stripe fade rate
     if (beltShimmerMat.opacity < 0.01) beltShimmerMesh.visible = false;
   }
 
@@ -4789,7 +4789,7 @@ function animate(ts) {
     const _liftPickSpike = inPhase(PH.armLift) ? Math.exp(-phaseRaw(PH.armLift) * 18) * 228.2 : 0; // Pass 2181: lift spike 4.59→6.20 — Pass 2673: 6.20→8.37 — Pass 2765: 8.37→11.3 — Pass 2903: 11.3→15.3 — Pass 3113: 15.3→20.7 — Pass 3285: 20.7→27.9 — Pass 3365: 27.9→37.7 — Pass 3503: 37.7→50.9 — Pass 3744: 50.9→68.7 — Pass 3852: 68.7→92.7 — Pass 4661: 92.7→125.1 bigger suction-break energy spike — Pass 5392: 125.1→169.0 bigger suction-break energy spike — Pass 6385: 169.0→228.2 bigger suction-break energy spike
     const _rodGlow = Math.max(_armDescT * 0.63, _armLiftT * 1.05 + _liftPickSpike, _armSwingT * 120, _convInT * 0.47); // Pass 2182: swing 2.43→3.28 Pass 2187: armDesc 0.26→0.35 Pass 2188: convIn 0.35→0.47 — Pass 2674: swing 3.28→4.43 — Pass 2766: swing 4.43→5.98 Pass 2771: armDesc 0.35→0.47 Pass 2772: armLift 0.58→0.78 — Pass 2904: swing 5.98→8.07 — Pass 3114: 8.07→10.9 — Pass 3286: 10.9→14.7 — Pass 3366: 14.7→19.8 — Pass 3504: 19.8→26.7 — Pass 3745: 26.7→36.0 — Pass 3853: 36.0→48.6 — Pass 4252: armDesc 0.47→0.63 — Pass 4253: armLift 0.78→1.05 brighter arm rod during descend/lift — Pass 4662: swing 48.6→65.6 brighter arm rod swing glow — Pass 5393: swing 65.6→88.6 brighter arm rod swing glow — Pass 6044: swing 88.6→120 brighter arm rod swing glow
     armRod.material.emissive.setHex(ct.hex);
-    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 396); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161 — Pass 3854: 161→217 — Pass 4663: 217→293 snappier arm rod emissive response — Pass 5680: 293→396 snappier arm rod emissive response
+    armRod.material.emissiveIntensity += (_rodGlow - armRod.material.emissiveIntensity) * Math.min(1, dt * 535); // Pass 2183: arm rod tracking 10.8→14.6 — Pass 2675: 14.6→19.7 — Pass 2767: 19.7→26.6 — Pass 2905: 26.6→35.9 — Pass 3115: 35.9→48.5 — Pass 3287: 48.5→65.5 — Pass 3367: 65.5→88.4 — Pass 3505: 88.4→119.3 — Pass 3746: 119.3→161 — Pass 3854: 161→217 — Pass 4663: 217→293 snappier arm rod emissive response — Pass 5680: 293→396 snappier arm rod emissive response — Pass 6568: 396→535 snappier arm rod emissive tracking response
   }
 
   // ── Suction cup domain glow ──
@@ -4881,7 +4881,7 @@ function animate(ts) {
     // Pass 221: stronger Z pre-roll in last 20% of conveyorOut — card commits to its lane,
     // camera follows more eagerly (ramps from 0.25 → 0.65 of slotZ in the final stretch).
     const _coRaw = inPhase(PH.conveyorOut) ? phaseRaw(PH.conveyorOut) : 0;
-    const _coZBoost = inPhase(PH.conveyorOut) ? 5.99 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0; // Pass 2540: conveyorOut Z lean boost 0.40→0.54 — Pass 2680: 0.54→0.73 — Pass 2776: 0.73→0.99 — Pass 2910: 0.99→1.34 — Pass 3121: 1.34→1.81 — Pass 3292: 1.81→2.44 — Pass 3611: 2.44→3.29 — Pass 4157: 3.29→4.44 more committed lean — Pass 5577: 4.44→5.99 more committed camera Z lean
+    const _coZBoost = inPhase(PH.conveyorOut) ? 8.09 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0; // Pass 2540: conveyorOut Z lean boost 0.40→0.54 — Pass 2680: 0.54→0.73 — Pass 2776: 0.73→0.99 — Pass 2910: 0.99→1.34 — Pass 3121: 1.34→1.81 — Pass 3292: 1.81→2.44 — Pass 3611: 2.44→3.29 — Pass 4157: 3.29→4.44 more committed lean — Pass 5577: 4.44→5.99 more committed camera Z lean — Pass 6569: 5.99→8.09 more committed conveyorOut camera Z lean
     // Pass 297: slotDrop Z camera lead boost — camera leans further into destination column as card falls — Pass 1608: 0.20→0.28
     const _sdZBoost = inPhase(PH.slotDrop) ? 5.67 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38 — Pass 2681: 0.38→0.51 — Pass 2777: 0.51→0.69 — Pass 2911: 0.69→0.93 — Pass 3122: 0.93→1.26 — Pass 3293: 1.26→1.70 — Pass 3621: 1.70→2.30 — Pass 4158: 2.30→3.11 deeper slot lean — Pass 5578: 3.11→4.20 deeper slot drop camera Z lean — Pass 6236: 4.20→5.67 deeper slot drop camera Z lean
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
@@ -4961,7 +4961,7 @@ function animate(ts) {
       floorDiscMat.color.setHex(ct.hex);
       // Altitude = card Y above belt surface; belt at CONV_Y_TOP+2
       const _altitude = Math.max(0, activeCard.position.y - (CONV_Y_TOP + 3));
-      const _altFrac = Math.min(1, _altitude / 548); // Pass 2195: floor disc altitude 67→90 — Pass 2784: 90→122 — Pass 2917: 122→165 — Pass 3127: 165→223 — Pass 3297: 223→301 — Pass 4159: 301→406 disc follows higher lifts — Pass 5792: 406→548 disc follows higher lifts
+      const _altFrac = Math.min(1, _altitude / 740); // Pass 2195: floor disc altitude 67→90 — Pass 2784: 90→122 — Pass 2917: 122→165 — Pass 3127: 165→223 — Pass 3297: 223→301 — Pass 4159: 301→406 disc follows higher lifts — Pass 5792: 406→548 disc follows higher lifts — Pass 6570: 548→740 disc follows even higher lifts
       // Pass 703: floor disc altitude expansion 1.4→1.8 — Pass 1021: →2.6 — Pass 1338: →3.5 for larger domain halo spread
       const _fdScale = 1.0 + _altFrac * 128; // Pass 2477: floor disc expansion 6.39→8.63 — Pass 2688: 8.63→11.6 — Pass 2785: 11.6→15.7 — Pass 2918: 15.7→21.2 — Pass 3128: 21.2→28.6 — Pass 3298: 28.6→38.6 — Pass 3622: 38.6→52.1 — Pass 4160: 52.1→70.3 bigger domain halo — Pass 5406: 70.3→94.9 bigger domain halo altitude expansion — Pass 6238: 94.9→128 bigger domain halo altitude expansion scale
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
@@ -4987,7 +4987,7 @@ function animate(ts) {
     if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
     // Pass 163: shimmer pressure lift — Pass 1023: lift 5.5→8.0 — Pass 1403: →11.0 higher card float under stripe
     if (_glint > 0.005 && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)))
-      activeCard.position.y += _glint * 402; // Pass 2480: shimmer lift 20.0→27.0 — Pass 2690: 27.0→36.5 — Pass 2787: 36.5→49.3 — Pass 2920: 49.3→66.6 — Pass 3130: 66.6→89.9 — Pass 3300: 89.9→121.4 — Pass 3624: 121.4→163.9 — Pass 4162: 163.9→221 bigger lift — Pass 5396: 221→298 bigger shimmer pressure lift — Pass 5870: 298→402 bigger shimmer pressure lift
+      activeCard.position.y += _glint * 543; // Pass 2480: shimmer lift 20.0→27.0 — Pass 2690: 27.0→36.5 — Pass 2787: 36.5→49.3 — Pass 2920: 49.3→66.6 — Pass 3130: 66.6→89.9 — Pass 3300: 89.9→121.4 — Pass 3624: 121.4→163.9 — Pass 4162: 163.9→221 bigger lift — Pass 5396: 221→298 bigger shimmer pressure lift — Pass 5870: 298→402 bigger shimmer pressure lift — Pass 6571: 402→543 bigger belt shimmer pressure lift
   }
 
   // ── Hopper top card domain preview ──────────────────────────────────────────
