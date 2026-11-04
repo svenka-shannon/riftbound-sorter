@@ -908,7 +908,7 @@ scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
-const scanBloom = new THREE.PointLight(0x0088ff, 0, 405); // Pass 3632: bloom reach 300→405
+const scanBloom = new THREE.PointLight(0x0088ff, 0, 547); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach
 scanBloom.decay = 2;
 scene.add(scanBloom);
 
@@ -3154,20 +3154,20 @@ function animate(ts) {
     }
     // Pass 105/448: scan strobe — Pass 604: amplitude 0.18→0.28 — Pass 621: add 7Hz secondary beat — Pass 1239: primary 0.28→0.42 — Pass 1508: →0.58 for more vivid scanner strobe flicker
     // Two-frequency scan strobe: primary 12Hz + secondary 7Hz creates interference pattern
-    const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 2.59 + Math.sin(ts * 7 * Math.PI * 2) * 0.473) * flashIntensity; // Pass 1764: primary 0.58→0.78 — Pass 1865: →1.05; Pass 1765: secondary 0.10→0.14 — Pass 1866: →0.19 — Pass 3433: primary 1.05→1.42 Pass 3434: secondary 0.19→0.26 — Pass 3537: primary 1.42→1.92 Pass 3538: secondary 0.26→0.35 — Pass 3978: primary 1.92→2.59 — Pass 3979: secondary 0.35→0.473
+    const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 3.50 + Math.sin(ts * 7 * Math.PI * 2) * 0.639) * flashIntensity; // Pass 1764: primary 0.58→0.78 — Pass 1865: →1.05; Pass 1765: secondary 0.10→0.14 — Pass 1866: →0.19 — Pass 3433: primary 1.05→1.42 Pass 3434: secondary 0.19→0.26 — Pass 3537: primary 1.42→1.92 Pass 3538: secondary 0.26→0.35 — Pass 3978: primary 1.92→2.59 — Pass 3979: secondary 0.35→0.473 — Pass 4368: primary 2.59→3.50 — Pass 4369: secondary 0.473→0.639 deeper scan strobe flicker
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 — Pass 1514: →dt*2.8 (longer burst visibility)
     if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 1.56); // Pass 1740: burst decay 2.8→2.1 (longer visible burst) — Pass 4278: 2.1→1.56 even longer reveal burst
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
     const _revOsc = _cardRevealBurst * (2.17 + 1.98 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81 — Pass 1867: →1.19+1.09 — Pass 3935: 1.19+1.09→1.61+1.47 more vivid reveal pulse — Pass 4337: base 1.61→2.17 — Pass 4338: amp 1.47→1.98 stronger reveal oscillation
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
-    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 15.1 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16 — Pass 3412: 6.16→8.32 — Pass 3768: 8.32→11.2 — Pass 3876: 11.2→15.1
+    activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 20.4 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16 — Pass 3412: 6.16→8.32 — Pass 3768: 8.32→11.2 — Pass 3876: 11.2→15.1 — Pass 4370: 15.1→20.4 brighter scan card flash
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
     const _revealGlowSurge = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.40) * 170 : 0; // Pass 2300: reveal glow surge 37.8→51.0 — Pass 3376: 51.0→68.9 — Pass 3509: 68.9→93.0 — Pass 3648: 93.0→126 — Pass 4339: 126→170 more intense card glow surge at reveal
-    cardGlow.intensity = 5.9 + flashIntensity * 14.3 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83 — Pass 3377: base 4.4→5.9 Pass 3378: flash 5.83→7.87 — Pass 3510: flash 7.87→10.6 — Pass 3649: flash 10.6→14.3
+    cardGlow.intensity = 5.9 + flashIntensity * 19.3 + _revealGlowSurge; // Pass 2302: card glow flash contribution 4.32→5.83 — Pass 3377: base 4.4→5.9 Pass 3378: flash 5.83→7.87 — Pass 3510: flash 7.87→10.6 — Pass 3649: flash 10.6→14.3 — Pass 4371: 14.3→19.3 stronger card glow during scan
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 10; // above card for top-face highlight
     // Pass 372: scanner LED boost 2.0→2.5 — Pass 603: 2.5→3.5 + flashIntensity 3.0→4.5 — Pass 1513: base 3.5→5.0, flash 4.5→6.0
-    scanLEDMat.emissiveIntensity = 22.4 + flashIntensity * 26.7; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7 — Pass 3511: base 12.3→16.6 Pass 3512: flash 14.7→19.8 — Pass 3646: base 16.6→22.4 — Pass 3647: flash 19.8→26.7
+    scanLEDMat.emissiveIntensity = 22.4 + flashIntensity * 36.1; // Pass 2303: LED base 6.75→9.11, flash 8.1→10.9 — Pass 3379: base 9.11→12.3 Pass 3380: flash 10.9→14.7 — Pass 3511: base 12.3→16.6 Pass 3512: flash 14.7→19.8 — Pass 3646: base 16.6→22.4 — Pass 3647: flash 19.8→26.7 — Pass 4372: flash 26.7→36.1 brighter scan LED flash
     // Pass 222: scanner LED domain flash — at identity reveal, LED color switches to domain
     // Pass 270: hold domain color 0.12s before fading (was immediate fade) — more visual lock-on impact
     if (_scanLEDRevealT >= 0) {
@@ -3733,7 +3733,7 @@ function animate(ts) {
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
     // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
     const _ledUrgencyHz = 8 + ot * 22; // 8→30Hz
-    const _ledUrgencyPulse = 0.18 + 16.5 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5
+    const _ledUrgencyPulse = 0.18 + 22.3 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5 — Pass 4373: 16.5→22.3 deeper gate LED urgency throb
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
       // Pass 650: target LED max emissive 2.5→3.5 — Pass 955: →5.0 — Pass 1141: →7.0 — Pass 1221: →10.0 for brighter gate approach signal
@@ -3746,7 +3746,7 @@ function animate(ts) {
     // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 — Pass 1369: →30.0 for stronger domain pool
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
-    gateColLight.intensity += (625 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2358: gate col tracking light 103.3→139.5 — Pass 2574: 139.5→188.3 — Pass 3012: 188.3→254.2 — Pass 3210: 254.2→343.2 — Pass 3587: 343.2→463 — Pass 3682: 463→625
+    gateColLight.intensity += (844 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2358: gate col tracking light 103.3→139.5 — Pass 2574: 139.5→188.3 — Pass 3012: 188.3→254.2 — Pass 3210: 254.2→343.2 — Pass 3587: 343.2→463 — Pass 3682: 463→625 — Pass 4374: 625→844 brighter gate column domain pool
     // Fade routing arc out as card leaves scanner
     routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 2.5);
     routeTargetMat.opacity = routeArcMat.opacity;
