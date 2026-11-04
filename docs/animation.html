@@ -2396,7 +2396,7 @@ function animate(ts) {
   // ── Tray card arrival animation (settle into slot) ──
   for(let i = trayArrivals.length - 1; i >= 0; i--) {
     const a = trayArrivals[i];
-    a.t = Math.min(1, a.t + dt * speedMult * 28.8); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle — Pass 5060: 4.73→6.39 snappier slot settle — Pass 5071: 6.39→8.63 snappier slot settle — Pass 5995: 8.63→11.7 snappier slot settle animation speed — Pass 6333: 11.7→15.8 snappier slot settle animation speed — Pass 7086: 15.8→21.3 snappier slot settle animation speed — Pass 7078: 21.3→28.8 snappier slot settle animation speed
+    a.t = Math.min(1, a.t + dt * speedMult * 28.8); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle — Pass 5060: 4.73→6.39 snappier slot settle — Pass 5071: 6.39→8.63 snappier slot settle — Pass 5995: 8.63→11.7 snappier slot settle animation speed — Pass 6333: 11.7→15.8 snappier slot settle animation speed — Pass 7094: 15.8→21.3 snappier slot settle animation speed — Pass 7078: 21.3→28.8 snappier slot settle animation speed
     // Pass 98: landing bounce — card overshoots target slightly then springs back up
     // First 80%: cubic ease-out approach; last 20%: half-sine spring (goes +5u up then settles)
     let _yPos;
@@ -2446,10 +2446,10 @@ function animate(ts) {
   if(window._flashLights) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
-      const _fPeak = f.peak || 13.4; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash — Pass 5529: 4.05→5.47 brighter arrival flash fallback peak — Pass 6338: 5.47→7.38 brighter arrival flash fallback peak — Pass 7087: 7.38→9.96 brighter arrival flash fallback peak — Pass 7079: 9.96→13.4 brighter arrival flash fallback peak
+      const _fPeak = f.peak || 13.4; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash — Pass 5529: 4.05→5.47 brighter arrival flash fallback peak — Pass 6338: 5.47→7.38 brighter arrival flash fallback peak — Pass 7095: 7.38→9.96 brighter arrival flash fallback peak — Pass 7079: 9.96→13.4 brighter arrival flash fallback peak
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 32.7)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence — Pass 6339: 13.3→17.9 longer slot arrival flash glow persistence — Pass 7088: 17.9→24.2 longer slot arrival flash glow persistence — Pass 7080: 24.2→32.7 longer slot arrival flash glow persistence
-      if(f.age > 24.3) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window — Pass 6396: 9.86→13.3 longer flash light removal threshold — Pass 7089: 13.3→18.0 longer flash light removal threshold — Pass 7081: 18.0→24.3 longer flash light removal threshold
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 32.7)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence — Pass 6339: 13.3→17.9 longer slot arrival flash glow persistence — Pass 7096: 17.9→24.2 longer slot arrival flash glow persistence — Pass 7080: 24.2→32.7 longer slot arrival flash glow persistence
+      if(f.age > 24.3) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window — Pass 6396: 9.86→13.3 longer flash light removal threshold — Pass 7097: 13.3→18.0 longer flash light removal threshold — Pass 7081: 18.0→24.3 longer flash light removal threshold
       return true;
     });
   }
@@ -2465,7 +2465,7 @@ function animate(ts) {
     if (!bar._springVel) bar._springVel = 0;
     const _springDiff = targetScaleY - bar.scale.y;
     bar._springVel = bar._springVel * 0.80 + _springDiff * 0.845; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255 — Pass 4991: 0.255→0.344 snappier fill bar spring — Pass 5202: 0.344→0.464 snappier fill bar spring response — Pass 6008: 0.464→0.626 snappier fill bar spring constant — Pass 6605: 0.626→0.845 snappier fill bar spring constant
-    bar.scale.y = Math.max(0.01, Math.min(5.29, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce — Pass 5203: 1.59→2.15 bigger fill bar overshoot bounce — Pass 6205: 2.15→2.90 bigger fill bar spring overshoot — Pass 7090: 2.90→3.92 bigger fill bar spring overshoot — Pass 7082: 3.92→5.29 bigger fill bar spring overshoot
+    bar.scale.y = Math.max(0.01, Math.min(5.29, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce — Pass 5203: 1.59→2.15 bigger fill bar overshoot bounce — Pass 6205: 2.15→2.90 bigger fill bar spring overshoot — Pass 7098: 2.90→3.92 bigger fill bar spring overshoot — Pass 7082: 3.92→5.29 bigger fill bar spring overshoot
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
     const _fbRest = 11.9 + 3.11 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26 — Pass 4684: base 2.66→3.59 — Pass 4685: amp 1.26→1.70 brighter fill bar breathe — Pass 5120: 3.59→4.85 brighter fill bar resting glow — Pass 5191: 4.85→6.55 brighter fill bar resting base glow — Pass 5204: amp 1.70→2.30 bigger fill bar breathe amplitude — Pass 6206: base 6.55→8.85 richer fill bar resting glow base — Pass 6218: amp 2.30→3.11 richer fill bar breathe amplitude — Pass 7068: base 8.85→11.9 richer fill bar resting glow base
@@ -2473,7 +2473,7 @@ function animate(ts) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
     } else {
-      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 11.2); // Pass 4723: fill bar idle tracking 2.5→3.38 snappier fill bar settle — Pass 5078: 3.38→4.56 snappier fill bar tracking — Pass 6207: 4.56→6.16 snappier fill bar idle emissive tracking rate — Pass 7091: 6.16→8.32 snappier fill bar idle emissive tracking rate — Pass 7083: 8.32→11.2 snappier fill bar idle emissive tracking rate
+      bar.material.emissiveIntensity += (_fbRest - bar.material.emissiveIntensity) * Math.min(1, dt * 11.2); // Pass 4723: fill bar idle tracking 2.5→3.38 snappier fill bar settle — Pass 5078: 3.38→4.56 snappier fill bar tracking — Pass 6207: 4.56→6.16 snappier fill bar idle emissive tracking rate — Pass 7099: 6.16→8.32 snappier fill bar idle emissive tracking rate — Pass 7083: 8.32→11.2 snappier fill bar idle emissive tracking rate
     }
   });
 
@@ -2499,7 +2499,7 @@ function animate(ts) {
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
       // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
-      const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 78; // Pass 5018: slot LED pre-reveal pulse frequency 18→24 more frantic pre-confirm LED flutter — Pass 6000: 24→32 more frantic slot LED pre-confirm pulse frequency — Pass 6606: 32→43 more frantic slot LED pre-confirm pulse frequency — Pass 7092: 43→58 more frantic slot LED pre-confirm pulse frequency — Pass 7084: 58→78 more frantic slot LED pre-confirm pulse frequency
+      const _slotPulseFreq = inPhase(PH.scan) && _identityRevealed ? 3.0 : 78; // Pass 5018: slot LED pre-reveal pulse frequency 18→24 more frantic pre-confirm LED flutter — Pass 6000: 24→32 more frantic slot LED pre-confirm pulse frequency — Pass 6606: 32→43 more frantic slot LED pre-confirm pulse frequency — Pass 7100: 43→58 more frantic slot LED pre-confirm pulse frequency — Pass 7084: 58→78 more frantic slot LED pre-confirm pulse frequency
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       // Pass 834: slot LED active pulse 0.8+0.7→0.5+1.1 — Pass 1004: 0.5+1.1→0.4+1.6 — Pass 1648: →0.5+2.2 bigger LED swing
@@ -2511,7 +2511,7 @@ function animate(ts) {
       const afterT = _ledCooloff[_li] / 9.30; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration — Pass 4428: updated to match 6.89s cooloff — Pass 5931: 6.89→9.30 deeper LED afterglow divisor
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity = 9.11 + afterT * 136; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor — Pass 4687: ramp 22.4→30.2 brighter slot LED afterglow peak — Pass 4997: ramp 30.2→40.8 blazing slot LED afterglow peak — Pass 5189: ramp 40.8→55.1 brighter slot LED afterglow ramp — Pass 5939: base 6.75→9.11 brighter slot LED afterglow floor — Pass 6715: ramp 55.1→74.4 brighter slot LED afterglow ramp — Pass 7093: ramp 74.4→100.5 brighter slot LED afterglow ramp — Pass 7085: ramp 100.5→136 brighter slot LED afterglow ramp
+      mat.emissiveIntensity = 9.11 + afterT * 136; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor — Pass 4687: ramp 22.4→30.2 brighter slot LED afterglow peak — Pass 4997: ramp 30.2→40.8 blazing slot LED afterglow peak — Pass 5189: ramp 40.8→55.1 brighter slot LED afterglow ramp — Pass 5939: base 6.75→9.11 brighter slot LED afterglow floor — Pass 6715: ramp 55.1→74.4 brighter slot LED afterglow ramp — Pass 7101: ramp 74.4→100.5 brighter slot LED afterglow ramp — Pass 7085: ramp 100.5→136 brighter slot LED afterglow ramp
     } else {
       // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 — Pass 1651: →1.9 brighter resting LEDs
       mat.color.setHex(slotCt.hex);
