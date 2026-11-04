@@ -2722,7 +2722,7 @@ function animate(ts) {
           const _dCupY = PIV_Y - 83 * Math.cos(_dRot);
           const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
           _trailHead++;
-          tp.mesh.position.set(_dCupX + (Math.random()-0.5)*4, _dCupY, (Math.random()-0.5)*6);
+          tp.mesh.position.set(_dCupX + (Math.random()-0.5)*4, _dCupY, (Math.random()-0.5)*8.1); // Pass 4636: arm descend trail Z spread 6→8.1 wider descent contrail volume
           // Pass 507: descend trail tint toward domain as cup gets closer (pt > 0.60 = approaching)
           const _descTint507 = pt > 0.60 ? (pt - 0.60) / 0.40 : 0;
           if (_descTint507 > 0) {
@@ -2773,7 +2773,7 @@ function animate(ts) {
         const _yDip = -23.2 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
         // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 — Pass 1358: →7.00 — Pass 1683: →9.50
-        const _pickStutter = lt < 0.12 ? 31.6 * Math.exp(-lt * 26) * (Math.sin(ts * 29.7 * Math.PI * 2) * 0.88 + Math.sin(ts * 51.3 * Math.PI * 2) * 0.47) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear — Pass 4504: pick stutter high freq 38→51.3 sharper micro-jolt — Pass 4527: pick-stutter low-freq amplitude 0.65→0.88 stronger suction-seal shudder — Pass 4529: pick-stutter low-freq seal frequency 22→29.7 sharper suction-seal Hz — Pass 4624: pick-stutter high-freq secondary amplitude 0.35→0.47 more violent seal tear recoil
+        const _pickStutter = lt < 0.12 ? 31.6 * Math.exp(-lt * 35.1) * (Math.sin(ts * 29.7 * Math.PI * 2) * 0.88 + Math.sin(ts * 51.3 * Math.PI * 2) * 0.47) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear — Pass 4504: pick stutter high freq 38→51.3 sharper micro-jolt — Pass 4527: pick-stutter low-freq amplitude 0.65→0.88 stronger suction-seal shudder — Pass 4529: pick-stutter low-freq seal frequency 22→29.7 sharper suction-seal Hz — Pass 4624: pick-stutter high-freq secondary amplitude 0.35→0.47 more violent seal tear recoil — Pass 4638: pick stutter decay rate 26→35.1 crisper suction-seal shudder
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 — Pass 1359: →15.0 for more dramatic peel-off sway
@@ -3037,7 +3037,7 @@ function animate(ts) {
     const _leanT = Math.min(1, ct2 / 0.15); // 0→1 over first 15% of conveyorIn
     const _beltLean = THREE.MathUtils.lerp(0, -0.05, easeOut(_leanT));
     // Pass 116: belt micro-vibration — tiny noise jitter in rotation.z simulates belt roughness — Pass 1589: 0.0025→0.0034, 0.0015→0.0020
-    const _beltVib = Math.sin(ts * 59.4 * Math.PI * 2) * 0.00460 + Math.sin(ts * 73 * Math.PI * 2) * 0.00270; // Pass 4359: belt vib primary 0.0034→0.00460 — Pass 4360: secondary 0.0020→0.00270 more tactile belt roughness — Pass 4532: belt vibration Z primary frequency 44→59.4 more tactile belt roughness
+    const _beltVib = Math.sin(ts * 59.4 * Math.PI * 2) * 0.00460 + Math.sin(ts * 98.6 * Math.PI * 2) * 0.00270; // Pass 4359: belt vib primary 0.0034→0.00460 — Pass 4360: secondary 0.0020→0.00270 more tactile belt roughness — Pass 4532: belt vibration Z primary frequency 44→59.4 more tactile belt roughness — Pass 4634: belt vibration secondary frequency 73→98.6 busier secondary roughness
     // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
     // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 — Pass 1303: →0.45 for more physical card-slap — Pass 1588: →0.62
     const _beltFlopY309 = 2.07 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 3.38); // Pass 2291: belt flop Y 0.84→1.13 — Pass 3931: 1.13→1.53 — Pass 4210: 1.53→2.07 more physical card-slap sideways — Pass 4589: belt flop Y oscillation count 2.5→3.38 livelier belt entry flop
@@ -3475,7 +3475,7 @@ function animate(ts) {
       tp.mesh.position.set(
         -40 + (Math.random() - 0.5) * 37.8, // Pass 4090: exhaust X spread 28→37.8 wider plume
         CONV_Y_TOP + 65 + Math.random() * 10.8, // Pass 4091: exhaust Y spread 8→10.8 taller cloud
-        (Math.random() - 0.5) * 50
+        (Math.random() - 0.5) * 67.5 // Pass 4639: scanner exhaust Z spread 50→67.5 wider exhaust plume
       );
       // Pass 89: exhaust color reveals domain at 85% scan (matches beam reveal timing)
       const _exColor = ft < 0.85 ? 0xccddff : ct.hex;
@@ -3679,7 +3679,7 @@ function animate(ts) {
       const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18.9) * 71.9 : 1.0; // Pass 2565: shimmer bloom 8.78→11.9 — Pass 3005: 11.9→16.1 — Pass 3201: 16.1→21.7 — Pass 3439: 21.7→29.3 — Pass 3703: 29.3→39.5 — Pass 3817: 39.5→53.3 — Pass 4245: 53.3→71.9 bigger shimmer bloom at reveal — Pass 4562: shimmer bloom decay 14→18.9 crisper reveal bloom taper
       cardShimmerMesh.scale.set(_shimBloom310, 1.35, _shimBloom310); // Pass 4609: card shimmer Y scale 1.0→1.35 taller shimmer band
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
-      const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.14));
+      const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.189)); // Pass 4637: shimmer blend window 0.14→0.189 broader domain color transition
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
       cardShimmerMat.color.copy(_shimColor);
       // Opacity: standard bell + extra brightness after reveal — Pass 403: 0.18→0.28 — Pass 816: →0.42 — Pass 1448: →0.60
@@ -3839,7 +3839,7 @@ function animate(ts) {
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
-    scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 4);
+    scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 5.4); // Pass 4632: scan cone final alpha fade 4→5.4 faster cone dismiss
     scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
     // Pass 129: brief acceleration surge emissive at exit start — Pass 953: 0.5→0.9 — Pass 972: →1.4 brighter launch surge
@@ -4348,7 +4348,7 @@ function animate(ts) {
           _mp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 8,
             ct.slotFloorY + 40.5 + Math.random() * 6, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain
-            ct.slotZ + (Math.random() - 0.5) * 12
+            ct.slotZ + (Math.random() - 0.5) * 16.2 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint
           );
           _mp.mesh.visible = true;
           _mp.vx = (Math.random() - 0.5) * 13.5; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst
@@ -4636,7 +4636,7 @@ function animate(ts) {
     // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response — Pass 1610: →0.84
     const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 16.9 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09 — Pass 3098: 5.09→6.87 — Pass 3274: 6.87→9.27 — Pass 3352: 9.27→12.5 — Pass 4316: 12.5→16.9 richer ambient during card flight
     // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 — Pass 1611: →1.35
-    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 20.1 : 0; // Pass 2425: reveal ambient peak 2.46→3.32 — Pass 2661: 3.32→4.48 — Pass 2751: 4.48→6.05 — Pass 2892: 6.05→8.17 — Pass 3099: 8.17→11.0 — Pass 3275: 11.0→14.9 — Pass 3353: 14.9→20.1
+    const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 27.1 : 0; // Pass 2425: reveal ambient peak 2.46→3.32 — Pass 2661: 3.32→4.48 — Pass 2751: 4.48→6.05 — Pass 2892: 6.05→8.17 — Pass 3099: 8.17→11.0 — Pass 3275: 11.0→14.9 — Pass 3353: 14.9→20.1 — Pass 4633: 20.1→27.1 stronger identity reveal ambient surge
     const _ambTarget = 1.13 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84 — Pass 4284: 0.84→1.13 brighter scene ambient
     ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 6.75); // Pass 4507: ambient tracking rate 5→6.75 snappier slot drop ambient ramp
     // Tint ambient toward domain color during scan or slotDrop
