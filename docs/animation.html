@@ -2381,7 +2381,7 @@ function animate(ts) {
         const _wave = Math.sin(ts * 0.6 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5;
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
-        const _waveAmp301 = inPhase(PH.armDescend) ? 1.15 + phaseRaw(PH.armDescend) * 3.32 : 1.15; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp
+        const _waveAmp301 = inPhase(PH.armDescend) ? 1.55 + phaseRaw(PH.armDescend) * 3.32 : 1.55; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp // Pass 4493: deck shimmer wave base 1.15→1.55 richer deck energy floor
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 — Pass 4061: →0.49 richer deck energy base
         sc.material.emissiveIntensity = 0.49 + _wave * _waveAmp301;
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
@@ -2639,7 +2639,7 @@ function animate(ts) {
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
       const jitter = 9.45 * (1 - pt) * (
         Math.sin(ts * 8 * Math.PI * 2) * 0.945 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt
-        Math.sin(ts * 13 * Math.PI * 2) * 0.3
+        Math.sin(ts * 13 * Math.PI * 2) * 0.405 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture
       );
       // Pass 243: terminal servo micro-tap — precision down-push in final 5% of descent
       const _tapOffset = pt > 0.95 ? -1.08 * ((pt - 0.95) / 0.05) : 0; // Pass 4439: terminal tap magnitude 0.8→1.08 stronger precision tap
@@ -2875,7 +2875,7 @@ function animate(ts) {
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         // Pass 154: trail Z follows the pivot arc for realistic 3D sweep
-        tp.mesh.position.set(_aCupX + (Math.random() - 0.5) * 4, _aCupY + (Math.random() - 0.5) * 4, suctionPivot.position.z + (Math.random() - 0.5) * 6);
+        tp.mesh.position.set(_aCupX + (Math.random() - 0.5) * 4, _aCupY + (Math.random() - 0.5) * 4, suctionPivot.position.z + (Math.random() - 0.5) * 8.1); // Pass 4491: arc trail Z spread 6→8.1 wider swing arc contrail volume
         tp.mat.color.setHex(ct.hex);
         // Pass 236: arm trail domain-hold — tag arm-swing particles so the update loop
         // holds their domain color for the first 40% of life before bleaching.
@@ -3800,7 +3800,7 @@ function animate(ts) {
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
     // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 — Pass 1364: →50.0 — Pass 1556: →68.0 for stronger pre-gate glow
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 1368, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0 — Pass 3017: 226.0→305.1 — Pass 3212: 305.1→411.9 — Pass 3588: 411.9→556 — Pass 3683: 556→751 — Pass 3794: 751→1013 — Pass 3897: 1013→1368
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 1847, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0 — Pass 3017: 226.0→305.1 — Pass 3212: 305.1→411.9 — Pass 3588: 411.9→556 — Pass 3683: 556→751 — Pass 3794: 751→1013 — Pass 3897: 1013→1368 // Pass 4495: gate open emissive max 1368→1847 more intense gate charge bloom
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
     // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 — Pass 1557: primary →4.80, secondary →1.70 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
@@ -4185,7 +4185,7 @@ function animate(ts) {
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 228.9, dt3 / 0.35)
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 309.0, dt3 / 0.35) // Pass 4488: slot sweep peak 228.9→309.0 brighter slot entry spotlight
                                              : THREE.MathUtils.lerp(163.9, 0, (dt3 - 0.35) / 0.65); // Pass 2117: sweep peak 51.0→68.9 Pass 2118: sweep tail 36.5→49.3 — Pass 2615: 68.9→93.0, 49.3→66.6 — Pass 3056: 93.0→125.6, 66.6→89.9 — Pass 3243: peak 125.6→169.6, tail 89.9→121.4 — Pass 3410: peak 169.6→228.9 Pass 3411: tail 121.4→163.9
     }
     // Pass 60: gate column LED holds then fades as card lands
@@ -4307,7 +4307,7 @@ function animate(ts) {
           const _ang = Math.random() * Math.PI * 2;
           const _spd = 2094 + Math.random() * 2372; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757 — Pass 4405: 1551+1757→2094+2372 faster impact radial spray
           _lp.vx = Math.cos(_ang) * _spd * 0.61; // Pass 4357: landing dust vx factor 0.45→0.61 wider radial scatter
-          _lp.vy = 112.3 + Math.random() * 260.0; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter
+          _lp.vy = 112.3 + Math.random() * 351.0; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft
           _lp.vz = Math.sin(_ang) * _spd * 1.35; // Pass 4358: landing dust vz factor 1.0→1.35 deeper Z floor spray
           _lp.mat.color.setRGB(
             Math.min(1, _rr2 / 255 * 0.55 + 0.45),
@@ -5088,7 +5088,7 @@ function animate(ts) {
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
     const _crs = 1.0 + easeOut(_confirmRingT) * 1368; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring
     confirmRing.scale.setScalar(_crs);
-    confirmRingMat.opacity = (1 - _confirmRingT) * 1.0; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0
+    confirmRingMat.opacity = (1 - _confirmRingT) * 1.35; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash
     if (_confirmRingT >= 1) {
       _confirmRingT = -1;
       confirmRing.visible = false;
@@ -5208,7 +5208,7 @@ function animate(ts) {
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
       // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5 — Pass 1443: out →13.5, in →6.0
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 271.4 : 119.6; // Pass 2468: revealed-out 33.2→44.8 Pass 2468b: in 14.7→19.8 — Pass 2712: 44.8→60.5, 19.8→26.7 — Pass 2807: 60.5→81.7 Pass 2808: 26.7→36.0 — Pass 2941: 81.7→110.3 Pass 2942: 36.0→48.6 — Pass 3148: out 110.3→148.9, in 48.6→65.6 — Pass 3318: 148.9+65.6→201.0+88.6 — Pass 3456: out 201.0→271.4 — Pass 3457: in 88.6→119.6
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 271.4 : 161.5; // Pass 2468: revealed-out 33.2→44.8 Pass 2468b: in 14.7→19.8 — Pass 2712: 44.8→60.5, 19.8→26.7 — Pass 2807: 60.5→81.7 Pass 2808: 26.7→36.0 — Pass 2941: 81.7→110.3 Pass 2942: 36.0→48.6 — Pass 3148: out 110.3→148.9, in 48.6→65.6 — Pass 3318: 148.9+65.6→201.0+88.6 — Pass 3456: out 201.0→271.4 — Pass 3457: in 88.6→119.6 // Pass 4494: belt active light target 119.6→161.5 brighter card-tracking beam
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 10.9); // Pass 2809: tracking rate 6→8.1 — Pass 4092: 8.1→10.9 crisper belt light snap
     } else {
       // Fade card-tracking mode out
