@@ -1777,8 +1777,8 @@ function addCardToTray(ct) {
   // Flash the tray legend slot entry
   const legSlot = document.getElementById('lc-' + ct.name.toLowerCase());
   if(legSlot) {
-    legSlot.style.textShadow = `0 0 25.5px ${ct.css}`; // Pass 4429: legend slot flash size 10→14px brighter slot entry flare — Pass 4988: 14→18.9px more vivid slot entry flare — Pass 5329: 18.9→25.5px more vivid slot entry lateral jitter flare
-    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 1477); // Pass 4430: legend slot flash duration 600→810ms longer entry flash — Pass 4989: 810→1094ms even longer entry flash — Pass 5297: slot LED pre-reveal flash duration 1094→1477ms even longer entry flash
+    legSlot.style.textShadow = `0 0 34.4px ${ct.css}`; // Pass 4429: legend slot flash size 10→14px brighter slot entry flare — Pass 4988: 14→18.9px more vivid slot entry flare — Pass 5329: 18.9→25.5px more vivid slot entry lateral jitter flare — Pass 5922: 25.5→34.4px more vivid legend slot entry flare
+    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 1994); // Pass 4430: legend slot flash duration 600→810ms longer entry flash — Pass 4989: 810→1094ms even longer entry flash — Pass 5297: slot LED pre-reveal flash duration 1094→1477ms even longer entry flash — Pass 5923: 1477→1994ms even longer slot entry legend flash duration
   }
 
   // Flash stats counter in domain color + bounce animation on each card sorted
@@ -2105,8 +2105,8 @@ function applySpeed(idx) {
   document.getElementById('speed-btn').textContent = speedMult + '× Speed';
   // Baseline belt glow scales with speed
   beltSurfMat._glowBase = speedMult >= 4 ? 0.748 // Pass 4857: belt high-speed glow base 0.30→0.41 — Pass 5465: 0.41→0.554 brighter belt high-speed surface glow — Pass 5912: 0.554→0.748 brighter belt high-speed surface glow
-                        : speedMult >= 2 ? 0.27 // Pass 4858: belt mid-speed glow base 0.15→0.20 — Pass 5466: 0.20→0.27 brighter belt mid-speed surface glow
-                        : 0.0918; // Pass 4859: belt idle glow base 0.05→0.068 — Pass 5467: 0.068→0.0918 brighter belt idle surface glow
+                        : speedMult >= 2 ? 0.365 // Pass 4858: belt mid-speed glow base 0.15→0.20 — Pass 5466: 0.20→0.27 brighter belt mid-speed surface glow — Pass 5926: 0.27→0.365 brighter belt mid-speed surface glow
+                        : 0.124; // Pass 4859: belt idle glow base 0.05→0.068 — Pass 5467: 0.068→0.0918 brighter belt idle surface glow — Pass 5927: 0.0918→0.124 brighter belt idle surface glow baseline
   // Pass 87: chromatic aberration + saturation boost on canvas at high speed
   const _canvas = renderer.domElement;
   if (speedMult >= 4) {
@@ -2342,8 +2342,8 @@ function animate(ts) {
           c.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
         });
         // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 — Pass 1393: →14.0 for bigger batch-loaded burst — Pass 1583: →20.0, dist→300
-        const _rfl = new THREE.PointLight(0xfff0cc, 89.9, 547); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst — Pass 4059: 27.0→36.5 intensity — Pass 4060: range 300→405 — Pass 4683: 36.5→49.3 brighter hopper refill burst — Pass 5026: 49.3→66.6 brighter hopper refill burst — Pass 5179: 66.6→89.9 brighter hopper refill flash — Pass 5212: range 405→547 wider hopper refill flash reach
-        _rfl.position.set(HOPPER_X + 33, 292, 0); // Pass 4519: hopper refill flash height 160→216 wider refill burst reach — Pass 5075: 216→292 taller hopper refill flash reach
+        const _rfl = new THREE.PointLight(0xfff0cc, 89.9, 739); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst — Pass 4059: 27.0→36.5 intensity — Pass 4060: range 300→405 — Pass 4683: 36.5→49.3 brighter hopper refill burst — Pass 5026: 49.3→66.6 brighter hopper refill burst — Pass 5179: 66.6→89.9 brighter hopper refill flash — Pass 5212: range 405→547 wider hopper refill flash reach — Pass 5928: range 547→739 wider hopper refill flash reach
+        _rfl.position.set(HOPPER_X + 33, 394, 0); // Pass 4519: hopper refill flash height 160→216 wider refill burst reach — Pass 5075: 216→292 taller hopper refill flash reach — Pass 5929: 292→394 taller hopper refill flash reach height
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
@@ -2368,7 +2368,7 @@ function animate(ts) {
     let _recoilDip = 0;
     if (inPhase(PH.armLift) && i < stackTopIdx) {
       const _lt2 = phaseRaw(PH.armLift);
-      const _cardDelay = (stackTopIdx - 1 - i) * 0.146; // top-most remaining card fires first — Pass 4779: stack pick recoil stagger delay 0.08→0.108 wider cascade timing — Pass 5076: 0.108→0.146 wider cascade stagger
+      const _cardDelay = (stackTopIdx - 1 - i) * 0.197; // top-most remaining card fires first — Pass 4779: stack pick recoil stagger delay 0.08→0.108 wider cascade timing — Pass 5076: 0.108→0.146 wider cascade stagger — Pass 5924: 0.146→0.197 wider stack pick recoil cascade stagger
       const _delayedT = Math.max(0, _lt2 - _cardDelay);
       // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 — Pass 1228: →2.4 — Pass 1661: →3.2 — Pass 4062: →4.32 deeper suction-break recoil
       if (_delayedT < 0.45) _recoilDip = -14.3 * Math.sin(_delayedT / 0.45 * Math.PI); // Pass 4780: stack pick recoil dip 4.32→5.83 deeper suction-break recoil — Pass 5059: 5.83→7.87 deeper suction-break recoil — Pass 5070: 7.87→10.6 deeper suction-break recoil — Pass 5919: 10.6→14.3 deeper suction-break recoil dip amplitude
@@ -2381,7 +2381,7 @@ function animate(ts) {
         const _wave = Math.sin(ts * 1.98 * Math.PI * 2 - i * 0.55) * 0.5 + 0.5; // Pass 4513: deck shimmer wave frequency 0.6→0.81 livelier deck charge ripple — Pass 5023: 0.81→1.09 livelier deck charge ripple — Pass 5165: 1.09→1.47 faster shimmer stripe animation speed — Pass 5920: 1.47→1.98 faster deck charge shimmer wave frequency
         // Pass 301: deck wave amplitude ramp during armDescend — Pass 900: base 0.10→0.15, ramp 0.14→0.22
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
-        const _waveAmp301 = inPhase(PH.armDescend) ? 3.81 + phaseRaw(PH.armDescend) * 8.17 : 3.81; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp // Pass 4493: deck shimmer wave base 1.15→1.55 richer deck energy floor — Pass 4896: base 1.55→2.09 — Pass 4897: ramp 3.32→4.48 brighter deck charge surge — Pass 5208: base 2.09→2.82 — Pass 5209: ramp 4.48→6.05 brighter deck charge surge — Pass 5429: base 2.82→3.81, ramp 6.05→8.17 brighter deck charge buildup wave
+        const _waveAmp301 = inPhase(PH.armDescend) ? 5.14 + phaseRaw(PH.armDescend) * 11.0 : 5.14; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp // Pass 4493: deck shimmer wave base 1.15→1.55 richer deck energy floor — Pass 4896: base 1.55→2.09 — Pass 4897: ramp 3.32→4.48 brighter deck charge surge — Pass 5208: base 2.09→2.82 — Pass 5209: ramp 4.48→6.05 brighter deck charge surge — Pass 5429: base 2.82→3.81, ramp 6.05→8.17 brighter deck charge buildup wave — Pass 5925: base 3.81→5.14, ramp 8.17→11.0 brighter deck charge wave buildup
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 — Pass 4061: →0.49 richer deck energy base
         sc.material.emissiveIntensity = 2.19 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor — Pass 5096: 0.66→0.891 richer deck shimmer base glow — Pass 5210: 0.891→1.20 richer deck shimmer base emissive — Pass 5315: 1.20→1.62 richer deck shimmer base emissive — Pass 5921: 1.62→2.19 richer deck shimmer base emissive floor
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
