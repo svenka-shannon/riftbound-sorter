@@ -5046,7 +5046,7 @@ function animate(ts) {
         // Pass 504: post-reveal ghost emissive boost 0.30→0.45 — Pass 821: →0.65 — Pass 1029: →0.90 vivid domain trail
         const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 24.6 : 0; // Pass 2486: post-reveal ghost boost 1.65→2.23 — Pass 2697: 2.23→3.01 — Pass 2792: 3.01→4.06 — Pass 2925: 4.06→5.48 — Pass 3136: 5.48→7.40 — Pass 3304: 7.40→9.99 — Pass 4165: 9.99→13.5 blazing domain trail — Pass 5368: 13.5→18.2 blazing domain trail reveal boost — Pass 5412: 18.2→24.6 blazing domain trail reveal boost
         // Pass 667: ghost emissive base 0.28→0.36 — Pass 821: →0.50 — Pass 1030: →0.65, decay 0.12→0.10
-        mat.emissiveIntensity = ((24.0 - gi * 0.10) + _ghostRevealBoost378) * _speedFactor; // Pass 2487: ghost emissive base 1.19→1.61 — Pass 2698: 1.61→2.17 — Pass 2793: 2.17→2.93 — Pass 2926: 2.93→3.96 — Pass 3137: 3.96→5.35 — Pass 3305: 5.35→7.22 — Pass 3626: 7.22→9.75 — Pass 4166: 9.75→13.2 brighter ghost trail — Pass 5369: 13.2→17.8 brighter ghost trail emissive — Pass 5405: 17.8→24.0 brighter ghost trail emissive base
+        mat.emissiveIntensity = ((32.4 - gi * 0.10) + _ghostRevealBoost378) * _speedFactor; // Pass 2487: ghost emissive base 1.19→1.61 — Pass 2698: 1.61→2.17 — Pass 2793: 2.17→2.93 — Pass 2926: 2.93→3.96 — Pass 3137: 3.96→5.35 — Pass 3305: 5.35→7.22 — Pass 3626: 7.22→9.75 — Pass 4166: 9.75→13.2 brighter ghost trail — Pass 5369: 13.2→17.8 brighter ghost trail emissive — Pass 5405: 17.8→24.0 brighter ghost trail emissive base — Pass 5714: 24.0→32.4 brighter ghost trail emissive base
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
         mat.opacity += (targetOp - mat.opacity) * 0.635; // Pass 4850: ghost trail opacity tracking rate 0.35→0.47 snappier trail fade-in — Pass 5420: 0.47→0.635 snappier ghost trail opacity tracking
       } else {
@@ -5062,7 +5062,7 @@ function animate(ts) {
   // ── Impact ring: expansion animation ─────────────────────────────────────────
   if (_impactRingT >= 0) {
     // Pass 384: expansion speed boost 0.4s→0.31s — Pass 809: dt*3.2→dt*4.8 — Pass 942: →dt*3.5 — Pass 1033: →dt*2.8 — Pass 1333: →dt*2.2 — Pass 1552: →dt*1.8 longer ring
-    _impactRingT = Math.min(1, _impactRingT + dt * 88.6); // Pass 2498: impact ring speed 3.28→4.43 — Pass 2699: 4.43→5.98 — Pass 2794: 5.98→8.07 — Pass 2927: 8.07→10.9 — Pass 3138: 10.9→14.7 — Pass 3306: 14.7→19.8 — Pass 3405: 19.8→26.7 — Pass 4085: 26.7→36.0 snappier shockwave — Pass 5024: 36.0→48.6 snappier impact shockwave — Pass 5097: 48.6→65.6 snappier landing impact ring timing — Pass 5535: 65.6→88.6 snappier landing impact ring expansion speed
+    _impactRingT = Math.min(1, _impactRingT + dt * 119.6); // Pass 2498: impact ring speed 3.28→4.43 — Pass 2699: 4.43→5.98 — Pass 2794: 5.98→8.07 — Pass 2927: 8.07→10.9 — Pass 3138: 10.9→14.7 — Pass 3306: 14.7→19.8 — Pass 3405: 19.8→26.7 — Pass 4085: 26.7→36.0 snappier shockwave — Pass 5024: 36.0→48.6 snappier impact shockwave — Pass 5097: 48.6→65.6 snappier landing impact ring timing — Pass 5535: 65.6→88.6 snappier landing impact ring expansion speed — Pass 5715: 88.6→119.6 snappier landing impact ring expansion speed
     // scale0: floor-0 starts at 1.0 (big bang), floor-1 starts at 0.55 (gentle glide)
     // Pass 284: easeOut expansion + floor-0 scale boost — ring punches out hard then decelerates
     // Pass 382: floor-0 max scale 6.0→7.5 — Pass 808: →11.0 — Pass 940: →16.0 — Pass 1032: →22.0 — Pass 1332: →30.0 — Pass 1551: →42.0 wider shockwave
@@ -5086,7 +5086,7 @@ function animate(ts) {
   if (_confirmRingT >= 0) {
     _confirmRingT = Math.min(1, _confirmRingT + dt * 52.1); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring — Pass 5029: 38.6→52.1 faster identity confirm ring
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
-    const _crs = 1.0 + easeOut(_confirmRingT) * 1847; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring — Pass 5127: 1368→1847 wider slot ring scale speed confirm ring
+    const _crs = 1.0 + easeOut(_confirmRingT) * 2493; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring — Pass 5127: 1368→1847 wider slot ring scale speed confirm ring — Pass 5716: 1847→2493 wider identity confirm ring scale
     confirmRing.scale.setScalar(_crs);
     confirmRingMat.opacity = (1 - _confirmRingT) * 1.82; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash — Pass 5374: 1.35→1.82 brighter identity confirm ring opacity
     if (_confirmRingT >= 1) {
@@ -5117,7 +5117,7 @@ function animate(ts) {
   // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
     // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 — Pass 1037: →dt*2.6 — Pass 1436: →dt*2.0 for longer visible ring
-    _grabRingT = Math.min(1, _grabRingT + dt * 98.6); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0 — Pass 3534: 22.0→29.7 — Pass 4088: 29.7→40.1 snappier suction grab — Pass 5372: 40.1→54.1 snappier suction grab ring — Pass 5484: 54.1→73.0 faster slot entry LED ring scale speed — Pass 5492: 73.0→98.6 faster slot arrival ring fade rate
+    _grabRingT = Math.min(1, _grabRingT + dt * 133.1); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0 — Pass 3534: 22.0→29.7 — Pass 4088: 29.7→40.1 snappier suction grab — Pass 5372: 40.1→54.1 snappier suction grab ring — Pass 5484: 54.1→73.0 faster slot entry LED ring scale speed — Pass 5492: 73.0→98.6 faster slot arrival ring fade rate — Pass 5717: 98.6→133.1 faster suction grab ring expansion speed
     // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 — Pass 1437: →18.0 — Pass 1540: →25.0 for wider domain ring burst at pick
     const _grs = 1.0 + easeOut(_grabRingT) * 918.5; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6 — Pass 3141: 151.6→204.7 — Pass 3313: 204.7→276.3 — Pass 3422: 276.3→373.0 — Pass 3535: 373.0→504 — Pass 4089: 504→680.4 wider suction burst — Pass 5373: 680.4→918.5 wider suction burst ring
     grabRing.scale.setScalar(_grs);
@@ -5139,7 +5139,7 @@ function animate(ts) {
     if (pickOn) {
       hopperLight.color.setHex(ct.hex);
       // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 — Pass 1444: →4.50 brighter during arm cycle
-      const _hTarget = _hBase + 166.1; // Pass 2461: hopper pick intensity 8.21→11.1 — Pass 2707: 11.1→15.0 — Pass 2803: 15.0→20.3 — Pass 2935: 20.3→27.4 — Pass 3142: 27.4→37.0 — Pass 3314: 37.0→50.0 — Pass 3466: 50.0→67.5 — Pass 4167: 67.5→91.1 brighter hopper during pick — Pass 5360: 91.1→123.0 brighter pick spotlight — Pass 5408: 123.0→166.1 brighter hopper pick spotlight
+      const _hTarget = _hBase + 224.2; // Pass 2461: hopper pick intensity 8.21→11.1 — Pass 2707: 11.1→15.0 — Pass 2803: 15.0→20.3 — Pass 2935: 20.3→27.4 — Pass 3142: 27.4→37.0 — Pass 3314: 37.0→50.0 — Pass 3466: 50.0→67.5 — Pass 4167: 67.5→91.1 brighter hopper during pick — Pass 5360: 91.1→123.0 brighter pick spotlight — Pass 5408: 123.0→166.1 brighter hopper pick spotlight — Pass 5718: 166.1→224.2 brighter hopper pick spotlight intensity
       hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 7.29); // Pass 4471: hopper pick light tracking rate 4→5.4 snappier pick spotlight — Pass 5426: 5.4→7.29 snappier pick spotlight
       // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 — Pass 1445: →58 light follows arm deeper
       const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 1573 : 0; // Pass 2462: descent Y-track 105→142 — Pass 2708: 142→192 — Pass 2804: 192→259 — Pass 2936: 259→350 — Pass 3143: 350→473 — Pass 3315: 473→639 — Pass 4168: 639→863 light follows arm deeper — Pass 5361: 863→1165 light follows arm deeper — Pass 5409: 1165→1573 light follows arm even deeper
@@ -5179,7 +5179,7 @@ function animate(ts) {
       // Pass 158: domain-colored pulse during active pick — LED "reacts" to arm
       // Pass 618: LED pick pulse amplitude 0.8→1.4, base 2.5→3.2 — Pass 1040: base 3.2→5.0, amp 1.4→2.2
       _ledColor = ct.hex;
-      _ledGlow = 100.4 + 44.3 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2466: pick pulse base 9.11→12.3 Pass 2467: amp 4.01→5.41 — Pass 2711: 12.3→16.6, 5.41→7.30 — Pass 2805: 16.6→22.4 Pass 2806: 7.30→9.86 — Pass 2939/2940: 22.4+9.86→30.2+13.3 — Pass 3146: base 30.2→40.8 Pass 3147: amp 13.3→18.0 — Pass 3317: 40.8+18.0→55.1+24.3 — Pass 4171: base 55.1→74.4 — Pass 4172: amp 24.3→32.8 blazing pick LED — Pass 5363: base 74.4→100.4 — Pass 5364: amp 32.8→44.3 blazing pick LED pulse
+      _ledGlow = 135.5 + 44.3 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2466: pick pulse base 9.11→12.3 Pass 2467: amp 4.01→5.41 — Pass 2711: 12.3→16.6, 5.41→7.30 — Pass 2805: 16.6→22.4 Pass 2806: 7.30→9.86 — Pass 2939/2940: 22.4+9.86→30.2+13.3 — Pass 3146: base 30.2→40.8 Pass 3147: amp 13.3→18.0 — Pass 3317: 40.8+18.0→55.1+24.3 — Pass 4171: base 55.1→74.4 — Pass 4172: amp 24.3→32.8 blazing pick LED — Pass 5363: base 74.4→100.4 — Pass 5364: amp 32.8→44.3 blazing pick LED pulse — Pass 5719: base 100.4→135.5 blazing pick LED pulse base
     } else if (_visibleCards >= 5) {
       _ledColor = 0x00ff44; _ledGlow = 3.65; // green: full — Pass 4392: 2.0→2.70 brighter full-stack LED — Pass 5427: 2.70→3.65 brighter full-stack LED
     } else if (_visibleCards >= 3) {
@@ -5269,7 +5269,7 @@ function animate(ts) {
     tp.age += dt;
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
-    tp.mesh.position.y += dt * (80.9 + _tt * 119.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail — Pass 5288: base 59.9→80.9 — Pass 5289: ramp 88.6→119.6 more buoyant contrail
+    tp.mesh.position.y += dt * (109.2 + _tt * 119.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail — Pass 5288: base 59.9→80.9 — Pass 5289: ramp 88.6→119.6 more buoyant contrail — Pass 5720: base 80.9→109.2 more buoyant arm trail contrail
     tp.mat.opacity = (1 - _tt) * 2.93; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth — Pass 4521: arm trail contrail birth opacity 1.19→1.61 brighter sphere trail — Pass 5345: 1.61→2.17 brighter arm trail contrail birth opacity — Pass 5695: 2.17→2.93 brighter arm trail contrail birth opacity
     tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 11.1)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper — Pass 5290: 8.24→11.1 faster trail shrink taper
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
@@ -5296,7 +5296,7 @@ function animate(ts) {
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
     p.vy -= 1500 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4 — Pass 3493: 449.4→607 — Pass 4181: 607→820 heavier dust — Pass 5144: 820→1110 heavier grab particle gravity — Pass 5696: 1110→1500 heavier grab particle gravity
-    p.vx *= 1 - dt * 41.7; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9 — Pass 4182: 22.9→30.9 snappier particle decel — Pass 5348: 30.9→41.7 snappier grab particle air resistance
+    p.vx *= 1 - dt * 56.3; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9 — Pass 4182: 22.9→30.9 snappier particle decel — Pass 5348: 30.9→41.7 snappier grab particle air resistance — Pass 5721: 41.7→56.3 snappier grab particle air resistance
     p.vz *= 1 - dt * 42.0; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread — Pass 5350: 31.1→42.0 tighter grab particle Z spread
     p.mat.opacity = (1 - _pt * _pt) * 1.82; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00 — Pass 4524: grab particle fade rate 1.00→1.35 faster fade-out — Pass 5349: 1.35→1.82 brighter grab particle fade-out
     p.mesh.scale.setScalar(Math.max(0.068, 1.0 - _pt * 1.73)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95 — Pass 4424: 0.95→1.28 crisper particle shrink — Pass 4652: grab particle min scale floor 0.05→0.068 chunkier particle tail — Pass 5351: 1.28→1.73 crisper grab particle shrink
