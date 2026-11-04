@@ -968,7 +968,7 @@ const scanBeamMat = new THREE.MeshBasicMaterial({
   color: 0x00ff88, transparent: true, opacity: 0, depthWrite: false
 });
 const scanBeam = new THREE.Mesh(
-  new THREE.CylinderGeometry(3.65, 3.65, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core — Pass 5456: 2.70→3.65 even fatter scan laser beam core
+  new THREE.CylinderGeometry(4.93, 4.93, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core — Pass 5456: 2.70→3.65 even fatter scan laser beam core — Pass 5868: 3.65→4.93 even fatter scan laser beam core radius
   scanBeamMat
 );
 scanBeam.position.set(-40, CONV_Y_TOP + 10, 0);
@@ -979,7 +979,7 @@ scene.add(scanBeam);
 const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
   emissive: new THREE.Color(0x00ff88),
-  emissiveIntensity: 13.4, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam
+  emissiveIntensity: 18.1, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive
   transparent: true, opacity: 1.28 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam
 });
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(133, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span
@@ -989,7 +989,7 @@ scene.add(scanLine);
 const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
-  emissiveIntensity: 8.32, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar
+  emissiveIntensity: 11.2, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive
   transparent: true, opacity: 1.19 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 164), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height — Pass 5072: 121.5→164 wider secondary scan sweep
@@ -4983,11 +4983,11 @@ function animate(ts) {
       (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))) {
     const _glintDist = Math.abs(beltShimmerMesh.position.x - activeCard.position.x);
     // Pass 479: glint 0.22→0.32 — Pass 704: →0.45 — Pass 1023: →0.65 — Pass 1403: →0.88 stronger stripe-under-card flash
-    const _glint = Math.max(0, 1 - _glintDist / 24.3) * 24.0; // Pass 2479: belt glint flash 1.61→2.17 — Pass 2689: 2.17→2.93 — Pass 2786: 2.93→3.96 — Pass 2919: 3.96→5.35 — Pass 3129: 5.35→7.22 — Pass 3299: 7.22→9.75 — Pass 3623: 9.75→13.2 — Pass 4161: 13.2→17.8 brighter glint — Pass 4651: card shimmer emissive duration 18→24.3 wider stripe detection window — Pass 5395: 17.8→24.0 brighter belt glint flash
+    const _glint = Math.max(0, 1 - _glintDist / 24.3) * 32.4; // Pass 2479: belt glint flash 1.61→2.17 — Pass 2689: 2.17→2.93 — Pass 2786: 2.93→3.96 — Pass 2919: 3.96→5.35 — Pass 3129: 5.35→7.22 — Pass 3299: 7.22→9.75 — Pass 3623: 9.75→13.2 — Pass 4161: 13.2→17.8 brighter glint — Pass 4651: card shimmer emissive duration 18→24.3 wider stripe detection window — Pass 5395: 17.8→24.0 brighter belt glint flash — Pass 5869: 24.0→32.4 brighter belt glint flash peak
     if (_glint > 0.005) activeCardMat.emissiveIntensity = Math.min(1, activeCardMat.emissiveIntensity + _glint);
     // Pass 163: shimmer pressure lift — Pass 1023: lift 5.5→8.0 — Pass 1403: →11.0 higher card float under stripe
     if (_glint > 0.005 && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)))
-      activeCard.position.y += _glint * 298; // Pass 2480: shimmer lift 20.0→27.0 — Pass 2690: 27.0→36.5 — Pass 2787: 36.5→49.3 — Pass 2920: 49.3→66.6 — Pass 3130: 66.6→89.9 — Pass 3300: 89.9→121.4 — Pass 3624: 121.4→163.9 — Pass 4162: 163.9→221 bigger lift — Pass 5396: 221→298 bigger shimmer pressure lift
+      activeCard.position.y += _glint * 402; // Pass 2480: shimmer lift 20.0→27.0 — Pass 2690: 27.0→36.5 — Pass 2787: 36.5→49.3 — Pass 2920: 49.3→66.6 — Pass 3130: 66.6→89.9 — Pass 3300: 89.9→121.4 — Pass 3624: 121.4→163.9 — Pass 4162: 163.9→221 bigger lift — Pass 5396: 221→298 bigger shimmer pressure lift — Pass 5870: 298→402 bigger shimmer pressure lift
   }
 
   // ── Hopper top card domain preview ──────────────────────────────────────────
@@ -5003,14 +5003,14 @@ function animate(ts) {
       if (pickPhase) {
         topCard.material.emissive.setHex(ct.hex);
         const glowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) : 1.0;
-        topCard.material.emissiveIntensity = glowT * 22.3; // Pass 2481: pick-phase top card glow 2.01→2.71 — Pass 2693: 2.71→3.66 — Pass 2788: 3.66→4.94 — Pass 2921: 4.94→6.67 — Pass 3132: 6.67→9.00 — Pass 3301: 9.00→12.2 — Pass 4163: 12.2→16.5 brighter pick preview — Pass 5359: 16.5→22.3 brighter top card pick preview
+        topCard.material.emissiveIntensity = glowT * 30.1; // Pass 2481: pick-phase top card glow 2.01→2.71 — Pass 2693: 2.71→3.66 — Pass 2788: 3.66→4.94 — Pass 2921: 4.94→6.67 — Pass 3132: 6.67→9.00 — Pass 3301: 9.00→12.2 — Pass 4163: 12.2→16.5 brighter pick preview — Pass 5359: 16.5→22.3 brighter top card pick preview — Pass 5871: 22.3→30.1 brighter top card pick-phase domain glow
       } else if (previewPhase) {
         // Dim preview: next card's domain glows subtly on the top hopper card
         // Pass 480: next-card preview slow pulse — 0.6Hz breathing for "anticipate" feel
         const nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
         topCard.material.emissive.lerp(new THREE.Color(nextCt.hex), Math.min(1, dt * 2.74)); // Pass 4831: top card next-domain color tracking rate 1.5→2.03 — Pass 5463: 2.03→2.74 snappier top card domain color tracking
         const _prevT = inPhase(PH.pause) ? phaseRaw(PH.pause) : phaseRaw(PH.armReturn);
-        const _prevPulse = 6.94 + 2.59 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 2482: preview pulse base 0.63→0.85 Pass 2483: amp 0.32→0.43 — Pass 2694: 0.85→1.15, 0.43→0.58 — Pass 2789: base 1.15→1.55 Pass 2790: amp 0.58→0.78 — Pass 2922/2923: 1.55+0.78→2.09+1.05 — Pass 3133: base 2.09→2.82 Pass 3134: amp 1.05→1.42 — Pass 3302: 2.82+1.42→3.81+1.92 — Pass 4164: base 3.81→5.14, amp 1.92→2.59 — Pass 5397: 5.14→6.94 richer next-domain preview pulse base
+        const _prevPulse = 9.37 + 2.59 * Math.abs(Math.sin(ts * 0.6 * Math.PI * 2)); // Pass 2482: preview pulse base 0.63→0.85 Pass 2483: amp 0.32→0.43 — Pass 2694: 0.85→1.15, 0.43→0.58 — Pass 2789: base 1.15→1.55 Pass 2790: amp 0.58→0.78 — Pass 2922/2923: 1.55+0.78→2.09+1.05 — Pass 3133: base 2.09→2.82 Pass 3134: amp 1.05→1.42 — Pass 3302: 2.82+1.42→3.81+1.92 — Pass 4164: base 3.81→5.14, amp 1.92→2.59 — Pass 5397: 5.14→6.94 richer next-domain preview pulse base — Pass 5872: 6.94→9.37 richer next-domain preview pulse base
         topCard.material.emissiveIntensity += (_prevPulse * _prevT - topCard.material.emissiveIntensity) * Math.min(1, dt * 3.65); // Pass 4839: top card preview emissive tracking rate 2→2.70 snappier next-domain preview glow — Pass 5464: 2.70→3.65 snappier top card preview glow tracking
       } else {
         topCard.material.emissiveIntensity *= 0.85; // decay when not in pick phase
@@ -5044,7 +5044,7 @@ function animate(ts) {
         // Pass 286: ghost emissive intensity speed sync — trail glows brighter at full belt speed
         // Pass 378: post-reveal emissive boost — trail blazes in domain color on conveyorOut
         // Pass 504: post-reveal ghost emissive boost 0.30→0.45 — Pass 821: →0.65 — Pass 1029: →0.90 vivid domain trail
-        const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 24.6 : 0; // Pass 2486: post-reveal ghost boost 1.65→2.23 — Pass 2697: 2.23→3.01 — Pass 2792: 3.01→4.06 — Pass 2925: 4.06→5.48 — Pass 3136: 5.48→7.40 — Pass 3304: 7.40→9.99 — Pass 4165: 9.99→13.5 blazing domain trail — Pass 5368: 13.5→18.2 blazing domain trail reveal boost — Pass 5412: 18.2→24.6 blazing domain trail reveal boost
+        const _ghostRevealBoost378 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 33.2 : 0; // Pass 2486: post-reveal ghost boost 1.65→2.23 — Pass 2697: 2.23→3.01 — Pass 2792: 3.01→4.06 — Pass 2925: 4.06→5.48 — Pass 3136: 5.48→7.40 — Pass 3304: 7.40→9.99 — Pass 4165: 9.99→13.5 blazing domain trail — Pass 5368: 13.5→18.2 blazing domain trail reveal boost — Pass 5412: 18.2→24.6 blazing domain trail reveal boost — Pass 5873: 24.6→33.2 blazing domain trail reveal boost
         // Pass 667: ghost emissive base 0.28→0.36 — Pass 821: →0.50 — Pass 1030: →0.65, decay 0.12→0.10
         mat.emissiveIntensity = ((32.4 - gi * 0.10) + _ghostRevealBoost378) * _speedFactor; // Pass 2487: ghost emissive base 1.19→1.61 — Pass 2698: 1.61→2.17 — Pass 2793: 2.17→2.93 — Pass 2926: 2.93→3.96 — Pass 3137: 3.96→5.35 — Pass 3305: 5.35→7.22 — Pass 3626: 7.22→9.75 — Pass 4166: 9.75→13.2 brighter ghost trail — Pass 5369: 13.2→17.8 brighter ghost trail emissive — Pass 5405: 17.8→24.0 brighter ghost trail emissive base — Pass 5714: 24.0→32.4 brighter ghost trail emissive base
         const targetOp = ghostOpacities[gi] * (activeCardMat.opacity || 1);
