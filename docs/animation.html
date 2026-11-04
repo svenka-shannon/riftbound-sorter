@@ -4119,7 +4119,7 @@ function animate(ts) {
     // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
     // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 — Pass 1114: primary 5.5→7.5, secondary 1.5→2.2 — Pass 1200: primary →10.5, secondary →3.2 — Pass 1258: primary →13.5, secondary →4.2 — Pass 1408: primary →18.0, secondary →5.6 for even more pronounced slot wall bounce
     const _slotWallZ = ct.slotZ + (362 * Math.sin(dt3 * Math.PI * 5.4) + 83.4 * Math.sin(dt3 * Math.PI * 8.78 + 0.5)) * Math.max(0, 1 - dt3 * 2.55); // Pass 4620: slot wall bounce decay rate 1.4→1.89 snappier confetti bounce damping — Pass 2109: wall Z primary 32.8→44.3 Pass 2110: secondary 10.2→13.8 — Pass 2610: 44.3→59.8, 13.8→18.6 — Pass 3048: 59.8→80.7 Pass 3049: 18.6→25.1 — Pass 3233: 80.7→108.9 Pass 3234: 25.1→33.9 — Pass 3400: 108.9→147.0 Pass 3401: 33.9→45.8 — Pass 4303: primary 147.0→198.5 — Pass 4304: secondary 45.8→61.8 wilder slot wall bounce — Pass 4580: wall bounce oscillation count 4→5.4 more slot drop bounces — Pass 4626: slot wall bounce secondary frequency 6.5→8.78 faster secondary rattle — Pass 5098: primary 198.5→268 stronger slot wall collision rebound energy — Pass 5099: secondary 61.8→83.4 stronger slot wall secondary rebound energy — Pass 5140: primary 268→362 stronger slot wall approach rebound energy — Pass 5433: slot wall spring decay rate 1.89→2.55 snappier slot wall spring rate
-    activeCard.position.set(TRAY_X_START + 27.0, cy, _slotWallZ); // Pass 4520: slot drop card X drift 20→27.0 wider lateral fall offset
+    activeCard.position.set(TRAY_X_START + 36.5, cy, _slotWallZ); // Pass 4520: slot drop card X drift 20→27.0 wider lateral fall offset — Pass 5650: 27.0→36.5 wider slot drop card lateral fall offset
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
     const _bankSign = Math.sign(ct.slotZ || 0);
@@ -4244,8 +4244,8 @@ function animate(ts) {
         if (_pp.active) continue;
         _pp.active = true; _pp.age = 0; _pp.life = 3.16 + Math.random() * 1.26; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69 — Pass 3060: 1.28+0.69→1.73+0.93 — Pass 4323: 1.73+0.93→2.34+1.26 longer landing puff cloud — Pass 5617: base 2.34→3.16 longer landing puff cloud
         _pp.mesh.position.set(
-          _puffX + (Math.random() - 0.5) * 13.5, // Pass 4614: landing puff X spread 10→13.5 wider puff cloud
-          _puffY + Math.random() * 5.4, // Pass 4653: landing puff Z initial spawn height 4→5.4 taller puff birth zone
+          _puffX + (Math.random() - 0.5) * 18.2, // Pass 4614: landing puff X spread 10→13.5 wider puff cloud — Pass 5651: 13.5→18.2 wider landing puff X spawn spread
+          _puffY + Math.random() * 7.29, // Pass 4653: landing puff Z initial spawn height 4→5.4 taller puff birth zone — Pass 5652: 5.4→7.29 taller landing puff birth zone height
           _puffZ + (Math.random() - 0.5) * 21.9 // Pass 4631: landing puff initial Z spawn spread 12→16.2 wider Z footprint — Pass 5454: 16.2→21.9 wider landing puff Z footprint
         );
         _pp.mesh.visible = true;
@@ -4269,7 +4269,7 @@ function animate(ts) {
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
         ? (dt3 - 0.55) / 0.31 * 58.9 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92 — Pass 2624: 2.92→3.94 — Pass 2865: 3.94→5.32 — Pass 3063: 5.32→7.18 — Pass 3246: 7.18→9.69 — Pass 3598: 9.69→13.1 — Pass 3694: 13.1→17.7 — Pass 3806: 17.7→23.9 — Pass 3906: 23.9→32.3 — Pass 4384: 32.3→43.6 stronger pre-landing urgency flicker — Pass 5440: 43.6→58.9 stronger pre-landing urgency flicker
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
-        ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 6.75); // Pass 4841: strip emissive tracking rate 5→6.75 snappier pre-landing strip
+        ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4841: strip emissive tracking rate 5→6.75 snappier pre-landing strip — Pass 5653: 6.75→9.11 snappier slot strip emissive tracking rate
       }
     }
     // Fire impact shockwave ring once when floor-0 card hits the tray floor
@@ -4341,12 +4341,12 @@ function animate(ts) {
         const _rr3 = (ct.hex >> 16) & 0xff, _gg3 = (ct.hex >> 8) & 0xff, _bb3 = ct.hex & 0xff;
         // Pass 586: upper floor arrival motes 3→5 — Pass 987: →8, life 0.35+0.18→0.50+0.25
         let _upMotes = 0;
-        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 11; _mi++) { // Pass 4606: landing mote particle count 8→11 denser upper-floor arrival fountain
+        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 15; _mi++) { // Pass 4606: landing mote particle count 8→11 denser upper-floor arrival fountain — Pass 5654: 11→15 denser upper-floor arrival mote fountain
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
           _mp.active = true; _mp.age = 0; _mp.life = 13.6 + Math.random() * 6.87; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09 — Pass 5612: 10.1+5.09→13.6+6.87 longer upper-floor arrival mote hang
           _mp.mesh.position.set(
-            TRAY_X_START + 20 + (Math.random() - 0.5) * 10.8, // Pass 4833: upper floor mote X spawn spread 8→10.8 wider arrival fountain footprint
+            TRAY_X_START + 20 + (Math.random() - 0.5) * 14.6, // Pass 4833: upper floor mote X spawn spread 8→10.8 wider arrival fountain footprint — Pass 5655: 10.8→14.6 wider upper-floor arrival mote X footprint
             ct.slotFloorY + 54.7 + Math.random() * 6, // Pass 4573: upper floor mote initial Y offset 30→40.5 taller arrival fountain — Pass 5078: 40.5→54.7 taller arrival fountain
             ct.slotZ + (Math.random() - 0.5) * 21.9 // Pass 4635: landing mote Z spawn spread 12→16.2 wider arrival Z footprint — Pass 5456: 16.2→21.9 wider landing mote Z footprint
           );
@@ -4376,7 +4376,7 @@ function animate(ts) {
       // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90 — Pass 1397: amber →20.0/200, red →10.0/120
       [[0xff6600, 163.9, 270], [0xff1a00, 81.7, 162]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5 — Pass 4005: amber 121.4→163.9 — Pass 4006: red 60.5→81.7 — Pass 4305: amber dist 200→270 — Pass 4306: red dist 120→162 wider reject alarm reach
         const _wl = new THREE.PointLight(c, i, d);
-        _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 10.8 : -10.8)); // Pass 4467: slot entry warning light Z spread 8→10.8 wider alarm reach
+        _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 14.6 : -14.6)); // Pass 4467: slot entry warning light Z spread 8→10.8 wider alarm reach — Pass 5656: 10.8→14.6 wider reject alarm warning light Z spread
         scene.add(_wl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _wl, age: 0, peak: _wl.intensity });
@@ -4389,7 +4389,7 @@ function animate(ts) {
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         tp.mesh.position.set(
-          TRAY_X_START + 15 + (Math.random() - 0.5) * 16.2, // Pass 4551: reject burst X radius 12→16.2 wider alarm fountain
+          TRAY_X_START + 15 + (Math.random() - 0.5) * 21.9, // Pass 4551: reject burst X radius 12→16.2 wider alarm fountain — Pass 5657: 16.2→21.9 wider reject alarm spark burst X radius
           ct.slotFloorY + 30 + Math.random() * 20, // Pass 5022: reject alarm spark Y height spread 15→20 taller alarm fountain
           ct.slotZ + (Math.random() - 0.5) * 32.8 // Pass 4535: reject alarm fountain Z radius 18→24.3 wider alarm spread — Pass 5457: 24.3→32.8 wider reject alarm fountain Z radius
         );
