@@ -1935,7 +1935,7 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 192; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool
+const TRAIL_PARTICLE_COUNT = 259; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool — Pass 6411: 192→259 richer deflect trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(9.86, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius — Pass 6037: 7.30→9.86 chunkier arm arc trail contrail particle radius
@@ -2959,7 +2959,7 @@ function animate(ts) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
       cardGlow.intensity = _armCardEmissive * (37.1 + _swZ299 * 32.9); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96 — Pass 4201: base 11.2→15.1 — Pass 4202: boost 9.96→13.4 — Pass 4946: base 15.1→20.4 — Pass 4947: boost 13.4→18.1 brighter arc apex card glow — Pass 5530: base 20.4→27.5 brighter arc apex card glow base — Pass 5531: boost 18.1→24.4 brighter arc apex card glow boost — Pass 6402: base 27.5→37.1 brighter arc apex card glow base — Pass 6403: boost 24.4→32.9 brighter arc apex card glow boost
     } else {
-      cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 8.32 : 0; // Pass 4363: resting cardGlow multiplier 2.50→3.38 brighter card glow outside swing — Pass 5175: 3.38→4.56 brighter card glow outside swing — Pass 5372: 4.56→6.16 brighter arm rest card glow emissive — Pass 5986: 6.16→8.32 brighter arm rest card glow multiplier
+      cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 11.2 : 0; // Pass 4363: resting cardGlow multiplier 2.50→3.38 brighter card glow outside swing — Pass 5175: 3.38→4.56 brighter card glow outside swing — Pass 5372: 4.56→6.16 brighter arm rest card glow emissive — Pass 5986: 6.16→8.32 brighter arm rest card glow multiplier — Pass 6404: 8.32→11.2 brighter arm rest card glow multiplier
     }
     // Pass 242: arm-phase cardGlow domain pre-tint — point light during arc shines domain color
     if (_armCardEmissive > 0) cardGlow.color.setHex(ct.hex);
@@ -3119,21 +3119,21 @@ function animate(ts) {
     // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
     // Pass 1235: starting lean -0.18→-0.05 to match belt lean bugfix
     // Pass 659: tilt peak -0.40→-0.52 — Pass 749: -0.52→-0.64 — Pass 1078: →-0.82 — Pass 1278: →-1.05 for even more face-toward-camera during scan
-    const _bellTilt = -6.39 * Math.sin(ft * Math.PI); // Pass 2297: tilt peak -1.42→-1.92 — Pass 3924: -1.92→-2.59 — Pass 4233: -2.59→-3.50 more face-toward-camera during scan — Pass 5200: -3.50→-4.73 deeper face-toward-camera during scan — Pass 5235: -4.73→-6.39 deeper face-toward-camera during scan
+    const _bellTilt = -8.63 * Math.sin(ft * Math.PI); // Pass 2297: tilt peak -1.42→-1.92 — Pass 3924: -1.92→-2.59 — Pass 4233: -2.59→-3.50 more face-toward-camera during scan — Pass 5200: -3.50→-4.73 deeper face-toward-camera during scan — Pass 5235: -4.73→-6.39 deeper face-toward-camera during scan — Pass 6405: -6.39→-8.63 deeper face-toward-camera during scan
     const _blendInT = Math.min(1, ft / 0.10); // 0→1 over first 10% of scan phase
     const _revealTilt = THREE.MathUtils.lerp(-0.05, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
     // Pass 746: pre-reveal vibration scale 0.8→1.3 for more visible scanner tremor buildup
-    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 5.82; // Pass 1707: pre-reveal vibration scale 1.3→1.75 — Pass 3937: 1.75→2.36 — Pass 4234: 2.36→3.19 more visible scanner tremor — Pass 5112: 3.19→4.31 more intense scanner body jitter amplitude — Pass 5236: 4.31→5.82 more intense scanner body jitter
+    const _scanVibScale = _identityRevealed ? 0 : (1 - ft) * 7.86; // Pass 1707: pre-reveal vibration scale 1.3→1.75 — Pass 3937: 1.75→2.36 — Pass 4234: 2.36→3.19 more visible scanner tremor — Pass 5112: 3.19→4.31 more intense scanner body jitter amplitude — Pass 5236: 4.31→5.82 more intense scanner body jitter — Pass 6406: 5.82→7.86 more intense scanner body jitter amplitude
     const _scanVib = (Math.sin(ts * 44 * Math.PI * 2) * 0.00456 + Math.sin(ts * 73 * Math.PI * 2) * 0.00274) * _scanVibScale; // Pass 4361: scan vib primary 0.0025→0.00338 — Pass 4362: secondary 0.0015→0.00203 stronger scanner tremor — Pass 5363: primary 0.00338→0.00456 — Pass 5364: secondary 0.00203→0.00274 stronger scanner body jitter
     // Pass 157: identity reveal Y-axis tilt — card tips on its long axis at confirm (shows edge)
     // Pass 656: tilt 0.14→0.22 — Pass 748: 0.22→0.32 — Pass 1149: →0.44 — Pass 1279: →0.62 for sharper card-edge flash at identity reveal
     const _yTiltT = ft >= 0.85 ? (ft - 0.85) / 0.15 : 0;
-    const _yTilt = _identityRevealed ? 2.07 * Math.sin(_yTiltT * Math.PI) : 0; // Pass 1710: Y-tilt 0.62→0.84 — Pass 3938: 0.84→1.13 sharper card-edge flash at reveal — Pass 4277: 1.13→1.53 more dramatic reveal tilt — Pass 5237: 1.53→2.07 more dramatic reveal Y tilt
+    const _yTilt = _identityRevealed ? 2.79 * Math.sin(_yTiltT * Math.PI) : 0; // Pass 1710: Y-tilt 0.62→0.84 — Pass 3938: 0.84→1.13 sharper card-edge flash at reveal — Pass 4277: 1.13→1.53 more dramatic reveal tilt — Pass 5237: 1.53→2.07 more dramatic reveal Y tilt — Pass 6407: 2.07→2.79 more dramatic reveal Y tilt
     // Pass 264: post-reveal Z micro-shake — brief 28Hz Z shudder from scanner lock-on impulse
     // Pass 657: Z shake 0.022→0.038 — Pass 747: 0.038→0.058 — Pass 1150: →0.085 — Pass 1280: →0.120 for sharper scanner lock-on recoil
     const _revealZShake = _identityRevealed && ft < 0.91
-      ? 0.400 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0; // Pass 1711: Z-shake 0.120→0.162 — Pass 4067: →0.219 sharper scanner lock-on recoil — Pass 5201: 0.219→0.296 sharper scanner lock-on recoil — Pass 5238: 0.296→0.400 sharper scanner lock-on recoil
+      ? 0.540 * Math.sin(ts * 28 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.025) : 0; // Pass 1711: Z-shake 0.120→0.162 — Pass 4067: →0.219 sharper scanner lock-on recoil — Pass 5201: 0.219→0.296 sharper scanner lock-on recoil — Pass 5238: 0.296→0.400 sharper scanner lock-on recoil — Pass 6408: 0.400→0.540 sharper scanner lock-on recoil
     activeCard.rotation.set(_revealTilt, _yTilt, _scanVib + _revealZShake);
     // Smooth bell curve flash (peaks at ft=0.5, sharp leading edge)
     const flashIntensity = Math.sin(ft * Math.PI);
@@ -3873,7 +3873,7 @@ function animate(ts) {
       // Pass 475: final-approach trail opacity boost — Pass 824/825: early 0.28+0.12→0.42+0.18, final 0.42+0.20→0.60+0.30 — Pass 1496: early →0.56+0.24, final →0.80+0.40
       tp.mat.opacity = ot > 0.65 ? Math.min(1, 0.80 + Math.random() * 0.40) : 1.39 + Math.random() * 0.43; // Pass 1882: contrail early opacity 0.56+0.24→0.76+0.32 — Pass 4350: 0.76+0.32→1.03+0.43 denser exhaust contrail — Pass 5685: 1.03→1.39 denser early contrail exhaust opacity
       // Pass 826: trail life 0.22+0.10→0.30+0.14 — Pass 1497: →0.40+0.18 for longer exhaust contrail
-      tp.age = 0; tp.life = 1.80 + Math.random() * 0.797; // Pass 1883: contrail trail life 0.40+0.18→0.54+0.24 — Pass 3947: 0.54+0.24→0.729+0.324 — Pass 4400: base 0.729→0.984 — Pass 4401: rand 0.324→0.437 longer exhaust contrail — Pass 5560: base 0.984→1.33, rand 0.437→0.590 longer contrail lifetime — Pass 6388: 1.33+0.590→1.80+0.797 longer conveyorOut contrail particle lifetime
+      tp.age = 0; tp.life = 2.43 + Math.random() * 1.08; // Pass 1883: contrail trail life 0.40+0.18→0.54+0.24 — Pass 3947: 0.54+0.24→0.729+0.324 — Pass 4400: base 0.729→0.984 — Pass 4401: rand 0.324→0.437 longer exhaust contrail — Pass 5560: base 0.984→1.33, rand 0.437→0.590 longer contrail lifetime — Pass 6388: 1.33+0.590→1.80+0.797 longer conveyorOut contrail particle lifetime — Pass 6410: 1.80+0.797→2.43+1.08 longer conveyorOut contrail particle lifetime
       tp.active = true; tp.mesh.visible = true;
     }
   }
@@ -5338,7 +5338,7 @@ function animate(ts) {
     p.mesh.rotation.y += p.ry * dt;
     p.mesh.rotation.z += p.rz * dt;
     p.rx *= 1 - dt * 1.98; p.ry *= 1 - dt * 1.98; p.rz *= 1 - dt * 1.98; // Pass 1637: angular drag 0.8→0.6 (longer spin) — Pass 4425: 0.6→0.81 stronger confetti tumble damping — Pass 5295: 0.81→1.09 stronger confetti tumble damping — Pass 5703: 1.09→1.47 stronger confetti angular tumble damping — Pass 6070: 1.47→1.98 stronger confetti angular tumble damping
-    p.mat.opacity = (1 - _ct2 * _ct2) * 2.46; // Pass 1472: peak opacity 0.88→1.0 — Pass 4647: landing mote particle fade multiplier 1.0→1.35 brighter confetti fade-out — Pass 5354: 1.35→1.82 brighter confetti particle fade-out — Pass 6193: 1.82→2.46 brighter confetti particle fade-out opacity
+    p.mat.opacity = (1 - _ct2 * _ct2) * 3.32; // Pass 1472: peak opacity 0.88→1.0 — Pass 4647: landing mote particle fade multiplier 1.0→1.35 brighter confetti fade-out — Pass 5354: 1.35→1.82 brighter confetti particle fade-out — Pass 6193: 1.82→2.46 brighter confetti particle fade-out opacity — Pass 6409: 2.46→3.32 brighter confetti particle fade-out opacity
   });
 
   // ── Fog color — fixed dark navy, no domain tinting (removed per user request) ──
@@ -5467,7 +5467,7 @@ function animate(ts) {
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
     // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
     const _breathe = 8.17 + 2.46 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35 — Pass 4720: base 1.82→2.46 — Pass 4721: amp 1.35→1.82 richer tray card breathe — Pass 5134: 2.46→3.32 richer tray card resting glow — Pass 5317: base 3.32→4.48 richer tray card breathe resting base — Pass 5338: amp 1.82→2.46 richer tray card breathe primary amplitude — Pass 5704: base 4.48→6.05 richer tray card breathe resting base emissive — Pass 6077: base 6.05→8.17 richer tray card breathe resting base emissive
-                         + 0.899 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing — Pass 5342: 0.20→0.27 richer tray secondary harmonic pulse — Pass 5617: 0.27→0.365 richer card hold emissive breathe secondary harmonic pulse — Pass 5625: 0.365→0.493 richer card reveal ring opacity rate idle hover Z secondary harmonic pulse — Pass 5631: 0.493→0.666 richer slot tray rim LED urgency secondary harmonic pulse — Pass 6047: 0.666→0.899 richer tray breathe secondary harmonic amplitude
+                         + 1.21 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing — Pass 5342: 0.20→0.27 richer tray secondary harmonic pulse — Pass 5617: 0.27→0.365 richer card hold emissive breathe secondary harmonic pulse — Pass 5625: 0.365→0.493 richer card reveal ring opacity rate idle hover Z secondary harmonic pulse — Pass 5631: 0.493→0.666 richer slot tray rim LED urgency secondary harmonic pulse — Pass 6047: 0.666→0.899 richer tray breathe secondary harmonic amplitude — Pass 6408: 0.899→1.21 richer tray breathe secondary harmonic amplitude
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
