@@ -617,7 +617,7 @@ for (let i = 0; i < DUST_COUNT; i++) {
 const dustGeo = new THREE.BufferGeometry();
 dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
 const dustMat = new THREE.PointsMaterial({
-  size: 54.1, color: 0x8899bb, transparent: true, opacity: 1.15, // Pass 4015: dust size 1.5→2.0 larger ambient particles — Pass 4016: dust opacity 0.35→0.47 more visible atmosphere — Pass 4888: dust size 2.0→2.70 — Pass 4889: dust opacity 0.47→0.63 denser atmosphere — Pass 5454: size 2.70→3.65 larger ambient dust motes — Pass 5455: opacity 0.63→0.85 denser ambient dust atmosphere — Pass 6284: size 3.65→4.93 larger ambient dust mote particle size — Pass 6301: size 4.93→6.66 larger ambient dust mote particle size — Pass 6357: size 6.66→8.99 larger ambient dust mote particle size — Pass 6527: 8.99→12.1 larger ambient dust mote particle size — Pass 6698: 12.1→16.3 larger ambient dust mote particle size — Pass 6748: 16.3→22.0 larger ambient dust mote particle size — Pass 6754: 22.0→29.7 larger ambient dust mote particle size — Pass 6976: 29.7→40.1 larger ambient dust mote particle size — Pass 6867: opacity 0.85→1.15 denser ambient dust atmosphere — Pass 7104: 40.1→54.1 larger ambient dust mote particle size
+  size: 54.1, color: 0x8899bb, transparent: true, opacity: 1.55, // Pass 4015: dust size 1.5→2.0 larger ambient particles — Pass 4016: dust opacity 0.35→0.47 more visible atmosphere — Pass 4888: dust size 2.0→2.70 — Pass 4889: dust opacity 0.47→0.63 denser atmosphere — Pass 5454: size 2.70→3.65 larger ambient dust motes — Pass 5455: opacity 0.63→0.85 denser ambient dust atmosphere — Pass 6284: size 3.65→4.93 larger ambient dust mote particle size — Pass 6301: size 4.93→6.66 larger ambient dust mote particle size — Pass 6357: size 6.66→8.99 larger ambient dust mote particle size — Pass 6527: 8.99→12.1 larger ambient dust mote particle size — Pass 6698: 12.1→16.3 larger ambient dust mote particle size — Pass 6748: 16.3→22.0 larger ambient dust mote particle size — Pass 6754: 22.0→29.7 larger ambient dust mote particle size — Pass 6976: 29.7→40.1 larger ambient dust mote particle size — Pass 6867: opacity 0.85→1.15 denser ambient dust atmosphere — Pass 7104: 40.1→54.1 larger ambient dust mote particle size — Pass 7116: opacity 1.15→1.55 denser ambient dust atmosphere
   depthWrite: false, sizeAttenuation: true
 });
 const dustPoints = new THREE.Points(dustGeo, dustMat);
@@ -704,7 +704,7 @@ scene.add(baseMesh);
 const HOPPER_X = -230;
 
 // Point light above hopper to spotlight the pick-up action
-const hopperLight = new THREE.PointLight(0xffeedd, 18.4, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight — Pass 5930: 2.26→3.05 stronger hopper pick spotlight intensity — Pass 5955: 3.05→4.12 stronger hopper pick spotlight intensity — Pass 6053: 4.12→5.56 stronger hopper pick spotlight intensity — Pass 6493: 5.56→7.51 stronger hopper pick spotlight intensity — Pass 6652: 7.51→10.1 stronger hopper pick spotlight intensity — Pass 6882: 10.1→13.6 stronger hopper pick spotlight intensity — Pass 7095: 13.6→18.4 stronger hopper pick spotlight intensity
+const hopperLight = new THREE.PointLight(0xffeedd, 18.4, 365); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight — Pass 5930: 2.26→3.05 stronger hopper pick spotlight intensity — Pass 5955: 3.05→4.12 stronger hopper pick spotlight intensity — Pass 6053: 4.12→5.56 stronger hopper pick spotlight intensity — Pass 6493: 5.56→7.51 stronger hopper pick spotlight intensity — Pass 6652: 7.51→10.1 stronger hopper pick spotlight intensity — Pass 6882: 10.1→13.6 stronger hopper pick spotlight intensity — Pass 7095: 13.6→18.4 stronger hopper pick spotlight intensity — Pass 7117: range 270→365 wider hopper pick spotlight reach
 hopperLight.position.set(HOPPER_X + 33, 200, 0);
 scene.add(hopperLight);
 
@@ -819,7 +819,7 @@ const beltShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide,
 });
 const beltShimmerMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(85.3, 1, 78), // Pass 4985: belt shimmer stripe width 10→14 wider belt sheen — Pass 5161: 14→19 wider belt shimmer stripe — Pass 6338: 19→25.7 wider belt shimmer stripe — Pass 6496: 25.7→34.7 wider belt shimmer stripe — Pass 6512: 34.7→46.8 wider belt shimmer stripe — Pass 6835: 46.8→63.2 wider belt shimmer stripe — Pass 6990: 63.2→85.3 wider belt shimmer stripe
+  new THREE.BoxGeometry(115.2, 1, 78), // Pass 4985: belt shimmer stripe width 10→14 wider belt sheen — Pass 5161: 14→19 wider belt shimmer stripe — Pass 6338: 19→25.7 wider belt shimmer stripe — Pass 6496: 25.7→34.7 wider belt shimmer stripe — Pass 6512: 34.7→46.8 wider belt shimmer stripe — Pass 6835: 46.8→63.2 wider belt shimmer stripe — Pass 6990: 63.2→85.3 wider belt shimmer stripe — Pass 7110: 85.3→115.2 wider belt shimmer stripe
   beltShimmerMat
 );
 beltShimmerMesh.position.set(-140, CONV_Y_TOP + 2.6, 0);
@@ -908,7 +908,7 @@ scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
-const scanBloom = new THREE.PointLight(0x0088ff, 0, 3317); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach — Pass 6314: 1348→1820 even wider scan bloom light reach — Pass 6473: 1820→2457 even wider scan bloom light reach — Pass 6883: 2457→3317 even wider scan bloom light reach
+const scanBloom = new THREE.PointLight(0x0088ff, 0, 4478); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach — Pass 6314: 1348→1820 even wider scan bloom light reach — Pass 6473: 1820→2457 even wider scan bloom light reach — Pass 6883: 2457→3317 even wider scan bloom light reach — Pass 7111: 3317→4478 even wider scan bloom light reach
 scanBloom.decay = 22.0; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff — Pass 5906: 3.65→4.93 tighter scan bloom falloff — Pass 5966: 4.93→6.66 tighter scan bloom falloff — Pass 6056: 6.66→8.99 tighter scan bloom falloff — Pass 6434: 8.99→12.1 tighter scan bloom falloff — Pass 6879: 12.1→16.3 tighter scan bloom falloff decay — Pass 7020: 16.3→22.0 tighter scan bloom falloff decay
 scene.add(scanBloom);
 
@@ -939,12 +939,12 @@ scene.add(scanBarCursor);
 // Scan destination target light — illuminates the slot the card is going to
 // during scan phase so viewer immediately knows the routing decision
 const scanTargetLight = new THREE.PointLight(0xffffff, 0, 999); // Pass 4022: scanTargetLight range 90→122 — Pass 4907: 122→165 wider scan target reach — Pass 5152: 165→223 wider scan target light reach — Pass 5187: 223→301 wider scan target light reach — Pass 5741: 301→406 wider scan target light reach — Pass 6438: 406→548 wider scan target light reach — Pass 6885: 548→740 wider scan target light reach — Pass 7105: 740→999 wider scan target light reach
-scanTargetLight.decay = 16.3; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff — Pass 5153: 2.70→3.65 tighter scan target spotlight falloff — Pass 5188: 3.65→4.93 tighter scan target spotlight falloff — Pass 5904: 4.93→6.66 tighter scan target spotlight falloff — Pass 5967: 6.66→8.99 tighter scan target spotlight falloff — Pass 6057: 8.99→12.1 tighter scan target spotlight falloff — Pass 6439: 12.1→16.3 tighter scan target spotlight falloff
+scanTargetLight.decay = 22.0; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff — Pass 5153: 2.70→3.65 tighter scan target spotlight falloff — Pass 5188: 3.65→4.93 tighter scan target spotlight falloff — Pass 5904: 4.93→6.66 tighter scan target spotlight falloff — Pass 5967: 6.66→8.99 tighter scan target spotlight falloff — Pass 6057: 8.99→12.1 tighter scan target spotlight falloff — Pass 6439: 12.1→16.3 tighter scan target spotlight falloff — Pass 7112: 16.3→22.0 tighter scan target spotlight falloff
 scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
 const slotSweepLight = new THREE.PointLight(0xffffff, 0, 605); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach — Pass 5708: 135→182 wider slot sweep light reach — Pass 6306: 182→246 wider slot sweep light reach — Pass 6440: 246→332 wider slot sweep light reach — Pass 6886: 332→448 wider slot sweep light reach — Pass 7106: 448→605 wider slot sweep light reach
-slotSweepLight.decay = 12.1; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff — Pass 5907: 3.65→4.93 tighter slot sweep beam falloff — Pass 5968: 4.93→6.66 tighter slot sweep beam falloff — Pass 6058: 6.66→8.99 tighter slot sweep beam falloff — Pass 6441: 8.99→12.1 tighter slot sweep beam falloff
+slotSweepLight.decay = 16.3; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff — Pass 5907: 3.65→4.93 tighter slot sweep beam falloff — Pass 5968: 4.93→6.66 tighter slot sweep beam falloff — Pass 6058: 6.66→8.99 tighter slot sweep beam falloff — Pass 6441: 8.99→12.1 tighter slot sweep beam falloff — Pass 7113: 12.1→16.3 tighter slot sweep beam falloff
 scene.add(slotSweepLight);
 
 // ─── Scanner beam cone ────────────────────────────────────────────────────────
@@ -1033,7 +1033,7 @@ scene.add(scanLine2);
   const _nTex = new THREE.CanvasTexture(_nc);
   const _nMat = new THREE.MeshStandardMaterial({
     map: _nTex, roughness: 0.4, metalness: 0.3,
-    emissive: new THREE.Color(0x203060), emissiveIntensity: 6.76, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow — Pass 5753: 0.832→1.12 more vivid scanner nameplate emissive — Pass 6303: 1.12→1.51 more vivid scanner nameplate emissive — Pass 6343: 1.51→2.04 more vivid scanner nameplate emissive — Pass 6499: 2.04→2.75 more vivid scanner nameplate emissive — Pass 6700: 2.75→3.71 more vivid scanner nameplate emissive — Pass 6714: 3.71→5.01 more vivid scanner nameplate emissive — Pass 6983: 5.01→6.76 more vivid scanner nameplate emissive
+    emissive: new THREE.Color(0x203060), emissiveIntensity: 9.13, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate — Pass 5052: 0.456→0.616 more vivid scanner nameplate — Pass 5324: 0.616→0.832 more vivid scanner nameplate glow — Pass 5753: 0.832→1.12 more vivid scanner nameplate emissive — Pass 6303: 1.12→1.51 more vivid scanner nameplate emissive — Pass 6343: 1.51→2.04 more vivid scanner nameplate emissive — Pass 6499: 2.04→2.75 more vivid scanner nameplate emissive — Pass 6700: 2.75→3.71 more vivid scanner nameplate emissive — Pass 6714: 3.71→5.01 more vivid scanner nameplate emissive — Pass 6983: 5.01→6.76 more vivid scanner nameplate emissive — Pass 7114: 6.76→9.13 more vivid scanner nameplate emissive
   });
   const _nMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 18), _nMat);
   // Front face of scanner hood: hood center is (-40, CONV_Y_TOP+32.5, 0), depth=100, front at Z=+50
@@ -1479,7 +1479,7 @@ scene.add(activeCardEdge);
 
 // Card glow: increased range and physical falloff
 const cardGlow = new THREE.PointLight(0xffffff, 0, 7345); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range — Pass 5734: 493→666 wider card glow illumination range — Pass 5960: 666→899 wider card glow illumination range — Pass 6231: 899→1213 wider card glow illumination range — Pass 6451: 1213→1638 wider card glow illumination range — Pass 6574: 1638→2211 wider card glow illumination range — Pass 6708: 2211→2985 wider card glow illumination range — Pass 6759: 2985→4030 wider card glow illumination range — Pass 6993: 4030→5441 wider card glow illumination range — Pass 7100: 5441→7345 wider card glow illumination range
-cardGlow.decay = 22.0; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff — Pass 6339: 4.93→6.66 tighter card glow falloff — Pass 6443: 6.66→8.99 tighter card glow falloff — Pass 6575: 8.99→12.1 tighter card glow falloff — Pass 6709: 12.1→16.3 tighter card glow falloff — Pass 6994: 16.3→22.0 tighter card glow falloff
+cardGlow.decay = 29.7; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff — Pass 6339: 4.93→6.66 tighter card glow falloff — Pass 6443: 6.66→8.99 tighter card glow falloff — Pass 6575: 8.99→12.1 tighter card glow falloff — Pass 6709: 12.1→16.3 tighter card glow falloff — Pass 6994: 16.3→22.0 tighter card glow falloff — Pass 7115: 22.0→29.7 tighter card glow falloff
 scene.add(cardGlow);
 
 // ─── Pass 177: Card contact shadow disc ──────────────────────────────────────
@@ -2996,7 +2996,7 @@ function animate(ts) {
         const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
         // Pass 679: belt entry dust puff count 5→8 — Pass 869: →12 — Pass 1685: →18 for bigger card-on-belt burst
         let _dpSpawned = 0;
-        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 78; _di++) { // Pass 3438: belt dust puff count 18→24 — Pass 4442: 24→32 bigger belt deposit dust puff — Pass 5123: 32→43 denser landing puff spawn count per frame — Pass 5321: 43→58 denser floor puff spawn count — Pass 6500: 58→78 denser belt deposit dust puff spawn count
+        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 105; _di++) { // Pass 3438: belt dust puff count 18→24 — Pass 4442: 24→32 bigger belt deposit dust puff — Pass 5123: 32→43 denser landing puff spawn count per frame — Pass 5321: 43→58 denser floor puff spawn count — Pass 6500: 58→78 denser belt deposit dust puff spawn count — Pass 7108: 78→105 denser belt deposit dust puff spawn count
           const _dp = GRAB_PARTICLES[_di];
           if (_dp.active) continue;
           _dp.active = true; _dp.age = 0; _dp.life = 1.89 + Math.random() * 0.998; // Pass 1487: 0.22+0.12→0.30+0.16 — Pass 1686: →0.42+0.22 — Pass 1847: →0.57+0.30 — Pass 3933: 0.57+0.30→0.769+0.405 longer slot drop dust — Pass 4419: 0.769+0.405→1.038+0.547 even longer belt dust puff — Pass 5181: 1.038→1.401 rand 0.547→0.739 longer belt dust puff — Pass 6506: base 1.401→1.89 rand 0.739→0.998 longer belt deposit dust lifespan
@@ -3611,9 +3611,9 @@ function animate(ts) {
     const _beamFillBoost = barFill * 1.55; // Pass 1719: beam fill boost 0.35→0.47 — Pass 3000: 0.47→0.63 — Pass 4136: 0.63→0.85 stronger data-fill glow — Pass 5434: 0.85→1.15 stronger data-fill beam glow — Pass 6522: 1.15→1.55 stronger data-fill beam glow
     // Pass 389: scan beam reveal boost — beam flares at identity lock-on
     // Pass 549: beam reveal boost 0.55→0.80 — Pass 1161: →1.20 for more vivid beam flare at lock-on
-    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 24.3 : 0; // Pass 2344: beam reveal boost 1.62→2.19 — Pass 2827: 2.19→2.96 — Pass 3001: 2.96→4.00 — Pass 3565: 4.00→5.40 — Pass 3725: 5.40→7.29 — Pass 3834: 7.29→9.84 — Pass 4137: 9.84→13.3 brighter beam flare — Pass 5435: 13.3→18.0 brighter beam reveal flare — Pass 6541: 18.0→24.3 brighter beam reveal flare
+    const _beamRevealBoost389 = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 32.8 : 0; // Pass 2344: beam reveal boost 1.62→2.19 — Pass 2827: 2.19→2.96 — Pass 3001: 2.96→4.00 — Pass 3565: 4.00→5.40 — Pass 3725: 5.40→7.29 — Pass 3834: 7.29→9.84 — Pass 4137: 9.84→13.3 brighter beam flare — Pass 5435: 13.3→18.0 brighter beam reveal flare — Pass 6541: 18.0→24.3 brighter beam reveal flare — Pass 7107: 24.3→32.8 brighter beam reveal flare
     // Pass 516: scan beam base opacity 0.55→0.70 — Pass 689: →0.82 — Pass 1162: →1.10 — Pass 1289: →1.45 — Pass 1378: →1.90 for stronger scan column
-    scanBeamMat.opacity = flashIntensity * 38.1 + _strobe + _beamFillBoost + _beamRevealBoost389; // Pass 2345: beam base opacity 2.56→3.46 — Pass 2828: 3.46→4.67 — Pass 3002: 4.67→6.30 — Pass 3566: 6.30→8.51 — Pass 3726: 8.51→11.5 — Pass 3835: 11.5→15.5 — Pass 4138: 15.5→20.9 brighter scan beam — Pass 5436: 20.9→28.2 brighter scan beam flash contribution — Pass 6549: 28.2→38.1 brighter scan beam flash contribution
+    scanBeamMat.opacity = flashIntensity * 51.4 + _strobe + _beamFillBoost + _beamRevealBoost389; // Pass 2345: beam base opacity 2.56→3.46 — Pass 2828: 3.46→4.67 — Pass 3002: 4.67→6.30 — Pass 3566: 6.30→8.51 — Pass 3726: 8.51→11.5 — Pass 3835: 11.5→15.5 — Pass 4138: 15.5→20.9 brighter scan beam — Pass 5436: 20.9→28.2 brighter scan beam flash contribution — Pass 6549: 28.2→38.1 brighter scan beam flash contribution — Pass 7106: 38.1→51.4 brighter scan beam flash contribution
     // ── Routing arc: curved path from scanner lens → destination slot ──
     {
       const arcStart = new THREE.Vector3(-40, CONV_Y_TOP + 4, 0);
@@ -3914,7 +3914,7 @@ function animate(ts) {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
         let _spawned = 0;
         // Pass 592: gate sparks 12→18 — Pass 785: 18→16 faster — Pass 919: →24, Pass 921: speed 95+110→120+140, Pass 920: vy 65+70→85+90
-        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 58; _si++) { // Pass 4607: grab particle count per gate event 24→32 bigger gate impact burst — Pass 5558: 32→43 bigger gate impact burst — Pass 6398: 43→58 bigger gate impact burst
+        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 78; _si++) { // Pass 4607: grab particle count per gate event 24→32 bigger gate impact burst — Pass 5558: 32→43 bigger gate impact burst — Pass 6398: 43→58 bigger gate impact burst — Pass 7109: 58→78 bigger gate impact burst
           const _sp = GRAB_PARTICLES[_si];
           if (_sp.active) continue;
           // Pass 922: gate spark life 0.28+0.22→0.38+0.28 for longer-lived sparks
