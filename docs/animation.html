@@ -5297,9 +5297,9 @@ function animate(ts) {
     p.mesh.position.z += p.vz * dt;
     p.vy -= 1110 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4 — Pass 3493: 449.4→607 — Pass 4181: 607→820 heavier dust — Pass 5144: 820→1110 heavier grab particle gravity
     p.vx *= 1 - dt * 41.7; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9 — Pass 4182: 22.9→30.9 snappier particle decel — Pass 5348: 30.9→41.7 snappier grab particle air resistance
-    p.vz *= 1 - dt * 31.1; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread
+    p.vz *= 1 - dt * 42.0; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread — Pass 5350: 31.1→42.0 tighter grab particle Z spread
     p.mat.opacity = (1 - _pt * _pt) * 1.82; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00 — Pass 4524: grab particle fade rate 1.00→1.35 faster fade-out — Pass 5349: 1.35→1.82 brighter grab particle fade-out
-    p.mesh.scale.setScalar(Math.max(0.068, 1.0 - _pt * 1.28)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95 — Pass 4424: 0.95→1.28 crisper particle shrink — Pass 4652: grab particle min scale floor 0.05→0.068 chunkier particle tail
+    p.mesh.scale.setScalar(Math.max(0.068, 1.0 - _pt * 1.73)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95 — Pass 4424: 0.95→1.28 crisper particle shrink — Pass 4652: grab particle min scale floor 0.05→0.068 chunkier particle tail — Pass 5351: 1.28→1.73 crisper grab particle shrink
   });
 
   // ── Pass 34: Domain fill light — overhead tint shifts to current domain color ─
@@ -5331,14 +5331,14 @@ function animate(ts) {
     p.mesh.position.y += p.vy * dt;
     p.mesh.position.z += p.vz * dt;
     p.vy -= (p.grav || 1030) * dt; // Pass 2460: celeb particle gravity 51.0→68.9 — Pass 2725: 68.9→93.0 — Pass 2964: 93.0→125.6 — Pass 3161: 125.6→169.6 — Pass 3330: 169.6→229.0 — Pass 3500: 229.0→309.2 — Pass 3741: 309.2→417 — Pass 3849: 417→563 — Pass 4187: 563→760 heavier confetti — Pass 5145: 760→1030 heavier celeb particle gravity
-    p.vx *= 1 - dt * 0.667; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter) — Pass 4285: 0.9→0.667 even wider confetti scatter
-    p.vz *= 1 - dt * 0.900; // Pass 4426: confetti vz drag 0.667→0.900 tighter Z spread
+    p.vx *= 1 - dt * 0.900; // Pass 1643: horizontal drag 1.2→0.9 (wider confetti scatter) — Pass 4285: 0.9→0.667 even wider confetti scatter — Pass 5352: 0.667→0.900 tighter confetti horizontal drag
+    p.vz *= 1 - dt * 1.215; // Pass 4426: confetti vz drag 0.667→0.900 tighter Z spread — Pass 5353: 0.900→1.215 tighter confetti Z spread
     // Pass 84: tumble confetti pieces with angular velocity (slows with air drag)
     p.mesh.rotation.x += p.rx * dt;
     p.mesh.rotation.y += p.ry * dt;
     p.mesh.rotation.z += p.rz * dt;
     p.rx *= 1 - dt * 1.09; p.ry *= 1 - dt * 1.09; p.rz *= 1 - dt * 1.09; // Pass 1637: angular drag 0.8→0.6 (longer spin) — Pass 4425: 0.6→0.81 stronger confetti tumble damping — Pass 5295: 0.81→1.09 stronger confetti tumble damping
-    p.mat.opacity = (1 - _ct2 * _ct2) * 1.35; // Pass 1472: peak opacity 0.88→1.0 — Pass 4647: landing mote particle fade multiplier 1.0→1.35 brighter confetti fade-out
+    p.mat.opacity = (1 - _ct2 * _ct2) * 1.82; // Pass 1472: peak opacity 0.88→1.0 — Pass 4647: landing mote particle fade multiplier 1.0→1.35 brighter confetti fade-out — Pass 5354: 1.35→1.82 brighter confetti particle fade-out
   });
 
   // ── Fog color — fixed dark navy, no domain tinting (removed per user request) ──
@@ -5445,13 +5445,13 @@ function animate(ts) {
       if (!t.stripMat) return;
       if (_inSlotDrop && t !== ct) {
         // Non-active strip fades to 0.05 (spotlight yields)
-        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 8.63); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39 — Pass 4553: 6.39→8.63 snappier strip spotlight yield
+        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 11.7); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39 — Pass 4553: 6.39→8.63 snappier strip spotlight yield — Pass 5355: 8.63→11.7 snappier rival strip spotlight dim
       } else if (!_inSlotDrop && t.stripMat.emissiveIntensity < 0.203) {
         // Recovery to normal idle after spotlight
-        t.stripMat.emissiveIntensity = Math.min(0.203, t.stripMat.emissiveIntensity + dt * 4.93); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65 — Pass 4554: 3.65→4.93 faster strip recovery after spotlight — Pass 4654: belt active emissive floor 0.15→0.203 brighter strip baseline
+        t.stripMat.emissiveIntensity = Math.min(0.203, t.stripMat.emissiveIntensity + dt * 6.66); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65 — Pass 4554: 3.65→4.93 faster strip recovery after spotlight — Pass 4654: belt active emissive floor 0.15→0.203 brighter strip baseline — Pass 5356: 4.93→6.66 faster strip recovery after spotlight
       } else if (t.stripMat.emissiveIntensity > 0.203) {
         // Pass 69: decay from flash
-        t.stripMat.emissiveIntensity = Math.max(0.203, t.stripMat.emissiveIntensity - dt * 44.8); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2 — Pass 4511: belt active strip flash decay 33.2→44.8 snappier strobe — Pass 4654: belt active emissive floor 0.15→0.203
+        t.stripMat.emissiveIntensity = Math.max(0.203, t.stripMat.emissiveIntensity - dt * 60.5); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2 — Pass 4511: belt active strip flash decay 33.2→44.8 snappier strobe — Pass 4654: belt active emissive floor 0.15→0.203 — Pass 5357: 44.8→60.5 snappier belt strip flash decay
       }
     });
   }
