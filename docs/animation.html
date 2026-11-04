@@ -1491,7 +1491,7 @@ const _shadowMat = new THREE.MeshBasicMaterial({
 const _shadowMesh = new THREE.Mesh(new THREE.CircleGeometry(1, 32), _shadowMat);
 _shadowMesh.rotation.x = -Math.PI / 2; // lie flat on belt surface
 _shadowMesh.scale.set(CARD_H * 0.74, 1, CARD_W * 0.74); // elongated card-proportioned ellipse — Pass 4917: card contact shadow ellipse scale 0.55→0.74 larger belt shadow
-_shadowMesh.position.set(-40, CONV_Y_TOP + 0.4, 0);
+_shadowMesh.position.set(-40, CONV_Y_TOP + 0.54, 0); // Pass 4926: shadow Y offset 0.4→0.54 more elevated belt shadow
 scene.add(_shadowMesh);
 
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
@@ -1543,7 +1543,7 @@ const impactRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0,
 });
 const impactRing = new THREE.Mesh(
-  new THREE.TorusGeometry(18, 4.01, 6, 24), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring
+  new THREE.TorusGeometry(24.3, 4.01, 6, 24), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring
   impactRingMat
 );
 impactRing.visible = false;
@@ -2469,7 +2469,7 @@ function animate(ts) {
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
     const _fbRest = 3.59 + 1.70 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26 — Pass 4684: base 2.66→3.59 — Pass 4685: amp 1.26→1.70 brighter fill bar breathe
-    if(bar.material.emissiveIntensity > _fbRest + 0.06) {
+    if(bar.material.emissiveIntensity > _fbRest + 0.081) { // Pass 4921: fill bar phase transition threshold 0.06→0.081 wider emissive hysteresis
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
     } else {
@@ -2545,9 +2545,9 @@ function animate(ts) {
       ? 15.7 + 8.07 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
-    const _haloScale332 = beltActive ? 1.0 + 0.147 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse
+    const _haloScale332 = beltActive ? 1.0 + 0.199 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
-    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 2.71 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo
+    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 3.66 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo — Pass 4951: 2.71→3.66 more dramatic gate slam halo burst
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
   }
 
@@ -2766,7 +2766,7 @@ function animate(ts) {
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 — Pass 1356: →-0.48 — Pass 1681: →-0.65
-      const _ltLurch = lt < 0.18 ? -3.96 * Math.sin((lt / 0.18) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93 — Pass 4224: -2.93→-3.96 more dramatic suction-break strain
+      const _ltLurch = lt < 0.243 ? -3.96 * Math.sin((lt / 0.243) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93 — Pass 4224: -2.93→-3.96 more dramatic suction-break strain — Pass 4927: arm pick lift lurch window 0.18→0.243 deeper pick velocity engagement
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.049, 1.08, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position — Pass 4566: arm lift start matches descent end -0.036→-0.049
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 — Pass 1682: →7.0 more dramatic dip
       if (lt < 0.22) {
@@ -2792,12 +2792,12 @@ function animate(ts) {
       // Pass 181: cup holds bright domain glow while actively carrying the card (armLift)
       // Pass 501: cup pick glow boost 1.5→2.0 — Pass 1173: →3.0 for more vivid suction-hold visualization
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (24.4 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 2273: cup hold glow 4.05→5.47 — Pass 3418: 5.47→7.38 — Pass 3530: 7.38→9.96 — Pass 3712: 9.96→13.4 — Pass 3822: 13.4→18.1 — Pass 4229: 18.1→24.4 stronger suction hold glow — Pass 4596: suction cup lift emissive lerp rate 8→10.8 snappier cup glow response
+      suctionCupMat.emissiveIntensity += (32.9 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 2273: cup hold glow 4.05→5.47 — Pass 3418: 5.47→7.38 — Pass 3530: 7.38→9.96 — Pass 3712: 9.96→13.4 — Pass 3822: 13.4→18.1 — Pass 4229: 18.1→24.4 stronger suction hold glow — Pass 4596: suction cup lift emissive lerp rate 8→10.8 snappier cup glow response — Pass 4944: 24.4→32.9 brighter suction cup hold glow
       // Suction "grab" pulse — domain-colored burst light fires once on first lift frame
       if (!_grabPulseFired && lt < 0.15) {
         _grabPulseFired = true;
         // Pass 524: grab pulse light intensity 6.0→7.5 — Pass 625: →10.0 — Pass 877: →14.0 — Pass 1174: →20.0 — Pass 1669: →28.0, dist→150
-        const grabLight = new THREE.PointLight(ct.hex, 93.0, 274); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 — Pass 4230: 68.9→93.0 intensity, 150→203 range brighter suction grab burst — Pass 4903: range 203→274 wider grab pulse reach
+        const grabLight = new THREE.PointLight(ct.hex, 125.6, 274); // Pass 2274: grab pulse light 37.8→51.0 — Pass 3949: 51.0→68.9 — Pass 4230: 68.9→93.0 intensity, 150→203 range brighter suction grab burst — Pass 4903: range 203→274 wider grab pulse reach — Pass 4945: intensity 93.0→125.6 brighter grab burst
         const armRot0 = suctionPivot.rotation.z;
         grabLight.position.set(PIV_X + 83 * Math.sin(armRot0), PIV_Y - 83 * Math.cos(armRot0), 0);
         scene.add(grabLight);
@@ -2821,7 +2821,7 @@ function animate(ts) {
         GRAB_PARTICLES.forEach((p, _gi) => {
           const angle = Math.random() * Math.PI * 2;
           // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 — Pass 1098: →40+90 — Pass 1218: →55+115 for more energetic burst
-          const spd = 246 + Math.random() * 155; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread
+          const spd = 332 + Math.random() * 209; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread — Pass 4948: base 246→332 — Pass 4949: rand 155→209 more energetic grab particle burst
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.20; // Pass 4921: grab particle downward bias 0.15→0.20 more pick-disturbed stack puff
           p.vx = Math.cos(angle) * spd * 0.74; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst
@@ -2957,7 +2957,7 @@ function animate(ts) {
     // Pass 1063: apex boost 1.20→1.65 — Pass 1349: →2.20 for brighter cardGlow at swing closest-point — Pass 1581: →3.00; Pass 1582: base 1.85→2.50
     if (inPhase(PH.armSwing)) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
-      cardGlow.intensity = _armCardEmissive * (15.1 + _swZ299 * 13.4); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96 — Pass 4201: base 11.2→15.1 — Pass 4202: boost 9.96→13.4
+      cardGlow.intensity = _armCardEmissive * (20.4 + _swZ299 * 18.1); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96 — Pass 4201: base 11.2→15.1 — Pass 4202: boost 9.96→13.4 — Pass 4946: base 15.1→20.4 — Pass 4947: boost 13.4→18.1 brighter arc apex card glow
     } else {
       cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 3.38 : 0; // Pass 4363: resting cardGlow multiplier 2.50→3.38 brighter card glow outside swing
     }
@@ -4056,7 +4056,7 @@ function animate(ts) {
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
       tp.mesh.position.set(
-        activeCard.position.x + (Math.random() - 0.5) * 5,
+        activeCard.position.x + (Math.random() - 0.5) * 6.75, // Pass 4920: arc particle deflect X spread 5→6.75 wider arc contrail volume
         activeCard.position.y + (Math.random() - 0.5) * 5,
         activeCard.position.z + (Math.random() - 0.5) * 5
       );
@@ -4094,7 +4094,7 @@ function animate(ts) {
     {
       const _diverterTarget3 = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
       const _diverterRelease = dt3 > 0.90 ? DIVERTER_FLOOR0 : _diverterTarget3; // return after landing
-      _diverterAngle += (_diverterRelease - _diverterAngle) * Math.min(1, dt * (dt3 > 0.90 ? 4 : 10.8)); // Pass 4525: floor diverter hold lerp rate 8→10.8 snappier servo hold
+      _diverterAngle += (_diverterRelease - _diverterAngle) * Math.min(1, dt * (dt3 > 0.90 ? 5.4 : 10.8)); // Pass 4525: floor diverter hold lerp rate 8→10.8 snappier servo hold — Pass 4923: diverter motor release rate 4→5.4 snappier servo return
       floorDiverterPivot.rotation.z = -_diverterAngle;
     }
     // startY must match where deflect phase ended (arcY)
@@ -4864,7 +4864,7 @@ function animate(ts) {
       // Pass 194: scan camera lean — lookAt dips toward belt at scan midpoint for drama.
       // Pass 473: reveal camera dip — extra 5-unit dip at identity lock-on for dramatic focus.
       // Pass 707: scan lean dip 18→25 — Pass 1019: →35 for deeper camera dive + reveal dip 5→8
-      ? { x: -40, y: 60 - 20 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 5.0 : 0) } // Hotfix 3333d: scan lookAt lean rolled back 155→20; reveal dip 27.1→5.0 — sweep was boosted 35→155 over passes 2528→3291 causing "frenetic panning" (camera look-at swinging 155 world-units/~1s ≈ 487 units/sec)
+      ? { x: -40, y: 60 - 27.0 * Math.sin(phaseRaw(PH.scan) * Math.PI) - (_identityRevealed ? Math.exp(-(phaseRaw(PH.scan) - 0.85) * 16) * 6.75 : 0) } // Hotfix 3333d: scan lookAt lean rolled back 155→20; reveal dip 27.1→5.0 — sweep was boosted 35→155 over passes 2528→3291 causing "frenetic panning" (camera look-at swinging 155 world-units/~1s ≈ 487 units/sec) — Pass 4924: scanner forward lean amplitude 20→27.0 deeper scan camera dip — Pass 4925: scanner forward lean reveal dip 5.0→6.75 stronger lock-on dip
       : inPhase(PH.conveyorOut)
       ? { x: cardX + 20, y: 50 }  // follow card toward gate during exit
       : inPhase(PH.deflect)
