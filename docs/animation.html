@@ -232,7 +232,7 @@
     100% { opacity: 0; }
   }
   .scan-flash-on {
-    animation: scanFlashFade 1.09s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash */
+    animation: scanFlashFade 1.47s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash */
   }
 
   /* ── Round-complete banner (pass 68) ───────────────────────────────────── */
@@ -321,7 +321,7 @@
   /* Pass 131 — dot pop on phase activation */
   @keyframes ph-dot-pop {
     0%   { transform: scale(1.0); }
-    30%  { transform: scale(3.2); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation */
+    30%  { transform: scale(4.32); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation */
     65%  { transform: scale(0.85); }
     100% { transform: scale(1.0); }
   }
@@ -603,7 +603,7 @@ gridHelper.position.y = -2;
 scene.add(gridHelper);
 
 // ─── Ambient Dust Particles ───────────────────────────────────────────────────
-const DUST_COUNT = 68; // Pass 4960: ambient dust particle count 50→68 denser atmosphere
+const DUST_COUNT = 92; // Pass 4960: ambient dust particle count 50→68 denser atmosphere — Pass 5042: 68→92 denser atmosphere
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 const dustPhases    = new Float32Array(DUST_COUNT); // per-particle X drift phase
 const dustSpeeds    = new Float32Array(DUST_COUNT); // per-particle vertical speed
@@ -2342,13 +2342,13 @@ function animate(ts) {
           c.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
         });
         // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 — Pass 1393: →14.0 for bigger batch-loaded burst — Pass 1583: →20.0, dist→300
-        const _rfl = new THREE.PointLight(0xfff0cc, 49.3, 405); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst — Pass 4059: 27.0→36.5 intensity — Pass 4060: range 300→405 — Pass 4683: 36.5→49.3 brighter hopper refill burst
+        const _rfl = new THREE.PointLight(0xfff0cc, 66.6, 405); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst — Pass 4059: 27.0→36.5 intensity — Pass 4060: range 300→405 — Pass 4683: 36.5→49.3 brighter hopper refill burst — Pass 5026: 49.3→66.6 brighter hopper refill burst
         _rfl.position.set(HOPPER_X + 33, 216, 0); // Pass 4519: hopper refill flash height 160→216 wider refill burst reach
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
         // Spike the hopper light for visual emphasis — Pass 1014: 2.5→5.0
-        hopperLight.intensity = 9.11; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash — Pass 4271: 6.75→9.11 even brighter hopper spike
+        hopperLight.intensity = 12.3; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash — Pass 4271: 6.75→9.11 even brighter hopper spike — Pass 5027: 9.11→12.3 even brighter hopper spike
         hopperLight.color.set(0xfff0cc);
       }
     }
@@ -2681,7 +2681,7 @@ function animate(ts) {
           _contactFlashFired = true;
           const _cfRot = suctionPivot.rotation.z;
           // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5 — Pass 884: →13.0 — Pass 1129: →20.0 — Pass 1215: →30.0 — Pass 1312: →42.0 — Pass 1668: →58.0, dist→150
-          const _cfL = new THREE.PointLight(0xffffff, 261, 150); // Pass 3430: suction contact flash 58.0→78.3 — Pass 3536: 78.3→106 — Pass 3771: 106→143 — Pass 3878: 143→193 — Pass 4336: 193→261 brighter suction contact flash
+          const _cfL = new THREE.PointLight(0xffffff, 352, 150); // Pass 3430: suction contact flash 58.0→78.3 — Pass 3536: 78.3→106 — Pass 3771: 106→143 — Pass 3878: 143→193 — Pass 4336: 193→261 brighter suction contact flash — Pass 5025: 261→352 brighter suction contact flash
           _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
@@ -2840,7 +2840,7 @@ function animate(ts) {
             _pc = (Math.max(0, _r - 60) << 16) | (Math.max(0, _g - 60) << 8) | Math.max(0, _b - 60);
           }
           p.mat.color.setHex(_pc);
-          p.mat.opacity = 1.15 + Math.random() * 0.15; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst — Pass 4744: 0.85→1.15 more vivid grab burst
+          p.mat.opacity = 1.55 + Math.random() * 0.15; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst — Pass 4744: 0.85→1.15 more vivid grab burst — Pass 5031: 1.15→1.55 more vivid grab burst
           p.age = 0;
           p.life = 1.531 + Math.random() * 1.185; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles — Pass 4292: 1.134+0.878→1.531+1.185 longer arc trail persistence
           p.active = true;
@@ -3800,7 +3800,7 @@ function animate(ts) {
     paddleMat.color.setHex(ct.hex);
     paddleMat.emissive.setHex(ct.hex);
     // Pass 555: gate charge max 5.0→7.0 — Pass 712: →9.5 — Pass 949: →13.0 — Pass 1143: →18.0 — Pass 1224: →26.0 — Pass 1296: →36.0 — Pass 1364: →50.0 — Pass 1556: →68.0 for stronger pre-gate glow
-    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 1847, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0 — Pass 3017: 226.0→305.1 — Pass 3212: 305.1→411.9 — Pass 3588: 411.9→556 — Pass 3683: 556→751 — Pass 3794: 751→1013 — Pass 3897: 1013→1368 // Pass 4495: gate open emissive max 1368→1847 more intense gate charge bloom
+    const _gateChargeTarget = THREE.MathUtils.lerp(0.18, 2493, easeInOut(ot)); // Pass 2361: gate charge max 124.0→167.4 — Pass 2579: 167.4→226.0 — Pass 3017: 226.0→305.1 — Pass 3212: 305.1→411.9 — Pass 3588: 411.9→556 — Pass 3683: 556→751 — Pass 3794: 751→1013 — Pass 3897: 1013→1368 // Pass 4495: gate open emissive max 1368→1847 more intense gate charge bloom — Pass 5030: 1847→2493 more intense gate charge bloom
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
     // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 — Pass 1557: primary →4.80, secondary →1.70 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
@@ -4185,7 +4185,7 @@ function animate(ts) {
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 39.2, ct.slotZ + _sweepZOsc315); // Pass 4853: slot sweep light Y height 29→39.2 higher slot entry spotlight
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 309.0, dt3 / 0.35) // Pass 4488: slot sweep peak 228.9→309.0 brighter slot entry spotlight
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 417, dt3 / 0.35) // Pass 4488: slot sweep peak 228.9→309.0 brighter slot entry spotlight — Pass 5028: 309.0→417 brighter slot entry spotlight
                                              : THREE.MathUtils.lerp(221, 0, (dt3 - 0.35) / 0.65); // Pass 2117: sweep peak 51.0→68.9 Pass 2118: sweep tail 36.5→49.3 — Pass 2615: 68.9→93.0, 49.3→66.6 — Pass 3056: 93.0→125.6, 66.6→89.9 — Pass 3243: peak 125.6→169.6, tail 89.9→121.4 — Pass 3410: peak 169.6→228.9 Pass 3411: tail 121.4→163.9 — Pass 4743: tail 163.9→221 brighter slot sweep tail
     }
     // Pass 60: gate column LED holds then fades as card lands
@@ -5062,7 +5062,7 @@ function animate(ts) {
   // ── Impact ring: expansion animation ─────────────────────────────────────────
   if (_impactRingT >= 0) {
     // Pass 384: expansion speed boost 0.4s→0.31s — Pass 809: dt*3.2→dt*4.8 — Pass 942: →dt*3.5 — Pass 1033: →dt*2.8 — Pass 1333: →dt*2.2 — Pass 1552: →dt*1.8 longer ring
-    _impactRingT = Math.min(1, _impactRingT + dt * 36.0); // Pass 2498: impact ring speed 3.28→4.43 — Pass 2699: 4.43→5.98 — Pass 2794: 5.98→8.07 — Pass 2927: 8.07→10.9 — Pass 3138: 10.9→14.7 — Pass 3306: 14.7→19.8 — Pass 3405: 19.8→26.7 — Pass 4085: 26.7→36.0 snappier shockwave
+    _impactRingT = Math.min(1, _impactRingT + dt * 48.6); // Pass 2498: impact ring speed 3.28→4.43 — Pass 2699: 4.43→5.98 — Pass 2794: 5.98→8.07 — Pass 2927: 8.07→10.9 — Pass 3138: 10.9→14.7 — Pass 3306: 14.7→19.8 — Pass 3405: 19.8→26.7 — Pass 4085: 26.7→36.0 snappier shockwave — Pass 5024: 36.0→48.6 snappier impact shockwave
     // scale0: floor-0 starts at 1.0 (big bang), floor-1 starts at 0.55 (gentle glide)
     // Pass 284: easeOut expansion + floor-0 scale boost — ring punches out hard then decelerates
     // Pass 382: floor-0 max scale 6.0→7.5 — Pass 808: →11.0 — Pass 940: →16.0 — Pass 1032: →22.0 — Pass 1332: →30.0 — Pass 1551: →42.0 wider shockwave
@@ -5084,7 +5084,7 @@ function animate(ts) {
   // Pass 100: confirm ring expands from scanner center at identity reveal
   // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 — Pass 944: →dt*3.5 — Pass 1432: →dt*2.6 for longer ring
   if (_confirmRingT >= 0) {
-    _confirmRingT = Math.min(1, _confirmRingT + dt * 38.6); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 52.1); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring — Pass 5029: 38.6→52.1 faster identity confirm ring
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
     const _crs = 1.0 + easeOut(_confirmRingT) * 1368; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring
     confirmRing.scale.setScalar(_crs);
