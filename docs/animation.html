@@ -1217,7 +1217,7 @@ const diverterFlapMat = new THREE.MeshStandardMaterial({
   emissive: new THREE.Color(0x441f00), emissiveIntensity: 1.01 // Pass 4044: floor diverter emissive 0.22→0.30 brighter routing flap — Pass 4891: 0.30→0.41 more visible diverter — Pass 5057: 0.41→0.554 more vivid diverter flap glow — Pass 5138: 0.554→0.748 stronger floor diverter emissive ramp — Pass 5709: 0.748→1.01 stronger floor diverter emissive glow
 });
 const diverterFlapMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(TX_DEP + 6, 4.05, TRAY_Z_HALF * 2), // Pass 4991: diverter flap thickness 3→4.05 chunkier routing flap
+  new THREE.BoxGeometry(TX_DEP + 6, 5.47, TRAY_Z_HALF * 2), // Pass 4991: diverter flap thickness 3→4.05 chunkier routing flap — Pass 5930: 4.05→5.47 chunkier routing diverter flap
   diverterFlapMat
 );
 // Pivot is at left edge — offset mesh half its width to the right
@@ -2508,7 +2508,7 @@ function animate(ts) {
       mat.emissiveIntensity = 23.2 + pulse; // Pass 2518: slot LED active base 7.0→9.45 — Pass 4046: 9.45→12.76 brighter active routing LED — Pass 5004: 12.76→17.2 brighter active routing LED — Pass 5188: 17.2→23.2 brighter active slot LED base
     } else if (_ledCooloff[_li] > 0) {
       // Pass 52: afterglow — Pass 835: 1.8→2.8s — Pass 829: peak intensity 0.9+2.4 → 1.2+3.8 — Pass 1649: →1.5+5.0
-      const afterT = _ledCooloff[_li] / 6.89; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration — Pass 4428: updated to match 6.89s cooloff
+      const afterT = _ledCooloff[_li] / 9.30; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration — Pass 4428: updated to match 6.89s cooloff — Pass 5931: 6.89→9.30 deeper LED afterglow divisor
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
       mat.emissiveIntensity = 6.75 + afterT * 55.1; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 — Pass 4288: base 5.00→6.75 brighter slot afterglow floor — Pass 4687: ramp 22.4→30.2 brighter slot LED afterglow peak — Pass 4997: ramp 30.2→40.8 blazing slot LED afterglow peak — Pass 5189: ramp 40.8→55.1 brighter slot LED afterglow ramp
@@ -2700,7 +2700,7 @@ function animate(ts) {
               _cp.mesh.position.set(_cpX + (Math.random()-0.5)*10, _cpY - 4, (Math.random()-0.5)*8);
               _cp.mesh.visible = true;
               _cp.vx = (Math.random() - 0.5) * 233.8; // Pass 1130: 28→38 — Pass 1314: →52 — Pass 1491: →70 — Pass 1672: →95 — Pass 3910: 95→128.3 wider pick burst — Pass 4375: 128.3→173.2 even wider suction puff — Pass 5123: 173.2→233.8 even wider pick dust spread
-              _cp.vy = 137.8 + Math.random() * 138.5;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 — Pass 1673: →56+76 — Pass 3909: 56+76→75.6+102.6 higher pick dust loft — Pass 4376: base 75.6→102.1 — Pass 4377: rand 102.6→138.5 more forceful pick dust launch — Pass 5130: 102.1→137.8 higher pick dust loft base
+              _cp.vy = 137.8 + Math.random() * 187.0;   // Pass 1130: 16+20→24+32 — Pass 1314: →32+44 — Pass 1483: →42+58 — Pass 1673: →56+76 — Pass 3909: 56+76→75.6+102.6 higher pick dust loft — Pass 4376: base 75.6→102.1 — Pass 4377: rand 102.6→138.5 more forceful pick dust launch — Pass 5130: 102.1→137.8 higher pick dust loft base — Pass 5932: rand 138.5→187.0 more forceful pick dust vy launch rand
               _cp.vz = (Math.random() - 0.5) * 68.9; // Pass 1674: 20→28 — Pass 3954: 28→37.8 wider pick dust Z spread — Pass 4378: 37.8→51.0 even wider pick dust Z — Pass 5124: 51.0→68.9 even wider pick dust Z spread
               _cp.mat.color.setRGB(0.85, 0.88, 0.92); // cool pale grey (displaced air)
               _cpSpawned++;
@@ -2747,9 +2747,9 @@ function animate(ts) {
         vacuumRing.position.set(_cupX, _cupY + 1, 0);
         // Pass 307: vacuum ring spin — ring rotates on its local axis, accelerating as cup descends
         if (!controls._vacRingAngle) controls._vacRingAngle = 0;
-        controls._vacRingAngle += dt * (38.6 + _vt * 76.1); // Pass 2265: vacuum ring spin 4.7+22.95→6.35+30.98 — Pass 3173: base 6.35→8.57 Pass 3174: ramp 30.98→41.8 — Pass 3573: base 8.57→11.6, ramp 41.8→56.4 — Pass 3668: base 11.6→15.7 — Pass 3975: base 15.7→21.2 — Pass 4291: 21.2→28.6 faster vacuum ring base spin — Pass 4436: ramp 56.4→76.1 faster ring acceleration — Pass 5126: 28.6→38.6 faster vacuum ring idle spin
+        controls._vacRingAngle += dt * (38.6 + _vt * 102.7); // Pass 2265: vacuum ring spin 4.7+22.95→6.35+30.98 — Pass 3173: base 6.35→8.57 Pass 3174: ramp 30.98→41.8 — Pass 3573: base 8.57→11.6, ramp 41.8→56.4 — Pass 3668: base 11.6→15.7 — Pass 3975: base 15.7→21.2 — Pass 4291: 21.2→28.6 faster vacuum ring base spin — Pass 4436: ramp 56.4→76.1 faster ring acceleration — Pass 5126: 28.6→38.6 faster vacuum ring idle spin — Pass 5933: ramp 76.1→102.7 faster vacuum ring acceleration ramp
         vacuumRing.rotation.z = controls._vacRingAngle;
-        const _vacBaseScale = THREE.MathUtils.lerp(22.0, 0.34, _vt); // Pass 2266: vacuum ring max scale 2.70→3.65 — Pass 3417: 3.65→4.93 — Pass 3529: 4.93→6.66 — Pass 3713: 6.66→8.99 — Pass 3821: 8.99→12.1 — Pass 4222: 12.1→16.3 larger vacuum ring sweep — Pass 4643: pick suction ring min contracted scale 0.25→0.34 wider suction ring footprint — Pass 5168: 16.3→22.0 wider vacuum ring expand
+        const _vacBaseScale = THREE.MathUtils.lerp(22.0, 0.459, _vt); // Pass 2266: vacuum ring max scale 2.70→3.65 — Pass 3417: 3.65→4.93 — Pass 3529: 4.93→6.66 — Pass 3713: 6.66→8.99 — Pass 3821: 8.99→12.1 — Pass 4222: 12.1→16.3 larger vacuum ring sweep — Pass 4643: pick suction ring min contracted scale 0.25→0.34 wider suction ring footprint — Pass 5168: 16.3→22.0 wider vacuum ring expand — Pass 5934: 0.34→0.459 wider min contracted suction ring footprint
         vacuumRingMat.color.setHex(ct.hex);
         // Pass 253: vacuum ring final surge — brief opacity spike in last 15% as motor spins up
         // Pass 380: vacuum ring surge opacity boost 0.28 → 0.45 — Pass 1092: surge 0.45→0.65, base 0.75→0.95 — Pass 1249: surge →0.92 — Pass 1361: →1.20 — Pass 1679: →1.60 stronger pump surge
@@ -2766,7 +2766,7 @@ function animate(ts) {
       // Against gravity: ease-out (decelerates at top); swing rightward toward belt
       const lt = phaseT(PH.armLift, easeOut);
       // Pass 77: lift lurch — brief downward strain as cup breaks suction on card — Pass 1171: →-0.15 — Pass 1251: →-0.24 — Pass 1274: →-0.34 — Pass 1356: →-0.48 — Pass 1681: →-0.65
-      const _ltLurch = lt < 0.328 ? -3.96 * Math.sin((lt / 0.328) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93 — Pass 4224: -2.93→-3.96 more dramatic suction-break strain — Pass 4927: arm pick lift lurch window 0.18→0.243 deeper pick velocity engagement — Pass 5164: 0.243→0.328 wider card release timing window
+      const _ltLurch = lt < 0.328 ? -5.35 * Math.sin((lt / 0.328) * Math.PI) : 0; // Pass 2269: lift lurch -0.88→-1.19 — Pass 3175: -1.19→-1.61 — Pass 3574: -1.61→-2.17 — Pass 3669: -2.17→-2.93 — Pass 4224: -2.93→-3.96 more dramatic suction-break strain — Pass 4927: arm pick lift lurch window 0.18→0.243 deeper pick velocity engagement — Pass 5164: 0.243→0.328 wider card release timing window — Pass 5935: 3.96→5.35 more dramatic suction-break lift lurch
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.049, 1.46, lt) + _ltLurch; // Pass 4487: arm lift endpoint 0.80→1.08 higher pre-swing position — Pass 4566: arm lift start matches descent end -0.036→-0.049 — Pass 5169: 1.08→1.46 higher arm lift apex
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 — Pass 1682: →7.0 more dramatic dip
       if (lt < 0.22) {
@@ -2840,7 +2840,7 @@ function animate(ts) {
             _pc = (Math.max(0, _r - 60) << 16) | (Math.max(0, _g - 60) << 8) | Math.max(0, _b - 60);
           }
           p.mat.color.setHex(_pc);
-          p.mat.opacity = 1.55 + Math.random() * 0.15; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst — Pass 4744: 0.85→1.15 more vivid grab burst — Pass 5031: 1.15→1.55 more vivid grab burst
+          p.mat.opacity = 1.55 + Math.random() * 0.20; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst — Pass 4744: 0.85→1.15 more vivid grab burst — Pass 5031: 1.15→1.55 more vivid grab burst — Pass 5936: rand 0.15→0.20 more vivid grab burst opacity variance
           p.age = 0;
           p.life = 2.79 + Math.random() * 1.600; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles — Pass 4292: 1.134+0.878→1.531+1.185 longer arc trail persistence — Pass 5173: 1.531→2.067 rand 1.185→1.600 longer arc trail life — Pass 5367: 2.067→2.79 longer card deal arc trail particle base life
           p.active = true;
@@ -5315,7 +5315,7 @@ function animate(ts) {
   // Pass 99: decay boost (set at 85% identity reveal), adds scene-wide domain color wash
   if (_domainFillBoost > 0.005) {
     // Pass 542: reveal fill boost decay 2.2→1.6 (longer wash ~0.35s) + max cap 0.90→1.10 — Pass 1465: cap →1.50
-    _domainFillBoost = Math.max(0, _domainFillBoost - dt * 1.6); // ~0.35s decay
+    _domainFillBoost = Math.max(0, _domainFillBoost - dt * 2.16); // ~0.46s decay — Pass 5937: 1.6→2.16 faster domain reveal fill boost decay
     _domainFillLight.intensity = Math.min(40.8, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 2459: reveal fill cap 2.74→3.70 — Pass 2724: 3.70→5.00 — Pass 3436: 5.00→6.75 — Pass 3716: 6.75→9.11 — Pass 3826: 9.11→12.3 — Pass 4186: 12.3→16.6 — Pass 4679: 16.6→22.4 higher domain fill cap — Pass 5133: 22.4→30.2 higher domain fill light cap — Pass 5809: 30.2→40.8 higher domain fill light cap
   } else {
     _domainFillLight.intensity += (_fillTgt + _deflectFill498 + _scanFill519 - _domainFillLight.intensity) * dt * 4.43; // Pass 4446: domain fill idle tracking 1.8→2.43 snappier overhead color wash — Pass 5343: 2.43→3.28 snappier domain fill idle tracking — Pass 5701: 3.28→4.43 snappier domain fill idle intensity tracking
