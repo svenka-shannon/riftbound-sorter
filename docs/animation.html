@@ -920,7 +920,7 @@ const scanBarMat = new THREE.MeshStandardMaterial({
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 2.5, 2.5),
+  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 3.38, 3.38), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar
   scanBarMat
 );
 // Positioned on front face of scanner hood (Z=-50 is front edge of 100-deep hood)
@@ -931,7 +931,7 @@ scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(3.5, 3.5, 3.5), scanBarCursorMat);
+const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(4.73, 4.73, 4.73), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge
 scanBarCursor.position.set(-40, CONV_Y_TOP + 62, -51);
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
@@ -943,7 +943,7 @@ scanTargetLight.decay = 2;
 scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
-const slotSweepLight = new THREE.PointLight(0xffffff, 0, 55);
+const slotSweepLight = new THREE.PointLight(0xffffff, 0, 74); // Pass 4007: sweep light reach 55→74 deeper slot illumination
 slotSweepLight.decay = 2;
 scene.add(slotSweepLight);
 
@@ -982,7 +982,7 @@ const scanLineMat = new THREE.MeshStandardMaterial({
   emissiveIntensity: 3.0,
   transparent: true, opacity: 0.8
 });
-const scanLine = new THREE.Mesh(new THREE.BoxGeometry(73, 3, 2), scanLineMat);
+const scanLine = new THREE.Mesh(new THREE.BoxGeometry(73, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam
 scanLine.visible = false;
 scene.add(scanLine);
 // Secondary bar (spans Z=88, sweeps in X) — slightly warmer teal to differentiate
@@ -992,7 +992,7 @@ const scanLineMat2 = new THREE.MeshStandardMaterial({
   emissiveIntensity: 2.5,
   transparent: true, opacity: 0.65
 });
-const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 90), scanLineMat2);
+const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 121.5), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage
 scanLine2.visible = false;
 scene.add(scanLine2);
 
@@ -1820,7 +1820,7 @@ CARD_TYPES.forEach(ct => {
 
 // ─── Card halo ring: spinning domain-colored torus around active card ─────────
 // Visible during belt travel; makes domain color unmistakably obvious
-const cardHaloGeo = new THREE.TorusGeometry(42, 1.8, 8, 28);
+const cardHaloGeo = new THREE.TorusGeometry(42, 2.43, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring
 const cardHaloMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 2.0,
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
@@ -3265,10 +3265,10 @@ function animate(ts) {
     scanLineMat.emissiveIntensity += _revFlare;
     // Pass 611: beam reversal point light — at ft≈0.5 scan midpoint, brief white point light fires
     // at the scanner to mark the beam direction flip moment with a physical light burst.
-    // Pass 848: reversal flash intensity 5.5→9.0 — Pass 1690: →12.0, dist 80→110
+    // Pass 848: reversal flash intensity 5.5→9.0 — Pass 1690: →12.0, dist 80→110 — Pass 4005: 12.0→16.2 brighter beam direction-flip flash
     if (!_beamReversalFlashFired && ft >= 0.50 && !_identityRevealed) {
       _beamReversalFlashFired = true;
-      const _brfl = new THREE.PointLight(0xaaddff, 12.0, 110);
+      const _brfl = new THREE.PointLight(0xaaddff, 16.2, 110); // Pass 4005: beam reversal flash 12.0→16.2
       _brfl.position.set(-40, CONV_Y_TOP + 20, 0);
       scene.add(_brfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4180,7 +4180,7 @@ function animate(ts) {
       const _sweepX = THREE.MathUtils.lerp(TRAY_X_START + 5, TRAY_X_END - 5, easeInOut(dt3));
       slotSweepLight.color.setHex(ct.hex);
       // Pass 315: sweep light Z oscillation — light sways laterally as it travels into the slot
-      const _sweepZOsc315 = 5 * Math.sin(dt3 * Math.PI * 3) * Math.max(0, 1 - dt3 * 1.5);
+      const _sweepZOsc315 = 6.75 * Math.sin(dt3 * Math.PI * 3) * Math.max(0, 1 - dt3 * 1.5); // Pass 4008: sweep Z oscillation amplitude 5→6.75 wider slot sweep sway
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 29, ct.slotZ + _sweepZOsc315);
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
@@ -4373,7 +4373,7 @@ function animate(ts) {
         _ral.classList.add('reject-alarm-on');
       }
       // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90 — Pass 1397: amber →20.0/200, red →10.0/120
-      [[0xff6600, 121.4, 200], [0xff1a00, 60.5, 120]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5
+      [[0xff6600, 163.9, 200], [0xff1a00, 81.7, 120]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5 — Pass 4005: amber 121.4→163.9 — Pass 4006: red 60.5→81.7
         const _wl = new THREE.PointLight(c, i, d);
         _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 8 : -8));
         scene.add(_wl);
@@ -4381,7 +4381,7 @@ function animate(ts) {
         window._flashLights.push({ light: _wl, age: 0, peak: _wl.intensity });
       });
       // Extra camera shake for "rejected" — Pass 452: 2.2→3.5 — Pass 651: →5.5 — Pass 1044: →9.5 — Pass 1398: →14.0 bigger alarm jolt
-      _cameraShake = Math.max(_cameraShake, 114.1); // Pass 2403: reject alarm shake 25.5→34.4 — Pass 2636: 34.4→46.4 — Pass 2867: 46.4→62.6 — Pass 3074: 62.6→84.5 — Pass 3257: 84.5→114.1
+      _cameraShake = Math.max(_cameraShake, 154); // Pass 2403: reject alarm shake 25.5→34.4 — Pass 2636: 34.4→46.4 — Pass 2867: 46.4→62.6 — Pass 3074: 62.6→84.5 — Pass 3257: 84.5→114.1 — Pass 4007: 114.1→154
       // Pass 65: reject spark fountain — upward burst of red/orange trail particles
       // Pass 651: reject spark count 14→20 — Pass 1046: →30 — Pass 1399: →42 for bigger alarm fountain
       for (let _ri = 0; _ri < 255; _ri++) { // Pass 2404: reject spark count 57→77 — Pass 2637: 77→104 — Pass 3075: 104→140 — Pass 3258: 140→189 — Pass 3485: 189→255
@@ -4395,7 +4395,7 @@ function animate(ts) {
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
         tp.mat.opacity = 0.90 + Math.random() * 0.10; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks
-        tp.age = 0; tp.life = 3.60 + Math.random() * 2.09; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09
+        tp.age = 0; tp.life = 4.86 + Math.random() * 2.82; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09 — Pass 4008: base 3.60→4.86 — Pass 4009: rand 2.09→2.82
         tp.active = true; tp.mesh.visible = true;
       }
     }
@@ -4554,8 +4554,8 @@ function animate(ts) {
     // Pass 136: arm holds home position with realistic multi-frequency servo tremor
     // Two overlapping sine waves at different frequencies simulate motor holding dither — Pass 1605: 0.009→0.013, 0.004→0.006
     suctionPivot.rotation.z = -0.35
-      + 0.142 * Math.sin(ts * 0.58 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043 — Pass 2879: 0.043→0.058 — Pass 3089: 0.058→0.078 — Pass 3265: 0.078→0.105 — Pass 3605: 0.105→0.142
-      + 0.066 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020 — Pass 2880: 0.020→0.027 — Pass 3090: 0.027→0.036 — Pass 3266: 0.036→0.049 — Pass 3606: 0.049→0.066
+      + 0.192 * Math.sin(ts * 0.58 * Math.PI * 2)   // Pass 2413: sway amp 0.024→0.032 — Pass 2648: 0.032→0.043 — Pass 2879: 0.043→0.058 — Pass 3089: 0.058→0.078 — Pass 3265: 0.078→0.105 — Pass 3605: 0.105→0.142 — Pass 4010: 0.142→0.192
+      + 0.089 * Math.sin(ts * 1.43 * Math.PI * 2);  // Pass 2414: tremor amp 0.011→0.015 — Pass 2649: 0.015→0.020 — Pass 2880: 0.020→0.027 — Pass 3090: 0.027→0.036 — Pass 3266: 0.036→0.049 — Pass 3606: 0.049→0.066 — Pass 4011: 0.066→0.089
     // Pass 492: gate LED domain afterglow — during pause, active column retains a faint 0.4Hz
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
     // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory — Pass 1603: base 0.14→0.20, amp 0.12→0.18
