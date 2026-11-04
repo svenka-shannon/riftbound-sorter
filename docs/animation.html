@@ -909,7 +909,7 @@ scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
 const scanBloom = new THREE.PointLight(0x0088ff, 0, 547); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach
-scanBloom.decay = 2;
+scanBloom.decay = 2.70; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom
 scene.add(scanBloom);
 
 // Pass 55: Scan progress LED bar — thin strip on scanner hood front face
@@ -939,12 +939,12 @@ scene.add(scanBarCursor);
 // Scan destination target light — illuminates the slot the card is going to
 // during scan phase so viewer immediately knows the routing decision
 const scanTargetLight = new THREE.PointLight(0xffffff, 0, 122); // Pass 4022: scanTargetLight range 90→122
-scanTargetLight.decay = 2;
+scanTargetLight.decay = 2.70; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff
 scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
 const slotSweepLight = new THREE.PointLight(0xffffff, 0, 74); // Pass 4007: sweep light reach 55→74 deeper slot illumination
-slotSweepLight.decay = 2;
+slotSweepLight.decay = 2.70; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff
 scene.add(slotSweepLight);
 
 // ─── Scanner beam cone ────────────────────────────────────────────────────────
@@ -1958,7 +1958,7 @@ for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   _cpMesh.visible = false;
   scene.add(_cpMesh);
   // Pass 481: randomized gravity factor per particle (18–35) for organic varied fall speed — Pass 4262: base 18→24.3, rand 17→22.95 stronger confetti gravity variance
-  const _gravFactor = 24.3 + Math.random() * 22.95;
+  const _gravFactor = 32.8 + Math.random() * 31.0; // Pass 4811: confetti gravity base 24.3→32.8 — Pass 4812: rand 22.95→31.0 heavier confetti
   CELEB_PARTICLES.push({ mesh: _cpMesh, mat: _cpMat, vx: 0, vy: 0, vz: 0, rx: 0, ry: 0, rz: 0, age: 0, life: 1.2, active: false, grav: _gravFactor });
 }
 
@@ -2386,7 +2386,7 @@ function animate(ts) {
         sc.material.emissiveIntensity = 0.66 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
-        sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 3);
+        sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 4.05); // Pass 4813: deck shimmer idle tracking 3→4.05 snappier deck energy decay
       }
     }
   });
@@ -4659,9 +4659,9 @@ function animate(ts) {
         ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 7.48 : 0; // Pass 2427: body exit echo 0.92→1.24 — Pass 2663: 1.24→1.67 — Pass 2753: 1.67→2.25 — Pass 3102: 2.25→3.04 — Pass 3355: 3.04→4.10 — Pass 4381: 4.10→5.54 — Pass 4719: 5.54→7.48 stronger scanner exit echo
       // Pass 932: conveyor body base glow 0.08→0.14 — Pass 1454: →0.20, pulse amp 0.08→0.12 for more vivid presence
       const _bodyTarget = 1.20 + 0.74 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho; // Pass 2435: body base 0.27→0.36, pulse 0.16→0.22 — Pass 2664: 0.36→0.49, 0.22→0.30 — Pass 2754: base 0.49→0.66 Pass 2755: pulse 0.30→0.41 — Pass 3100: base 0.66→0.89, pulse 0.41→0.55 — Pass 4444: base 0.89→1.20 — Pass 4445: pulse 0.55→0.74 richer conveyor body glow
-      convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 3);
+      convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 4.05); // Pass 4814: conveyor body emissive tracking 3→4.05 snappier body glow
     } else {
-      convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2);
+      convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 4815: conveyor body idle decay 2→2.70 crisper conveyor body fade
     }
   }
   // Pass 83: belt surface domain emissive — subtle tint while card rides the belt
