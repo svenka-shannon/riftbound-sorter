@@ -1490,7 +1490,7 @@ const _shadowMat = new THREE.MeshBasicMaterial({
 });
 const _shadowMesh = new THREE.Mesh(new THREE.CircleGeometry(1, 32), _shadowMat);
 _shadowMesh.rotation.x = -Math.PI / 2; // lie flat on belt surface
-_shadowMesh.scale.set(CARD_H * 0.74, 1, CARD_W * 0.74); // elongated card-proportioned ellipse — Pass 4917: card contact shadow ellipse scale 0.55→0.74 larger belt shadow
+_shadowMesh.scale.set(CARD_H * 1.00, 1, CARD_W * 1.00); // elongated card-proportioned ellipse — Pass 4917: card contact shadow ellipse scale 0.55→0.74 larger belt shadow — Pass 5532: 0.74→1.00 full-card contact shadow ellipse scale
 _shadowMesh.position.set(-40, CONV_Y_TOP + 0.729, 0); // Pass 4926: shadow Y offset 0.4→0.54 more elevated belt shadow — Pass 5469: 0.54→0.729 more elevated card contact shadow
 scene.add(_shadowMesh);
 
@@ -1935,7 +1935,7 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 32; // Pass 4959: trail particle pool 24→32 richer deflect wake
+const TRAIL_PARTICLE_COUNT = 43; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(5.41, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius
@@ -1950,7 +1950,7 @@ let _trailSpawnAcc = 0;    // time accumulator for spawn rate
 // 32 spheres in all 8 domain colors fire upward from above the tray when
 // a complete sort round (all 8 domains) finishes. Each domain gets 4 particles.
 const CELEB_PARTICLES = [];
-const CELEB_COUNT = 58; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst
+const CELEB_COUNT = 78; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
@@ -2446,7 +2446,7 @@ function animate(ts) {
   if(window._flashLights) {
     window._flashLights = window._flashLights.filter(f => {
       f.age += dt;
-      const _fPeak = f.peak || 4.05; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash
+      const _fPeak = f.peak || 5.47; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash — Pass 5529: 4.05→5.47 brighter arrival flash fallback peak
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
       f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 13.3)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence
       if(f.age > 9.86) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window
@@ -2694,7 +2694,7 @@ function animate(ts) {
             for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 38; _ci++) {
               const _cp = GRAB_PARTICLES[_ci];
               if (_cp.active) continue;
-              _cp.active = true; _cp.age = 0; _cp.life = 1.04 + Math.random() * 0.36; // Pass 1130: 0.20+0.10→0.30+0.15 — Pass 1671: →0.42+0.20 — Pass 4066: →0.57+0.27 longer pick dust — Pass 4898: base 0.57→0.77 — Pass 4899: rand 0.27→0.36 longer contact dust — Pass 5524: base 0.77→1.04 longer pick dust base life
+              _cp.active = true; _cp.age = 0; _cp.life = 1.04 + Math.random() * 0.49; // Pass 1130: 0.20+0.10→0.30+0.15 — Pass 1671: →0.42+0.20 — Pass 4066: →0.57+0.27 longer pick dust — Pass 4898: base 0.57→0.77 — Pass 4899: rand 0.27→0.36 longer contact dust — Pass 5524: base 0.77→1.04 longer pick dust base life — Pass 5525: rand 0.36→0.49 longer pick dust life variance
               const _cpX = PIV_X + 83 * Math.sin(_cfRot);
               const _cpY = PIV_Y - 83 * Math.cos(_cfRot);
               _cp.mesh.position.set(_cpX + (Math.random()-0.5)*10, _cpY - 4, (Math.random()-0.5)*8);
@@ -2823,7 +2823,7 @@ function animate(ts) {
           // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 — Pass 1098: →40+90 — Pass 1218: →55+115 for more energetic burst
           const spd = 448 + Math.random() * 282; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread — Pass 4948: base 246→332 — Pass 4949: rand 155→209 more energetic grab particle burst — Pass 5200: base 332→448 — Pass 5201: rand 209→282 more energetic grab particle burst
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
-          const _goDown = Math.random() < 0.20; // Pass 4921: grab particle downward bias 0.15→0.20 more pick-disturbed stack puff
+          const _goDown = Math.random() < 0.27; // Pass 4921: grab particle downward bias 0.15→0.20 more pick-disturbed stack puff — Pass 5526: 0.20→0.27 stronger pick-disturbed downward puff bias
           p.vx = Math.cos(angle) * spd * 1.00; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst — Pass 5080: 0.74→1.00 wider grab burst
           p.vy = _goDown ? -spd * (0.55 + Math.random() * 0.73) : spd * (0.55 + Math.random() * 0.45); // Pass 4264: grab particle vy down factor 0.3→0.41, rand 0.4→0.54 more forceful suction puff — Pass 5172: 0.41→0.55 rand 0.54→0.73 stronger grab particle pull-down
           p.vz = Math.sin(angle) * spd * 0.92; // Pass 4265: grab particle vz spread 0.5→0.68 deeper Z burst — Pass 5081: 0.68→0.92 deeper grab Z burst
@@ -2957,7 +2957,7 @@ function animate(ts) {
     // Pass 1063: apex boost 1.20→1.65 — Pass 1349: →2.20 for brighter cardGlow at swing closest-point — Pass 1581: →3.00; Pass 1582: base 1.85→2.50
     if (inPhase(PH.armSwing)) {
       const _swZ299 = Math.sin(phaseRaw(PH.armSwing) * Math.PI);
-      cardGlow.intensity = _armCardEmissive * (20.4 + _swZ299 * 18.1); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96 — Pass 4201: base 11.2→15.1 — Pass 4202: boost 9.96→13.4 — Pass 4946: base 15.1→20.4 — Pass 4947: boost 13.4→18.1 brighter arc apex card glow
+      cardGlow.intensity = _armCardEmissive * (27.5 + _swZ299 * 24.4); // Pass 2286: cardGlow Z-apex base 3.38→4.56, boost 4.05→5.47 — Pass 3419: base 4.56→6.16 — Pass 3531: base 6.16→8.32, boost 5.47→7.38 — Pass 3976: base 8.32→11.2 — Pass 3977: boost 7.38→9.96 — Pass 4201: base 11.2→15.1 — Pass 4202: boost 9.96→13.4 — Pass 4946: base 15.1→20.4 — Pass 4947: boost 13.4→18.1 brighter arc apex card glow — Pass 5530: base 20.4→27.5 brighter arc apex card glow base — Pass 5531: boost 18.1→24.4 brighter arc apex card glow boost
     } else {
       cardGlow.intensity = _armCardEmissive > 0 ? _armCardEmissive * 6.16 : 0; // Pass 4363: resting cardGlow multiplier 2.50→3.38 brighter card glow outside swing — Pass 5175: 3.38→4.56 brighter card glow outside swing — Pass 5372: 4.56→6.16 brighter arm rest card glow emissive
     }
