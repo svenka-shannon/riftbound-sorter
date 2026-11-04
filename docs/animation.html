@@ -1543,7 +1543,7 @@ const impactRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0,
 });
 const impactRing = new THREE.Mesh(
-  new THREE.TorusGeometry(24.3, 4.01, 6, 24), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring
+  new THREE.TorusGeometry(32.8, 4.01, 6, 24), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring — Pass 5104: slot ring Z spread radius 24.3→32.8 wider impact ring
   impactRingMat
 );
 impactRing.visible = false;
@@ -1760,7 +1760,7 @@ function addCardToTray(ct) {
   _ledCooloff[ct.slot] = 12.6; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
-  const flashLight = new THREE.PointLight(ct.hex, 12.3, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst
+  const flashLight = new THREE.PointLight(ct.hex, 16.6, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst
   flashLight.position.copy(mesh.position);
   scene.add(flashLight);
   if(!window._flashLights) window._flashLights = [];
@@ -2361,7 +2361,7 @@ function animate(ts) {
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
     const _jPhase = i * 2.67; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
-    const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 1.70 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude
+    const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 2.30 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter
               + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.85; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
@@ -2383,7 +2383,7 @@ function animate(ts) {
         // Pass 1015: base 0.15→0.22, ramp 0.22→0.35 — Pass 1229: base 0.22→0.35, ramp 0.35→0.55 — Pass 1402: ramp →0.75 — Pass 1667: ramp →1.00 for more vivid deck charge wave
         const _waveAmp301 = inPhase(PH.armDescend) ? 2.09 + phaseRaw(PH.armDescend) * 4.48 : 2.09; // Pass 3441: deck wave base 0.35→0.47 — Pass 3442: ramp 1.00→1.35 — Pass 3640: base 0.47→0.63 — Pass 3641: ramp 1.35→1.82 — Pass 3787: base 0.63→0.85 — Pass 3788: ramp 1.82→2.46 — Pass 3892: base 0.85→1.15 — Pass 4221: ramp 2.46→3.32 stronger deck-charge ramp // Pass 4493: deck shimmer wave base 1.15→1.55 richer deck energy floor — Pass 4896: base 1.55→2.09 — Pass 4897: ramp 3.32→4.48 brighter deck charge surge
         // Pass 905: shimmer base emissive 0.04→0.06 — Pass 1015: →0.10 — Pass 1230: →0.18 — Pass 1395: →0.26 — Pass 1666: →0.36 — Pass 4061: →0.49 richer deck energy base
-        sc.material.emissiveIntensity = 0.66 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor
+        sc.material.emissiveIntensity = 0.891 + _wave * _waveAmp301; // Pass 4672: deck shimmer base emissive 0.49→0.66 richer deck energy floor — Pass 5096: 0.66→0.891 richer deck shimmer base glow
         sc.material.emissive.setHex(0x8899ff); // cool blue-white deck energy
       } else {
         sc.material.emissiveIntensity += (0.04 - sc.material.emissiveIntensity) * Math.min(1, dt * 4.05); // Pass 4813: deck shimmer idle tracking 3→4.05 snappier deck energy decay
@@ -2492,7 +2492,7 @@ function animate(ts) {
       // Capacity warning: flash amber — slot is nearly full
       // Pass 187: fix capacity warning pulse — was ts*0.008 (~785s period = never visible).
       // Fixed to 0.8Hz: slots flash urgently when nearly full.
-      const _warnPulse = 0.81 + 0.54 * Math.sin(ts * 1.08 * Math.PI * 2); // Pass 4461: slot overflow pulse amplitude 0.4→0.54 stronger overflow flash // Pass 4482: overflow ripple freq 0.8→1.08 more urgent overflow flash — Pass 4655: slot overflow indicator pulse intensity base 0.6→0.81 brighter warning floor
+      const _warnPulse = 1.09 + 0.54 * Math.sin(ts * 1.08 * Math.PI * 2); // Pass 4461: slot overflow pulse amplitude 0.4→0.54 stronger overflow flash // Pass 4482: overflow ripple freq 0.8→1.08 more urgent overflow flash — Pass 4655: slot overflow indicator pulse intensity base 0.6→0.81 brighter warning floor — Pass 5097: 0.81→1.09 brighter overflow warning floor
       mat.color.setHex(0xffaa00);
       mat.emissive.setHex(0xffaa00);
       mat.emissiveIntensity = 5.90 + _warnPulse * 3.65; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70 — Pass 4045: base 3.24→4.37, amp 2.70→3.65 brighter slot overflow warning — Pass 5003: base 4.37→5.90 more vivid overflow warning
@@ -2529,7 +2529,7 @@ function animate(ts) {
   // Pass 833: airborne spin rate 0.003→0.006 for faster spinning when card is airborne
   // Pass 4053: halo belt-active spin rate 0.0012→0.00162 — Pass 4054: halo airborne spin rate 0.006→0.0081
   const haloSpinRate = beltActive ? 0.00162 : 0.0081;
-  cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.20; // Pass 4782: halo opacity tracking rate 0.15→0.20 snappier halo fade in/out
+  cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.27; // Pass 4782: halo opacity tracking rate 0.15→0.20 snappier halo fade in/out — Pass 5098: 0.20→0.27 snappier halo fade tracking
   if (cardHaloMat.opacity > 0.01) {
     cardHalo.position.copy(activeCard.position);
     // Halo lies flat (horizontal) — rotate to match card, then spin
@@ -2638,7 +2638,7 @@ function animate(ts) {
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
       const jitter = 12.8 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting
-        Math.sin(ts * 14.6 * Math.PI * 2) * 0.945 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter — Pass 5087: 10.8→14.6 Hz crisper arm tremor oscillation
+        Math.sin(ts * 19.7 * Math.PI * 2) * 0.945 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter — Pass 5087: 10.8→14.6 Hz crisper arm tremor oscillation — Pass 5109: arm descent servo hunt frequency 14.6→19.7 Hz crisper pre-pick tremor
         Math.sin(ts * 17.6 * Math.PI * 2) * 0.405 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone
       );
       // Pass 243: terminal servo micro-tap — precision down-push in final 5% of descent
@@ -2861,7 +2861,7 @@ function animate(ts) {
       const _swingEndBounce = st > 0.88 ? 29.6 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0; // Pass 2276: armSwing end bounce 4.86→6.56 — Pass 3176: 6.56→8.86 — Pass 3575: 8.86→12.0 — Pass 3670: 12.0→16.2 — Pass 4190: 16.2→21.9 — Pass 4914: 21.9→29.6 bouncier deposit
       suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 69.4 + _swingEndBounce; // Pass 2277: armSwing Y sag 11.5→15.5 — Pass 3177: 15.5→20.9 — Pass 3576: 20.9→28.2 — Pass 3671: 28.2→38.1 — Pass 4191: 38.1→51.4 — Pass 4915: 51.4→69.4 deeper weight sag
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
-      suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 5.4); // Pass 4646: arm swing vibration damping constant 4→5.4 snappier cup emissive fade during swing
+      suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 7.3); // Pass 4646: arm swing vibration damping constant 4→5.4 snappier cup emissive fade during swing — Pass 5106: arm extension damping 5.4→7.3 snappier cup emissive fade during swing
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
       // Reuses the TRAIL_PARTICLES pool (armSwing and deflect phases don't overlap).
       // Pass 256: spawn density ramp — faster particles at midswing when arm moves fastest
@@ -3052,7 +3052,7 @@ function animate(ts) {
     const _entryBoost = Math.exp(-ct2 * 27.0) * 6.32; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 — Pass 4209: 4.68→6.32 bigger entry flash — Pass 4523: belt entry flash decay rate 20→27.0 snappier entry flash
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
-    const _approachFreq272 = 8 + _approachT * 27; // Pass 4764: approach flicker ramp 20→27 more nervous pre-pick tension
+    const _approachFreq272 = 8 + _approachT * 36.5; // Pass 4764: approach flicker ramp 20→27 more nervous pre-pick tension — Pass 5107: approach flicker ramp 27→36.5 more nervous pre-pick tension
     activeCardMat.emissiveIntensity = 0.74 + _approachT * 2.82 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card
       + _approachT * 3.01 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65 — Pass 3961: 1.65→2.23 — Pass 4214: 2.23→3.01 more vivid approach pulse
       + _approachT * 0.14 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat — Pass 4269: secondary amplitude 0.10→0.14 stronger interference beat
@@ -3158,7 +3158,7 @@ function animate(ts) {
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 — Pass 1514: →dt*2.8 (longer burst visibility)
     if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 1.56); // Pass 1740: burst decay 2.8→2.1 (longer visible burst) — Pass 4278: 2.1→1.56 even longer reveal burst
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
-    const _revOsc = _cardRevealBurst * (2.17 + 1.98 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81 — Pass 1867: →1.19+1.09 — Pass 3935: 1.19+1.09→1.61+1.47 more vivid reveal pulse — Pass 4337: base 1.61→2.17 — Pass 4338: amp 1.47→1.98 stronger reveal oscillation
+    const _revOsc = _cardRevealBurst * (2.93 + 1.98 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81 — Pass 1867: →1.19+1.09 — Pass 3935: 1.19+1.09→1.61+1.47 more vivid reveal pulse — Pass 4337: base 1.61→2.17 — Pass 4338: amp 1.47→1.98 stronger reveal oscillation — Pass 5111: card sort emissive reveal burst base 2.17→2.93 more vivid card reveal warmup
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
     activeCardMat.emissiveIntensity = 0.2 + flashIntensity * 20.4 + _scanStrobe + _revOsc; // Pass 2301: scan card emissive 3.38→4.56 — Pass 3375: 4.56→6.16 — Pass 3412: 6.16→8.32 — Pass 3768: 8.32→11.2 — Pass 3876: 11.2→15.1 — Pass 4370: 15.1→20.4 brighter scan card flash
     // Pass 237/404: reveal glow surge — Pass 602: 3.5→5.5 — Pass 744: 5.5→7.8 and base 2.0→2.5 — Pass 1080: surge 7.8→11.0, base 2.5→3.2, flash 1.8→2.4 — Pass 1210: surge 11.0→15.0 — Pass 1283: surge 15.0→21.0 — Pass 1511: surge →28.0 for bigger identity reveal glow
@@ -4194,7 +4194,7 @@ function animate(ts) {
     // Pass 470: target LED hold-then-snap — holds at 3.5 for first 22%, then snaps to 0.15 quickly
     // Pass 530: sympathetic flash amplitude 0.55→0.75; target LED spike 1.8→2.6 for stronger confirm flash
     // Pass 963: sympathetic flash 0.75→1.20, target spike 2.6→4.0 — Pass 1390: sympath →1.70, target →5.5
-    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 46.3 : 0; // Pass 2119: sympathetic flash 3.11→4.20 — Pass 2616: 4.20→5.67 — Pass 3057: 5.67→7.65 — Pass 3244: 7.65→10.3 — Pass 3596: 10.3→13.9 — Pass 3692: 13.9→18.8 — Pass 3804: 18.8→25.4 — Pass 3904: 25.4→34.3 — Pass 4658: 34.3→46.3 brighter gate LED sympathy flash
+    const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 62.5 : 0; // Pass 2119: sympathetic flash 3.11→4.20 — Pass 2616: 4.20→5.67 — Pass 3057: 5.67→7.65 — Pass 3244: 7.65→10.3 — Pass 3596: 10.3→13.9 — Pass 3692: 13.9→18.8 — Pass 3804: 18.8→25.4 — Pass 3904: 25.4→34.3 — Pass 4658: 34.3→46.3 brighter gate LED sympathy flash — Pass 5105: 46.3→62.5 brighter gate LED sympathy flash
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 60.5 : _sympFlash278; // Pass 2120: target LED spike 10.0→13.5 — Pass 2617: 13.5→18.2 — Pass 3058: 18.2→24.6 — Pass 3570: 24.6→33.2 — Pass 3728: 33.2→44.8 — Pass 4659: 44.8→60.5 brighter target-column LED confirm spike
       const _ledDrop = dt3 < 0.22 ? 4.73 : THREE.MathUtils.lerp(4.73, 0.15, (dt3 - 0.22) / 0.78); // Pass 470 — Pass 4746: LED drop peak 3.5→4.73 brighter slot LED column
