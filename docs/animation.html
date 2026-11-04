@@ -857,7 +857,7 @@ for (let _ri = 0; _ri < 2; _ri++) {
 // --- Scanner hood --- dedicated matte-black material
 const hoodMat = new THREE.MeshStandardMaterial({
   color: 0x111118, roughness: 0.85, metalness: 0.15,
-  emissive: new THREE.Color(0x001122), emissiveIntensity: 0.405 // Pass 4760: scanner hood base emissive 0.3→0.405
+  emissive: new THREE.Color(0x001122), emissiveIntensity: 0.547 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow
 });
 const scannerHood = new THREE.Mesh(new THREE.BoxGeometry(80, 65, 100), hoodMat);
 scannerHood.castShadow = true;
@@ -869,7 +869,7 @@ scene.add(scannerHood);
 const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 27); // Pass 4953: lens radial segments 20→27 smoother camera aperture
 const lensMat = new THREE.MeshStandardMaterial({
   color: 0x001122, roughness: 0.05, metalness: 0.9,
-  emissive: new THREE.Color(0x002244), emissiveIntensity: 0.54 // Pass 4761: camera lens base emissive 0.4→0.54
+  emissive: new THREE.Color(0x002244), emissiveIntensity: 0.729 // Pass 4761: camera lens base emissive 0.4→0.54 — Pass 4969: 0.54→0.729 brighter camera lens aperture
 });
 const lens = new THREE.Mesh(lensGeo, lensMat);
 lens.rotation.x = Math.PI / 2;
@@ -1033,7 +1033,7 @@ scene.add(scanLine2);
   const _nTex = new THREE.CanvasTexture(_nc);
   const _nMat = new THREE.MeshStandardMaterial({
     map: _nTex, roughness: 0.4, metalness: 0.3,
-    emissive: new THREE.Color(0x203060), emissiveIntensity: 0.338, // Pass 4762: scanner nameplate emissive 0.25→0.338
+    emissive: new THREE.Color(0x203060), emissiveIntensity: 0.456, // Pass 4762: scanner nameplate emissive 0.25→0.338 — Pass 4970: 0.338→0.456 more vivid scanner nameplate
   });
   const _nMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 18), _nMat);
   // Front face of scanner hood: hood center is (-40, CONV_Y_TOP+32.5, 0), depth=100, front at Z=+50
@@ -1050,7 +1050,7 @@ scene.add(gateBase);
 // Pass 60: Sort gate column indicator LEDs — 4 small spheres showing destination Z column
 const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x224466, emissive: 0x112233, emissiveIntensity: 0.405, // Pass 4763: gate column LED initial emissive 0.3→0.405
+    color: 0x224466, emissive: 0x112233, emissiveIntensity: 0.547, // Pass 4763: gate column LED initial emissive 0.3→0.405 — Pass 4971: 0.405→0.547 brighter gate column LEDs
     roughness: 0.05, metalness: 0.0,
   });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 10, 10), mat);
@@ -1068,7 +1068,7 @@ scene.add(gateColLight);
 const paddleGeo = new THREE.BoxGeometry(4, 55, 18);
 const paddleMat = new THREE.MeshStandardMaterial({
   color: 0xff6600, roughness: 0.3,
-  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.24 // pass 72: starts low; charges up — Pass 4331: paddle base emissive 0.18→0.24 warmer resting glow
+  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.324 // pass 72: starts low; charges up — Pass 4331: paddle base emissive 0.18→0.24 warmer resting glow — Pass 4972: 0.24→0.324 stronger paddle resting glow
 });
 const paddleMesh = new THREE.Mesh(paddleGeo, paddleMat);
 paddleMesh.castShadow = true;
@@ -1733,7 +1733,7 @@ function addCardToTray(ct) {
   const geo = new THREE.BoxGeometry(CARD_T, TRAY_CARD_H, CARD_W);
   const mat = new THREE.MeshStandardMaterial({
     color: 0xffffff, roughness: 0.18, metalness: 0.0,
-    emissive: ct.hex, emissiveIntensity: 0.338, // Pass 4765: card initial emissive 0.25→0.338
+    emissive: ct.hex, emissiveIntensity: 0.456, // Pass 4765: card initial emissive 0.25→0.338 — Pass 4973: 0.338→0.456 richer tray card base glow
     map: cardTextures[ct.slot]
   });
   const mesh = new THREE.Mesh(geo, mat);
@@ -1808,7 +1808,7 @@ const slotLEDs = [];
 CARD_TYPES.forEach(ct => {
   const geo = new THREE.SphereGeometry(4.05, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators
   const mat = new THREE.MeshStandardMaterial({
-    color: ct.hex, emissive: ct.hex, emissiveIntensity: 1.22, // Pass 4766: slot LED initial emissive 0.9→1.22
+    color: ct.hex, emissive: ct.hex, emissiveIntensity: 1.65, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs
     roughness: 0.2, metalness: 0.0
   });
   const led = new THREE.Mesh(geo, mat);
@@ -1822,7 +1822,7 @@ CARD_TYPES.forEach(ct => {
 // Visible during belt travel; makes domain color unmistakably obvious
 const cardHaloGeo = new THREE.TorusGeometry(42, 2.43, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring
 const cardHaloMat = new THREE.MeshStandardMaterial({
-  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 2.70, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow
+  color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 3.65, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
 });
 const cardHalo = new THREE.Mesh(cardHaloGeo, cardHaloMat);
