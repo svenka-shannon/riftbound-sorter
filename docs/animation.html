@@ -857,7 +857,7 @@ for (let _ri = 0; _ri < 2; _ri++) {
 // --- Scanner hood --- dedicated matte-black material
 const hoodMat = new THREE.MeshStandardMaterial({
   color: 0x111118, roughness: 0.85, metalness: 0.15,
-  emissive: new THREE.Color(0x001122), emissiveIntensity: 0.3
+  emissive: new THREE.Color(0x001122), emissiveIntensity: 0.405 // Pass 4760: scanner hood base emissive 0.3→0.405
 });
 const scannerHood = new THREE.Mesh(new THREE.BoxGeometry(80, 65, 100), hoodMat);
 scannerHood.castShadow = true;
@@ -869,7 +869,7 @@ scene.add(scannerHood);
 const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 20);
 const lensMat = new THREE.MeshStandardMaterial({
   color: 0x001122, roughness: 0.05, metalness: 0.9,
-  emissive: new THREE.Color(0x002244), emissiveIntensity: 0.4
+  emissive: new THREE.Color(0x002244), emissiveIntensity: 0.54 // Pass 4761: camera lens base emissive 0.4→0.54
 });
 const lens = new THREE.Mesh(lensGeo, lensMat);
 lens.rotation.x = Math.PI / 2;
@@ -1033,7 +1033,7 @@ scene.add(scanLine2);
   const _nTex = new THREE.CanvasTexture(_nc);
   const _nMat = new THREE.MeshStandardMaterial({
     map: _nTex, roughness: 0.4, metalness: 0.3,
-    emissive: new THREE.Color(0x203060), emissiveIntensity: 0.25,
+    emissive: new THREE.Color(0x203060), emissiveIntensity: 0.338, // Pass 4762: scanner nameplate emissive 0.25→0.338
   });
   const _nMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 18), _nMat);
   // Front face of scanner hood: hood center is (-40, CONV_Y_TOP+32.5, 0), depth=100, front at Z=+50
@@ -1050,7 +1050,7 @@ scene.add(gateBase);
 // Pass 60: Sort gate column indicator LEDs — 4 small spheres showing destination Z column
 const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x224466, emissive: 0x112233, emissiveIntensity: 0.3,
+    color: 0x224466, emissive: 0x112233, emissiveIntensity: 0.405, // Pass 4763: gate column LED initial emissive 0.3→0.405
     roughness: 0.05, metalness: 0.0,
   });
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(3, 10, 10), mat);
@@ -1134,7 +1134,7 @@ function makeTrayFloor(yBase, colorHex) {
     const capMat = new THREE.MeshStandardMaterial({
       color: capColor,
       emissive: new THREE.Color(capColor),
-      emissiveIntensity: 0.8,
+      emissiveIntensity: 1.08, // Pass 4764: tray floor cap strip emissive 0.8→1.08
       roughness: 0.3,
       metalness: 0.2
     });
@@ -1733,7 +1733,7 @@ function addCardToTray(ct) {
   const geo = new THREE.BoxGeometry(CARD_T, TRAY_CARD_H, CARD_W);
   const mat = new THREE.MeshStandardMaterial({
     color: 0xffffff, roughness: 0.18, metalness: 0.0,
-    emissive: ct.hex, emissiveIntensity: 0.25,
+    emissive: ct.hex, emissiveIntensity: 0.338, // Pass 4765: card initial emissive 0.25→0.338
     map: cardTextures[ct.slot]
   });
   const mesh = new THREE.Mesh(geo, mat);
@@ -1808,7 +1808,7 @@ const slotLEDs = [];
 CARD_TYPES.forEach(ct => {
   const geo = new THREE.SphereGeometry(4.05, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators
   const mat = new THREE.MeshStandardMaterial({
-    color: ct.hex, emissive: ct.hex, emissiveIntensity: 0.9,
+    color: ct.hex, emissive: ct.hex, emissiveIntensity: 1.22, // Pass 4766: slot LED initial emissive 0.9→1.22
     roughness: 0.2, metalness: 0.0
   });
   const led = new THREE.Mesh(geo, mat);
@@ -3848,7 +3848,7 @@ function animate(ts) {
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
     // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 — Pass 1372: →*3.8 for bigger gate approach glow
-    const _coGlowSurge = ot > 0.80 ? 70.3 + (ot - 0.80) / 0.20 * 76.0 : 70.3; // Pass 2366: glow base 6.39→8.63, surge 6.93→9.36 — Pass 2583: 8.63→11.6, 9.36→12.6 — Pass 3023: 11.6→15.7, 12.6→17.0 — Pass 3215: base 15.7→21.2 Pass 3216: surge 17.0→22.9 — Pass 3591: base 21.2→28.6, surge 22.9→30.9 — Pass 3686: base 28.6→38.6 — Pass 3687: surge 30.9→41.7 — Pass 3797: base 38.6→52.1 — Pass 3798: surge 41.7→56.3 — Pass 3900: base 52.1→70.3 — Pass 4688: surge 56.3→76.0 brighter conveyorOut approach glow surge
+    const _coGlowSurge = ot > 0.80 ? 94.9 + (ot - 0.80) / 0.20 * 76.0 : 94.9; // Pass 2366: glow base 6.39→8.63, surge 6.93→9.36 — Pass 2583: 8.63→11.6, 9.36→12.6 — Pass 3023: 11.6→15.7, 12.6→17.0 — Pass 3215: base 15.7→21.2 Pass 3216: surge 17.0→22.9 — Pass 3591: base 21.2→28.6, surge 22.9→30.9 — Pass 3686: base 28.6→38.6 — Pass 3687: surge 30.9→41.7 — Pass 3797: base 38.6→52.1 — Pass 3798: surge 41.7→56.3 — Pass 3900: base 52.1→70.3 — Pass 4688: surge 56.3→76.0 — Pass 4767: base 70.3→94.9 brighter conveyorOut approach glow
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
