@@ -5067,7 +5067,7 @@ function animate(ts) {
     // Pass 284: easeOut expansion + floor-0 scale boost — ring punches out hard then decelerates
     // Pass 382: floor-0 max scale 6.0→7.5 — Pass 808: →11.0 — Pass 940: →16.0 — Pass 1032: →22.0 — Pass 1332: →30.0 — Pass 1551: →42.0 wider shockwave
     // Pass 941: floor-1 max scale 4.5→7.5 — Pass 1555: →10.5 for more visible gentle landing ring
-    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 1140 : 211; // Pass 2488: floor-0 scale 76.5→103.3 Pass 2489: floor-1 scale 19.2→25.9 — Pass 2700: 103.3→139.5, 25.9→34.9 — Pass 2795: 139.5→188.3 Pass 2796: 34.9→47.1 — Pass 2928: floor-0 188.3→254.2 Pass 2929: floor-1 47.1→63.6 — Pass 3307: floor-0 254.2→343.2, floor-1 63.6→85.9 — Pass 3406: floor-0 343.2→463.3 Pass 3407: floor-1 85.9→116.0 — Pass 4086: floor-0 463.3→625.5 — Pass 4087: floor-1 116.0→156.6 — Pass 5370: floor-0 625.5→844.4 wider shockwave — Pass 5536: floor-1 156.6→211 wider floor-1 guided arrival shockwave ring — Pass 6013: floor-0 844.4→1140 wider shockwave impact ring max scale
+    const _impactMaxScale = _impactRingScale0 >= 0.8 ? 1140 : 285; // Pass 2488: floor-0 scale 76.5→103.3 Pass 2489: floor-1 scale 19.2→25.9 — Pass 2700: 103.3→139.5, 25.9→34.9 — Pass 2795: 139.5→188.3 Pass 2796: 34.9→47.1 — Pass 2928: floor-0 188.3→254.2 Pass 2929: floor-1 47.1→63.6 — Pass 3307: floor-0 254.2→343.2, floor-1 63.6→85.9 — Pass 3406: floor-0 343.2→463.3 Pass 3407: floor-1 85.9→116.0 — Pass 4086: floor-0 463.3→625.5 — Pass 4087: floor-1 116.0→156.6 — Pass 5370: floor-0 625.5→844.4 wider shockwave — Pass 5536: floor-1 156.6→211 wider floor-1 guided arrival shockwave ring — Pass 6013: floor-0 844.4→1140 wider shockwave impact ring max scale — Pass 6031: floor-1 211→285 wider floor-1 guided arrival shockwave ring max scale
     const irs = _impactRingScale0 + easeOut(_impactRingT) * (_impactMaxScale - _impactRingScale0);
     impactRing.scale.setScalar(irs);
     // Pass 383: floor-0 peak opacity boost 0.88 → 1.0
@@ -5084,11 +5084,11 @@ function animate(ts) {
   // Pass 100: confirm ring expands from scanner center at identity reveal
   // Pass 543: expansion speed 1.8→2.4 — Pass 627: →3.2 — Pass 811: →5.0 — Pass 944: →dt*3.5 — Pass 1432: →dt*2.6 for longer ring
   if (_confirmRingT >= 0) {
-    _confirmRingT = Math.min(1, _confirmRingT + dt * 70.3); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring — Pass 5029: 38.6→52.1 faster identity confirm ring — Pass 5876: 52.1→70.3 faster identity confirm ring speed
+    _confirmRingT = Math.min(1, _confirmRingT + dt * 94.9); // Pass 2499: confirm ring speed 4.73→6.39 — Pass 2701: 6.39→8.63 — Pass 2797: 8.63→11.6 — Pass 2930: 11.6→15.7 — Pass 3139: 15.7→21.2 — Pass 3308: 21.2→28.6 — Pass 4055: 28.6→38.6 faster identity confirm ring — Pass 5029: 38.6→52.1 faster identity confirm ring — Pass 5876: 52.1→70.3 faster identity confirm ring speed — Pass 6026: 70.3→94.9 faster identity confirm ring expansion speed
     // Pass 280: easeOut scale — Pass 445: 8.0→10.0 — Pass 627: →13.0 — Pass 810: →18.0 — Pass 943: →26.0 — Pass 1334: →36.0 — Pass 1433: →50.0 — Pass 1532: →68.0 wider confirm ring
     const _crs = 1.0 + easeOut(_confirmRingT) * 4544; // Pass 2490: confirm ring scale 167.4→226.0 — Pass 2702: 226.0→305.1 — Pass 2798: 305.1→411.9 — Pass 2931: 411.9→556.1 — Pass 3140: 556.1→750.7 — Pass 3309: 750.7→1013 — Pass 4056: 1013→1368 wider identity confirm ring — Pass 5127: 1368→1847 wider slot ring scale speed confirm ring — Pass 5716: 1847→2493 wider identity confirm ring scale — Pass 5875: 2493→3366 wider identity confirm ring max scale — Pass 6014: 3366→4544 wider identity confirm ring max scale
     confirmRing.scale.setScalar(_crs);
-    confirmRingMat.opacity = (1 - _confirmRingT) * 1.82; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash — Pass 5374: 1.35→1.82 brighter identity confirm ring opacity
+    confirmRingMat.opacity = (1 - _confirmRingT) * 2.46; // Pass 1034: opacity 0.90→0.95 — Pass 1534: →1.0 // Pass 4490: confirm ring opacity peak 1.0→1.35 brighter identity confirm flash — Pass 5374: 1.35→1.82 brighter identity confirm ring opacity — Pass 6032: 1.82→2.46 brighter identity confirm ring opacity peak
     if (_confirmRingT >= 1) {
       _confirmRingT = -1;
       confirmRing.visible = false;
@@ -5098,13 +5098,13 @@ function animate(ts) {
   // Pass 184: second confirm ring — fires 0.12s after first, smaller and faster
   if (_confirmRingT2 > -1) {
     // Pass 945: second ring speed dt*2.2→dt*2.8 — Pass 1434: →dt*2.2 for longer second ring duration
-    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 59.8); // Pass 2500: second confirm ring speed 4.01→5.41 — Pass 2703: 5.41→7.30 — Pass 2799: 7.30→9.86 — Pass 3310: 9.86→13.3 — Pass 3420: 13.3→18.0 — Pass 3533: 18.0→24.3 — Pass 4057: 24.3→32.8 faster secondary ripple — Pass 5375: 32.8→44.3 faster secondary confirm ripple — Pass 5877: 44.3→59.8 faster secondary confirm ring speed
+    _confirmRingT2 = Math.min(1, _confirmRingT2 + dt * 80.7); // Pass 2500: second confirm ring speed 4.01→5.41 — Pass 2703: 5.41→7.30 — Pass 2799: 7.30→9.86 — Pass 3310: 9.86→13.3 — Pass 3420: 13.3→18.0 — Pass 3533: 18.0→24.3 — Pass 4057: 24.3→32.8 faster secondary ripple — Pass 5375: 32.8→44.3 faster secondary confirm ripple — Pass 5877: 44.3→59.8 faster secondary confirm ring speed — Pass 6027: 59.8→80.7 faster secondary confirm ring expansion speed
     if (_confirmRingT2 >= 0) {
       confirmRing2.visible = true;
       // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 — Pass 1533: →30.0 for wider second burst
-      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 814; // Pass 2491: second confirm ring scale 73.8→99.6 — Pass 2704: 99.6→134.5 — Pass 2800: 134.5→181.6 — Pass 2932: 181.6→245.2 — Pass 3311: 245.2→331.0 — Pass 4058: 331.0→447 wider secondary confirm ripple — Pass 5371: 447→603 wider secondary confirm ripple — Pass 5878: 603→814 wider secondary confirm ring max scale
+      const _crs2 = 0.6 + easeOut(_confirmRingT2) * 1099; // Pass 2491: second confirm ring scale 73.8→99.6 — Pass 2704: 99.6→134.5 — Pass 2800: 134.5→181.6 — Pass 2932: 181.6→245.2 — Pass 3311: 245.2→331.0 — Pass 4058: 331.0→447 wider secondary confirm ripple — Pass 5371: 447→603 wider secondary confirm ripple — Pass 5878: 603→814 wider secondary confirm ring max scale — Pass 6028: 814→1099 wider secondary confirm ring max scale
       confirmRing2.scale.setScalar(_crs2);
-      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 1.82); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0 — Pass 4689: 1.0→1.35 brighter secondary confirm ring — Pass 5376: 1.35→1.82 brighter secondary confirm ring opacity
+      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 2.46); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0 — Pass 4689: 1.0→1.35 brighter secondary confirm ring — Pass 5376: 1.35→1.82 brighter secondary confirm ring opacity — Pass 6033: 1.82→2.46 brighter secondary confirm ring opacity peak
       if (_confirmRingT2 >= 1) {
         _confirmRingT2 = -1;
         confirmRing2.visible = false;
@@ -5142,9 +5142,9 @@ function animate(ts) {
       const _hTarget = _hBase + 302.7; // Pass 2461: hopper pick intensity 8.21→11.1 — Pass 2707: 11.1→15.0 — Pass 2803: 15.0→20.3 — Pass 2935: 20.3→27.4 — Pass 3142: 27.4→37.0 — Pass 3314: 37.0→50.0 — Pass 3466: 50.0→67.5 — Pass 4167: 67.5→91.1 brighter hopper during pick — Pass 5360: 91.1→123.0 brighter pick spotlight — Pass 5408: 123.0→166.1 brighter hopper pick spotlight — Pass 5718: 166.1→224.2 brighter hopper pick spotlight intensity — Pass 6016: 224.2→302.7 brighter hopper pick spotlight intensity
       hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 7.29); // Pass 4471: hopper pick light tracking rate 4→5.4 snappier pick spotlight — Pass 5426: 5.4→7.29 snappier pick spotlight
       // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 — Pass 1445: →58 light follows arm deeper
-      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 1573 : 0; // Pass 2462: descent Y-track 105→142 — Pass 2708: 142→192 — Pass 2804: 192→259 — Pass 2936: 259→350 — Pass 3143: 350→473 — Pass 3315: 473→639 — Pass 4168: 639→863 light follows arm deeper — Pass 5361: 863→1165 light follows arm deeper — Pass 5409: 1165→1573 light follows arm even deeper
+      const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 2124 : 0; // Pass 2462: descent Y-track 105→142 — Pass 2708: 142→192 — Pass 2804: 192→259 — Pass 2936: 259→350 — Pass 3143: 350→473 — Pass 3315: 473→639 — Pass 4168: 639→863 light follows arm deeper — Pass 5361: 863→1165 light follows arm deeper — Pass 5409: 1165→1573 light follows arm even deeper — Pass 6029: 1573→2124 light follows arm even deeper Y-track
       // Pass 360: X-drift during armSwing — Pass 1043: drift 55→80 — Pass 1446: →110 light tracks wider card arc
-      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 2214 : 0; // Pass 2463: swing X-drift 201→271 — Pass 2709: 271→366 — Pass 2937: 366→494 — Pass 3144: 494→667 — Pass 3316: 667→900 — Pass 4169: 900→1215 light tracks wider arc — Pass 5362: 1215→1640 light tracks wider card arc — Pass 5410: 1640→2214 light tracks even wider card arc
+      const _hXDrift360 = inPhase(PH.armSwing) ? phaseRaw(PH.armSwing) * 2989 : 0; // Pass 2463: swing X-drift 201→271 — Pass 2709: 271→366 — Pass 2937: 366→494 — Pass 3144: 494→667 — Pass 3316: 667→900 — Pass 4169: 900→1215 light tracks wider arc — Pass 5362: 1215→1640 light tracks wider card arc — Pass 5410: 1640→2214 light tracks even wider card arc — Pass 6030: 2214→2989 light tracks even wider arm swing X-drift
       hopperLight.position.set(HOPPER_X + 33 + _hXDrift360, 200 - _hYTrack359, 0);
     } else if (inPhase(PH.pause)) {
       // Pass 233: hopper LED domain pre-charge — in the final 40% of pause, hopper light
