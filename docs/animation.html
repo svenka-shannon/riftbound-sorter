@@ -4523,7 +4523,7 @@ function animate(ts) {
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
     // Pass 557: armReturn trail spawn interval 0.07→0.05s — Pass 672: →0.038s — Pass 1055: →0.026s denser trail
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.013) { // Pass 2151: armReturn trail interval 0.018→0.013 denser
+    if (_trailSpawnAcc >= 0.0096) { // Pass 2151: armReturn trail interval 0.018→0.013 denser — Pass 4342: 0.013→0.0096 denser return contrail
       _trailSpawnAcc = 0;
       const _aRot = suctionPivot.rotation.z;
       const _aCupX = PIV_X + 83 * Math.sin(_aRot);
@@ -4545,7 +4545,7 @@ function animate(ts) {
         tp.mat.opacity = 1.0 + Math.random() * 0.47; // Pass 1977: mech trail opacity 0.88+0.35→1.0+0.47
       }
       // Pass 867: trail life 0.32+0.12→0.46+0.18 — Pass 1054: →0.62+0.24 — Pass 1506: →0.80+0.32 — Pass 1601: →1.05+0.42 longer-lived contrail
-      tp.age = 0; tp.life = 6.39 + Math.random() * 2.55; // Pass 2152: armReturn trail life 1.42+0.57→1.92+0.77 — Pass 2647: 1.92+0.77→2.59+1.04 — Pass 2878: 2.59+1.04→3.50+1.40 — Pass 3088: 3.50+1.40→4.73+1.89 — Pass 3264: 4.73+1.89→6.39+2.55
+      tp.age = 0; tp.life = 8.63 + Math.random() * 3.44; // Pass 2152: armReturn trail life 1.42+0.57→1.92+0.77 — Pass 2647: 1.92+0.77→2.59+1.04 — Pass 2878: 2.59+1.04→3.50+1.40 — Pass 3088: 3.50+1.40→4.73+1.89 — Pass 3264: 4.73+1.89→6.39+2.55 — Pass 4343: 6.39+2.55→8.63+3.44 longer return contrail
       tp.active = true; tp.mesh.visible = true;
     }
   }
@@ -4561,7 +4561,7 @@ function animate(ts) {
     // domain breath as residual charge dissipates, giving gate a "cooling down" energy feel.
     // Pass 1057: afterglow base 0.08→0.14, amp 0.06→0.12 more visible domain memory — Pass 1603: base 0.14→0.20, amp 0.12→0.18
     {
-      const _pausePulse492 = 1.20 + 1.05 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2)); // Pass 2415: afterglow base 0.36→0.49 Pass 2416: amp 0.32→0.43 — Pass 2650: 0.49→0.66, 0.43→0.58 — Pass 2881/2882: 0.66→0.89, 0.58→0.78 — Pass 3108: 0.89→1.20, 0.78→1.05
+      const _pausePulse492 = 1.62 + 1.42 * Math.abs(Math.sin(ts * 0.4 * Math.PI * 2)); // Pass 2415: afterglow base 0.36→0.49 Pass 2416: amp 0.32→0.43 — Pass 2650: 0.49→0.66, 0.43→0.58 — Pass 2881/2882: 0.66→0.89, 0.58→0.78 — Pass 3108: 0.89→1.20, 0.78→1.05 — Pass 4344: base 1.20→1.62 — Pass 4345: amp 1.05→1.42 richer gate afterglow
       GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
         if (gi === ct.col) {
           gm.color.setHex(ct.hex); gm.emissive.setHex(ct.hex);
@@ -4570,7 +4570,7 @@ function animate(ts) {
       });
     }
     // Pass 246: pause arm hover Y float — soft PID hold oscillation — Pass 1056: ±0.6→±1.4 more visible hover — Pass 1604: →±2.0
-    suctionPivot.position.y = 108 + 22.0 * Math.sin(ts * 0.30 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0
+    suctionPivot.position.y = 108 + 29.7 * Math.sin(ts * 0.30 * Math.PI * 2); // Pass 2417: pause hover amp 3.65→4.93 — Pass 2653: 4.93→6.66 — Pass 2883: 6.66→8.99 — Pass 3091: 8.99→12.1 — Pass 3267: 12.1→16.3 — Pass 3607: 16.3→22.0 — Pass 4346: 22.0→29.7 more dramatic arm hover float
     // Pass 464: pause hood thermal ember — residual heat from scan causes faint 0.4Hz flicker
     // on the scanner hood emissive, as if it's slowly cooling down between cycles. — Pass 1606: 0.04→0.06
     {
@@ -4595,10 +4595,10 @@ function animate(ts) {
     // ~0.35Hz (2.2 rad/s) so one full breath spans ~2.9s (6× the 0.5s pause — natural)
     // Pass 1058: breathing base 0.12→0.20, amp 0.07→0.14 for more visible scanner idle pulse
     {
-      const _breathe = 2.19 + 1.55 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55
+      const _breathe = 2.96 + 2.09 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 brighter standby breathe
       scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 2.5);
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 1.5));
-      hoodMat.emissiveIntensity += (_breathe * 1.89 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2); // Pass 3636: hood breathe multiplier 1.4→1.89
+      hoodMat.emissiveIntensity += (_breathe * 2.55 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 brighter scanner hood idle glow
     }
   }
 
