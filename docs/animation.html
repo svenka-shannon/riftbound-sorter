@@ -3207,7 +3207,7 @@ function animate(ts) {
     // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 — Pass 1237: →2.20 — Pass 1288: →3.00 for even bigger iris pop at reveal
     const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 25.4 : 0; // Pass 2306: iris reveal pulse 5.67→7.65 — Pass 3370: 7.65→10.3 — Pass 3760: 10.3→13.9 — Pass 3868: 13.9→18.8 — Pass 4341: 18.8→25.4 bigger iris flare at reveal
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
-    lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 4));
+    lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 5.4)); // Pass 4816: scan lens emissive color tracking rate 4→5.4
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 — Pass 1374: →19.0 — Pass 1519: →26.0 bigger lens pop
     const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 286 : 0; // Pass 2307: lens reveal spike 35.1→47.4 — Pass 3371: 47.4→64.0 — Pass 3479: 64.0→86.4 — Pass 3545: 86.4→116.6 — Pass 3732: 116.6→157 — Pass 3838: 157→212 — Pass 4156: 212→286 bigger lens spike
     // Pass 793: lens flash base 3.5→4.8 — Pass 1518: →6.5 for brighter scanner lens during scan
@@ -3545,7 +3545,7 @@ function animate(ts) {
           const _cTarget = gi === ct.col ? 198.5 : _nonTargetDim; // Pass 2551: target LED post-reveal 24.3→32.8 — Pass 2843: 32.8→44.3 — Pass 2990: 44.3→59.8 — Pass 3189: 59.8→80.7 — Pass 3763: 80.7→108.9 — Pass 3871: 108.9→147.0 — Pass 4126: 147.0→198.5
           gm.color.setHex(gi === ct.col ? ct.hex : 0x224466);
           gm.emissive.setHex(gi === ct.col ? ct.hex : 0x112233);
-          gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 20);
+          gm.emissiveIntensity += (_cTarget - gm.emissiveIntensity) * Math.min(1, dt * 27); // Pass 4817: post-reveal gate LED tracking rate 20→27
         });
         // Pass 321: target gate LED scale pop at reveal — Pass 402: balloon boost 0.85 → 1.30
         // Pass 546: LED scale pop balloon 1.30→1.70 for bigger LED bloat at reveal
@@ -3577,10 +3577,10 @@ function animate(ts) {
       const _preAimT = Math.min(1, (ft - 0.85) / 0.15); // 0→1 in window after reveal
       // Pass 609: paddle pre-aim coefficient 0.15→0.28 — machine visibly commits to lane post-reveal
       const _preAimAngle = paddleAngleForSlot(ct.slotZ) * 0.93 * _preAimT; // Pass 2558: paddle pre-aim coefficient 0.28→0.38 — Pass 3756: 0.38→0.51 — Pass 3864: 0.51→0.69 — Pass 4132: 0.69→0.93 more committed pre-aim
-      paddlePivot.rotation.y += (_preAimAngle - paddlePivot.rotation.y) * Math.min(1, dt * 2); // accuracy: Y-axis
+      paddlePivot.rotation.y += (_preAimAngle - paddlePivot.rotation.y) * Math.min(1, dt * 2.7); // accuracy: Y-axis — Pass 4818: paddle pre-aim tracking rate 2→2.7
       // Pre-position floor diverter: start moving to target floor during identity reveal
       const _diverterTarget = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
-      _diverterAngle += (_diverterTarget - _diverterAngle) * Math.min(1, dt * 3);
+      _diverterAngle += (_diverterTarget - _diverterAngle) * Math.min(1, dt * 4.05); // Pass 4819: diverter pre-aim tracking rate 3→4.05
       floorDiverterPivot.rotation.z = -_diverterAngle; // negative = far end tilts up
     }
     // ── Scanner beam cone + core column ──
@@ -3740,7 +3740,7 @@ function animate(ts) {
       const _target = _isTarget ? (201 * ot) * _ledUrgencyPulse : 0.1; // Pass 2357: gate LED target max 24.6→33.2 — Pass 2573: 33.2→44.8 — Pass 3011: 44.8→60.5 — Pass 3209: 60.5→81.7 — Pass 3586: 81.7→110.3 — Pass 3681: 110.3→149 — Pass 4732: 149→201 brighter gate approach LED urgency
       gm.color.setHex(_isTarget ? ct.hex : 0x224466);
       gm.emissive.setHex(_isTarget ? ct.hex : 0x112233);
-      gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 6);
+      gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 8.1); // Pass 4820: gate approach LED tracking rate 6→8.1
     });
     // Pass 141: gate column tracking light — colored pool on tray at active LED column
     // Pass 649: column tracking light max 2.5→4.0 — Pass 711: →5.5 — Pass 778: →8.0 — Pass 1142: →11.0 — Pass 1222: →16.0 — Pass 1295: →22.0 — Pass 1369: →30.0 for stronger domain pool
@@ -3806,7 +3806,7 @@ function animate(ts) {
     const _gateFlicker = ot > 0.70
       ? (29.0 * Math.sin(ts * 6 * Math.PI * 2) + 10.3 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 2362: flicker primary 8.75→11.8, secondary 3.11→4.20 — Pass 2580: 11.8→15.9, 4.20→5.67 — Pass 3018: 15.9→21.5, 5.67→7.65 — Pass 4318: 21.5→29.0 — Pass 4319: 7.65→10.3 wilder gate charge flicker
       : 0;
-    paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 8);
+    paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 4821: paddle charge emissive tracking rate 8→10.8
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
     if (ot > 0.26) { // Pass 2075: corona spawn start 0.45→0.35 — Pass 4295: 0.35→0.26 earlier gate corona
       _trailSpawnAcc += dt;
@@ -3840,7 +3840,7 @@ function animate(ts) {
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
     scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 5.4); // Pass 4632: scan cone final alpha fade 4→5.4 faster cone dismiss
-    scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
+    scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 5.4); // Pass 4822: scan beam exit fade rate 4→5.4
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
     // Pass 129: brief acceleration surge emissive at exit start — Pass 953: 0.5→0.9 — Pass 972: →1.4 brighter launch surge
     const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 28.1 : 0; // Pass 2365: exit surge 2.55→3.44 — Pass 2582: 3.44→4.64 — Pass 3022: 4.64→6.26 — Pass 3214: 6.26→8.45 — Pass 3590: 8.45→11.4 — Pass 3685: 11.4→15.4 — Pass 3998: 15.4→20.8 — Pass 4738: 20.8→28.1 stronger ConveyorOut flash
@@ -4032,7 +4032,7 @@ function animate(ts) {
       _paddleJitterAmt *= Math.max(0, 1 - dt * 7.41); // Pass 1579: jitter decay 14→10 longer solenoid buzz — Pass 4282: 10→7.41 even longer solenoid buzz
       paddlePivot.position.z = _paddleJitterAmt * Math.sin(ts * 42 * Math.PI * 2);
     } else {
-      paddlePivot.position.z += (0 - paddlePivot.position.z) * Math.min(1, dt * 10);
+      paddlePivot.position.z += (0 - paddlePivot.position.z) * Math.min(1, dt * 13.5); // Pass 4823: paddle Z spring return rate 10→13.5
     }
     // Pass 60: light up the destination column LED, dim others — Pass 1123: target 3.5→5.2 — Pass 1192: →7.5 brighter destination LED during deflect
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
