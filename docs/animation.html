@@ -909,7 +909,7 @@ scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
 const scanBloom = new THREE.PointLight(0x0088ff, 0, 1348); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach
-scanBloom.decay = 3.65; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff
+scanBloom.decay = 4.93; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff — Pass 5906: 3.65→4.93 tighter scan bloom falloff
 scene.add(scanBloom);
 
 // Pass 55: Scan progress LED bar — thin strip on scanner hood front face
@@ -944,7 +944,7 @@ scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
 const slotSweepLight = new THREE.PointLight(0xffffff, 0, 182); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach — Pass 5708: 135→182 wider slot sweep light reach
-slotSweepLight.decay = 3.65; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff
+slotSweepLight.decay = 4.93; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff — Pass 5907: 3.65→4.93 tighter slot sweep beam falloff
 scene.add(slotSweepLight);
 
 // ─── Scanner beam cone ────────────────────────────────────────────────────────
@@ -1617,7 +1617,7 @@ for (let _gdi = 0; _gdi < 9; _gdi++) {
   const _gdMat = new THREE.MeshBasicMaterial({
     color: 0x00ffcc, transparent: true, opacity: 0,
   });
-  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(3.44, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots
+  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(4.64, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots
   _gdMesh.visible = false;
   scene.add(_gdMesh);
   SCAN_GRID_DOTS.push({ mesh: _gdMesh, mat: _gdMat });
@@ -1739,7 +1739,7 @@ function addCardToTray(ct) {
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
-  const startY  = targetY + 54.7; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5 — Pass 5468: 40.5→54.7 higher slot tray arrival drop height
+  const startY  = targetY + 73.8; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5 — Pass 5468: 40.5→54.7 higher slot tray arrival drop height — Pass 5909: 54.7→73.8 higher slot tray arrival drop height
   const zJitter    = (Math.random() - 0.5) * 6.66;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle — Pass 5423: 4.93→6.66 wider card Z spread during belt idle
   const yRotJitter = (Math.random() - 0.5) * 0.729;  // ±0.365 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter — Pass 5409: 0.540→0.729 wilder slot entry guided arc card tilt range
   mesh.position.set(
@@ -1820,7 +1820,7 @@ CARD_TYPES.forEach(ct => {
 
 // ─── Card halo ring: spinning domain-colored torus around active card ─────────
 // Visible during belt travel; makes domain color unmistakably obvious
-const cardHaloGeo = new THREE.TorusGeometry(42, 4.43, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale
+const cardHaloGeo = new THREE.TorusGeometry(42, 5.98, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring
 const cardHaloMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 6.66, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
@@ -1992,7 +1992,7 @@ function fireCelebration() {
   const _shimmerColors = [0xffffff, 0xffe0a0, 0xf0f0f0, 0xffd070, 0xeeeeee, 0xffc040, 0xe8e8ff, 0xffeebb, 0xffd0a0, 0xffffff, 0xffe880, 0xf8f8ff, 0xffffff, 0xffd0ff, 0xffe0b0, 0xf8ffff, 0xffffd0, 0xffe8b0, 0xf0fff0, 0xffd890, 0xe0e0ff, 0xfff0d0];
   for (let _mi = 0; _mi < 30; _mi++) { // Pass 896: 12→16 shimmer pieces // Pass 4448: 16→22 more shimmer confetti burst — Pass 5021: 22→30 more shimmer confetti burst
     const _mp = CELEB_PARTICLES[(_mi * 3 + 2) % CELEB_COUNT]; // offset slot by 2 to avoid domain overlap
-    _mp.vx = (Math.random() - 0.5) * 930; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread — Pass 5453: 689→930 wider celebration shimmer X spread
+    _mp.vx = (Math.random() - 0.5) * 1256; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread — Pass 5453: 689→930 wider celebration shimmer X spread — Pass 5911: 930→1256 wider celebration shimmer X spread
     _mp.vy = 1265 + Math.random() * 790; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft — Pass 5459: base 694→937 higher celebration shimmer loft — Pass 5460: rand 585→790 higher shimmer loft variance — Pass 5888: base 937→1265 higher celebration shimmer loft base velocity
     _mp.vz = (Math.random() - 0.5) * 494; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 — Pass 4104: 149→201 even wider Z shimmer — Pass 4936: 201→271 wider shimmer Z spread — Pass 5461: 271→366 wider celebration shimmer Z spread — Pass 5894: 366→494 wider celebration shimmer Z velocity spread
     _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*54.7, FLOOR_Y[0] + 85, (Math.random()-0.5)*40); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5 — Pass 5521: 40.5→54.7 wider shimmer confetti X spawn spread
@@ -2104,7 +2104,7 @@ function applySpeed(idx) {
   speedMult = SPEEDS[idx];
   document.getElementById('speed-btn').textContent = speedMult + '× Speed';
   // Baseline belt glow scales with speed
-  beltSurfMat._glowBase = speedMult >= 4 ? 0.554 // Pass 4857: belt high-speed glow base 0.30→0.41 — Pass 5465: 0.41→0.554 brighter belt high-speed surface glow
+  beltSurfMat._glowBase = speedMult >= 4 ? 0.748 // Pass 4857: belt high-speed glow base 0.30→0.41 — Pass 5465: 0.41→0.554 brighter belt high-speed surface glow — Pass 5912: 0.554→0.748 brighter belt high-speed surface glow
                         : speedMult >= 2 ? 0.27 // Pass 4858: belt mid-speed glow base 0.15→0.20 — Pass 5466: 0.20→0.27 brighter belt mid-speed surface glow
                         : 0.0918; // Pass 4859: belt idle glow base 0.05→0.068 — Pass 5467: 0.068→0.0918 brighter belt idle surface glow
   // Pass 87: chromatic aberration + saturation boost on canvas at high speed
@@ -2348,7 +2348,7 @@ function animate(ts) {
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
         // Spike the hopper light for visual emphasis — Pass 1014: 2.5→5.0
-        hopperLight.intensity = 16.6; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash — Pass 4271: 6.75→9.11 even brighter hopper spike — Pass 5027: 9.11→12.3 even brighter hopper spike — Pass 5211: 12.3→16.6 even brighter hopper refill spike
+        hopperLight.intensity = 22.4; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash — Pass 4271: 6.75→9.11 even brighter hopper spike — Pass 5027: 9.11→12.3 even brighter hopper spike — Pass 5211: 12.3→16.6 even brighter hopper refill spike — Pass 5913: 16.6→22.4 even brighter hopper refill spike
         hopperLight.color.set(0xfff0cc);
       }
     }
