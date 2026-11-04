@@ -3824,7 +3824,7 @@ function animate(ts) {
         );
         tp.mat.color.setHex(ct.hex);
         // Pass 489: corona opacity 0.15+0.12→0.22+0.18 — Pass 713: →0.30+0.24 — Pass 951: →0.42+0.32 — Pass 1226: →0.58+0.44 — Pass 1298: →0.75+0.55 — Pass 1562: opacity capped at 1.0
-        tp.mat.opacity = Math.min(1.0, 1.01 + Math.random() * 0.55); // Pass 4767: corona base opacity 0.75→1.01 always-full gate corona
+        tp.mat.opacity = Math.min(1.0, 1.01 + Math.random() * 0.743); // Pass 4767: corona base opacity 0.75→1.01 always-full gate corona — Pass 5763: corona opacity variance 0.55→0.743 wider gate corona opacity burst
         // Pass 952: corona particle life 0.22+0.18→0.30+0.24 — Pass 1563: →0.42+0.32 for longer-lived charge aura
         tp.age = 0; tp.life = 11.4 + Math.random() * 8.63; // Pass 2363: gate corona particle life 0.57+0.43→0.77+0.58 — Pass 2581: 0.77+0.58→1.04+0.78 — Pass 3019: 1.04+0.78→1.40+1.05 — Pass 3213: 1.40+1.05→1.89+1.42 — Pass 3589: 1.89+1.42→2.55+1.92 — Pass 3684: 2.55+1.92→3.44+2.59 — Pass 3795: base 3.44→4.64 — Pass 3796: rand 2.59→3.50 — Pass 3898: base 4.64→6.26 — Pass 3899: rand 3.50→4.73 — Pass 4736: base 6.26→8.45 longer corona aura — Pass 4737: rand 4.73→6.39 — Pass 5531: 8.45+6.39→11.4+8.63 longer gate corona aura
         tp.active = true; tp.mesh.visible = true;
@@ -4310,9 +4310,9 @@ function animate(ts) {
           _lp.vy = 205 + Math.random() * 474; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft — Pass 4621: base 112.3→151.6 bigger landing puff vy spread — Pass 5611: 151.6+351.0→205+474 more explosive slot-impact dust loft
           _lp.vz = Math.sin(_ang) * _spd * 1.82; // Pass 4358: landing dust vz factor 1.0→1.35 deeper Z floor spray — Pass 5620: 1.35→1.82 deeper Z floor spray
           _lp.mat.color.setRGB(
-            Math.min(1, _rr2 / 255 * 0.74 + 0.45), // Pass 4861: lower floor scatter domain tint 0.55→0.74
-            Math.min(1, _gg2 / 255 * 0.74 + 0.45), // Pass 4861: lower floor scatter domain tint 0.55→0.74
-            Math.min(1, _bb2 / 255 * 0.74 + 0.45) // Pass 4861: lower floor scatter domain tint 0.55→0.74
+            Math.min(1, _rr2 / 255 * 1.00 + 0.45), // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint
+            Math.min(1, _gg2 / 255 * 1.00 + 0.45), // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint
+            Math.min(1, _bb2 / 255 * 1.00 + 0.45) // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint
           );
           _landScattered++;
         }
@@ -4832,7 +4832,7 @@ function animate(ts) {
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
     // Pass 996: scan orbit 600→530 for tighter close-up during identity scan, armSwing 680→620 — Pass 1354: scan→470, armSwing→560
-    const orbitRBase = inPhase(PH.scan) ? 419 : inPhase(PH.armSwing) ? 567 : inPhase(PH.deflect) ? 756 : 1130; // Pass 2538: orbit tighten scan 420→310 armSwing 560→420 deflect 700→560 base 750→620 — Pass 4753: scan orbit 310→419 — Pass 4754: armSwing orbit 420→567 — Pass 4755: deflect orbit 560→756 — Pass 4756: base orbit 620→837 — Pass 5720: base orbit 837→1130 wider base camera orbit distance
+    const orbitRBase = inPhase(PH.scan) ? 566 : inPhase(PH.armSwing) ? 765 : inPhase(PH.deflect) ? 1021 : 1130; // Pass 2538: orbit tighten scan 420→310 armSwing 560→420 deflect 700→560 base 750→620 — Pass 4753: scan orbit 310→419 — Pass 4754: armSwing orbit 420→567 — Pass 4755: deflect orbit 560→756 — Pass 4756: base orbit 620→837 — Pass 5720: base orbit 837→1130 wider base camera orbit distance — Pass 5767: scan orbit 419→566 wider scan orbit — Pass 5768: armSwing orbit 567→765 wider arm swing orbit — Pass 5769: deflect orbit 756→1021 wider deflect orbit
     if(!controls._orbitR) controls._orbitR = orbitRBase;
     controls._orbitR += (orbitRBase - controls._orbitR) * 0.0365; // smooth zoom — Pass 4759: orbit smooth rate 0.02→0.027 — Pass 5418: 0.027→0.0365 snappier orbit zoom
     const orbitR = controls._orbitR;
@@ -5135,7 +5135,7 @@ function animate(ts) {
   {
     const pickOn = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing);
     const _depthRatio = (stackTopIdx + 1) / Math.max(1, stackCards.length);
-    const _hBase = 0.41 + _depthRatio * 0.85; // Pass 2465: hopper base full-stack 0.47→0.63 — Pass 4076: 0.63→0.85 brighter hopper light when stack is full — Pass 4391: floor 0.3→0.41 brighter empty-stack base
+    const _hBase = 0.554 + _depthRatio * 1.15; // Pass 2465: hopper base full-stack 0.47→0.63 — Pass 4076: 0.63→0.85 brighter hopper light when stack is full — Pass 4391: floor 0.3→0.41 brighter empty-stack base — Pass 5764: full-stack factor 0.85→1.15 brighter hopper full-stack base — Pass 5765: empty-stack base 0.41→0.554 brighter empty-stack hopper floor
     if (pickOn) {
       hopperLight.color.setHex(ct.hex);
       // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 — Pass 1444: →4.50 brighter during arm cycle
@@ -5154,7 +5154,7 @@ function animate(ts) {
         const _nextCt = CARD_TYPES[(cycleIdx + 1) % CARD_TYPES.length];
         const _preT = (_pauseRaw - 0.60) / 0.40; // 0→1 in last 40% of pause
         // Pass 635: pre-charge tint blend 0.32→0.52 — Pass 1041: →0.75 + intensity delta 0.55→0.90 stronger herald
-        hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 1.01); // Pass 4920: pre-charge tint blend 0.75→1.01 richer domain herald
+        hopperLight.color.lerpColors(new THREE.Color(0xffeedd), new THREE.Color(_nextCt.hex), _preT * 1.36); // Pass 4920: pre-charge tint blend 0.75→1.01 richer domain herald — Pass 5766: 1.01→1.36 richer hopper pre-charge domain herald tint blend
         hopperLight.intensity += (_hBase + _preT * 13.5 - hopperLight.intensity) * Math.min(1, dt * 2.5); // Pass 2464: pre-charge delta 1.65→2.23 — Pass 2710: 2.23→3.01 — Pass 2938: 3.01→4.06 — Pass 3145: 4.06→5.48 — Pass 3627: 5.48→7.40 — Pass 4170: 7.40→9.99 richer domain herald — Pass 5014: 9.99→13.5 brighter pre-charge intensity
       } else {
         hopperLight.color.set(0xffeedd);
