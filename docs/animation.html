@@ -857,7 +857,7 @@ for (let _ri = 0; _ri < 2; _ri++) {
 // --- Scanner hood --- dedicated matte-black material
 const hoodMat = new THREE.MeshStandardMaterial({
   color: 0x111118, roughness: 0.85, metalness: 0.15,
-  emissive: new THREE.Color(0x001122), emissiveIntensity: 0.997 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow — Pass 5051: 0.547→0.738 stronger scanner hood glow — Pass 5129: 0.738→0.997 stronger scanner hood glow
+  emissive: new THREE.Color(0x001122), emissiveIntensity: 1.35 // Pass 4760: scanner hood base emissive 0.3→0.405 — Pass 4968: 0.405→0.547 stronger scanner hood glow — Pass 5051: 0.547→0.738 stronger scanner hood glow — Pass 5129: 0.738→0.997 stronger scanner hood glow — Pass 5706: 0.997→1.35 stronger scanner hood base emissive
 });
 const scannerHood = new THREE.Mesh(new THREE.BoxGeometry(80, 65, 100), hoodMat);
 scannerHood.castShadow = true;
@@ -869,7 +869,7 @@ scene.add(scannerHood);
 const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 27); // Pass 4953: lens radial segments 20→27 smoother camera aperture
 const lensMat = new THREE.MeshStandardMaterial({
   color: 0x001122, roughness: 0.05, metalness: 0.9,
-  emissive: new THREE.Color(0x002244), emissiveIntensity: 0.984 // Pass 4761: camera lens base emissive 0.4→0.54 — Pass 4969: 0.54→0.729 brighter camera lens aperture — Pass 5130: 0.729→0.984 brighter camera lens aperture
+  emissive: new THREE.Color(0x002244), emissiveIntensity: 1.33 // Pass 4761: camera lens base emissive 0.4→0.54 — Pass 4969: 0.54→0.729 brighter camera lens aperture — Pass 5130: 0.729→0.984 brighter camera lens aperture — Pass 5707: 0.984→1.33 brighter camera lens aperture emissive
 });
 const lens = new THREE.Mesh(lensGeo, lensMat);
 lens.rotation.x = Math.PI / 2;
@@ -943,7 +943,7 @@ scanTargetLight.decay = 4.93; // Pass 4809: scan target light decay 2→2.70 tig
 scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
-const slotSweepLight = new THREE.PointLight(0xffffff, 0, 135); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach
+const slotSweepLight = new THREE.PointLight(0xffffff, 0, 182); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach — Pass 5074: 99.9→135 wider slot sweep reach — Pass 5708: 135→182 wider slot sweep light reach
 slotSweepLight.decay = 3.65; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff — Pass 5462: 2.70→3.65 tighter slot sweep beam falloff
 scene.add(slotSweepLight);
 
@@ -1214,7 +1214,7 @@ floorDiverterPivot.position.set(DIVERTER_X, CONV_Y_TOP + 3, 0); // CONV_Y_TOP + 
 scene.add(floorDiverterPivot);
 const diverterFlapMat = new THREE.MeshStandardMaterial({
   color: 0xcc7700, roughness: 0.4, metalness: 0.25,
-  emissive: new THREE.Color(0x441f00), emissiveIntensity: 0.748 // Pass 4044: floor diverter emissive 0.22→0.30 brighter routing flap — Pass 4891: 0.30→0.41 more visible diverter — Pass 5057: 0.41→0.554 more vivid diverter flap glow — Pass 5138: 0.554→0.748 stronger floor diverter emissive ramp
+  emissive: new THREE.Color(0x441f00), emissiveIntensity: 1.01 // Pass 4044: floor diverter emissive 0.22→0.30 brighter routing flap — Pass 4891: 0.30→0.41 more visible diverter — Pass 5057: 0.41→0.554 more vivid diverter flap glow — Pass 5138: 0.554→0.748 stronger floor diverter emissive ramp — Pass 5709: 0.748→1.01 stronger floor diverter emissive glow
 });
 const diverterFlapMesh = new THREE.Mesh(
   new THREE.BoxGeometry(TX_DEP + 6, 4.05, TRAY_Z_HALF * 2), // Pass 4991: diverter flap thickness 3→4.05 chunkier routing flap
@@ -1497,7 +1497,7 @@ scene.add(_shadowMesh);
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
 // Narrow bright band swept across the card face during scan — simulates specular
 // reflection of the scanner beam reading the card surface (X=fullwidth, thin Z=7).
-const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 1.65, 17.2); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band — Pass 5115: Z width 12.76→17.2 wider card Z spread during scan
+const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 2.23, 17.2); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band — Pass 5115: Z width 12.76→17.2 wider card Z spread during scan — Pass 5710: stripe height 1.65→2.23 bolder card shimmer stripe band
 const cardShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false,
 });
@@ -1753,7 +1753,7 @@ function addCardToTray(ct) {
   trayArrivals.push({ mesh, startY, targetY, t: 0, glowAge: 0 });
 
   // Pass 45: pulse ALL existing cards in this slot — "stack reacts to new member" ripple
-  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 2.82; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash — Pass 5134: 2.09→2.82 stronger stack ripple flash
+  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 3.81; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash — Pass 5134: 2.09→2.82 stronger stack ripple flash — Pass 5711: 2.82→3.81 stronger stack ripple emissive flash
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 7.87; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow — Pass 4768: →9.3s even longer afterglow
@@ -2433,7 +2433,7 @@ function animate(ts) {
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61 — Pass 4771: amp 2.17→2.93 richer settled breathing
           mesh.material.emissiveIntensity = 2.55 + 5.35 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing — Pass 5067: base 1.40→1.89 richer settled card glow — Pass 5068: amp 2.93→3.96 richer settled card breathing — Pass 5314: base 1.89→2.55 richer settled card breathe base glow — Pass 5347: amp 3.96→5.35 richer card emissive breathe amplitude
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway — Pass 4772: 0.051→0.069 deeper deck sway
-          const _swayPhase = _globalCardIdx * 4.50; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync — Pass 5077: 2.47→3.33 more organic sway desync — Pass 5155: 3.33→4.50 more organic settled card sway desync
+          const _swayPhase = _globalCardIdx * 6.08; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync — Pass 5077: 2.47→3.33 more organic sway desync — Pass 5155: 3.33→4.50 more organic settled card sway desync — Pass 5712: 4.50→6.08 more organic settled card sway phase desync
           mesh.rotation.z = 0.170 * Math.sin(ts * 0.693 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway — Pass 5069: 0.069→0.093 deeper deck sway — Pass 5156: 0.093→0.126 deeper settled card Z micro-rocking — Pass 5336: 0.126→0.170 deeper settled card Z sway amplitude — Pass 5648: 0.513→0.693 livelier settled card Z sway frequency
         }
         _globalCardIdx++;
@@ -2547,7 +2547,7 @@ function animate(ts) {
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
     const _haloScale332 = beltActive ? 1.0 + 0.363 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5480: 0.269→0.363 bigger card halo breathe rate
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
-    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 4.94 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo — Pass 4951: 2.71→3.66 more dramatic gate slam halo burst — Pass 5198: 3.66→4.94 more dramatic gate slam halo burst
+    const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 6.67 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo — Pass 4951: 2.71→3.66 more dramatic gate slam halo burst — Pass 5198: 3.66→4.94 more dramatic gate slam halo burst — Pass 5713: 4.94→6.67 more dramatic gate slam halo scale burst
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
   }
 
