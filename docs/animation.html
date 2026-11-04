@@ -3834,7 +3834,7 @@ function animate(ts) {
     slotSweepLight.intensity = 0; // pass 81: off during conveyor
     scanBloom.intensity = 0;
     // Pass 165: smooth LED decay from scan peak (~2.0) to idle (1.2) — was hard snap
-    scanLEDMat.emissiveIntensity += (2.96 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96
+    scanLEDMat.emissiveIntensity += (4.00 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
@@ -3842,7 +3842,7 @@ function animate(ts) {
     scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 4);
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
     // Pass 129: brief acceleration surge emissive at exit start — Pass 953: 0.5→0.9 — Pass 972: →1.4 brighter launch surge
-    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 15.4 : 0; // Pass 2365: exit surge 2.55→3.44 — Pass 2582: 3.44→4.64 — Pass 3022: 4.64→6.26 — Pass 3214: 6.26→8.45 — Pass 3590: 8.45→11.4 — Pass 3685: 11.4→15.4
+    const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 20.8 : 0; // Pass 2365: exit surge 2.55→3.44 — Pass 2582: 3.44→4.64 — Pass 3022: 4.64→6.26 — Pass 3214: 6.26→8.45 — Pass 3590: 8.45→11.4 — Pass 3685: 11.4→15.4 — Pass 3998: 15.4→20.8
     activeCardMat.emissiveIntensity = Math.max(0.55 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5);
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
@@ -3971,13 +3971,13 @@ function animate(ts) {
       const _defEntryT = Math.min(1, dt2 / 0.14);
       const _normTilt = THREE.MathUtils.lerp(0, floorTilt, dt2);
       // Pass 763: launch kick 0.28→0.40 — Pass 1186: →0.58 for more dramatic gate-exit nose-up
-      const _launchKick = 4.73 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 2377: launch kick 1.42→1.92 — Pass 2597: 1.92→2.59 — Pass 2858: 2.59→3.50 — Pass 3036: 3.50→4.73
+      const _launchKick = 6.39 * Math.exp(-dt2 * 13) * (1 - _defEntryT); // Pass 2377: launch kick 1.42→1.92 — Pass 2597: 1.92→2.59 — Pass 2858: 2.59→3.50 — Pass 3036: 3.50→4.73 — Pass 4004: 4.73→6.39
       activeCard.rotation.x = THREE.MathUtils.lerp(-0.05, _normTilt, easeOut(_defEntryT)) + _launchKick;
     }
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
     // Pass 317: deflect tumble distance scaling — outer columns tumble harder (steeper deflect angle)
     // Pass 759: tumble base 0.65→0.82 — Pass 1187: →1.15 — Pass 1254: →1.40 for even more dramatic card spin mid-arc
-    const _tumbleAmp = 28.1 + Math.abs(ct.slotZ) / 97.5 * 0.84; // Pass 2378: tumble base 3.44→4.64, scaling 0.46→0.62 — Pass 2598: 4.64→6.26, 0.62→0.84 — Pass 2859: base 6.26→8.45 — Pass 3038: 8.45→11.4 — Pass 3226: 11.4→15.4 — Pass 3392: 15.4→20.8 — Pass 3508: 20.8→28.1
+    const _tumbleAmp = 37.9 + Math.abs(ct.slotZ) / 97.5 * 0.84; // Pass 2378: tumble base 3.44→4.64, scaling 0.46→0.62 — Pass 2598: 4.64→6.26, 0.62→0.84 — Pass 2859: base 6.26→8.45 — Pass 3038: 8.45→11.4 — Pass 3226: 11.4→15.4 — Pass 3392: 15.4→20.8 — Pass 3508: 20.8→28.1 — Pass 3999: 28.1→37.9
     const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
     // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020 — Pass 1188: primary →0.062, secondary →0.032 — Pass 1256: primary →0.082, secondary →0.042 for more flutter micro-wobble
@@ -4002,7 +4002,7 @@ function animate(ts) {
       : THREE.MathUtils.lerp(activeCard.position.z, ct.slotZ, (dt2 - 0.5) / 0.5);
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, _lightZ318);
     // Pass 354: deflect target light easeOut + intensity boost (1.8 → 2.6) — Pass 964: →4.0 — Pass 1191: →6.0
-    scanTargetLight.intensity = easeOut(dt2) * 88.7; // Pass 2382: deflect target light 14.7→19.8 — Pass 2602: 19.8→26.7 — Pass 3041: 26.7→36.1 — Pass 3236: 36.1→48.7 — Pass 3395: 48.7→65.7 — Pass 3460: 65.7→88.7
+    scanTargetLight.intensity = easeOut(dt2) * 120; // Pass 2382: deflect target light 14.7→19.8 — Pass 2602: 19.8→26.7 — Pass 3041: 26.7→36.1 — Pass 3236: 36.1→48.7 — Pass 3395: 48.7→65.7 — Pass 3460: 65.7→88.7 — Pass 4000: 88.7→120
     // Keep gate paddle colored while card is deflecting
     // Pass 248: paddle domain-to-orange afterglow — domain color during peak window, then fades
     // to orange-red after dt2=0.18, giving a visible cool-down transition on the paddle face.
@@ -4139,7 +4139,7 @@ function animate(ts) {
     }
     // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
     // Pass 647: wall lean 0.032→0.055 — Pass 974: →0.082 — Pass 1115: →0.12 for more physical lateral tilt at each wall contact
-    const _wallLean = 0.74 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0); // Pass 2111: wall lean 0.12→0.16 — Pass 2620: 0.16→0.22 — Pass 3050: 0.22→0.30 — Pass 3235: 0.30→0.41 — Pass 3402: 0.41→0.55 — Pass 3447: 0.55→0.74
+    const _wallLean = 1.00 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0); // Pass 2111: wall lean 0.12→0.16 — Pass 2620: 0.16→0.22 — Pass 3050: 0.22→0.30 — Pass 3235: 0.30→0.41 — Pass 3402: 0.41→0.55 — Pass 3447: 0.55→0.74 — Pass 4001: 0.74→1.00
     activeCard.rotation.z = _wallLean;
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
@@ -4156,7 +4156,7 @@ function animate(ts) {
     // Pass 277: floor-0 gravity fall emissive ramp — card face builds toward bounce flash during descent
     // Pass 670: ramp 0.45+(dt3/0.88)*0.62 — Pass 753: →0.35+(dt3/0.88)*0.88 — Pass 977: →0.45+(dt3/0.88)*1.10 — Pass 1110: →0.55+(dt3/0.88)*1.55 — Pass 1197: →0.65+(dt3/0.88)*2.20 — Pass 1404: →0.65+(dt3/0.88)*3.00 — Pass 1547: →0.65+(dt3/0.88)*4.00 brighter fall glow
     if (ct.floor === 0 && dt3 < 0.88) {
-      const _fallRamp = 0.65 + (dt3 / 0.88) * 59.8; // Pass 2114: fall ramp peak 7.29→9.84 — Pass 2611: 9.84→13.3 — Pass 3052: 13.3→18.0 — Pass 3239: 18.0→24.3 — Pass 3403: 24.3→32.8 — Pass 3408: 32.8→44.3 — Pass 3446: 44.3→59.8
+      const _fallRamp = 0.65 + (dt3 / 0.88) * 80.7; // Pass 2114: fall ramp peak 7.29→9.84 — Pass 2611: 9.84→13.3 — Pass 3052: 13.3→18.0 — Pass 3239: 18.0→24.3 — Pass 3403: 24.3→32.8 — Pass 3408: 32.8→44.3 — Pass 3446: 44.3→59.8 — Pass 4002: 59.8→80.7
       activeCardMat.emissiveIntensity = Math.max(activeCardMat.emissiveIntensity || 0, _fallRamp);
     }
     // Fade out over last 20% only
@@ -4174,7 +4174,7 @@ function animate(ts) {
     cardGlow.intensity = THREE.MathUtils.lerp(0.6, 0, dt3) + _glowImpact313;
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     // Pass 979: start from 2.8 — Pass 1550: →4.0 for brighter slot target spotlight at drop entry
-    scanTargetLight.intensity = THREE.MathUtils.lerp(32.9, 0, easeInOut(dt3)); // Pass 2388: slot target spotlight entry 7.3→9.9 — Pass 2614: 9.9→13.4 — Pass 3055: 13.4→18.1 — Pass 3242: 18.1→24.4 — Pass 3483: 24.4→32.9
+    scanTargetLight.intensity = THREE.MathUtils.lerp(44.4, 0, easeInOut(dt3)); // Pass 2388: slot target spotlight entry 7.3→9.9 — Pass 2614: 9.9→13.4 — Pass 3055: 13.4→18.1 — Pass 3242: 18.1→24.4 — Pass 3483: 24.4→32.9 — Pass 4003: 32.9→44.4
     // Pass 81: slot sweep light travels from entrance to back wall as card inserts
     {
       const _sweepX = THREE.MathUtils.lerp(TRAY_X_START + 5, TRAY_X_END - 5, easeInOut(dt3));
