@@ -1760,7 +1760,7 @@ function addCardToTray(ct) {
   _ledCooloff[ct.slot] = 12.6; // Pass 4427: slot LED afterglow 5.1→6.89s longer slot glow — Pass 4768: 6.89→9.3s even longer afterglow — Pass 4998: 9.30→12.6s even longer slot LED afterglow
 
   // Flash point light burst at slot position on card arrival — Pass 394: intensity 3.0→5.0, dist 80→120
-  const flashLight = new THREE.PointLight(ct.hex, 16.6, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst
+  const flashLight = new THREE.PointLight(ct.hex, 22.4, 162); // Pass 4027: slot arrival flash peak 5.0→6.75, range 120→162 — Pass 4935: 6.75→9.11 brighter slot arrival burst — Pass 5031: 9.11→12.3 brighter slot arrival burst — Pass 5110: slot arrival flash peak 12.3→16.6 brighter slot arrival burst — Pass 5255: slot tray arrival flash peak 16.6→22.4 brighter slot arrival burst
   flashLight.position.copy(mesh.position);
   scene.add(flashLight);
   if(!window._flashLights) window._flashLights = [];
@@ -3214,10 +3214,10 @@ function animate(ts) {
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 72.2 + _lensReveal370; // Pass 2315: lens emissive flash contribution 8.78→11.9 — Pass 3384: 11.9→16.1 — Pass 3515: 16.1→21.7 — Pass 3652: 21.7→29.3 — Pass 3983: 29.3→39.6 — Pass 4111: 39.6→53.5 brighter scanner lens — Pass 5254: 53.5→72.2 brighter scanner lens emissive flash
     // Wide bloom soft halo around scanner
     // Pass 239/346: scanBloom reveal surge — Pass 595: 4.5→7.0 — Pass 790: →11.0 — Pass 1082: →16.0 — Pass 1285: →22.0 — Pass 1375: →30.0 — Pass 1522: →40.0 for bigger bloom burst at lock-on
-    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 243 : 0; // Pass 2308: bloom reveal surge 54.0→72.9 — Pass 3372: 72.9→98.4 — Pass 3758: 98.4→133 — Pass 3866: 133→180 — Pass 4123: 180→243 bigger bloom surge
+    const _bloomRevealSurge = _identityRevealed ? Math.exp(-(ft - 0.85) * 12) * 328 : 0; // Pass 2308: bloom reveal surge 54.0→72.9 — Pass 3372: 72.9→98.4 — Pass 3758: 98.4→133 — Pass 3866: 133→180 — Pass 4123: 180→243 bigger bloom surge — Pass 5256: 243→328 bigger bloom reveal surge
     scanBloom.color.setHex(_identityRevealed ? ct.hex : 0x0088ff);
     // Pass 595: bloom base 0.8→1.2 — Pass 791: →1.9 — Pass 1238: →2.8 — Pass 1521: →3.8 for stronger soft scan halo
-    scanBloom.intensity = flashIntensity * 31.1 + _bloomRevealSurge; // Pass 2316: bloom flash contribution 5.13→6.93 — Pass 3385: 6.93→9.36 — Pass 3516: 9.36→12.6 — Pass 3656: 12.6→17.0 — Pass 3984: 17.0→23.0 — Pass 4124: 23.0→31.1 brighter bloom
+    scanBloom.intensity = flashIntensity * 42.0 + _bloomRevealSurge; // Pass 2316: bloom flash contribution 5.13→6.93 — Pass 3385: 6.93→9.36 — Pass 3516: 9.36→12.6 — Pass 3656: 12.6→17.0 — Pass 3984: 17.0→23.0 — Pass 4124: 23.0→31.1 brighter bloom — Pass 5257: 31.1→42.0 brighter bloom flash contribution
     // Pass 347: bloom Z drift toward destination slot after identity reveal — Pass 4068: drift multiplier 0.30→0.41 further bloom Z drift
     const _bloomZ347 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.20) * 0.41 : 0;
     scanBloom.position.set(-40, CONV_Y_TOP + 15, _bloomZ347);
@@ -3255,12 +3255,12 @@ function animate(ts) {
     const _cardCenterZ = activeCard.position.z;
     const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
     // Pass 343: scan beam reveal spike — Pass 575: 4.0→6.5 — Pass 845: →9.5 — Pass 1286: →13.5 — Pass 1422: →18.0 — Pass 1528: →25.0 for stronger beam pop at lock-on
-    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 204 : 0; // Pass 2309: beam reveal spike 33.75→45.6 — Pass 3480: 45.6→61.6 — Pass 3546: 61.6→83.2 — Pass 3659: 83.2→112 — Pass 3985: 112→151 — Pass 4139: 151→204 bigger spike
+    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 275 : 0; // Pass 2309: beam reveal spike 33.75→45.6 — Pass 3480: 45.6→61.6 — Pass 3546: 61.6→83.2 — Pass 3659: 83.2→112 — Pass 3985: 112→151 — Pass 4139: 151→204 bigger spike — Pass 5258: 204→275 bigger beam reveal spike
     // Pass 599: beam base 3.0→4.5 — Pass 844: →6.5 + prox boost 3.5→5.5 — Pass 1423: base →9.0, prox →7.5 — Pass 1529: base →12.0, prox →10.0 for brighter scan lines
-    scanLineMat.emissiveIntensity = 72.8 + _beamProxZ * 60.5 + _beamRevealSpike343; // Pass 2310: beam base 16.2→21.9, Pass 2311: prox boost 13.5→18.2 — Pass 3463: base 21.9→29.6 — Pass 3464: prox boost 18.2→24.6 — Pass 3657: base 29.6→39.9 — Pass 3658: prox 24.6→33.2 — Pass 3986: base 39.9→53.9 — Pass 3987: prox 33.2→44.8 — Pass 4140: base 53.9→72.8 — Pass 4145: prox 44.8→60.5 stronger proximity boost
+    scanLineMat.emissiveIntensity = 98.3 + _beamProxZ * 81.7 + _beamRevealSpike343; // Pass 2310: beam base 16.2→21.9, Pass 2311: prox boost 13.5→18.2 — Pass 3463: base 21.9→29.6 — Pass 3464: prox boost 18.2→24.6 — Pass 3657: base 29.6→39.9 — Pass 3658: prox 24.6→33.2 — Pass 3986: base 39.9→53.9 — Pass 3987: prox 33.2→44.8 — Pass 4140: base 53.9→72.8 — Pass 4145: prox 44.8→60.5 stronger proximity boost — Pass 5259: base 72.8→98.3 — Pass 5260: prox 60.5→81.7 brighter scan beam
     // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5 — Pass 1424: base →7.0, reveal →12.0 — Pass 1530: base →9.5, reveal →17.0
-    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 76.1 : 0; // Pass 2312: beam2 reveal 22.95→30.98 — Pass 3749: 30.98→41.8 — Pass 3857: 41.8→56.4 — Pass 4141: 56.4→76.1
-    scanLineMat2.emissiveIntensity = 42.7 + _beam2Reveal345; // Pass 2313: beam2 base 12.8→17.3 — Pass 3750: 17.3→23.4 — Pass 3858: 23.4→31.6 — Pass 4142: 31.6→42.7 brighter secondary beam
+    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 103 : 0; // Pass 2312: beam2 reveal 22.95→30.98 — Pass 3749: 30.98→41.8 — Pass 3857: 41.8→56.4 — Pass 4141: 56.4→76.1 — Pass 5261: 76.1→103 bigger secondary beam reveal
+    scanLineMat2.emissiveIntensity = 57.6 + _beam2Reveal345; // Pass 2313: beam2 base 12.8→17.3 — Pass 3750: 17.3→23.4 — Pass 3858: 23.4→31.6 — Pass 4142: 31.6→42.7 brighter secondary beam — Pass 5262: 42.7→57.6 brighter secondary scan beam base
     // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 — Pass 1290: →17.0 — Pass 1376: →24.0 — Pass 1531: →33.0 — Pass 1691: →44.0
     const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 197; // Pass 2314: beam reversal flare 59.4→80.2 — Pass 3751: 80.2→108.3 — Pass 3859: 108.3→146.2 — Pass 4143: 146.2→197 bigger reversal flare
     scanLineMat.emissiveIntensity += _revFlare;
