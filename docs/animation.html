@@ -4603,7 +4603,7 @@ function animate(ts) {
   }
 
   // Belt emissive flicker implies motion throughout the cycle (base scales with speed)
-  const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.0918; // Pass 4463: belt idle emissive base 0.05→0.068 stronger belt idle glow — Pass 5665: 0.068→0.0918 stronger belt idle emissive base glow
+  const beltBase = beltSurfMat._glowBase !== undefined ? beltSurfMat._glowBase : 0.124; // Pass 4463: belt idle emissive base 0.05→0.068 stronger belt idle glow — Pass 5665: 0.068→0.0918 stronger belt idle emissive base glow — Pass 6738: 0.0918→0.124 stronger belt idle emissive base glow
   // Pass 143: speed-proportional strobe frequency (3 Hz idle → 9 Hz at full belt speed)
   const _beltStrobeFreq = 7.38 + _beltScrollSpeed * 136; // Pass 4248: belt idle strobe freq 3→4.05 — Pass 4249: speed mult 75→101 busier belt strobe — Pass 5563: 4.05→5.47 busier belt idle strobe frequency — Pass 5668: speed mult 101→136 busier belt speed-proportional strobe — Pass 6559: 5.47→7.38 busier belt idle strobe base frequency
   // Pass 697: belt speed glow amplitude 0.028→0.044 — Pass 928: →0.070 — Pass 1059: →0.10 reactive belt
@@ -4616,9 +4616,9 @@ function animate(ts) {
     if (onBelt) {
       _beltDomainRGB.setHex(ct.hex);
       // Pass 929: belt domain tint blend rate dt*1.8→dt*2.8 for faster color adoption
-      beltSurfMat.emissive.lerp(_beltDomainRGB, Math.min(1, dt * 5.10)); // Pass 4836: belt domain tint tracking rate 2.8→3.78 faster belt color adoption — Pass 5669: 3.78→5.10 faster belt domain tint tracking
+      beltSurfMat.emissive.lerp(_beltDomainRGB, Math.min(1, dt * 6.89)); // Pass 4836: belt domain tint tracking rate 2.8→3.78 faster belt color adoption — Pass 5669: 3.78→5.10 faster belt domain tint tracking — Pass 6739: 5.10→6.89 faster belt domain tint tracking rate
     } else {
-      beltSurfMat.emissive.lerp(_beltBaseRGB, Math.min(1, dt * 1.65)); // Pass 4825: belt idle return color tracking rate 0.9→1.22 — Pass 5670: 1.22→1.65 faster belt idle color return tracking
+      beltSurfMat.emissive.lerp(_beltBaseRGB, Math.min(1, dt * 2.23)); // Pass 4825: belt idle return color tracking rate 0.9→1.22 — Pass 5670: 1.22→1.65 faster belt idle color return tracking — Pass 6740: 1.65→2.23 faster belt idle color return tracking rate
     }
   }
   // Pass 61: Ambient light intensity responds to machine phase for dramatic contrast
@@ -4637,13 +4637,13 @@ function animate(ts) {
     const _deflectAmbBoost323 = inPhase(PH.deflect) ? Math.sin(phaseRaw(PH.deflect) * Math.PI) * 30.8 : 0; // Pass 2424: deflect ambient 1.53→2.07 — Pass 2660: 2.07→2.79 — Pass 2750: 2.79→3.77 — Pass 2891: 3.77→5.09 — Pass 3098: 5.09→6.87 — Pass 3274: 6.87→9.27 — Pass 3352: 9.27→12.5 — Pass 4316: 12.5→16.9 richer ambient during card flight — Pass 5442: 16.9→22.8 richer ambient during card flight — Pass 6383: 22.8→30.8 richer ambient during card flight
     // Pass 324: scan ambient reveal peak — Pass 699: 0.20→0.32 — Pass 925: →0.50 — Pass 1084: →0.72 — Pass 1383: →1.00 — Pass 1611: →1.35
     const _revealAmbBoost324 = (_identityRevealed && inPhase(PH.scan)) ? Math.exp(-(ft - 0.85) * 14) * 49.4 : 0; // Pass 2425: reveal ambient peak 2.46→3.32 — Pass 2661: 3.32→4.48 — Pass 2751: 4.48→6.05 — Pass 2892: 6.05→8.17 — Pass 3099: 8.17→11.0 — Pass 3275: 11.0→14.9 — Pass 3353: 14.9→20.1 — Pass 4633: 20.1→27.1 stronger identity reveal ambient surge — Pass 5636: 27.1→36.6 stronger identity reveal ambient surge — Pass 6563: 36.6→49.4 stronger identity reveal ambient surge peak
-    const _ambTarget = 1.52 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84 — Pass 4284: 0.84→1.13 brighter scene ambient — Pass 5567: 1.13→1.52 brighter scene ambient base
-    ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 9.11); // Pass 4507: ambient tracking rate 5→6.75 snappier slot drop ambient ramp — Pass 5568: 6.75→9.11 snappier ambient intensity tracking
+    const _ambTarget = 2.05 + _scanAmbBoost + _grabBoost + _shakeBoost + _dropAmbBoost + _deflectAmbBoost323 + _revealAmbBoost324; // Pass 1994: ambient base 0.62→0.84 — Pass 4284: 0.84→1.13 brighter scene ambient — Pass 5567: 1.13→1.52 brighter scene ambient base — Pass 6741: 1.52→2.05 brighter scene ambient base
+    ambientLight.intensity += (_ambTarget - ambientLight.intensity) * Math.min(1, dt * 12.3); // Pass 4507: ambient tracking rate 5→6.75 snappier slot drop ambient ramp — Pass 5568: 6.75→9.11 snappier ambient intensity tracking — Pass 6742: 9.11→12.3 snappier ambient intensity tracking rate
     // Tint ambient toward domain color during scan or slotDrop
     if (_scanAmbBoost > 0.02 || _dropAmbBoost > 0.02) {
-      ambientLight.color.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 3.65)); // Pass 4518: slot ambient after landing warmup 2→2.70 snappier slot-drop ambient tint — Pass 5637: 2.70→3.65 snappier slot-drop ambient color warmup
+      ambientLight.color.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 4.93)); // Pass 4518: slot ambient after landing warmup 2→2.70 snappier slot-drop ambient tint — Pass 5637: 2.70→3.65 snappier slot-drop ambient color warmup — Pass 6743: 3.65→4.93 snappier slot-drop ambient color warmup rate
     } else {
-      ambientLight.color.lerp(new THREE.Color(0x202030), Math.min(1, dt * 2.74)); // Pass 4648: slot ambient off-ramp return rate 1.5→2.03 faster domain tint decay — Pass 5638: 2.03→2.74 faster domain ambient color return
+      ambientLight.color.lerp(new THREE.Color(0x202030), Math.min(1, dt * 3.70)); // Pass 4648: slot ambient off-ramp return rate 1.5→2.03 faster domain tint decay — Pass 5638: 2.03→2.74 faster domain ambient color return — Pass 6744: 2.74→3.70 faster domain ambient color return rate
     }
   }
   // Pass 56: Conveyor body sides pulse faintly with domain color while card rides belt
@@ -4658,7 +4658,7 @@ function animate(ts) {
       const _bodyExitEcho = inPhase(PH.conveyorOut) && phaseRaw(PH.conveyorOut) < 0.25
         ? Math.exp(-phaseRaw(PH.conveyorOut) * 14) * 13.6 : 0; // Pass 2427: body exit echo 0.92→1.24 — Pass 2663: 1.24→1.67 — Pass 2753: 1.67→2.25 — Pass 3102: 2.25→3.04 — Pass 3355: 3.04→4.10 — Pass 4381: 4.10→5.54 — Pass 4719: 5.54→7.48 stronger scanner exit echo — Pass 5598: 7.48→10.1 stronger conveyor body scanner exit echo flash — Pass 6696: 10.1→13.6 stronger conveyor body scanner exit echo flash
       // Pass 932: conveyor body base glow 0.08→0.14 — Pass 1454: →0.20, pulse amp 0.08→0.12 for more vivid presence
-      const _bodyTarget = 2.19 + 1.00 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho; // Pass 2435: body base 0.27→0.36, pulse 0.16→0.22 — Pass 2664: 0.36→0.49, 0.22→0.30 — Pass 2754: base 0.49→0.66 Pass 2755: pulse 0.30→0.41 — Pass 3100: base 0.66→0.89, pulse 0.41→0.55 — Pass 4444: base 0.89→1.20 — Pass 4445: pulse 0.55→0.74 richer conveyor body glow — Pass 5599: 1.20→1.62 richer conveyor body emissive base glow — Pass 5600: 0.74→1.00 richer conveyor body emissive pulse amplitude — Pass 5633: 1.62→2.19 richer conveyor body emissive base glow
+      const _bodyTarget = 2.96 + 1.00 * Math.sin(cycleT * 8) + _bodyApproach + _bodyExitEcho; // Pass 2435: body base 0.27→0.36, pulse 0.16→0.22 — Pass 2664: 0.36→0.49, 0.22→0.30 — Pass 2754: base 0.49→0.66 Pass 2755: pulse 0.30→0.41 — Pass 3100: base 0.66→0.89, pulse 0.41→0.55 — Pass 4444: base 0.89→1.20 — Pass 4445: pulse 0.55→0.74 richer conveyor body glow — Pass 5599: 1.20→1.62 richer conveyor body emissive base glow — Pass 5600: 0.74→1.00 richer conveyor body emissive pulse amplitude — Pass 5633: 1.62→2.19 richer conveyor body emissive base glow — Pass 6745: 2.19→2.96 richer conveyor body emissive base glow
       convBodyMat.emissiveIntensity += (_bodyTarget - convBodyMat.emissiveIntensity) * Math.min(1, dt * 7.38); // Pass 4814: conveyor body emissive tracking 3→4.05 snappier body glow — Pass 5639: 4.05→5.47 snappier conveyor body emissive tracking — Pass 6364: 5.47→7.38 snappier conveyor body emissive tracking
     } else {
       convBodyMat.emissiveIntensity += (0 - convBodyMat.emissiveIntensity) * Math.min(1, dt * 4.93); // Pass 4815: conveyor body idle decay 2→2.70 crisper conveyor body fade — Pass 5640: 2.70→3.65 crisper conveyor body idle emissive fade — Pass 6365: 3.65→4.93 crisper conveyor body idle emissive fade
