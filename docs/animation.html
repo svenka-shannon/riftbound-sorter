@@ -5231,7 +5231,7 @@ function animate(ts) {
         _beltTrackLight.position.set(shimmerX, CONV_Y_TOP + 5, 0);
         // Pulse the shimmer brightness — brighter at belt midpoint, softer at ends
         const midT = 1 - Math.abs((_beltIdlePhase % 1) - 0.5) * 2;
-        _beltTrackLight.intensity = 9.11 + midT * 13.2; // Pass 2469: idle shimmer base 1.11→1.50 Pass 2470: peak 1.61→2.17 — Pass 2713: 1.50→2.03, 2.17→2.93 — Pass 2810: 2.03→2.74 Pass 2811: 2.93→3.96 — Pass 2943: 2.74→3.70 Pass 2944: 3.96→5.35 — Pass 3149: base 3.70→5.00 Pass 3150: peak 5.35→7.22 — Pass 3319: 5.00+7.22→6.75+9.75 — Pass 3490: base 6.75→9.11 Pass 3491: peak 9.75→13.2
+        _beltTrackLight.intensity = 12.3 + midT * 17.8; // Pass 2469: idle shimmer base 1.11→1.50 Pass 2470: peak 1.61→2.17 — Pass 2713: 1.50→2.03, 2.17→2.93 — Pass 2810: 2.03→2.74 Pass 2811: 2.93→3.96 — Pass 2943: 2.74→3.70 Pass 2944: 3.96→5.35 — Pass 3149: base 3.70→5.00 Pass 3150: peak 5.35→7.22 — Pass 3319: 5.00+7.22→6.75+9.75 — Pass 3490: base 6.75→9.11 Pass 3491: peak 9.75→13.2 — Pass 4173: base 9.11→12.3 — Pass 4174: peak 13.2→17.8 brighter idle shimmer
       }
     }
   }
@@ -5242,7 +5242,7 @@ function animate(ts) {
     const _onBelt = (inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut))
                      && activeCard.visible;
     // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
-    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 1.20 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20
+    const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 1.62 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20 — Pass 4175: 1.20→1.62 deeper scan shadow pulse
     const _shadowTarget = _onBelt ? 1.0 + _shadowScanPulse : 0; // Pass 2472: shadow opacity 0.93→1.0
     _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 8);
     if (_onBelt) {
@@ -5252,7 +5252,7 @@ function animate(ts) {
       // Pass 198: shadow speed-stretch — shadow elongates forward along belt when card is moving.
       // conveyorIn/Out → stretch up to ~7 extra units; scan (stationary) → compress back to base.
       const _beltMoving = (_onBelt && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)));
-      const _stretchTarget = _beltMoving ? CARD_H * 0.74 + _beltScrollSpeed * 1573 : CARD_H * 0.74; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863 — Pass 3152: 863→1165 — Pass 3321: 1165→1573
+      const _stretchTarget = _beltMoving ? CARD_H * 0.74 + _beltScrollSpeed * 2124 : CARD_H * 0.74; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863 — Pass 3152: 863→1165 — Pass 3321: 1165→1573 — Pass 4176: 1573→2124 more dynamic speed-stretch
       _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 6);
     }
     _shadowMesh.visible = _shadowMat.opacity > 0.01;
@@ -5269,9 +5269,9 @@ function animate(ts) {
     tp.age += dt;
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
-    tp.mesh.position.y += dt * (44.4 + _tt * 65.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6
+    tp.mesh.position.y += dt * (59.9 + _tt * 88.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail
     tp.mat.opacity = (1 - _tt) * 1.19; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth
-    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 6.10)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10
+    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 8.24)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
     // then bleach normally — so the arc trail stays vivid near the arm and fades away.
@@ -5280,7 +5280,7 @@ function animate(ts) {
     } else {
       tp.mat.color.r += (1.0 - tp.mat.color.r) * Math.min(1, dt * 4.43); // Pass 2815: bleach R rate 1.8→2.43 — Pass 3324: 2.43→3.28 — Pass 3498: 3.28→4.43
       tp.mat.color.g += (1.0 - tp.mat.color.g) * Math.min(1, dt * 4.43); // Pass 2815b: bleach G rate 1.8→2.43 — Pass 3325: 2.43→3.28 — Pass 3498b: 3.28→4.43
-      tp.mat.color.b = Math.min(1, tp.mat.color.b + dt * 5.90); // blue channel rises fastest → cool white — Pass 2816: 2.4→3.24 — Pass 3326: 3.24→4.37 — Pass 3499: 4.37→5.90
+      tp.mat.color.b = Math.min(1, tp.mat.color.b + dt * 7.97); // blue channel rises fastest → cool white — Pass 2816: 2.4→3.24 — Pass 3326: 3.24→4.37 — Pass 3499: 4.37→5.90 — Pass 4180: 5.90→7.97 faster cool-white bleed
       if (tp._birthHex) tp._birthHex = undefined; // allow normal bleach in second half
     }
   });
