@@ -2434,7 +2434,7 @@ function animate(ts) {
           mesh.material.emissiveIntensity = 2.55 + 5.35 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing — Pass 5067: base 1.40→1.89 richer settled card glow — Pass 5068: amp 2.93→3.96 richer settled card breathing — Pass 5314: base 1.89→2.55 richer settled card breathe base glow — Pass 5347: amp 3.96→5.35 richer card emissive breathe amplitude
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway — Pass 4772: 0.051→0.069 deeper deck sway
           const _swayPhase = _globalCardIdx * 4.50; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync — Pass 5077: 2.47→3.33 more organic sway desync — Pass 5155: 3.33→4.50 more organic settled card sway desync
-          mesh.rotation.z = 0.170 * Math.sin(ts * 0.513 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway — Pass 5069: 0.069→0.093 deeper deck sway — Pass 5156: 0.093→0.126 deeper settled card Z micro-rocking — Pass 5336: 0.126→0.170 deeper settled card Z sway amplitude
+          mesh.rotation.z = 0.170 * Math.sin(ts * 0.693 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway — Pass 5069: 0.069→0.093 deeper deck sway — Pass 5156: 0.093→0.126 deeper settled card Z micro-rocking — Pass 5336: 0.126→0.170 deeper settled card Z sway amplitude — Pass 5648: 0.513→0.693 livelier settled card Z sway frequency
         }
         _globalCardIdx++;
       });
@@ -4492,7 +4492,7 @@ function animate(ts) {
     // Pass 51: gate paddle smoothly returns to neutral during arm return — no snap
     paddlePivot.rotation.y += (0 - paddlePivot.rotation.y) * Math.min(1, dt * 11.1); // Pass 1973: paddle return 4.5→6.1 — Pass 4074: 6.1→8.24 — Pass 4702: 8.24→11.1 snappier paddle spring-back
     // Return floor diverter to flat (lower floor default) during arm return
-    _diverterAngle += (DIVERTER_FLOOR0 - _diverterAngle) * Math.min(1, dt * 4.05); // Pass 4503: arm return diverter velocity 3→4.05 snappier servo return
+    _diverterAngle += (DIVERTER_FLOOR0 - _diverterAngle) * Math.min(1, dt * 5.47); // Pass 4503: arm return diverter velocity 3→4.05 snappier servo return — Pass 5649: 4.05→5.47 snappier diverter floor servo return
     floorDiverterPivot.rotation.z = -_diverterAngle;
     // Pass 72: decay paddle back to resting orange glow after charge discharge
     paddleMat.emissive.lerp(new THREE.Color(0xff3300), Math.min(1, dt * 5.47)); // Pass 1974: paddle emissive decay 3→4.05 — Pass 4075: 4.05→5.47 faster paddle glow return
@@ -5208,17 +5208,17 @@ function animate(ts) {
       // Pass 322: belt track light boost post-reveal — brighter after identity confirmed
       // Pass 363: conveyorIn target intensity boost (2.2 → 2.8)
       // Pass 494: post-reveal conveyorOut intensity 3.5→4.8 — Pass 654: →6.5 — Pass 1039: →9.5, conveyorIn 2.8→4.5 — Pass 1443: out →13.5, in →6.0
-      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 271.4 : 161.5; // Pass 2468: revealed-out 33.2→44.8 Pass 2468b: in 14.7→19.8 — Pass 2712: 44.8→60.5, 19.8→26.7 — Pass 2807: 60.5→81.7 Pass 2808: 26.7→36.0 — Pass 2941: 81.7→110.3 Pass 2942: 36.0→48.6 — Pass 3148: out 110.3→148.9, in 48.6→65.6 — Pass 3318: 148.9+65.6→201.0+88.6 — Pass 3456: out 201.0→271.4 — Pass 3457: in 88.6→119.6 // Pass 4494: belt active light target 119.6→161.5 brighter card-tracking beam
+      const _bltTarget322 = (_identityRevealed && inPhase(PH.conveyorOut)) ? 271.4 : 218.0; // Pass 2468: revealed-out 33.2→44.8 Pass 2468b: in 14.7→19.8 — Pass 2712: 44.8→60.5, 19.8→26.7 — Pass 2807: 60.5→81.7 Pass 2808: 26.7→36.0 — Pass 2941: 81.7→110.3 Pass 2942: 36.0→48.6 — Pass 3148: out 110.3→148.9, in 48.6→65.6 — Pass 3318: 148.9+65.6→201.0+88.6 — Pass 3456: out 201.0→271.4 — Pass 3457: in 88.6→119.6 // Pass 4494: belt active light target 119.6→161.5 brighter card-tracking beam — Pass 5647: in 161.5→218.0 brighter card-tracking belt light
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 14.7); // Pass 2809: tracking rate 6→8.1 — Pass 4092: 8.1→10.9 crisper belt light snap — Pass 5292: 10.9→14.7 crisper belt light tracking
     } else {
       // Fade card-tracking mode out
       _beltTrackLight.intensity *= 1 - dt * 7.38; // Pass 2812: belt track fade-out rate 3→4.05 — Pass 4035: 4.05→5.47 faster belt track light fade — Pass 5291: 5.47→7.38 faster belt track light fade
-      if (_beltTrackLight.intensity < 0.054) _beltTrackLight.intensity = 0; // Pass 4536: idle belt track light minimum floor 0.04→0.054 brighter idle belt LED floor
+      if (_beltTrackLight.intensity < 0.073) _beltTrackLight.intensity = 0; // Pass 4536: idle belt track light minimum floor 0.04→0.054 brighter idle belt LED floor — Pass 5643: 0.054→0.073 brighter idle belt LED minimum floor
       // Idle shimmer: sweep light back and forth along belt (HOPPER_X → GATE_X)
       const _beltIdle = inPhase(PH.armReturn) || inPhase(PH.pause) ||
                         inPhase(PH.armDescend) || inPhase(PH.armLift);
       if (_beltIdle) {
-        _beltIdlePhase = (_beltIdlePhase + dt * 0.74 * speedMult) % 1; // Pass 361: sweep speed boost 0.38→0.55 — Pass 4034: 0.55→0.74 faster idle belt shimmer sweep
+        _beltIdlePhase = (_beltIdlePhase + dt * 1.00 * speedMult) % 1; // Pass 361: sweep speed boost 0.38→0.55 — Pass 4034: 0.55→0.74 faster idle belt shimmer sweep — Pass 5642: 0.74→1.00 faster idle belt shimmer sweep speed
         const shimmerX = THREE.MathUtils.lerp(HOPPER_X + 10, GATE_X - 10,
                            (Math.sin(_beltIdlePhase * Math.PI * 2) * 0.5 + 0.5));
         // Pass 209: idle shimmer domain echo — during armReturn, the belt briefly remembers
@@ -5228,7 +5228,7 @@ function animate(ts) {
           ? new THREE.Color(ct.hex).lerp(new THREE.Color(0xaaccff), phaseRaw(PH.armReturn)).getHex()
           : 0xaaccff;
         _beltTrackLight.color.setHex(_idleColor);
-        _beltTrackLight.position.set(shimmerX, CONV_Y_TOP + 6.75, 0); // Pass 4581: belt idle shimmer light height 5→6.75 higher belt active light position
+        _beltTrackLight.position.set(shimmerX, CONV_Y_TOP + 9.11, 0); // Pass 4581: belt idle shimmer light height 5→6.75 higher belt active light position — Pass 5644: 6.75→9.11 higher belt idle shimmer light position
         // Pulse the shimmer brightness — brighter at belt midpoint, softer at ends
         const midT = 1 - Math.abs((_beltIdlePhase % 1) - 0.5) * 2;
         _beltTrackLight.intensity = 16.6 + midT * 17.8; // Pass 2469: idle shimmer base 1.11→1.50 Pass 2470: peak 1.61→2.17 — Pass 2713: 1.50→2.03, 2.17→2.93 — Pass 2810: 2.03→2.74 Pass 2811: 2.93→3.96 — Pass 2943: 2.74→3.70 Pass 2944: 3.96→5.35 — Pass 3149: base 3.70→5.00 Pass 3150: peak 5.35→7.22 — Pass 3319: 5.00+7.22→6.75+9.75 — Pass 3490: base 6.75→9.11 Pass 3491: peak 9.75→13.2 — Pass 4173: base 9.11→12.3 — Pass 4174: peak 13.2→17.8 brighter idle shimmer — Pass 5007: base 12.3→16.6 brighter belt idle shimmer base
@@ -5252,7 +5252,7 @@ function animate(ts) {
       // Pass 198: shadow speed-stretch — shadow elongates forward along belt when card is moving.
       // conveyorIn/Out → stretch up to ~7 extra units; scan (stationary) → compress back to base.
       const _beltMoving = (_onBelt && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)));
-      const _stretchTarget = _beltMoving ? CARD_H * 1.00 + _beltScrollSpeed * 2124 : CARD_H * 1.00; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863 — Pass 3152: 863→1165 — Pass 3321: 1165→1573 — Pass 4176: 1573→2124 more dynamic speed-stretch — Pass 4397: base 0.74→1.00 wider card shadow
+      const _stretchTarget = _beltMoving ? CARD_H * 1.00 + _beltScrollSpeed * 2867 : CARD_H * 1.00; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863 — Pass 3152: 863→1165 — Pass 3321: 1165→1573 — Pass 4176: 1573→2124 more dynamic speed-stretch — Pass 4397: base 0.74→1.00 wider card shadow — Pass 5645: speed-stretch belt factor 2124→2867 more dynamic card shadow speed-stretch
       _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 10.9); // Pass 4847: shadow stretch tracking rate 6→8.10 snappier speed-stretch response — Pass 5387: 8.10→10.9 snappier shadow speed-stretch tracking
     }
     _shadowMesh.visible = _shadowMat.opacity > 0.01;
@@ -5362,7 +5362,7 @@ function animate(ts) {
     // Pass 460: edge reveal white flash — at identity lock-on the outline briefly blooms white
     // before settling to domain color. Uses _confirmRingT [0..1] as a proxy timing signal.
     // Pass 628: edge reveal flash window 0.18→0.24 — Pass 1391: →0.34 for longer white bloom at identity lock-on
-    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 1.13) ? (1.0 - _confirmRingT / 1.13) : 0; // Pass 2449: edge reveal window 0.62→0.84 — Pass 4750: 0.84→1.13 longer identity edge reveal flash
+    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 1.53) ? (1.0 - _confirmRingT / 1.53) : 0; // Pass 2449: edge reveal window 0.62→0.84 — Pass 4750: 0.84→1.13 longer identity edge reveal flash — Pass 5646: 1.13→1.53 longer identity edge reveal white bloom flash
     if (_edgeRvl > 0.05) activeCardEdgeMat.color.lerp(new THREE.Color(0xffffff), _edgeRvl);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
