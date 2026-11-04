@@ -4689,14 +4689,14 @@ function animate(ts) {
     const _inApproach = inPhase(PH.conveyorIn) && phaseRaw(PH.conveyorIn) > 0.60;
     if (_inApproach) {
       const _warmT = (phaseRaw(PH.conveyorIn) - 0.60) / 0.40;
-      hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 4.05)); // Pass 4827: hood approach warm-up color tracking 3→4.05
+      hoodMat.emissive.lerp(new THREE.Color(0x003366), Math.min(1, dt * 5.47)); // Pass 4827: hood approach warm-up color tracking 3→4.05 — Pass 5682: 4.05→5.47 snappier scanner hood approach color tracking
       // Pass 693: scanner hood warm-up ceiling 0.28+0.48→0.28+0.62 — Pass 936: →0.28+0.90 — Pass 1088: →0.28+1.30 — Pass 1456: →0.28+1.80 for dramatic heat-up
       const _warmTarget = 0.378 + _warmT * 161.5; // Pass 2428: hood warm-up ceiling 3.28→4.43 — Pass 2666: 4.43→5.98 — Pass 2757: 5.98→8.07 — Pass 2895: 8.07→10.9 — Pass 3104: 10.9→14.7 — Pass 3277: 14.7→19.8 — Pass 3363: 19.8→26.7 — Pass 3501: 26.7→36.0 — Pass 3742: 36.0→48.6 — Pass 3850: 48.6→65.6 — Pass 4386: 65.6→88.6 — Pass 4712: 88.6→119.6 brighter scanner hood warm-up — Pass 4804: warm-up base 0.28→0.378 brighter hood warm-up floor — Pass 5593: 119.6→161.5 brighter scanner hood approach warm-up ceiling
       // Pass 251: scanner hood thermal shimmer — Pass 937: 0.06→0.10 — Pass 1457: →0.14 for more visible heat flicker
       const _hoodShimmer = 23.0 * Math.sin(ts * 17 * Math.PI * 2) * _warmT; // Pass 2429: hood shimmer amp 0.26→0.35 — Pass 2667: 0.35→0.47 — Pass 2758: 0.47→0.63 — Pass 2896: 0.63→0.85 — Pass 3105: 0.85→1.15 — Pass 3278: 1.15→1.55 — Pass 3364: 1.55→2.09 — Pass 3502: 2.09→2.82 — Pass 3743: 2.82→3.81 — Pass 3851: 3.81→5.14 — Pass 4387: 5.14→6.94 — Pass 4713: 6.94→9.37 more vivid hood shimmer — Pass 5460: 9.37→12.6 more vivid scanner hood shimmer amplitude — Pass 5601: 12.6→17.0 more vivid scanner hood approach thermal shimmer — Pass 5630: 17.0→23.0 more vivid pre-pick scan dome ring thermal shimmer amplitude
       hoodMat.emissiveIntensity += (_warmTarget + _hoodShimmer - hoodMat.emissiveIntensity) * Math.min(1, dt * 7.29); // Pass 4791: hood warm-up emissive tracking rate 4→5.40 snappier scanner heat-up response — Pass 5641: 5.40→7.29 snappier scanner hood warm-up emissive tracking
     } else {
-      hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 3.38)); // Pass 4828: hood cooldown color tracking 2.5→3.38
+      hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 4.56)); // Pass 4828: hood cooldown color tracking 2.5→3.38 — Pass 5683: 3.38→4.56 snappier scanner hood cooldown color return
       hoodMat.emissiveIntensity += (0.510 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.5); // Pass 4805: scanner hood idle emissive target 0.28→0.378 warmer scanner cooldown floor — Pass 5143: 0.378→0.510 warmer scanner head idle emissive cooldown floor
     }
     // Pass 80: lens iris closes back to resting size
@@ -4708,13 +4708,13 @@ function animate(ts) {
       lens.scale.x += ((1.0 + _irisOvershoot) - lens.scale.x) * Math.min(1, dt * 13.5); // Pass 4842: iris snap-close scale tracking rate 10→13.5 snappier iris settle
       lens.scale.z = lens.scale.x;
     } else {
-      lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 5.40); // Pass 4843: iris idle X return rate 4→5.40 crisper lens retract
-      lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 5.40); // Pass 4844: iris idle Z return rate 4→5.40 crisper lens retract
+      lens.scale.x += (1.0 - lens.scale.x) * Math.min(1, dt * 7.29); // Pass 4843: iris idle X return rate 4→5.40 crisper lens retract — Pass 5684: 5.40→7.29 crisper iris idle X return
+      lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 7.29); // Pass 4844: iris idle Z return rate 4→5.40 crisper lens retract — Pass 5685: 5.40→7.29 crisper iris idle Z return
     }
-    lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 4.05)); // Pass 4829: lens idle emissive color tracking 3→4.05
+    lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 5.47)); // Pass 4829: lens idle emissive color tracking 3→4.05 — Pass 5686: 4.05→5.47 snappier lens idle emissive color tracking
     lensMat.emissiveIntensity += (14.7 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99 — Pass 2669: 0.99→1.34 — Pass 2760: 1.34→1.81 — Pass 2898: 1.81→2.44 — Pass 3107: 2.44→3.29 — Pass 3280: 3.29→4.44 — Pass 3358: 4.44→5.99 — Pass 4317: 5.99→8.09 — Pass 4715: 8.09→10.9 brighter idle lens glow — Pass 5390: 10.9→14.7 brighter idle lens glow
     // Pass 197: hood settles back to Z=0 after scan ends
-    scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 10.8); // Pass 4845: scanner hood Z return rate 8→10.8 crisper hood retract
+    scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 14.6); // Pass 4845: scanner hood Z return rate 8→10.8 crisper hood retract — Pass 5687: 10.8→14.6 crisper scanner hood Z position return
   }
 
   // Pass 56: Spin rollers proportional to belt scroll speed (synced to smooth ramp from pass 53)
@@ -4737,7 +4737,7 @@ function animate(ts) {
       const _dist = Math.abs(_cardX - _rollerXs[ri]);
       const _prox = Math.max(0, 1 - _dist / 1025); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228 — Pass 3109: 228→308 — Pass 3281: 308→416 — Pass 3359: 416→562 — Pass 4742: 562→759 wider conveyor roller glow range — Pass 5595: 759→1025 wider conveyor roller proximity glow range
       const _targetI = _prox * 76.5;              // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30 — Pass 2762: 9.30→12.6 — Pass 2900: 12.6→17.0 — Pass 3110: 17.0→23.0 — Pass 3282: 23.0→31.1 — Pass 3360: 31.1→42.0 — Pass 4389: 42.0→56.7 brighter conveyor roller proximity glow — Pass 5391: 56.7→76.5 brighter conveyor roller proximity glow
-      rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 6.75)); // Pass 4830: roller domain color tracking rate 5→6.75
+      rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 9.11)); // Pass 4830: roller domain color tracking rate 5→6.75 — Pass 5688: 6.75→9.11 snappier roller domain color adoption
       rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 4465: roller emissive tracking rate 6→8.1 snappier proximity glow — Pass 5576: 8.1→10.9 snappier roller proximity glow tracking
     });
   }
@@ -4766,7 +4766,7 @@ function animate(ts) {
       pos.array[i*3+1] += dustSpeeds[i] * dt * speedMult;       // float upward
       // Pass 187: fix dust X sway — was ts*0.0003 (~5.8h period = completely stationary).
       // Fixed to ts*0.08 (~78s period): slow gentle waft visible over minutes of viewing.
-      pos.array[i*3+0] += Math.sin(ts * 0.08 + dustPhases[i]) * 0.054; // gentle X sway — Pass 4783: dust particle X sway amplitude 0.04→0.054 livelier ambient drift
+      pos.array[i*3+0] += Math.sin(ts * 0.08 + dustPhases[i]) * 0.073; // gentle X sway — Pass 4783: dust particle X sway amplitude 0.04→0.054 livelier ambient drift — Pass 5689: 0.054→0.073 livelier dust particle X sway
       if (pos.array[i*3+1] > 200) {
         // reset to bottom with new random X/Z
         pos.array[i*3+0] = THREE.MathUtils.randFloat(-300, 200);
