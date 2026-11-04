@@ -1497,7 +1497,7 @@ scene.add(_shadowMesh);
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
 // Narrow bright band swept across the card face during scan — simulates specular
 // reflection of the scanner beam reading the card surface (X=fullwidth, thin Z=7).
-const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 2.23, 31.3); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band — Pass 5115: Z width 12.76→17.2 wider card Z spread during scan — Pass 5710: stripe height 1.65→2.23 bolder card shimmer stripe band — Pass 5750: Z width 17.2→23.2 wider card shimmer Z spread during scan — Pass 6312: 23.2→31.3 wider card shimmer Z spread during scan
+const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 2.23, 31.3); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band — Pass 5115: Z width 12.76→17.2 wider card Z spread during scan — Pass 5710: stripe height 1.65→2.23 bolder card shimmer stripe band — Pass 5750: Z width 17.2→23.2 wider card shimmer Z spread during scan — Pass 6320: 23.2→31.3 wider card shimmer Z spread during scan
 const cardShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false,
 });
@@ -2413,7 +2413,7 @@ function animate(ts) {
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9 — Pass 4770: 93.0→126 brighter landing flash
-        a.mesh.material.emissiveIntensity = 0.15 + 420 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash — Pass 4770: emissive 93.0→126 brighter landing flash — Pass 5066: 126→170 brighter landing flash — Pass 5249: slot tray arrival emissive flash peak 170→230 brighter landing pop — Pass 5411: 230→311 brighter card deal slot tray arrival emissive pop — Pass 5997: 311→420 brighter slot tray arrival emissive flash peak
+        a.mesh.material.emissiveIntensity = 0.15 + 567 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash — Pass 4770: emissive 93.0→126 brighter landing flash — Pass 5066: 126→170 brighter landing flash — Pass 5249: slot tray arrival emissive flash peak 170→230 brighter landing pop — Pass 5411: 230→311 brighter card deal slot tray arrival emissive pop — Pass 5997: 311→420 brighter slot tray arrival emissive flash peak — Pass 6324: 420→567 brighter slot tray arrival emissive flash peak
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2637,7 +2637,7 @@ function animate(ts) {
       // Pass 182: servo hunt jitter — was ts*0.055 (114-second period = invisible).
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
-      const jitter = 17.3 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting — Pass 5826: 12.8→17.3 more frantic pre-pick hunting
+      const jitter = 23.4 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting — Pass 5826: 12.8→17.3 more frantic pre-pick hunting — Pass 6325: 17.3→23.4 more frantic pre-pick hunting
         Math.sin(ts * 19.7 * Math.PI * 2) * 7.78 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter — Pass 5087: 10.8→14.6 Hz crisper arm tremor oscillation — Pass 5109: arm descent servo hunt frequency 14.6→19.7 Hz crisper pre-pick tremor — Pass 5319: 0.945→1.28 stronger arm extension tremor primary amplitude — Pass 5399: 1.28→1.73 stronger arm approach jitter buildup primary amplitude — Pass 5520: 1.73→2.34 stronger arm tremor tertiary frequency primary amplitude — Pass 5578: 2.34→3.16 stronger arm descent servo hunt primary amplitude — Pass 5582: 3.16→4.27 stronger arm descent servo hunt primary amplitude — Pass 5611: 4.27→5.76 stronger arm descent servo hunt primary oscillation amplitude — Pass 5619: 5.76→7.78 stronger pre-pick scan arm descent servo hunt primary amplitude
         Math.sin(ts * 17.6 * Math.PI * 2) * 8.17 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone — Pass 5112: 0.405→0.547 richer descent overtone texture — Pass 5254: scanner arm extension descent overtone amp 0.547→0.739 richer arm tremor texture — Pass 5327: 0.739→1.00 richer arm tremor overtone frequency amplitude — Pass 5392: 1.00→1.35 richer arm approach jitter buildup overtone amplitude — Pass 5493: 1.35→1.82 richer arm descent oscillation tertiary overtone secondary amplitude — Pass 5521: 1.82→2.46 richer arm tremor tertiary overtone amplitude — Pass 5579: 2.46→3.32 richer arm descent overtone jitter amplitude — Pass 5583: 3.32→4.48 richer arm descent overtone jitter amplitude — Pass 5612: 4.48→6.05 richer arm descent servo hunt secondary overtone amplitude — Pass 5620: 6.05→8.17 richer pre-pick scan LED Z spread arm descent servo hunt secondary overtone amplitude
       );
@@ -2647,7 +2647,7 @@ function animate(ts) {
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
       // Pass 1125: Z drift peak 2.0→3.2 — Pass 1212: →4.8 — Pass 1309: →6.5 for more visible lateral inertia sway — Pass 3907: 6.5→8.8 deeper lateral swing — Pass 4274: 8.8→11.9 more dramatic lateral sway
-      suctionPivot.position.z = 72.2 * Math.sin(pt * Math.PI) * (1 - pt * 0.95); // Pass 4466: pick suction oscillation decay 0.7→0.95 tighter lateral sway — Pass 5122: 11.9→16.1 more dramatic pick lateral sway — Pass 5157: 16.1→21.7 more dramatic arm descent lateral sway — Pass 5294: arm descent lateral sway 21.7→29.3 more dramatic pick lateral sway — Pass 5328: 29.3→39.6 more dramatic slot entry lateral jitter sway — Pass 5339: 39.6→53.5 more dramatic suction cup descent Z drift — Pass 5413: 53.5→72.2 more dramatic arm rest oscillation suction Z drift
+      suctionPivot.position.z = 97.5 * Math.sin(pt * Math.PI) * (1 - pt * 0.95); // Pass 4466: pick suction oscillation decay 0.7→0.95 tighter lateral sway — Pass 5122: 11.9→16.1 more dramatic pick lateral sway — Pass 5157: 16.1→21.7 more dramatic arm descent lateral sway — Pass 5294: arm descent lateral sway 21.7→29.3 more dramatic pick lateral sway — Pass 5328: 29.3→39.6 more dramatic slot entry lateral jitter sway — Pass 5339: 39.6→53.5 more dramatic suction cup descent Z drift — Pass 5413: 53.5→72.2 more dramatic arm rest oscillation suction Z drift — Pass 6326: 72.2→97.5 more dramatic arm descent lateral sway Z drift
       // Pass 262: pre-pick targeting spotlight — warm downward spot on hopper card in final approach
       if (pt > 0.75) {
         const _pickTgtT = (pt - 0.75) / 0.25;
@@ -2657,7 +2657,7 @@ function animate(ts) {
         // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 — Pass 4063: sine amp 0.52→0.70 more nervous lock-on hunting
         const _lockFlicker = pt > 0.88 ? (0.875 + 1.28 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0; // Pass 4590: rangefinder flicker floor 0.48→0.648 brighter suction lock-on baseline — Pass 5144: 0.648→0.875 brighter suction lock-on baseline — Pass 5786: flicker amplitude 0.70→0.945 more nervous lock-on hunting — Pass 5830: flicker amplitude 0.945→1.28 more nervous lock-on hunting
         // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 — Pass 1310: →7.5 — Pass 1426: →10.5 — Pass 3913: 10.5→14.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight
-        scanTargetLight.intensity = _pickTgtT * 47.3 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker; // Pass 4416: 14.2→19.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight — Pass 5070: 25.9→35.0 brighter lock-on spotlight — Pass 5771: 35.0→47.3 brighter lock-on targeting spotlight
+        scanTargetLight.intensity = _pickTgtT * 63.9 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker; // Pass 4416: 14.2→19.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight — Pass 5070: 25.9→35.0 brighter lock-on spotlight — Pass 5771: 35.0→47.3 brighter lock-on targeting spotlight — Pass 6327: 47.3→63.9 brighter lock-on targeting spotlight
       }
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       // Pass 462: early cup pre-glow — from pt=0.50 the cup begins a faint domain warmup
@@ -2666,7 +2666,7 @@ function animate(ts) {
         const _earlyT = (pt - 0.50) / 0.30; // 0→1 in early warmup window
         suctionCupMat.emissive.setHex(ct.hex);
         // Pass 1315: early vacuum warmup emissive 0.25→0.40 — Pass 3958: 0.40→0.540 more visible vacuum build — Pass 4290: 0.540→0.729 brighter vacuum warmup
-        suctionCupMat.emissiveIntensity += (1.33 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4616: suction cup descent emissive track rate 5→6.75 faster warmup tracking — Pass 5095: vacuum warmup emissive 0.729→0.984 brighter gate pre-glow warmup — Pass 5523: track rate 6.75→9.11 faster suction cup warmup tracking — Pass 5827: vacuum warmup emissive 0.984→1.33 brighter gate pre-glow warmup
+        suctionCupMat.emissiveIntensity += (1.80 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4616: suction cup descent emissive track rate 5→6.75 faster warmup tracking — Pass 5095: vacuum warmup emissive 0.729→0.984 brighter gate pre-glow warmup — Pass 5523: track rate 6.75→9.11 faster suction cup warmup tracking — Pass 5827: vacuum warmup emissive 0.984→1.33 brighter gate pre-glow warmup — Pass 6328: 1.33→1.80 brighter vacuum cup early descent warmup emissive
       }
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
@@ -2732,7 +2732,7 @@ function animate(ts) {
             tp.mat.color.set(0x9aaabb); // cool steel-gray (no domain reveal yet)
           }
           // Pass 883: descent trail opacity 0.22+0.12→0.32+0.18, life 0.20+0.10→0.28+0.14 — Pass 1091: opacity 0.32+0.18→0.48+0.26, life 0.28+0.14→0.40+0.20 — Pass 1494: opacity →0.65+0.35, Pass 1495: life →0.55+0.28 — Pass 1676: opacity →0.80+0.45, Pass 1677: life →0.72+0.36 — Pass 3908: life 0.72+0.36→0.97+0.49 longer arm trail — Pass 4775: opacity 1.08→1.46 brighter descent trail
-          tp.mat.opacity = 3.59 + Math.random() * 0.82; // Pass 4417: arm trail opacity 0.80+0.45→1.08+0.61 brighter descent trail — Pass 4775: opacity 1.08→1.46 brighter descent trail — Pass 5125: 1.46→1.97 brighter arm descent trail — Pass 5776: 1.97→2.66 brighter arm descent contrail opacity — Pass 5834: 2.66→3.59 brighter arm descent contrail opacity
+          tp.mat.opacity = 4.85 + Math.random() * 1.11; // Pass 4417: arm trail opacity 0.80+0.45→1.08+0.61 brighter descent trail — Pass 4775: opacity 1.08→1.46 brighter descent trail — Pass 5125: 1.46→1.97 brighter arm descent trail — Pass 5776: 1.97→2.66 brighter arm descent contrail opacity — Pass 5834: 2.66→3.59 brighter arm descent contrail opacity — Pass 6329: base 3.59→4.85 rand 0.82→1.11 brighter arm descent contrail opacity
           tp.age = 0; tp.life = 3.23 + Math.random() * 0.89; // Pass 4418: arm trail life 0.97+0.49→1.31+0.66 longer descent trail — Pass 5077: 1.31→1.77 longer descent trail — Pass 5777: 1.77→2.39 longer arm descent contrail particle lifetime — Pass 5835: 2.39→3.23 longer arm descent contrail particle lifetime
           tp.active = true; tp.mesh.visible = true;
         }
@@ -3269,7 +3269,7 @@ function animate(ts) {
     // Pass 848: reversal flash intensity 5.5→9.0 — Pass 1690: →12.0, dist 80→110 — Pass 4005: 12.0→16.2 brighter beam direction-flip flash
     if (!_beamReversalFlashFired && ft >= 0.50 && !_identityRevealed) {
       _beamReversalFlashFired = true;
-      const _brfl = new THREE.PointLight(0xaaddff, 40.0, 149); // Pass 4005: beam reversal flash 12.0→16.2 — Pass 5365: intensity 16.2→21.9, range 110→149 brighter beam reversal flash — Pass 5840: 21.9→29.6 brighter beam direction-flip flash — Pass 5829: 29.6→40.0 brighter beam reversal flash
+      const _brfl = new THREE.PointLight(0xaaddff, 54.0, 149); // Pass 4005: beam reversal flash 12.0→16.2 — Pass 5365: intensity 16.2→21.9, range 110→149 brighter beam reversal flash — Pass 5840: 21.9→29.6 brighter beam direction-flip flash — Pass 5829: 29.6→40.0 brighter beam reversal flash — Pass 6330: 40.0→54.0 brighter beam reversal direction-flip flash
       _brfl.position.set(-40, CONV_Y_TOP + 20, 0);
       scene.add(_brfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3481,7 +3481,7 @@ function animate(ts) {
       const _exColor = ft < 0.85 ? 0xccddff : ct.hex;
       tp.mat.color.setHex(_exColor); // pre-confirm: cool blue-white; post-confirm: domain
       // Pass 723: exhaust opacity 0.18+0.15→0.26+0.20 — Pass 843: →0.40+0.32 — Pass 1328: →0.55+0.42 for more vivid scanner exhaust
-      tp.mat.opacity = 8.17 + Math.random() * 6.26; // Pass 2542: exhaust opacity 0.55+0.42→0.74+0.57 — Pass 2982: 0.74+0.57→1.00+0.77 — Pass 3181: 1.00+0.77→1.35+1.04 — Pass 3578: 1.35+1.04→1.82+1.40 — Pass 3673: 1.82+1.40→2.46+1.89 — Pass 4238: base 2.46→3.32 — Pass 4239: rand 1.89→2.55 brighter scanner exhaust — Pass 5294: base 3.32→4.48 — Pass 5295: rand 2.55→3.44 brighter scanner exhaust plume — Pass 6210: base 4.48→6.05, rand 3.44→4.64 brighter scanner exhaust opacity — Pass 6311: base 6.05→8.17 rand 4.64→6.26 brighter scanner exhaust plume opacity
+      tp.mat.opacity = 8.17 + Math.random() * 6.26; // Pass 2542: exhaust opacity 0.55+0.42→0.74+0.57 — Pass 2982: 0.74+0.57→1.00+0.77 — Pass 3181: 1.00+0.77→1.35+1.04 — Pass 3578: 1.35+1.04→1.82+1.40 — Pass 3673: 1.82+1.40→2.46+1.89 — Pass 4238: base 2.46→3.32 — Pass 4239: rand 1.89→2.55 brighter scanner exhaust — Pass 5294: base 3.32→4.48 — Pass 5295: rand 2.55→3.44 brighter scanner exhaust plume — Pass 6210: base 4.48→6.05, rand 3.44→4.64 brighter scanner exhaust opacity — Pass 6319: base 6.05→8.17 rand 4.64→6.26 brighter scanner exhaust plume opacity
       tp.age = 0; tp.life = 6.05 + Math.random() * 4.44; // Pass 2543: exhaust life 0.55+0.40→0.74+0.54 — Pass 2983: 0.74+0.54→1.00+0.73 — Pass 3182: 1.00+0.73→1.35+0.99 — Pass 3765: base 1.35→1.82 — Pass 3766: rand 0.99→1.34 — Pass 3873: base 1.82→2.46 — Pass 3874: rand 1.34→1.81 — Pass 4240: base 2.46→3.32 — Pass 4241: rand 1.81→2.44 longer exhaust particles — Pass 5296: base 3.32→4.48 — Pass 5297: rand 2.44→3.29 longer scanner exhaust — Pass 6211: base 4.48→6.05, rand 3.29→4.44 longer scanner exhaust life
       tp.active = true; tp.mesh.visible = true;
     }
@@ -3623,7 +3623,7 @@ function animate(ts) {
       const arcMid   = new THREE.Vector3(
         (arcStart.x + arcEnd.x) / 2 + 18.2, // Pass 4572: routing arc X midpoint bias 10→13.5 deeper slot arc lean — Pass 5491: 13.5→18.2 deeper routing arc X lean
         // Pass 685: route arc loft 55→68 for more dramatic predicted-path arc — Pass 4077: 68→91.8 taller arc
-        Math.max(arcStart.y, arcEnd.y) + 225,  // loft the arc well above the machine — Pass 4919: route arc loft 91.8→124 higher predicted-path arc — Pass 5579: 124→167 higher predicted-path arc loft — Pass 5833: 167→225 higher predicted-path arc loft
+        Math.max(arcStart.y, arcEnd.y) + 304,  // loft the arc well above the machine — Pass 4919: route arc loft 91.8→124 higher predicted-path arc — Pass 5579: 124→167 higher predicted-path arc loft — Pass 5833: 167→225 higher predicted-path arc loft — Pass 6331: 225→304 higher predicted-path arc loft
         arcEnd.z * _arcZBias305                // bias midpoint toward destination Z
       );
       const arcPts = routeArcGeo.attributes.position.array;
