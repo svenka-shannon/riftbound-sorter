@@ -2757,7 +2757,7 @@ function animate(ts) {
         vacuumRingMat.opacity = Math.min(1, Math.sin(_vt * Math.PI) * 3.16 + _vacSurge); // Pass 1092: opacity 0.75→0.95 — Pass 4070: 0.95→1.28 wider full-opacity window — Pass 5179: 1.28→1.73 wider vacuum ring full-opacity window — Pass 6004: 1.73→2.34 wider vacuum ring opacity window — Pass 6626: 2.34→3.16 wider vacuum ring full-opacity window
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
         // Pass 1250: elongation scale 0.55→0.82 — Pass 1275: →1.10 — Pass 1360: →1.50 — Pass 1680: →2.00
-        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 22.0), _vacBaseScale); // Pass 2268: ring Y elongation 2.70→3.65 — Pass 3917: 3.65→4.93 deeper suction pull — Pass 4276: 4.93→6.66 more dramatic vacuum stretch — Pass 4901: 6.66→8.99 deeper suction elongation — Pass 5177: 8.99→12.1 deeper ring stretch at surge — Pass 6005: 12.1→16.3 deeper vacuum ring Y stretch at surge — Pass 7021: 16.3→22.0 deeper vacuum ring Y stretch at surge
+        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 29.7), _vacBaseScale); // Pass 2268: ring Y elongation 2.70→3.65 — Pass 3917: 3.65→4.93 deeper suction pull — Pass 4276: 4.93→6.66 more dramatic vacuum stretch — Pass 4901: 6.66→8.99 deeper suction elongation — Pass 5177: 8.99→12.1 deeper ring stretch at surge — Pass 6005: 12.1→16.3 deeper vacuum ring Y stretch at surge — Pass 7021: 16.3→22.0 deeper vacuum ring Y stretch at surge — Pass 7338: 22.0→29.7 deeper vacuum ring Y stretch at surge
       } else {
         vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       }
