@@ -3299,7 +3299,7 @@ function animate(ts) {
           // Pass 292: lock-in X jitter — Pass 578: 0.38→0.65 — Pass 706: →0.90 — Pass 1138: →1.30 — Pass 1241: →1.90 — Pass 1318: →2.60 — Pass 1694: →3.50
           const _dotLockJitter = _identityRevealed && ft < 0.91 ? 15.7 * Math.sin(ts * 24 * Math.PI * 2) * Math.exp(-(ft - 0.85) / 0.022) : 0; // Pass 2534: dot lock jitter 3.50→4.73 — Pass 3556: 4.73→6.39 — Pass 3718: 6.39→8.63 — Pass 3828: 8.63→11.6 — Pass 4147: 11.6→15.7 wilder lock jitter
           // Pass 366: post-reveal dots Z drift toward destination slot — Pass 1699: 0.20→0.28
-          const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.28 : 0;
+          const _dotZ366 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.12) * 0.378 : 0; // Pass 4302: scan dot Z drift 0.28→0.378 deeper slot lean
           mesh.position.set(
             activeCard.position.x + SCAN_DOT_OFFSETS[di].x + _dotLockJitter,
             CONV_Y_TOP + CARD_T + 3.5 + _dotFloat,
@@ -3908,7 +3908,7 @@ function animate(ts) {
       _paddleJitterAmt = 10.9; // Pass 2108: solenoid jitter 2.43→3.28 — Pass 2590: 3.28→4.43 — Pass 2851: 4.43→5.98 — Pass 3755: 5.98→8.07 — Pass 3863: 8.07→10.9
       // Pass 223: gate impact card Z-kick — brief lateral rotation impulse in the deflect direction
       // decays into the normal tumble over ~0.12s, simulating the paddle "whacking" the card sideways.
-      _gateZKick = bankSign * 2.46; // Pass 2085: gate Z-kick 0.74→1.00 — Pass 2604: 1.00→1.35 — Pass 2852: 1.35→1.82 — Pass 3029: 1.82→2.46
+      _gateZKick = bankSign * 3.32; // Pass 2085: gate Z-kick 0.74→1.00 — Pass 2604: 1.00→1.35 — Pass 2852: 1.35→1.82 — Pass 3029: 1.82→2.46 — Pass 4307: 2.46→3.32 harder deflect kick
       // Pass 92: gate impact sparks — micro-burst from paddle contact point
       {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
@@ -3918,7 +3918,7 @@ function animate(ts) {
           const _sp = GRAB_PARTICLES[_si];
           if (_sp.active) continue;
           // Pass 922: gate spark life 0.28+0.22→0.38+0.28 for longer-lived sparks
-          _sp.active = true; _sp.age = 0; _sp.life = 0.93 + Math.random() * 0.69; // Pass 1814: gate spark life 0.38+0.28→0.51+0.38 — Pass 2591: 0.51+0.38→0.69+0.51 — Pass 3044: 0.69+0.51→0.93+0.69
+          _sp.active = true; _sp.age = 0; _sp.life = 1.26 + Math.random() * 0.93; // Pass 1814: gate spark life 0.38+0.28→0.51+0.38 — Pass 2591: 0.51+0.38→0.69+0.51 — Pass 3044: 0.69+0.51→0.93+0.69 — Pass 4308: base 0.93→1.26 — Pass 4309: rand 0.69→0.93 longer gate sparks
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
@@ -4118,7 +4118,7 @@ function animate(ts) {
     // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
     // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
     // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 — Pass 1114: primary 5.5→7.5, secondary 1.5→2.2 — Pass 1200: primary →10.5, secondary →3.2 — Pass 1258: primary →13.5, secondary →4.2 — Pass 1408: primary →18.0, secondary →5.6 for even more pronounced slot wall bounce
-    const _slotWallZ = ct.slotZ + (147.0 * Math.sin(dt3 * Math.PI * 4) + 45.8 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4); // Pass 2109: wall Z primary 32.8→44.3 Pass 2110: secondary 10.2→13.8 — Pass 2610: 44.3→59.8, 13.8→18.6 — Pass 3048: 59.8→80.7 Pass 3049: 18.6→25.1 — Pass 3233: 80.7→108.9 Pass 3234: 25.1→33.9 — Pass 3400: 108.9→147.0 Pass 3401: 33.9→45.8
+    const _slotWallZ = ct.slotZ + (198.5 * Math.sin(dt3 * Math.PI * 4) + 61.8 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4); // Pass 2109: wall Z primary 32.8→44.3 Pass 2110: secondary 10.2→13.8 — Pass 2610: 44.3→59.8, 13.8→18.6 — Pass 3048: 59.8→80.7 Pass 3049: 18.6→25.1 — Pass 3233: 80.7→108.9 Pass 3234: 25.1→33.9 — Pass 3400: 108.9→147.0 Pass 3401: 33.9→45.8 — Pass 4303: primary 147.0→198.5 — Pass 4304: secondary 45.8→61.8 wilder slot wall bounce
     activeCard.position.set(TRAY_X_START + 20, cy, _slotWallZ);
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
@@ -4374,7 +4374,7 @@ function animate(ts) {
         _ral.classList.add('reject-alarm-on');
       }
       // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90 — Pass 1397: amber →20.0/200, red →10.0/120
-      [[0xff6600, 163.9, 200], [0xff1a00, 81.7, 120]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5 — Pass 4005: amber 121.4→163.9 — Pass 4006: red 60.5→81.7
+      [[0xff6600, 163.9, 270], [0xff1a00, 81.7, 162]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5 — Pass 4005: amber 121.4→163.9 — Pass 4006: red 60.5→81.7 — Pass 4305: amber dist 200→270 — Pass 4306: red dist 120→162 wider reject alarm reach
         const _wl = new THREE.PointLight(c, i, d);
         _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 8 : -8));
         scene.add(_wl);
