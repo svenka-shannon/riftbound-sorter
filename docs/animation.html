@@ -1741,7 +1741,7 @@ function addCardToTray(ct) {
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 40.5; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5
   const zJitter    = (Math.random() - 0.5) * 3.65;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread
-  const yRotJitter = (Math.random() - 0.5) * 0.219;  // ±0.110 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle
+  const yRotJitter = (Math.random() - 0.5) * 0.296;  // ±0.148 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter
   mesh.position.set(
     TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
     startY,
@@ -2666,7 +2666,7 @@ function animate(ts) {
         const _earlyT = (pt - 0.50) / 0.30; // 0→1 in early warmup window
         suctionCupMat.emissive.setHex(ct.hex);
         // Pass 1315: early vacuum warmup emissive 0.25→0.40 — Pass 3958: 0.40→0.540 more visible vacuum build — Pass 4290: 0.540→0.729 brighter vacuum warmup
-        suctionCupMat.emissiveIntensity += (0.729 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 6.75); // Pass 4616: suction cup descent emissive track rate 5→6.75 faster warmup tracking
+        suctionCupMat.emissiveIntensity += (0.984 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 6.75); // Pass 4616: suction cup descent emissive track rate 5→6.75 faster warmup tracking — Pass 5095: vacuum warmup emissive 0.729→0.984 brighter gate pre-glow warmup
       }
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
@@ -3028,7 +3028,7 @@ function animate(ts) {
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.068); // Pass 4855: belt wobble fade-in window 0.05→0.068 softer wobble entry
     const _wobbleFadeOut = Math.max(0, 1 - Math.max(0, (ct2 - 0.90) / 0.10));
-    const _beltWobbleZ = (18.9 * Math.sin(ts * 4.7 * Math.PI * 2) + 5.82 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave
+    const _beltWobbleZ = (25.5 * Math.sin(ts * 4.7 * Math.PI * 2) + 5.82 * Math.sin(ts * 6.3 * Math.PI * 2 + 0.8)) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2289: belt wobble Z primary 7.7→10.4, secondary 2.36→3.19 — Pass 3929: 10.4+3.19→14.0+4.31 — Pass 4207: primary 14.0→18.9 — Pass 4211: secondary 4.31→5.82 more vivid belt weave — Pass 5089: primary 18.9→25.5 deeper card belt Z weave
     // Pass 254: belt Y micro-bump — Pass 483: 14→22Hz — Pass 638: 0.15→0.22 — Pass 873: →0.35 — Pass 1144: →0.55 — Pass 1205: →0.80 — Pass 1302: →1.10 for more tactile belt feel — Pass 1585: →1.50
     const _beltYBump = 5.00 * Math.sin(ts * 29.7 * Math.PI * 2) * _wobbleFadeIn * _wobbleFadeOut; // Pass 2290: belt Y micro-bump 2.03→2.74 — Pass 3930: 2.74→3.70 — Pass 4208: 3.70→5.00 more tactile belt feel — Pass 4505: belt Y micro-bump freq 22→29.7 livelier tactile bump
     activeCard.position.set(cx, CONV_Y_TOP + CARD_T/2 + 2.70 + _settleY + _beltYBump, _beltWobbleZ); // Pass 4542: card-on-belt height above belt surface 2→2.70 higher card float
@@ -3180,7 +3180,7 @@ function animate(ts) {
       scanLEDMat.emissive.setHex(0x0055cc);
     }
     // Pass 74/438: scanner hood deep pulse — Pass 438: domain lerp dt*2→dt*3, flashIntensity 0.8→1.2
-    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 3 + flashIntensity * 1.62)); // Pass 4796: scanner hood emissive lerp flash contribution 1.2→1.62
+    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 3 + flashIntensity * 2.19)); // Pass 4796: scanner hood emissive lerp flash contribution 1.2→1.62 — Pass 5094: 1.62→2.19 more vivid scanner hood domain flash
     // Pass 123: hood reveal strobe — Pass 437: duration dt*5.5→dt*3.8 (longer visible strobe)
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 5.13); // Pass 4787: hood reveal flash progression rate 3.8→5.13 snappier reveal strobe
@@ -3601,7 +3601,7 @@ function animate(ts) {
     // Pass 285: cone reveal flash — Pass 388: 0.22→0.40 — Pass 548: →0.60 — Pass 691: →0.80 — Pass 1156: →1.20 — Pass 1287: →1.65 — Pass 1377: →2.20 for bigger cone reveal flare
     const _coneRevealBoost = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 44.3 : 0; // Pass 2559: cone reveal flash 4.01→5.41 — Pass 2824: 5.41→7.30 — Pass 2996: 7.30→9.86 — Pass 3195: 9.86→13.3 — Pass 3579: 13.3→18.0 — Pass 3674: 18.0→24.3 — Pass 3992: 24.3→32.8 — Pass 4133: 32.8→44.3 brighter cone flare
     // Pass 302: scan cone Z sweep — Pass 684: ±7→±9 — Pass 795: ±9→±13 — Pass 1157: →±18 for wider active-scanning range
-    scanCone.position.z = 80.7 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03
+    scanCone.position.z = 109 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03 — Pass 5088: 80.7→109 wider scan cone sweep arc
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
     scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 21.2 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7 — Pass 4135: 15.7→21.2 taller cone punch
@@ -3953,7 +3953,7 @@ function animate(ts) {
     const arcY = ct.floor === 1 ? CONV_Y_TOP + 40 : CONV_Y_TOP + 27; // Pass 4872: deflect arc floor-1 target height 30→40 — Pass 4873: deflect arc floor-0 target height 20→27
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
     // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 — Pass 1559: floor-0 →38, floor-1 →40 for even higher card flight arc during deflect
-    const _arcBump = (ct.floor === 1 ? 1474 : 1395) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599 — Pass 3688: floor-0 567→765, floor-1 599→809 — Pass 3799: floor-0 765→1033 — Pass 3800: floor-1 809→1092 — Pass 4560: floor-0 1033→1395 floor-1 1092→1474 higher slot entry arc
+    const _arcBump = (ct.floor === 1 ? 1990 : 1883) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599 — Pass 3688: floor-0 567→765, floor-1 599→809 — Pass 3799: floor-0 765→1033 — Pass 3800: floor-1 809→1092 — Pass 4560: floor-0 1033→1395 floor-1 1092→1474 higher slot entry arc — Pass 5090: floor-0 1395→1883 floor-1 1474→1990 higher guided arc travel
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
@@ -4048,7 +4048,7 @@ function animate(ts) {
     gateColLight.color.setHex(ct.hex);
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
     gateColLight.intensity += (329 * dt2 - gateColLight.intensity) * Math.min(1, dt * 6); // Pass 2384: deflect col tracking light 22.1→29.8 — Pass 2606: 29.8→40.2 — Pass 3043: 40.2→54.3 — Pass 3229: 54.3→73.3 — Pass 3593: 73.3→99.0 — Pass 3689: 99.0→134 — Pass 3801: 134→181 — Pass 3901: 181→244 — Pass 4741: 244→329 brighter gate column tracking
-    _beltScrollSpeed = 0.054; // half speed while card arcs off belt — Pass 4876: deflect belt speed 0.04→0.054 livelier belt during arc
+    _beltScrollSpeed = 0.0729; // half speed while card arcs off belt — Pass 4876: deflect belt speed 0.04→0.054 livelier belt during arc — Pass 5091: 0.054→0.0729 livelier belt scroll during arc flight
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
     if (_trailSpawnAcc >= 0.022) { // Pass 2102: deflect trail spawn 0.040→0.030 denser — Pass 4297: 0.030→0.022 even denser deflect contrail
@@ -4185,7 +4185,7 @@ function animate(ts) {
       slotSweepLight.position.set(_sweepX, ct.slotFloorY + 39.2, ct.slotZ + _sweepZOsc315); // Pass 4853: slot sweep light Y height 29→39.2 higher slot entry spotlight
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
-      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 417, dt3 / 0.35) // Pass 4488: slot sweep peak 228.9→309.0 brighter slot entry spotlight — Pass 5028: 309.0→417 brighter slot entry spotlight
+      slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 563, dt3 / 0.35) // Pass 4488: slot sweep peak 228.9→309.0 brighter slot entry spotlight — Pass 5028: 309.0→417 brighter slot entry spotlight — Pass 5092: 417→563 brighter slot entry sweep peak
                                              : THREE.MathUtils.lerp(221, 0, (dt3 - 0.35) / 0.65); // Pass 2117: sweep peak 51.0→68.9 Pass 2118: sweep tail 36.5→49.3 — Pass 2615: 68.9→93.0, 49.3→66.6 — Pass 3056: 93.0→125.6, 66.6→89.9 — Pass 3243: peak 125.6→169.6, tail 89.9→121.4 — Pass 3410: peak 169.6→228.9 Pass 3411: tail 121.4→163.9 — Pass 4743: tail 163.9→221 brighter slot sweep tail
     }
     // Pass 60: gate column LED holds then fades as card lands
