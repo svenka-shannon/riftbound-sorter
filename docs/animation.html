@@ -2464,11 +2464,11 @@ function animate(ts) {
     // Pass 146: spring overshoot — bar bounces slightly when a new card arrives
     if (!bar._springVel) bar._springVel = 0;
     const _springDiff = targetScaleY - bar.scale.y;
-    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.344; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255 — Pass 4991: 0.255→0.344 snappier fill bar spring
-    bar.scale.y = Math.max(0.01, Math.min(1.59, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce
+    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.464; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255 — Pass 4991: 0.255→0.344 snappier fill bar spring — Pass 5202: 0.344→0.464 snappier fill bar spring response
+    bar.scale.y = Math.max(0.01, Math.min(2.15, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce — Pass 5203: 1.59→2.15 bigger fill bar overshoot bounce
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
-    const _fbRest = 6.55 + 1.70 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26 — Pass 4684: base 2.66→3.59 — Pass 4685: amp 1.26→1.70 brighter fill bar breathe — Pass 5120: 3.59→4.85 brighter fill bar resting glow — Pass 5191: 4.85→6.55 brighter fill bar resting base glow
+    const _fbRest = 6.55 + 2.30 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26 — Pass 4684: base 2.66→3.59 — Pass 4685: amp 1.26→1.70 brighter fill bar breathe — Pass 5120: 3.59→4.85 brighter fill bar resting glow — Pass 5191: 4.85→6.55 brighter fill bar resting base glow — Pass 5204: amp 1.70→2.30 bigger fill bar breathe amplitude
     if(bar.material.emissiveIntensity > _fbRest + 0.081) { // Pass 4921: fill bar phase transition threshold 0.06→0.081 wider emissive hysteresis
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
@@ -2821,7 +2821,7 @@ function animate(ts) {
         GRAB_PARTICLES.forEach((p, _gi) => {
           const angle = Math.random() * Math.PI * 2;
           // Pass 502: grab particle speed boost 18+40 → 22+50 — Pass 880: →28+65 — Pass 1098: →40+90 — Pass 1218: →55+115 for more energetic burst
-          const spd = 332 + Math.random() * 209; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread — Pass 4948: base 246→332 — Pass 4949: rand 155→209 more energetic grab particle burst
+          const spd = 448 + Math.random() * 282; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread — Pass 4948: base 246→332 — Pass 4949: rand 155→209 more energetic grab particle burst — Pass 5200: base 332→448 — Pass 5201: rand 209→282 more energetic grab particle burst
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.20; // Pass 4921: grab particle downward bias 0.15→0.20 more pick-disturbed stack puff
           p.vx = Math.cos(angle) * spd * 1.00; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst — Pass 5080: 0.74→1.00 wider grab burst
@@ -2884,10 +2884,10 @@ function animate(ts) {
         // Pass 641: trail opacity base 0.55→0.72; apex 0.30→0.45 — Pass 768: →0.85+0.62 — Pass 1060: →0.95+0.80 — Pass 1247: apex →1.15 for brighter arc midpoint
         const _swT482 = phaseRaw(PH.armSwing);
         // Pass 482: trail opacity peak — Pass 1352: 0.95+1.15→0.95+1.55 — Pass 1500: apex →2.00 for brighter arc peak
-        tp.mat.opacity = Math.min(1, 0.95 + 8.99 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65 — Pass 3950: 3.65→4.93 — Pass 4192: 4.93→6.66 brighter arc-apex trail — Pass 5024: 6.66→8.99 brighter arc apex trail
+        tp.mat.opacity = Math.min(1, 0.95 + 12.1 * Math.sin(_swT482 * Math.PI)); // Pass 2278: trail arc-apex opacity 2.70→3.65 — Pass 3950: 3.65→4.93 — Pass 4192: 4.93→6.66 brighter arc-apex trail — Pass 5024: 6.66→8.99 brighter arc apex trail — Pass 5205: 8.99→12.1 brighter arc apex trail opacity
         tp.age = 0;
         // Pass 771: trail life 0.45+0.15→0.52+0.22 — Pass 1061: →0.68+0.30 — Pass 1248: →0.88+0.42 — Pass 1501: →1.10+0.55 longer arc trail
-        tp.life = 9.00 + Math.random() * 4.48; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82 — Pass 3672: 3.66+1.82→4.94+2.46 — Pass 4193: base 4.94→6.67 — Pass 4194: rand 2.46→3.32 — Pass 4917: base 6.67→9.00 — Pass 4918: rand 3.32→4.48 longer arc trail
+        tp.life = 12.2 + Math.random() * 4.48; // Pass 2279: trail particle life 1.49+0.74→2.01+1.00 — Pass 3178: base 2.01→2.71 Pass 3179: rand 1.00→1.35 — Pass 3577: base 2.71→3.66, rand 1.35→1.82 — Pass 3672: 3.66+1.82→4.94+2.46 — Pass 4193: base 4.94→6.67 — Pass 4194: rand 2.46→3.32 — Pass 4917: base 6.67→9.00 — Pass 4918: rand 3.32→4.48 longer arc trail — Pass 5206: 9.00→12.2 longer arc trail base life
         tp.active = true;
         tp.mesh.visible = true;
       }
@@ -2897,7 +2897,7 @@ function animate(ts) {
     if(inPhase(PH.armLift) && stackCards[stackTopIdx]) {
       const lt = phaseRaw(PH.armLift);
       const baseY = CARD_T/2 + 6 + stackTopIdx * (CARD_T + 0.5);
-      stackCards[stackTopIdx].position.y = baseY + lt * 140.4; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 — Pass 1838: →lt*57 — Pass 3948: 57→77.0 — Pass 4195: 77.0→104.0 higher card elevation during lift — Pass 5025: 104.0→140.4 higher card lift
+      stackCards[stackTopIdx].position.y = baseY + lt * 189.5; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 — Pass 1838: →lt*57 — Pass 3948: 57→77.0 — Pass 4195: 77.0→104.0 higher card elevation during lift — Pass 5025: 104.0→140.4 higher card lift — Pass 5207: 140.4→189.5 higher stack card lift apex
     }
 
     // Card tracks suction cup (pass 154: Z follows pivot during arm phases)
