@@ -982,7 +982,7 @@ const scanLineMat = new THREE.MeshStandardMaterial({
   emissiveIntensity: 4.05, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam
   transparent: true, opacity: 0.95 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam
 });
-const scanLine = new THREE.Mesh(new THREE.BoxGeometry(73, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam
+const scanLine = new THREE.Mesh(new THREE.BoxGeometry(98.6, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span
 scanLine.visible = false;
 scene.add(scanLine);
 // Secondary bar (spans Z=88, sweeps in X) — slightly warmer teal to differentiate
@@ -2545,7 +2545,7 @@ function animate(ts) {
       ? 15.7 + 8.07 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
-    const _haloScale332 = beltActive ? 1.0 + 0.147 * Math.sin(ts * 2.5 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse
+    const _haloScale332 = beltActive ? 1.0 + 0.147 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
     const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 2.71 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
@@ -2647,7 +2647,7 @@ function animate(ts) {
       // Pass 193: arm descend Z drift — slight lateral inertia sway as arm accelerates down.
       // Peaks at midpoint (pt=0.5 → ~2 units) and returns cleanly to 0 at pt=1.0.
       // Pass 1125: Z drift peak 2.0→3.2 — Pass 1212: →4.8 — Pass 1309: →6.5 for more visible lateral inertia sway — Pass 3907: 6.5→8.8 deeper lateral swing — Pass 4274: 8.8→11.9 more dramatic lateral sway
-      suctionPivot.position.z = 11.9 * Math.sin(pt * Math.PI) * (1 - pt * 0.7);
+      suctionPivot.position.z = 11.9 * Math.sin(pt * Math.PI) * (1 - pt * 0.95); // Pass 4466: pick suction oscillation decay 0.7→0.95 tighter lateral sway
       // Pass 262: pre-pick targeting spotlight — warm downward spot on hopper card in final approach
       if (pt > 0.75) {
         const _pickTgtT = (pt - 0.75) / 0.25;
@@ -3978,7 +3978,7 @@ function animate(ts) {
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
     // Pass 317: deflect tumble distance scaling — outer columns tumble harder (steeper deflect angle)
     // Pass 759: tumble base 0.65→0.82 — Pass 1187: →1.15 — Pass 1254: →1.40 for even more dramatic card spin mid-arc
-    const _tumbleAmp = 51.2 + Math.abs(ct.slotZ) / 97.5 * 0.84; // Pass 2378: tumble base 3.44→4.64, scaling 0.46→0.62 — Pass 2598: 4.64→6.26, 0.62→0.84 — Pass 2859: base 6.26→8.45 — Pass 3038: 8.45→11.4 — Pass 3226: 11.4→15.4 — Pass 3392: 15.4→20.8 — Pass 3508: 20.8→28.1 — Pass 3999: 28.1→37.9 — Pass 4312: 37.9→51.2 wider tumble spin arc
+    const _tumbleAmp = 51.2 + Math.abs(ct.slotZ) / 97.5 * 1.13; // Pass 2378: tumble base 3.44→4.64, scaling 0.46→0.62 — Pass 2598: 4.64→6.26, 0.62→0.84 — Pass 2859: base 6.26→8.45 — Pass 3038: 8.45→11.4 — Pass 3226: 11.4→15.4 — Pass 3392: 15.4→20.8 — Pass 3508: 20.8→28.1 — Pass 3999: 28.1→37.9 — Pass 4312: 37.9→51.2 wider tumble spin arc — Pass 4469: outer scaling 0.84→1.13 harder outer-column tumble
     const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
     // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020 — Pass 1188: primary →0.062, secondary →0.032 — Pass 1256: primary →0.082, secondary →0.042 for more flutter micro-wobble
@@ -4376,7 +4376,7 @@ function animate(ts) {
       // Two warning point lights — Pass 451: amber 5.5,80→8.5,110 — Pass 1045: →14.0/150, red 3.5/60→7.0/90 — Pass 1397: amber →20.0/200, red →10.0/120
       [[0xff6600, 163.9, 270], [0xff1a00, 81.7, 162]].forEach(([c, i, d], fi) => { // Pass 2401: amber 27.0→36.5, Pass 2402: red 13.5→18.2 — Pass 2635: 36.5→49.3, 18.2→24.6 — Pass 3073: amber 49.3→66.6, red 24.6→33.2 — Pass 3256: amber 66.6→89.9, red 33.2→44.8 — Pass 3450: amber 89.9→121.4 Pass 3451: red 44.8→60.5 — Pass 4005: amber 121.4→163.9 — Pass 4006: red 60.5→81.7 — Pass 4305: amber dist 200→270 — Pass 4306: red dist 120→162 wider reject alarm reach
         const _wl = new THREE.PointLight(c, i, d);
-        _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 8 : -8));
+        _wl.position.set(TRAY_X_START + 20, ct.slotFloorY + 35, ct.slotZ + (fi ? 10.8 : -10.8)); // Pass 4467: slot entry warning light Z spread 8→10.8 wider alarm reach
         scene.add(_wl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _wl, age: 0, peak: _wl.intensity });
@@ -4422,7 +4422,7 @@ function animate(ts) {
         _rb2++;
       }
       // Smaller secondary amber light — Pass 1048: 4.5→9.0 for brighter second alarm pulse
-      const _ral2 = new THREE.PointLight(0xff6600, 54.8, 100); // Pass 2406: reject secondary amber light 16.5→22.3 — Pass 2640: 22.3→30.1 — Pass 3078: 30.1→40.6 — Pass 4028: 40.6→54.8
+      const _ral2 = new THREE.PointLight(0xff6600, 54.8, 135); // Pass 2406: reject secondary amber light 16.5→22.3 — Pass 2640: 22.3→30.1 — Pass 3078: 30.1→40.6 — Pass 4028: 40.6→54.8 — Pass 4468: reach 100→135 wider reject flash
       _ral2.position.set(TRAY_X_START + 20, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_ral2);
       if (!window._flashLights) window._flashLights = [];
@@ -4738,7 +4738,7 @@ function animate(ts) {
       const _prox = Math.max(0, 1 - _dist / 562); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228 — Pass 3109: 228→308 — Pass 3281: 308→416 — Pass 3359: 416→562
       const _targetI = _prox * 56.7;              // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30 — Pass 2762: 9.30→12.6 — Pass 2900: 12.6→17.0 — Pass 3110: 17.0→23.0 — Pass 3282: 23.0→31.1 — Pass 3360: 31.1→42.0 — Pass 4389: 42.0→56.7 brighter conveyor roller proximity glow
       rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 5));
-      rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 6);
+      rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 8.1); // Pass 4465: roller emissive tracking rate 6→8.1 snappier proximity glow
     });
   }
 
@@ -5140,7 +5140,7 @@ function animate(ts) {
       hopperLight.color.setHex(ct.hex);
       // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 — Pass 1444: →4.50 brighter during arm cycle
       const _hTarget = _hBase + 91.1; // Pass 2461: hopper pick intensity 8.21→11.1 — Pass 2707: 11.1→15.0 — Pass 2803: 15.0→20.3 — Pass 2935: 20.3→27.4 — Pass 3142: 27.4→37.0 — Pass 3314: 37.0→50.0 — Pass 3466: 50.0→67.5 — Pass 4167: 67.5→91.1 brighter hopper during pick
-      hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 4);
+      hopperLight.intensity += (_hTarget - hopperLight.intensity) * Math.min(1, dt * 5.4); // Pass 4471: hopper pick light tracking rate 4→5.4 snappier pick spotlight
       // Pass 359: Y-track during armDescend — Pass 1042: descent 25→42 — Pass 1445: →58 light follows arm deeper
       const _hYTrack359 = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) * 863 : 0; // Pass 2462: descent Y-track 105→142 — Pass 2708: 142→192 — Pass 2804: 192→259 — Pass 2936: 259→350 — Pass 3143: 350→473 — Pass 3315: 473→639 — Pass 4168: 639→863 light follows arm deeper
       // Pass 360: X-drift during armSwing — Pass 1043: drift 55→80 — Pass 1446: →110 light tracks wider card arc
