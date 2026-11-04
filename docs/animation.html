@@ -2448,8 +2448,8 @@ function animate(ts) {
       f.age += dt;
       const _fPeak = f.peak || 4.05; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 13.3)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5496: 9.86→13.3 longer slot arrival flash glow persistence
-      if(f.age > 7.30) { scene.remove(f.light); return false; }
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 13.3)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence
+      if(f.age > 9.86) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window
       return true;
     });
   }
@@ -3521,7 +3521,7 @@ function animate(ts) {
       });
     }
     // Belt crawls slowly while card sits under scanner
-    _beltScrollSpeed = 0.027; // Pass 4874: scan belt crawl speed 0.02→0.027 livelier scan belt motion
+    _beltScrollSpeed = 0.0365; // Pass 4874: scan belt crawl speed 0.02→0.027 livelier scan belt motion — Pass 5502: 0.027→0.0365 livelier scan belt crawl speed
     // Pass 156: gate LED chase — cycles scan-blue through columns pre-reveal (machine "deciding")
     // then snaps to domain color on correct column at identity confirm
     {
@@ -3835,12 +3835,12 @@ function animate(ts) {
     slotSweepLight.intensity = 0; // pass 81: off during conveyor
     scanBloom.intensity = 0;
     // Pass 165: smooth LED decay from scan peak (~2.0) to idle (1.2) — was hard snap
-    scanLEDMat.emissiveIntensity += (5.40 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest — Pass 4694: idle tracking speed dt*6→dt*8.1 snappier scan LED idle settle — Pass 5369: 8.1→10.9 snappier scan LED idle settle tracking
+    scanLEDMat.emissiveIntensity += (7.29 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest — Pass 4694: idle tracking speed dt*6→dt*8.1 snappier scan LED idle settle — Pass 5369: 8.1→10.9 snappier scan LED idle settle tracking — Pass 5506: 5.40→7.29 brighter scan LED idle emissive floor
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
-    scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 5.4); // Pass 4632: scan cone final alpha fade 4→5.4 faster cone dismiss
-    scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 5.4); // Pass 4822: scan beam exit fade rate 4→5.4
+    scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 7.29); // Pass 4632: scan cone final alpha fade 4→5.4 faster cone dismiss — Pass 5504: 5.4→7.29 faster scan cone exit fade
+    scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 7.29); // Pass 4822: scan beam exit fade rate 4→5.4 — Pass 5505: 5.4→7.29 faster scan beam exit fade
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
     // Pass 129: brief acceleration surge emissive at exit start — Pass 953: 0.5→0.9 — Pass 972: →1.4 brighter launch surge
     const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 28.1 : 0; // Pass 2365: exit surge 2.55→3.44 — Pass 2582: 3.44→4.64 — Pass 3022: 4.64→6.26 — Pass 3214: 6.26→8.45 — Pass 3590: 8.45→11.4 — Pass 3685: 11.4→15.4 — Pass 3998: 15.4→20.8 — Pass 4738: 20.8→28.1 stronger ConveyorOut flash
@@ -3922,9 +3922,9 @@ function animate(ts) {
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 2384 + Math.random() * 2047; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst — Pass 5497: base 1766→2384 faster gate spark burst — Pass 5498: rand 1516→2047 wider gate spark speed burst
+          const _spd = 2384 + Math.random() * 2047; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst — Pass 5516: base 1766→2384 faster gate spark burst — Pass 5498: rand 1516→2047 wider gate spark speed burst
           _sp.vx = Math.cos(_ang) * _spd * 1.28; // Pass 4794: gate spark vx spread 0.7→0.945 — Pass 5084: 0.945→1.28 wider gate spark vx
-          _sp.vy = 1214 + Math.random() * 984; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft
+          _sp.vy = 1639 + Math.random() * 1328; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft — Pass 5507: base 1214→1639 higher gate spark loft — Pass 5508: rand 984→1328 higher gate spark loft range
           _sp.vz = Math.sin(_ang) * _spd * 0.911 + Math.sign(ct.slotZ || 1) * 15; // Pass 4795: gate spark vz spread 0.5→0.675 — Pass 5085: 0.675→0.911 wider gate spark vz
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
@@ -3988,7 +3988,7 @@ function animate(ts) {
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     // Pass 226: tumble-correlated glow — Pass 417: 0.28→0.40 — Pass 465: base+peak 0.80+0.60
     // Pass 761: base 0.80→1.05, peak 0.60→0.80 — Pass 980: base 1.05→1.35, peak 0.80→1.10 — Pass 1189: base 1.35→1.80, peak 1.10→1.55 for brighter arc glow
-    cardGlow.intensity = (48.6 + 31.1 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z)); // Pass 2380: glow base 4.43→5.98, peak 3.81→5.14 — Pass 2600: 5.98→8.07, 5.14→6.94 — Pass 3039: 8.07→10.9, 6.94→9.37 — Pass 3396: base 10.9→14.7 peak 9.37→12.6 — Pass 3458: base 14.7→19.8 — Pass 3973: base 19.8→26.7 — Pass 3974: peak 12.6→17.0 — Pass 4697: base 26.7→36.0 — Pass 4698: peak 17.0→23.0 brighter deflect arc card glow — Pass 5502: base 36.0→48.6 brighter deflect arc card glow — Pass 5503: peak 23.0→31.1 brighter deflect arc card glow peak
+    cardGlow.intensity = (48.6 + 31.1 * Math.sin(dt2 * Math.PI)) * (0.70 + 0.30 * Math.cos(2 * activeCard.rotation.z)); // Pass 2380: glow base 4.43→5.98, peak 3.81→5.14 — Pass 2600: 5.98→8.07, 5.14→6.94 — Pass 3039: 8.07→10.9, 6.94→9.37 — Pass 3396: base 10.9→14.7 peak 9.37→12.6 — Pass 3458: base 14.7→19.8 — Pass 3973: base 19.8→26.7 — Pass 3974: peak 12.6→17.0 — Pass 4697: base 26.7→36.0 — Pass 4698: peak 17.0→23.0 brighter deflect arc card glow — Pass 5510: base 36.0→48.6 brighter deflect arc card glow — Pass 5511: peak 23.0→31.1 brighter deflect arc card glow peak
     cardGlow.position.copy(activeCard.position);
     // Pass 250: deflect tumble emissive — Pass 415: 0.40→0.60 — Pass 490: base 0.45→0.55, peak 0.60→0.72
     // Pass 762: base 0.55→0.45, peak 0.72→0.95 for more dynamic emissive swing during tumble
@@ -4003,7 +4003,7 @@ function animate(ts) {
       : THREE.MathUtils.lerp(activeCard.position.z, ct.slotZ, (dt2 - 0.5) / 0.5);
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, _lightZ318);
     // Pass 354: deflect target light easeOut + intensity boost (1.8 → 2.6) — Pass 964: →4.0 — Pass 1191: →6.0
-    scanTargetLight.intensity = easeOut(dt2) * 162; // Pass 2382: deflect target light 14.7→19.8 — Pass 2602: 19.8→26.7 — Pass 3041: 26.7→36.1 — Pass 3236: 36.1→48.7 — Pass 3395: 48.7→65.7 — Pass 3460: 65.7→88.7 — Pass 4000: 88.7→120 — Pass 5504: 120→162 brighter deflect target spotlight peak
+    scanTargetLight.intensity = easeOut(dt2) * 162; // Pass 2382: deflect target light 14.7→19.8 — Pass 2602: 19.8→26.7 — Pass 3041: 26.7→36.1 — Pass 3236: 36.1→48.7 — Pass 3395: 48.7→65.7 — Pass 3460: 65.7→88.7 — Pass 4000: 88.7→120 — Pass 5512: 120→162 brighter deflect target spotlight peak
     // Keep gate paddle colored while card is deflecting
     // Pass 248: paddle domain-to-orange afterglow — domain color during peak window, then fades
     // to orange-red after dt2=0.18, giving a visible cool-down transition on the paddle face.
@@ -4250,7 +4250,7 @@ function animate(ts) {
         );
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 68.9; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread — Pass 5478: 51.0→68.9 wider landing puff vx spread
-        _pp.vy = 1642 + Math.random() * 1073; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft — Pass 5494: base 1216→1642 stronger slot entry air puff loft — Pass 5495: rand 795→1073 stronger slot entry loft burst
+        _pp.vy = 1642 + Math.random() * 1073; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft — Pass 5513: base 1216→1642 stronger slot entry air puff loft — Pass 5514: rand 795→1073 stronger slot entry loft burst
         _pp.vz = (Math.random() - 0.5) * 180; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread — Pass 5482: 98.4→133 wider landing puff vz spread — Pass 5490: 133→180 wider landing puff vy decay rate Z spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
@@ -4809,10 +4809,10 @@ function animate(ts) {
       suctionCupMat.emissive.setHex(ct.hex);
       suctionCupMat.emissiveIntensity += (_memFade * 8.17 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2186: cup memory intensity 0.74→1.00 — Pass 2770: 1.00→1.35 — Pass 2908: 1.35→1.82 — Pass 3117: 1.82→2.46 — Pass 3289: 2.46→3.32 — Pass 3369: 3.32→4.48 — Pass 4458: 4.48→6.05 brighter cup memory glow — Pass 5166: 6.05→8.17 brighter cup return memory glow
     } else {
-      suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.203; // Pass 4806: suction cup emissive decay rate 0.15→0.203 snappier cup glow fade
+      suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.274; // Pass 4806: suction cup emissive decay rate 0.15→0.203 snappier cup glow fade — Pass 5503: 0.203→0.274 snappier suction cup glow fade
     }
   } else {
-    suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.203; // decay — Pass 4806: suction cup emissive decay rate 0.15→0.203 snappier cup glow fade
+    suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.274; // decay — Pass 4806: suction cup emissive decay rate 0.15→0.203 snappier cup glow fade — Pass 5503: 0.203→0.274 snappier suction cup glow fade
   }
 
   // Auto-orbit recovery: re-enable after 12 s of pointer inactivity
