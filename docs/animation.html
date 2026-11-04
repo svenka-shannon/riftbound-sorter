@@ -2492,10 +2492,10 @@ function animate(ts) {
       // Capacity warning: flash amber — slot is nearly full
       // Pass 187: fix capacity warning pulse — was ts*0.008 (~785s period = never visible).
       // Fixed to 0.8Hz: slots flash urgently when nearly full.
-      const _warnPulse = 1.09 + 0.54 * Math.sin(ts * 1.08 * Math.PI * 2); // Pass 4461: slot overflow pulse amplitude 0.4→0.54 stronger overflow flash // Pass 4482: overflow ripple freq 0.8→1.08 more urgent overflow flash — Pass 4655: slot overflow indicator pulse intensity base 0.6→0.81 brighter warning floor — Pass 5097: 0.81→1.09 brighter overflow warning floor
+      const _warnPulse = 1.47 + 0.73 * Math.sin(ts * 1.08 * Math.PI * 2); // Pass 4461: slot overflow pulse amplitude 0.4→0.54 stronger overflow flash // Pass 4482: overflow ripple freq 0.8→1.08 more urgent overflow flash — Pass 4655: slot overflow indicator pulse intensity base 0.6→0.81 brighter warning floor — Pass 5097: 0.81→1.09 brighter overflow warning floor — Pass 5784: base 1.09→1.47 amp 0.54→0.73 stronger slot overflow urgency pulse
       mat.color.setHex(0xffaa00);
       mat.emissive.setHex(0xffaa00);
-      mat.emissiveIntensity = 5.90 + _warnPulse * 3.65; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70 — Pass 4045: base 3.24→4.37, amp 2.70→3.65 brighter slot overflow warning — Pass 5003: base 4.37→5.90 more vivid overflow warning
+      mat.emissiveIntensity = 7.97 + _warnPulse * 4.93; // Pass 2516: capacity warning 2.4+2.0→3.24+2.70 — Pass 4045: base 3.24→4.37, amp 2.70→3.65 brighter slot overflow warning — Pass 5003: base 4.37→5.90 more vivid overflow warning — Pass 5785: base 5.90→7.97 amp 3.65→4.93 more vivid slot overflow warning flash
     } else if (isTarget && inSortPhase) {
       // Active routing target: pulse bright in domain color
       // Pass 293: post-reveal slot LED pulse frequency slowdown — 18Hz frantic → 3Hz calm at confirm
@@ -2824,9 +2824,9 @@ function animate(ts) {
           const spd = 448 + Math.random() * 282; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread — Pass 4948: base 246→332 — Pass 4949: rand 155→209 more energetic grab particle burst — Pass 5200: base 332→448 — Pass 5201: rand 209→282 more energetic grab particle burst
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.27; // Pass 4921: grab particle downward bias 0.15→0.20 more pick-disturbed stack puff — Pass 5526: 0.20→0.27 stronger pick-disturbed downward puff bias
-          p.vx = Math.cos(angle) * spd * 1.00; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst — Pass 5080: 0.74→1.00 wider grab burst
+          p.vx = Math.cos(angle) * spd * 1.35; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst — Pass 5080: 0.74→1.00 wider grab burst — Pass 5778: 1.00→1.35 wider grab particle X burst spread
           p.vy = _goDown ? -spd * (0.55 + Math.random() * 0.73) : spd * (0.55 + Math.random() * 0.45); // Pass 4264: grab particle vy down factor 0.3→0.41, rand 0.4→0.54 more forceful suction puff — Pass 5172: 0.41→0.55 rand 0.54→0.73 stronger grab particle pull-down
-          p.vz = Math.sin(angle) * spd * 0.92; // Pass 4265: grab particle vz spread 0.5→0.68 deeper Z burst — Pass 5081: 0.68→0.92 deeper grab Z burst
+          p.vz = Math.sin(angle) * spd * 1.24; // Pass 4265: grab particle vz spread 0.5→0.68 deeper Z burst — Pass 5081: 0.68→0.92 deeper grab Z burst — Pass 5779: 0.92→1.24 deeper grab particle Z burst spread
           p.mesh.position.set(_bx, _by, (Math.random() - 0.5) * 14.6); // Pass 4627: grab particle initial Z spawn spread 8→10.8 wider burst footprint — Pass 5180: 10.8→14.6 wider grab burst footprint
           // Pass 85: color variety — highlight (25%), domain (50%), shadow (25%)
           const _cr = Math.random();
@@ -3421,9 +3421,9 @@ function animate(ts) {
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 24) * Math.PI * 2 + Math.random() * 0.8; // Pass 5021: confirm burst angular divisor 18→24 fuller radial coverage per burst
             const _spd = 2098 + Math.random() * 1933; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582 — Pass 3561: base 632→853, range 582→786 — Pass 3720: 853+786→1151+1061 — Pass 4116: 1151+1061→1554+1432 explosive confirm burst — Pass 5282: 1554→2098 — Pass 5283: 1432→1933 more explosive confirm burst
-            _bp.vx = Math.cos(_ang) * _spd * 1.00; // Pass 4792: confirm burst vx spread 0.55→0.743 — Pass 5082: 0.743→1.00 wider confirm burst vx
+            _bp.vx = Math.cos(_ang) * _spd * 1.35; // Pass 4792: confirm burst vx spread 0.55→0.743 — Pass 5082: 0.743→1.00 wider confirm burst vx — Pass 5780: 1.00→1.35 wider confirm burst vx spread
             _bp.vy = 1384 + Math.random() * 938; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416 — Pass 3560: base 416→562, rand 282→381 — Pass 3721: 562+381→759+515 — Pass 4117: base 759→1025 — Pass 4118: rand 515→695 higher burst — Pass 5284: 1025→1384 — Pass 5285: 695→938 higher confirm burst vy
-            _bp.vz = Math.sin(_ang) * _spd * 1.00; // Pass 4793: confirm burst vz spread 0.55→0.743 — Pass 5083: 0.743→1.00 wider confirm burst vz
+            _bp.vz = Math.sin(_ang) * _spd * 1.35; // Pass 4793: confirm burst vz spread 0.55→0.743 — Pass 5083: 0.743→1.00 wider confirm burst vz — Pass 5781: 1.00→1.35 wider confirm burst vz spread
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
           }
@@ -3923,9 +3923,9 @@ function animate(ts) {
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
           const _spd = 2384 + Math.random() * 2047; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst — Pass 5516: base 1766→2384 faster gate spark burst — Pass 5498: rand 1516→2047 wider gate spark speed burst
-          _sp.vx = Math.cos(_ang) * _spd * 1.28; // Pass 4794: gate spark vx spread 0.7→0.945 — Pass 5084: 0.945→1.28 wider gate spark vx
+          _sp.vx = Math.cos(_ang) * _spd * 1.73; // Pass 4794: gate spark vx spread 0.7→0.945 — Pass 5084: 0.945→1.28 wider gate spark vx — Pass 5782: 1.28→1.73 wider gate spark vx spread
           _sp.vy = 1639 + Math.random() * 1328; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft — Pass 5507: base 1214→1639 higher gate spark loft — Pass 5508: rand 984→1328 higher gate spark loft range
-          _sp.vz = Math.sin(_ang) * _spd * 0.911 + Math.sign(ct.slotZ || 1) * 15; // Pass 4795: gate spark vz spread 0.5→0.675 — Pass 5085: 0.675→0.911 wider gate spark vz
+          _sp.vz = Math.sin(_ang) * _spd * 1.23 + Math.sign(ct.slotZ || 1) * 20.3; // Pass 4795: gate spark vz spread 0.5→0.675 — Pass 5085: 0.675→0.911 wider gate spark vz — Pass 5783: 0.911→1.23 wider gate spark vz spread, lateral 15→20.3 stronger gate routing bias
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
           _sp.mat.color.setHex(
