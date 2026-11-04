@@ -589,11 +589,11 @@ keyLight.shadow.camera.top = 400;   keyLight.shadow.camera.bottom = -200;
 keyLight.shadow.bias = -0.001;
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xc0d8ff, 0.5);
+const fillLight = new THREE.DirectionalLight(0xc0d8ff, 0.68); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill
 fillLight.position.set(-400, 300, 200);
 scene.add(fillLight);
 
-const rimLight = new THREE.DirectionalLight(0xffeedd, 0.35);
+const rimLight = new THREE.DirectionalLight(0xffeedd, 0.47); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim
 rimLight.position.set(200, 100, -400);
 scene.add(rimLight);
 
@@ -759,7 +759,7 @@ scene.add(hopperWire);
 // Pass 59: Hopper status LED — small indicator sphere on hopper front face
 // Color: green (full) → yellow (half) → red (low) → fast-blink when empty+refilling
 const hopperLEDMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 2.0,
+  color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 2.70, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator
   roughness: 0.05, metalness: 0.0,
 });
 const hopperLED = new THREE.Mesh(new THREE.SphereGeometry(3.5, 10, 10), hopperLEDMat);
@@ -806,7 +806,7 @@ beltTex.wrapS = THREE.RepeatWrapping;
 beltTex.repeat.set(4, 1); // fewer repeats for wider visible pattern
 const beltSurfMat = new THREE.MeshStandardMaterial({
   map: beltTex, roughness: 0.55, metalness: 0.1,
-  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.12 // brighter baseline
+  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.16 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline
 });
 const beltSurf = new THREE.Mesh(new THREE.BoxGeometry(248, 2, 76), beltSurfMat);
 beltSurf.position.set(-40, CONV_Y_TOP + 1, 0);
@@ -1061,7 +1061,7 @@ const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
 });
 
 // Pass 141: Gate column tracking light — point light that follows the active LED column
-const gateColLight = new THREE.PointLight(0xffffff, 0, 90);
+const gateColLight = new THREE.PointLight(0xffffff, 0, 122); // Pass 4040: gate col light range 90→122 wider column tracking reach
 gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, 0);
 scene.add(gateColLight);
 
@@ -1192,7 +1192,7 @@ CARD_TYPES.forEach(ct => {
   const stripGeo = new THREE.BoxGeometry(2, 60, 2);
   const stripMat = new THREE.MeshStandardMaterial({
     color: ct.hex, roughness: 0.4, metalness: 0.2,
-    emissive: ct.hex, emissiveIntensity: 0.15
+    emissive: ct.hex, emissiveIntensity: 0.20 // Pass 4043: tray entry strip emissive 0.15→0.20 brighter domain strips
   });
   const stripMesh = new THREE.Mesh(stripGeo, stripMat);
   stripMesh.position.set(TRAY_X_START, ct.slotFloorY + 1, ct.slotZ);
@@ -1214,7 +1214,7 @@ floorDiverterPivot.position.set(DIVERTER_X, CONV_Y_TOP + 3, 0); // CONV_Y_TOP + 
 scene.add(floorDiverterPivot);
 const diverterFlapMat = new THREE.MeshStandardMaterial({
   color: 0xcc7700, roughness: 0.4, metalness: 0.25,
-  emissive: new THREE.Color(0x441f00), emissiveIntensity: 0.22
+  emissive: new THREE.Color(0x441f00), emissiveIntensity: 0.30 // Pass 4044: floor diverter emissive 0.22→0.30 brighter routing flap
 });
 const diverterFlapMesh = new THREE.Mesh(
   new THREE.BoxGeometry(TX_DEP + 6, 3, TRAY_Z_HALF * 2),
@@ -1927,7 +1927,7 @@ scene.add(_domainFillLight);
 // Domain-colored point light that follows the card along the belt surface
 // during conveyorIn and conveyorOut phases, casting a moving pool of color
 // on the belt texture beneath the card. Fades to zero outside belt phases.
-const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 95);
+const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 128); // Pass 4039: belt track light range 95→128 wider card pool on belt
 _beltTrackLight.position.set(-40, CONV_Y_TOP + 6, 0);
 scene.add(_beltTrackLight);
 
