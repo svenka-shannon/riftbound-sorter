@@ -1908,7 +1908,7 @@ const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 // ─── Pass 34: Grab particle burst pool + domain fill light ───────────────────
 // 16 small spheres scatter from grab point when arm picks up a card.
 const GRAB_PARTICLES = [];
-for (let _gpi = 0; _gpi < 55; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir — Pass 6268: 22→30 larger grab burst particle reservoir — Pass 6396: 30→41 larger grab burst particle reservoir — Pass 6526: 41→55 larger grab burst particle reservoir
+for (let _gpi = 0; _gpi < 74; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir — Pass 6268: 22→30 larger grab burst particle reservoir — Pass 6396: 30→41 larger grab burst particle reservoir — Pass 6526: 41→55 larger grab burst particle reservoir — Pass 6690: 55→74 larger grab burst particle reservoir
   const _gpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(6.26, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst — Pass 5916: 2.55→3.44 chunkier grab burst particle sphere — Pass 6397: 3.44→4.64 chunkier grab burst particle sphere — Pass 6684: 4.64→6.26 chunkier grab burst particle sphere
   _gpMesh.visible = false;
@@ -1950,7 +1950,7 @@ let _trailSpawnAcc = 0;    // time accumulator for spawn rate
 // 32 spheres in all 8 domain colors fire upward from above the tray when
 // a complete sort round (all 8 domains) finishes. Each domain gets 4 particles.
 const CELEB_PARTICLES = [];
-const CELEB_COUNT = 473; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst — Pass 5959: 105→142 even more confetti per celebration burst — Pass 5999: 142→192 even more confetti per celebration burst — Pass 6530: 192→259 more confetti per celebration burst — Pass 6655: 259→350 more confetti per celebration burst — Pass 6682: 350→473 more confetti per celebration burst
+const CELEB_COUNT = 639; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst — Pass 5959: 105→142 even more confetti per celebration burst — Pass 5999: 142→192 even more confetti per celebration burst — Pass 6530: 192→259 more confetti per celebration burst — Pass 6655: 259→350 more confetti per celebration burst — Pass 6682: 350→473 more confetti per celebration burst — Pass 6691: 473→639 more confetti per celebration burst
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
@@ -1967,7 +1967,7 @@ function fireCelebration() {
     const domCt = CARD_TYPES[pi % CARD_TYPES.length];
     const angle = (pi / CELEB_COUNT) * Math.PI * 2;
     // Pass 594: confetti burst speed 60+90 — Pass 652: →80+120 — Pass 728: →100+150 — Pass 755: →125+180 — Pass 892: →155+220 — Pass 1009: →190+260 — Pass 1633: →255+350 — Pass 3461: base 255→344 — Pass 3462: rand 350→473
-    const spd = 2079 + Math.random() * 1162; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638 — Pass 4096: base 464→626 — Pass 4097: rand 638→861 faster burst — Pass 4943: base 626→845 faster celebration burst — Pass 5039: base 845→1140 faster celebration burst — Pass 5994: 1140→1540 faster confetti base burst speed — Pass 6285: rand 861→1162 wider celebration confetti burst speed spread — Pass 6511: base 1540→2079 faster celebration confetti burst speed
+    const spd = 2807 + Math.random() * 1162; // Pass 3461: confetti base speed 255→344 — Pass 3462: rand spread 350→473 — Pass 3709: 344+473→464+638 — Pass 4096: base 464→626 — Pass 4097: rand 638→861 faster burst — Pass 4943: base 626→845 faster celebration burst — Pass 5039: base 845→1140 faster celebration burst — Pass 5994: 1140→1540 faster confetti base burst speed — Pass 6285: rand 861→1162 wider celebration confetti burst speed spread — Pass 6511: base 1540→2079 faster celebration confetti burst speed — Pass 6692: base 2079→2807 faster celebration confetti burst speed
     const floorY = domCt.floor === 0 ? FLOOR_Y[0] + 80 : FLOOR_Y[1] + 50;
     p.vx = Math.cos(angle) * spd * 3.35; // Pass 4069: confetti vx spread 0.75→1.01 wider horizontal burst — Pass 5018: 1.01→1.36 wider confetti horizontal burst — Pass 5891: 1.36→1.84 wider confetti horizontal burst spread — Pass 6292: 1.84→2.48 wider confetti horizontal burst spread — Pass 6317: 2.48→3.35 wider confetti horizontal burst spread
     // Pass 729: upward bias 0.6+0.6→0.75+0.70 — Pass 893: →0.90+0.85 — Pass 1010: →1.10+1.00 — Pass 1634: →1.40+1.30 stronger launch
@@ -3950,7 +3950,7 @@ function animate(ts) {
     const cx = THREE.MathUtils.lerp(GATE_X, TRAY_X_START + 20, dt2);
     const cz = THREE.MathUtils.lerp(0, ct.slotZ, dt2);
     // Pass 147: parabolic arc — Pass 416: arc height boost floor-0 10→13, floor-1 18→22
-    const arcY = ct.floor === 1 ? CONV_Y_TOP + 72.9 : CONV_Y_TOP + 49.3; // Pass 4872: deflect arc floor-1 target height 30→40 — Pass 4873: deflect arc floor-0 target height 20→27 — Pass 5615: floor-1 40→54, floor-0 27→36.5 higher deflect arc apex — Pass 5623: floor-1 54→72.9, floor-0 36.5→49.3 higher slot approach landing flare deflect arc apex
+    const arcY = ct.floor === 1 ? CONV_Y_TOP + 98.4 : CONV_Y_TOP + 66.6; // Pass 4872: deflect arc floor-1 target height 30→40 — Pass 4873: deflect arc floor-0 target height 20→27 — Pass 5615: floor-1 40→54, floor-0 27→36.5 higher deflect arc apex — Pass 5623: floor-1 54→72.9, floor-0 36.5→49.3 higher slot approach landing flare deflect arc apex — Pass 6685: floor-1 72.9→98.4 floor-0 49.3→66.6 higher deflect arc apex
     const _arcBase = THREE.MathUtils.lerp(CONV_Y_TOP + CARD_T/2 + 2, arcY, dt2);
     // Pass 683: floor-0 arc height 13→16 — Pass 756: →21 — Pass 1185: floor-0 →29, floor-1 →30 — Pass 1559: floor-0 →38, floor-1 →40 for even higher card flight arc during deflect
     const _arcBump = (ct.floor === 1 ? 4901 : 4631) * Math.sin(dt2 * Math.PI); // Pass 2374: arc height floor-0 93→126 floor-1 99→134 — Pass 2594: 126→170, 134→181 — Pass 2854: floor-0 170→230 Pass 2855: floor-1 181→244 — Pass 3033: floor-0 230→311, floor-1 244→329 — Pass 3222: floor-0 311→420 Pass 3223: floor-1 329→444 — Pass 3592: floor-0 420→567, floor-1 444→599 — Pass 3688: floor-0 567→765, floor-1 599→809 — Pass 3799: floor-0 765→1033 — Pass 3800: floor-1 809→1092 — Pass 4560: floor-0 1033→1395 floor-1 1092→1474 higher slot entry arc — Pass 5090: floor-0 1395→1883 floor-1 1474→1990 higher guided arc travel — Pass 5252: card deal arc height mid-point floor-0 1883→2542 floor-1 1990→2687 higher deflect arc — Pass 5293: arc apex height floor-0 2542→3430 floor-1 2687→3630 higher slot entry arc apex — Pass 6552: floor-0 3430→4631 floor-1 3630→4901 higher deflect arc apex
@@ -4242,10 +4242,10 @@ function animate(ts) {
       for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 35; _pi++) { // Pass 4582: landing puff particle count 10→14 denser slot entry air puff — Pass 5013: 14→19 denser slot entry air puff — Pass 5120: 19→26 denser slot landing puff count per frame — Pass 6352: 26→35 denser slot landing puff count per frame
         const _pp = GRAB_PARTICLES[_pi];
         if (_pp.active) continue;
-        _pp.active = true; _pp.age = 0; _pp.life = 3.16 + Math.random() * 1.26; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69 — Pass 3060: 1.28+0.69→1.73+0.93 — Pass 4323: 1.73+0.93→2.34+1.26 longer landing puff cloud — Pass 5617: base 2.34→3.16 longer landing puff cloud
+        _pp.active = true; _pp.age = 0; _pp.life = 4.27 + Math.random() * 1.26; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69 — Pass 3060: 1.28+0.69→1.73+0.93 — Pass 4323: 1.73+0.93→2.34+1.26 longer landing puff cloud — Pass 5617: base 2.34→3.16 longer landing puff cloud — Pass 6686: 3.16→4.27 longer landing puff cloud
         _pp.mesh.position.set(
-          _puffX + (Math.random() - 0.5) * 18.2, // Pass 4614: landing puff X spread 10→13.5 wider puff cloud — Pass 5651: 13.5→18.2 wider landing puff X spawn spread
-          _puffY + Math.random() * 7.29, // Pass 4653: landing puff Z initial spawn height 4→5.4 taller puff birth zone — Pass 5652: 5.4→7.29 taller landing puff birth zone height
+          _puffX + (Math.random() - 0.5) * 24.6, // Pass 4614: landing puff X spread 10→13.5 wider puff cloud — Pass 5651: 13.5→18.2 wider landing puff X spawn spread — Pass 6687: 18.2→24.6 wider landing puff X spawn spread
+          _puffY + Math.random() * 9.84, // Pass 4653: landing puff Z initial spawn height 4→5.4 taller puff birth zone — Pass 5652: 5.4→7.29 taller landing puff birth zone height — Pass 6688: 7.29→9.84 taller landing puff birth zone height
           _puffZ + (Math.random() - 0.5) * 29.6 // Pass 4631: landing puff initial Z spawn spread 12→16.2 wider Z footprint — Pass 5454: 16.2→21.9 wider landing puff Z footprint — Pass 6677: 21.9→29.6 wider landing puff Z spawn spread
         );
         _pp.mesh.visible = true;
@@ -4297,10 +4297,10 @@ function animate(ts) {
         for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 58; _li++) { // Pass 3486: landing scatter count 18→24 — Pass 4539: 24→32 bigger grab particle scatter cloud — Pass 5683: 32→43 bigger floor impact scatter cloud — Pass 6399: 43→58 bigger floor impact scatter cloud
           const _lp = GRAB_PARTICLES[_li];
           if (_lp.active) continue;
-          _lp.active = true; _lp.age = 0; _lp.life = 3.05 + Math.random() * 1.92; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58 — Pass 2628: 0.92+0.58→1.24+0.78 — Pass 3067: 1.24+0.78→1.67+1.05 — Pass 4356: 1.67+1.05→2.26+1.42 longer floor impact dust cloud — Pass 5674: 2.26+1.42→3.05+1.92 longer floor impact dust cloud
+          _lp.active = true; _lp.age = 0; _lp.life = 4.12 + Math.random() * 2.59; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58 — Pass 2628: 0.92+0.58→1.24+0.78 — Pass 3067: 1.24+0.78→1.67+1.05 — Pass 4356: 1.67+1.05→2.26+1.42 longer floor impact dust cloud — Pass 5674: 2.26+1.42→3.05+1.92 longer floor impact dust cloud — Pass 6689: 3.05+1.92→4.12+2.59 longer floor impact dust cloud
           _lp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 18.2, // Pass 4600: slot entry landing dust X jitter 10→13.5 wider X scatter — Pass 5684: 13.5→18.2 wider landing dust X scatter
-            ct.slotFloorY + 3.65, // Pass 4586: slot entry dust Y offset 2→2.7 more airborne impact dust — Pass 5618: 2.7→3.65 more airborne impact dust
+            ct.slotFloorY + 4.93, // Pass 4586: slot entry dust Y offset 2→2.7 more airborne impact dust — Pass 5618: 2.7→3.65 more airborne impact dust — Pass 6684: 3.65→4.93 more airborne impact dust
             ct.slotZ + (Math.random() - 0.5) * 44.3 // Pass 4569: slot landing dust Z spread 18→24.3 wider impact footprint — Pass 5455: 24.3→32.8 wider slot landing dust Z spread — Pass 6678: 32.8→44.3 wider slot landing dust Z spread
           );
           _lp.mesh.visible = true;
@@ -4402,7 +4402,7 @@ function animate(ts) {
     }
     // Pass 457: reject second burst — at dt3=0.55 a smaller follow-up spark burst fires,
     // echoing the first alarm like a double-tap warning strobe.
-    if (ct.slot === 7 && !_rejectBurst2Fired && dt3 >= 0.743) { // Pass 4479: reject secondary strobe trigger 0.55→0.743 later double-tap alarm
+    if (ct.slot === 7 && !_rejectBurst2Fired && dt3 >= 1.00) { // Pass 4479: reject secondary strobe trigger 0.55→0.743 later double-tap alarm — Pass 6682: 0.743→1.00 later double-tap alarm
       _rejectBurst2Fired = true;
       let _rb2 = 0;
       // Pass 1048: reject burst2 count 8→12
@@ -4545,7 +4545,7 @@ function animate(ts) {
         tp.mat.opacity = 1.0 + Math.random() * 0.851; // Pass 1977: mech trail opacity 0.88+0.35→1.0+0.47 — Pass 4641: arm trail rand 0.47→0.63 brighter mechanical return contrail — Pass 5664: rand 0.63→0.851 brighter armReturn mechanical contrail opacity variance
       }
       // Pass 867: trail life 0.32+0.12→0.46+0.18 — Pass 1054: →0.62+0.24 — Pass 1506: →0.80+0.32 — Pass 1601: →1.05+0.42 longer-lived contrail
-      tp.age = 0; tp.life = 11.6 + Math.random() * 4.64; // Pass 2152: armReturn trail life 1.42+0.57→1.92+0.77 — Pass 2647: 1.92+0.77→2.59+1.04 — Pass 2878: 2.59+1.04→3.50+1.40 — Pass 3088: 3.50+1.40→4.73+1.89 — Pass 3264: 4.73+1.89→6.39+2.55 — Pass 4343: 6.39+2.55→8.63+3.44 longer return contrail — Pass 5586: 8.63→11.6 longer arm return contrail base life — Pass 5587: 3.44→4.64 longer arm return contrail life variance
+      tp.age = 0; tp.life = 15.7 + Math.random() * 4.64; // Pass 2152: armReturn trail life 1.42+0.57→1.92+0.77 — Pass 2647: 1.92+0.77→2.59+1.04 — Pass 2878: 2.59+1.04→3.50+1.40 — Pass 3088: 3.50+1.40→4.73+1.89 — Pass 3264: 4.73+1.89→6.39+2.55 — Pass 4343: 6.39+2.55→8.63+3.44 longer return contrail — Pass 5586: 8.63→11.6 longer arm return contrail base life — Pass 5587: 3.44→4.64 longer arm return contrail life variance — Pass 6683: 11.6→15.7 longer arm return contrail base life
       tp.active = true; tp.mesh.visible = true;
     }
   }
