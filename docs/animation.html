@@ -612,7 +612,7 @@ for (let i = 0; i < DUST_COUNT; i++) {
   dustPositions[i*3+1] = THREE.MathUtils.randFloat(0, 200);     // Y
   dustPositions[i*3+2] = THREE.MathUtils.randFloat(-200, 200);  // Z
   dustPhases[i] = Math.random() * Math.PI * 2;
-  dustSpeeds[i] = THREE.MathUtils.randFloat(0.244, 0.729); // Pass 4785: dust particle speed 0.03→0.04, 0.09→0.12 livelier ambient drift — Pass 5008: 0.04→0.054, 0.12→0.162 livelier ambient drift — Pass 5722: 0.054→0.073, 0.162→0.219 livelier ambient dust drift speed — Pass 5992: 0.073→0.099, 0.219→0.296 livelier ambient dust mote drift speed — Pass 6225: 0.099→0.134, 0.296→0.400 livelier ambient dust mote drift speed — Pass 6300: 0.134→0.181, 0.400→0.540 livelier ambient dust mote drift speed — Pass 6405: 0.181→0.244, 0.540→0.729 livelier ambient dust mote drift speed
+  dustSpeeds[i] = THREE.MathUtils.randFloat(0.329, 0.984); // Pass 4785: dust particle speed 0.03→0.04, 0.09→0.12 livelier ambient drift — Pass 5008: 0.04→0.054, 0.12→0.162 livelier ambient drift — Pass 5722: 0.054→0.073, 0.162→0.219 livelier ambient dust drift speed — Pass 5992: 0.073→0.099, 0.219→0.296 livelier ambient dust mote drift speed — Pass 6225: 0.099→0.134, 0.296→0.400 livelier ambient dust mote drift speed — Pass 6300: 0.134→0.181, 0.400→0.540 livelier ambient dust mote drift speed — Pass 6405: 0.181→0.244, 0.540→0.729 livelier ambient dust mote drift speed — Pass 6644: 0.244→0.329, 0.729→0.984 livelier ambient dust mote drift speed
 }
 const dustGeo = new THREE.BufferGeometry();
 dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
@@ -806,7 +806,7 @@ beltTex.wrapS = THREE.RepeatWrapping;
 beltTex.repeat.set(4, 1); // fewer repeats for wider visible pattern
 const beltSurfMat = new THREE.MeshStandardMaterial({
   map: beltTex, roughness: 0.55, metalness: 0.1,
-  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 2.39 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline — Pass 5723: 0.532→0.719 brighter belt surface baseline emissive — Pass 5932: 0.719→0.971 brighter belt surface baseline emissive — Pass 5971: 0.971→1.31 brighter belt surface baseline emissive — Pass 6055: 1.31→1.77 brighter belt surface baseline emissive — Pass 6495: 1.77→2.39 brighter belt surface baseline emissive
+  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 3.23 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline — Pass 5723: 0.532→0.719 brighter belt surface baseline emissive — Pass 5932: 0.719→0.971 brighter belt surface baseline emissive — Pass 5971: 0.971→1.31 brighter belt surface baseline emissive — Pass 6055: 1.31→1.77 brighter belt surface baseline emissive — Pass 6495: 1.77→2.39 brighter belt surface baseline emissive — Pass 6645: 2.39→3.23 brighter belt surface baseline emissive
 });
 const beltSurf = new THREE.Mesh(new THREE.BoxGeometry(248, 2, 76), beltSurfMat);
 beltSurf.position.set(-40, CONV_Y_TOP + 1, 0);
@@ -956,7 +956,7 @@ const scanConeMat = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide, depthWrite: false
 });
 const scanCone = new THREE.Mesh(
-  new THREE.ConeGeometry(294, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius — Pass 5748: 88.6→119.6 even wider scan flash cone radius — Pass 5881: 119.6→161.5 even wider scan flash cone radius — Pass 5957: 161.5→218.0 even wider scan flash cone radius — Pass 6227: 218.0→294 even wider scan flash cone radius
+  new THREE.ConeGeometry(397, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone — Pass 4994: 48.6→65.6 even wider scan flash cone — Pass 5474: 65.6→88.6 even wider scan flash cone radius — Pass 5748: 88.6→119.6 even wider scan flash cone radius — Pass 5881: 119.6→161.5 even wider scan flash cone radius — Pass 5957: 161.5→218.0 even wider scan flash cone radius — Pass 6227: 218.0→294 even wider scan flash cone radius — Pass 6646: 294→397 even wider scan flash cone radius
   scanConeMat
 );
 // Tip at scanner lens; open base toward card — rotate 180° so tip is up, base down
@@ -968,7 +968,7 @@ const scanBeamMat = new THREE.MeshBasicMaterial({
   color: 0x00ff88, transparent: true, opacity: 0, depthWrite: false
 });
 const scanBeam = new THREE.Mesh(
-  new THREE.CylinderGeometry(6.66, 6.66, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core — Pass 5456: 2.70→3.65 even fatter scan laser beam core — Pass 5868: 3.65→4.93 even fatter scan laser beam core radius — Pass 6311: 4.93→6.66 even fatter scan laser beam core radius
+  new THREE.CylinderGeometry(8.99, 8.99, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core — Pass 5456: 2.70→3.65 even fatter scan laser beam core — Pass 5868: 3.65→4.93 even fatter scan laser beam core radius — Pass 6311: 4.93→6.66 even fatter scan laser beam core radius — Pass 6650: 6.66→8.99 even fatter scan laser beam core radius
   scanBeamMat
 );
 scanBeam.position.set(-40, CONV_Y_TOP + 10, 0);
@@ -989,7 +989,7 @@ scene.add(scanLine);
 const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
-  emissiveIntensity: 27.5, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive — Pass 5995: 11.2→15.1 brighter scan crosshair secondary sweep bar emissive — Pass 6061: 15.1→20.4 brighter scan crosshair secondary sweep bar emissive — Pass 6441: 20.4→27.5 brighter scan crosshair secondary sweep bar emissive
+  emissiveIntensity: 37.1, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive — Pass 5995: 11.2→15.1 brighter scan crosshair secondary sweep bar emissive — Pass 6061: 15.1→20.4 brighter scan crosshair secondary sweep bar emissive — Pass 6441: 20.4→27.5 brighter scan crosshair secondary sweep bar emissive — Pass 6651: 27.5→37.1 brighter scan crosshair secondary sweep bar emissive
   transparent: true, opacity: 2.93 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep — Pass 5880: 1.19→1.61 overdrive scan crosshair secondary sweep opacity — Pass 6308: 1.61→2.17 overdrive scan crosshair secondary sweep opacity — Pass 6442: 2.17→2.93 overdrive scan crosshair secondary sweep opacity
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 221), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height — Pass 5072: 121.5→164 wider secondary scan sweep — Pass 6310: 164→221 wider secondary scan crosshair sweep span
@@ -1519,7 +1519,7 @@ scene.add(routeArcLine);
 const routeTargetMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0, roughness: 0.3, transparent: true, opacity: 0
 });
-const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(13.3, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb — Pass 5458: 7.29→9.84 even larger slot destination indicator orb — Pass 5749: 9.84→13.3 larger slot destination indicator orb
+const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(18.0, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb — Pass 5458: 7.29→9.84 even larger slot destination indicator orb — Pass 5749: 9.84→13.3 larger slot destination indicator orb — Pass 6648: 13.3→18.0 larger slot destination indicator orb
 scene.add(routeTarget);
 
 // ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
@@ -1557,7 +1557,7 @@ let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.
 const confirmRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 4.00, 6, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring — Pass 5365: 2.19→2.96 chunkier identity confirm ring — Pass 5736: 2.96→4.00 chunkier identity confirm ring tube — Pass 5831: tube segments 4→6 smoother identity confirm ring cross-section
+const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 5.40, 6, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring — Pass 5365: 2.19→2.96 chunkier identity confirm ring — Pass 5736: 2.96→4.00 chunkier identity confirm ring tube — Pass 5831: tube segments 4→6 smoother identity confirm ring cross-section — Pass 6649: 4.00→5.40 chunkier identity confirm ring tube
 confirmRing.rotation.x = -Math.PI / 2; // lie flat (XZ plane)
 confirmRing.visible = false;
 scene.add(confirmRing);
@@ -1600,7 +1600,7 @@ const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
   });
-  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 2.46, 11, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube — Pass 5829: tube segments 8→11 smoother sonar ring cross-section
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 3.32, 11, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube — Pass 5829: tube segments 8→11 smoother sonar ring cross-section — Pass 6647: 2.46→3.32 fatter sonar ping ring tube
   mesh.visible = false;
   // Oriented flat (XZ plane) at card level, centered on scanner X
   mesh.rotation.x = -Math.PI / 2;
@@ -3922,9 +3922,9 @@ function animate(ts) {
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 2384 + Math.random() * 2047; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst — Pass 5516: base 1766→2384 faster gate spark burst — Pass 5498: rand 1516→2047 wider gate spark speed burst
+          const _spd = 3218 + Math.random() * 2047; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst — Pass 5516: base 1766→2384 faster gate spark burst — Pass 5498: rand 1516→2047 wider gate spark speed burst — Pass 6645: base 2384→3218 faster gate spark burst base speed
           _sp.vx = Math.cos(_ang) * _spd * 1.73; // Pass 4794: gate spark vx spread 0.7→0.945 — Pass 5084: 0.945→1.28 wider gate spark vx — Pass 5782: 1.28→1.73 wider gate spark vx spread
-          _sp.vy = 1639 + Math.random() * 1328; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft — Pass 5507: base 1214→1639 higher gate spark loft — Pass 5508: rand 984→1328 higher gate spark loft range
+          _sp.vy = 2213 + Math.random() * 1328; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft — Pass 5507: base 1214→1639 higher gate spark loft — Pass 5508: rand 984→1328 higher gate spark loft range — Pass 6644: base 1639→2213 higher gate spark loft base
           _sp.vz = Math.sin(_ang) * _spd * 1.23 + Math.sign(ct.slotZ || 1) * 20.3; // Pass 4795: gate spark vz spread 0.5→0.675 — Pass 5085: 0.675→0.911 wider gate spark vz — Pass 5783: 0.911→1.23 wider gate spark vz spread, lateral 15→20.3 stronger gate routing bias
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
@@ -3941,7 +3941,7 @@ function animate(ts) {
     // Pass 526: 6.5→9.0 — Pass 636: →12.5 — Pass 784: →18.0 — Pass 918: →26.0 — Pass 1184: →36.0 — Pass 1353: →68.0 for bigger arc apex pop
     if (!_arcPeakFlashFired && dt2 >= 0.46) {
       _arcPeakFlashFired = true;
-      const _apfl = new THREE.PointLight(ct.hex, 6145, 230); // Pass 2373: arc-peak flash 226.4→305.6 — Pass 2593: 305.6→412.6 — Pass 2853: 412.6→557.0 — Pass 3032: 557.0→752.0 — Pass 3221: 752.0→1015.2 — Pass 3389: 1015.2→1370.5 — Pass 3520: 1370.5→1850 — Pass 3733: 1850→2498 — Pass 3839: 2498→3372 — Pass 4385: 3372→4552 blinding deflect arc-peak flash — Pass 5537: 4552→6145 blinding deflect arc-peak flash
+      const _apfl = new THREE.PointLight(ct.hex, 8296, 230); // Pass 2373: arc-peak flash 226.4→305.6 — Pass 2593: 305.6→412.6 — Pass 2853: 412.6→557.0 — Pass 3032: 557.0→752.0 — Pass 3221: 752.0→1015.2 — Pass 3389: 1015.2→1370.5 — Pass 3520: 1370.5→1850 — Pass 3733: 1850→2498 — Pass 3839: 2498→3372 — Pass 4385: 3372→4552 blinding deflect arc-peak flash — Pass 5537: 4552→6145 blinding deflect arc-peak flash — Pass 6647: 6145→8296 blinding deflect arc-peak flash peak intensity
       _apfl.position.copy(activeCard.position);
       scene.add(_apfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4003,7 +4003,7 @@ function animate(ts) {
       : THREE.MathUtils.lerp(activeCard.position.z, ct.slotZ, (dt2 - 0.5) / 0.5);
     scanTargetLight.position.set(TRAY_X_START + 10, ct.slotFloorY + 55, _lightZ318);
     // Pass 354: deflect target light easeOut + intensity boost (1.8 → 2.6) — Pass 964: →4.0 — Pass 1191: →6.0
-    scanTargetLight.intensity = easeOut(dt2) * 162; // Pass 2382: deflect target light 14.7→19.8 — Pass 2602: 19.8→26.7 — Pass 3041: 26.7→36.1 — Pass 3236: 36.1→48.7 — Pass 3395: 48.7→65.7 — Pass 3460: 65.7→88.7 — Pass 4000: 88.7→120 — Pass 5512: 120→162 brighter deflect target spotlight peak
+    scanTargetLight.intensity = easeOut(dt2) * 219; // Pass 2382: deflect target light 14.7→19.8 — Pass 2602: 19.8→26.7 — Pass 3041: 26.7→36.1 — Pass 3236: 36.1→48.7 — Pass 3395: 48.7→65.7 — Pass 3460: 65.7→88.7 — Pass 4000: 88.7→120 — Pass 5512: 120→162 brighter deflect target spotlight peak — Pass 6646: 162→219 brighter deflect target spotlight peak
     // Keep gate paddle colored while card is deflecting
     // Pass 248: paddle domain-to-orange afterglow — domain color during peak window, then fades
     // to orange-red after dt2=0.18, giving a visible cool-down transition on the paddle face.
@@ -4118,7 +4118,7 @@ function animate(ts) {
     // Pass 179: slot guide-wall Z-oscillation — card bounces off walls while settling
     // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
     // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 — Pass 1114: primary 5.5→7.5, secondary 1.5→2.2 — Pass 1200: primary →10.5, secondary →3.2 — Pass 1258: primary →13.5, secondary →4.2 — Pass 1408: primary →18.0, secondary →5.6 for even more pronounced slot wall bounce
-    const _slotWallZ = ct.slotZ + (489 * Math.sin(dt3 * Math.PI * 5.4) + 112.6 * Math.sin(dt3 * Math.PI * 8.78 + 0.5)) * Math.max(0, 1 - dt3 * 3.44); // Pass 4620: slot wall bounce decay rate 1.4→1.89 snappier confetti bounce damping — Pass 2109: wall Z primary 32.8→44.3 Pass 2110: secondary 10.2→13.8 — Pass 2610: 44.3→59.8, 13.8→18.6 — Pass 3048: 59.8→80.7 Pass 3049: 18.6→25.1 — Pass 3233: 80.7→108.9 Pass 3234: 25.1→33.9 — Pass 3400: 108.9→147.0 Pass 3401: 33.9→45.8 — Pass 4303: primary 147.0→198.5 — Pass 4304: secondary 45.8→61.8 wilder slot wall bounce — Pass 4580: wall bounce oscillation count 4→5.4 more slot drop bounces — Pass 4626: slot wall bounce secondary frequency 6.5→8.78 faster secondary rattle — Pass 5098: primary 198.5→268 stronger slot wall collision rebound energy — Pass 5099: secondary 61.8→83.4 stronger slot wall secondary rebound energy — Pass 5140: primary 268→362 stronger slot wall approach rebound energy — Pass 5433: slot wall spring decay rate 1.89→2.55 snappier slot wall spring rate — Pass 6612: primary 362→489 stronger slot wall primary bounce energy — Pass 6613: secondary 83.4→112.6 stronger slot wall secondary bounce energy — Pass 6614: decay 2.55→3.44 snappier slot wall spring decay rate
+    const _slotWallZ = ct.slotZ + (489 * Math.sin(dt3 * Math.PI * 5.4) + 112.6 * Math.sin(dt3 * Math.PI * 8.78 + 0.5)) * Math.max(0, 1 - dt3 * 3.44); // Pass 4620: slot wall bounce decay rate 1.4→1.89 snappier confetti bounce damping — Pass 2109: wall Z primary 32.8→44.3 Pass 2110: secondary 10.2→13.8 — Pass 2610: 44.3→59.8, 13.8→18.6 — Pass 3048: 59.8→80.7 Pass 3049: 18.6→25.1 — Pass 3233: 80.7→108.9 Pass 3234: 25.1→33.9 — Pass 3400: 108.9→147.0 Pass 3401: 33.9→45.8 — Pass 4303: primary 147.0→198.5 — Pass 4304: secondary 45.8→61.8 wilder slot wall bounce — Pass 4580: wall bounce oscillation count 4→5.4 more slot drop bounces — Pass 4626: slot wall bounce secondary frequency 6.5→8.78 faster secondary rattle — Pass 5098: primary 198.5→268 stronger slot wall collision rebound energy — Pass 5099: secondary 61.8→83.4 stronger slot wall secondary rebound energy — Pass 5140: primary 268→362 stronger slot wall approach rebound energy — Pass 5433: slot wall spring decay rate 1.89→2.55 snappier slot wall spring rate — Pass 6644: primary 362→489 stronger slot wall primary bounce energy — Pass 6645: secondary 83.4→112.6 stronger slot wall secondary bounce energy — Pass 6646: decay 2.55→3.44 snappier slot wall spring decay rate
     activeCard.position.set(TRAY_X_START + 36.5, cy, _slotWallZ); // Pass 4520: slot drop card X drift 20→27.0 wider lateral fall offset — Pass 5650: 27.0→36.5 wider slot drop card lateral fall offset
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
