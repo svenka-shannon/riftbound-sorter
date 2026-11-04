@@ -3180,7 +3180,7 @@ function animate(ts) {
       scanLEDMat.emissive.setHex(0x0055cc);
     }
     // Pass 74/438: scanner hood deep pulse — Pass 438: domain lerp dt*2→dt*3, flashIntensity 0.8→1.2
-    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 3 + flashIntensity * 1.2));
+    hoodMat.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 3 + flashIntensity * 1.62)); // Pass 4796: scanner hood emissive lerp flash contribution 1.2→1.62
     // Pass 123: hood reveal strobe — Pass 437: duration dt*5.5→dt*3.8 (longer visible strobe)
     if (_hoodRevealFlash > 0) {
       _hoodRevealFlash = Math.min(1, _hoodRevealFlash + dt * 5.13); // Pass 4787: hood reveal flash progression rate 3.8→5.13 snappier reveal strobe
@@ -3288,7 +3288,7 @@ function animate(ts) {
         // Pass 171: each dot switches domain color at its own cascade threshold
         const _dotSwitchFt = 0.85 + di * 0.014; // dot 0 at 0.85, dot 8 at 0.962
         const dotColor = ft >= _dotSwitchFt ? ct.hex : 0xaaddff;
-        const dotOp = Math.sin(Math.min(1, dotFt) * Math.PI) * flashIntensity * (0.95 + _dotRevealBurst * 0.5);
+        const dotOp = Math.sin(Math.min(1, dotFt) * Math.PI) * flashIntensity * (1.28 + _dotRevealBurst * 0.5); // Pass 4797: scan dot opacity base 0.95→1.28
         if (dotOp > 0.01) {
           mesh.visible = true;
           // Pass 211: scan grid dots float — pre-reveal dots oscillate in Y at 3Hz with
@@ -3421,9 +3421,9 @@ function animate(ts) {
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 18) * Math.PI * 2 + Math.random() * 0.8;
             const _spd = 1554 + Math.random() * 1432; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582 — Pass 3561: base 632→853, range 582→786 — Pass 3720: 853+786→1151+1061 — Pass 4116: 1151+1061→1554+1432 explosive confirm burst
-            _bp.vx = Math.cos(_ang) * _spd * 0.55;
+            _bp.vx = Math.cos(_ang) * _spd * 0.743; // Pass 4792: confirm burst vx spread 0.55→0.743
             _bp.vy = 1025 + Math.random() * 695; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416 — Pass 3560: base 416→562, rand 282→381 — Pass 3721: 562+381→759+515 — Pass 4117: base 759→1025 — Pass 4118: rand 515→695 higher burst
-            _bp.vz = Math.sin(_ang) * _spd * 0.55;
+            _bp.vz = Math.sin(_ang) * _spd * 0.743; // Pass 4793: confirm burst vz spread 0.55→0.743
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
           }
@@ -3455,7 +3455,7 @@ function animate(ts) {
         }
       }
       // Pass 841: scan bar opacity base 0.75→0.90, flash contribution 0.25→0.40 for more vivid bar
-      scanBarMat.opacity = Math.min(1, 0.90 + flashIntensity * 0.40);
+      scanBarMat.opacity = Math.min(1, 0.90 + flashIntensity * 0.54); // Pass 4798: scan bar flash opacity contribution 0.40→0.54
       // Pass 469: apply init flash OVER normal bar (brief white overbloom in first 4%)
       if (_barInitFlash469 > 0.1) {
         scanBarMat.color.set(0xffffff); scanBarMat.emissive.set(0xffffff);
@@ -3703,7 +3703,7 @@ function animate(ts) {
     // Pass 103: HUD breathes with scan flash intensity — slight scale pulse
     // Pass 219: completion bounce — Pass 566: 0.12→0.22 — Pass 619: →0.32 — Pass 817: →0.48
     const _ovBounce = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 0.48 : 0;
-    _ov.style.transform = `translateX(-50%) scale(${(1.0 + flashIntensity * 0.10 + _ovBounce).toFixed(4)})`;
+    _ov.style.transform = `translateX(-50%) scale(${(1.0 + flashIntensity * 0.135 + _ovBounce).toFixed(4)})`; // Pass 4799: scan overlay flash scale 0.10→0.135
   }
 
   // ── Phase 4: Conveyor to gate (3.1..3.8s) ──
@@ -3923,9 +3923,9 @@ function animate(ts) {
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
           const _spd = 1766 + Math.random() * 1516; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst
-          _sp.vx = Math.cos(_ang) * _spd * 0.7;
+          _sp.vx = Math.cos(_ang) * _spd * 0.945; // Pass 4794: gate spark vx spread 0.7→0.945
           _sp.vy = 1214 + Math.random() * 984; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft
-          _sp.vz = Math.sin(_ang) * _spd * 0.5 + Math.sign(ct.slotZ || 1) * 15;
+          _sp.vz = Math.sin(_ang) * _spd * 0.675 + Math.sign(ct.slotZ || 1) * 15; // Pass 4795: gate spark vz spread 0.5→0.675
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
           _sp.mat.color.setHex(
