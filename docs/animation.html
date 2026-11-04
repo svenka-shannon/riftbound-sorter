@@ -122,7 +122,7 @@
     45%  { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-4px); }
   }
-  #scan-confirm.confirm-pop { animation: scanConfirmPop 5.32s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop — Pass 7226: 2.16s→2.92s longer domain reveal pop — Pass 7480: 2.92s→3.94s longer domain reveal pop — Pass 7565: 3.94s→5.32s longer domain reveal pop */
+  #scan-confirm.confirm-pop { animation: scanConfirmPop 7.18s ease-out forwards; } /* Pass 7092: scanConfirmPop animation duration 1.6s→2.16s longer domain reveal pop — Pass 7226: 2.16s→2.92s longer domain reveal pop — Pass 7480: 2.92s→3.94s longer domain reveal pop — Pass 7565: 3.94s→5.32s longer domain reveal pop — Pass 7675: 5.32s→7.18s longer domain reveal pop */
 
   #hint {
     position: fixed; bottom: 20px; right: 20px;
@@ -544,7 +544,7 @@ Space=pause · 1–4=speed · R=reset view &amp; auto-orbit<br>
 // ─── Scene Setup ──────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0f);
-scene.fog = new THREE.FogExp2(0x0a0a0f, 0.002469); // Pass 7267: scene fog density 0.00055→0.000743 denser atmospheric haze — Pass 7283: 0.000743→0.001003 denser atmospheric haze — Pass 7451: 0.001003→0.001354 denser atmospheric haze — Pass 7611: 0.001354→0.001829 denser atmospheric haze — Pass 7666: 0.001829→0.002469 denser atmospheric haze
+scene.fog = new THREE.FogExp2(0x0a0a0f, 0.003333); // Pass 7267: scene fog density 0.00055→0.000743 denser atmospheric haze — Pass 7283: 0.000743→0.001003 denser atmospheric haze — Pass 7451: 0.001003→0.001354 denser atmospheric haze — Pass 7611: 0.001354→0.001829 denser atmospheric haze — Pass 7666: 0.001829→0.002469 denser atmospheric haze — Pass 7676: 0.002469→0.003333 denser atmospheric haze
 
 const W = window.innerWidth, H = window.innerHeight;
 const camera = new THREE.PerspectiveCamera(55, W/H, 1, 8000);
@@ -1507,7 +1507,7 @@ scene.add(cardShimmerMesh);
 
 // ─── Routing arc: scanner → target slot ──────────────────────────────────────
 // Quadratic bezier arc drawn during scan phase — makes routing decision unmistakable
-const ROUTE_SEGS = 69; // Pass 5828: 28→38 smoother routing arc bezier segments — Pass 7030: 38→51 smoother routing arc bezier segments — Pass 7476: 51→69 smoother routing arc bezier segments
+const ROUTE_SEGS = 93; // Pass 5828: 28→38 smoother routing arc bezier segments — Pass 7030: 38→51 smoother routing arc bezier segments — Pass 7476: 51→69 smoother routing arc bezier segments — Pass 7677: 69→93 smoother routing arc bezier segments
 const routeArcGeo = new THREE.BufferGeometry();
 const routeArcPts = new Float32Array((ROUTE_SEGS + 1) * 3);
 routeArcGeo.setAttribute('position', new THREE.BufferAttribute(routeArcPts, 3));
@@ -1524,7 +1524,7 @@ scene.add(routeTarget);
 
 // ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
 // Creates a motion-blur wake effect; opacity decreases with distance behind active card
-const GHOST_COUNT = 9; // Pass 4989: ghost trail card count 3→4 richer motion blur — Pass 6348: 4→5 richer motion blur trail card count — Pass 7140: 5→7 richer motion blur trail card count — Pass 7488: 7→9 richer motion blur trail card count
+const GHOST_COUNT = 12; // Pass 4989: ghost trail card count 3→4 richer motion blur — Pass 6348: 4→5 richer motion blur trail card count — Pass 7140: 5→7 richer motion blur trail card count — Pass 7488: 7→9 richer motion blur trail card count — Pass 7678: 9→12 richer motion blur trail card count
 const ghostCards = [];
 for (let _gi = 0; _gi < GHOST_COUNT; _gi++) {
   const _gMat = new THREE.MeshStandardMaterial({
@@ -1595,7 +1595,7 @@ vacuumRing.visible = false;
 scene.add(vacuumRing);
 
 // Pass 63: Scanner sonar ping rings — 3 concentric rings that expand from scanner during scan
-const SCAN_PING_COUNT = 16; // Pass 4990: scan ping ring count 3→4 denser sonar burst — Pass 6349: 4→5 denser sonar burst ring count — Pass 6779: 5→7 denser sonar burst ring count — Pass 7031: 7→9 denser sonar burst ring count — Pass 7337: 9→12 denser sonar burst ring count — Pass 7388: 12→16 denser sonar burst ring count
+const SCAN_PING_COUNT = 22; // Pass 4990: scan ping ring count 3→4 denser sonar burst — Pass 6349: 4→5 denser sonar burst ring count — Pass 6779: 5→7 denser sonar burst ring count — Pass 7031: 7→9 denser sonar burst ring count — Pass 7337: 9→12 denser sonar burst ring count — Pass 7388: 12→16 denser sonar burst ring count — Pass 7679: 16→22 denser sonar burst ring count
 const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
@@ -1908,7 +1908,7 @@ const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 // ─── Pass 34: Grab particle burst pool + domain fill light ───────────────────
 // 16 small spheres scatter from grab point when arm picks up a card.
 const GRAB_PARTICLES = [];
-for (let _gpi = 0; _gpi < 448; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir — Pass 6268: 22→30 larger grab burst particle reservoir — Pass 6396: 30→41 larger grab burst particle reservoir — Pass 6526: 41→55 larger grab burst particle reservoir — Pass 6690: 55→74 larger grab burst particle reservoir — Pass 6778: 74→100 larger grab burst particle reservoir — Pass 6999: 100→135 larger grab burst particle reservoir — Pass 7244: 135→182 larger grab burst particle reservoir — Pass 7287: 182→246 larger grab burst particle reservoir — Pass 7419: 246→332 larger grab burst particle reservoir — Pass 7591: 332→448 larger grab burst particle reservoir
+for (let _gpi = 0; _gpi < 605; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir — Pass 6268: 22→30 larger grab burst particle reservoir — Pass 6396: 30→41 larger grab burst particle reservoir — Pass 6526: 41→55 larger grab burst particle reservoir — Pass 6690: 55→74 larger grab burst particle reservoir — Pass 6778: 74→100 larger grab burst particle reservoir — Pass 6999: 100→135 larger grab burst particle reservoir — Pass 7244: 135→182 larger grab burst particle reservoir — Pass 7287: 182→246 larger grab burst particle reservoir — Pass 7419: 246→332 larger grab burst particle reservoir — Pass 7591: 332→448 larger grab burst particle reservoir — Pass 7680: 448→605 larger grab burst particle reservoir
   const _gpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(51.2, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst — Pass 5916: 2.55→3.44 chunkier grab burst particle sphere — Pass 6397: 3.44→4.64 chunkier grab burst particle sphere — Pass 6684: 4.64→6.26 chunkier grab burst particle sphere — Pass 6767: 6.26→8.45 chunkier grab burst particle sphere — Pass 6998: 8.45→11.4 chunkier grab burst particle sphere — Pass 7245: 11.4→15.4 chunkier grab burst particle sphere — Pass 7280: 15.4→20.8 chunkier grab burst particle sphere — Pass 7420: 20.8→28.1 chunkier grab burst particle sphere — Pass 7460: 28.1→37.9 chunkier grab burst particle sphere — Pass 7557: 37.9→51.2 chunkier grab burst particle sphere
   _gpMesh.visible = false;
@@ -1935,7 +1935,7 @@ scene.add(_beltTrackLight);
 // 24 small spheres remain stationary where spawned, tracing the card's arc path
 // during the deflect phase. Domain-colored, fade ~0.4s with slight upward drift.
 const TRAIL_PARTICLES = [];
-const TRAIL_PARTICLE_COUNT = 9523; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool — Pass 6411: 192→259 richer deflect trail particle pool — Pass 6502: 259→350 richer deflect trail particle pool — Pass 6510: 350→473 richer deflect trail particle pool — Pass 6656: 473→639 richer deflect trail particle pool — Pass 6683: 639→863 richer deflect trail particle pool — Pass 6770: 863→1165 richer deflect trail particle pool — Pass 6977: 1165→1573 richer deflect trail particle pool — Pass 7203: 1573→2124 richer deflect trail particle pool — Pass 7230: 2124→2867 richer deflect trail particle pool — Pass 7252: 2867→3870 richer deflect trail particle pool — Pass 7285: 3870→5225 richer deflect trail particle pool — Pass 7475: 5225→7054 richer deflect trail particle pool — Pass 7663: 7054→9523 richer deflect trail particle pool
+const TRAIL_PARTICLE_COUNT = 12856; // Pass 4959: trail particle pool 24→32 richer deflect wake — Pass 5528: 32→43 richer deflect trail particle pool — Pass 5858: 43→58 richer deflect wake trail particle pool — Pass 5961: 58→78 richer deflect wake trail particle pool — Pass 5994: 78→105 richer deflect wake trail particle pool — Pass 6036: 105→142 richer deflect trail particle pool — Pass 6358: 142→192 richer deflect trail particle pool — Pass 6411: 192→259 richer deflect trail particle pool — Pass 6502: 259→350 richer deflect trail particle pool — Pass 6510: 350→473 richer deflect trail particle pool — Pass 6656: 473→639 richer deflect trail particle pool — Pass 6683: 639→863 richer deflect trail particle pool — Pass 6770: 863→1165 richer deflect trail particle pool — Pass 6977: 1165→1573 richer deflect trail particle pool — Pass 7203: 1573→2124 richer deflect trail particle pool — Pass 7230: 2124→2867 richer deflect trail particle pool — Pass 7252: 2867→3870 richer deflect trail particle pool — Pass 7285: 3870→5225 richer deflect trail particle pool — Pass 7475: 5225→7054 richer deflect trail particle pool — Pass 7663: 7054→9523 richer deflect trail particle pool — Pass 7681: 9523→12856 richer deflect trail particle pool
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(109, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads — Pass 5451: 4.01→5.41 chunkier arm arc trail particle radius — Pass 5856: 5.41→7.30 chunkier arm arc trail contrail particle radius — Pass 6037: 7.30→9.86 chunkier arm arc trail contrail particle radius — Pass 6457: 9.86→13.3 chunkier arm arc trail contrail particle radius — Pass 6503: 13.3→18.0 chunkier arm arc trail contrail particle radius — Pass 6687: 18.0→24.3 chunkier arm arc trail contrail particle radius — Pass 6771: 24.3→32.8 chunkier arm arc trail contrail particle radius — Pass 6846: 32.8→44.3 chunkier arm arc trail contrail particle radius — Pass 7001: 44.3→59.8 chunkier arm arc trail contrail particle radius — Pass 7459: 59.8→80.7 chunkier arm arc trail contrail particle radius — Pass 7656: 80.7→109 chunkier arm arc trail contrail particle radius
@@ -1950,7 +1950,7 @@ let _trailSpawnAcc = 0;    // time accumulator for spawn rate
 // 32 spheres in all 8 domain colors fire upward from above the tray when
 // a complete sort round (all 8 domains) finishes. Each domain gets 4 particles.
 const CELEB_PARTICLES = [];
-const CELEB_COUNT = 12856; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst — Pass 5959: 105→142 even more confetti per celebration burst — Pass 5999: 142→192 even more confetti per celebration burst — Pass 6530: 192→259 more confetti per celebration burst — Pass 6655: 259→350 more confetti per celebration burst — Pass 6682: 350→473 more confetti per celebration burst — Pass 6691: 473→639 more confetti per celebration burst — Pass 6772: 639→863 more confetti per celebration burst — Pass 6979: 863→1165 more confetti per celebration burst — Pass 7204: 1165→1573 more confetti per celebration burst — Pass 7229: 1573→2124 more confetti per celebration burst — Pass 7251: 2124→2867 more confetti per celebration burst — Pass 7286: 2867→3870 more confetti per celebration burst — Pass 7426: 3870→5225 more confetti per celebration burst — Pass 7561: 5225→7054 more confetti per celebration burst — Pass 7580: 7054→9523 more confetti per celebration burst — Pass 7673: 9523→12856 more confetti per celebration burst
+const CELEB_COUNT = 17355; // Pass 4576: confetti pool size 32→43 more confetti per celebration burst — Pass 4992: 43→58 even more confetti per celebration burst — Pass 5527: 58→78 even more confetti per celebration burst — Pass 5859: 78→105 even more confetti per celebration burst — Pass 5959: 105→142 even more confetti per celebration burst — Pass 5999: 142→192 even more confetti per celebration burst — Pass 6530: 192→259 more confetti per celebration burst — Pass 6655: 259→350 more confetti per celebration burst — Pass 6682: 350→473 more confetti per celebration burst — Pass 6691: 473→639 more confetti per celebration burst — Pass 6772: 639→863 more confetti per celebration burst — Pass 6979: 863→1165 more confetti per celebration burst — Pass 7204: 1165→1573 more confetti per celebration burst — Pass 7229: 1573→2124 more confetti per celebration burst — Pass 7251: 2124→2867 more confetti per celebration burst — Pass 7286: 2867→3870 more confetti per celebration burst — Pass 7426: 3870→5225 more confetti per celebration burst — Pass 7561: 5225→7054 more confetti per celebration burst — Pass 7580: 7054→9523 more confetti per celebration burst — Pass 7673: 9523→12856 more confetti per celebration burst — Pass 7682: 12856→17355 more confetti per celebration burst
 for (let _cpi = 0; _cpi < CELEB_COUNT; _cpi++) {
   const _cpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
   // Pass 84: flat rectangular confetti (tumbles visibly) instead of spheres
