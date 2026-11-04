@@ -1497,7 +1497,7 @@ scene.add(_shadowMesh);
 // ─── Card face shimmer stripe (pass 90) ─────────────────────────────────────
 // Narrow bright band swept across the card face during scan — simulates specular
 // reflection of the scanner beam reading the card surface (X=fullwidth, thin Z=7).
-const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 1.22, 9.45); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band
+const cardShimmerGeo = new THREE.BoxGeometry(CARD_W, 1.65, 12.76); // Pass 4486: shimmer spread Z width 7→9.45 wider scan beam spread — Pass 4578: shimmer stripe height 0.9→1.22 bolder shimmer band — Pass 4979: Z width 9.45→12.76 wider shimmer sweep — Pass 4980: stripe height 1.22→1.65 bolder shimmer band
 const cardShimmerMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, depthWrite: false,
 });
@@ -1557,7 +1557,7 @@ let _impactRingScale0 = 1.0;  // pass 43: starting scale (1.0 = floor-0 bang, 0.
 const confirmRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 1.62, 4, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring
+const confirmRing = new THREE.Mesh(new THREE.TorusGeometry(10, 2.19, 4, 48), confirmRingMat); // Pass 4018: confirm ring tube radius 1.2→1.62 fatter identity confirm ring — Pass 4976: 1.62→2.19 chunkier identity confirm ring
 confirmRing.rotation.x = -Math.PI / 2; // lie flat (XZ plane)
 confirmRing.visible = false;
 scene.add(confirmRing);
@@ -1566,7 +1566,7 @@ let _confirmRingT = -1; // -1=idle; 0..1=animation progress
 const confirmRing2Mat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 1.08, 4, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring
+const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 1.46, 4, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring
 confirmRing2.rotation.x = -Math.PI / 2;
 confirmRing2.visible = false;
 scene.add(confirmRing2);
@@ -1576,7 +1576,7 @@ let _confirmRingT2 = -1; // -1=idle; 0..1=animation progress (fires 0.12s after 
 const grabRingMat = new THREE.MeshBasicMaterial({
   color: 0xccddff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 1.35, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring
+const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 1.82, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring — Pass 4978: 1.35→1.82 fatter grab suction ring
 grabRing.rotation.x = -Math.PI / 2; // lie flat in the belt plane
 grabRing.visible = false;
 scene.add(grabRing);
@@ -1806,7 +1806,7 @@ function addCardToTray(ct) {
 // They pulse domain color when a card is being routed to that slot.
 const slotLEDs = [];
 CARD_TYPES.forEach(ct => {
-  const geo = new THREE.SphereGeometry(4.05, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators
+  const geo = new THREE.SphereGeometry(5.47, 8, 8); // Pass 4031: slot LED sphere radius 3→4.05 larger domain indicators — Pass 4981: 4.05→5.47 larger slot LED spheres
   const mat = new THREE.MeshStandardMaterial({
     color: ct.hex, emissive: ct.hex, emissiveIntensity: 1.65, // Pass 4766: slot LED initial emissive 0.9→1.22 — Pass 4974: 1.22→1.65 brighter slot domain LEDs
     roughness: 0.2, metalness: 0.0
@@ -1820,7 +1820,7 @@ CARD_TYPES.forEach(ct => {
 
 // ─── Card halo ring: spinning domain-colored torus around active card ─────────
 // Visible during belt travel; makes domain color unmistakably obvious
-const cardHaloGeo = new THREE.TorusGeometry(42, 2.43, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring
+const cardHaloGeo = new THREE.TorusGeometry(42, 3.28, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring
 const cardHaloMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 3.65, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
@@ -1938,7 +1938,7 @@ const TRAIL_PARTICLES = [];
 const TRAIL_PARTICLE_COUNT = 32; // Pass 4959: trail particle pool 24→32 richer deflect wake
 for (let _tpi = 0; _tpi < TRAIL_PARTICLE_COUNT; _tpi++) {
   const _tpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(2.97, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads
+  const _tpMesh = new THREE.Mesh(new THREE.SphereGeometry(4.01, 4, 4), _tpMat); // Pass 4477: arm trail particle radius 2.2→2.97 fatter arc contrail beads — Pass 4983: 2.97→4.01 chunkier arm trail contrail beads
   _tpMesh.visible = false;
   scene.add(_tpMesh);
   TRAIL_PARTICLES.push({ mesh: _tpMesh, mat: _tpMat, life: 0.54, age: 0, active: false }); // Pass 4786: trail particle base life 0.4→0.54 longer contrail persistence
