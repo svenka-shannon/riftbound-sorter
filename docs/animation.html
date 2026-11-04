@@ -1519,7 +1519,7 @@ scene.add(routeArcLine);
 const routeTargetMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0, roughness: 0.3, transparent: true, opacity: 0
 });
-const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(24.3, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb — Pass 5458: 7.29→9.84 even larger slot destination indicator orb — Pass 5749: 9.84→13.3 larger slot destination indicator orb — Pass 6648: 13.3→18.0 larger slot destination indicator orb — Pass 6702: 18.0→24.3 larger slot destination indicator orb
+const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(32.8, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb — Pass 5458: 7.29→9.84 even larger slot destination indicator orb — Pass 5749: 9.84→13.3 larger slot destination indicator orb — Pass 6648: 13.3→18.0 larger slot destination indicator orb — Pass 6702: 18.0→24.3 larger slot destination indicator orb — Pass 6769: 24.3→32.8 larger slot destination indicator orb
 scene.add(routeTarget);
 
 // ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
@@ -1543,7 +1543,7 @@ const impactRingMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0,
 });
 const impactRing = new THREE.Mesh(
-  new THREE.TorusGeometry(32.8, 7.30, 6, 32), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring — Pass 5104: slot ring Z spread radius 24.3→32.8 wider impact ring — Pass 5248: impact ring toroid tube radius 4.01→5.41 fatter shockwave ring — Pass 5751: 5.41→7.30 fatter slot landing shockwave ring tube — Pass 5830: radial segments 24→32 smoother shockwave ring
+  new THREE.TorusGeometry(32.8, 9.86, 6, 32), // Pass 4078: impact ring tube 2.2→2.97 fatter shockwave — Pass 4893: 2.97→4.01 even fatter impact ring — Pass 4922: slot ring Z spread radius 18→24.3 wider impact ring — Pass 5104: slot ring Z spread radius 24.3→32.8 wider impact ring — Pass 5248: impact ring toroid tube radius 4.01→5.41 fatter shockwave ring — Pass 5751: 5.41→7.30 fatter slot landing shockwave ring tube — Pass 5830: radial segments 24→32 smoother shockwave ring — Pass 6747: impact ring tube radius 7.30→9.86 fatter shockwave ring tube
   impactRingMat
 );
 impactRing.visible = false;
@@ -1566,7 +1566,7 @@ let _confirmRingT = -1; // -1=idle; 0..1=animation progress
 const confirmRing2Mat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 2.66, 6, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring — Pass 5366: 1.46→1.97 chunkier double-ripple ring — Pass 5737: 1.97→2.66 chunkier double-ripple ring tube — Pass 5832: tube segments 4→6 smoother double-ripple ring cross-section
+const confirmRing2 = new THREE.Mesh(new THREE.TorusGeometry(8, 3.59, 6, 48), confirmRing2Mat); // Pass 4019: confirm ring 2 tube radius 0.8→1.08 fatter double-ripple ring — Pass 4977: 1.08→1.46 chunkier double-ripple ring — Pass 5366: 1.46→1.97 chunkier double-ripple ring — Pass 5737: 1.97→2.66 chunkier double-ripple ring tube — Pass 5832: tube segments 4→6 smoother double-ripple ring cross-section — Pass 6746: confirm ring 2 tube radius 2.66→3.59 chunkier identity double-ripple ring
 confirmRing2.rotation.x = -Math.PI / 2;
 confirmRing2.visible = false;
 scene.add(confirmRing2);
@@ -1617,7 +1617,7 @@ for (let _gdi = 0; _gdi < 9; _gdi++) {
   const _gdMat = new THREE.MeshBasicMaterial({
     color: 0x00ffcc, transparent: true, opacity: 0,
   });
-  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(15.4, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius — Pass 6452: 6.26→8.45 even fatter scan grid mote dot radius — Pass 6504: 8.45→11.4 even fatter scan grid mote dot radius — Pass 6702: 11.4→15.4 even fatter scan grid mote dot radius
+  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(20.8, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius — Pass 6452: 6.26→8.45 even fatter scan grid mote dot radius — Pass 6504: 8.45→11.4 even fatter scan grid mote dot radius — Pass 6702: 11.4→15.4 even fatter scan grid mote dot radius — Pass 6766: 15.4→20.8 even fatter scan grid mote dot radius
   _gdMesh.visible = false;
   scene.add(_gdMesh);
   SCAN_GRID_DOTS.push({ mesh: _gdMesh, mat: _gdMat });
@@ -1910,10 +1910,10 @@ const _beltBaseRGB    = new THREE.Color(0x8888a0); // belt base emissive color
 const GRAB_PARTICLES = [];
 for (let _gpi = 0; _gpi < 74; _gpi++) { // Pass 5016: grab particle pool size 16→22 larger burst reservoir — Pass 6268: 22→30 larger grab burst particle reservoir — Pass 6396: 30→41 larger grab burst particle reservoir — Pass 6526: 41→55 larger grab burst particle reservoir — Pass 6690: 55→74 larger grab burst particle reservoir
   const _gpMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-  const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(6.26, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst — Pass 5916: 2.55→3.44 chunkier grab burst particle sphere — Pass 6397: 3.44→4.64 chunkier grab burst particle sphere — Pass 6684: 4.64→6.26 chunkier grab burst particle sphere
+  const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(8.45, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst — Pass 5916: 2.55→3.44 chunkier grab burst particle sphere — Pass 6397: 3.44→4.64 chunkier grab burst particle sphere — Pass 6684: 4.64→6.26 chunkier grab burst particle sphere — Pass 6767: 6.26→8.45 chunkier grab burst particle sphere
   _gpMesh.visible = false;
   scene.add(_gpMesh);
-  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 10.1, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence — Pass 5318: 0.68→0.918 longer grab burst particle persistence — Pass 5398: 0.918→1.24 longer idle scan emit grab particle persistence — Pass 5917: 1.24→1.67 longer grab burst particle persistence — Pass 6035: 1.67→2.25 longer grab burst particle persistence — Pass 6305: 2.25→3.04 longer grab burst particle persistence — Pass 6337: 3.04→4.10 longer grab burst particle persistence — Pass 6385: 4.10→5.54 longer grab burst particle persistence — Pass 6531: 5.54→7.48 longer grab burst particle persistence — Pass 6705: 7.48→10.1 longer grab burst particle persistence
+  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 13.6, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence — Pass 5318: 0.68→0.918 longer grab burst particle persistence — Pass 5398: 0.918→1.24 longer idle scan emit grab particle persistence — Pass 5917: 1.24→1.67 longer grab burst particle persistence — Pass 6035: 1.67→2.25 longer grab burst particle persistence — Pass 6305: 2.25→3.04 longer grab burst particle persistence — Pass 6337: 3.04→4.10 longer grab burst particle persistence — Pass 6385: 4.10→5.54 longer grab burst particle persistence — Pass 6531: 5.54→7.48 longer grab burst particle persistence — Pass 6705: 7.48→10.1 longer grab burst particle persistence — Pass 6763: 10.1→13.6 longer grab burst particle persistence
 }
 // Pre-allocated Color for domain fill updates (no per-frame GC pressure)
 const _domFillClr = new THREE.Color();
@@ -1927,7 +1927,7 @@ scene.add(_domainFillLight);
 // Domain-colored point light that follows the card along the belt surface
 // during conveyorIn and conveyorOut phases, casting a moving pool of color
 // on the belt texture beneath the card. Fades to zero outside belt phases.
-const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 1050); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach — Pass 5726: 234→316 wider belt track light reach — Pass 5934: 316→427 wider belt track light reach — Pass 6363: 427→576 wider belt track light reach — Pass 6654: 576→778 wider belt track light reach — Pass 6686: 778→1050 wider belt track light reach
+const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 1418); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach — Pass 5726: 234→316 wider belt track light reach — Pass 5934: 316→427 wider belt track light reach — Pass 6363: 427→576 wider belt track light reach — Pass 6654: 576→778 wider belt track light reach — Pass 6686: 778→1050 wider belt track light reach — Pass 6768: 1050→1418 wider belt track light reach
 _beltTrackLight.position.set(-40, CONV_Y_TOP + 6, 0);
 scene.add(_beltTrackLight);
 
@@ -2413,7 +2413,7 @@ function animate(ts) {
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9 — Pass 4770: 93.0→126 brighter landing flash
-        a.mesh.material.emissiveIntensity = 0.15 + 765 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash — Pass 4770: emissive 93.0→126 brighter landing flash — Pass 5066: 126→170 brighter landing flash — Pass 5249: slot tray arrival emissive flash peak 170→230 brighter landing pop — Pass 5411: 230→311 brighter card deal slot tray arrival emissive pop — Pass 5997: 311→420 brighter slot tray arrival emissive flash peak — Pass 6324: 420→567 brighter slot tray arrival emissive flash peak — Pass 6338: 567→765 brighter slot tray arrival emissive flash peak
+        a.mesh.material.emissiveIntensity = 0.15 + 1033 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash — Pass 4770: emissive 93.0→126 brighter landing flash — Pass 5066: 126→170 brighter landing flash — Pass 5249: slot tray arrival emissive flash peak 170→230 brighter landing pop — Pass 5411: 230→311 brighter card deal slot tray arrival emissive pop — Pass 5997: 311→420 brighter slot tray arrival emissive flash peak — Pass 6324: 420→567 brighter slot tray arrival emissive flash peak — Pass 6338: 567→765 brighter slot tray arrival emissive flash peak — Pass 6762: 765→1033 brighter slot tray arrival emissive flash peak
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2542,10 +2542,10 @@ function animate(ts) {
     cardHaloMat.emissive.setHex(_haloHex);
     // Pass 331: halo emissive 1.2+0.50→1.4+0.70 — Pass 710: →1.8+0.90 — Pass 831: →2.6+1.3 — Pass 1460: →3.5+1.8 for brighter halo
     const _haloEmissive331 = (_identityRevealed && (beltActive || airActive))
-      ? 28.6 + 14.7 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo — Pass 5062: base 15.7→21.2 brighter card halo — Pass 5196: 21.2→28.6 brighter card halo base emissive — Pass 6025: amp 8.07→10.9 brighter card halo pulse amplitude — Pass 6609: 10.9→14.7 brighter card halo pulse amplitude
+      ? 38.6 + 14.7 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo — Pass 5062: base 15.7→21.2 brighter card halo — Pass 5196: 21.2→28.6 brighter card halo base emissive — Pass 6025: amp 8.07→10.9 brighter card halo pulse amplitude — Pass 6609: 10.9→14.7 brighter card halo pulse amplitude — Pass 6764: base 28.6→38.6 brighter card halo pulse base emissive
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
-    const _haloScale332 = beltActive ? 1.0 + 0.662 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5480: 0.269→0.363 bigger card halo breathe rate — Pass 5836: 0.363→0.490 bigger card halo breathe amplitude — Pass 6399: 0.490→0.662 bigger belt halo breathe amplitude
+    const _haloScale332 = beltActive ? 1.0 + 0.894 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5480: 0.269→0.363 bigger card halo breathe rate — Pass 5836: 0.363→0.490 bigger card halo breathe amplitude — Pass 6399: 0.490→0.662 bigger belt halo breathe amplitude — Pass 6765: 0.662→0.894 bigger belt halo breathe amplitude
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
     const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 9.00 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo — Pass 4951: 2.71→3.66 more dramatic gate slam halo burst — Pass 5198: 3.66→4.94 more dramatic gate slam halo burst — Pass 5713: 4.94→6.67 more dramatic gate slam halo scale burst — Pass 6400: 6.67→9.00 more dramatic gate slam halo burst
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
@@ -3156,7 +3156,7 @@ function animate(ts) {
     // Two-frequency scan strobe: primary 12Hz + secondary 7Hz creates interference pattern
     const _scanStrobe = (Math.sin(ts * 12 * Math.PI * 2) * 6.39 + Math.sin(ts * 7 * Math.PI * 2) * 1.17) * flashIntensity; // Pass 1764: primary 0.58→0.78 — Pass 1865: →1.05; Pass 1765: secondary 0.10→0.14 — Pass 1866: →0.19 — Pass 3433: primary 1.05→1.42 Pass 3434: secondary 0.19→0.26 — Pass 3537: primary 1.42→1.92 Pass 3538: secondary 0.26→0.35 — Pass 3978: primary 1.92→2.59 — Pass 3979: secondary 0.35→0.473 — Pass 4368: primary 2.59→3.50 — Pass 4369: secondary 0.473→0.639 deeper scan strobe flicker — Pass 5204: primary 3.50→4.73 deeper scan strobe flicker — Pass 5205: secondary 0.639→0.863 deeper scan strobe secondary — Pass 6208: primary 4.73→6.39 deeper scan strobe primary amplitude — Pass 6209: secondary 0.863→1.17 deeper scan strobe secondary amplitude
     // Pass 125 + 168: card face reveal burst — Pass 447: decay dt*7→dt*5.5 — Pass 745: dt*5.5→dt*3.8 — Pass 1514: →dt*2.8 (longer burst visibility)
-    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 2.11); // Pass 1740: burst decay 2.8→2.1 (longer visible burst) — Pass 4278: 2.1→1.56 even longer reveal burst — Pass 5566: 1.56→2.11 snappier reveal burst
+    if (_cardRevealBurst > 0.01) _cardRevealBurst = Math.max(0, _cardRevealBurst - dt * 2.85); // Pass 1740: burst decay 2.8→2.1 (longer visible burst) — Pass 4278: 2.1→1.56 even longer reveal burst — Pass 5566: 1.56→2.11 snappier reveal burst — Pass 6748: card reveal burst decay 2.11→2.85 crisper reveal burst fade
     // Pass 168: oscillate during decay — ~4 visible pulses as burst fades — Pass 1515: 0.55+0.45→0.65+0.60
     const _revOsc = _cardRevealBurst * (5.35 + 2.67 * Math.abs(Math.sin(ts * Math.PI * 2 * 8))); // Pass 1738: burst oscillation 0.65+0.60→0.88+0.81 — Pass 1867: →1.19+1.09 — Pass 3935: 1.19+1.09→1.61+1.47 more vivid reveal pulse — Pass 4337: base 1.61→2.17 — Pass 4338: amp 1.47→1.98 stronger reveal oscillation — Pass 5111: card sort emissive reveal burst base 2.17→2.93 more vivid card reveal warmup — Pass 5434: base 2.93→3.96 more vivid card reveal emissive peak — Pass 6409: base 3.96→5.35 more vivid card reveal emissive base — Pass 6410: amp 1.98→2.67 stronger reveal oscillation swing
     // Pass 604: card emissive scan base 0.6→1.0 — Pass 743: 1.0→1.35 — Pass 1282: →1.85 — Pass 1510: →2.50 for even brighter card glow during scan
@@ -3196,7 +3196,7 @@ function animate(ts) {
     // Pass 607: amplitude 0.5→0.85 + secondary 4.1Hz harmonic — Pass 948: primary 0.85→1.20, secondary 0.28→0.42
     // Damps out near identity reveal (post 85%) as the machine "locks on".
     {
-      const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.182) : 1.0; // Pass 4852: hood sway damp window 0.10→0.135 softer sway lockout — Pass 5544: 0.135→0.182 softer hood sway lockout window
+      const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.246) : 1.0; // Pass 4852: hood sway damp window 0.10→0.135 softer sway lockout — Pass 5544: 0.135→0.182 softer hood sway lockout window — Pass 6749: hood sway damp window 0.182→0.246 wider reveal sway lockout window
       // Pass 1152: hood sway primary 1.20→1.65, secondary 0.42→0.60 — Pass 1420: primary →2.20, secondary →0.82 for more resonant scanner oscillation
       scannerHood.position.z = (7.30 * Math.sin(ts * 3.78 * Math.PI * 2) + 30.1 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10 — Pass 3936: 2.97+1.10→4.01+1.49 deeper scanner hood sway — Pass 4221: primary 4.01→5.41 — Pass 4222: secondary 1.49→2.01 wilder hood resonance — Pass 5158: primary 5.41→7.30 deeper scanner body X sway — Pass 5166: sway frequency 2.8→3.78 faster scanner body forward bob — Pass 5250: secondary 2.01→2.71 wilder scanner hood forward bob secondary — Pass 5489: 2.71→3.66 wilder scanner body Z bob frequency secondary amplitude — Pass 5539: 3.66→4.94 wilder scanner hood idle hover secondary sway amplitude — Pass 5573: 4.94→6.67 wilder scanner hood idle Z secondary sway amplitude — Pass 5587: 6.67→9.00 wilder scanner hood idle Z secondary sway amplitude — Pass 5604: 9.00→12.2 wilder scanner body X lean amplitude secondary idle sway — Pass 5614: 12.2→16.5 wilder scanner body lean angle limit secondary idle sway amplitude — Pass 5629: 16.5→22.3 wilder scanner Z lean during approach secondary sway amplitude — Pass 5636: 22.3→30.1 wilder scanner forward bob peak secondary sway amplitude
     }
@@ -3288,7 +3288,7 @@ function animate(ts) {
         // Pass 171: each dot switches domain color at its own cascade threshold
         const _dotSwitchFt = 0.85 + di * 0.014; // dot 0 at 0.85, dot 8 at 0.962
         const dotColor = ft >= _dotSwitchFt ? ct.hex : 0xaaddff;
-        const dotOp = Math.sin(Math.min(1, dotFt) * Math.PI) * flashIntensity * (2.34 + _dotRevealBurst * 0.5); // Pass 4797: scan dot opacity base 0.95→1.28 — Pass 5376: 1.28→1.73 brighter scan dot base opacity — Pass 5837: 1.73→2.34 brighter scan dot base opacity multiplier
+        const dotOp = Math.sin(Math.min(1, dotFt) * Math.PI) * flashIntensity * (3.16 + _dotRevealBurst * 0.5); // Pass 4797: scan dot opacity base 0.95→1.28 — Pass 5376: 1.28→1.73 brighter scan dot base opacity — Pass 5837: 1.73→2.34 brighter scan dot base opacity multiplier — Pass 6750: scan dot opacity base 2.34→3.16 brighter scan grid dot base opacity
         if (dotOp > 0.01) {
           mesh.visible = true;
           // Pass 211: scan grid dots float — pre-reveal dots oscillate in Y at 3Hz with
@@ -3313,7 +3313,7 @@ function animate(ts) {
           mat.opacity = Math.min(1, dotOp * (1 + _dotBeamProx * 19.4)); // Pass 2535: dot beam proximity 1.30→1.76 — Pass 3558: 1.76→2.38 — Pass 3719: 2.38→3.21 — Pass 4148: 3.21→4.33 — Pass 4674: 4.33→5.85 stronger scan dot beam proximity highlight — Pass 5267: 5.85→7.90 stronger scan dot beam proximity highlight — Pass 5842: 7.90→10.7 stronger scan dot beam proximity highlight — Pass 5952: 10.7→14.4 stronger scan dot beam proximity highlight — Pass 6180: 14.4→19.4 stronger scan dot beam proximity highlight multiplier
           // Pass 294: dot scale pop cascade — Pass 364: scale boost 1.6× → 2.0× — Pass 486: →2.5× — Pass 1319: →3.2× — Pass 1696: →3.0× harder pop
           const _dotRevealScale = (ft >= _dotSwitchFt && ft < _dotSwitchFt + 0.05)
-            ? 1.0 + 9.96 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0; // Pass 2536: dot pop scale 3.00×→4.05× — Pass 4048: 4.05→5.47 sharper scan dot reveal pop — Pass 5268: 5.47→7.38 sharper scan dot reveal pop — Pass 5843: 7.38→9.96 sharper scan dot reveal pop
+            ? 1.0 + 13.4 * (1 - (ft - _dotSwitchFt) / 0.05) : 1.0; // Pass 2536: dot pop scale 3.00×→4.05× — Pass 4048: 4.05→5.47 sharper scan dot reveal pop — Pass 5268: 5.47→7.38 sharper scan dot reveal pop — Pass 5843: 7.38→9.96 sharper scan dot reveal pop — Pass 6751: scan dot reveal pop scale 9.96→13.4 sharper scan dot identity pop
           mesh.scale.setScalar(_dotRevealScale);
         } else {
           mesh.visible = false;
@@ -3329,7 +3329,7 @@ function animate(ts) {
       // ft goes 0..1 over scan phase; bar width scale goes 0..1
       const barFill = Math.min(1, ft);
       // Pass 247: reveal overshoot — Pass 444: 0.18→0.30 — Pass 579: 0.30→0.48 — Pass 733: →0.68 — Pass 1321: →0.95 — Pass 1698: →1.30
-      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 10.7 : 0; // Pass 2318: bar overshoot 1.30→1.76 — Pass 3753: 1.76→2.38 — Pass 3861: 2.38→3.21 — Pass 4150: 3.21→4.33 bouncier bar overshoot — Pass 5270: 4.33→5.85 bouncier scan bar reveal overshoot — Pass 5844: 5.85→7.90 bouncier scan bar reveal overshoot — Pass 5946: 7.90→10.7 bouncier scan bar reveal overshoot
+      const _barOvershoot = _identityRevealed && ft < 0.87 ? Math.sin((ft - 0.85) / 0.02 * Math.PI) * 14.4 : 0; // Pass 2318: bar overshoot 1.30→1.76 — Pass 3753: 1.76→2.38 — Pass 3861: 2.38→3.21 — Pass 4150: 3.21→4.33 bouncier bar overshoot — Pass 5270: 4.33→5.85 bouncier scan bar reveal overshoot — Pass 5844: 5.85→7.90 bouncier scan bar reveal overshoot — Pass 5946: 7.90→10.7 bouncier scan bar reveal overshoot — Pass 6752: scan bar reveal overshoot 10.7→14.4 bouncier scan bar reveal overshoot
       scanBarMesh.scale.x = Math.max(0.01, barFill + _barOvershoot);
       // Offset X so bar grows from left edge (hood left = -40 - SCAN_BAR_MAX_W/2 + 4)
       const leftEdge = -40 - SCAN_BAR_MAX_W / 2;
@@ -3984,7 +3984,7 @@ function animate(ts) {
     // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020 — Pass 1188: primary →0.062, secondary →0.032 — Pass 1256: primary →0.082, secondary →0.042 for more flutter micro-wobble
     const _flutter = (Math.sin(ts * 23 * Math.PI * 2) * 5.45 + Math.sin(ts * 17 * Math.PI * 2 + 0.8) * 2.81) * Math.sin(dt2 * Math.PI); // Pass 2379: flutter primary 0.201→0.271, secondary 0.104→0.140 — Pass 2599: 0.271→0.366, 0.140→0.189 — Pass 3037: 0.366→0.494, 0.189→0.255 — Pass 3227: primary 0.494→0.667, secondary 0.255→0.344 — Pass 3393: 0.667→0.900, 0.344→0.465 — Pass 3521: primary 0.900→1.215, secondary 0.465→0.628 — Pass 3734: 1.215→1.640, 0.628→0.847 — Pass 3840: primary 1.640→2.214 — Pass 3841: secondary 0.847→1.143 — Pass 4449: primary 2.214→2.989 — Pass 4450: secondary 1.143→1.543 wilder deflect card flutter wobble — Pass 5538: primary 2.989→4.035 wilder deflect card flutter wobble — Pass 5539: secondary 1.543→2.083 wilder deflect card flutter wobble — Pass 6637: primary 4.035→5.45 secondary 2.083→2.81 wilder deflect card flutter wobble
     // Pass 223: gate Z-kick decays quickly (τ ≈ 0.09s); kicks card sideways at impact
-    if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 20.1); // Pass 4549: gate Z-kick decay rate 11→14.9 crisper deflect impulse — Pass 5569: 14.9→20.1 crisper deflect impulse
+    if (Math.abs(_gateZKick) > 0.002) _gateZKick *= Math.max(0, 1 - dt * 27.1); // Pass 4549: gate Z-kick decay rate 11→14.9 crisper deflect impulse — Pass 5569: 14.9→20.1 crisper deflect impulse — Pass 6753: gate Z-kick decay rate 20.1→27.1 crisper deflect kick impulse
     activeCard.rotation.z = _tumblePeak * Math.sin(dt2 * Math.PI) + _flutter + _gateZKick;
     // Pass 226: tumble-correlated glow — Pass 417: 0.28→0.40 — Pass 465: base+peak 0.80+0.60
     // Pass 761: base 0.80→1.05, peak 0.60→0.80 — Pass 980: base 1.05→1.35, peak 0.80→1.10 — Pass 1189: base 1.35→1.80, peak 1.10→1.55 for brighter arc glow
