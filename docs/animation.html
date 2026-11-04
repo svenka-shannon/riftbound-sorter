@@ -3835,12 +3835,12 @@ function animate(ts) {
     slotSweepLight.intensity = 0; // pass 81: off during conveyor
     scanBloom.intensity = 0;
     // Pass 165: smooth LED decay from scan peak (~2.0) to idle (1.2) — was hard snap
-    scanLEDMat.emissiveIntensity += (7.29 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest — Pass 4694: idle tracking speed dt*6→dt*8.1 snappier scan LED idle settle — Pass 5369: 8.1→10.9 snappier scan LED idle settle tracking — Pass 5506: 5.40→7.29 brighter scan LED idle emissive floor
+    scanLEDMat.emissiveIntensity += (9.84 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest — Pass 4694: idle tracking speed dt*6→dt*8.1 snappier scan LED idle settle — Pass 5369: 8.1→10.9 snappier scan LED idle settle tracking — Pass 5506: 5.40→7.29 brighter scan LED idle emissive floor — Pass 6583: 7.29→9.84 brighter scan LED idle emissive floor target
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
-    scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 7.29); // Pass 4632: scan cone final alpha fade 4→5.4 faster cone dismiss — Pass 5504: 5.4→7.29 faster scan cone exit fade
-    scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 7.29); // Pass 4822: scan beam exit fade rate 4→5.4 — Pass 5505: 5.4→7.29 faster scan beam exit fade
+    scanConeMat.opacity = Math.max(0, scanConeMat.opacity - dt * 9.84); // Pass 4632: scan cone final alpha fade 4→5.4 faster cone dismiss — Pass 5504: 5.4→7.29 faster scan cone exit fade — Pass 6586: 7.29→9.84 faster scan cone exit fade rate
+    scanBeamMat.opacity = Math.max(0, scanBeamMat.opacity - dt * 9.84); // Pass 4822: scan beam exit fade rate 4→5.4 — Pass 5505: 5.4→7.29 faster scan beam exit fade — Pass 6587: 7.29→9.84 faster scan beam exit fade rate
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
     // Pass 129: brief acceleration surge emissive at exit start — Pass 953: 0.5→0.9 — Pass 972: →1.4 brighter launch surge
     const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 37.9 : 0; // Pass 2365: exit surge 2.55→3.44 — Pass 2582: 3.44→4.64 — Pass 3022: 4.64→6.26 — Pass 3214: 6.26→8.45 — Pass 3590: 8.45→11.4 — Pass 3685: 11.4→15.4 — Pass 3998: 15.4→20.8 — Pass 4738: 20.8→28.1 stronger ConveyorOut flash — Pass 5536: 28.1→37.9 stronger ConveyorOut flash
@@ -4417,7 +4417,7 @@ function animate(ts) {
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
         tp2.mat.opacity = 1.55 + Math.random() * 0.20; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2 — Pass 4749: 0.85→1.15 brighter reject secondary burst — Pass 5716: 1.15→1.55 brighter reject secondary burst — Pass 5945: rand 0.15→0.20 wider reject secondary burst opacity variance
-        tp2.age = 0; tp2.life = 4.64 + Math.random() * 3.11; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26 — Pass 3260: 1.89+1.26→2.55+1.70 — Pass 4052: 2.55+1.70→3.44+2.30 longer reject secondary sparks — Pass 5459: 3.44+2.30→4.64+3.11 longer reject secondary spark life
+        tp2.age = 0; tp2.life = 6.26 + Math.random() * 4.20; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26 — Pass 3260: 1.89+1.26→2.55+1.70 — Pass 4052: 2.55+1.70→3.44+2.30 longer reject secondary sparks — Pass 5459: 3.44+2.30→4.64+3.11 longer reject secondary spark life — Pass 6581: base 4.64→6.26 longer reject secondary spark life — Pass 6582: rand 3.11→4.20 longer reject secondary spark life variance
         tp2.active = true; tp2.mesh.visible = true;
         _rb2++;
       }
@@ -4466,7 +4466,7 @@ function animate(ts) {
         _cameraShake = Math.max(_cameraShake, 26.1); // Pass 2408: arm end-stop camera shake 5.83→7.87 — Pass 2642: 7.87→10.6 — Pass 2870: 10.6→14.3 — Pass 3080: 14.3→19.3 — Pass 4701: 19.3→26.1 stronger arm end-stop mechanical thunk
         // Pass 267: cup end-stop emissive spike — Pass 864: 2.8→4.5 — Pass 1051: →7.5 — Pass 1270: →12.0 brighter hard stop flash
         suctionCupMat.emissive.set(1, 1, 1);
-        suctionCupMat.emissiveIntensity = 133; // Pass 2409: cup end-stop emissive spike 21.9→29.6 — Pass 2643: 29.6→40.0 — Pass 2871: 40.0→54.0 — Pass 3081: 54.0→72.9 — Pass 4459: 72.9→98.4 brighter cup end-stop emissive spike — Pass 5505: 98.4→133 brighter cup end-stop emissive spike
+        suctionCupMat.emissiveIntensity = 180; // Pass 2409: cup end-stop emissive spike 21.9→29.6 — Pass 2643: 29.6→40.0 — Pass 2871: 40.0→54.0 — Pass 3081: 54.0→72.9 — Pass 4459: 72.9→98.4 brighter cup end-stop emissive spike — Pass 5505: 98.4→133 brighter cup end-stop emissive spike — Pass 6580: 133→180 brighter cup end-stop emissive spike
         // Pass 260: cup arrival dust puff — 3 pale particles burst from cup as arm hits stopper
         const _arRot = suctionPivot.rotation.z;
         const _arCupX = PIV_X + 83 * Math.sin(_arRot);
@@ -4514,8 +4514,8 @@ function animate(ts) {
     routeTargetMat.emissiveIntensity = 0;
     // Pass 94: scanner LED power-down flicker — CRT-style oscillation as scanner resets
     {
-      const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 1.55; // dampens in first ~45% of phase // Pass 4411: scanner flicker amp 0.85→1.15 stronger LED power-down oscillation — Pass 5565: 1.15→1.55 stronger scanner LED power-down oscillation
-      const _flickVal = 2.19 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp // Pass 4412: scanner flicker base 1.2→1.62 brighter LED reset floor — Pass 5566: 1.62→2.19 brighter scanner LED reset floor
+      const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 2.09; // dampens in first ~45% of phase // Pass 4411: scanner flicker amp 0.85→1.15 stronger LED power-down oscillation — Pass 5565: 1.15→1.55 stronger scanner LED power-down oscillation — Pass 6584: 1.55→2.09 stronger scanner LED power-down oscillation
+      const _flickVal = 2.96 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp // Pass 4412: scanner flicker base 1.2→1.62 brighter LED reset floor — Pass 5566: 1.62→2.19 brighter scanner LED reset floor — Pass 6585: 2.19→2.96 brighter scanner LED reset floor
                             + (Math.random() - 0.5) * _flickAmp * 0.635; // Pass 4703: scanner LED flicker noise amplitude 0.35→0.47 more chaotic power-down oscillation — Pass 5754: 0.47→0.635 more chaotic scanner LED power-down oscillation
       scanLEDMat.emissiveIntensity = Math.max(0.554, Math.min(95.7, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak — Pass 4502: scanner LED power-down minimum floor 0.30→0.41 brighter LED floor — Pass 5717: 70.9→95.7 higher scanner LED flicker peak — Pass 5718: 0.41→0.554 brighter scanner LED power-down floor
     }
@@ -5429,8 +5429,8 @@ function animate(ts) {
   // Target set per-phase above; phases not setting it (arm phases, pause) leave it at 0.
   // Lerp rate: 0..target in ~0.15s (dt*7 per frame @ 60fps)
   {
-    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 1.61 // Pass 2245: conveyor belt speed 0.108→0.146 — Pass 2733: 0.146→0.197 — Pass 2965: 0.197→0.266 — Pass 3165: 0.266→0.359 — Pass 3334: 0.359→0.485 // Pass 4480: 0.485→0.655 faster belt scroll — Pass 5382: 0.655→0.884 faster conveyor belt scroll — Pass 5810: 0.884→1.19 faster conveyor belt scroll speed — Pass 6072: 1.19→1.61 faster conveyor belt scroll speed
-                      : inPhase(PH.scan) ? 0.400 // Pass 2246: scan creep 0.027→0.036 — Pass 2734: 0.036→0.049 — Pass 2966: 0.049→0.066 — Pass 3166: 0.066→0.089 — Pass 3335: 0.089→0.120 // Pass 4481: 0.120→0.162 faster scan belt creep — Pass 5383: 0.162→0.219 faster scan belt creep — Pass 5811: 0.219→0.296 faster scan belt creep speed — Pass 6073: 0.296→0.400 faster scan belt creep speed
+    const _beltTarget = (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)) ? 2.17 // Pass 2245: conveyor belt speed 0.108→0.146 — Pass 2733: 0.146→0.197 — Pass 2965: 0.197→0.266 — Pass 3165: 0.266→0.359 — Pass 3334: 0.359→0.485 // Pass 4480: 0.485→0.655 faster belt scroll — Pass 5382: 0.655→0.884 faster conveyor belt scroll — Pass 5810: 0.884→1.19 faster conveyor belt scroll speed — Pass 6072: 1.19→1.61 faster conveyor belt scroll speed — Pass 6582: 1.61→2.17 faster conveyor belt scroll speed
+                      : inPhase(PH.scan) ? 0.540 // Pass 2246: scan creep 0.027→0.036 — Pass 2734: 0.036→0.049 — Pass 2966: 0.049→0.066 — Pass 3166: 0.066→0.089 — Pass 3335: 0.089→0.120 // Pass 4481: 0.120→0.162 faster scan belt creep — Pass 5383: 0.162→0.219 faster scan belt creep — Pass 5811: 0.219→0.296 faster scan belt creep speed — Pass 6073: 0.296→0.400 faster scan belt creep speed — Pass 6583: 0.400→0.540 faster scan belt creep speed
                       : (inPhase(PH.deflect) || inPhase(PH.slotDrop)) ? 0.04
                       : 0; // arm phases + pause: belt decelerates to stop
     _beltScrollSpeed += (_beltTarget - _beltScrollSpeed) * Math.min(1, dt * 7);
@@ -5445,13 +5445,13 @@ function animate(ts) {
       if (!t.stripMat) return;
       if (_inSlotDrop && t !== ct) {
         // Non-active strip fades to 0.05 (spotlight yields)
-        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 21.3); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39 — Pass 4553: 6.39→8.63 snappier strip spotlight yield — Pass 5355: 8.63→11.7 snappier rival strip spotlight dim — Pass 5384: 11.7→15.8 snappier rival strip spotlight yield — Pass 6074: 15.8→21.3 snappier rival strip spotlight dim rate
+        t.stripMat.emissiveIntensity = Math.max(0.05, t.stripMat.emissiveIntensity - dt * 28.8); // Pass 2735: strip spotlight dim 3.5→4.73 — Pass 3562: 4.73→6.39 — Pass 4553: 6.39→8.63 snappier strip spotlight yield — Pass 5355: 8.63→11.7 snappier rival strip spotlight dim — Pass 5384: 11.7→15.8 snappier rival strip spotlight yield — Pass 6074: 15.8→21.3 snappier rival strip spotlight dim rate — Pass 6584: 21.3→28.8 snappier rival strip spotlight dim rate
       } else if (!_inSlotDrop && t.stripMat.emissiveIntensity < 0.203) {
         // Recovery to normal idle after spotlight
-        t.stripMat.emissiveIntensity = Math.min(0.203, t.stripMat.emissiveIntensity + dt * 12.1); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65 — Pass 4554: 3.65→4.93 faster strip recovery after spotlight — Pass 4654: belt active emissive floor 0.15→0.203 brighter strip baseline — Pass 5356: 4.93→6.66 faster strip recovery after spotlight — Pass 5385: 6.66→8.99 faster strip recovery after spotlight — Pass 6075: 8.99→12.1 faster strip recovery after spotlight
+        t.stripMat.emissiveIntensity = Math.min(0.203, t.stripMat.emissiveIntensity + dt * 16.3); // Pass 2736: strip recovery 2.0→2.70 — Pass 3563: 2.70→3.65 — Pass 4554: 3.65→4.93 faster strip recovery after spotlight — Pass 4654: belt active emissive floor 0.15→0.203 brighter strip baseline — Pass 5356: 4.93→6.66 faster strip recovery after spotlight — Pass 5385: 6.66→8.99 faster strip recovery after spotlight — Pass 6075: 8.99→12.1 faster strip recovery after spotlight — Pass 6585: 12.1→16.3 faster strip recovery after spotlight
       } else if (t.stripMat.emissiveIntensity > 0.203) {
         // Pass 69: decay from flash
-        t.stripMat.emissiveIntensity = Math.max(0.203, t.stripMat.emissiveIntensity - dt * 149); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2 — Pass 4511: belt active strip flash decay 33.2→44.8 snappier strobe — Pass 4654: belt active emissive floor 0.15→0.203 — Pass 5357: 44.8→60.5 snappier belt strip flash decay — Pass 5386: 60.5→81.7 snappier belt strip flash decay — Pass 5816: 81.7→110.3 snappier belt strip flash decay — Pass 6076: 110.3→149 snappier belt strip flash decay
+        t.stripMat.emissiveIntensity = Math.max(0.203, t.stripMat.emissiveIntensity - dt * 201); // Pass 2247: strip flash decay 7.4→10.0 — Pass 2737: 10.0→13.5 — Pass 2967: 13.5→18.2 — Pass 3167: 18.2→24.6 — Pass 3336: 24.6→33.2 — Pass 4511: belt active strip flash decay 33.2→44.8 snappier strobe — Pass 4654: belt active emissive floor 0.15→0.203 — Pass 5357: 44.8→60.5 snappier belt strip flash decay — Pass 5386: 60.5→81.7 snappier belt strip flash decay — Pass 5816: 81.7→110.3 snappier belt strip flash decay — Pass 6076: 110.3→149 snappier belt strip flash decay — Pass 6586: 149→201 snappier belt strip flash decay
       }
     });
   }
@@ -5466,16 +5466,16 @@ function animate(ts) {
     // Pass 493: breathe amplitude boost 0.08→0.14 — Pass 544: 0.14→0.20 for more tray card life
     // Pass 665: add 0.11Hz secondary harmonic for organic non-repetitive tray card glow
     // Pass 1655: breathe base 0.22→0.30; Pass 1656: primary amp 0.16→0.22; Pass 1657: secondary 0.05→0.08
-    const _breathe = 8.17 + 2.46 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35 — Pass 4720: base 1.82→2.46 — Pass 4721: amp 1.35→1.82 richer tray card breathe — Pass 5134: 2.46→3.32 richer tray card resting glow — Pass 5317: base 3.32→4.48 richer tray card breathe resting base — Pass 5338: amp 1.82→2.46 richer tray card breathe primary amplitude — Pass 5704: base 4.48→6.05 richer tray card breathe resting base emissive — Pass 6077: base 6.05→8.17 richer tray card breathe resting base emissive
+    const _breathe = 8.17 + 3.32 * (Math.sin(ts * 0.3 * Math.PI * 2 + phaseOff) * 0.5 + 0.5) // Pass 2437: tray breathe base 0.55→0.74 Pass 2438: primary amp 0.41→0.55 — Pass 2968: 0.74→1.00 Pass 2969: 0.55→0.74 — Pass 3168: base 1.00→1.35 Pass 3169: amp 0.74→1.00 — Pass 3337: base 1.35→1.82 amp 1.00→1.35 — Pass 4720: base 1.82→2.46 — Pass 4721: amp 1.35→1.82 richer tray card breathe — Pass 5134: 2.46→3.32 richer tray card resting glow — Pass 5317: base 3.32→4.48 richer tray card breathe resting base — Pass 5338: amp 1.82→2.46 richer tray card breathe primary amplitude — Pass 5704: base 4.48→6.05 richer tray card breathe resting base emissive — Pass 6077: base 6.05→8.17 richer tray card breathe resting base emissive — Pass 6587: amp 2.46→3.32 richer tray card breathe primary amplitude
                          + 1.63 * Math.abs(Math.sin(ts * 0.11 * Math.PI * 2 + phaseOff * 0.5)); // Pass 2439: tray breathe secondary 0.11→0.15 — Pass 4301: 0.15→0.20 livelier tray card breathing — Pass 5342: 0.20→0.27 richer tray secondary harmonic pulse — Pass 5617: 0.27→0.365 richer card hold emissive breathe secondary harmonic pulse — Pass 5625: 0.365→0.493 richer card reveal ring opacity rate idle hover Z secondary harmonic pulse — Pass 5631: 0.493→0.666 richer slot tray rim LED urgency secondary harmonic pulse — Pass 6047: 0.666→0.899 richer tray breathe secondary harmonic amplitude — Pass 6408: 0.899→1.21 richer tray breathe secondary harmonic amplitude — Pass 6546: 1.21→1.63 richer tray breathe secondary harmonic amplitude
     slotArr.forEach(m => {
       if (!m.material) return;
       if (m.material.emissiveIntensity > _breathe + 0.05) {
         // Arrival pulse still decaying — let it fall toward breathe target
-        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 32.3); // Pass 2443: tray arrival decay 2.16→2.92 — Pass 2738: 2.92→3.94 — Pass 2970: 3.94→5.32 — Pass 3170: 5.32→7.18 — Pass 3338: 7.18→9.69 — Pass 4722: 9.69→13.1 snappier tray arrival flash decay — Pass 5443: 13.1→17.7 snappier tray arrival flash decay — Pass 5817: 17.7→23.9 snappier tray arrival flash decay — Pass 6078: 23.9→32.3 snappier tray arrival flash decay
+        m.material.emissiveIntensity = Math.max(_breathe, m.material.emissiveIntensity - dt * 43.6); // Pass 2443: tray arrival decay 2.16→2.92 — Pass 2738: 2.92→3.94 — Pass 2970: 3.94→5.32 — Pass 3170: 5.32→7.18 — Pass 3338: 7.18→9.69 — Pass 4722: 9.69→13.1 snappier tray arrival flash decay — Pass 5443: 13.1→17.7 snappier tray arrival flash decay — Pass 5817: 17.7→23.9 snappier tray arrival flash decay — Pass 6078: 23.9→32.3 snappier tray arrival flash decay — Pass 6580: 32.3→43.6 snappier tray arrival flash decay
       } else {
         // At idle — gently track the breathing target
-        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 19.8); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98 — Pass 4555: 5.98→8.07 snappier tray idle emissive tracking — Pass 5135: 8.07→10.9 snappier tray idle emissive tracking — Pass 5705: 10.9→14.7 snappier tray card idle emissive tracking — Pass 6194: 14.7→19.8 snappier tray card idle emissive tracking rate
+        m.material.emissiveIntensity += (_breathe - m.material.emissiveIntensity) * Math.min(1, dt * 26.7); // Pass 2444: tray idle tracking 2.43→3.28 — Pass 2739: 3.28→4.43 — Pass 3564: 4.43→5.98 — Pass 4555: 5.98→8.07 snappier tray idle emissive tracking — Pass 5135: 8.07→10.9 snappier tray idle emissive tracking — Pass 5705: 10.9→14.7 snappier tray card idle emissive tracking — Pass 6194: 14.7→19.8 snappier tray card idle emissive tracking rate — Pass 6581: 19.8→26.7 snappier tray card idle emissive tracking rate
       }
     });
   });
