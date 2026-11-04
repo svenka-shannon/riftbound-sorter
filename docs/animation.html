@@ -982,7 +982,7 @@ const scanLineMat = new THREE.MeshStandardMaterial({
   emissiveIntensity: 32.9, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive — Pass 5969: 18.1→24.4 brighter scan crosshair primary beam emissive — Pass 6060: 24.4→32.9 brighter scan crosshair primary beam emissive
   transparent: true, opacity: 1.73 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam — Pass 5879: 1.28→1.73 overdrive scan crosshair primary beam opacity
 });
-const scanLine = new THREE.Mesh(new THREE.BoxGeometry(180, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span — Pass 5914: 133→180 wider scan crosshair primary beam span
+const scanLine = new THREE.Mesh(new THREE.BoxGeometry(243, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span — Pass 5914: 133→180 wider scan crosshair primary beam span — Pass 6228: 180→243 wider scan crosshair primary beam span
 scanLine.visible = false;
 scene.add(scanLine);
 // Secondary bar (spans Z=88, sweeps in X) — slightly warmer teal to differentiate
@@ -1205,7 +1205,7 @@ CARD_TYPES.forEach(ct => {
 // Flat (0 rad) = card falls through to lower floor. ~0.65 rad (~37°) = ramp to upper floor.
 const DIVERTER_X = TRAY_X_START - 5;
 const DIVERTER_FLOOR0 = 0;    // lower floor: flat
-const DIVERTER_FLOOR1 = 1.61; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp — Pass 4987: 0.878→1.19 steeper diverter ramp — Pass 5915: 1.19→1.61 steeper diverter upper floor ramp angle
+const DIVERTER_FLOOR1 = 2.17; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp — Pass 4987: 0.878→1.19 steeper diverter ramp — Pass 5915: 1.19→1.61 steeper diverter upper floor ramp angle — Pass 6229: 1.61→2.17 steeper diverter upper floor ramp angle
 const diverterServoBox = makeBox(14, 14, 22, 0x9aa0b0);
 diverterServoBox.position.set(DIVERTER_X - 3, CONV_Y_TOP + 7, 0);
 scene.add(diverterServoBox);
@@ -1217,7 +1217,7 @@ const diverterFlapMat = new THREE.MeshStandardMaterial({
   emissive: new THREE.Color(0x441f00), emissiveIntensity: 1.01 // Pass 4044: floor diverter emissive 0.22→0.30 brighter routing flap — Pass 4891: 0.30→0.41 more visible diverter — Pass 5057: 0.41→0.554 more vivid diverter flap glow — Pass 5138: 0.554→0.748 stronger floor diverter emissive ramp — Pass 5709: 0.748→1.01 stronger floor diverter emissive glow
 });
 const diverterFlapMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(TX_DEP + 6, 5.47, TRAY_Z_HALF * 2), // Pass 4991: diverter flap thickness 3→4.05 chunkier routing flap — Pass 5930: 4.05→5.47 chunkier routing diverter flap
+  new THREE.BoxGeometry(TX_DEP + 6, 7.38, TRAY_Z_HALF * 2), // Pass 4991: diverter flap thickness 3→4.05 chunkier routing flap — Pass 5930: 4.05→5.47 chunkier routing diverter flap — Pass 6230: 5.47→7.38 chunkier routing diverter flap thickness
   diverterFlapMat
 );
 // Pivot is at left edge — offset mesh half its width to the right
@@ -1478,7 +1478,7 @@ activeCardEdge.visible = false;
 scene.add(activeCardEdge);
 
 // Card glow: increased range and physical falloff
-const cardGlow = new THREE.PointLight(0xffffff, 0, 899); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range — Pass 5734: 493→666 wider card glow illumination range — Pass 5960: 666→899 wider card glow illumination range
+const cardGlow = new THREE.PointLight(0xffffff, 0, 1213); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range — Pass 5734: 493→666 wider card glow illumination range — Pass 5960: 666→899 wider card glow illumination range — Pass 6231: 899→1213 wider card glow illumination range
 cardGlow.decay = 4.93; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff
 scene.add(cardGlow);
 
@@ -1617,7 +1617,7 @@ for (let _gdi = 0; _gdi < 9; _gdi++) {
   const _gdMat = new THREE.MeshBasicMaterial({
     color: 0x00ffcc, transparent: true, opacity: 0,
   });
-  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(4.64, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots
+  const _gdMesh = new THREE.Mesh(new THREE.SphereGeometry(6.26, 6, 6), _gdMat); // Pass 4550: scan grid dot radius 1.4→1.89 fatter scan mote dots — Pass 4995: 1.89→2.55 even fatter scan mote dots — Pass 5446: 2.55→3.44 even fatter scan grid mote dots — Pass 5908: 3.44→4.64 even fatter scan grid mote dots — Pass 6232: 4.64→6.26 even fatter scan grid mote dot radius
   _gdMesh.visible = false;
   scene.add(_gdMesh);
   SCAN_GRID_DOTS.push({ mesh: _gdMesh, mat: _gdMat });
@@ -1739,7 +1739,7 @@ function addCardToTray(ct) {
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
-  const startY  = targetY + 73.8; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5 — Pass 5468: 40.5→54.7 higher slot tray arrival drop height — Pass 5909: 54.7→73.8 higher slot tray arrival drop height
+  const startY  = targetY + 99.6; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5 — Pass 5468: 40.5→54.7 higher slot tray arrival drop height — Pass 5909: 54.7→73.8 higher slot tray arrival drop height — Pass 6233: 73.8→99.6 higher slot tray arrival drop height
   const zJitter    = (Math.random() - 0.5) * 6.66;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle — Pass 5423: 4.93→6.66 wider card Z spread during belt idle
   const yRotJitter = (Math.random() - 0.5) * 0.729;  // ±0.365 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter — Pass 5409: 0.540→0.729 wilder slot entry guided arc card tilt range
   mesh.position.set(
@@ -1753,7 +1753,7 @@ function addCardToTray(ct) {
   trayArrivals.push({ mesh, startY, targetY, t: 0, glowAge: 0 });
 
   // Pass 45: pulse ALL existing cards in this slot — "stack reacts to new member" ripple
-  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 5.14; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash — Pass 5134: 2.09→2.82 stronger stack ripple flash — Pass 5711: 2.82→3.81 stronger stack ripple emissive flash — Pass 5937: 3.81→5.14 stronger stack ripple emissive flash
+  arr.forEach(m => { if (m.material) m.material.emissiveIntensity = 6.94; }); // Pass 4023: stack ripple emissive 0.85→1.15 — Pass 4894: 1.15→1.55 more vivid stack ripple — Pass 5059: 1.55→2.09 stronger stack ripple flash — Pass 5134: 2.09→2.82 stronger stack ripple flash — Pass 5711: 2.82→3.81 stronger stack ripple emissive flash — Pass 5937: 3.81→5.14 stronger stack ripple emissive flash — Pass 6234: 5.14→6.94 stronger stack ripple emissive flash
   // Pass 108: new card gets a brighter initial flash (overrides pass-45 value for this card)
   if (mesh.material) mesh.material.emissiveIntensity = 14.3; // Pass 4024: new card arrival flash 3.2→4.32 — Pass 4895: 4.32→5.83 brighter card arrival pop — Pass 5060: 5.83→7.87 brighter arrival pop — Pass 5774: 7.87→10.6 brighter new card arrival emissive flash — Pass 6196: 10.6→14.3 brighter new card arrival emissive flash
   // Pass 52: slot LED afterglow — keep LED bright for 1.8s — Pass 835: →2.8s — Pass 1650: →3.8s longer afterglow — Pass 3901: →5.1s even longer afterglow — Pass 4768: →9.3s even longer afterglow
@@ -1820,7 +1820,7 @@ CARD_TYPES.forEach(ct => {
 
 // ─── Card halo ring: spinning domain-colored torus around active card ─────────
 // Visible during belt travel; makes domain color unmistakably obvious
-const cardHaloGeo = new THREE.TorusGeometry(42, 5.98, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring
+const cardHaloGeo = new THREE.TorusGeometry(42, 8.07, 8, 28); // Pass 4006: halo tube radius 1.8→2.43 fatter ring — Pass 4982: 2.43→3.28 chunkier card halo ring — Pass 5304: 3.28→4.43 chunkier card arrival ring scale — Pass 5910: 4.43→5.98 chunkier card arrival halo ring — Pass 6235: 5.98→8.07 chunkier card arrival halo ring tube radius
 const cardHaloMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 6.66, // Pass 4800: card halo material initial emissiveIntensity 2.0→2.70 richer halo birth glow — Pass 4975: 2.70→3.65 more vivid card halo — Pass 5062: 3.65→4.93 more vivid halo birth glow — Pass 5775: 4.93→6.66 more vivid card halo ring birth glow
   transparent: true, opacity: 0, roughness: 0.2, metalness: 0.1
