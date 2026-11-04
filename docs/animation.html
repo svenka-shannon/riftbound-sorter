@@ -3416,13 +3416,13 @@ function animate(ts) {
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
             // Pass 958: burst life 0.36+0.24→0.52+0.32 for longer-lived reveal particles
-            _bp.active = true; _bp.age = 0; _bp.life = 1.73 + Math.random() * 1.057; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58 — Pass 3965: 0.95+0.58→1.28+0.783 — Pass 4119: 1.28+0.783→1.73+1.057 longer reveal burst
+            _bp.active = true; _bp.age = 0; _bp.life = 2.34 + Math.random() * 1.427; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58 — Pass 3965: 0.95+0.58→1.28+0.783 — Pass 4119: 1.28+0.783→1.73+1.057 longer reveal burst — Pass 5280: 1.73→2.34 — Pass 5281: 1.057→1.427 longer confirm burst
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 24) * Math.PI * 2 + Math.random() * 0.8; // Pass 5021: confirm burst angular divisor 18→24 fuller radial coverage per burst
-            const _spd = 1554 + Math.random() * 1432; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582 — Pass 3561: base 632→853, range 582→786 — Pass 3720: 853+786→1151+1061 — Pass 4116: 1151+1061→1554+1432 explosive confirm burst
+            const _spd = 2098 + Math.random() * 1933; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582 — Pass 3561: base 632→853, range 582→786 — Pass 3720: 853+786→1151+1061 — Pass 4116: 1151+1061→1554+1432 explosive confirm burst — Pass 5282: 1554→2098 — Pass 5283: 1432→1933 more explosive confirm burst
             _bp.vx = Math.cos(_ang) * _spd * 1.00; // Pass 4792: confirm burst vx spread 0.55→0.743 — Pass 5082: 0.743→1.00 wider confirm burst vx
-            _bp.vy = 1025 + Math.random() * 695; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416 — Pass 3560: base 416→562, rand 282→381 — Pass 3721: 562+381→759+515 — Pass 4117: base 759→1025 — Pass 4118: rand 515→695 higher burst
+            _bp.vy = 1384 + Math.random() * 938; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416 — Pass 3560: base 416→562, rand 282→381 — Pass 3721: 562+381→759+515 — Pass 4117: base 759→1025 — Pass 4118: rand 515→695 higher burst — Pass 5284: 1025→1384 — Pass 5285: 695→938 higher confirm burst vy
             _bp.vz = Math.sin(_ang) * _spd * 1.00; // Pass 4793: confirm burst vz spread 0.55→0.743 — Pass 5083: 0.743→1.00 wider confirm burst vz
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
@@ -3440,8 +3440,8 @@ function animate(ts) {
           scanBarMat.color.set(0xffffff);
           scanBarMat.emissive.set(0xaaddff);
           // Pass 326: pre-reveal urgency breath — Pass 836: 0.35→0.58 — Pass 1137: →0.85 for more vivid scan bar pulse
-          const _preBreath326 = barFill * 2.82 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)); // Pass 2328: urgency breath 1.15→1.55 — Pass 2988: 1.55→2.09 — Pass 4071: 2.09→2.82 more vivid pre-reveal urgency pulse
-          scanBarMat.emissiveIntensity = 1.62 + flashIntensity * 5.90 + _preBreath326; // Pass 1715: pre-reveal flash contribution 1.8→2.4 — Pass 3964: 2.4→3.24 brighter scan bar flash — Pass 4049: base 1.2→1.62, flash 3.24→4.37 more vivid pre-reveal scan bar — Pass 4996: flash 4.37→5.90 brighter scan bar flash contribution
+          const _preBreath326 = barFill * 3.81 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)); // Pass 2328: urgency breath 1.15→1.55 — Pass 2988: 1.55→2.09 — Pass 4071: 2.09→2.82 more vivid pre-reveal urgency pulse — Pass 5286: 2.82→3.81 more vivid pre-reveal urgency pulse
+          scanBarMat.emissiveIntensity = 1.62 + flashIntensity * 7.97 + _preBreath326; // Pass 1715: pre-reveal flash contribution 1.8→2.4 — Pass 3964: 2.4→3.24 brighter scan bar flash — Pass 4049: base 1.2→1.62, flash 3.24→4.37 more vivid pre-reveal scan bar — Pass 4996: flash 4.37→5.90 brighter scan bar flash contribution — Pass 5287: 5.90→7.97 brighter scan bar pre-reveal flash
         } else {
           scanBarMat.color.copy(_blendC);
           scanBarMat.emissive.copy(_blendC);
