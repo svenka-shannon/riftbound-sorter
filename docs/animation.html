@@ -2850,7 +2850,7 @@ function animate(ts) {
     } else if(inPhase(PH.armSwing)) {
       // Servo swing toward belt deposit position (+1.57 = horizontal right)
       const st = phaseT(PH.armSwing);
-      suctionPivot.rotation.z = THREE.MathUtils.lerp(1.08, 1.57, st); // Pass 4487: arm swing start 0.80→1.08 matches lift endpoint
+      suctionPivot.rotation.z = THREE.MathUtils.lerp(1.46, 1.57, st); // Pass 4487: arm swing start 0.80→1.08 matches lift endpoint — Pass 5532: 1.08→1.46 arm swings from deeper pre-cocked angle
       // Pass 154: Z-depth arc — pivot dips toward viewer at midpoint (sin naturally returns to 0)
       // Pass 676: Z-depth arc 14→17 — Pass 764: →23 — Pass 1176: →32 — Pass 1244: →44 — Pass 1340: →60 for even more dramatic 3D depth sweep
       suctionPivot.position.z = Math.sin(st * Math.PI) * 360; // Pass 2275: armSwing Z-depth arc 81→109 — Pass 3957: 109→147 — Pass 4189: 147→198 — Pass 4916: 198→267 deeper 3D sweep — Pass 5192: 267→360 deeper arm swing 3D arc
@@ -3703,7 +3703,7 @@ function animate(ts) {
     // Pass 103: HUD breathes with scan flash intensity — slight scale pulse
     // Pass 219: completion bounce — Pass 566: 0.12→0.22 — Pass 619: →0.32 — Pass 817: →0.48
     const _ovBounce = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 0.65 : 0; // Pass 4892: scan HUD completion bounce amplitude 0.48→0.65
-    _ov.style.transform = `translateX(-50%) scale(${(1.0 + flashIntensity * 0.135 + _ovBounce).toFixed(4)})`; // Pass 4799: scan overlay flash scale 0.10→0.135
+    _ov.style.transform = `translateX(-50%) scale(${(1.0 + flashIntensity * 0.182 + _ovBounce).toFixed(4)})`; // Pass 4799: scan overlay flash scale 0.10→0.135 — Pass 5525: 0.135→0.182 punchier scan overlay flash scale
   }
 
   // ── Phase 4: Conveyor to gate (3.1..3.8s) ──
@@ -3732,7 +3732,7 @@ function animate(ts) {
     // Pass 455: urgency pulse frequency ramp — target column beats faster as card approaches.
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
     // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
-    const _ledUrgencyHz = 8 + ot * 29.7; // 8→30Hz // Pass 4763: LED urgency Hz ramp 22→29.7 more frantic gate pulse
+    const _ledUrgencyHz = 8 + ot * 40.1; // 8→48Hz // Pass 4763: LED urgency Hz ramp 22→29.7 more frantic gate pulse — Pass 5526: 29.7→40.1 more frantic gate LED urgency pulse
     const _ledUrgencyPulse = 0.18 + 40.6 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5 — Pass 4373: 16.5→22.3 deeper gate LED urgency throb — Pass 5291: 22.3→30.1 deeper gate LED urgency pulse — Pass 5428: 30.1→40.6 deeper gate LED urgency pulse depth
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
@@ -3748,7 +3748,7 @@ function animate(ts) {
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
     gateColLight.intensity += (1139 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2358: gate col tracking light 103.3→139.5 — Pass 2574: 139.5→188.3 — Pass 3012: 188.3→254.2 — Pass 3210: 254.2→343.2 — Pass 3587: 343.2→463 — Pass 3682: 463→625 — Pass 4374: 625→844 brighter gate column domain pool — Pass 5438: 844→1139 brighter gate column domain pool
     // Fade routing arc out as card leaves scanner
-    routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 3.38); // Pass 4788: route arc fade rate 2.5→3.38 crisper routing arc dismissal
+    routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 4.56); // Pass 4788: route arc fade rate 2.5→3.38 crisper routing arc dismissal — Pass 5527: 3.38→4.56 crisper routing arc fade
     routeTargetMat.opacity = routeArcMat.opacity;
     routeTargetMat.emissiveIntensity = routeArcMat.opacity * 2.7; // Pass 4878: route target emissive multiplier 2→2.7 brighter routing indicator
     activeCard.visible = true;
@@ -3768,7 +3768,7 @@ function animate(ts) {
     // Pass 232: belt acceleration pitch kick — belt surges from scan crawl (0.02) to full
     // speed at conveyorOut start, briefly pitching card nose-up by inertia.
     // Pass 640: belt launch pitch kick 0.06→0.10 — Pass 776: 0.10→0.16 — Pass 970: →0.22 for stronger card-lurch at scan exit — Pass 1594: →0.30; Pass 1595: decay 22→16 longer kick
-    const _beltKickPitch = Math.exp(-ot * 16) * 6.05; // Pass 2359: belt launch kick pitch 0.55→0.74 — Pass 2576: 0.74→1.00 — Pass 3014: 1.00→1.35 — Pass 3211: 1.35→1.82 — Pass 3474: 1.82→2.46 — Pass 3705: 2.46→3.32 — Pass 3819: 3.32→4.48 — Pass 4557: 4.48→6.05 more dramatic belt exit pitch kick
+    const _beltKickPitch = Math.exp(-ot * 16) * 8.17; // Pass 2359: belt launch kick pitch 0.55→0.74 — Pass 2576: 0.74→1.00 — Pass 3014: 1.00→1.35 — Pass 3211: 1.35→1.82 — Pass 3474: 1.82→2.46 — Pass 3705: 2.46→3.32 — Pass 3819: 3.32→4.48 — Pass 4557: 4.48→6.05 more dramatic belt exit pitch kick — Pass 5528: 6.05→8.17 more dramatic belt exit pitch kick
     activeCard.rotation.set(_exitLean + _beltKickPitch, 0, zBank); // forward lean + kick + bank
     // Pass 174: continue belt Z-wobble during conveyorOut — fades in over first 5% and out
     // over last 30% so card arrives stable at gate (no Z snap at scan→out or out→deflect)
@@ -3782,7 +3782,7 @@ function animate(ts) {
       const _z268drift = ct.slotZ * 4.10 * easeInOut(Math.min(1, ot / 0.85)); // Pass 2070: conveyorOut Z-drift 0.92→1.24 — Pass 2578: 1.24→1.67 — Pass 3016: 1.67→2.25 — Pass 4320: 2.25→3.04 stronger lane-change preview drift — Pass 5437: 3.04→4.10 stronger lane-change preview drift
       activeCard.position.set(
         THREE.MathUtils.lerp(-40, GATE_X, ot),
-        CONV_Y_TOP + CARD_T/2 + 2.70, _oWobbleZ + _z268drift // Pass 4567: conveyorOut card belt Y 2→2.70 higher card float on exit belt
+        CONV_Y_TOP + CARD_T/2 + 3.65, _oWobbleZ + _z268drift // Pass 4567: conveyorOut card belt Y 2→2.70 higher card float on exit belt — Pass 5529: 2.70→3.65 higher card float on exit belt
       );
     }
     // Paddle snaps early: covers ~70% travel in first half, holds before card arrives
@@ -3792,7 +3792,7 @@ function animate(ts) {
     // Pass 111: servo micro-vibration — paddle hunts at target angle (servo hold jitter)
     // Pass 954: amplitude 0.009→0.015, secondary 0.005→0.008 for more realistic servo hunting — Pass 1598: →0.021/0.011
     if (paddleT >= 0.98) {
-      const _hunt = Math.sin(ts * 76 * Math.PI * 2) * 0.051 + Math.sin(ts * 53 * Math.PI * 2) * 0.027; // Pass 2071: servo hunt 0.021+0.011→0.028+0.015 — Pass 3020: 0.028+0.015→0.038+0.020 — Pass 4399: 0.038+0.020→0.051+0.027 sharper servo hold jitter
+      const _hunt = Math.sin(ts * 76 * Math.PI * 2) * 0.069 + Math.sin(ts * 53 * Math.PI * 2) * 0.036; // Pass 2071: servo hunt 0.021+0.011→0.028+0.015 — Pass 3020: 0.028+0.015→0.038+0.020 — Pass 4399: 0.038+0.020→0.051+0.027 sharper servo hold jitter — Pass 5530: 0.051+0.027→0.069+0.036 sharper paddle servo hold jitter
       paddlePivot.rotation.y += _hunt; // accuracy: Y-axis hunt jitter
     }
     // Gate glows in DOMAIN color while routing (shows which path is active)
@@ -3826,7 +3826,7 @@ function animate(ts) {
         // Pass 489: corona opacity 0.15+0.12→0.22+0.18 — Pass 713: →0.30+0.24 — Pass 951: →0.42+0.32 — Pass 1226: →0.58+0.44 — Pass 1298: →0.75+0.55 — Pass 1562: opacity capped at 1.0
         tp.mat.opacity = Math.min(1.0, 1.01 + Math.random() * 0.55); // Pass 4767: corona base opacity 0.75→1.01 always-full gate corona
         // Pass 952: corona particle life 0.22+0.18→0.30+0.24 — Pass 1563: →0.42+0.32 for longer-lived charge aura
-        tp.age = 0; tp.life = 8.45 + Math.random() * 6.39; // Pass 2363: gate corona particle life 0.57+0.43→0.77+0.58 — Pass 2581: 0.77+0.58→1.04+0.78 — Pass 3019: 1.04+0.78→1.40+1.05 — Pass 3213: 1.40+1.05→1.89+1.42 — Pass 3589: 1.89+1.42→2.55+1.92 — Pass 3684: 2.55+1.92→3.44+2.59 — Pass 3795: base 3.44→4.64 — Pass 3796: rand 2.59→3.50 — Pass 3898: base 4.64→6.26 — Pass 3899: rand 3.50→4.73 — Pass 4736: base 6.26→8.45 longer corona aura — Pass 4737: rand 4.73→6.39
+        tp.age = 0; tp.life = 11.4 + Math.random() * 8.63; // Pass 2363: gate corona particle life 0.57+0.43→0.77+0.58 — Pass 2581: 0.77+0.58→1.04+0.78 — Pass 3019: 1.04+0.78→1.40+1.05 — Pass 3213: 1.40+1.05→1.89+1.42 — Pass 3589: 1.89+1.42→2.55+1.92 — Pass 3684: 2.55+1.92→3.44+2.59 — Pass 3795: base 3.44→4.64 — Pass 3796: rand 2.59→3.50 — Pass 3898: base 4.64→6.26 — Pass 3899: rand 3.50→4.73 — Pass 4736: base 6.26→8.45 longer corona aura — Pass 4737: rand 4.73→6.39 — Pass 5531: 8.45+6.39→11.4+8.63 longer gate corona aura
         tp.active = true; tp.mesh.visible = true;
       }
     }
