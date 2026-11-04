@@ -889,7 +889,7 @@ scene.add(lensRing);
 const scanLEDMat = new THREE.MeshStandardMaterial({
   color: 0x00aaff,
   emissive: new THREE.Color(0x0055cc),
-  emissiveIntensity: 9.84, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive
+  emissiveIntensity: 13.3, // Pass 4017: scanner LED base emissive 1.2→1.62 brighter idle strip — Pass 4670: 1.62→2.19 brighter scanner LED strip — Pass 4957: 2.19→2.96 brighter scanner LED strip — Pass 5048: 2.96→4.00 brighter scanner LED strip — Pass 5137: 4.00→5.40 brighter scanner head idle emissive — Pass 5310: 5.40→7.29 brighter scanner LED idle strip — Pass 5396: 7.29→9.84 brighter scanner idle LED strip emissive — Pass 5491: 9.84→13.3 brighter scanner body idle LED emissive floor
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
@@ -2362,7 +2362,7 @@ function animate(ts) {
     const _jPhase = i * 3.60; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync — Pass 5332: 2.67→3.60 more organic slot ring initial color saturation desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
     const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 5.67 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude — Pass 5108: pre-pick stack jitter primary amplitude 1.70→2.30 livelier stack jitter — Pass 5313: 2.30→3.11 livelier pre-pick stack jitter primary amplitude — Pass 5334: 3.11→4.20 livelier pre-pick stack jitter primary amplitude — Pass 5424: 4.20→5.67 livelier card hold oscillation primary amplitude
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 5.14; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary — Pass 5326: 1.15→1.55 livelier arm descent oscillation secondary amplitude — Pass 5335: 1.55→2.09 livelier idle arm sway Y secondary amplitude — Pass 5345: 2.09→2.82 livelier card Y jitter hold secondary amplitude — Pass 5425: 2.82→3.81 livelier card hold oscillation secondary amplitude — Pass 5436: 3.81→5.14 livelier arm extension secondary oscillation Y amplitude
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 6.94; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary — Pass 5116: 0.85→1.15 livelier pick cycle stack jitter secondary — Pass 5326: 1.15→1.55 livelier arm descent oscillation secondary amplitude — Pass 5335: 1.55→2.09 livelier idle arm sway Y secondary amplitude — Pass 5345: 2.09→2.82 livelier card Y jitter hold secondary amplitude — Pass 5425: 2.82→3.81 livelier card hold oscillation secondary amplitude — Pass 5436: 3.81→5.14 livelier arm extension secondary oscillation Y amplitude — Pass 5486: 5.14→6.94 livelier arm descent oscillation tertiary secondary Y amplitude
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2448,7 +2448,7 @@ function animate(ts) {
       f.age += dt;
       const _fPeak = f.peak || 4.05; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 9.86)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 13.3)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5488: 9.86→13.3 longer slot arrival flash glow persistence
       if(f.age > 7.30) { scene.remove(f.light); return false; }
       return true;
     });
@@ -2639,7 +2639,7 @@ function animate(ts) {
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
       const jitter = 12.8 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting
         Math.sin(ts * 19.7 * Math.PI * 2) * 1.73 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter — Pass 5087: 10.8→14.6 Hz crisper arm tremor oscillation — Pass 5109: arm descent servo hunt frequency 14.6→19.7 Hz crisper pre-pick tremor — Pass 5319: 0.945→1.28 stronger arm extension tremor primary amplitude — Pass 5399: 1.28→1.73 stronger arm approach jitter buildup primary amplitude
-        Math.sin(ts * 17.6 * Math.PI * 2) * 1.35 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone — Pass 5112: 0.405→0.547 richer descent overtone texture — Pass 5254: scanner arm extension descent overtone amp 0.547→0.739 richer arm tremor texture — Pass 5327: 0.739→1.00 richer arm tremor overtone frequency amplitude — Pass 5392: 1.00→1.35 richer arm approach jitter buildup overtone amplitude
+        Math.sin(ts * 17.6 * Math.PI * 2) * 1.82 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone — Pass 5112: 0.405→0.547 richer descent overtone texture — Pass 5254: scanner arm extension descent overtone amp 0.547→0.739 richer arm tremor texture — Pass 5327: 0.739→1.00 richer arm tremor overtone frequency amplitude — Pass 5392: 1.00→1.35 richer arm approach jitter buildup overtone amplitude — Pass 5493: 1.35→1.82 richer arm descent oscillation tertiary overtone secondary amplitude
       );
       // Pass 243: terminal servo micro-tap — precision down-push in final 5% of descent
       const _tapOffset = pt > 0.95 ? -1.46 * ((pt - 0.95) / 0.05) : 0; // Pass 4439: terminal tap magnitude 0.8→1.08 stronger precision tap — Pass 5121: 1.08→1.46 stronger terminal servo tap
@@ -3053,7 +3053,7 @@ function animate(ts) {
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 49.3; // Pass 4764: approach flicker ramp 20→27 more nervous pre-pick tension — Pass 5107: approach flicker ramp 27→36.5 more nervous pre-pick tension — Pass 5340: 36.5→49.3 more nervous pre-pick approach flicker ramp
-    activeCardMat.emissiveIntensity = 0.74 + _approachT * 6.94 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card — Pass 5125: 2.82→3.81 stronger gate charge buildup emissive ramp — Pass 5135: 3.81→5.14 stronger gate charge buildup emissive ramp — Pass 5323: 5.14→6.94 stronger gate charge buildup emissive scale factor
+    activeCardMat.emissiveIntensity = 0.74 + _approachT * 9.37 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card — Pass 5125: 2.82→3.81 stronger gate charge buildup emissive ramp — Pass 5135: 3.81→5.14 stronger gate charge buildup emissive ramp — Pass 5323: 5.14→6.94 stronger gate charge buildup emissive scale factor — Pass 5487: 6.94→9.37 stronger card emissive floor during scan gate charge buildup
       + _approachT * 4.06 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65 — Pass 3961: 1.65→2.23 — Pass 4214: 2.23→3.01 more vivid approach pulse — Pass 5361: 3.01→4.06 more vivid scanner approach pulse
       + _approachT * 0.189 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat — Pass 4269: secondary amplitude 0.10→0.14 stronger interference beat — Pass 5362: 0.14→0.189 stronger secondary approach beat
       + _entryBoost;
@@ -3198,7 +3198,7 @@ function animate(ts) {
     {
       const _swayDamp = _identityRevealed ? Math.max(0, 1 - (ft - 0.85) / 0.135) : 1.0; // Pass 4852: hood sway damp window 0.10→0.135 softer sway lockout
       // Pass 1152: hood sway primary 1.20→1.65, secondary 0.42→0.60 — Pass 1420: primary →2.20, secondary →0.82 for more resonant scanner oscillation
-      scannerHood.position.z = (7.30 * Math.sin(ts * 3.78 * Math.PI * 2) + 2.71 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10 — Pass 3936: 2.97+1.10→4.01+1.49 deeper scanner hood sway — Pass 4221: primary 4.01→5.41 — Pass 4222: secondary 1.49→2.01 wilder hood resonance — Pass 5158: primary 5.41→7.30 deeper scanner body X sway — Pass 5166: sway frequency 2.8→3.78 faster scanner body forward bob — Pass 5250: secondary 2.01→2.71 wilder scanner hood forward bob secondary
+      scannerHood.position.z = (7.30 * Math.sin(ts * 3.78 * Math.PI * 2) + 3.66 * Math.sin(ts * 4.1 * Math.PI * 2 + 1.7)) * _swayDamp; // Pass 1772: primary 2.20→2.97, Pass 1773: secondary 0.82→1.10 — Pass 3936: 2.97+1.10→4.01+1.49 deeper scanner hood sway — Pass 4221: primary 4.01→5.41 — Pass 4222: secondary 1.49→2.01 wilder hood resonance — Pass 5158: primary 5.41→7.30 deeper scanner body X sway — Pass 5166: sway frequency 2.8→3.78 faster scanner body forward bob — Pass 5250: secondary 2.01→2.71 wilder scanner hood forward bob secondary — Pass 5489: 2.71→3.66 wilder scanner body Z bob frequency secondary amplitude
     }
     // Pass 80: lens iris opens during scan — Pass 946: scale amp 0.40→0.65 — Pass 1153: →0.92 — Pass 1236: →1.30 — Pass 1421: →1.75 for more dramatic iris breathing
     const _irisScale = 0.75 + flashIntensity * 14.3; // Pass 1745: iris scale amplitude 1.75→2.36 — Pass 3383: 2.36→3.19 — Pass 3514: 3.19→4.31 — Pass 3651: 4.31→5.82 — Pass 3982: 5.82→7.86 — Pass 4110: 7.86→10.6 bigger iris throb — Pass 5251: 10.6→14.3 bigger iris throb amplitude
@@ -3804,7 +3804,7 @@ function animate(ts) {
     // Pass 259: gate pre-charge electromagnetic flicker — Pass 414: 0.35→0.55 — Pass 631: →0.85
     // Pass 950: primary 0.85→1.20, secondary 0.30→0.45 — Pass 1225: primary 1.20→1.80, secondary 0.45→0.65 — Pass 1297: primary 1.80→2.50, secondary 0.65→0.90 — Pass 1365: primary →3.50, secondary →1.25 — Pass 1557: primary →4.80, secondary →1.70 for more chaotic electromagnetic charging
     const _gateFlicker = ot > 0.70
-      ? (71.4 * Math.sin(ts * 6 * Math.PI * 2) + 13.9 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 2362: flicker primary 8.75→11.8, secondary 3.11→4.20 — Pass 2580: 11.8→15.9, 4.20→5.67 — Pass 3018: 15.9→21.5, 5.67→7.65 — Pass 4318: 21.5→29.0 — Pass 4319: 7.65→10.3 wilder gate charge flicker — Pass 5126: primary 29.0→39.2 wilder gate charge buildup emissive ramp — Pass 5139: secondary 10.3→13.9 wilder gate charge flicker secondary — Pass 5251: gate charge buildup flicker primary 39.2→52.9 wilder gate charge buildup — Pass 5344: 52.9→71.4 wilder gate charge pre-flash flicker primary
+      ? (96.4 * Math.sin(ts * 6 * Math.PI * 2) + 13.9 * Math.sin(ts * 11 * Math.PI * 2 + 0.5)) * ((ot - 0.70) / 0.30) // Pass 2362: flicker primary 8.75→11.8, secondary 3.11→4.20 — Pass 2580: 11.8→15.9, 4.20→5.67 — Pass 3018: 15.9→21.5, 5.67→7.65 — Pass 4318: 21.5→29.0 — Pass 4319: 7.65→10.3 wilder gate charge flicker — Pass 5126: primary 29.0→39.2 wilder gate charge buildup emissive ramp — Pass 5139: secondary 10.3→13.9 wilder gate charge flicker secondary — Pass 5251: gate charge buildup flicker primary 39.2→52.9 wilder gate charge buildup — Pass 5344: 52.9→71.4 wilder gate charge pre-flash flicker primary — Pass 5488: 71.4→96.4 wilder gate charge buildup flicker primary emissive texture
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 4821: paddle charge emissive tracking rate 8→10.8
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
@@ -3922,7 +3922,7 @@ function animate(ts) {
           _sp.mesh.position.set(_impX, _impY, _impZ);
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 1766 + Math.random() * 1516; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst
+          const _spd = 2384 + Math.random() * 2047; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst — Pass 5489: base 1766→2384 faster gate spark burst — Pass 5490: rand 1516→2047 wider gate spark speed burst
           _sp.vx = Math.cos(_ang) * _spd * 1.28; // Pass 4794: gate spark vx spread 0.7→0.945 — Pass 5084: 0.945→1.28 wider gate spark vx
           _sp.vy = 1214 + Math.random() * 984; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft
           _sp.vz = Math.sin(_ang) * _spd * 0.911 + Math.sign(ct.slotZ || 1) * 15; // Pass 4795: gate spark vz spread 0.5→0.675 — Pass 5085: 0.675→0.911 wider gate spark vz
@@ -4109,7 +4109,7 @@ function animate(ts) {
         // Small bounce at landing — Pass 496: bounce 6→9 — Pass 668: →12, damp 0.5→0.38 — Pass 750: →16, damp 0.38→0.32
         // Pass 971: bounce 16→22 — Pass 1108: →30 — Pass 1195: →40 — Pass 1257: →52 for even bigger card-slap landing bounce
         const bT = (dt3 - 0.88) / 0.12;
-        cy = targetY + 1899 * Math.sin(bT * Math.PI) * (1 - bT * 0.32); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772 — Pass 3737: 772→1042 — Pass 3845: 1042→1407 — Pass 4453: 1407→1899 bigger slot landing bounce — Pass 4594: slot drop bounce Y floor damping 0.24→0.32 snappier landing bounce decay
+        cy = targetY + 2564 * Math.sin(bT * Math.PI) * (1 - bT * 0.32); // Pass 2387: bounce height 127.6→172.3 — Pass 2609: 172.3→232.6 — Pass 3047: 232.6→314.0 — Pass 3232: 314.0→424.0 — Pass 3399: 424.0→572.0 — Pass 3524: 572.0→772 — Pass 3737: 772→1042 — Pass 3845: 1042→1407 — Pass 4453: 1407→1899 bigger slot landing bounce — Pass 4594: slot drop bounce Y floor damping 0.24→0.32 snappier landing bounce decay — Pass 5491: 1899→2564 bigger slot landing bounce height
       }
     } else {
       // Upper floor: card is guided up into elevated slot — smooth easeInOut
@@ -4250,8 +4250,8 @@ function animate(ts) {
         );
         _pp.mesh.visible = true;
         _pp.vx = (Math.random() - 0.5) * 68.9; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread — Pass 5478: 51.0→68.9 wider landing puff vx spread
-        _pp.vy = 1216 + Math.random() * 795; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft
-        _pp.vz = (Math.random() - 0.5) * 133; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread — Pass 5482: 98.4→133 wider landing puff vz spread
+        _pp.vy = 1642 + Math.random() * 1073; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft — Pass 5486: base 1216→1642 stronger slot entry air puff loft — Pass 5487: rand 795→1073 stronger slot entry loft burst
+        _pp.vz = (Math.random() - 0.5) * 180; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread — Pass 5482: 98.4→133 wider landing puff vz spread — Pass 5490: 133→180 wider landing puff vy decay rate Z spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
           Math.min(1, _rr / 255 * 0.61 + 0.55), // Pass 4860: landing puff domain tint 0.45→0.61
@@ -4305,7 +4305,7 @@ function animate(ts) {
           );
           _lp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 2094 + Math.random() * 2372; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757 — Pass 4405: 1551+1757→2094+2372 faster impact radial spray
+          const _spd = 2827 + Math.random() * 3202; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757 — Pass 4405: 1551+1757→2094+2372 faster impact radial spray — Pass 5492: base 2094→2827 faster impact radial spray — Pass 5493: rand 2372→3202 wider impact radial spray
           _lp.vx = Math.cos(_ang) * _spd * 0.61; // Pass 4357: landing dust vx factor 0.45→0.61 wider radial scatter
           _lp.vy = 151.6 + Math.random() * 351.0; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft — Pass 4621: base 112.3→151.6 bigger landing puff vy spread
           _lp.vz = Math.sin(_ang) * _spd * 1.35; // Pass 4358: landing dust vz factor 1.0→1.35 deeper Z floor spray
@@ -5117,7 +5117,7 @@ function animate(ts) {
   // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
     // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 — Pass 1037: →dt*2.6 — Pass 1436: →dt*2.0 for longer visible ring
-    _grabRingT = Math.min(1, _grabRingT + dt * 73.0); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0 — Pass 3534: 22.0→29.7 — Pass 4088: 29.7→40.1 snappier suction grab — Pass 5372: 40.1→54.1 snappier suction grab ring — Pass 5484: 54.1→73.0 faster slot entry LED ring scale speed
+    _grabRingT = Math.min(1, _grabRingT + dt * 98.6); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0 — Pass 3534: 22.0→29.7 — Pass 4088: 29.7→40.1 snappier suction grab — Pass 5372: 40.1→54.1 snappier suction grab ring — Pass 5484: 54.1→73.0 faster slot entry LED ring scale speed — Pass 5492: 73.0→98.6 faster slot arrival ring fade rate
     // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 — Pass 1437: →18.0 — Pass 1540: →25.0 for wider domain ring burst at pick
     const _grs = 1.0 + easeOut(_grabRingT) * 918.5; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6 — Pass 3141: 151.6→204.7 — Pass 3313: 204.7→276.3 — Pass 3422: 276.3→373.0 — Pass 3535: 373.0→504 — Pass 4089: 504→680.4 wider suction burst — Pass 5373: 680.4→918.5 wider suction burst ring
     grabRing.scale.setScalar(_grs);
