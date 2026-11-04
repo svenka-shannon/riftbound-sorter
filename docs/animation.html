@@ -3844,7 +3844,7 @@ function animate(ts) {
     // Pass 46: emissive decays from flash peak (1.8) toward belt-cruise level (0.55)
     // Pass 129: brief acceleration surge emissive at exit start — Pass 953: 0.5→0.9 — Pass 972: →1.4 brighter launch surge
     const _exitSurge = ot < 0.10 ? (0.10 - ot) / 0.10 * 51.2 : 0; // Pass 2365: exit surge 2.55→3.44 — Pass 2582: 3.44→4.64 — Pass 3022: 4.64→6.26 — Pass 3214: 6.26→8.45 — Pass 3590: 8.45→11.4 — Pass 3685: 11.4→15.4 — Pass 3998: 15.4→20.8 — Pass 4738: 20.8→28.1 stronger ConveyorOut flash — Pass 5536: 28.1→37.9 stronger ConveyorOut flash — Pass 6634: 37.9→51.2 stronger ConveyorOut launch flash emissive surge
-    activeCardMat.emissiveIntensity = Math.max(1.00 + _exitSurge, activeCardMat.emissiveIntensity - dt * 5.5); // Pass 4644: belt entry card emissive hold 0.55→0.74 brighter belt cruise glow floor — Pass 5557: 0.74→1.00 brighter belt cruise glow floor
+    activeCardMat.emissiveIntensity = Math.max(1.00 + _exitSurge, activeCardMat.emissiveIntensity - dt * 7.43); // Pass 4644: belt entry card emissive hold 0.55→0.74 brighter belt cruise glow floor — Pass 5557: 0.74→1.00 brighter belt cruise glow floor — Pass 6794: belt cruise glow decay rate 5.5→7.43 snappier belt entry card emissive fade
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
     // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 — Pass 1372: →*3.8 for bigger gate approach glow
@@ -3957,8 +3957,8 @@ function animate(ts) {
     const cy = _arcBase + _arcBump;
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
-    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 2350 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387 — Pass 4408: 387→523 stronger deflect Z air buffet — Pass 5537: 523→706 stronger card deal arc Z air buffet amplitude — Pass 5585: 706→953 stronger card deal arc Z air buffet amplitude — Pass 5605: 953→1290 stronger deflect Z air buffet amplitude — Pass 5616: 1290→1740 stronger arm approach Z drift frequency deflect air buffet amplitude — Pass 5628: 1740→2350 stronger card deal arc Z air buffet primary impulse amplitude
-      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 9.86; // Pass 2107: Z tremor tertiary 2.2→2.97 — Pass 3941: 2.97→4.01 — Pass 4402: 4.01→5.41 stronger deflect air buffet — Pass 5561: 5.41→7.30 stronger deflect Z tertiary tremor — Pass 5624: 7.30→9.86 stronger deflect Z tertiary tremor amplitude
+    const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 3173 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387 — Pass 4408: 387→523 stronger deflect Z air buffet — Pass 5537: 523→706 stronger card deal arc Z air buffet amplitude — Pass 5585: 706→953 stronger card deal arc Z air buffet amplitude — Pass 5605: 953→1290 stronger deflect Z air buffet amplitude — Pass 5616: 1290→1740 stronger arm approach Z drift frequency deflect air buffet amplitude — Pass 5628: 1740→2350 stronger card deal arc Z air buffet primary impulse amplitude — Pass 6795: deflect Z air buffet amplitude 2350→3173 stronger card deal arc Z primary buffet
+      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 13.3; // Pass 2107: Z tremor tertiary 2.2→2.97 — Pass 3941: 2.97→4.01 — Pass 4402: 4.01→5.41 stronger deflect air buffet — Pass 5561: 5.41→7.30 stronger deflect Z tertiary tremor — Pass 5624: 7.30→9.86 stronger deflect Z tertiary tremor amplitude — Pass 6796: deflect Z tertiary tremor 9.86→13.3 stronger tertiary air buffet
     // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 — Pass 1072: →3.2 — Pass 1253: →4.4 for more 3D turbulence in deflect arc
     const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 396; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161 — Pass 4084: 161→217 — Pass 5562: 217→293 stronger deflect Y tremor — Pass 6648: 293→396 stronger deflect Y tremor amplitude
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
@@ -4018,7 +4018,7 @@ function animate(ts) {
     paddleMat.emissiveIntensity = Math.max(0.739, paddleMat.emissiveIntensity * 0.92); // dim slowly // Pass 4802: paddle emissive floor 0.3→0.405 brighter resting gate glow — Pass 5604: 0.405→0.547 brighter paddle resting emissive floor — Pass 6666: 0.547→0.739 brighter paddle resting emissive floor
     // Pass 109: apply paddle recoil offset and spring it back to base target angle
     if (Math.abs(_paddleRecoil) > 0.001) {
-      _paddleRecoil *= Math.max(0, 1 - dt * 6.49); // Pass 1578: recoil decay 9→6.5 slower spring-back, more kick felt — Pass 4281: 6.5→4.81 even longer paddle kick — Pass 5570: 4.81→6.49 snappier paddle spring-back
+      _paddleRecoil *= Math.max(0, 1 - dt * 8.76); // Pass 1578: recoil decay 9→6.5 slower spring-back, more kick felt — Pass 4281: 6.5→4.81 even longer paddle kick — Pass 5570: 4.81→6.49 snappier paddle spring-back — Pass 6797: paddle recoil decay 6.49→8.76 snappier paddle spring-back
       paddlePivot.rotation.y += _paddleRecoil; // accuracy: Y-axis recoil
     }
     // Accuracy: hold floor diverter at target floor position throughout deflect
@@ -4029,7 +4029,7 @@ function animate(ts) {
     }
     // Pass 216: solenoid Z-vibration decay — paddle vibrates laterally at ~42Hz, fading ~0.2s
     if (_paddleJitterAmt > 0.005) {
-      _paddleJitterAmt *= Math.max(0, 1 - dt * 10.0); // Pass 1579: jitter decay 14→10 longer solenoid buzz — Pass 4282: 10→7.41 even longer solenoid buzz — Pass 5571: 7.41→10.0 snappier solenoid buzz
+      _paddleJitterAmt *= Math.max(0, 1 - dt * 13.5); // Pass 1579: jitter decay 14→10 longer solenoid buzz — Pass 4282: 10→7.41 even longer solenoid buzz — Pass 5571: 7.41→10.0 snappier solenoid buzz — Pass 6798: solenoid jitter decay 10.0→13.5 snappier solenoid buzz
       paddlePivot.position.z = _paddleJitterAmt * Math.sin(ts * 42 * Math.PI * 2);
     } else {
       paddlePivot.position.z += (0 - paddlePivot.position.z) * Math.min(1, dt * 24.6); // Pass 4823: paddle Z spring return rate 10→13.5 — Pass 5607: 13.5→18.2 snappier paddle Z spring return — Pass 6672: 18.2→24.6 snappier paddle Z spring return rate
@@ -4144,7 +4144,7 @@ function animate(ts) {
     activeCard.rotation.z = _wallLean;
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
-      const _wallOsc = Math.abs(Math.sin(dt3 * Math.PI * 4)) * Math.max(0, 1 - dt3 * 2.55); // Pass 4884: slot wall oscillation decay rate 1.4→1.89 snappier wall bounce fade — Pass 5609: 1.89→2.55 snappier slot wall oscillation decay
+      const _wallOsc = Math.abs(Math.sin(dt3 * Math.PI * 4)) * Math.max(0, 1 - dt3 * 3.44); // Pass 4884: slot wall oscillation decay rate 1.4→1.89 snappier wall bounce fade — Pass 5609: 1.89→2.55 snappier slot wall oscillation decay — Pass 6799: slot wall oscillation decay 2.55→3.44 snappier wall bounce fade
       if (_wallOsc > 0.72) ct.stripMat.emissiveIntensity = Math.max(ct.stripMat.emissiveIntensity, 0.203 + (_wallOsc - 0.72) / 0.28 * 2.23); // Pass 4499: slot wall LED bounce peak 0.90→1.22 brighter wall contact flash — Pass 4530: slot wall LED emissive floor 0.15→0.203 brighter wall-contact baseline — Pass 5141: 1.22→1.65 brighter slot wall approach emissive flash — Pass 6279: 1.65→2.23 brighter slot wall LED bounce peak emissive
     }
     // Pass 456: pre-impact micro-shake ramp — for floor-0, subtle increasing camera tremor
@@ -4171,7 +4171,7 @@ function animate(ts) {
     // Pass 313: floor-0 slot impact cardGlow spike — Pass 392: 1.2→1.8, decay 30→25 — Pass 754: 1.8→3.0, decay 25→22
     // Pass 976: impact glow spike 3.0→4.8, decay 22→18 — Pass 1112: →7.5 — Pass 1199: →11.5 — Pass 1406: →16.0 — Pass 1549: →22.0 for stronger slot impact glow
     const _glowImpact313 = ct.floor === 0 && dt3 >= 0.88 && dt3 < 0.94
-      ? Math.exp(-(dt3 - 0.88) * 18) * 807 : 0; // Pass 2116: impact glow spike 40.1→54.1 — Pass 2613: 54.1→73.0 — Pass 3054: 73.0→98.6 — Pass 3241: 98.6→133.1 — Pass 3595: 133.1→180 — Pass 3691: 180→243 — Pass 3803: 243→328 — Pass 3903: 328→443 — Pass 4657: 443→598 stronger slot-impact card glow — Pass 5609: 598→807 stronger slot-impact card glow spike
+      ? Math.exp(-(dt3 - 0.88) * 18) * 1090 : 0; // Pass 2116: impact glow spike 40.1→54.1 — Pass 2613: 54.1→73.0 — Pass 3054: 73.0→98.6 — Pass 3241: 98.6→133.1 — Pass 3595: 133.1→180 — Pass 3691: 180→243 — Pass 3803: 243→328 — Pass 3903: 328→443 — Pass 4657: 443→598 stronger slot-impact card glow — Pass 5609: 598→807 stronger slot-impact card glow spike — Pass 6800: slot-impact card glow spike 807→1090 stronger impact flash
     cardGlow.intensity = THREE.MathUtils.lerp(1.47, 0, dt3) + _glowImpact313; // Pass 4543: slot drop approach card glow start 0.6→0.81 warmer approach emissive — Pass 5628: 0.81→1.09 warmer slot drop approach card glow start — Pass 6391: 1.09→1.47 warmer slot drop approach card glow start intensity
     // Pass 57: target spotlight fades as card arrives (held from deflect entry)
     // Pass 979: start from 2.8 — Pass 1550: →4.0 for brighter slot target spotlight at drop entry
@@ -4308,7 +4308,7 @@ function animate(ts) {
           const _spd = 3817 + Math.random() * 4323; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757 — Pass 4405: 1551+1757→2094+2372 faster impact radial spray — Pass 5500: base 2094→2827 faster impact radial spray — Pass 5501: rand 2372→3202 wider impact radial spray — Pass 6575: base 2827→3817 faster impact radial spray — Pass 6576: rand 3202→4323 wider impact radial spray
           _lp.vx = Math.cos(_ang) * _spd * 0.824; // Pass 4357: landing dust vx factor 0.45→0.61 wider radial scatter — Pass 5619: 0.61→0.824 wider radial scatter
           _lp.vy = 277 + Math.random() * 474; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft — Pass 4621: base 112.3→151.6 bigger landing puff vy spread — Pass 5611: 151.6+351.0→205+474 more explosive slot-impact dust loft — Pass 6659: base 205→277 more explosive landing dust loft base
-          _lp.vz = Math.sin(_ang) * _spd * 1.82; // Pass 4358: landing dust vz factor 1.0→1.35 deeper Z floor spray — Pass 5620: 1.35→1.82 deeper Z floor spray
+          _lp.vz = Math.sin(_ang) * _spd * 2.46; // Pass 4358: landing dust vz factor 1.0→1.35 deeper Z floor spray — Pass 5620: 1.35→1.82 deeper Z floor spray — Pass 6801: landing dust vz factor 1.82→2.46 deeper Z floor spray
           _lp.mat.color.setRGB(
             Math.min(1, _rr2 / 255 * 1.00 + 0.45), // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint
             Math.min(1, _gg2 / 255 * 1.00 + 0.45), // Pass 4861: lower floor scatter domain tint 0.55→0.74 — Pass 5762: 0.74→1.00 richer lower floor scatter domain tint
