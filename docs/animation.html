@@ -956,7 +956,7 @@ const scanConeMat = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide, depthWrite: false
 });
 const scanCone = new THREE.Mesh(
-  new THREE.ConeGeometry(36, 60, 18, 1, true),
+  new THREE.ConeGeometry(48.6, 60, 18, 1, true), // Pass 4585: scan cone radius 36→48.6 wider scan flash cone
   scanConeMat
 );
 // Tip at scanner lens; open base toward card — rotate 180° so tip is up, base down
@@ -2396,7 +2396,7 @@ function animate(ts) {
   // ── Tray card arrival animation (settle into slot) ──
   for(let i = trayArrivals.length - 1; i >= 0; i--) {
     const a = trayArrivals[i];
-    a.t = Math.min(1, a.t + dt * speedMult * 3.5);
+    a.t = Math.min(1, a.t + dt * speedMult * 4.73); // Pass 4588: card settle animation speed 3.5→4.73 snappier slot settle
     // Pass 98: landing bounce — card overshoots target slightly then springs back up
     // First 80%: cubic ease-out approach; last 20%: half-sine spring (goes +5u up then settles)
     let _yPos;
@@ -2413,7 +2413,7 @@ function animate(ts) {
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9
-        a.mesh.material.emissiveIntensity = 0.15 + 93.0 * Math.exp(-a.glowAge * 3.8); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash
+        a.mesh.material.emissiveIntensity = 0.15 + 93.0 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2655,7 +2655,7 @@ function animate(ts) {
         scanTargetLight.position.set(PIV_X, CONV_Y_TOP + 8, 0);
         // Pass 276: rangefinder lock-on flicker — 22Hz strobe in final 12% as arm locks on
         // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 — Pass 4063: sine amp 0.52→0.70 more nervous lock-on hunting
-        const _lockFlicker = pt > 0.88 ? (0.48 + 0.70 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0;
+        const _lockFlicker = pt > 0.88 ? (0.648 + 0.70 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0; // Pass 4590: rangefinder flicker floor 0.48→0.648 brighter suction lock-on baseline
         // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 — Pass 1310: →7.5 — Pass 1426: →10.5 — Pass 3913: 10.5→14.2 brighter pre-pick spotlight
         scanTargetLight.intensity = _pickTgtT * 19.2 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker; // Pass 4416: 14.2→19.2 brighter pre-pick spotlight
       }
@@ -3040,7 +3040,7 @@ function animate(ts) {
     const _beltVib = Math.sin(ts * 59.4 * Math.PI * 2) * 0.00460 + Math.sin(ts * 73 * Math.PI * 2) * 0.00270; // Pass 4359: belt vib primary 0.0034→0.00460 — Pass 4360: secondary 0.0020→0.00270 more tactile belt roughness — Pass 4532: belt vibration Z primary frequency 44→59.4 more tactile belt roughness
     // Pass 309: belt entry Y-axis flop — card briefly tilts sideways as it slaps onto belt
     // Pass 484: flop amplitude boost 0.07→0.12 — Pass 871: →0.20 — Pass 1206: →0.32 — Pass 1303: →0.45 for more physical card-slap — Pass 1588: →0.62
-    const _beltFlopY309 = 2.07 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 2.5); // Pass 2291: belt flop Y 0.84→1.13 — Pass 3931: 1.13→1.53 — Pass 4210: 1.53→2.07 more physical card-slap sideways
+    const _beltFlopY309 = 2.07 * Math.exp(-ct2 * 20) * Math.sin(ct2 * Math.PI * 3.38); // Pass 2291: belt flop Y 0.84→1.13 — Pass 3931: 1.13→1.53 — Pass 4210: 1.53→2.07 more physical card-slap sideways — Pass 4589: belt flop Y oscillation count 2.5→3.38 livelier belt entry flop
     activeCard.rotation.set(_beltLean, _beltFlopY309, _beltVib);
     scanFlash.intensity = 0;
     scanTargetLight.intensity = 0;
@@ -3067,7 +3067,7 @@ function animate(ts) {
       ? (ct2 - 0.60) / 0.20 * 2.01 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10 — Pass 3967: 1.10→1.49 — Pass 4216: 1.49→2.01 stronger card-entering-field detection
     // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 — Pass 1306: →10.5 for more vivid warmup before scan
     const _ledWarmTarget = 0.41 + _warmupT * 25.9 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 — Pass 4217: 19.2→25.9 brighter LED pre-warm — Pass 4434: LED approach warmup base 0.30→0.41 brighter approach floor
-    scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
+    scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6.75); // Pass 4584: LED warmup spring 5→6.75 crisper approach warmup tracking
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
     // Belt scroll target: conveyorIn full speed
@@ -4300,7 +4300,7 @@ function animate(ts) {
           _lp.active = true; _lp.age = 0; _lp.life = 2.26 + Math.random() * 1.42; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58 — Pass 2628: 0.92+0.58→1.24+0.78 — Pass 3067: 1.24+0.78→1.67+1.05 — Pass 4356: 1.67+1.05→2.26+1.42 longer floor impact dust cloud
           _lp.mesh.position.set(
             TRAY_X_START + 20 + (Math.random() - 0.5) * 10,
-            ct.slotFloorY + 2,
+            ct.slotFloorY + 2.7, // Pass 4586: slot entry dust Y offset 2→2.7 more airborne impact dust
             ct.slotZ + (Math.random() - 0.5) * 24.3 // Pass 4569: slot landing dust Z spread 18→24.3 wider impact footprint
           );
           _lp.mesh.visible = true;
@@ -4496,7 +4496,7 @@ function animate(ts) {
     floorDiverterPivot.rotation.z = -_diverterAngle;
     // Pass 72: decay paddle back to resting orange glow after charge discharge
     paddleMat.emissive.lerp(new THREE.Color(0xff3300), Math.min(1, dt * 5.47)); // Pass 1974: paddle emissive decay 3→4.05 — Pass 4075: 4.05→5.47 faster paddle glow return
-    paddleMat.color.lerp(new THREE.Color(0xff6600), Math.min(1, dt * 4.05));
+    paddleMat.color.lerp(new THREE.Color(0xff6600), Math.min(1, dt * 5.47)); // Pass 4587: arm return paddle color spring 4.05→5.47 snappier return
     paddleMat.emissiveIntensity += (0.18 - paddleMat.emissiveIntensity) * Math.min(1, dt * 4.05);
     activeCard.visible = false;
     activeCardMat.opacity = 0;
