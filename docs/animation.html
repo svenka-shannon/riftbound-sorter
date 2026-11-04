@@ -182,7 +182,7 @@
 
   @keyframes fadeUp {
     0%   { transform: translateY(0) scale(1);   opacity: 1; }
-    30%  { transform: translateY(-10px) scale(7.29); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop — Pass 5034: 1.62→2.19 more emphatic +1 pop — Pass 5852: 2.19→2.96 more emphatic slot score popup peak scale — Pass 5940: 2.96→4.00 more emphatic slot score popup peak scale — Pass 6221: 4.00→5.40 more emphatic slot score popup peak scale — Pass 6406: 5.40→7.29 more emphatic slot score popup peak scale */
+    30%  { transform: translateY(-10px) scale(9.84); opacity: 1; } /* Pass 4915: slot score popup peak scale 1.2→1.62 more emphatic +1 pop — Pass 5034: 1.62→2.19 more emphatic +1 pop — Pass 5852: 2.19→2.96 more emphatic slot score popup peak scale — Pass 5940: 2.96→4.00 more emphatic slot score popup peak scale — Pass 6221: 4.00→5.40 more emphatic slot score popup peak scale — Pass 6406: 5.40→7.29 more emphatic slot score popup peak scale — Pass 6468: 7.29→9.84 more emphatic slot score popup peak scale */
     100% { transform: translateY(-45px) scale(0.8); opacity: 0; }
   }
   .slot-plusone {
@@ -197,7 +197,7 @@
 
   @keyframes rippleOut {
     0%   { transform: translateX(-50%) translateY(-50%) scale(0); opacity: 0.95; } /* Pass 4880: slot ring initial opacity 0.7→0.95 more vivid slot ripple flash */
-    100% { transform: translateX(-50%) translateY(-50%) scale(28.6); opacity: 0; } /* Pass 4881: slot ring expand scale 3.5→4.72 wider slot ripple ring — Pass 5035: 4.72→6.37 wider slot ripple ring — Pass 5121: 6.37→8.60 wider slot ring scale speed — Pass 5331: 8.60→11.6 faster card reveal ring expand speed — Pass 5853: 11.6→15.7 wider card reveal slot ripple ring expand scale — Pass 5941: 15.7→21.2 wider card reveal slot ripple ring expand scale — Pass 6222: 21.2→28.6 wider card reveal slot ripple ring expand scale */
+    100% { transform: translateX(-50%) translateY(-50%) scale(38.6); opacity: 0; } /* Pass 4881: slot ring expand scale 3.5→4.72 wider slot ripple ring — Pass 5035: 4.72→6.37 wider slot ripple ring — Pass 5121: 6.37→8.60 wider slot ring scale speed — Pass 5331: 8.60→11.6 faster card reveal ring expand speed — Pass 5853: 11.6→15.7 wider card reveal slot ripple ring expand scale — Pass 5941: 15.7→21.2 wider card reveal slot ripple ring expand scale — Pass 6222: 21.2→28.6 wider card reveal slot ripple ring expand scale — Pass 6469: 28.6→38.6 wider card reveal slot ripple ring expand scale */
   }
   .slot-ripple {
     position: fixed;
@@ -228,11 +228,11 @@
   }
   @keyframes scanFlashFade {
     0%   { opacity: 0; }
-    8%   { opacity: 1.33; } /* Pass 4867: scan flash overlay peak opacity 0.22→0.297 more vivid flash — Pass 5037: 0.297→0.401 more vivid flash — Pass 5136: 0.401→0.541 more vivid scan flash — Pass 5185: 0.541→0.730 more vivid scan flash overlay — Pass 5803: 0.730→0.986 more vivid scan flash overlay peak opacity — Pass 6336: 0.986→1.33 more vivid scan flash overlay peak opacity */
+    8%   { opacity: 1.80; } /* Pass 4867: scan flash overlay peak opacity 0.22→0.297 more vivid flash — Pass 5037: 0.297→0.401 more vivid flash — Pass 5136: 0.401→0.541 more vivid scan flash — Pass 5185: 0.541→0.730 more vivid scan flash overlay — Pass 5803: 0.730→0.986 more vivid scan flash overlay peak opacity — Pass 6336: 0.986→1.33 more vivid scan flash overlay peak opacity — Pass 6470: 1.33→1.80 more vivid scan flash overlay peak opacity */
     100% { opacity: 0; }
   }
   .scan-flash-on {
-    animation: scanFlashFade 8.86s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash — Pass 5186: 1.47→1.98s even longer scan flash fade — Pass 5804: 1.98→2.67s even longer scan flash fade duration — Pass 5943: 2.67→3.60s even longer scan flash fade duration — Pass 6223: 3.60→4.86s even longer scan flash fade duration — Pass 6335: 4.86→6.56s even longer scan flash fade duration — Pass 6356: 6.56→8.86s even longer scan flash fade duration */
+    animation: scanFlashFade 12.0s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash — Pass 5186: 1.47→1.98s even longer scan flash fade — Pass 5804: 1.98→2.67s even longer scan flash fade duration — Pass 5943: 2.67→3.60s even longer scan flash fade duration — Pass 6223: 3.60→4.86s even longer scan flash fade duration — Pass 6335: 4.86→6.56s even longer scan flash fade duration — Pass 6356: 6.56→8.86s even longer scan flash fade duration — Pass 6471: 8.86→12.0s even longer scan flash fade duration */
   }
 
   /* ── Round-complete banner (pass 68) ───────────────────────────────────── */
@@ -321,7 +321,7 @@
   /* Pass 131 — dot pop on phase activation */
   @keyframes ph-dot-pop {
     0%   { transform: scale(1.0); }
-    30%  { transform: scale(14.3); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation — Pass 5805: 5.83→7.87 punchier phase dot pop peak scale — Pass 5944: 7.87→10.6 punchier phase dot pop peak scale — Pass 6224: 10.6→14.3 punchier phase dot pop peak scale */
+    30%  { transform: scale(19.3); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation — Pass 5805: 5.83→7.87 punchier phase dot pop peak scale — Pass 5944: 7.87→10.6 punchier phase dot pop peak scale — Pass 6224: 10.6→14.3 punchier phase dot pop peak scale — Pass 6472: 14.3→19.3 punchier phase dot pop peak scale */
     65%  { transform: scale(0.85); }
     100% { transform: scale(1.0); }
   }
@@ -908,7 +908,7 @@ scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
 // Wide soft bloom light for scan glow effect
-const scanBloom = new THREE.PointLight(0x0088ff, 0, 1820); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach — Pass 6314: 1348→1820 even wider scan bloom light reach
+const scanBloom = new THREE.PointLight(0x0088ff, 0, 2457); // Pass 3632: bloom reach 300→405 — Pass 4367: 405→547 wider scan bloom reach — Pass 4961: 547→739 even wider scan bloom reach — Pass 5046: 739→998 even wider scan bloom reach — Pass 5731: 998→1348 even wider scan bloom light reach — Pass 6314: 1348→1820 even wider scan bloom light reach — Pass 6473: 1820→2457 even wider scan bloom light reach
 scanBloom.decay = 12.1; // Pass 4808: scan bloom light decay 2→2.70 crisper focused bloom — Pass 5416: 2.70→3.65 tighter scan bloom falloff — Pass 5906: 3.65→4.93 tighter scan bloom falloff — Pass 5966: 4.93→6.66 tighter scan bloom falloff — Pass 6056: 6.66→8.99 tighter scan bloom falloff — Pass 6434: 8.99→12.1 tighter scan bloom falloff
 scene.add(scanBloom);
 
@@ -916,7 +916,7 @@ scene.add(scanBloom);
 // Fills left→right as scan progresses; flashes domain color on completion
 const SCAN_BAR_MAX_W = 72; // matches hood width minus margins
 const scanBarMat = new THREE.MeshStandardMaterial({
-  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 37.7, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow — Pass 5747: 15.3→20.7 brighter scan progress bar base glow — Pass 6336: 20.7→27.9 brighter scan progress bar base glow — Pass 6435: 27.9→37.7 brighter scan progress bar base glow
+  color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 50.9, // Pass 441: 1.5→2.5 — Pass 3637: 2.5→3.4 — Pass 3773: 3.4→4.59 — Pass 3880: 4.59→6.20 — Pass 4270: 6.20→8.37 brighter scan bar base glow — Pass 4962: 8.37→11.3 brighter scan bar base glow — Pass 5047: 11.3→15.3 brighter scan bar base glow — Pass 5747: 15.3→20.7 brighter scan progress bar base glow — Pass 6336: 20.7→27.9 brighter scan progress bar base glow — Pass 6435: 27.9→37.7 brighter scan progress bar base glow — Pass 6474: 37.7→50.9 brighter scan progress bar base glow
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
@@ -3053,7 +3053,7 @@ function animate(ts) {
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 49.3; // Pass 4764: approach flicker ramp 20→27 more nervous pre-pick tension — Pass 5107: approach flicker ramp 27→36.5 more nervous pre-pick tension — Pass 5340: 36.5→49.3 more nervous pre-pick approach flicker ramp
-    activeCardMat.emissiveIntensity = 0.74 + _approachT * 9.37 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card — Pass 5125: 2.82→3.81 stronger gate charge buildup emissive ramp — Pass 5135: 3.81→5.14 stronger gate charge buildup emissive ramp — Pass 5323: 5.14→6.94 stronger gate charge buildup emissive scale factor — Pass 5487: 6.94→9.37 stronger card emissive floor during scan gate charge buildup
+    activeCardMat.emissiveIntensity = 0.74 + _approachT * 12.65 // Pass 1856: approach emissive ramp 1.15→1.55 — Pass 3960: 1.55→2.09 — Pass 4213: 2.09→2.82 stronger approach tension — Pass 4268: base 0.55→0.74 brighter idle approach card — Pass 5125: 2.82→3.81 stronger gate charge buildup emissive ramp — Pass 5135: 3.81→5.14 stronger gate charge buildup emissive ramp — Pass 5323: 5.14→6.94 stronger gate charge buildup emissive scale factor — Pass 5487: 6.94→9.37 stronger card emissive floor during scan gate charge buildup — Pass 6468: 9.37→12.65 stronger card emissive floor during scan gate charge buildup
       + _approachT * 4.06 * Math.abs(Math.sin(ts * _approachFreq272 * Math.PI * 2)) // Pass 1857: approach pulse 1.22→1.65 — Pass 3961: 1.65→2.23 — Pass 4214: 2.23→3.01 more vivid approach pulse — Pass 5361: 3.01→4.06 more vivid scanner approach pulse
       + _approachT * 0.189 * Math.abs(Math.sin(ts * 5 * Math.PI * 2)) // Pass 623: secondary 5Hz interference beat — Pass 4269: secondary amplitude 0.10→0.14 stronger interference beat — Pass 5362: 0.14→0.189 stronger secondary approach beat
       + _entryBoost;
@@ -3356,7 +3356,7 @@ function animate(ts) {
       // Pass 93/96: mark identity revealed and fire confirm pop at 85% scan threshold
       if (barFill >= 0.85 && !_identityRevealed) {
         _identityRevealed = true;
-        _domainFillBoost = 3.81; // Pass 439: reveal domain fill boost 0.55→0.85 — Pass 3435: 0.85→1.15 — Pass 3489: 1.15→1.55 — Pass 3655: 1.55→2.09 — Pass 4155: 2.09→2.82 richer domain fill at reveal — Pass 5276: 2.82→3.81 richer domain fill at reveal
+        _domainFillBoost = 5.14; // Pass 439: reveal domain fill boost 0.55→0.85 — Pass 3435: 0.85→1.15 — Pass 3489: 1.15→1.55 — Pass 3655: 1.55→2.09 — Pass 4155: 2.09→2.82 richer domain fill at reveal — Pass 5276: 2.82→3.81 richer domain fill at reveal — Pass 6475: 3.81→5.14 richer identity reveal domain fill overhead boost
         // Pass 100: launch confirm ring expansion from scanner center
         _confirmRingT = 0;
         confirmRing.position.set(-40, CONV_Y_TOP + CARD_T + 1, 0);
@@ -3396,7 +3396,7 @@ function animate(ts) {
         // Pass 375: 3.5→5.0 — Pass 531: →7.5 — Pass 734: →10.5 — Pass 1131: →16.0 — Pass 1412: →22.0 for bigger face power-up flash
         _cardRevealBurst = 605; // Pass 2320: reveal burst 40.5→54.7 — Pass 2973: 54.7→73.8 — Pass 3431: 73.8→99.6 — Pass 3472: 99.6→134.5 — Pass 3548: 134.5→182 — Pass 3714: 182→246 — Pass 4120: 246→332 bigger reveal flash — Pass 5122: 332→448 card reveal emissive hold time bigger burst — Pass 6269: 448→605 bigger card reveal emissive burst
         // Pass 205: destination slot strip pre-announce flash — Pass 736: 3.0→4.8 — Pass 1415: →7.0 for stronger pop
-        if (ct.stripMat) ct.stripMat.emissiveIntensity = 57.6; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3 — Pass 3428: 17.3→23.4 — Pass 3653: 23.4→31.6 — Pass 4121: 31.6→42.7 brighter strip flash — Pass 5266: 42.7→57.6 brighter domain strip flash
+        if (ct.stripMat) ct.stripMat.emissiveIntensity = 77.8; // Pass 2321: strip pre-announce flash 9.5→12.8 — Pass 2974: 12.8→17.3 — Pass 3428: 17.3→23.4 — Pass 3653: 23.4→31.6 — Pass 4121: 31.6→42.7 brighter strip flash — Pass 5266: 42.7→57.6 brighter domain strip flash — Pass 6468: 57.6→77.8 brighter domain strip pre-announce identity flash
         // Pass 208: identity reveal camera impact shake — the scanner "locking on" should have
         // a physical jolt to the camera, similar to slot impact (pass 38) and deposit (pass 71).
         // Pass 367: shake boost 0.45→1.5 — Pass 813: →3.5 — Pass 891: →5.5 — Pass 1132: →8.0 — Pass 1323: →12.0 — Pass 1416: →17.0 for prominent lock-on jolt
@@ -3416,7 +3416,7 @@ function animate(ts) {
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
             // Pass 958: burst life 0.36+0.24→0.52+0.32 for longer-lived reveal particles
-            _bp.active = true; _bp.age = 0; _bp.life = 2.34 + Math.random() * 1.427; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58 — Pass 3965: 0.95+0.58→1.28+0.783 — Pass 4119: 1.28+0.783→1.73+1.057 longer reveal burst — Pass 5280: 1.73→2.34 — Pass 5281: 1.057→1.427 longer confirm burst
+            _bp.active = true; _bp.age = 0; _bp.life = 3.16 + Math.random() * 1.927; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58 — Pass 3965: 0.95+0.58→1.28+0.783 — Pass 4119: 1.28+0.783→1.73+1.057 longer reveal burst — Pass 5280: 1.73→2.34 — Pass 5281: 1.057→1.427 longer confirm burst — Pass 6469: 2.34→3.16 rand 1.427→1.927 longer identity confirm burst particle lifetime
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 32) * Math.PI * 2 + Math.random() * 0.8; // Pass 5021: confirm burst angular divisor 18→24 fuller radial coverage per burst — Pass 6282: 24→32 fuller confirm burst radial angular coverage
@@ -3450,7 +3450,7 @@ function animate(ts) {
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75 — Pass 1343: →1.05
           const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 21.3 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50 — Pass 3559: 3.50→4.73 — Pass 3722: 4.73→6.39 — Pass 3829: 6.39→8.63 — Pass 4115: 8.63→11.7 — Pass 5292: 11.7→15.8 brighter post-reveal breathing pulse — Pass 5481: 15.8→21.3 brighter card reveal breathe rate
           // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 — Pass 1327: →20.0 for bigger climax
-          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 220 : 0; // Pass 2332: completion superflash 27.0→36.5 — Pass 2836: 36.5→49.3 — Pass 2981: 49.3→66.6 — Pass 3492: 66.6→89.9 — Pass 3708: 89.9→121 — Pass 4114: 121→163 blinding fill completion — Pass 5268: 163→220 blinding fill bar completion flash
+          const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 297 : 0; // Pass 2332: completion superflash 27.0→36.5 — Pass 2836: 36.5→49.3 — Pass 2981: 49.3→66.6 — Pass 3492: 66.6→89.9 — Pass 3708: 89.9→121 — Pass 4114: 121→163 blinding fill completion — Pass 5268: 163→220 blinding fill bar completion flash — Pass 6470: 220→297 blinding scan bar fill completion superflash
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
         }
       }
@@ -3511,7 +3511,7 @@ function animate(ts) {
           // Pass 534: ping reveal spike 0.85→1.35 — Pass 1166: →2.0 — Pass 1330: →3.0 — Pass 1411: →4.5 — Pass 1525: →6.5 for brighter confirm ring flash
           const _pingRevealSpike337 = _identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 131 : 0; // Pass 2549: ping reveal spike 11.84→15.98 — Pass 2840: 15.98→21.6 — Pass 2986: 21.6→29.2 — Pass 3185: 29.2→39.4 — Pass 3761: 39.4→53.2 — Pass 3869: 53.2→71.8 — Pass 4224: 71.8→96.9 brighter confirm ring flash — Pass 5382: 96.9→131 brighter confirm ring flash
           // Pass 510: post-reveal ping boost 1.35→1.65 — Pass 634: →2.10 — Pass 719: →2.85 — Pass 799: →3.8 — Pass 1167: →5.5 — Pass 1329: →8.0 — Pass 1411: →11.0 — Pass 1526: →15.0
-          const _pingBoost = ft >= 0.85 ? 740 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2 — Pass 3547: 165.2→223 — Pass 3731: 223→301 — Pass 3837: 301→406 — Pass 4223: 406→548 blazing confirm rings — Pass 5269: 548→740 blazing confirm ring ping boost
+          const _pingBoost = ft >= 0.85 ? 999 + _pingRevealSpike337 : 1.0; // Pass 2547: ping post-reveal boost 27.3→36.9 — Pass 2841: 36.9→49.8 — Pass 2987: 49.8→67.2 — Pass 3186: 67.2→90.7 — Pass 3423: 90.7→122.4 — Pass 3484: 122.4→165.2 — Pass 3547: 165.2→223 — Pass 3731: 223→301 — Pass 3837: 301→406 — Pass 4223: 406→548 blazing confirm rings — Pass 5269: 548→740 blazing confirm ring ping boost — Pass 6471: 740→999 blazing confirm ring post-reveal ping boost
           // Pass 634: ping base opacity 0.56→0.72 — Pass 718: →0.90 — Pass 798: →1.0 for max vivid sonar rings
           p.mat.opacity = _pingFade * flashIntensity * 2.46 * _pingBoost; // Pass 4601: scan ring opacity multiplier 1.0→1.35 brighter off-peak ring fade — Pass 5379: 1.35→1.82 brighter scan ring opacity multiplier — Pass 5524: 1.82→2.46 brighter slot ring opacity fade-out multiplier
         } else {
@@ -3587,7 +3587,7 @@ function animate(ts) {
     // (Pass 76 lerp superseded by pass 189 binary snap — removed)
     // Pass 115: beam urgency strobe — frequency and amplitude build from 65%→85% scan progress
     const _prevT = barFill < 0.65 ? 0 : barFill > 0.85 ? 0 : (barFill - 0.65) / 0.20;
-    const _strobeFreq = 5 + _prevT * 51.0; // Pass 442: ramps 5→23Hz — Pass 1170: →33Hz for more frenetic pre-reveal urgency — Pass 4280: 28→37.8 even more frenetic urgency strobe — Pass 5294: 37.8→51.0 more frenetic pre-reveal urgency strobe
+    const _strobeFreq = 5 + _prevT * 68.9; // Pass 442: ramps 5→23Hz — Pass 1170: →33Hz for more frenetic pre-reveal urgency — Pass 4280: 28→37.8 even more frenetic urgency strobe — Pass 5294: 37.8→51.0 more frenetic pre-reveal urgency strobe — Pass 6472: 51.0→68.9 more frenetic pre-reveal urgency strobe frequency ramp
     // Pass 573: strobe amplitude 0.10→0.16 — Pass 620: →0.22 — Pass 1155: →0.35 — Pass 1291: →0.50 for stronger urgency strobe pre-reveal
     const _strobeAmp  = _prevT * 7.48;  // Pass 2557: strobe amp 0.50→0.68 — Pass 2823: 0.68→0.92 — Pass 2995: 0.92→1.24 — Pass 3488: 1.24→1.67 — Pass 3707: 1.67→2.25 — Pass 3991: 2.25→3.04 — Pass 4131: 3.04→4.10 stronger urgency strobe — Pass 5384: 4.10→5.54 stronger urgency strobe — Pass 5427: 5.54→7.48 stronger slot sweep arc urgency strobe amplitude
     const _strobe = Math.sin(ts * _strobeFreq * Math.PI * 2) * _strobeAmp;
@@ -3604,7 +3604,7 @@ function animate(ts) {
     scanCone.position.z = 886 * Math.sin(phaseRaw(PH.scan) * Math.PI * 2.03); // Pass 2997: scan cone Z sweep 18→24.3 — Pass 3454: 24.3→32.8 — Pass 3702: 32.8→44.3 — Pass 3816: 44.3→59.8 — Pass 4134: 59.8→80.7 wider sweep arc — Pass 4891: scan cone Z sweep oscillation count 1.5→2.03 — Pass 5088: 80.7→109 wider scan cone sweep arc — Pass 5102: 109→147 wider scanner head rotation limit sweep arc — Pass 5117: 147→198 wider slot approach orbit scan sweep — Pass 5346: 198→267 wider scanner idle rotation range sweep — Pass 5368: 267→360 wider scanner idle tilt range sweep — Pass 5576: 360→486 wider pre-pick scan cone rotate speed sweep arc — Pass 5606: 486→656 wider pre-pick scan dome orbit sweep arc — Pass 5637: 656→886 wider pre-pick scan ring expand rate sweep arc angle
     scanBeam.position.z = scanCone.position.z;
     // Pass 390: cone Y scale punch at reveal — Pass 794: 0.45→0.70 — Pass 1158: →1.05 for bigger vertical elongation at lock-on
-    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 28.6 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7 — Pass 4135: 15.7→21.2 taller cone punch — Pass 5270: 21.2→28.6 taller scan cone reveal punch
+    scanCone.scale.y = 1.0 + (_identityRevealed ? Math.exp(-(ft - 0.85) * 20) * 38.6 : 0); // Pass 2560: cone Y scale punch 1.92→2.59 — Pass 2825: 2.59→3.50 — Pass 2998: 3.50→4.73 — Pass 3196: 4.73→6.39 — Pass 3580: 6.39→8.63 — Pass 3675: 8.63→11.65 — Pass 3789: 11.65→15.7 — Pass 4135: 15.7→21.2 taller cone punch — Pass 5270: 21.2→28.6 taller scan cone reveal punch — Pass 6473: 28.6→38.6 taller scan cone identity reveal Y scale punch
     // Pass 515: scan cone base opacity boost 0.09→0.14 — Pass 1159: →0.22 for more visible beam cone during scan
     scanConeMat.opacity = flashIntensity * 1.00 + _strobe * 0.911 + _coneRevealBoost; // Pass 2561: cone base opacity 0.41→0.55 — Pass 2826: 0.55→0.74 — Pass 2999: 0.74→1.00 — Pass 4541: scan strobe cone brightness 0.5→0.675 richer scan bar color brightness — Pass 5490: 0.675→0.911 richer scan strobe cone brightness
     // Pass 287: scan beam strength scales with bar fill — Pass 1160: boost 0.20→0.35 for more data-accumulation feel
@@ -3659,7 +3659,7 @@ function animate(ts) {
       routeTargetMat.emissiveIntensity = flashIntensity * (2.8 + (_identityRevealed ? 25.4 : 0)) + _tgtRevealSpike339; // Pass 1728: post-reveal emissive boost 4.2→5.67 — Pass 3199: 5.67→7.65 — Pass 3994: 7.65→10.3 — Pass 4422: 10.3→13.9 brighter destination post-reveal glow — Pass 4993: 13.9→18.8 blazing destination post-reveal glow — Pass 5787: 18.8→25.4 blazing destination post-reveal glow
       routeTargetMat.opacity = flashIntensity * 1.82; // Pass 1538: 0.9→1.0 — Pass 4642: scan bar scanline opacity slope 1.0→1.35 brighter destination indicator — Pass 5494: 1.35→1.82 brighter destination indicator
       // Pass 304: destination sphere scale pulse — Pass 686: amplitude 0.55→0.80 — Pass 858: →1.20 — Pass 1068: →1.55 — Pass 1442: →2.10 — Pass 1539: →2.80 for bigger destination sphere pulse
-      const _tgtScale304 = 1.0 + flashIntensity * 31.0 * Math.sin(ts * 4 * Math.PI * 2); // Pass 2564: sphere scale pulse 5.10→6.89 — Pass 3200: 6.89→9.30 — Pass 3620: 9.30→12.6 — Pass 3995: 12.6→17.0 — Pass 4051: 17.0→22.95 bigger destination sphere throb — Pass 5293: 22.95→31.0 bigger destination sphere throb
+      const _tgtScale304 = 1.0 + flashIntensity * 41.9 * Math.sin(ts * 4 * Math.PI * 2); // Pass 2564: sphere scale pulse 5.10→6.89 — Pass 3200: 6.89→9.30 — Pass 3620: 9.30→12.6 — Pass 3995: 12.6→17.0 — Pass 4051: 17.0→22.95 bigger destination sphere throb — Pass 5293: 22.95→31.0 bigger destination sphere throb — Pass 6474: 31.0→41.9 bigger destination sphere throb amplitude
       routeTarget.scale.setScalar(Math.max(0.1, _tgtScale304));
     }
     // Pass 90: card face shimmer — specular band sweeps from −Z to +Z during scan
