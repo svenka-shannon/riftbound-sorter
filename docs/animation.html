@@ -612,7 +612,7 @@ for (let i = 0; i < DUST_COUNT; i++) {
   dustPositions[i*3+1] = THREE.MathUtils.randFloat(0, 200);     // Y
   dustPositions[i*3+2] = THREE.MathUtils.randFloat(-200, 200);  // Z
   dustPhases[i] = Math.random() * Math.PI * 2;
-  dustSpeeds[i] = THREE.MathUtils.randFloat(0.054, 0.162); // Pass 4785: dust particle speed 0.03→0.04, 0.09→0.12 livelier ambient drift — Pass 5008: 0.04→0.054, 0.12→0.162 livelier ambient drift
+  dustSpeeds[i] = THREE.MathUtils.randFloat(0.073, 0.219); // Pass 4785: dust particle speed 0.03→0.04, 0.09→0.12 livelier ambient drift — Pass 5008: 0.04→0.054, 0.12→0.162 livelier ambient drift — Pass 5722: 0.054→0.073, 0.162→0.219 livelier ambient dust drift speed
 }
 const dustGeo = new THREE.BufferGeometry();
 dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
@@ -704,7 +704,7 @@ scene.add(baseMesh);
 const HOPPER_X = -230;
 
 // Point light above hopper to spotlight the pick-up action
-const hopperLight = new THREE.PointLight(0xffeedd, 1.67, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight
+const hopperLight = new THREE.PointLight(0xffeedd, 2.26, 270); // Pass 4014: hopper light intensity 0.5→0.68, range 200→270 brighter pick spotlight — Pass 4667: 0.68→0.918 stronger pick spotlight — Pass 4954: 0.918→1.24 brighter pick spotlight — Pass 5029: 1.24→1.67 stronger pick spotlight — Pass 5724: 1.67→2.26 stronger hopper pick spotlight
 hopperLight.position.set(HOPPER_X + 33, 200, 0);
 scene.add(hopperLight);
 
@@ -806,7 +806,7 @@ beltTex.wrapS = THREE.RepeatWrapping;
 beltTex.repeat.set(4, 1); // fewer repeats for wider visible pattern
 const beltSurfMat = new THREE.MeshStandardMaterial({
   map: beltTex, roughness: 0.55, metalness: 0.1,
-  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.532 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline
+  emissive: new THREE.Color(0x8888a0), emissiveIntensity: 0.719 // Pass 4042: belt surface base emissive 0.12→0.16 brighter baseline — Pass 4669: 0.16→0.216 brighter belt baseline — Pass 4956: 0.216→0.292 brighter belt baseline — Pass 5044: 0.292→0.394 brighter belt baseline — Pass 5067: 0.394→0.532 brighter belt baseline — Pass 5723: 0.532→0.719 brighter belt surface baseline emissive
 });
 const beltSurf = new THREE.Mesh(new THREE.BoxGeometry(248, 2, 76), beltSurfMat);
 beltSurf.position.set(-40, CONV_Y_TOP + 1, 0);
@@ -1068,7 +1068,7 @@ scene.add(gateColLight);
 const paddleGeo = new THREE.BoxGeometry(4, 55, 18);
 const paddleMat = new THREE.MeshStandardMaterial({
   color: 0xff6600, roughness: 0.3,
-  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.437 // pass 72: starts low; charges up — Pass 4331: paddle base emissive 0.18→0.24 warmer resting glow — Pass 4972: 0.24→0.324 stronger paddle resting glow — Pass 5054: 0.324→0.437 stronger paddle resting glow
+  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.590 // pass 72: starts low; charges up — Pass 4331: paddle base emissive 0.18→0.24 warmer resting glow — Pass 4972: 0.24→0.324 stronger paddle resting glow — Pass 5054: 0.324→0.437 stronger paddle resting glow — Pass 5729: 0.437→0.590 stronger paddle resting emissive glow
 });
 const paddleMesh = new THREE.Mesh(paddleGeo, paddleMat);
 paddleMesh.castShadow = true;
@@ -1587,7 +1587,7 @@ const vacuumRingMat = new THREE.MeshBasicMaterial({
   color: 0xaaccff, transparent: true, opacity: 0, side: THREE.DoubleSide,
 });
 const vacuumRing = new THREE.Mesh(
-  new THREE.TorusGeometry(16.2, 2.74, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep — Pass 5011: 2.03→2.74 chunkier suction ring tube
+  new THREE.TorusGeometry(21.9, 2.74, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep — Pass 5011: 2.03→2.74 chunkier suction ring tube — Pass 5728: 16.2→21.9 wider vacuum pick suction ring sweep
   vacuumRingMat
 );
 vacuumRing.rotation.x = -Math.PI / 2; // flat (XZ plane)
@@ -1600,7 +1600,7 @@ const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
   });
-  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 1.82, 8, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(8.1, 2.46, 8, 32), mat); // Pass 4333: scan ping tube radius 1→1.35 fatter sonar rings — Pass 4456: ring radius 6→8.1 wider scan ping sonar rings — Pass 4512: scan ring tube detail 6→8 smoother sonar ring cross-section — Pass 4568: scan ping ring radial segments 24→32 smoother sonar ring silhouette — Pass 5009: 1.35→1.82 fatter sonar ping rings — Pass 5727: 1.82→2.46 fatter sonar ping ring tube
   mesh.visible = false;
   // Oriented flat (XZ plane) at card level, centered on scanner X
   mesh.rotation.x = -Math.PI / 2;
@@ -1919,7 +1919,7 @@ for (let _gpi = 0; _gpi < 22; _gpi++) { // Pass 5016: grab particle pool size 16
 const _domFillClr = new THREE.Color();
 // Overhead fill light: large-radius, dim, slowly tinted toward current domain color.
 // Creates a subtle room-level color cast that shifts with each domain.
-const _domainFillLight = new THREE.PointLight(0xffffff, 0.347, 700); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash — Pass 5358: 0.257→0.347 stronger ambient color wash
+const _domainFillLight = new THREE.PointLight(0xffffff, 0.469, 700); // Pass 4030: domain fill light base intensity 0.14→0.19 stronger ambient color wash — Pass 4966: 0.19→0.257 stronger domain fill wash — Pass 5358: 0.257→0.347 stronger ambient color wash — Pass 5725: 0.347→0.469 stronger ambient domain color wash
 _domainFillLight.position.set(-30, 280, 0); // centered above the belt, high up
 scene.add(_domainFillLight);
 
@@ -1927,7 +1927,7 @@ scene.add(_domainFillLight);
 // Domain-colored point light that follows the card along the belt surface
 // during conveyorIn and conveyorOut phases, casting a moving pool of color
 // on the belt texture beneath the card. Fades to zero outside belt phases.
-const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 234); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach
+const _beltTrackLight = new THREE.PointLight(0xffffff, 0, 316); // Pass 4039: belt track light range 95→128 wider card pool on belt — Pass 4967: 128→173 even wider belt track light reach — Pass 5072: 173→234 wider belt track light reach — Pass 5726: 234→316 wider belt track light reach
 _beltTrackLight.position.set(-40, CONV_Y_TOP + 6, 0);
 scene.add(_beltTrackLight);
 
@@ -4395,7 +4395,7 @@ function animate(ts) {
         );
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
-        tp.mat.opacity = 1.22 + Math.random() * 0.10; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks — Pass 4748: 0.90→1.22 more vivid reject sparks
+        tp.mat.opacity = 1.65 + Math.random() * 0.10; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks — Pass 4748: 0.90→1.22 more vivid reject sparks — Pass 5715: 1.22→1.65 more vivid reject sparks
         tp.age = 0; tp.life = 6.56 + Math.random() * 3.81; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09 — Pass 4008: base 3.60→4.86 — Pass 4009: rand 2.09→2.82 — Pass 5627: base 4.86→6.56 longer reject spark lifespan — Pass 5628: rand 2.82→3.81 longer reject spark lifespan variance
         tp.active = true; tp.mesh.visible = true;
       }
@@ -4406,7 +4406,7 @@ function animate(ts) {
       _rejectBurst2Fired = true;
       let _rb2 = 0;
       // Pass 1048: reject burst2 count 8→12
-      for (let _ri2 = 0; _ri2 < TRAIL_PARTICLES.length && _rb2 < 22; _ri2++) { // Pass 2142: reject burst2 count 12→16 — Pass 4298: 16→22 bigger reject secondary spark burst
+      for (let _ri2 = 0; _ri2 < TRAIL_PARTICLES.length && _rb2 < 30; _ri2++) { // Pass 2142: reject burst2 count 12→16 — Pass 4298: 16→22 bigger reject secondary spark burst — Pass 5714: 22→30 bigger reject secondary spark burst
         const tp2 = TRAIL_PARTICLES[(_trailHead + _ri2) % TRAIL_PARTICLE_COUNT];
         if (tp2.active) continue;
         _trailHead++;
@@ -4416,7 +4416,7 @@ function animate(ts) {
           ct.slotZ + (Math.random() - 0.5) * 29.2 // Pass 4835: reject burst2 Z spawn spread 16→21.6 wider reject spark Z footprint — Pass 5660: 21.6→29.2 wider reject secondary burst Z spread
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
-        tp2.mat.opacity = 1.15 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2 — Pass 4749: 0.85→1.15 brighter reject secondary burst
+        tp2.mat.opacity = 1.55 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2 — Pass 4749: 0.85→1.15 brighter reject secondary burst — Pass 5716: 1.15→1.55 brighter reject secondary burst
         tp2.age = 0; tp2.life = 4.64 + Math.random() * 3.11; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26 — Pass 3260: 1.89+1.26→2.55+1.70 — Pass 4052: 2.55+1.70→3.44+2.30 longer reject secondary sparks — Pass 5459: 3.44+2.30→4.64+3.11 longer reject secondary spark life
         tp2.active = true; tp2.mesh.visible = true;
         _rb2++;
@@ -4517,7 +4517,7 @@ function animate(ts) {
       const _flickAmp = Math.max(0, 1.0 - art * 2.2) * 1.55; // dampens in first ~45% of phase // Pass 4411: scanner flicker amp 0.85→1.15 stronger LED power-down oscillation — Pass 5565: 1.15→1.55 stronger scanner LED power-down oscillation
       const _flickVal = 2.19 + Math.sin(ts * 22 * Math.PI * 2) * _flickAmp // Pass 4412: scanner flicker base 1.2→1.62 brighter LED reset floor — Pass 5566: 1.62→2.19 brighter scanner LED reset floor
                             + (Math.random() - 0.5) * _flickAmp * 0.47; // Pass 4703: scanner LED flicker noise amplitude 0.35→0.47 more chaotic power-down oscillation
-      scanLEDMat.emissiveIntensity = Math.max(0.41, Math.min(70.9, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak — Pass 4502: scanner LED power-down minimum floor 0.30→0.41 brighter LED floor
+      scanLEDMat.emissiveIntensity = Math.max(0.554, Math.min(95.7, _flickVal)); // Pass 2150: LED flicker max 4.73→6.39 — Pass 2646: 6.39→8.63 — Pass 2877: 8.63→11.7 — Pass 3087: 11.7→15.8 — Pass 3263: 15.8→21.3 — Pass 3604: 21.3→28.8 — Pass 3700: 28.8→38.9 — Pass 3813: 38.9→52.5 — Pass 4413: 52.5→70.9 higher scanner LED flicker peak — Pass 4502: scanner LED power-down minimum floor 0.30→0.41 brighter LED floor — Pass 5717: 70.9→95.7 higher scanner LED flicker peak — Pass 5718: 0.41→0.554 brighter scanner LED power-down floor
     }
     // Pass 47: pale mechanical contrail on arm return sweep — reuses TRAIL_PARTICLES pool
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
@@ -4630,7 +4630,7 @@ function animate(ts) {
     // Pass 521: armLift grab ambient boost 0.12→0.18 — Pass 927: →0.28 for card break-free moment energy — Pass 1614: →0.38
     const _grabBoost    = inPhase(PH.armLift) ? phaseRaw(PH.armLift) * 7.65 : 0; // Pass 2422: grab ambient boost 0.69→0.93 — Pass 2658: 0.93→1.26 — Pass 2889: 1.26→1.70 — Pass 3096: 1.70→2.30 — Pass 3272: 2.30→3.11 — Pass 3350: 3.11→4.20 — Pass 4619: 4.20→5.67 stronger slot entry ambient surge — Pass 5592: 5.67→7.65 stronger arm lift ambient surge
     // Pass 931: ambient shake boost ceiling 0.25→0.40 for stronger impact lighting response — Pass 1615: ceiling 0.40→0.55, mult 0.05→0.07
-    const _shakeBoost   = _cameraShake > 2 ? Math.min(2.46, _cameraShake * 0.316) : 0; // Pass 2530: shake boost ceiling 1.00→1.35, mult 0.128→0.173 — Pass 2748: ceiling 1.35→1.82, mult 0.173→0.234 — Pass 4760: ceiling 1.82→2.46 stronger impact ambient — Pass 4761: shake boost multiplier 0.234→0.316
+    const _shakeBoost   = _cameraShake > 2 ? Math.min(3.32, _cameraShake * 0.316) : 0; // Pass 2530: shake boost ceiling 1.00→1.35, mult 0.128→0.173 — Pass 2748: ceiling 1.35→1.82, mult 0.173→0.234 — Pass 4760: ceiling 1.82→2.46 stronger impact ambient — Pass 4761: shake boost multiplier 0.234→0.316 — Pass 5719: ceiling 2.46→3.32 stronger impact ambient boost ceiling
     // Pass 117: slotDrop domain ambient wash — Pass 393: 0.18→0.26 — Pass 930: →0.38 — Pass 1090: →0.56 — Pass 1381: →0.78 — Pass 1607: →1.05
     const _dropAmbBoost = inPhase(PH.slotDrop) ? Math.sin(phaseRaw(PH.slotDrop) * Math.PI) * 28.8 : 0; // Pass 2423: slotDrop ambient 1.92→2.59 — Pass 2659: 2.59→3.50 — Pass 2749: 3.50→4.73 — Pass 2890: 4.73→6.39 — Pass 3097: 6.39→8.63 — Pass 3273: 8.63→11.7 — Pass 3351: 11.7→15.8 — Pass 4379: 15.8→21.3 richer slot drop ambient wash — Pass 5441: 21.3→28.8 richer slot drop ambient wash
     // Pass 323: deflect ambient boost — Pass 499: 0.14→0.20 — Pass 926: →0.30 — Pass 1089: →0.44 — Pass 1382: →0.62 for stronger card flight response — Pass 1610: →0.84
