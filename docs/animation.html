@@ -2840,7 +2840,7 @@ function animate(ts) {
             _pc = (Math.max(0, _r - 60) << 16) | (Math.max(0, _g - 60) << 8) | Math.max(0, _b - 60);
           }
           p.mat.color.setHex(_pc);
-          p.mat.opacity = 0.85 + Math.random() * 0.15; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst
+          p.mat.opacity = 1.15 + Math.random() * 0.15; // Pass 881: 0.75+0.25→0.85+0.15 for vivid grab burst — Pass 4744: 0.85→1.15 more vivid grab burst
           p.age = 0;
           p.life = 1.531 + Math.random() * 1.185; // Pass 1097: 0.48+0.36→0.62+0.48 — Pass 1832: →0.84+0.65 — Pass 3955: 0.84+0.65→1.134+0.878 longer arc trail particles — Pass 4292: 1.134+0.878→1.531+1.185 longer arc trail persistence
           p.active = true;
@@ -4079,7 +4079,7 @@ function animate(ts) {
       _trailHead++;
       _btp.mesh.position.set(GATE_X + (Math.random()-0.5)*8, CONV_Y_TOP + 8 + Math.random()*8, ct.slotZ * 0.12 + (Math.random()-0.5)*5);
       _btp.mat.color.setHex(ct.hex);
-      _btp.mat.opacity = 0.92 + Math.random() * 0.08; // Pass 1118: 0.80+0.18→0.92+0.08 for brighter gate-contact burst
+      _btp.mat.opacity = 1.24 + Math.random() * 0.08; // Pass 1118: 0.80+0.18→0.92+0.08 for brighter gate-contact burst — Pass 4745: 0.92→1.24 brighter gate-contact burst
       _btp.age = 0; _btp.life = 10.9 + Math.random() * 6.05; // Pass 2386: gate burst life 0.73+0.41→0.99+0.55 — Pass 2608: 0.99+0.55→1.34+0.74 — Pass 3046: 1.34+0.74→1.81+1.00 — Pass 3231: 1.81+1.00→2.44+1.35 — Pass 3398: 2.44+1.35→3.29+1.82 — Pass 3523: 3.29+1.82→4.44+2.46 — Pass 3736: 4.44+2.46→5.99+3.32 — Pass 3843: base 5.99→8.09 — Pass 3844: rand 3.32→4.48 — Pass 4083: 8.09+4.48→10.9+6.05
       _btp.active = true; _btp.mesh.visible = true;
     }
@@ -4197,7 +4197,7 @@ function animate(ts) {
     const _sympFlash278 = dt3 < 0.12 ? Math.exp(-dt3 * 30) * 46.3 : 0; // Pass 2119: sympathetic flash 3.11→4.20 — Pass 2616: 4.20→5.67 — Pass 3057: 5.67→7.65 — Pass 3244: 7.65→10.3 — Pass 3596: 10.3→13.9 — Pass 3692: 13.9→18.8 — Pass 3804: 18.8→25.4 — Pass 3904: 25.4→34.3 — Pass 4658: 34.3→46.3 brighter gate LED sympathy flash
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _ledSpike = gi === ct.col ? Math.exp(-dt3 * 14) * 60.5 : _sympFlash278; // Pass 2120: target LED spike 10.0→13.5 — Pass 2617: 13.5→18.2 — Pass 3058: 18.2→24.6 — Pass 3570: 24.6→33.2 — Pass 3728: 33.2→44.8 — Pass 4659: 44.8→60.5 brighter target-column LED confirm spike
-      const _ledDrop = dt3 < 0.22 ? 3.5 : THREE.MathUtils.lerp(3.5, 0.15, (dt3 - 0.22) / 0.78); // Pass 470
+      const _ledDrop = dt3 < 0.22 ? 4.73 : THREE.MathUtils.lerp(4.73, 0.15, (dt3 - 0.22) / 0.78); // Pass 470 — Pass 4746: LED drop peak 3.5→4.73 brighter slot LED column
       const _target = gi === ct.col ? _ledDrop + _ledSpike : 0.15 + _sympFlash278;
       gm.emissiveIntensity += (_target - gm.emissiveIntensity) * Math.min(1, dt * 4);
     });
@@ -4224,7 +4224,7 @@ function animate(ts) {
         _trailHead++;
         _tp.mesh.position.set(_stX + (Math.random() - 0.5) * 4, _stTopY - _si * 9.45, _stZ + (Math.random() - 0.5) * 3); // Pass 4583: scan bar vertical reveal length 7→9.45 longer slot entry lance reveal
         _tp.mat.color.setHex(ct.hex);
-        _tp.mat.opacity = 0.80 - _si * 0.07; // Pass 434: opacity 0.65→0.80
+        _tp.mat.opacity = 1.08 - _si * 0.07; // Pass 434: opacity 0.65→0.80 — Pass 4747: 0.80→1.08 brighter slot entry streak
         _tp.age = 0; _tp.life = 0.24 + _si * 0.027; // Pass 4351: streak life base 0.18→0.24 — Pass 4352: step 0.02→0.027 longer slot entry lance
         _tp.mesh.scale.setScalar(0.61 + Math.random() * 0.41); // Pass 4353: streak scale base 0.45→0.61 — Pass 4354: rand 0.3→0.41 bolder entry streak
         _tp.mesh.visible = true;
@@ -4395,7 +4395,7 @@ function animate(ts) {
         );
         const _rc = [0xff3300, 0xff6600, 0xff9900][Math.floor(Math.random() * 3)];
         tp.mat.color.setHex(_rc);
-        tp.mat.opacity = 0.90 + Math.random() * 0.10; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks
+        tp.mat.opacity = 1.22 + Math.random() * 0.10; // Pass 1047: 0.82+0.18→0.90+0.10 brighter sparks — Pass 4748: 0.90→1.22 more vivid reject sparks
         tp.age = 0; tp.life = 4.86 + Math.random() * 2.82; // Pass 2141: reject spark life 0.81+0.47→1.09+0.63 — Pass 2638: 1.09+0.63→1.47+0.85 — Pass 3076: 1.47+0.85→1.98+1.15 — Pass 3259: 1.98+1.15→2.67+1.55 — Pass 3427: 2.67+1.55→3.60+2.09 — Pass 4008: base 3.60→4.86 — Pass 4009: rand 2.09→2.82
         tp.active = true; tp.mesh.visible = true;
       }
@@ -4416,7 +4416,7 @@ function animate(ts) {
           ct.slotZ + (Math.random() - 0.5) * 16
         );
         tp2.mat.color.setHex(Math.random() < 0.5 ? 0xff4400 : 0xff8800);
-        tp2.mat.opacity = 0.85 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2
+        tp2.mat.opacity = 1.15 + Math.random() * 0.15; // Pass 1049: 0.70+0.25→0.85+0.15 brighter burst2 — Pass 4749: 0.85→1.15 brighter reject secondary burst
         tp2.age = 0; tp2.life = 3.44 + Math.random() * 2.30; // Pass 2405: reject burst2 life 0.77+0.51→1.04+0.69 — Pass 2639: 1.04+0.69→1.40+0.93 — Pass 3077: 1.40+0.93→1.89+1.26 — Pass 3260: 1.89+1.26→2.55+1.70 — Pass 4052: 2.55+1.70→3.44+2.30 longer reject secondary sparks
         tp2.active = true; tp2.mesh.visible = true;
         _rb2++;
@@ -4967,7 +4967,7 @@ function animate(ts) {
       // Pass 514: floor disc breathing pulse — 1.5Hz — Pass 1022: amplitude 0.025→0.042
       const _fdPulse514 = (1 - _altFrac) * 0.104 * Math.abs(Math.sin(ts * 1.5 * Math.PI * 2)); // Pass 2022: disc pulse amp 0.042→0.057 — Pass 3944: 0.057→0.077 more visible floor disc breathe — Pass 4558: 0.077→0.104 stronger floor disc breathe
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
-      const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.055, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00
+      const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.074, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00 — Pass 4751: altitude floor 0.055→0.074 more visible floor disc at altitude
       floorDisc.scale.setScalar(_fdScale);
       floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.20; // Pass 4690: floor disc opacity tracking rate 0.15→0.20 snappier domain halo fade
     } else {
@@ -5362,7 +5362,7 @@ function animate(ts) {
     // Pass 460: edge reveal white flash — at identity lock-on the outline briefly blooms white
     // before settling to domain color. Uses _confirmRingT [0..1] as a proxy timing signal.
     // Pass 628: edge reveal flash window 0.18→0.24 — Pass 1391: →0.34 for longer white bloom at identity lock-on
-    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 0.84) ? (1.0 - _confirmRingT / 0.84) : 0; // Pass 2449: edge reveal window 0.62→0.84
+    const _edgeRvl = (_confirmRingT >= 0 && _confirmRingT < 1.13) ? (1.0 - _confirmRingT / 1.13) : 0; // Pass 2449: edge reveal window 0.62→0.84 — Pass 4750: 0.84→1.13 longer identity edge reveal flash
     if (_edgeRvl > 0.05) activeCardEdgeMat.color.lerp(new THREE.Color(0xffffff), _edgeRvl);
     // Brighter outline while on belt + scan; gentler during arm swing and drop
     const edgeFull = inPhase(PH.conveyorIn) || inPhase(PH.scan) || inPhase(PH.conveyorOut);
