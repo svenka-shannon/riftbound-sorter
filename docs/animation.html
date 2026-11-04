@@ -212,7 +212,7 @@
   /* ── Stats count bounce ─────────────────────────────────────────────── */
   @keyframes countBounce {
     0%   { transform: scale(1); }
-    35%  { transform: scale(3.65); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop */
+    35%  { transform: scale(4.93); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop — Pass 5802: 3.65→4.93 more dramatic stats count bounce peak scale */
     65%  { transform: scale(0.92); }
     100% { transform: scale(1); }
   }
@@ -228,11 +228,11 @@
   }
   @keyframes scanFlashFade {
     0%   { opacity: 0; }
-    8%   { opacity: 0.730; } /* Pass 4867: scan flash overlay peak opacity 0.22→0.297 more vivid flash — Pass 5037: 0.297→0.401 more vivid flash — Pass 5136: 0.401→0.541 more vivid scan flash — Pass 5185: 0.541→0.730 more vivid scan flash overlay */
+    8%   { opacity: 0.986; } /* Pass 4867: scan flash overlay peak opacity 0.22→0.297 more vivid flash — Pass 5037: 0.297→0.401 more vivid flash — Pass 5136: 0.401→0.541 more vivid scan flash — Pass 5185: 0.541→0.730 more vivid scan flash overlay — Pass 5803: 0.730→0.986 more vivid scan flash overlay peak opacity */
     100% { opacity: 0; }
   }
   .scan-flash-on {
-    animation: scanFlashFade 1.98s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash — Pass 5186: 1.47→1.98s even longer scan flash fade */
+    animation: scanFlashFade 2.67s ease-out forwards; /* Pass 4548: scan flash fade duration 0.6→0.81s longer scan start flash — Pass 4960: 0.81→1.09s even longer scan start flash — Pass 5040: 1.09→1.47s even longer scan start flash — Pass 5186: 1.47→1.98s even longer scan flash fade — Pass 5804: 1.98→2.67s even longer scan flash fade duration */
   }
 
   /* ── Round-complete banner (pass 68) ───────────────────────────────────── */
@@ -321,7 +321,7 @@
   /* Pass 131 — dot pop on phase activation */
   @keyframes ph-dot-pop {
     0%   { transform: scale(1.0); }
-    30%  { transform: scale(5.83); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation */
+    30%  { transform: scale(7.87); } /* Pass 4913: phase dot pop peak scale 2.4→3.2 punchier activation — Pass 5041: 3.2→4.32 punchier activation — Pass 5064: 4.32→5.83 punchier activation — Pass 5805: 5.83→7.87 punchier phase dot pop peak scale */
     65%  { transform: scale(0.85); }
     100% { transform: scale(1.0); }
   }
@@ -5212,7 +5212,7 @@ function animate(ts) {
       _beltTrackLight.intensity += (_bltTarget322 - _beltTrackLight.intensity) * Math.min(1, dt * 14.7); // Pass 2809: tracking rate 6→8.1 — Pass 4092: 8.1→10.9 crisper belt light snap — Pass 5292: 10.9→14.7 crisper belt light tracking
     } else {
       // Fade card-tracking mode out
-      _beltTrackLight.intensity *= 1 - dt * 7.38; // Pass 2812: belt track fade-out rate 3→4.05 — Pass 4035: 4.05→5.47 faster belt track light fade — Pass 5291: 5.47→7.38 faster belt track light fade
+      _beltTrackLight.intensity *= 1 - dt * 9.96; // Pass 2812: belt track fade-out rate 3→4.05 — Pass 4035: 4.05→5.47 faster belt track light fade — Pass 5291: 5.47→7.38 faster belt track light fade — Pass 5806: 7.38→9.96 faster belt track light fade-out rate
       if (_beltTrackLight.intensity < 0.073) _beltTrackLight.intensity = 0; // Pass 4536: idle belt track light minimum floor 0.04→0.054 brighter idle belt LED floor — Pass 5643: 0.054→0.073 brighter idle belt LED minimum floor
       // Idle shimmer: sweep light back and forth along belt (HOPPER_X → GATE_X)
       const _beltIdle = inPhase(PH.armReturn) || inPhase(PH.pause) ||
@@ -5271,7 +5271,7 @@ function animate(ts) {
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
     tp.mesh.position.y += dt * (109.2 + _tt * 119.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail — Pass 5288: base 59.9→80.9 — Pass 5289: ramp 88.6→119.6 more buoyant contrail — Pass 5720: base 80.9→109.2 more buoyant arm trail contrail
     tp.mat.opacity = (1 - _tt) * 2.93; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth — Pass 4521: arm trail contrail birth opacity 1.19→1.61 brighter sphere trail — Pass 5345: 1.61→2.17 brighter arm trail contrail birth opacity — Pass 5695: 2.17→2.93 brighter arm trail contrail birth opacity
-    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 11.1)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper — Pass 5290: 8.24→11.1 faster trail shrink taper
+    tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 15.0)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper — Pass 5290: 8.24→11.1 faster trail shrink taper — Pass 5807: 11.1→15.0 faster arm trail shrink taper
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
     // then bleach normally — so the arc trail stays vivid near the arm and fades away.
@@ -5297,7 +5297,7 @@ function animate(ts) {
     p.mesh.position.z += p.vz * dt;
     p.vy -= 1500 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4 — Pass 3493: 449.4→607 — Pass 4181: 607→820 heavier dust — Pass 5144: 820→1110 heavier grab particle gravity — Pass 5696: 1110→1500 heavier grab particle gravity
     p.vx *= 1 - dt * 56.3; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9 — Pass 4182: 22.9→30.9 snappier particle decel — Pass 5348: 30.9→41.7 snappier grab particle air resistance — Pass 5721: 41.7→56.3 snappier grab particle air resistance
-    p.vz *= 1 - dt * 42.0; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread — Pass 5350: 31.1→42.0 tighter grab particle Z spread
+    p.vz *= 1 - dt * 56.7; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread — Pass 5350: 31.1→42.0 tighter grab particle Z spread — Pass 5808: 42.0→56.7 tighter grab particle Z spread
     p.mat.opacity = (1 - _pt * _pt) * 1.82; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00 — Pass 4524: grab particle fade rate 1.00→1.35 faster fade-out — Pass 5349: 1.35→1.82 brighter grab particle fade-out
     p.mesh.scale.setScalar(Math.max(0.068, 1.0 - _pt * 1.73)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95 — Pass 4424: 0.95→1.28 crisper particle shrink — Pass 4652: grab particle min scale floor 0.05→0.068 chunkier particle tail — Pass 5351: 1.28→1.73 crisper grab particle shrink
   });
@@ -5316,7 +5316,7 @@ function animate(ts) {
   if (_domainFillBoost > 0.005) {
     // Pass 542: reveal fill boost decay 2.2→1.6 (longer wash ~0.35s) + max cap 0.90→1.10 — Pass 1465: cap →1.50
     _domainFillBoost = Math.max(0, _domainFillBoost - dt * 1.6); // ~0.35s decay
-    _domainFillLight.intensity = Math.min(30.2, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 2459: reveal fill cap 2.74→3.70 — Pass 2724: 3.70→5.00 — Pass 3436: 5.00→6.75 — Pass 3716: 6.75→9.11 — Pass 3826: 9.11→12.3 — Pass 4186: 12.3→16.6 — Pass 4679: 16.6→22.4 higher domain fill cap — Pass 5133: 22.4→30.2 higher domain fill light cap
+    _domainFillLight.intensity = Math.min(40.8, (_fillTgt + _domainFillBoost + _deflectFill498 + _scanFill519)); // Pass 2459: reveal fill cap 2.74→3.70 — Pass 2724: 3.70→5.00 — Pass 3436: 5.00→6.75 — Pass 3716: 6.75→9.11 — Pass 3826: 9.11→12.3 — Pass 4186: 12.3→16.6 — Pass 4679: 16.6→22.4 higher domain fill cap — Pass 5133: 22.4→30.2 higher domain fill light cap — Pass 5809: 30.2→40.8 higher domain fill light cap
   } else {
     _domainFillLight.intensity += (_fillTgt + _deflectFill498 + _scanFill519 - _domainFillLight.intensity) * dt * 4.43; // Pass 4446: domain fill idle tracking 1.8→2.43 snappier overhead color wash — Pass 5343: 2.43→3.28 snappier domain fill idle tracking — Pass 5701: 3.28→4.43 snappier domain fill idle intensity tracking
   }
