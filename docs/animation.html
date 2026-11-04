@@ -2773,7 +2773,7 @@ function animate(ts) {
         const _yDip = -23.2 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 — Pass 4225: -17.2→-23.2 deeper suction-break dip
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
         // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 — Pass 1358: →7.00 — Pass 1683: →9.50
-        const _pickStutter = lt < 0.12 ? 31.6 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 51.3 * Math.PI * 2) * 0.35) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear — Pass 4504: pick stutter high freq 38→51.3 sharper micro-jolt
+        const _pickStutter = lt < 0.12 ? 31.6 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.88 + Math.sin(ts * 51.3 * Math.PI * 2) * 0.35) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 — Pass 4226: 23.4→31.6 more violent suction-seal tear — Pass 4504: pick stutter high freq 38→51.3 sharper micro-jolt — Pass 4527: pick-stutter low-freq amplitude 0.65→0.88 stronger suction-seal shudder
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 — Pass 1359: →15.0 for more dramatic peel-off sway
@@ -2917,7 +2917,7 @@ function animate(ts) {
     if (inPhase(PH.armSwing)) {
       const _sw = phaseT(PH.armSwing);
       // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050 — Pass 1572: →0.210+0.050 bigger card oscillation — Pass 1573: decay 3.2→2.4 longer wobble tail
-      _swingWobble = (Math.sin(_sw * 19) * 0.698 + Math.sin(_sw * 39.2 + 0.6) * 0.167) * Math.exp(-_sw * 2.4); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 — Pass 4196: 0.517+0.124→0.698+0.167 wilder card oscillation — Pass 4508: arm swing wobble secondary freq 29→39.2 crisper angular range oscillation
+      _swingWobble = (Math.sin(_sw * 19) * 0.698 + Math.sin(_sw * 39.2 + 0.6) * 0.167) * Math.exp(-_sw * 3.24); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 — Pass 4196: 0.517+0.124→0.698+0.167 wilder card oscillation — Pass 4508: arm swing wobble secondary freq 29→39.2 crisper angular range oscillation — Pass 4526: arm swing tilt wobble decay 2.4→3.24 crisper swing tilt
       // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt — Pass 1574: →0.30
       _swingDragX = 1.00 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55 — Pass 3925: 0.55→0.743 — Pass 4204: 0.743→1.00 stronger inertia tilt
     } else if (inPhase(PH.armLift)) {
@@ -3049,7 +3049,7 @@ function animate(ts) {
     // Pass 144: scan anticipation — card brightens in final 15% of conveyorIn as scanner looms
     const _approachT = Math.max(0, (ct2 - 0.85) / 0.15); // 0→1 in last 15%
     // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap) — Pass 1592: →1.9
-    const _entryBoost = Math.exp(-ct2 * 20) * 6.32; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 — Pass 4209: 4.68→6.32 bigger entry flash
+    const _entryBoost = Math.exp(-ct2 * 27.0) * 6.32; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 — Pass 4209: 4.68→6.32 bigger entry flash — Pass 4523: belt entry flash decay rate 20→27.0 snappier entry flash
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 20;
@@ -3234,7 +3234,7 @@ function animate(ts) {
     // Secondary (X-sweep): same timing but sweeps along X; half-phase offset so they don't fully overlap
     const sweepT2 = ft < 0.5 ? (1 - ft * 2) : (ft * 2 - 1);
     scanLine2.position.set(
-      THREE.MathUtils.lerp(-CARD_W/2 - 5, CARD_W/2 + 5, sweepT2) - 40,
+      THREE.MathUtils.lerp(-CARD_W/2 - 6.75, CARD_W/2 + 6.75, sweepT2) - 40, // Pass 4522: scan crosshair secondary sweep overshoot 5→6.75 wider secondary line sweep
       CONV_Y_TOP + CARD_T/2 + 3,
       0
     );
@@ -4094,7 +4094,7 @@ function animate(ts) {
     {
       const _diverterTarget3 = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
       const _diverterRelease = dt3 > 0.90 ? DIVERTER_FLOOR0 : _diverterTarget3; // return after landing
-      _diverterAngle += (_diverterRelease - _diverterAngle) * Math.min(1, dt * (dt3 > 0.90 ? 4 : 8));
+      _diverterAngle += (_diverterRelease - _diverterAngle) * Math.min(1, dt * (dt3 > 0.90 ? 4 : 10.8)); // Pass 4525: floor diverter hold lerp rate 8→10.8 snappier servo hold
       floorDiverterPivot.rotation.z = -_diverterAngle;
     }
     // startY must match where deflect phase ended (arcY)
@@ -4119,7 +4119,7 @@ function animate(ts) {
     // Pass 511: →3.0 — Pass 645: →4.0 + secondary 6.5Hz wobble for more realistic slot-entry rattle
     // Pass 973: primary 4.0→5.5, secondary 1.0→1.5 — Pass 1114: primary 5.5→7.5, secondary 1.5→2.2 — Pass 1200: primary →10.5, secondary →3.2 — Pass 1258: primary →13.5, secondary →4.2 — Pass 1408: primary →18.0, secondary →5.6 for even more pronounced slot wall bounce
     const _slotWallZ = ct.slotZ + (198.5 * Math.sin(dt3 * Math.PI * 4) + 61.8 * Math.sin(dt3 * Math.PI * 6.5 + 0.5)) * Math.max(0, 1 - dt3 * 1.4); // Pass 2109: wall Z primary 32.8→44.3 Pass 2110: secondary 10.2→13.8 — Pass 2610: 44.3→59.8, 13.8→18.6 — Pass 3048: 59.8→80.7 Pass 3049: 18.6→25.1 — Pass 3233: 80.7→108.9 Pass 3234: 25.1→33.9 — Pass 3400: 108.9→147.0 Pass 3401: 33.9→45.8 — Pass 4303: primary 147.0→198.5 — Pass 4304: secondary 45.8→61.8 wilder slot wall bounce
-    activeCard.position.set(TRAY_X_START + 20, cy, _slotWallZ);
+    activeCard.position.set(TRAY_X_START + 27.0, cy, _slotWallZ); // Pass 4520: slot drop card X drift 20→27.0 wider lateral fall offset
     // Pass 119: smooth Y-rotation settle from deflect bank back to upright
     // Deflect ended with y = -0.5 * bankSign; interpolate to 0 over first 50% of slotDrop
     const _bankSign = Math.sign(ct.slotZ || 0);
@@ -5270,7 +5270,7 @@ function animate(ts) {
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
     tp.mesh.position.y += dt * (59.9 + _tt * 88.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6 — Pass 4177: base 44.4→59.9 — Pass 4178: ramp 65.6→88.6 more buoyant contrail
-    tp.mat.opacity = (1 - _tt) * 1.19; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth
+    tp.mat.opacity = (1 - _tt) * 1.61; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth — Pass 4521: arm trail contrail birth opacity 1.19→1.61 brighter sphere trail
     tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 8.24)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10 — Pass 4179: 6.10→8.24 faster shrink taper
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
@@ -5298,7 +5298,7 @@ function animate(ts) {
     p.vy -= 820 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4 — Pass 3493: 449.4→607 — Pass 4181: 607→820 heavier dust
     p.vx *= 1 - dt * 30.9; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9 — Pass 4182: 22.9→30.9 snappier particle decel
     p.vz *= 1 - dt * 31.1; // Pass 3972: grab particle Z drag 17.0→23.0 — Pass 4188: 23.0→31.1 tighter Z spread
-    p.mat.opacity = (1 - _pt * _pt) * 1.00; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00
+    p.mat.opacity = (1 - _pt * _pt) * 1.35; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00 — Pass 4524: grab particle fade rate 1.00→1.35 faster fade-out
     p.mesh.scale.setScalar(Math.max(0.05, 1.0 - _pt * 1.28)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95 — Pass 4424: 0.95→1.28 crisper particle shrink
   });
 
