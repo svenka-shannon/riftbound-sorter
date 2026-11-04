@@ -3835,7 +3835,7 @@ function animate(ts) {
     slotSweepLight.intensity = 0; // pass 81: off during conveyor
     scanBloom.intensity = 0;
     // Pass 165: smooth LED decay from scan peak (~2.0) to idle (1.2) — was hard snap
-    scanLEDMat.emissiveIntensity += (5.40 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest
+    scanLEDMat.emissiveIntensity += (5.40 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 8.1); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest — Pass 4694: idle tracking speed dt*6→dt*8.1 snappier scan LED idle settle
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
@@ -3848,7 +3848,7 @@ function animate(ts) {
     // Pass 463: final-approach glow surge — in last 20% of conveyorOut card brightens
     // Pass 639: glow base 1.6→2.2; final surge 0.6→1.2 for more dramatic gate approach glow
     // Pass 859: glow base 2.2→3.5; final surge peak 3.4→5.5 — Pass 1073: surge *2.0→*2.8 — Pass 1372: →*3.8 for bigger gate approach glow
-    const _coGlowSurge = ot > 0.80 ? 70.3 + (ot - 0.80) / 0.20 * 56.3 : 70.3; // Pass 2366: glow base 6.39→8.63, surge 6.93→9.36 — Pass 2583: 8.63→11.6, 9.36→12.6 — Pass 3023: 11.6→15.7, 12.6→17.0 — Pass 3215: base 15.7→21.2 Pass 3216: surge 17.0→22.9 — Pass 3591: base 21.2→28.6, surge 22.9→30.9 — Pass 3686: base 28.6→38.6 — Pass 3687: surge 30.9→41.7 — Pass 3797: base 38.6→52.1 — Pass 3798: surge 41.7→56.3 — Pass 3900: base 52.1→70.3
+    const _coGlowSurge = ot > 0.80 ? 70.3 + (ot - 0.80) / 0.20 * 76.0 : 70.3; // Pass 2366: glow base 6.39→8.63, surge 6.93→9.36 — Pass 2583: 8.63→11.6, 9.36→12.6 — Pass 3023: 11.6→15.7, 12.6→17.0 — Pass 3215: base 15.7→21.2 Pass 3216: surge 17.0→22.9 — Pass 3591: base 21.2→28.6, surge 22.9→30.9 — Pass 3686: base 28.6→38.6 — Pass 3687: surge 30.9→41.7 — Pass 3797: base 38.6→52.1 — Pass 3798: surge 41.7→56.3 — Pass 3900: base 52.1→70.3 — Pass 4688: surge 56.3→76.0 brighter conveyorOut approach glow surge
     cardGlow.intensity = _coGlowSurge; // Pass 859: base 2.2→3.5; surge peak 3.4→5.5
     cardGlow.position.copy(activeCard.position);
     // Belt still scrolling at full speed toward gate
@@ -3964,7 +3964,7 @@ function animate(ts) {
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
     const floorTilt = ct.floor === 1 ? 0.2 : -0.1; // upper: nose up; lower: nose down
-    activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.5 * bankSign, dt2);
+    activeCard.rotation.y = THREE.MathUtils.lerp(0, -0.68 * bankSign, dt2); // Pass 4695: deflect flight bank angle 0.5→0.68 harder card lean during arc
     // Pass 159: smooth conveyorOut exit lean → floorTilt + brief nose-up launch kick
     // Eliminates the snap at the conveyorOut/deflect rotation.x boundary
     // Pass 1235: starting lean -0.18→-0.05 to match belt lean bugfix
@@ -4133,14 +4133,14 @@ function animate(ts) {
       activeCard.rotation.x = 0.365 * Math.sin(_bT * Math.PI); // Pass 356: bounce pitch boost 0.14 → 0.20 — Pass 3988: 0.20→0.270 — Pass 4403: 0.270→0.365 snappier landing bounce pitch
     } else if (ct.floor === 0) {
       // Aerodynamic drag: nose-down lean proportional to fall velocity (bell curve)
-      activeCard.rotation.x = -0.07 * Math.sin(dt3 / 0.88 * Math.PI);
+      activeCard.rotation.x = -0.095 * Math.sin(dt3 / 0.88 * Math.PI); // Pass 4692: aerodynamic fall nose-down lean 0.07→0.095 deeper gravity fall lean
     } else {
       // Pass 314: floor-1 guided insert lean — card tips slightly forward during slot insertion
-      activeCard.rotation.x = -0.04 * Math.sin(dt3 * Math.PI);
+      activeCard.rotation.x = -0.054 * Math.sin(dt3 * Math.PI); // Pass 4693: floor-1 guided insert lean 0.04→0.054 more visible upper-slot entry pitch
     }
     // Pass 281: slot wall-bounce lean — card leans slightly in direction of wall oscillation
     // Pass 647: wall lean 0.032→0.055 — Pass 974: →0.082 — Pass 1115: →0.12 for more physical lateral tilt at each wall contact
-    const _wallLean = 1.00 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0); // Pass 2111: wall lean 0.12→0.16 — Pass 2620: 0.16→0.22 — Pass 3050: 0.22→0.30 — Pass 3235: 0.30→0.41 — Pass 3402: 0.41→0.55 — Pass 3447: 0.55→0.74 — Pass 4001: 0.74→1.00
+    const _wallLean = 1.35 * Math.cos(dt3 * Math.PI * 4) * Math.max(0, 1 - dt3 * 2.0); // Pass 2111: wall lean 0.12→0.16 — Pass 2620: 0.16→0.22 — Pass 3050: 0.22→0.30 — Pass 3235: 0.30→0.41 — Pass 3402: 0.41→0.55 — Pass 3447: 0.55→0.74 — Pass 4001: 0.74→1.00 — Pass 4691: 1.00→1.35 harder slot wall-bounce lateral tilt
     activeCard.rotation.z = _wallLean;
     // Pass 265: slot wall bounce strip flash — entry strip briefly flickers at each Z wall bounce
     if (ct.stripMat && dt3 < 0.80) {
@@ -4969,7 +4969,7 @@ function animate(ts) {
       // Pass 702: floor disc ground opacity 0.18→0.24 — Pass 1021: →0.34 — Pass 1339: →0.45 for more visible domain floor glow
       const _fdOpacity = THREE.MathUtils.lerp(1.00, 0.055, _altFrac) + _fdPulse514; // Pass 2478: disc ground opacity 0.82→1.00
       floorDisc.scale.setScalar(_fdScale);
-      floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.15;
+      floorDiscMat.opacity += (_fdOpacity - floorDiscMat.opacity) * 0.20; // Pass 4690: floor disc opacity tracking rate 0.15→0.20 snappier domain halo fade
     } else {
       floorDiscMat.opacity *= 0.82; // smooth fade-out when card hidden
       if (floorDiscMat.opacity < 0.005) { floorDiscMat.opacity = 0; floorDisc.scale.setScalar(1.0); }
@@ -5104,7 +5104,7 @@ function animate(ts) {
       // Pass 520: second confirm ring max scale boost 4.8→6.5 — Pass 945: →11.0 — Pass 1335: →16.0 — Pass 1435: →22.0 — Pass 1533: →30.0 for wider second burst
       const _crs2 = 0.6 + easeOut(_confirmRingT2) * 447; // Pass 2491: second confirm ring scale 73.8→99.6 — Pass 2704: 99.6→134.5 — Pass 2800: 134.5→181.6 — Pass 2932: 181.6→245.2 — Pass 3311: 245.2→331.0 — Pass 4058: 331.0→447 wider secondary confirm ripple
       confirmRing2.scale.setScalar(_crs2);
-      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 1.0); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0
+      confirmRing2Mat.opacity = Math.max(0, (1 - _confirmRingT2) * 1.35); // Pass 1035: 0.75→0.90 — Pass 1535: →1.0 — Pass 4689: 1.0→1.35 brighter secondary confirm ring
       if (_confirmRingT2 >= 1) {
         _confirmRingT2 = -1;
         confirmRing2.visible = false;
