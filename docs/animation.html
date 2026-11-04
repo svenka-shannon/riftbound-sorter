@@ -2756,7 +2756,7 @@ function animate(ts) {
         vacuumRingMat.opacity = Math.min(1, Math.sin(_vt * Math.PI) * 0.95 + _vacSurge); // Pass 1092: opacity 0.75→0.95
         // Pass 275: vacuum ring Y elongation at surge — ring stretches downward as suction pulls
         // Pass 1250: elongation scale 0.55→0.82 — Pass 1275: →1.10 — Pass 1360: →1.50 — Pass 1680: →2.00
-        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 3.65), _vacBaseScale); // Pass 2268: ring Y elongation 2.70→3.65
+        vacuumRing.scale.set(_vacBaseScale, _vacBaseScale * (1 + _vacSurge * 4.93), _vacBaseScale); // Pass 2268: ring Y elongation 2.70→3.65 — Pass 3917: 3.65→4.93 deeper suction pull
       } else {
         vacuumRing.visible = false; vacuumRingMat.opacity = 0;
       }
@@ -2769,14 +2769,14 @@ function animate(ts) {
       suctionPivot.rotation.z = THREE.MathUtils.lerp(-0.036, 0.80, lt) + _ltLurch;
       // Pass 122: pivot Y spring — brief downward dip as cup breaks suction on card stack — Pass 1172: 2.5→3.8 — Pass 1357: →5.2 — Pass 1682: →7.0 more dramatic dip
       if (lt < 0.22) {
-        const _yDip = -12.76 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76
+        const _yDip = -17.2 * Math.sin((lt / 0.22) * Math.PI); // Pass 2270: pivot Y dip -9.45→-12.76 — Pass 3918: -12.76→-17.2 deeper suction-break dip
         // Pass 241: pick stutter — brief multi-freq Y vibration as suction seal tears off card
         // Pass 525: pick stutter amplitude 0.70→1.10 — Pass 878: →1.65 — Pass 1093: →2.40 — Pass 1216: →3.60 — Pass 1272: →5.00 — Pass 1358: →7.00 — Pass 1683: →9.50
-        const _pickStutter = lt < 0.12 ? 17.32 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0; // Pass 2271: pick stutter 12.83→17.32
+        const _pickStutter = lt < 0.12 ? 23.4 * Math.exp(-lt * 26) * (Math.sin(ts * 22 * Math.PI * 2) * 0.65 + Math.sin(ts * 38 * Math.PI * 2) * 0.35) : 0; // Pass 2271: pick stutter 12.83→17.32 — Pass 3919: 17.32→23.4 more violent suction-seal tear
         suctionPivot.position.y = 108 + _yDip + _pickStutter;
       }
       // Pass 291: armLift peel-off Z drift — Pass 646: 1.8→2.8 — Pass 879: →4.0 — Pass 1094: →5.8 — Pass 1217: →8.2 — Pass 1273: →11.0 — Pass 1359: →15.0 for more dramatic peel-off sway
-      const _peelZ291 = lt < 0.28 ? 27.34 * Math.sin(lt / 0.28 * Math.PI) : 0; // Pass 2272: peel-off Z drift 20.25→27.34
+      const _peelZ291 = lt < 0.28 ? 36.9 * Math.sin(lt / 0.28 * Math.PI) : 0; // Pass 2272: peel-off Z drift 20.25→27.34 — Pass 3920: 27.34→36.9 wider peel-off sway
       suctionPivot.position.z = _peelZ291;
       // Pass 78: cup springs back from squish with overshoot (0.35 → 1.2 → 1.0)
       if (lt < 0.22) {
@@ -2916,7 +2916,7 @@ function animate(ts) {
     if (inPhase(PH.armSwing)) {
       const _sw = phaseT(PH.armSwing);
       // Pass 615: swing wobble 0.065→0.090 + secondary 29Hz — Pass 766: →0.118+0.034 — Pass 1065: →0.155+0.050 — Pass 1572: →0.210+0.050 bigger card oscillation — Pass 1573: decay 3.2→2.4 longer wobble tail
-      _swingWobble = (Math.sin(_sw * 19) * 0.383 + Math.sin(_sw * 29 + 0.6) * 0.092) * Math.exp(-_sw * 2.4); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092
+      _swingWobble = (Math.sin(_sw * 19) * 0.517 + Math.sin(_sw * 29 + 0.6) * 0.124) * Math.exp(-_sw * 2.4); // Pass 2280: swing wobble 0.284→0.383, secondary 0.068→0.092 — Pass 3921: 0.383+0.092→0.517+0.124 livelier card oscillation
       // Pass 616: swing drag lean 0.07→0.10 — Pass 767: →0.15 — Pass 1066: →0.22 stronger inertia tilt — Pass 1574: →0.30
       _swingDragX = 0.55 * Math.sin(_sw * Math.PI); // Pass 2281: swing drag lean 0.41→0.55
     } else if (inPhase(PH.armLift)) {
@@ -3022,7 +3022,7 @@ function animate(ts) {
     // Card starts at cup deposit X (-111) and travels to scanner center (-40)
     const cx = THREE.MathUtils.lerp(-111, -40, ct2);
     // Pass 155: settle bounce — decaying oscillation as card slaps onto belt — Pass 870: 3.0→5.0 — Pass 1086: →7.5 — Pass 1203: →11.0 — Pass 1301: →16.0 — Pass 1387: →22.0 bigger card-slap settle — Pass 1586: →30.0; Pass 1587: decay 16→12 longer tail
-    const _settleY = 54.7 * Math.exp(-ct2 * 12) * Math.abs(Math.sin(ct2 * Math.PI * 5)); // Pass 2288: conveyor settle bounce 40.5→54.7
+    const _settleY = 73.8 * Math.exp(-ct2 * 12) * Math.abs(Math.sin(ct2 * Math.PI * 5)); // Pass 2288: conveyor settle bounce 40.5→54.7 — Pass 3922: 54.7→73.8 bigger card-slap bounce
     // Pass 173: belt lateral wobble — fades in (0→5%) and out (90→100%)
     // Pass 637: Z wobble 1.2→1.7 — Pass 872: primary 1.7→2.2, secondary 0.45→0.65 — Pass 1087: primary 2.2→3.0, secondary 0.65→0.90 — Pass 1204: primary 3.0→4.2, secondary 0.90→1.30 for more vivid belt weave — Pass 1584: primary 4.2→5.7, secondary 1.30→1.75
     const _wobbleFadeIn  = Math.min(1, ct2 / 0.05);
@@ -3107,7 +3107,7 @@ function animate(ts) {
     // Pass 172: scan-field levitation — card floats on 0.8Hz sine during scan (peaks at midpoint)
     // Pass 658: levitate 0.30→0.55 + secondary 0.15 — Pass 788: primary 0.55→0.75, secondary 0.15→0.24 — Pass 1076: primary 0.75→1.05, secondary 0.24→0.35 — Pass 1208: primary 1.05→1.50, secondary 0.35→0.55 — Pass 1276: primary 1.50→2.10, secondary 0.55→0.78
     const ft = phaseRaw(PH.scan);
-    const _levitate = (3.85 * Math.sin(ts * 0.8 * Math.PI * 2) + 1.43 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI); // Pass 2295: levitate primary 2.85→3.85, secondary 1.06→1.43
+    const _levitate = (5.20 * Math.sin(ts * 0.8 * Math.PI * 2) + 1.93 * Math.sin(ts * 1.3 * Math.PI * 2 + 0.7)) * Math.sin(ft * Math.PI); // Pass 2295: levitate primary 2.85→3.85, secondary 1.06→1.43 — Pass 3923: 3.85+1.43→5.20+1.93 more visible scan levitation
     // Pass 231: post-reveal card elevation — machine "lifts" card slightly off belt after domain
     // confirmed (ft 0.85→1.0), giving a subtle "recognition" gesture.
     // Pass 655: reveal lift 3.0→5.5 — Pass 789: →8.5 — Pass 1077: →12.0 — Pass 1209: →17.0 — Pass 1277: →24.0 for more prominent "recognized!" rise
@@ -3118,7 +3118,7 @@ function animate(ts) {
     // of the scan phase — eliminates the snap at the conveyorIn/scan phase boundary
     // Pass 1235: starting lean -0.18→-0.05 to match belt lean bugfix
     // Pass 659: tilt peak -0.40→-0.52 — Pass 749: -0.52→-0.64 — Pass 1078: →-0.82 — Pass 1278: →-1.05 for even more face-toward-camera during scan
-    const _bellTilt = -1.92 * Math.sin(ft * Math.PI); // Pass 2297: tilt peak -1.42→-1.92
+    const _bellTilt = -2.59 * Math.sin(ft * Math.PI); // Pass 2297: tilt peak -1.42→-1.92 — Pass 3924: -1.92→-2.59 more face-toward-camera during scan
     const _blendInT = Math.min(1, ft / 0.10); // 0→1 over first 10% of scan phase
     const _revealTilt = THREE.MathUtils.lerp(-0.05, _bellTilt, easeOut(_blendInT));
     // Pass 116: belt micro-vibration — dampens after identity reveal (card "settles")
