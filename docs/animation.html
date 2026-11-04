@@ -4267,7 +4267,7 @@ function animate(ts) {
       const _stripApproach = Math.max(0.15, 0.15 + 267 * (dt3 / 0.86)); // Pass 2392: strip approach 7.29→9.84 — Pass 2623: 9.84→13.3 — Pass 2864: 13.3→18.0 — Pass 3062: 18.0→24.3 — Pass 3245: 24.3→32.8 — Pass 3597: 32.8→44.3 — Pass 3693: 44.3→59.8 — Pass 3805: 59.8→80.7 — Pass 3905: 80.7→109 — Pass 4383: 109→147 brighter slot entry build-up — Pass 5439: 147→198 brighter slot entry build-up — Pass 6555: 198→267 brighter slot entry build-up
       // Pass 988: strip urgency pulse amplitude 0.22→0.38 — Pass 1122: →0.60 — Pass 1201: →0.90 — Pass 1262: →1.20 — Pass 1546: →1.60 for more urgent pre-landing flicker
       const _stripUrgency491 = (ct.floor === 0 && dt3 >= 0.55 && dt3 < 0.86)
-        ? (dt3 - 0.55) / 0.31 * 58.9 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92 — Pass 2624: 2.92→3.94 — Pass 2865: 3.94→5.32 — Pass 3063: 5.32→7.18 — Pass 3246: 7.18→9.69 — Pass 3598: 9.69→13.1 — Pass 3694: 13.1→17.7 — Pass 3806: 17.7→23.9 — Pass 3906: 23.9→32.3 — Pass 4384: 32.3→43.6 stronger pre-landing urgency flicker — Pass 5440: 43.6→58.9 stronger pre-landing urgency flicker
+        ? (dt3 - 0.55) / 0.31 * 79.5 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2126: urgency pulse amplitude 2.16→2.92 — Pass 2624: 2.92→3.94 — Pass 2865: 3.94→5.32 — Pass 3063: 5.32→7.18 — Pass 3246: 7.18→9.69 — Pass 3598: 9.69→13.1 — Pass 3694: 13.1→17.7 — Pass 3806: 17.7→23.9 — Pass 3906: 23.9→32.3 — Pass 4384: 32.3→43.6 stronger pre-landing urgency flicker — Pass 5440: 43.6→58.9 stronger pre-landing urgency flicker — Pass 6572: 58.9→79.5 stronger pre-landing urgency flicker
       if (ct.stripMat.emissiveIntensity < _stripApproach + _stripUrgency491) {
         ct.stripMat.emissiveIntensity += (_stripApproach + _stripUrgency491 - ct.stripMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4841: strip emissive tracking rate 5→6.75 snappier pre-landing strip — Pass 5653: 6.75→9.11 snappier slot strip emissive tracking rate
       }
@@ -4284,9 +4284,9 @@ function animate(ts) {
       // Pass 38: floor landing thud — Pass 419: 2.2→3.2 — Pass 580: →4.5 — Pass 675: →5.8 — Pass 804: →9.0 — Pass 1099: →13.0 — Pass 1263: →18.0 — Pass 1366: →26.0 — Pass 1542: →36.0 for bigger floor thud
       _cameraShake = Math.max(_cameraShake, 397.3); // Pass 2393: floor landing shake 88.6→119.6 — Pass 2625: 119.6→161.5 — Pass 2866: 161.5→218.0 — Pass 3064: 218.0→294.3 — Pass 3247: 294.3→397.3
       // Pass 69: strip flash — Pass 420: 4.0→5.5 — Pass 581: →8.0 — Pass 805: →12.0 — Pass 981: →17.0 — Pass 1100: →26.0 — Pass 1264: →36.0 — Pass 1367: →50.0 — Pass 1543: →68.0 vivid landing pop
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 1847; // Pass 2394: strip flash at landing 167.4→226.0 — Pass 2626: 226.0→305.1 — Pass 3065: 305.1→411.9 — Pass 3248: 411.9→556.1 — Pass 3404: 556.1→750.7 — Pass 3445: 750.7→1013 — Pass 4324: 1013→1368 brighter landing strip flash — Pass 5435: 1368→1847 brighter landing strip flash
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 2493; // Pass 2394: strip flash at landing 167.4→226.0 — Pass 2626: 226.0→305.1 — Pass 3065: 305.1→411.9 — Pass 3248: 411.9→556.1 — Pass 3404: 556.1→750.7 — Pass 3445: 750.7→1013 — Pass 4324: 1013→1368 brighter landing strip flash — Pass 5435: 1368→1847 brighter landing strip flash — Pass 6573: 1847→2493 brighter landing strip flash
       // Pass 218/471: fill bar landing spark — Pass 582: 4.5→6.5 — Pass 730: →8.5 — Pass 806: →13.0 — Pass 982: →18.0 — Pass 1101: →28.0 — Pass 1265: →40.0 — Pass 1368: →56.0 — Pass 1544: →75.0 vivid count
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 1505; // Pass 2395: fill bar landing spark 184.1→248.5 — Pass 2627: 248.5→335.5 — Pass 3066: 335.5→453.0 — Pass 3249: 453.0→611.6 — Pass 3409: 611.6→825.7 — Pass 4325: 825.7→1115 bigger fill bar count flash — Pass 5436: 1115→1505 bigger fill bar count flash
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 2032; // Pass 2395: fill bar landing spark 184.1→248.5 — Pass 2627: 248.5→335.5 — Pass 3066: 335.5→453.0 — Pass 3249: 453.0→611.6 — Pass 3409: 611.6→825.7 — Pass 4325: 825.7→1115 bigger fill bar count flash — Pass 5436: 1115→1505 bigger fill bar count flash — Pass 6574: 1505→2032 bigger fill bar landing count flash
       // Pass 214: landing particle scatter — pale domain dust bursts radially from impact point,
       // like a card slapping down onto a dusty tray floor.
       {
@@ -4305,7 +4305,7 @@ function animate(ts) {
           );
           _lp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
-          const _spd = 2827 + Math.random() * 3202; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757 — Pass 4405: 1551+1757→2094+2372 faster impact radial spray — Pass 5500: base 2094→2827 faster impact radial spray — Pass 5501: rand 2372→3202 wider impact radial spray
+          const _spd = 3817 + Math.random() * 4323; // Pass 2130: impact dust speed 346+392→467+529 — Pass 2629: 467+529→630+714 — Pass 3068: 630+714→851+964 — Pass 3250: 851+964→1149+1302 — Pass 3487: 1149+1302→1551+1757 — Pass 4405: 1551+1757→2094+2372 faster impact radial spray — Pass 5500: base 2094→2827 faster impact radial spray — Pass 5501: rand 2372→3202 wider impact radial spray — Pass 6575: base 2827→3817 faster impact radial spray — Pass 6576: rand 3202→4323 wider impact radial spray
           _lp.vx = Math.cos(_ang) * _spd * 0.824; // Pass 4357: landing dust vx factor 0.45→0.61 wider radial scatter — Pass 5619: 0.61→0.824 wider radial scatter
           _lp.vy = 205 + Math.random() * 474; // Pass 2131: dust loft vy 19+43→25+58 — Pass 2630: 25+58→33.8+78.3 — Pass 3251: 33.8+78.3→45.6+105.7 — Pass 3467: 45.6+105.7→61.6+142.7 — Pass 3542: 61.6+142.7→83.2+192.6 — Pass 3914: 83.2+192.6→112.3+260.0 higher landing scatter // Pass 4492: landing puff vy rand 260.0→351.0 more explosive slot arrival loft — Pass 4621: base 112.3→151.6 bigger landing puff vy spread — Pass 5611: 151.6+351.0→205+474 more explosive slot-impact dust loft
           _lp.vz = Math.sin(_ang) * _spd * 1.82; // Pass 4358: landing dust vz factor 1.0→1.35 deeper Z floor spray — Pass 5620: 1.35→1.82 deeper Z floor spray
@@ -4332,9 +4332,9 @@ function animate(ts) {
       impactRing.visible = true;
       // No camera shake — card glides in smoothly
       // Pass 505: upper-floor strip flash 3.2→4.5 — Pass 585: 4.5→7.0 — Pass 985: →10.0 — Pass 1107: →16.0 — Pass 1267: →22.0 — Pass 1371: →32.0 — Pass 1553: →45.0 for stronger floor-1 arrival
-      if (ct.stripMat) ct.stripMat.emissiveIntensity = 1646; // Pass 2397: upper floor strip flash 110.7→149.4 — Pass 2631: 149.4→201.7 — Pass 3069: 201.7→272.3 — Pass 3252: 272.3→367.6 — Pass 3599: 367.6→496 — Pass 3695: 496→669 — Pass 3807: 669→903 — Pass 4475: 903→1219 brighter upper floor landing flash — Pass 5502: 1219→1646 brighter upper floor landing flash
+      if (ct.stripMat) ct.stripMat.emissiveIntensity = 2222; // Pass 2397: upper floor strip flash 110.7→149.4 — Pass 2631: 149.4→201.7 — Pass 3069: 201.7→272.3 — Pass 3252: 272.3→367.6 — Pass 3599: 367.6→496 — Pass 3695: 496→669 — Pass 3807: 669→903 — Pass 4475: 903→1219 brighter upper floor landing flash — Pass 5502: 1219→1646 brighter upper floor landing flash — Pass 6577: 1646→2222 brighter upper floor landing strip flash
       // Pass 218/471: fill bar spark upper floor — Pass 585: 4.0→5.5 — Pass 731: →7.5 — Pass 986: →11.0 — Pass 1107: →18.0 — Pass 1371: →26.0 — Pass 1554: →36.0 vivid arrival
-      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 1781; // Pass 2398: upper floor fill bar spark 88.6→119.6 — Pass 2632: 119.6→161.5 — Pass 2868: 161.5→218.0 — Pass 3070: 218.0→294.3 — Pass 3253: 294.3→397.3 — Pass 3600: 397.3→536 — Pass 3696: 536→724 — Pass 3808: 724→977 — Pass 4534: upper floor fill bar emissive cap 977→1319 brighter upper floor arrival — Pass 5503: 1319→1781 brighter upper floor fill bar emissive arrival pop
+      if (fillBars[ct.slot]) fillBars[ct.slot].material.emissiveIntensity = 2404; // Pass 2398: upper floor fill bar spark 88.6→119.6 — Pass 2632: 119.6→161.5 — Pass 2868: 161.5→218.0 — Pass 3070: 218.0→294.3 — Pass 3253: 294.3→397.3 — Pass 3600: 397.3→536 — Pass 3696: 536→724 — Pass 3808: 724→977 — Pass 4534: upper floor fill bar emissive cap 977→1319 brighter upper floor arrival — Pass 5503: 1319→1781 brighter upper floor fill bar emissive arrival pop — Pass 6578: 1781→2404 brighter upper floor fill bar arrival pop
       // Pass 224: upper floor arrival glow particles — 3 gentle domain-tinted motes that
       // drift upward softly (upper floor is a guided arrival, no hard impact scatter).
       {
@@ -4422,7 +4422,7 @@ function animate(ts) {
         _rb2++;
       }
       // Smaller secondary amber light — Pass 1048: 4.5→9.0 for brighter second alarm pulse
-      const _ral2 = new THREE.PointLight(0xff6600, 74.0, 135); // Pass 2406: reject secondary amber light 16.5→22.3 — Pass 2640: 22.3→30.1 — Pass 3078: 30.1→40.6 — Pass 4028: 40.6→54.8 — Pass 4468: reach 100→135 wider reject flash — Pass 5504: 54.8→74.0 brighter reject secondary amber light
+      const _ral2 = new THREE.PointLight(0xff6600, 99.9, 135); // Pass 2406: reject secondary amber light 16.5→22.3 — Pass 2640: 22.3→30.1 — Pass 3078: 30.1→40.6 — Pass 4028: 40.6→54.8 — Pass 4468: reach 100→135 wider reject flash — Pass 5504: 54.8→74.0 brighter reject secondary amber light — Pass 6579: 74.0→99.9 brighter reject secondary amber light
       _ral2.position.set(TRAY_X_START + 20, ct.slotFloorY + 30, ct.slotZ);
       scene.add(_ral2);
       if (!window._flashLights) window._flashLights = [];
