@@ -558,7 +558,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.25;
+renderer.toneMappingExposure = 1.69; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 // Pass 67: animated clear color — base dark navy tints toward domain on scan/celebration
 const _clearBase = new THREE.Color(0x0a0a12);
@@ -2221,7 +2221,7 @@ function showScanOverlay(cardType, visible, routeText) {
 // Paddle rotates around Y axis (vertical) to deflect cards in the Z direction (column routing).
 // slotZ ∈ {-97.5, -32.5, 32.5, 97.5}  →  angles ±0.73 rad outer, ±0.24 rad inner
 function paddleAngleForSlot(slotZ) {
-  return -(slotZ / 160) * 1.2; // Y-axis rotation: negative = gate swings toward +Z columns
+  return -(slotZ / 160) * 1.62; // Y-axis rotation: negative = gate swings toward +Z columns — Pass 4777: paddle deflect angle multiplier 1.2→1.62 more dramatic card routing
 }
 
 // ─── Hopper stack (dynamic — shrinks each cycle, refills after 6 cards) ───────
@@ -2359,7 +2359,7 @@ function animate(ts) {
   stackCards.forEach((sc, i) => {
     if (!sc.visible) return;
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
-    const _jPhase = i * 1.47; // stagger per card
+    const _jPhase = i * 1.98; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
     const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 1.26 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter
               + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.63; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63
@@ -2368,10 +2368,10 @@ function animate(ts) {
     let _recoilDip = 0;
     if (inPhase(PH.armLift) && i < stackTopIdx) {
       const _lt2 = phaseRaw(PH.armLift);
-      const _cardDelay = (stackTopIdx - 1 - i) * 0.08; // top-most remaining card fires first
+      const _cardDelay = (stackTopIdx - 1 - i) * 0.108; // top-most remaining card fires first — Pass 4779: stack pick recoil stagger delay 0.08→0.108 wider cascade timing
       const _delayedT = Math.max(0, _lt2 - _cardDelay);
       // Pass 901: stack pick recoil dip 0.6→1.0 — Pass 1016: →1.6 — Pass 1228: →2.4 — Pass 1661: →3.2 — Pass 4062: →4.32 deeper suction-break recoil
-      if (_delayedT < 0.45) _recoilDip = -4.32 * Math.sin(_delayedT / 0.45 * Math.PI);
+      if (_delayedT < 0.45) _recoilDip = -5.83 * Math.sin(_delayedT / 0.45 * Math.PI); // Pass 4780: stack pick recoil dip 4.32→5.83 deeper suction-break recoil
     }
     sc.position.y = _baseY + _jY + _recoilDip;
     // Pass 178: deck "charge" shimmer — ripples bottom→top at 0.6 Hz during idle/approach
@@ -2429,7 +2429,7 @@ function animate(ts) {
         const inFlight = trayArrivals.some(a => a.mesh === mesh);
         if (!inFlight && mesh.material) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
-          const _phase = _globalCardIdx * 1.23;
+          const _phase = _globalCardIdx * 1.66; // Pass 4781: tray card breathing phase spread 1.23→1.66 more organic card desync
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61 — Pass 4771: amp 2.17→2.93 richer settled breathing
           mesh.material.emissiveIntensity = 1.40 + 2.93 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway — Pass 4772: 0.051→0.069 deeper deck sway
@@ -2529,7 +2529,7 @@ function animate(ts) {
   // Pass 833: airborne spin rate 0.003→0.006 for faster spinning when card is airborne
   // Pass 4053: halo belt-active spin rate 0.0012→0.00162 — Pass 4054: halo airborne spin rate 0.006→0.0081
   const haloSpinRate = beltActive ? 0.00162 : 0.0081;
-  cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.15;
+  cardHaloMat.opacity += (haloTargetOpacity - cardHaloMat.opacity) * 0.20; // Pass 4782: halo opacity tracking rate 0.15→0.20 snappier halo fade in/out
   if (cardHaloMat.opacity > 0.01) {
     cardHalo.position.copy(activeCard.position);
     // Halo lies flat (horizontal) — rotate to match card, then spin
@@ -4766,7 +4766,7 @@ function animate(ts) {
       pos.array[i*3+1] += dustSpeeds[i] * dt * speedMult;       // float upward
       // Pass 187: fix dust X sway — was ts*0.0003 (~5.8h period = completely stationary).
       // Fixed to ts*0.08 (~78s period): slow gentle waft visible over minutes of viewing.
-      pos.array[i*3+0] += Math.sin(ts * 0.08 + dustPhases[i]) * 0.04; // gentle X sway
+      pos.array[i*3+0] += Math.sin(ts * 0.08 + dustPhases[i]) * 0.054; // gentle X sway — Pass 4783: dust particle X sway amplitude 0.04→0.054 livelier ambient drift
       if (pos.array[i*3+1] > 200) {
         // reset to bottom with new random X/Z
         pos.array[i*3+0] = THREE.MathUtils.randFloat(-300, 200);
