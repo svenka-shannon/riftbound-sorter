@@ -980,7 +980,7 @@ const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
   emissive: new THREE.Color(0x00ff88),
   emissiveIntensity: 13.4, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam
-  transparent: true, opacity: 0.95 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam
+  transparent: true, opacity: 1.28 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam
 });
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(133, 4.05, 2), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span
 scanLine.visible = false;
@@ -990,7 +990,7 @@ const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
   emissiveIntensity: 8.32, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar
-  transparent: true, opacity: 0.88 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep
+  transparent: true, opacity: 1.19 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 164), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height — Pass 5072: 121.5→164 wider secondary scan sweep
 scanLine2.visible = false;
@@ -3623,7 +3623,7 @@ function animate(ts) {
       const arcMid   = new THREE.Vector3(
         (arcStart.x + arcEnd.x) / 2 + 18.2, // Pass 4572: routing arc X midpoint bias 10→13.5 deeper slot arc lean — Pass 5491: 13.5→18.2 deeper routing arc X lean
         // Pass 685: route arc loft 55→68 for more dramatic predicted-path arc — Pass 4077: 68→91.8 taller arc
-        Math.max(arcStart.y, arcEnd.y) + 167,  // loft the arc well above the machine — Pass 4919: route arc loft 91.8→124 higher predicted-path arc — Pass 5572: 124→167 higher predicted-path arc loft
+        Math.max(arcStart.y, arcEnd.y) + 167,  // loft the arc well above the machine — Pass 4919: route arc loft 91.8→124 higher predicted-path arc — Pass 5579: 124→167 higher predicted-path arc loft
         arcEnd.z * _arcZBias305                // bias midpoint toward destination Z
       );
       const arcPts = routeArcGeo.attributes.position.array;
@@ -3677,7 +3677,7 @@ function animate(ts) {
       cardShimmerMesh.rotation.y = activeCard.rotation.y; // pass 164: also track Y-tilt from reveal
       // Pass 310: shimmer bloom at reveal — Pass 562: 0.85→1.30 — Pass 690: →1.65 — Pass 814: →2.6 — Pass 1069: →3.4 — Pass 1447: →4.8 for wider flash
       const _shimBloom310 = _identityRevealed && ft < 0.91 ? 1.0 + Math.exp(-(ft - 0.85) * 18.9) * 97.1 : 1.0; // Pass 2565: shimmer bloom 8.78→11.9 — Pass 3005: 11.9→16.1 — Pass 3201: 16.1→21.7 — Pass 3439: 21.7→29.3 — Pass 3703: 29.3→39.5 — Pass 3817: 39.5→53.3 — Pass 4245: 53.3→71.9 bigger shimmer bloom at reveal — Pass 4562: shimmer bloom decay 14→18.9 crisper reveal bloom taper — Pass 5495: 71.9→97.1 bigger shimmer bloom at reveal
-      cardShimmerMesh.scale.set(_shimBloom310, 1.35, _shimBloom310); // Pass 4609: card shimmer Y scale 1.0→1.35 taller shimmer band
+      cardShimmerMesh.scale.set(_shimBloom310, 1.82, _shimBloom310); // Pass 4609: card shimmer Y scale 1.0→1.35 taller shimmer band — Pass 5559: 1.35→1.82 taller card shimmer band
       // Pass 153: color blends white→domain over 78-92% range (smooth vs hard snap at 85%)
       const _shimBlend = Math.max(0, Math.min(1, (ft - 0.78) / 0.255)); // Pass 4637: shimmer blend window 0.14→0.189 broader domain color transition — Pass 5533: 0.189→0.255 broader shimmer blend transition window
       const _shimColor = new THREE.Color(0xffffff).lerp(new THREE.Color(ct.hex), _shimBlend);
@@ -3873,7 +3873,7 @@ function animate(ts) {
       // Pass 475: final-approach trail opacity boost — Pass 824/825: early 0.28+0.12→0.42+0.18, final 0.42+0.20→0.60+0.30 — Pass 1496: early →0.56+0.24, final →0.80+0.40
       tp.mat.opacity = ot > 0.65 ? Math.min(1, 0.80 + Math.random() * 0.40) : 1.03 + Math.random() * 0.43; // Pass 1882: contrail early opacity 0.56+0.24→0.76+0.32 — Pass 4350: 0.76+0.32→1.03+0.43 denser exhaust contrail
       // Pass 826: trail life 0.22+0.10→0.30+0.14 — Pass 1497: →0.40+0.18 for longer exhaust contrail
-      tp.age = 0; tp.life = 0.984 + Math.random() * 0.437; // Pass 1883: contrail trail life 0.40+0.18→0.54+0.24 — Pass 3947: 0.54+0.24→0.729+0.324 — Pass 4400: base 0.729→0.984 — Pass 4401: rand 0.324→0.437 longer exhaust contrail
+      tp.age = 0; tp.life = 1.33 + Math.random() * 0.590; // Pass 1883: contrail trail life 0.40+0.18→0.54+0.24 — Pass 3947: 0.54+0.24→0.729+0.324 — Pass 4400: base 0.729→0.984 — Pass 4401: rand 0.324→0.437 longer exhaust contrail — Pass 5560: base 0.984→1.33, rand 0.437→0.590 longer contrail lifetime
       tp.active = true; tp.mesh.visible = true;
     }
   }
@@ -3958,9 +3958,9 @@ function animate(ts) {
     // Pass 118: lateral Z tremor during deflect — air buffet makes arc feel physical
     // Pass 488: Z-tremor 3.2→4.8 — Pass 612: add tertiary 7.2Hz — Pass 757: primary 4.8→6.2 — Pass 1071: →8.0 — Pass 1252: →10.5 for even stronger air buffet during flight arc
     const _zTremor = Math.sin(dt2 * Math.PI * 3.5) * Math.sin(dt2 * Math.PI) * 706 // Pass 2375: Z tremor 25.9→35.0 — Pass 2595: 35.0→47.3 — Pass 2856: 47.3→63.9 — Pass 3034: 63.9→86.3 — Pass 3224: 86.3→116.5 — Pass 3390: 116.5→157.3 — Pass 3506: 157.3→212.4 — Pass 3747: 212.4→287 — Pass 3855: 287→387 — Pass 4408: 387→523 stronger deflect Z air buffet — Pass 5537: 523→706 stronger card deal arc Z air buffet amplitude
-      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 5.41; // Pass 2107: Z tremor tertiary 2.2→2.97 — Pass 3941: 2.97→4.01 — Pass 4402: 4.01→5.41 stronger deflect air buffet
+      + Math.sin(dt2 * Math.PI * 7.2 + 0.6) * Math.sin(dt2 * Math.PI) * 7.30; // Pass 2107: Z tremor tertiary 2.2→2.97 — Pass 3941: 2.97→4.01 — Pass 4402: 4.01→5.41 stronger deflect air buffet — Pass 5561: 5.41→7.30 stronger deflect Z tertiary tremor
     // Pass 488: Y micro-tremor — Pass 758: 1.8→2.4 — Pass 1072: →3.2 — Pass 1253: →4.4 for more 3D turbulence in deflect arc
-    const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 217; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161 — Pass 4084: 161→217
+    const _yTremor488 = Math.sin(dt2 * Math.PI * 5.1 + 1.4) * Math.sin(dt2 * Math.PI) * 293; // Pass 2376: Y tremor 10.76→14.5 — Pass 2596: 14.5→19.6 — Pass 2857: 19.6→26.5 — Pass 3035: 26.5→35.8 — Pass 3225: 35.8→48.3 — Pass 3391: 48.3→65.2 — Pass 3507: 65.2→88.0 — Pass 3748: 88.0→119 — Pass 3856: 119→161 — Pass 4084: 161→217 — Pass 5562: 217→293 stronger deflect Y tremor
     activeCard.position.set(cx, cy + _yTremor488, cz + _zTremor);
     const bankSign = Math.sign(ct.slotZ || 0);
     const floorTilt = ct.floor === 1 ? 0.365 : -0.1; // upper: nose up; lower: nose down // Pass 4893: floor-1 guided deflect arc nose-up tilt 0.20→0.27 — Pass 5559: 0.27→0.365 steeper floor-1 nose-up tilt
@@ -3978,7 +3978,7 @@ function animate(ts) {
     // Pass 73: Z tumble from paddle whack — peaks at mid-arc, then settles
     // Pass 317: deflect tumble distance scaling — outer columns tumble harder (steeper deflect angle)
     // Pass 759: tumble base 0.65→0.82 — Pass 1187: →1.15 — Pass 1254: →1.40 for even more dramatic card spin mid-arc
-    const _tumbleAmp = 51.2 + Math.abs(ct.slotZ) / 131.6 * 1.13; // Pass 2378: tumble base 3.44→4.64, scaling 0.46→0.62 — Pass 2598: 4.64→6.26, 0.62→0.84 — Pass 2859: base 6.26→8.45 — Pass 3038: 8.45→11.4 — Pass 3226: 11.4→15.4 — Pass 3392: 15.4→20.8 — Pass 3508: 20.8→28.1 — Pass 3999: 28.1→37.9 — Pass 4312: 37.9→51.2 wider tumble spin arc — Pass 4469: outer scaling 0.84→1.13 harder outer-column tumble — Pass 4517: card tumble inner-column factor 97.5→131.6 tighter outer-column tumble scaling
+    const _tumbleAmp = 69.1 + Math.abs(ct.slotZ) / 131.6 * 1.13; // Pass 2378: tumble base 3.44→4.64, scaling 0.46→0.62 — Pass 2598: 4.64→6.26, 0.62→0.84 — Pass 2859: base 6.26→8.45 — Pass 3038: 8.45→11.4 — Pass 3226: 11.4→15.4 — Pass 3392: 15.4→20.8 — Pass 3508: 20.8→28.1 — Pass 3999: 28.1→37.9 — Pass 4312: 37.9→51.2 wider tumble spin arc — Pass 4469: outer scaling 0.84→1.13 harder outer-column tumble — Pass 4517: card tumble inner-column factor 97.5→131.6 tighter outer-column tumble scaling — Pass 5563: tumble base 51.2→69.1 wilder card tumble arc
     const _tumblePeak = bankSign * _tumbleAmp; // center-slot (bankSign=0) gets no roll
     // Pass 166: air turbulence flutter — 23Hz micro-wobble, strongest at arc peak
     // Pass 353: flutter 0.020→0.030 — Pass 613: add 17Hz harmonic — Pass 760: primary 0.030→0.042, secondary 0.014→0.020 — Pass 1188: primary →0.062, secondary →0.032 — Pass 1256: primary →0.082, secondary →0.042 for more flutter micro-wobble
@@ -4130,7 +4130,7 @@ function animate(ts) {
     // Pass 169: aerodynamic fall lean — card noses down during gravity fall, peaks at midpoint
     if (ct.floor === 0 && dt3 >= 0.88) {
       const _bT = (dt3 - 0.88) / 0.12;
-      activeCard.rotation.x = 0.365 * Math.sin(_bT * Math.PI); // Pass 356: bounce pitch boost 0.14 → 0.20 — Pass 3988: 0.20→0.270 — Pass 4403: 0.270→0.365 snappier landing bounce pitch
+      activeCard.rotation.x = 0.493 * Math.sin(_bT * Math.PI); // Pass 356: bounce pitch boost 0.14 → 0.20 — Pass 3988: 0.20→0.270 — Pass 4403: 0.270→0.365 snappier landing bounce pitch — Pass 5564: 0.365→0.493 stronger slot landing bounce pitch
     } else if (ct.floor === 0) {
       // Aerodynamic drag: nose-down lean proportional to fall velocity (bell curve)
       activeCard.rotation.x = -0.095 * Math.sin(dt3 / 0.88 * Math.PI); // Pass 4692: aerodynamic fall nose-down lean 0.07→0.095 deeper gravity fall lean
@@ -4738,7 +4738,7 @@ function animate(ts) {
       const _prox = Math.max(0, 1 - _dist / 759); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228 — Pass 3109: 228→308 — Pass 3281: 308→416 — Pass 3359: 416→562 — Pass 4742: 562→759 wider conveyor roller glow range
       const _targetI = _prox * 76.5;              // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30 — Pass 2762: 9.30→12.6 — Pass 2900: 12.6→17.0 — Pass 3110: 17.0→23.0 — Pass 3282: 23.0→31.1 — Pass 3360: 31.1→42.0 — Pass 4389: 42.0→56.7 brighter conveyor roller proximity glow — Pass 5391: 56.7→76.5 brighter conveyor roller proximity glow
       rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 6.75)); // Pass 4830: roller domain color tracking rate 5→6.75
-      rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 4465: roller emissive tracking rate 6→8.1 snappier proximity glow — Pass 5569: 8.1→10.9 snappier roller proximity glow tracking
+      rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 10.9); // Pass 4465: roller emissive tracking rate 6→8.1 snappier proximity glow — Pass 5576: 8.1→10.9 snappier roller proximity glow tracking
     });
   }
 
@@ -4881,9 +4881,9 @@ function animate(ts) {
     // Pass 221: stronger Z pre-roll in last 20% of conveyorOut — card commits to its lane,
     // camera follows more eagerly (ramps from 0.25 → 0.65 of slotZ in the final stretch).
     const _coRaw = inPhase(PH.conveyorOut) ? phaseRaw(PH.conveyorOut) : 0;
-    const _coZBoost = inPhase(PH.conveyorOut) ? 5.99 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0; // Pass 2540: conveyorOut Z lean boost 0.40→0.54 — Pass 2680: 0.54→0.73 — Pass 2776: 0.73→0.99 — Pass 2910: 0.99→1.34 — Pass 3121: 1.34→1.81 — Pass 3292: 1.81→2.44 — Pass 3611: 2.44→3.29 — Pass 4157: 3.29→4.44 more committed lean — Pass 5570: 4.44→5.99 more committed camera Z lean
+    const _coZBoost = inPhase(PH.conveyorOut) ? 5.99 * Math.max(0, (_coRaw - 0.80) / 0.20) : 0; // Pass 2540: conveyorOut Z lean boost 0.40→0.54 — Pass 2680: 0.54→0.73 — Pass 2776: 0.73→0.99 — Pass 2910: 0.99→1.34 — Pass 3121: 1.34→1.81 — Pass 3292: 1.81→2.44 — Pass 3611: 2.44→3.29 — Pass 4157: 3.29→4.44 more committed lean — Pass 5577: 4.44→5.99 more committed camera Z lean
     // Pass 297: slotDrop Z camera lead boost — camera leans further into destination column as card falls — Pass 1608: 0.20→0.28
-    const _sdZBoost = inPhase(PH.slotDrop) ? 4.20 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38 — Pass 2681: 0.38→0.51 — Pass 2777: 0.51→0.69 — Pass 2911: 0.69→0.93 — Pass 3122: 0.93→1.26 — Pass 3293: 1.26→1.70 — Pass 3621: 1.70→2.30 — Pass 4158: 2.30→3.11 deeper slot lean — Pass 5571: 3.11→4.20 deeper slot drop camera Z lean
+    const _sdZBoost = inPhase(PH.slotDrop) ? 4.20 * easeInOut(Math.min(1, phaseRaw(PH.slotDrop) / 0.50)) : 0; // Pass 2532: slotDrop Z lead 0.28→0.38 — Pass 2681: 0.38→0.51 — Pass 2777: 0.51→0.69 — Pass 2911: 0.69→0.93 — Pass 3122: 0.93→1.26 — Pass 3293: 1.26→1.70 — Pass 3621: 1.70→2.30 — Pass 4158: 2.30→3.11 deeper slot lean — Pass 5578: 3.11→4.20 deeper slot drop camera Z lean
     const _destZ = (inPhase(PH.conveyorOut) || inPhase(PH.deflect) || inPhase(PH.slotDrop))
       ? ct.slotZ * (0.34 + _coZBoost + _sdZBoost) : 0; // Pass 4922: camera Z base lean 0.25→0.34 more committed destination follow
     if (!controls._camTgtZ) controls._camTgtZ = 0;
