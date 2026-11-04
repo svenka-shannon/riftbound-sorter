@@ -2545,7 +2545,7 @@ function animate(ts) {
       ? 28.6 + 8.07 * Math.abs(Math.sin(ts * 3 * Math.PI * 2)) : 0.60; // Pass 2523: halo emissive 3.5+1.8→4.73+2.43 — Pass 3554: 4.73+2.43→6.39+3.28 — Pass 3666: 6.39→8.63 — Pass 3667: 3.28→4.43 — Pass 3778: 8.63→11.6 — Pass 3779: 4.43→5.98 — Pass 4334: base 11.6→15.7 — Pass 4335: amp 5.98→8.07 brighter card halo — Pass 5062: base 15.7→21.2 brighter card halo — Pass 5196: 21.2→28.6 brighter card halo base emissive
     cardHaloMat.emissiveIntensity = _haloEmissive331;
     // Pass 332: halo radius breathe — ring slowly pulses in size during belt phases — Pass 1461: 0.04→0.06
-    const _haloScale332 = beltActive ? 1.0 + 0.363 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5464: 0.269→0.363 bigger card halo breathe rate
+    const _haloScale332 = beltActive ? 1.0 + 0.363 * Math.sin(ts * 3.38 * Math.PI * 2) : 1.0; // Pass 2527: halo breathe amp 0.06→0.081 — Pass 3911: 0.081→0.109 — Pass 4228: 0.109→0.147 stronger belt halo pulse — Pass 4470: halo breathe frequency 2.5→3.38 livelier halo pulse — Pass 4950: 0.147→0.199 bigger halo breathe pulse — Pass 5197: 0.199→0.269 bigger card halo breathe amplitude — Pass 5480: 0.269→0.363 bigger card halo breathe rate
     // Pass 333: gate-contact halo scale burst — Pass 432: boost 0.55 → 0.80 — Pass 1462: →1.10
     const _haloGatePulse333 = inPhase(PH.deflect) ? Math.exp(-phaseRaw(PH.deflect) * 18) * 4.94 : 0; // Pass 2524: halo gate pulse 1.10→1.49 — Pass 3912: 1.49→2.01 bigger gate slam halo burst — Pass 4289: 2.01→2.71 stronger gate contact halo — Pass 4951: 2.71→3.66 more dramatic gate slam halo burst — Pass 5198: 3.66→4.94 more dramatic gate slam halo burst
     cardHalo.scale.setScalar(_haloScale332 + _haloGatePulse333);
@@ -2859,7 +2859,7 @@ function animate(ts) {
       // Pass 677: deposit bounce 0.55→0.85 — Pass 765: →1.25 — Pass 1177: →1.80 — Pass 1245: →2.60 — Pass 1341: →3.60 for stronger spring at belt handoff
       // Pass 770: pivot Y sag 2.2→3.2 — Pass 1178: →4.5 — Pass 1246: →6.2 — Pass 1342: →8.5 for more weight feel during swing
       const _swingEndBounce = st > 0.88 ? 40.0 * Math.sin((st - 0.88) / 0.12 * Math.PI) : 0; // Pass 2276: armSwing end bounce 4.86→6.56 — Pass 3176: 6.56→8.86 — Pass 3575: 8.86→12.0 — Pass 3670: 12.0→16.2 — Pass 4190: 16.2→21.9 — Pass 4914: 21.9→29.6 bouncier deposit — Pass 5193: 29.6→40.0 bouncier arm deposit end-bounce
-      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 126 + _swingEndBounce; // Pass 2277: armSwing Y sag 11.5→15.5 — Pass 3177: 15.5→20.9 — Pass 3576: 20.9→28.2 — Pass 3671: 28.2→38.1 — Pass 4191: 38.1→51.4 — Pass 4915: 51.4→69.4 deeper weight sag — Pass 5194: 69.4→93.7 deeper arm swing weight sag — Pass 5469: 93.7→126 deeper arm extension Y amplitude
+      suctionPivot.position.y = 108 - Math.sin(st * Math.PI) * 126 + _swingEndBounce; // Pass 2277: armSwing Y sag 11.5→15.5 — Pass 3177: 15.5→20.9 — Pass 3576: 20.9→28.2 — Pass 3671: 28.2→38.1 — Pass 4191: 38.1→51.4 — Pass 4915: 51.4→69.4 deeper weight sag — Pass 5194: 69.4→93.7 deeper arm swing weight sag — Pass 5485: 93.7→126 deeper arm extension Y amplitude
       // Pass 181: cup glow fades out as card is deposited on belt (st=0 full → st=1 off)
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 7.3); // Pass 4646: arm swing vibration damping constant 4→5.4 snappier cup emissive fade during swing — Pass 5106: arm extension damping 5.4→7.3 snappier cup emissive fade during swing
       // Pass 40: arm swing arc trail — particles trace the card's arc from hopper to belt
@@ -3448,7 +3448,7 @@ function animate(ts) {
           // Pass 497: scan bar 65-85% tension base 1.5→1.8 — Pass 838: post-reveal base 2.2→3.0, peak 2.5→3.5
           const _baseI = barFill >= 0.85 ? 9.96 + flashIntensity * 8.63 : 5.98 + flashIntensity * 5.10; // Pass 2329: post-reveal base 4.05→5.47, flash 3.5→4.73; Pass 2330: tension base 2.43→3.28, flash 2.8→3.78 — Pass 4072: post-reveal base 5.47→7.38 — Pass 4073: tension base 3.28→4.43 brighter scan bar identity states — Pass 4592: scan bar post-reveal flash contribution 4.73→6.39 more vivid reveal emissive — Pass 5288: post-reveal base 7.38→9.96 — Pass 5289: post-reveal flash 6.39→8.63 — Pass 5290: tension base 4.43→5.98 — Pass 5291: tension flash 3.78→5.10
           // Pass 130: post-reveal breathing pulse — Pass 518: amplitude 0.30→0.48 — Pass 840: →0.75 — Pass 1343: →1.05
-          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 21.3 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50 — Pass 3559: 3.50→4.73 — Pass 3722: 4.73→6.39 — Pass 3829: 6.39→8.63 — Pass 4115: 8.63→11.7 — Pass 5292: 11.7→15.8 brighter post-reveal breathing pulse — Pass 5465: 15.8→21.3 brighter card reveal breathe rate
+          const _barBreath = _identityRevealed ? Math.abs(Math.sin(ts * 3 * Math.PI * 2)) * 21.3 : 0; // Pass 2331: post-reveal breathing 1.42→1.92 — Pass 2835: 1.92→2.59 — Pass 2980: 2.59→3.50 — Pass 3559: 3.50→4.73 — Pass 3722: 4.73→6.39 — Pass 3829: 6.39→8.63 — Pass 4115: 8.63→11.7 — Pass 5292: 11.7→15.8 brighter post-reveal breathing pulse — Pass 5481: 15.8→21.3 brighter card reveal breathe rate
           // Pass 207: scan bar completion superflash — Pass 533: 3.5→5.5 — Pass 839: →9.0 — Pass 1136: →14.0 — Pass 1327: →20.0 for bigger climax
           const _completionFlash = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 220 : 0; // Pass 2332: completion superflash 27.0→36.5 — Pass 2836: 36.5→49.3 — Pass 2981: 49.3→66.6 — Pass 3492: 66.6→89.9 — Pass 3708: 89.9→121 — Pass 4114: 121→163 blinding fill completion — Pass 5268: 163→220 blinding fill bar completion flash
           scanBarMat.emissiveIntensity = _baseI + _barBreath + _completionFlash;
@@ -3712,7 +3712,7 @@ function animate(ts) {
     if (!_convOutFlashFired) {
       _convOutFlashFired = true;
       // Bright domain-colored burst at scanner exit — Pass 427: 6.0→9.0 — Pass 552: →13.0 — Pass 687: →17.0 — Pass 772: →23.0 — Pass 1139: →32.0 — Pass 1219: →45.0 — Pass 1292: →62.0
-      const _cofl = new THREE.PointLight(ct.hex, 1682, 216); // Pass 2568: scanner exit flash 152.6→206.0 — Pass 3008: 206.0→278.1 — Pass 3204: 278.1→375.4 — Pass 3581: 375.4→507 — Pass 3676: 507→684 — Pass 3790: 684→923 — Pass 3893: 923→1246 — Pass 4724: intensity 1246→1682 — Pass 4725: range 160→216 brighter scanner exit burst
+      const _cofl = new THREE.PointLight(ct.hex, 2271, 216); // Pass 2568: scanner exit flash 152.6→206.0 — Pass 3008: 206.0→278.1 — Pass 3204: 278.1→375.4 — Pass 3581: 375.4→507 — Pass 3676: 507→684 — Pass 3790: 684→923 — Pass 3893: 923→1246 — Pass 4724: intensity 1246→1682 — Pass 4725: range 160→216 brighter scanner exit burst — Pass 5462: intensity 1682→2271 brighter scanner exit flash burst
       _cofl.position.set(-40, CONV_Y_TOP + 15, 0);
       scene.add(_cofl);
       if (!window._flashLights) window._flashLights = [];
@@ -3885,7 +3885,7 @@ function animate(ts) {
     // Pass 34: gate contact flash — Pass 409: 5.5→8.0 — Pass 780: 8.0→13.0 — Pass 916: →19.0 — Pass 1074: →27.0 — Pass 1179: →38.0 — Pass 1564: →52.0, dist→150 for bigger paddle hit
     if (!_gateFlashFired) {
       _gateFlashFired = true;
-      const _gfl = new THREE.PointLight(ct.hex, 1046, 150); // Pass 2367: gate contact flash 94.8→128.0 — Pass 2584: 128.0→172.8 — Pass 2845: 172.8→233.3 — Pass 3024: 233.3→315.0 — Pass 3217: 315.0→425.3 — Pass 3386: 425.3→574.2 — Pass 3517: 574.2→775 — Pass 4728: 775→1046 brighter paddle smack flash
+      const _gfl = new THREE.PointLight(ct.hex, 1412, 150); // Pass 2367: gate contact flash 94.8→128.0 — Pass 2584: 128.0→172.8 — Pass 2845: 172.8→233.3 — Pass 3024: 233.3→315.0 — Pass 3217: 315.0→425.3 — Pass 3386: 425.3→574.2 — Pass 3517: 574.2→775 — Pass 4728: 775→1046 brighter paddle smack flash — Pass 5463: 1046→1412 stronger gate paddle smack flash
       _gfl.position.set(GATE_X, CONV_Y_TOP + 8, ct.slotZ * 0.15);
       scene.add(_gfl);
       if (!window._flashLights) window._flashLights = [];
@@ -4249,9 +4249,9 @@ function animate(ts) {
           _puffZ + (Math.random() - 0.5) * 21.9 // Pass 4631: landing puff initial Z spawn spread 12→16.2 wider Z footprint — Pass 5454: 16.2→21.9 wider landing puff Z footprint
         );
         _pp.mesh.visible = true;
-        _pp.vx = (Math.random() - 0.5) * 68.9; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread — Pass 5462: 51.0→68.9 wider landing puff vx spread
+        _pp.vx = (Math.random() - 0.5) * 68.9; // Pass 1489: 20→28 — Pass 3968: 28→37.8 — Pass 4404: 37.8→51.0 wider landing puff X spread — Pass 5478: 51.0→68.9 wider landing puff vx spread
         _pp.vy = 1216 + Math.random() * 795; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589 — Pass 4454: base 667→901 stronger slot entry air puff loft — Pass 4597: landing puff vy rand range 589→795 bigger slot entry loft burst — Pass 5253: landing puff vy base 901→1216 stronger slot entry loft
-        _pp.vz = (Math.random() - 0.5) * 133; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread — Pass 5466: 98.4→133 wider landing puff vz spread
+        _pp.vz = (Math.random() - 0.5) * 133; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 — Pass 4455: 54.0→72.9 wider landing puff Z spread — Pass 5320: 72.9→98.4 wider landing puff vz spread — Pass 5482: 98.4→133 wider landing puff vz spread
         // Pale tint: blend 55% toward white so they read as "air"
         _pp.mat.color.setRGB(
           Math.min(1, _rr / 255 * 0.61 + 0.55), // Pass 4860: landing puff domain tint 0.45→0.61
@@ -4596,7 +4596,7 @@ function animate(ts) {
     // Pass 1058: breathing base 0.12→0.20, amp 0.07→0.14 for more visible scanner idle pulse
     {
       const _breathe = 5.40 + 6.94 * Math.sin(ts * 2.2); // Pass 2419: standby base 0.36→0.49 Pass 2420: amp 0.26→0.35 — Pass 2655: 0.49→0.66, 0.35→0.47 — Pass 2885/2886: 0.66→0.89, 0.47→0.63 — Pass 3093: 0.89→1.20, 0.63→0.85 — Pass 3269: 1.20+0.85→1.62+1.15 — Pass 3609: base 1.62→2.19, amp 1.15→1.55 — Pass 4347: base 2.19→2.96 — Pass 4348: amp 1.55→2.09 — Pass 4709: base 2.96→4.00 — Pass 4710: amp 2.09→2.82 brighter standby breathe — Pass 5296: scanner idle rotation breathe amplitude 2.82→3.81 deeper standby pulse — Pass 5316: base 4.00→5.40 brighter scanner standby breathe base — Pass 5337: amp 3.81→5.14 deeper scanner standby breathe amplitude — Pass 5349: 5.14→6.94 deeper scanner idle hover breathe amplitude
-      scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6.16); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse — Pass 5394: 3.38→4.56 snappier scanner idle LED breathe tracking — Pass 5467: 4.56→6.16 snappier idle scan LED breathe tracking rate
+      scanLEDMat.emissiveIntensity += (_breathe - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 6.16); // Pass 4415: idle scanner LED breathe tracking 2.5→3.38 snappier standby pulse — Pass 5394: 3.38→4.56 snappier scanner idle LED breathe tracking — Pass 5483: 4.56→6.16 snappier idle scan LED breathe tracking rate
       hoodMat.emissive.lerp(new THREE.Color(0x001122), Math.min(1, dt * 2.03)); // Pass 4824: hood standby emissive color tracking rate 1.5→2.03
       hoodMat.emissiveIntensity += (_breathe * 6.26 - hoodMat.emissiveIntensity) * Math.min(1, dt * 2.70); // Pass 3636: hood breathe multiplier 1.4→1.89 — Pass 4349: 1.89→2.55 — Pass 4711: 2.55→3.44 brighter scanner hood idle glow — Pass 4433: hood breathe tracking 2→2.70 snappier scanner idle breathe — Pass 5142: 3.44→4.64 brighter scanner head idle emissive breathe — Pass 5395: 4.64→6.26 brighter scanner hood idle breathe multiplier
     }
@@ -4827,7 +4827,7 @@ function animate(ts) {
 
   // Camera auto-orbit: ellipse + phase-aware target drift + card tracking
   if(!controls.enableRotate || !controls._userInteracted) {
-    const orbitAngle = ts * 0.000147 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit — Pass 5423: 0.000081→0.000109 faster cinematic orbit — Pass 5463: 0.000109→0.000147 faster slot approach orbit speed boost
+    const orbitAngle = ts * 0.000147 + Math.PI * 0.3; // phase offset for 3/4 front view — Pass 4885: orbit angle speed 0.00006→0.000081 faster cinematic orbit — Pass 5423: 0.000081→0.000109 faster cinematic orbit — Pass 5479: 0.000109→0.000147 faster slot approach orbit speed boost
     // Orbit radius tightens slightly during scan for closer scanner view
     // Pass 296: armSwing orbit tighten — camera pulls in during arm sweep for dramatic close view
     // Pass 495: deflect orbit tighten to 700 for better card-arc visibility during flight
@@ -5117,7 +5117,7 @@ function animate(ts) {
   // Pass 513: expansion speed boost 3.5→5.0 for snappier grab ring
   if (_grabRingT >= 0) {
     // Pass 939: grab ring expansion speed dt*5.0→dt*3.5 — Pass 1037: →dt*2.6 — Pass 1436: →dt*2.0 for longer visible ring
-    _grabRingT = Math.min(1, _grabRingT + dt * 73.0); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0 — Pass 3534: 22.0→29.7 — Pass 4088: 29.7→40.1 snappier suction grab — Pass 5372: 40.1→54.1 snappier suction grab ring — Pass 5468: 54.1→73.0 faster slot entry LED ring scale speed
+    _grabRingT = Math.min(1, _grabRingT + dt * 73.0); // Pass 2497: grab ring speed 3.65→4.93 — Pass 2705: 4.93→6.66 — Pass 2801: 6.66→8.99 — Pass 2933: 8.99→12.1 — Pass 3312: 12.1→16.3 — Pass 3421: 16.3→22.0 — Pass 3534: 22.0→29.7 — Pass 4088: 29.7→40.1 snappier suction grab — Pass 5372: 40.1→54.1 snappier suction grab ring — Pass 5484: 54.1→73.0 faster slot entry LED ring scale speed
     // Pass 938: grab ring max scale 5.0→8.5 — Pass 1036: →13.0 — Pass 1437: →18.0 — Pass 1540: →25.0 for wider domain ring burst at pick
     const _grs = 1.0 + easeOut(_grabRingT) * 918.5; // Pass 2492: grab ring max scale 45.6→61.6 — Pass 2706: 61.6→83.2 — Pass 2802: 83.2→112.3 — Pass 2934: 112.3→151.6 — Pass 3141: 151.6→204.7 — Pass 3313: 204.7→276.3 — Pass 3422: 276.3→373.0 — Pass 3535: 373.0→504 — Pass 4089: 504→680.4 wider suction burst — Pass 5373: 680.4→918.5 wider suction burst ring
     grabRing.scale.setScalar(_grs);
