@@ -2342,13 +2342,13 @@ function animate(ts) {
           c.position.set(HOPPER_X + 33, CARD_T/2 + 6 + i * (CARD_T + 0.5), 0);
         });
         // Pass 49: hopper refill flash — Pass 1013: 5.5→9.5 — Pass 1393: →14.0 for bigger batch-loaded burst — Pass 1583: →20.0, dist→300
-        const _rfl = new THREE.PointLight(0xfff0cc, 20.0, 300);
+        const _rfl = new THREE.PointLight(0xfff0cc, 27.0, 300); // Pass 3969: hopper refill flash 20.0→27.0 bigger batch-loaded burst
         _rfl.position.set(HOPPER_X + 33, 160, 0);
         scene.add(_rfl);
         if (!window._flashLights) window._flashLights = [];
         window._flashLights.push({ light: _rfl, age: 0, peak: _rfl.intensity });
         // Spike the hopper light for visual emphasis — Pass 1014: 2.5→5.0
-        hopperLight.intensity = 5.0;
+        hopperLight.intensity = 6.75; // Pass 3970: hopper spike 5.0→6.75 brighter refill flash
         hopperLight.color.set(0xfff0cc);
       }
     }
@@ -2464,7 +2464,7 @@ function animate(ts) {
     // Pass 146: spring overshoot — bar bounces slightly when a new card arrives
     if (!bar._springVel) bar._springVel = 0;
     const _springDiff = targetScaleY - bar.scale.y;
-    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.14; // Pass 1645: k=0.10→0.14 snappier spring
+    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.189; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring
     bar.scale.y = Math.max(0.01, Math.min(1.18, bar.scale.y + bar._springVel));
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
@@ -3063,7 +3063,7 @@ function animate(ts) {
     // Pass 888: early detect amplitude 0.5→0.8 for stronger card-entering-field detection
     const _warmupT = Math.max(0, (ct2 - 0.80) / 0.20); // 0→1 in last 20%
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
-      ? (ct2 - 0.60) / 0.20 * 1.10 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10
+      ? (ct2 - 0.60) / 0.20 * 1.49 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10 — Pass 3967: 1.10→1.49 stronger card-entering-field detection
     // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 — Pass 1306: →10.5 for more vivid warmup before scan
     const _ledWarmTarget = 0.3 + _warmupT * 19.2 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 brighter LED pre-warm before scan
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 5);
@@ -3415,7 +3415,7 @@ function animate(ts) {
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
             // Pass 958: burst life 0.36+0.24→0.52+0.32 for longer-lived reveal particles
-            _bp.active = true; _bp.age = 0; _bp.life = 0.95 + Math.random() * 0.58; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58
+            _bp.active = true; _bp.age = 0; _bp.life = 1.28 + Math.random() * 0.783; // Pass 2325: confirm burst life 0.70+0.43→0.95+0.58 — Pass 3965: 0.95+0.58→1.28+0.783 longer reveal burst
             _bp.mesh.position.set(_bx + (Math.random()-0.5)*8, _by, _bz + (Math.random()-0.5)*8);
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 18) * Math.PI * 2 + Math.random() * 0.8;
@@ -4248,7 +4248,7 @@ function animate(ts) {
           _puffZ + (Math.random() - 0.5) * 12
         );
         _pp.mesh.visible = true;
-        _pp.vx = (Math.random() - 0.5) * 28; // Pass 1489: 20→28 wider spread
+        _pp.vx = (Math.random() - 0.5) * 37.8; // Pass 1489: 20→28 — Pass 3968: 28→37.8 wider landing puff X spread
         _pp.vy = 667 + Math.random() * 589; // Pass 2391: puff vy 110+97→149+131 — Pass 2622: 149+131→201+177 — Pass 2862/2863: 201+177→271+239 — Pass 3061: 271+239→366+323 — Pass 3572: 366+323→494+436 — Pass 3730: 494+436→667+589
         _pp.vz = (Math.random() - 0.5) * 54.0; // Pass 2124: puff vz spread 30→40 — Pass 3942: 40→54.0 wider landing puff
         // Pale tint: blend 55% toward white so they read as "air"
@@ -5269,7 +5269,7 @@ function animate(ts) {
     const _tt = tp.age / tp.life;
     if (_tt >= 1) { tp.active = false; tp.mesh.visible = false; tp.mat.opacity = 0; return; }
     tp.mesh.position.y += dt * (44.4 + _tt * 65.6); // Pass 2510: trail buoyancy base 7.3→9.9 Pass 2511: ramp 10.9→14.7 — Pass 2715: 9.9→13.4, 14.7→19.8 — Pass 2947/2948: 13.4+19.8→18.1+26.7 — Pass 3153: base 18.1→24.4 Pass 3154: ramp 26.7→36.0 — Pass 3322: 24.4+36.0→32.9+48.6 — Pass 3495: base 32.9→44.4 Pass 3496: ramp 48.6→65.6
-    tp.mat.opacity = (1 - _tt) * 0.88; // Pass 1944: contrail particle opacity lifetime 0.65→0.88
+    tp.mat.opacity = (1 - _tt) * 1.19; // Pass 1944: contrail particle opacity lifetime 0.65→0.88 — Pass 3971: 0.88→1.19 brighter contrail at birth
     tp.mesh.scale.setScalar(Math.max(0.05, 1.0 - _tt * 6.10)); // Pass 2512: trail scale taper 1.01→1.36 — Pass 2716: 1.36→1.84 — Pass 2949: 1.84→2.48 — Pass 3155: 2.48→3.35 — Pass 3323: 3.35→4.52 — Pass 3497: 4.52→6.10
     // Pass 82: bleach toward cool white as particle ages (heat/energy dissipation effect)
     // Pass 236: arm-swing particles (_birthHex set) hold domain color for first 40% of life,
@@ -5296,7 +5296,7 @@ function animate(ts) {
     p.mesh.position.z += p.vz * dt;
     p.vy -= 607 * dt;       // Pass 2453: grab particle gravity 100.2→135.3 — Pass 2717: 135.3→182.7 — Pass 2951: 182.7→246.6 — Pass 3156: 246.6→332.9 — Pass 3327: 332.9→449.4 — Pass 3493: 449.4→607
     p.vx *= 1 - dt * 22.9; // Pass 2454: air resistance 5.10→6.89 — Pass 2718: 6.89→9.30 — Pass 2952: 9.30→12.6 — Pass 3328: 12.6→17.0 — Pass 3494: 17.0→22.9
-    p.vz *= 1 - dt * 17.0;
+    p.vz *= 1 - dt * 23.0; // Pass 3972: grab particle Z drag 17.0→23.0 tighter Z spread
     p.mat.opacity = (1 - _pt * _pt) * 1.00; // quadratic fade-out — Pass 1947: grab particle opacity 0.85→1.00
     p.mesh.scale.setScalar(Math.max(0.05, 1.0 - _pt * 0.95)); // Pass 341: grab particle scale taper — Pass 2719: 0.70→0.95
   });
