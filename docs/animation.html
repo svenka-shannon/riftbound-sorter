@@ -2361,8 +2361,8 @@ function animate(ts) {
     const _baseY = CARD_T / 2 + 6 + i * (CARD_T + 0.5);
     const _jPhase = i * 1.47; // stagger per card
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
-    const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 0.93 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.47; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47
+    const _jY = Math.sin(ts * 1.3 * Math.PI * 2 + _jPhase) * 1.26 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.63; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2405,7 +2405,7 @@ function animate(ts) {
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
       // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 — Pass 3783: →78.3 — Pass 3888: →106 for more physical slot landing
-      _yPos = a.targetY + 106 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35);
+      _yPos = a.targetY + 143 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.35); // Pass 4257: tray arrival bounce 106→143 more physical slot landing
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
@@ -2448,8 +2448,8 @@ function animate(ts) {
       f.age += dt;
       const _fPeak = f.peak || 3.0; // use stored creation intensity; fallback 3.0
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 5.41)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence
-      if(f.age > 5.41) { scene.remove(f.light); return false; }
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 7.30)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30
+      if(f.age > 7.30) { scene.remove(f.light); return false; }
       return true;
     });
   }
@@ -2464,11 +2464,11 @@ function animate(ts) {
     // Pass 146: spring overshoot — bar bounces slightly when a new card arrives
     if (!bar._springVel) bar._springVel = 0;
     const _springDiff = targetScaleY - bar.scale.y;
-    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.189; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring
+    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.255; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255
     bar.scale.y = Math.max(0.01, Math.min(1.18, bar.scale.y + bar._springVel));
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
-    const _fbRest = 1.97 + 0.93 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93
+    const _fbRest = 2.66 + 1.26 * Math.abs(Math.sin(ts * 0.55 * Math.PI * 2 + idx * 0.7)); // Pass 2514: fill bar rest base 0.80→1.08 Pass 2515: amp 0.38→0.51 — Pass 3553: base 1.08→1.46, amp 0.51→0.69 — Pass 3665: base 1.46→1.97, amp 0.69→0.93 — Pass 4255: base 1.97→2.66 — Pass 4256: amp 0.93→1.26
     if(bar.material.emissiveIntensity > _fbRest + 0.06) {
       bar.material.emissiveIntensity *= 0.90;
       if(bar.material.emissiveIntensity < _fbRest) bar.material.emissiveIntensity = _fbRest;
@@ -2511,7 +2511,7 @@ function animate(ts) {
       const afterT = _ledCooloff[_li] / 5.1; // Pass 1650: updated to match new cooloff duration — Pass 3901: updated to match 5.1s duration
       mat.color.setHex(slotCt.hex);
       mat.emissive.setHex(slotCt.hex);
-      mat.emissiveIntensity = 5.00 + afterT * 16.6; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6
+      mat.emissiveIntensity = 5.00 + afterT * 22.4; // Pass 2519: slot LED afterglow 1.5+5.0→2.03+6.75 — Pass 3443: base 2.03→2.74 — Pass 3444: ramp 6.75→9.11 — Pass 3701: base 2.74→3.70, ramp 9.11→12.3 — Pass 3814: base 3.70→5.00 — Pass 3815: ramp 12.3→16.6 — Pass 4261: ramp 16.6→22.4 brighter slot arrival afterglow
     } else {
       // Idle: resting domain color — Pass 830: idle glow 0.9→1.4 — Pass 1651: →1.9 brighter resting LEDs
       mat.color.setHex(slotCt.hex);
