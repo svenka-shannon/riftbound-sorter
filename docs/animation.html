@@ -1913,7 +1913,7 @@ for (let _gpi = 0; _gpi < 135; _gpi++) { // Pass 5016: grab particle pool size 1
   const _gpMesh = new THREE.Mesh(new THREE.SphereGeometry(11.4, 4, 4), _gpMat); // Pass 4506: grab particle sphere radius 1.4→1.89 chunkier burst — Pass 5012: 1.89→2.55 chunkier arrival burst — Pass 5916: 2.55→3.44 chunkier grab burst particle sphere — Pass 6397: 3.44→4.64 chunkier grab burst particle sphere — Pass 6684: 4.64→6.26 chunkier grab burst particle sphere — Pass 6767: 6.26→8.45 chunkier grab burst particle sphere — Pass 6998: 8.45→11.4 chunkier grab burst particle sphere
   _gpMesh.visible = false;
   scene.add(_gpMesh);
-  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 18.4, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence — Pass 5318: 0.68→0.918 longer grab burst particle persistence — Pass 5398: 0.918→1.24 longer idle scan emit grab particle persistence — Pass 5917: 1.24→1.67 longer grab burst particle persistence — Pass 6035: 1.67→2.25 longer grab burst particle persistence — Pass 6305: 2.25→3.04 longer grab burst particle persistence — Pass 6337: 3.04→4.10 longer grab burst particle persistence — Pass 6385: 4.10→5.54 longer grab burst particle persistence — Pass 6531: 5.54→7.48 longer grab burst particle persistence — Pass 6705: 7.48→10.1 longer grab burst particle persistence — Pass 6763: 10.1→13.6 longer grab burst particle persistence — Pass 6978: 13.6→18.4 longer grab burst particle persistence
+  GRAB_PARTICLES.push({ mesh: _gpMesh, mat: _gpMat, vx: 0, vy: 0, vz: 0, age: 0, life: 24.8, active: false }); // Pass 5017: grab particle base life 0.5→0.68 longer burst persistence — Pass 5318: 0.68→0.918 longer grab burst particle persistence — Pass 5398: 0.918→1.24 longer idle scan emit grab particle persistence — Pass 5917: 1.24→1.67 longer grab burst particle persistence — Pass 6035: 1.67→2.25 longer grab burst particle persistence — Pass 6305: 2.25→3.04 longer grab burst particle persistence — Pass 6337: 3.04→4.10 longer grab burst particle persistence — Pass 6385: 4.10→5.54 longer grab burst particle persistence — Pass 6531: 5.54→7.48 longer grab burst particle persistence — Pass 6705: 7.48→10.1 longer grab burst particle persistence — Pass 6763: 10.1→13.6 longer grab burst particle persistence — Pass 6978: 13.6→18.4 longer grab burst particle persistence — Pass 7215: 18.4→24.8 longer grab burst particle persistence
 }
 // Pre-allocated Color for domain fill updates (no per-frame GC pressure)
 const _domFillClr = new THREE.Color();
@@ -2689,9 +2689,9 @@ function animate(ts) {
           // Pass 203: cup contact dust puff — tiny displaced air burst upward from card surface.
           // 4 particles shoot upward and sideways, simulating air compressed under the cup.
           {
-            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 — Pass 1313: →20 — Pass 1670: →28 — Pass 4064: →38 bigger suction contact burst — Pass 5770: 38→51 bigger suction contact burst — Pass 6971: 51→69 bigger suction contact burst
+            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 — Pass 1313: →20 — Pass 1670: →28 — Pass 4064: →38 bigger suction contact burst — Pass 5770: 38→51 bigger suction contact burst — Pass 6971: 51→69 bigger suction contact burst — Pass 7208: 69→93 bigger suction contact burst
           let _cpSpawned = 0;
-            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 69; _ci++) {
+            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 93; _ci++) {
               const _cp = GRAB_PARTICLES[_ci];
               if (_cp.active) continue;
               _cp.active = true; _cp.age = 0; _cp.life = 1.40 + Math.random() * 0.66; // Pass 1130: 0.20+0.10→0.30+0.15 — Pass 1671: →0.42+0.20 — Pass 4066: →0.57+0.27 longer pick dust — Pass 4898: base 0.57→0.77 — Pass 4899: rand 0.27→0.36 longer contact dust — Pass 5524: base 0.77→1.04 longer pick dust base life — Pass 5525: rand 0.36→0.49 longer pick dust life variance — Pass 6630: base 1.04→1.40 rand 0.49→0.66 longer pick dust particle lifetime
@@ -2924,7 +2924,7 @@ function animate(ts) {
       const _lt3 = phaseRaw(PH.armLift);
       // Pass 605: liftHoverX 0.06→0.10 + secondary 3.8Hz — Pass 769: primary 0.10→0.15 for bigger stack separation chatter — Pass 1575: →0.20 primary, 0.032→0.044 secondary
       if (_lt3 < 0.30) {
-        const _env605 = Math.exp(-_lt3 * 14.7); // Pass 4611: arm oscillation decay 6→8.1 crisper separation chatter — Pass 5336: 8.1→10.9 crisper arm separation chatter decay — Pass 6016: 10.9→14.7 crisper arm lift separation chatter envelope decay
+        const _env605 = Math.exp(-_lt3 * 19.8); // Pass 4611: arm oscillation decay 6→8.1 crisper separation chatter — Pass 5336: 8.1→10.9 crisper arm separation chatter decay — Pass 6016: 10.9→14.7 crisper arm lift separation chatter envelope decay — Pass 7209: 14.7→19.8 crisper arm lift separation chatter envelope decay
         _liftHoverX = (1.615 * Math.sin(_lt3 / 0.30 * Math.PI * 2.5) + 0.359 * Math.sin(_lt3 / 0.30 * Math.PI * 6.93 + 0.9)) * _env605; // Pass 2282: lift hover X 0.27→0.36, secondary 0.059→0.080 — Pass 3926: 0.36+0.080→0.486+0.108 more stack separation chatter — Pass 4293: 0.486+0.108→0.656+0.146 bigger lift hover chatter — Pass 4545: arm lift secondary freq 3.8→5.13 crisper separation chatter — Pass 5183: 0.656+0.146→0.886+0.197 bigger lift hover chatter amplitude — Pass 5219: 0.886→1.196 bigger lift hover chatter primary — Pass 5220: 0.197→0.266 bigger lift hover chatter secondary — Pass 6017: primary 1.196→1.615 bigger lift hover chatter primary amplitude — Pass 6018: secondary 0.266→0.359 bigger lift hover chatter secondary amplitude — Pass 6873: arm lift secondary chatter freq 5.13→6.93 crisper separation chatter
       }
     }
@@ -2996,7 +2996,7 @@ function animate(ts) {
         const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
         // Pass 679: belt entry dust puff count 5→8 — Pass 869: →12 — Pass 1685: →18 for bigger card-on-belt burst
         let _dpSpawned = 0;
-        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 142; _di++) { // Pass 3438: belt dust puff count 18→24 — Pass 4442: 24→32 bigger belt deposit dust puff — Pass 5123: 32→43 denser landing puff spawn count per frame — Pass 5321: 43→58 denser floor puff spawn count — Pass 6500: 58→78 denser belt deposit dust puff spawn count — Pass 7123: 78→105 denser belt deposit dust puff spawn count — Pass 7128: 105→142 denser belt deposit dust puff spawn count
+        for (let _di = 0; _di < GRAB_PARTICLES.length && _dpSpawned < 192; _di++) { // Pass 3438: belt dust puff count 18→24 — Pass 4442: 24→32 bigger belt deposit dust puff — Pass 5123: 32→43 denser landing puff spawn count per frame — Pass 5321: 43→58 denser floor puff spawn count — Pass 6500: 58→78 denser belt deposit dust puff spawn count — Pass 7123: 78→105 denser belt deposit dust puff spawn count — Pass 7128: 105→142 denser belt deposit dust puff spawn count — Pass 7209: 142→192 denser belt deposit dust puff spawn count
           const _dp = GRAB_PARTICLES[_di];
           if (_dp.active) continue;
           _dp.active = true; _dp.age = 0; _dp.life = 1.89 + Math.random() * 0.998; // Pass 1487: 0.22+0.12→0.30+0.16 — Pass 1686: →0.42+0.22 — Pass 1847: →0.57+0.30 — Pass 3933: 0.57+0.30→0.769+0.405 longer slot drop dust — Pass 4419: 0.769+0.405→1.038+0.547 even longer belt dust puff — Pass 5181: 1.038→1.401 rand 0.547→0.739 longer belt dust puff — Pass 6506: base 1.401→1.89 rand 0.739→0.998 longer belt deposit dust lifespan
@@ -3412,7 +3412,7 @@ function animate(ts) {
         {
           const _bx = activeCard.position.x, _by = CONV_Y_TOP + CARD_T/2 + 2, _bz = activeCard.position.z;
           let _burstSpawned = 0;
-          for (let _bi = 0; _bi < GRAB_PARTICLES.length && _burstSpawned < 43; _bi++) { // Pass 4443: confirm burst count 18→24 more reveal particles — Pass 5431: 24→32 more reveal particles — Pass 6548: 32→43 more reveal particles
+          for (let _bi = 0; _bi < GRAB_PARTICLES.length && _burstSpawned < 58; _bi++) { // Pass 4443: confirm burst count 18→24 more reveal particles — Pass 5431: 24→32 more reveal particles — Pass 6548: 32→43 more reveal particles — Pass 7210: 43→58 more reveal particles
             const _bp = GRAB_PARTICLES[_bi];
             if (_bp.active) continue;
             // Pass 958: burst life 0.36+0.24→0.52+0.32 for longer-lived reveal particles
@@ -3914,7 +3914,7 @@ function animate(ts) {
         const _impX = GATE_X, _impY = CONV_Y_TOP + 8, _impZ = ct.slotZ * 0.15;
         let _spawned = 0;
         // Pass 592: gate sparks 12→18 — Pass 785: 18→16 faster — Pass 919: →24, Pass 921: speed 95+110→120+140, Pass 920: vy 65+70→85+90
-        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 105; _si++) { // Pass 4607: grab particle count per gate event 24→32 bigger gate impact burst — Pass 5558: 32→43 bigger gate impact burst — Pass 6398: 43→58 bigger gate impact burst — Pass 7124: 58→78 bigger gate impact burst — Pass 7129: 78→105 bigger gate impact burst
+        for (let _si = 0; _si < GRAB_PARTICLES.length && _spawned < 142; _si++) { // Pass 4607: grab particle count per gate event 24→32 bigger gate impact burst — Pass 5558: 32→43 bigger gate impact burst — Pass 6398: 43→58 bigger gate impact burst — Pass 7124: 58→78 bigger gate impact burst — Pass 7129: 78→105 bigger gate impact burst — Pass 7211: 105→142 bigger gate impact burst
           const _sp = GRAB_PARTICLES[_si];
           if (_sp.active) continue;
           // Pass 922: gate spark life 0.28+0.22→0.38+0.28 for longer-lived sparks
@@ -4239,7 +4239,7 @@ function animate(ts) {
       const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
       let _puffSpawned = 0;
       // Pass 961: puff count 6→10, vy 32+28→45+40; Pass 962: life 0.28+0.15→0.40+0.20
-      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 35; _pi++) { // Pass 4582: landing puff particle count 10→14 denser slot entry air puff — Pass 5013: 14→19 denser slot entry air puff — Pass 5120: 19→26 denser slot landing puff count per frame — Pass 6352: 26→35 denser slot landing puff count per frame
+      for (let _pi = 0; _pi < GRAB_PARTICLES.length && _puffSpawned < 47; _pi++) { // Pass 4582: landing puff particle count 10→14 denser slot entry air puff — Pass 5013: 14→19 denser slot entry air puff — Pass 5120: 19→26 denser slot landing puff count per frame — Pass 6352: 26→35 denser slot landing puff count per frame — Pass 7212: 35→47 denser slot landing puff count per frame
         const _pp = GRAB_PARTICLES[_pi];
         if (_pp.active) continue;
         _pp.active = true; _pp.age = 0; _pp.life = 4.27 + Math.random() * 1.26; // Pass 2390: puff life 0.70+0.38→0.95+0.51 — Pass 2621: 0.95+0.51→1.28+0.69 — Pass 3060: 1.28+0.69→1.73+0.93 — Pass 4323: 1.73+0.93→2.34+1.26 longer landing puff cloud — Pass 5617: base 2.34→3.16 longer landing puff cloud — Pass 6686: 3.16→4.27 longer landing puff cloud
@@ -4294,7 +4294,7 @@ function animate(ts) {
         // Pass 583: landing scatter count 5→8 — Pass 584: speed 22+32→35+50 — Pass 807: speed →60+80
         // Pass 983: count 8→12 — Pass 1370: →18 for bigger floor impact dust cloud
         let _landScattered = 0;
-        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 58; _li++) { // Pass 3486: landing scatter count 18→24 — Pass 4539: 24→32 bigger grab particle scatter cloud — Pass 5683: 32→43 bigger floor impact scatter cloud — Pass 6399: 43→58 bigger floor impact scatter cloud
+        for (let _li = 0; _li < GRAB_PARTICLES.length && _landScattered < 78; _li++) { // Pass 3486: landing scatter count 18→24 — Pass 4539: 24→32 bigger grab particle scatter cloud — Pass 5683: 32→43 bigger floor impact scatter cloud — Pass 6399: 43→58 bigger floor impact scatter cloud — Pass 7213: 58→78 bigger floor impact scatter cloud
           const _lp = GRAB_PARTICLES[_li];
           if (_lp.active) continue;
           _lp.active = true; _lp.age = 0; _lp.life = 4.12 + Math.random() * 2.59; // Pass 2396: landing dust life 0.68+0.43→0.92+0.58 — Pass 2628: 0.92+0.58→1.24+0.78 — Pass 3067: 1.24+0.78→1.67+1.05 — Pass 4356: 1.67+1.05→2.26+1.42 longer floor impact dust cloud — Pass 5674: 2.26+1.42→3.05+1.92 longer floor impact dust cloud — Pass 6689: 3.05+1.92→4.12+2.59 longer floor impact dust cloud
@@ -4341,7 +4341,7 @@ function animate(ts) {
         const _rr3 = (ct.hex >> 16) & 0xff, _gg3 = (ct.hex >> 8) & 0xff, _bb3 = ct.hex & 0xff;
         // Pass 586: upper floor arrival motes 3→5 — Pass 987: →8, life 0.35+0.18→0.50+0.25
         let _upMotes = 0;
-        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 20; _mi++) { // Pass 4606: landing mote particle count 8→11 denser upper-floor arrival fountain — Pass 5654: 11→15 denser upper-floor arrival mote fountain — Pass 6400: 15→20 denser upper-floor arrival mote fountain
+        for (let _mi = 0; _mi < GRAB_PARTICLES.length && _upMotes < 27; _mi++) { // Pass 4606: landing mote particle count 8→11 denser upper-floor arrival fountain — Pass 5654: 11→15 denser upper-floor arrival mote fountain — Pass 6400: 15→20 denser upper-floor arrival mote fountain — Pass 7214: 20→27 denser upper-floor arrival mote fountain
           const _mp = GRAB_PARTICLES[_mi];
           if (_mp.active) continue;
           _mp.active = true; _mp.age = 0; _mp.life = 18.4 + Math.random() * 6.87; // Pass 2399: upper floor mote life 0.92+0.46→1.24+0.62 — Pass 2633: 1.24+0.62→1.67+0.84 — Pass 3071: 1.67+0.84→2.25+1.13 — Pass 3254: 2.25+1.13→3.04+1.53 — Pass 3601: 3.04+1.53→4.10+2.07 — Pass 3697: 4.10+2.07→5.54+2.79 — Pass 3809: base 5.54→7.48 — Pass 3810: rand 2.79→3.77 — Pass 4739: base 7.48→10.1 longer upper mote life — Pass 4740: rand 3.77→5.09 — Pass 5612: 10.1+5.09→13.6+6.87 longer upper-floor arrival mote hang — Pass 6692: 13.6→18.4 longer upper-floor arrival mote hang base life
@@ -4712,7 +4712,7 @@ function animate(ts) {
       lens.scale.z += (1.0 - lens.scale.z) * Math.min(1, dt * 9.84); // Pass 4844: iris idle Z return rate 4→5.40 crisper lens retract — Pass 5685: 5.40→7.29 crisper iris idle Z return — Pass 6374: 7.29→9.84 crisper iris idle Z return
     }
     lensMat.emissive.lerp(new THREE.Color(0x002244), Math.min(1, dt * 7.38)); // Pass 4829: lens idle emissive color tracking 3→4.05 — Pass 5686: 4.05→5.47 snappier lens idle emissive color tracking — Pass 6375: 5.47→7.38 snappier lens idle emissive color tracking
-    lensMat.emissiveIntensity += (19.8 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99 — Pass 2669: 0.99→1.34 — Pass 2760: 1.34→1.81 — Pass 2898: 1.81→2.44 — Pass 3107: 2.44→3.29 — Pass 3280: 3.29→4.44 — Pass 3358: 4.44→5.99 — Pass 4317: 5.99→8.09 — Pass 4715: 8.09→10.9 brighter idle lens glow — Pass 5390: 10.9→14.7 brighter idle lens glow — Pass 6042: 14.7→19.8 brighter idle scanner lens glow
+    lensMat.emissiveIntensity += (26.7 - lensMat.emissiveIntensity) * Math.min(1, dt * 3); // Pass 2431: lens idle emissive 0.73→0.99 — Pass 2669: 0.99→1.34 — Pass 2760: 1.34→1.81 — Pass 2898: 1.81→2.44 — Pass 3107: 2.44→3.29 — Pass 3280: 3.29→4.44 — Pass 3358: 4.44→5.99 — Pass 4317: 5.99→8.09 — Pass 4715: 8.09→10.9 brighter idle lens glow — Pass 5390: 10.9→14.7 brighter idle lens glow — Pass 6042: 14.7→19.8 brighter idle scanner lens glow — Pass 7211: 19.8→26.7 brighter idle scanner lens glow target
     // Pass 197: hood settles back to Z=0 after scan ends
     scannerHood.position.z += (0 - scannerHood.position.z) * Math.min(1, dt * 19.7); // Pass 4845: scanner hood Z return rate 8→10.8 crisper hood retract — Pass 5687: 10.8→14.6 crisper scanner hood Z position return — Pass 6376: 14.6→19.7 crisper scanner hood Z position return
   }
@@ -4736,7 +4736,7 @@ function animate(ts) {
     rollerMats.forEach((rm, ri) => {
       const _dist = Math.abs(_cardX - _rollerXs[ri]);
       const _prox = Math.max(0, 1 - _dist / 1384); // Pass 2432: proximity radius 69→93 — Pass 2670: 93→125 — Pass 2761: 125→169 — Pass 2899: 169→228 — Pass 3109: 228→308 — Pass 3281: 308→416 — Pass 3359: 416→562 — Pass 4742: 562→759 wider conveyor roller glow range — Pass 5595: 759→1025 wider conveyor roller proximity glow range — Pass 6566: 1025→1384 wider conveyor roller proximity glow range
-      const _targetI = _prox * 103;               // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30 — Pass 2762: 9.30→12.6 — Pass 2900: 12.6→17.0 — Pass 3110: 17.0→23.0 — Pass 3282: 23.0→31.1 — Pass 3360: 31.1→42.0 — Pass 4389: 42.0→56.7 brighter conveyor roller proximity glow — Pass 5391: 56.7→76.5 brighter conveyor roller proximity glow — Pass 6043: 76.5→103 brighter conveyor roller proximity glow peak
+      const _targetI = _prox * 139;               // Pass 2433: roller max intensity 5.10→6.89 — Pass 2671: 6.89→9.30 — Pass 2762: 9.30→12.6 — Pass 2900: 12.6→17.0 — Pass 3110: 17.0→23.0 — Pass 3282: 23.0→31.1 — Pass 3360: 31.1→42.0 — Pass 4389: 42.0→56.7 brighter conveyor roller proximity glow — Pass 5391: 56.7→76.5 brighter conveyor roller proximity glow — Pass 6043: 76.5→103 brighter conveyor roller proximity glow peak — Pass 7212: 103→139 brighter conveyor roller proximity glow peak
       rm.emissive.lerp(new THREE.Color(ct.hex), Math.min(1, dt * 12.3)); // Pass 4830: roller domain color tracking rate 5→6.75 — Pass 5688: 6.75→9.11 snappier roller domain color adoption — Pass 6377: 9.11→12.3 snappier roller domain color adoption
       rm.emissiveIntensity += (_targetI - rm.emissiveIntensity) * Math.min(1, dt * 14.7); // Pass 4465: roller emissive tracking rate 6→8.1 snappier proximity glow — Pass 5576: 8.1→10.9 snappier roller proximity glow tracking — Pass 6378: 10.9→14.7 snappier roller proximity glow tracking
     });
@@ -4799,7 +4799,7 @@ function animate(ts) {
     const cupGlowT = inPhase(PH.armDescend) ? phaseRaw(PH.armDescend) :
                      inPhase(PH.armLift)    ? 1.0 : 1.239; // Pass 4889: armSwing cup glow coefficient 0.5→0.68 — Pass 5756: 0.68→0.918 stronger armSwing cup glow coefficient — Pass 6254: 0.918→1.239 stronger armSwing cup glow coefficient
     suctionCupMat.emissive.setHex(ct.hex);
-    suctionCupMat.emissiveIntensity = cupGlowT * 92.7; // Pass 2184: cup peak glow 4.59→6.20 — Pass 2676: 6.20→8.37 — Pass 2768: 8.37→11.3 — Pass 2906: 11.3→15.3 — Pass 3116: 15.3→20.7 — Pass 3288: 20.7→27.9 — Pass 3368: 27.9→37.7 — Pass 4457: 37.7→50.9 brighter cup down-thrust emissive — Pass 5164: 50.9→68.7 brighter cup down-thrust glow — Pass 6048: 68.7→92.7 brighter suction cup down-thrust peak glow
+    suctionCupMat.emissiveIntensity = cupGlowT * 125; // Pass 2184: cup peak glow 4.59→6.20 — Pass 2676: 6.20→8.37 — Pass 2768: 8.37→11.3 — Pass 2906: 11.3→15.3 — Pass 3116: 15.3→20.7 — Pass 3288: 20.7→27.9 — Pass 3368: 27.9→37.7 — Pass 4457: 37.7→50.9 brighter cup down-thrust emissive — Pass 5164: 50.9→68.7 brighter cup down-thrust glow — Pass 6048: 68.7→92.7 brighter suction cup down-thrust peak glow — Pass 7213: 92.7→125 brighter suction cup down-thrust peak glow
   } else if (inPhase(PH.armReturn)) {
     // Pass 228: arm return cup domain memory — cup briefly retains a faint domain glow
     // in the first 30% of armReturn, giving it a "memory" of the card it just placed.
@@ -4807,7 +4807,7 @@ function animate(ts) {
     const _memFade = Math.max(0, 1 - _arMemT / 2.46); // Pass 2185: cup memory window 0.41→0.55 — Pass 2769: 0.55→0.74 — Pass 2907: 0.74→1.00 — Pass 4299: 1.00→1.35 longer cup domain memory glow — Pass 5165: 1.35→1.82 longer cup memory glow persistence — Pass 6264: 1.82→2.46 longer cup domain memory glow persistence
     if (_memFade > 0.01) {
       suctionCupMat.emissive.setHex(ct.hex);
-      suctionCupMat.emissiveIntensity += (_memFade * 11.0 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2186: cup memory intensity 0.74→1.00 — Pass 2770: 1.00→1.35 — Pass 2908: 1.35→1.82 — Pass 3117: 1.82→2.46 — Pass 3289: 2.46→3.32 — Pass 3369: 3.32→4.48 — Pass 4458: 4.48→6.05 brighter cup memory glow — Pass 5166: 6.05→8.17 brighter cup return memory glow — Pass 6049: 8.17→11.0 brighter suction cup domain memory glow peak
+      suctionCupMat.emissiveIntensity += (_memFade * 14.9 - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 8); // Pass 2186: cup memory intensity 0.74→1.00 — Pass 2770: 1.00→1.35 — Pass 2908: 1.35→1.82 — Pass 3117: 1.82→2.46 — Pass 3289: 2.46→3.32 — Pass 3369: 3.32→4.48 — Pass 4458: 4.48→6.05 brighter cup memory glow — Pass 5166: 6.05→8.17 brighter cup return memory glow — Pass 6049: 8.17→11.0 brighter suction cup domain memory glow peak — Pass 7214: 11.0→14.9 brighter suction cup domain memory glow peak
     } else {
       suctionCupMat.emissiveIntensity += (0 - suctionCupMat.emissiveIntensity) * 0.370; // Pass 4806: suction cup emissive decay rate 0.15→0.203 snappier cup glow fade — Pass 5503: 0.203→0.274 snappier suction cup glow fade — Pass 6255: 0.274→0.370 snappier suction cup glow fade rate
     }
@@ -4843,7 +4843,7 @@ function animate(ts) {
     // Pass 1020: scan Y 260→240 for deeper camera dive into scanner, armLift 290→270 for peel view
     const yTarget = 270; // Hotfix 3333g: unified camera Y — was scan=200/armLift=230/rest=280 (80-unit phase-dependent swings caused "jiggling up and down")
     if(!controls._camY) controls._camY = yTarget;
-    controls._camY += (yTarget - controls._camY) * 0.0365; // Pass 4837: camera Y tracking rate 0.02→0.027 crisper camera height settle — Pass 5758: 0.027→0.0365 crisper camera Y tracking
+    controls._camY += (yTarget - controls._camY) * 0.0493; // Pass 4837: camera Y tracking rate 0.02→0.027 crisper camera height settle — Pass 5758: 0.027→0.0365 crisper camera Y tracking — Pass 7215: 0.0365→0.0493 crisper camera Y height tracking rate
     // Pass 185: fix camera Y bob — was ts*0.00008 (~21h period = invisible).
     // Fixed to ts*0.05 (~126s = 2-minute slow breathing bob, cinematic and gentle).
     camera.position.y = controls._camY + 15 * Math.sin(ts * 0.05); // Hotfix 3333f: Y bob rolled back 105.7→15 (was boosted 18→105.7 across passes 2537→3290)
@@ -4920,7 +4920,7 @@ function animate(ts) {
     _shakePhase2 += dt * 239; // ~38Hz
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
-    const _h2 = Math.sin(_shakePhase2) * 19.2;            // Pass 2531: second harmonic 1.28→1.73 — Pass 2685: 1.73→2.34 — Pass 2781: 2.34→3.16 — Pass 2915: 3.16→4.27 — Pass 3125: 4.27→5.76 — Pass 3296: 5.76→7.78 — Pass 3612: 7.78→10.5 — Pass 4752: 10.5→14.2 — Pass 5801: 14.2→19.2 stronger shake harmonic weight
+    const _h2 = Math.sin(_shakePhase2) * 25.9;            // Pass 2531: second harmonic 1.28→1.73 — Pass 2685: 1.73→2.34 — Pass 2781: 2.34→3.16 — Pass 2915: 3.16→4.27 — Pass 3125: 4.27→5.76 — Pass 3296: 5.76→7.78 — Pass 3612: 7.78→10.5 — Pass 4752: 10.5→14.2 — Pass 5801: 14.2→19.2 stronger shake harmonic weight — Pass 7208: 19.2→25.9 stronger camera shake second harmonic weight
     // Hotfix 3333a: clamp effective shake to prevent runaway displacement — shake values & multipliers
     // have been individually boosted over many passes; compound product was reaching 10,000+ world units.
     // Hotfix 3333b: camera shake DISABLED — shake magnitudes (up to 397) and displacement
@@ -5162,7 +5162,7 @@ function animate(ts) {
       }
     } else {
       hopperLight.color.set(0xffeedd); // warm neutral when idle
-      hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 4.93); // Pass 4435: hopper idle tracking 2→2.70 snappier idle intensity — Pass 5379: 2.70→3.65 snappier hopper idle light tracking — Pass 6021: 3.65→4.93 snappier hopper idle light tracking rate
+      hopperLight.intensity += (_hBase - hopperLight.intensity) * Math.min(1, dt * 6.66); // Pass 4435: hopper idle tracking 2→2.70 snappier idle intensity — Pass 5379: 2.70→3.65 snappier hopper idle light tracking — Pass 6021: 3.65→4.93 snappier hopper idle light tracking rate — Pass 7210: 4.93→6.66 snappier hopper idle light tracking rate
       hopperLight.position.set(HOPPER_X + 33, 200, 0); // reset to home position
     }
   }
