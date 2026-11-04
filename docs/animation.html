@@ -558,7 +558,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.69; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output
+renderer.toneMappingExposure = 2.28; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 // Pass 67: animated clear color — base dark navy tints toward domain on scan/celebration
 const _clearBase = new THREE.Color(0x0a0a12);
@@ -575,12 +575,12 @@ controls.update();
 
 // ─── Lights ───────────────────────────────────────────────────────────────────
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
-const ambientLight = new THREE.AmbientLight(0x202030, 0.824); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill
+const ambientLight = new THREE.AmbientLight(0x202030, 1.11); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill
 scene.add(ambientLight);
 scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.473)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill
 
 // Increase key light slightly to compensate for lower ambient
-const keyLight = new THREE.DirectionalLight(0xfff8f0, 2.30); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination
+const keyLight = new THREE.DirectionalLight(0xfff8f0, 3.11); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light
 keyLight.position.set(400, 600, 400);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
@@ -1205,7 +1205,7 @@ CARD_TYPES.forEach(ct => {
 // Flat (0 rad) = card falls through to lower floor. ~0.65 rad (~37°) = ramp to upper floor.
 const DIVERTER_X = TRAY_X_START - 5;
 const DIVERTER_FLOOR0 = 0;    // lower floor: flat
-const DIVERTER_FLOOR1 = 0.878; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp
+const DIVERTER_FLOOR1 = 1.19; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp — Pass 4987: 0.878→1.19 steeper diverter ramp
 const diverterServoBox = makeBox(14, 14, 22, 0x9aa0b0);
 diverterServoBox.position.set(DIVERTER_X - 3, CONV_Y_TOP + 7, 0);
 scene.add(diverterServoBox);
@@ -1777,8 +1777,8 @@ function addCardToTray(ct) {
   // Flash the tray legend slot entry
   const legSlot = document.getElementById('lc-' + ct.name.toLowerCase());
   if(legSlot) {
-    legSlot.style.textShadow = `0 0 14px ${ct.css}`; // Pass 4429: legend slot flash size 10→14px brighter slot entry flare
-    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 810); // Pass 4430: legend slot flash duration 600→810ms longer entry flash
+    legSlot.style.textShadow = `0 0 18.9px ${ct.css}`; // Pass 4429: legend slot flash size 10→14px brighter slot entry flare — Pass 4988: 14→18.9px more vivid slot entry flare
+    setTimeout(() => { if(legSlot) legSlot.style.textShadow = ''; }, 1094); // Pass 4430: legend slot flash duration 600→810ms longer entry flash — Pass 4989: 810→1094ms even longer entry flash
   }
 
   // Flash stats counter in domain color + bounce animation on each card sorted
@@ -2409,7 +2409,7 @@ function animate(ts) {
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
-    if (a.glowAge < 1.62) { // Pass 4431: arrival glow max age 1.2→1.62 longer slot landing flash
+    if (a.glowAge < 2.19) { // Pass 4431: arrival glow max age 1.2→1.62 longer slot landing flash — Pass 4990: 1.62→2.19 even longer arrival glow
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9 — Pass 4770: 93.0→126 brighter landing flash
@@ -2464,7 +2464,7 @@ function animate(ts) {
     // Pass 146: spring overshoot — bar bounces slightly when a new card arrives
     if (!bar._springVel) bar._springVel = 0;
     const _springDiff = targetScaleY - bar.scale.y;
-    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.255; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255
+    bar._springVel = bar._springVel * 0.80 + _springDiff * 0.344; // Pass 1645: k=0.10→0.14 — Pass 3966: 0.14→0.189 snappier fill bar spring — Pass 4260: 0.189→0.255 — Pass 4991: 0.255→0.344 snappier fill bar spring
     bar.scale.y = Math.max(0.01, Math.min(1.59, bar.scale.y + bar._springVel)); // Pass 4854: fill bar spring overshoot max 1.18→1.59 bigger fill bar bounce
     // Decay emissive flash; resting bars breathe gently at 0.55Hz (staggered per slot)
     // Pass 249: fill bar breathing — Pass 911: base 0.36→0.46, amp 0.13→0.20 — Pass 998: base 0.46→0.58, amp 0.20→0.28 — Pass 1644: base 0.58→0.80, amp 0.28→0.38
