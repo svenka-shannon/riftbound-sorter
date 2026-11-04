@@ -558,7 +558,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 3.08; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure
+renderer.toneMappingExposure = 4.16; // Pass 4776: rendering exposure 1.25→1.69 more vivid scene output — Pass 4984: 1.69→2.28 richer scene output — Pass 5024: 2.28→3.08 richer tone mapping exposure — Pass 5898: 3.08→4.16 richer tone mapping exposure
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 // Pass 67: animated clear color — base dark navy tints toward domain on scan/celebration
 const _clearBase = new THREE.Color(0x0a0a12);
@@ -575,12 +575,12 @@ controls.update();
 
 // ─── Lights ───────────────────────────────────────────────────────────────────
 // Lower ambient so shadows read clearly; add hemisphere for sky/ground variation
-const ambientLight = new THREE.AmbientLight(0x202030, 1.50); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill
+const ambientLight = new THREE.AmbientLight(0x202030, 2.03); // Pass 4013: ambient intensity 0.45→0.61 brighter scene fill — Pass 4664: 0.61→0.824 stronger scene fill — Pass 4985: 0.824→1.11 stronger ambient fill — Pass 5025: 1.11→1.50 stronger ambient fill — Pass 5899: 1.50→2.03 stronger ambient fill
 scene.add(ambientLight);
 scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 0.863)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill — Pass 5738: 0.639→0.863 stronger sky/ground hemisphere fill
 
 // Increase key light slightly to compensate for lower ambient
-const keyLight = new THREE.DirectionalLight(0xfff8f0, 4.20); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light
+const keyLight = new THREE.DirectionalLight(0xfff8f0, 5.67); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light
 keyLight.position.set(400, 600, 400);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
@@ -589,11 +589,11 @@ keyLight.shadow.camera.top = 729;   keyLight.shadow.camera.bottom = -365; // Pas
 keyLight.shadow.bias = -0.00182; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff — Pass 5422: -0.00135→-0.00182 stronger shadow bias
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xc0d8ff, 1.67); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill
+const fillLight = new THREE.DirectionalLight(0xc0d8ff, 2.25); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill
 fillLight.position.set(-400, 300, 200);
 scene.add(fillLight);
 
-const rimLight = new THREE.DirectionalLight(0xffeedd, 1.16); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim
+const rimLight = new THREE.DirectionalLight(0xffeedd, 1.57); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim
 rimLight.position.set(200, 100, -400);
 scene.add(rimLight);
 
@@ -878,7 +878,7 @@ scene.add(lens);
 
 // Lens retaining ring
 const lensRing = new THREE.Mesh(
-  new THREE.TorusGeometry(8, 2.74, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring — Pass 5016: 2.03→2.74 chunkier scanner lens ring
+  new THREE.TorusGeometry(8, 3.70, 8, 20), // Pass 4544: lens ring tube 1.5→2.03 chunkier scanner lens ring — Pass 5016: 2.03→2.74 chunkier scanner lens ring — Pass 5903: 2.74→3.70 chunkier scanner lens ring
   new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.5, metalness: 0.6 })
 );
 lensRing.rotation.x = Math.PI / 2;
@@ -939,7 +939,7 @@ scene.add(scanBarCursor);
 // Scan destination target light — illuminates the slot the card is going to
 // during scan phase so viewer immediately knows the routing decision
 const scanTargetLight = new THREE.PointLight(0xffffff, 0, 406); // Pass 4022: scanTargetLight range 90→122 — Pass 4907: 122→165 wider scan target reach — Pass 5152: 165→223 wider scan target light reach — Pass 5187: 223→301 wider scan target light reach — Pass 5741: 301→406 wider scan target light reach
-scanTargetLight.decay = 4.93; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff — Pass 5153: 2.70→3.65 tighter scan target spotlight falloff — Pass 5188: 3.65→4.93 tighter scan target spotlight falloff
+scanTargetLight.decay = 6.66; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff — Pass 5153: 2.70→3.65 tighter scan target spotlight falloff — Pass 5188: 3.65→4.93 tighter scan target spotlight falloff — Pass 5904: 4.93→6.66 tighter scan target spotlight falloff
 scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
@@ -1838,7 +1838,7 @@ CARD_TYPES.forEach(ct => {
   const mat = new THREE.MeshStandardMaterial({
     color:             ct.hex,
     emissive:          ct.hex,
-    emissiveIntensity: 0.729, // Pass 4801: fill bar initial emissiveIntensity 0.4→0.54 richer domain bar base — Pass 5063: 0.54→0.729 richer fill bar base glow
+    emissiveIntensity: 0.984, // Pass 4801: fill bar initial emissiveIntensity 0.4→0.54 richer domain bar base — Pass 5063: 0.54→0.729 richer fill bar base glow — Pass 5905: 0.729→0.984 richer fill bar base glow
     roughness:         0.5,
     metalness:         0.0,
   });
