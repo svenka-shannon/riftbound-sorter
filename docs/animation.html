@@ -2362,7 +2362,7 @@ function animate(ts) {
     const _jPhase = i * 2.67; // stagger per card — Pass 4778: stack card jitter phase spread 1.47→1.98 more organic stack desync — Pass 5022: 1.98→2.67 more organic stack desync
     // Pass 904: stack card Y jitter primary 0.08→0.12, secondary 0.04→0.06 — Pass 1017: →0.18/0.09 — Pass 1227: →0.28/0.14 — Pass 1660: →0.38/0.19 livelier stack — Pass 3617: primary 0.38→0.51 — Pass 3618: secondary 0.19→0.26
     const _jY = Math.sin(ts * 1.76 * Math.PI * 2 + _jPhase) * 1.70 // Pass 3617: primary 0.38→0.51 — Pass 3781: 0.51→0.69 — Pass 3886: 0.69→0.93 — Pass 4258: 0.93→1.26 livelier stack jitter — Pass 4649: arm descent oscillation primary frequency 1.3→1.76 livelier pre-pick stack jitter — Pass 5038: 1.26→1.70 livelier stack jitter amplitude
-              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.63; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63
+              + Math.sin(ts * 2.1 * Math.PI * 2 + _jPhase * 0.6) * 0.85; // Pass 3618: secondary 0.19→0.26 — Pass 3782: 0.26→0.35 — Pass 3887: 0.35→0.47 — Pass 4259: 0.47→0.63 — Pass 5064: 0.63→0.85 livelier stack jitter secondary
     // Pass 201: stack pick recoil — remaining cards dip briefly as top card breaks suction.
     // Wave travels top→bottom with 80ms delay per card; recovers smoothly over 0.45s.
     let _recoilDip = 0;
@@ -2405,7 +2405,7 @@ function animate(ts) {
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
       // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 — Pass 3783: →78.3 — Pass 3888: →106 for more physical slot landing — Pass 4769: →193 stronger slot landing
-      _yPos = a.targetY + 193 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing
+      _yPos = a.targetY + 261 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
@@ -2413,7 +2413,7 @@ function animate(ts) {
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9 — Pass 4770: 93.0→126 brighter landing flash
-        a.mesh.material.emissiveIntensity = 0.15 + 126 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash — Pass 4770: emissive 93.0→126 brighter landing flash
+        a.mesh.material.emissiveIntensity = 0.15 + 170 * Math.exp(-a.glowAge * 5.13); // Pass 4272: tray arrival emissive peak 68.9→93.0 brighter slot landing flash — Pass 4591: arrival flash decay rate 3.8→5.13 snappier slot flash — Pass 4770: emissive 93.0→126 brighter landing flash — Pass 5066: 126→170 brighter landing flash
       }
     }
     if(a.t >= 1) trayArrivals.splice(i, 1);
@@ -2431,10 +2431,10 @@ function animate(ts) {
           // Desync per-card using _globalCardIdx as phase offset; slow 0.7Hz pulse
           const _phase = _globalCardIdx * 2.24; // Pass 4781: tray card breathing phase spread 1.23→1.66 more organic card desync — Pass 5063: 1.66→2.24 more organic card desync
           // Pass 908: breathing base 0.12→0.16, amp 0.14→0.22 — Pass 1000: base 0.16→0.22, amp 0.22→0.32 — Pass 1233: base 0.22→0.30, amp 0.32→0.48 — Pass 1653: base 0.30→0.42, amp 0.48→0.65 — Pass 3615: base 0.42→0.57 — Pass 3616: amp 0.65→0.88 — Pass 3785: base 0.57→0.77 — Pass 3786: amp 0.88→1.19 — Pass 3890: base 0.77→1.04 — Pass 3891: amp 1.19→1.61 — Pass 4771: amp 2.17→2.93 richer settled breathing
-          mesh.material.emissiveIntensity = 1.40 + 2.93 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing
+          mesh.material.emissiveIntensity = 1.89 + 3.96 * Math.sin(ts * 0.7 * Math.PI * 2 + _phase); // Pass 4266: settled card breathing base 1.04→1.40 richer resting glow — Pass 4460: amp 1.61→2.17 stronger settled card breathing — Pass 4771: amp 2.17→2.93 richer settled breathing — Pass 5067: base 1.40→1.89 richer settled card glow — Pass 5068: amp 2.93→3.96 richer settled card breathing
           // Pass 134: micro Z-axis sway — Pass 909: 0.007→0.012 — Pass 1001: →0.020 — Pass 1654: →0.028 more visible rocking — Pass 3905: 0.028→0.038 stronger deck sway — Pass 4772: 0.051→0.069 deeper deck sway
           const _swayPhase = _globalCardIdx * 2.47; // Pass 4497: settled card sway phase spread 1.83→2.47 more organic card desync
-          mesh.rotation.z = 0.069 * Math.sin(ts * 0.513 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway
+          mesh.rotation.z = 0.093 * Math.sin(ts * 0.513 * Math.PI * 2 + _swayPhase); // Pass 4267: settled card Z sway amplitude 0.038→0.051 more visible micro-rocking — Pass 4474: sway frequency 0.38→0.513 livelier settled card rocking — Pass 4772: sway amplitude 0.051→0.069 deeper deck sway — Pass 5069: 0.069→0.093 deeper deck sway
         }
         _globalCardIdx++;
       });
@@ -2638,7 +2638,7 @@ function animate(ts) {
       // Fixed to realistic ~8Hz servo hunting with a 13Hz overtone, damped as arm settles.
       // Pass 1124: jitter amplitude 1.8→2.6 — Pass 1211: →3.8 — Pass 1308: →5.2 for more visible pre-pick servo hunting — Pass 3906: 5.2→7.0 nervous servo twitch — Pass 4273: 7.0→9.45 more frantic pre-pick hunting
       const jitter = 12.8 * (1 - pt) * ( // Pass 5019: arm descent servo jitter amplitude 9.45→12.8 more frantic pre-pick hunting
-        Math.sin(ts * 10.8 * Math.PI * 2) * 0.945 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter
+        Math.sin(ts * 14.6 * Math.PI * 2) * 0.945 + // Pass 4438: descent servo 8Hz hunt amp 0.7→0.945 more energetic pre-pick hunt — Pass 4630: arm descent servo hunt frequency 8→10.8 Hz crisper pre-pick jitter — Pass 5087: 10.8→14.6 Hz crisper arm tremor oscillation
         Math.sin(ts * 17.6 * Math.PI * 2) * 0.405 // Pass 4489: descent 13Hz overtone amp 0.3→0.405 richer pre-pick jitter texture — Pass 4599: arm descent jitter secondary freq 13→17.6 crisper pre-pick overtone
       );
       // Pass 243: terminal servo micro-tap — precision down-push in final 5% of descent
@@ -2657,7 +2657,7 @@ function animate(ts) {
         // Pass 632: lock-on flicker amplitude 0.20→0.35 — Pass 1126: flicker range 0.65-1.0→0.48-1.0 — Pass 4063: sine amp 0.52→0.70 more nervous lock-on hunting
         const _lockFlicker = pt > 0.88 ? (0.648 + 0.70 * Math.abs(Math.sin(ts * 22 * Math.PI * 2))) : 1.0; // Pass 4590: rangefinder flicker floor 0.48→0.648 brighter suction lock-on baseline
         // Pass 632: targeting light peak 0.90→1.40 — Pass 914: →2.20 — Pass 1127: →3.20 — Pass 1213: →5.0 — Pass 1310: →7.5 — Pass 1426: →10.5 — Pass 3913: 10.5→14.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight
-        scanTargetLight.intensity = _pickTgtT * 25.9 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker; // Pass 4416: 14.2→19.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight
+        scanTargetLight.intensity = _pickTgtT * 35.0 * Math.sin(_pickTgtT * Math.PI * 0.85) * _lockFlicker; // Pass 4416: 14.2→19.2 brighter pre-pick spotlight — Pass 4773: 19.2→25.9 brighter lock-on spotlight — Pass 5070: 25.9→35.0 brighter lock-on spotlight
       }
       // Pass 78: cup squishes as it contacts card stack in final 20% of descent
       // Pass 462: early cup pre-glow — from pt=0.50 the cup begins a faint domain warmup
@@ -2675,7 +2675,7 @@ function animate(ts) {
         const _cupApproach = _sq;
         suctionCupMat.emissive.setHex(ct.hex);
         // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 — Pass 1214: →3.6 — Pass 1311: →5.2 — Pass 1427: →7.0 — Pass 3959: 7.0→9.45 more vivid suction warmup — Pass 4774: 12.76→17.2 more vivid suction warmup
-        suctionCupMat.emissiveIntensity += (17.2 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10); // Pass 4223: cup approach emissive 9.45→12.76 more vivid suction warmup — Pass 4774: emissive 12.76→17.2 more vivid suction warmup
+        suctionCupMat.emissiveIntensity += (23.2 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10); // Pass 4223: cup approach emissive 9.45→12.76 more vivid suction warmup — Pass 4774: emissive 12.76→17.2 more vivid suction warmup — Pass 5071: 17.2→23.2 more vivid suction warmup
         // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
         if (!_contactFlashFired) {
           _contactFlashFired = true;
@@ -2824,9 +2824,9 @@ function animate(ts) {
           const spd = 332 + Math.random() * 209; // Pass 1218: 40+90→55+115 — Pass 1831: →74+155 — Pass 3453: base 74→100 — Pass 3710: 100→135 — Pass 3823: base 135→182 — Pass 4231: 182→246 faster grab burst spread — Pass 4948: base 246→332 — Pass 4949: rand 155→209 more energetic grab particle burst
           // Pass 85: ~15% of particles shoot downward (dust from disturbed stack)
           const _goDown = Math.random() < 0.20; // Pass 4921: grab particle downward bias 0.15→0.20 more pick-disturbed stack puff
-          p.vx = Math.cos(angle) * spd * 0.74; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst
+          p.vx = Math.cos(angle) * spd * 1.00; // Pass 4263: grab particle vx spread 0.55→0.74 wider burst — Pass 5080: 0.74→1.00 wider grab burst
           p.vy = _goDown ? -spd * (0.41 + Math.random() * 0.54) : spd * (0.55 + Math.random() * 0.45); // Pass 4264: grab particle vy down factor 0.3→0.41, rand 0.4→0.54 more forceful suction puff
-          p.vz = Math.sin(angle) * spd * 0.68; // Pass 4265: grab particle vz spread 0.5→0.68 deeper Z burst
+          p.vz = Math.sin(angle) * spd * 0.92; // Pass 4265: grab particle vz spread 0.5→0.68 deeper Z burst — Pass 5081: 0.68→0.92 deeper grab Z burst
           p.mesh.position.set(_bx, _by, (Math.random() - 0.5) * 10.8); // Pass 4627: grab particle initial Z spawn spread 8→10.8 wider burst footprint
           // Pass 85: color variety — highlight (25%), domain (50%), shadow (25%)
           const _cr = Math.random();
@@ -3421,9 +3421,9 @@ function animate(ts) {
             _bp.mesh.visible = true;
             const _ang = (_burstSpawned / 24) * Math.PI * 2 + Math.random() * 0.8; // Pass 5021: confirm burst angular divisor 18→24 fuller radial coverage per burst
             const _spd = 1554 + Math.random() * 1432; // Pass 2326: confirm burst speed 257+236→347+319 — Pass 2832: base 347→468 Pass 2833: range 319→431 — Pass 2978/2979b: base 468→632, range 431→582 — Pass 3561: base 632→853, range 582→786 — Pass 3720: 853+786→1151+1061 — Pass 4116: 1151+1061→1554+1432 explosive confirm burst
-            _bp.vx = Math.cos(_ang) * _spd * 0.743; // Pass 4792: confirm burst vx spread 0.55→0.743
+            _bp.vx = Math.cos(_ang) * _spd * 1.00; // Pass 4792: confirm burst vx spread 0.55→0.743 — Pass 5082: 0.743→1.00 wider confirm burst vx
             _bp.vy = 1025 + Math.random() * 695; // Pass 2327: confirm burst vy 169+209→228+282 — Pass 2834: vy base 228→308 — Pass 2979: 308→416 — Pass 3560: base 416→562, rand 282→381 — Pass 3721: 562+381→759+515 — Pass 4117: base 759→1025 — Pass 4118: rand 515→695 higher burst
-            _bp.vz = Math.sin(_ang) * _spd * 0.743; // Pass 4793: confirm burst vz spread 0.55→0.743
+            _bp.vz = Math.sin(_ang) * _spd * 1.00; // Pass 4793: confirm burst vz spread 0.55→0.743 — Pass 5083: 0.743→1.00 wider confirm burst vz
             _bp.mat.color.setHex(ct.hex);
             _burstSpawned++;
           }
@@ -3923,9 +3923,9 @@ function animate(ts) {
           _sp.mesh.visible = true;
           const _ang = Math.random() * Math.PI * 2;
           const _spd = 1766 + Math.random() * 1516; // Pass 2086: gate spark speed 216+250→292+338 — Pass 2592: 292+338→394+456 — Pass 3030: 394+456→532+616 — Pass 3567: 532+616→718+832 — Pass 3723: 718+832→969+1123 — Pass 3830: base 969→1308 — Pass 3831: rand 1123→1516 — Pass 4451: base 1308→1766 faster gate spark burst
-          _sp.vx = Math.cos(_ang) * _spd * 0.945; // Pass 4794: gate spark vx spread 0.7→0.945
+          _sp.vx = Math.cos(_ang) * _spd * 1.28; // Pass 4794: gate spark vx spread 0.7→0.945 — Pass 5084: 0.945→1.28 wider gate spark vx
           _sp.vy = 1214 + Math.random() * 984; // Pass 2087: gate spark vy 148+162→200+219 — Pass 2603: 200+219→270+296 — Pass 3031: 270+296→365+400 — Pass 3568: 365+400→493+540 — Pass 3724: 493+540→666+729 — Pass 3832: base 666→899 — Pass 3833: rand 729→984 — Pass 4452: base 899→1214 higher gate spark loft
-          _sp.vz = Math.sin(_ang) * _spd * 0.675 + Math.sign(ct.slotZ || 1) * 15; // Pass 4795: gate spark vz spread 0.5→0.675
+          _sp.vz = Math.sin(_ang) * _spd * 0.911 + Math.sign(ct.slotZ || 1) * 15; // Pass 4795: gate spark vz spread 0.5→0.675 — Pass 5085: 0.675→0.911 wider gate spark vz
           // Near-white domain highlight (like hot metal sparks)
           const _rr = (ct.hex >> 16) & 0xff, _gg = (ct.hex >> 8) & 0xff, _bb = ct.hex & 0xff;
           _sp.mat.color.setHex(
@@ -4353,7 +4353,7 @@ function animate(ts) {
           _mp.mesh.visible = true;
           _mp.vx = (Math.random() - 0.5) * 18.2; // Pass 4409: upper floor mote vx spread 10→13.5 wider reject mote burst — Pass 5079: 13.5→18.2 wider arrival mote burst
           _mp.vy = 74.4 + Math.random() * 148.9; // Pass 2400: upper floor mote vy 6.75+13.5→9.11+18.2 — Pass 2634: 9.11+18.2→12.3+24.6 — Pass 3072: 12.3+24.6→16.6+33.2 — Pass 3255: 16.6+33.2→22.4+44.8 — Pass 3452: 22.4+44.8→30.2+60.5 — Pass 3541: 30.2+60.5→40.8+81.7 — Pass 3915: 40.8+81.7→55.1+110.3 — Pass 4407: 55.1+110.3→74.4+148.9 taller mote fountain
-          _mp.vz = (Math.random() - 0.5) * 16.2; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread
+          _mp.vz = (Math.random() - 0.5) * 21.9; // Pass 4410: upper floor mote vz spread 12→16.2 wider reject mote Z spread — Pass 5086: 16.2→21.9 wider arrival mote Z spread
           _mp.mat.color.setRGB(
             Math.min(1, _rr3 / 255 * 0.68 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68
             Math.min(1, _gg3 / 255 * 0.68 + 0.50), // Pass 4862: upper floor motes domain tint 0.50→0.68
