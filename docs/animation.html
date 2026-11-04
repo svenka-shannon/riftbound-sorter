@@ -580,7 +580,7 @@ scene.add(ambientLight);
 scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 2.13)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill — Pass 5738: 0.639→0.863 stronger sky/ground hemisphere fill — Pass 5991: 0.863→1.17 stronger sky/ground hemisphere ambient fill — Pass 6049: 1.17→1.58 stronger sky/ground hemisphere ambient fill — Pass 6342: 1.58→2.13 stronger sky/ground hemisphere ambient fill
 
 // Increase key light slightly to compensate for lower ambient
-const keyLight = new THREE.DirectionalLight(0xfff8f0, 10.3); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light — Pass 5963: 5.67→7.65 stronger key light — Pass 6050: 7.65→10.3 stronger key light
+const keyLight = new THREE.DirectionalLight(0xfff8f0, 13.9); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light — Pass 5963: 5.67→7.65 stronger key light — Pass 6050: 7.65→10.3 stronger key light — Pass 6380: 10.3→13.9 stronger key light
 keyLight.position.set(400, 600, 400);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
@@ -589,11 +589,11 @@ keyLight.shadow.camera.top = 984;   keyLight.shadow.camera.bottom = -493; // Pas
 keyLight.shadow.bias = -0.00246; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff — Pass 5422: -0.00135→-0.00182 stronger shadow bias — Pass 6340: -0.00182→-0.00246 stronger shadow bias
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xc0d8ff, 4.10); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill — Pass 5964: 2.25→3.04 stronger cool fill — Pass 6051: 3.04→4.10 stronger cool fill
+const fillLight = new THREE.DirectionalLight(0xc0d8ff, 5.54); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill — Pass 5964: 2.25→3.04 stronger cool fill — Pass 6051: 3.04→4.10 stronger cool fill — Pass 6381: 4.10→5.54 stronger cool fill
 fillLight.position.set(-400, 300, 200);
 scene.add(fillLight);
 
-const rimLight = new THREE.DirectionalLight(0xffeedd, 2.86); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim — Pass 5965: 1.57→2.12 stronger back rim — Pass 6052: 2.12→2.86 stronger back rim
+const rimLight = new THREE.DirectionalLight(0xffeedd, 3.86); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim — Pass 5965: 1.57→2.12 stronger back rim — Pass 6052: 2.12→2.86 stronger back rim — Pass 6382: 2.86→3.86 stronger back rim
 rimLight.position.set(200, 100, -400);
 scene.add(rimLight);
 
@@ -1740,8 +1740,8 @@ function addCardToTray(ct) {
   mesh.castShadow = true;
   const targetY = ct.slotFloorY + 29; // 29 = 58/2 so card base sits on floor
   const startY  = targetY + 99.6; // start above, animate down // Pass 4888: slot tray arrival start height 30→40.5 — Pass 5468: 40.5→54.7 higher slot tray arrival drop height — Pass 5909: 54.7→73.8 higher slot tray arrival drop height — Pass 6233: 73.8→99.6 higher slot tray arrival drop height
-  const zJitter    = (Math.random() - 0.5) * 6.66;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle — Pass 5423: 4.93→6.66 wider card Z spread during belt idle
-  const yRotJitter = (Math.random() - 0.5) * 0.984;  // ±0.492 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter — Pass 5409: 0.540→0.729 wilder slot entry guided arc card tilt range — Pass 6345: 0.729→0.984 wilder slot entry guided arc card tilt range
+  const zJitter    = (Math.random() - 0.5) * 8.99;     // ±1 unit Z fan — Pass 4531: card settle Z-fan jitter 2→2.7 wider rest spread — Pass 4999: 2.7→3.65 even wider card settle spread — Pass 5163: 3.65→4.93 wider card Z position spread while idle — Pass 5423: 4.93→6.66 wider card Z spread during belt idle — Pass 6383: 6.66→8.99 wider slot tray card Z spread
+  const yRotJitter = (Math.random() - 0.5) * 1.329;  // ±0.492 rad tilt // Pass 4546: slot entry Y-rotation jitter 0.12→0.162 more organic card settle — Pass 5057: 0.162→0.219 more organic card settle — Pass 5093: 0.219→0.296 wilder slot entry card tilt jitter — Pass 5309: 0.296→0.400 wilder slot entry deceleration card tilt — Pass 5348: 0.400→0.540 wilder slot entry guided arc card tilt jitter — Pass 5409: 0.540→0.729 wilder slot entry guided arc card tilt range — Pass 6345: 0.729→0.984 wilder slot entry guided arc card tilt range — Pass 6384: 0.984→1.329 wilder slot entry guided arc card tilt range
   mesh.position.set(
     TRAY_X_START + 4 + cardIdx * (CARD_T + 1),
     startY,
@@ -1995,7 +1995,7 @@ function fireCelebration() {
     _mp.vx = (Math.random() - 0.5) * 1695; // Pass 1011: 165→210 — Pass 1476: →280 — Pass 3951: 280→378 — Pass 4101: 378→510 — Pass 4930: 510→689 wider shimmer spread — Pass 5453: 689→930 wider celebration shimmer X spread — Pass 5911: 930→1256 wider celebration shimmer X spread — Pass 6298: 1256→1695 wider celebration shimmer X spread
     _mp.vy = 1708 + Math.random() * 790; // Pass 2505: shimmer loft 155+130→209+176 — Pass 3552: 209+176→282+238 — Pass 3663: 282+238→381+321 — Pass 4102: base 381→514 — Pass 4103: rand 321→433 — Pass 4931: base 514→694 — Pass 4932: rand 433→585 higher shimmer loft — Pass 5459: base 694→937 higher celebration shimmer loft — Pass 5460: rand 585→790 higher shimmer loft variance — Pass 5888: base 937→1265 higher celebration shimmer loft base velocity — Pass 6286: base 1265→1708 higher celebration shimmer loft base velocity
     _mp.vz = (Math.random() - 0.5) * 667; // Pass 1478: 80→110 wider shimmer spread — Pass 3904: 110→149 — Pass 4104: 149→201 even wider Z shimmer — Pass 4936: 201→271 wider shimmer Z spread — Pass 5461: 271→366 wider celebration shimmer Z spread — Pass 5894: 366→494 wider celebration shimmer Z velocity spread — Pass 6299: 494→667 wider celebration shimmer Z velocity spread
-    _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*54.7, FLOOR_Y[0] + 85, (Math.random()-0.5)*40); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5 — Pass 5521: 40.5→54.7 wider shimmer confetti X spawn spread
+    _mp.mesh.position.set(TX_MID + (Math.random()-0.5)*54.7, FLOOR_Y[0] + 85, (Math.random()-0.5)*54); // Pass 4895: celebration shimmer confetti X spawn spread 30→40.5 — Pass 5521: 40.5→54.7 wider shimmer confetti X spawn spread — Pass 6380: shimmer confetti Z spawn spread 40→54 wider shimmer footprint
     _mp.mat.color.setHex(_shimmerColors[_mi]);
     _mp.mat.opacity = 1.0;
     _mp.age = 0; _mp.life = 6.66 + Math.random() * 2.66; // Pass 1479: 0.65+0.45→0.85+0.60 — Pass 1630: →1.10+0.80 — Pass 3952: 1.10+0.80→1.485+1.080 — Pass 4108: 1.485+1.080→2.005+1.458 longer shimmer life — Pass 4937: 2.005+1.458→2.707+1.968 longer shimmer life — Pass 5520: 2.707→3.655 longer shimmer particle life base — Pass 5889: 3.655→4.93 longer celebration shimmer particle lifespan — Pass 6352: 4.93+1.968→6.66+2.66 longer celebration shimmer particle lifespan
@@ -3644,7 +3644,7 @@ function animate(ts) {
       // making it "flicker" in sync with the scan strobe (pass 105). Post-reveal the arc
       // settles to steady (no more scanning needed), pre-reveal it shows scan progress.
       // Pass 854: strobe amplitude 0.12→0.20 for stronger urgency flicker pre-reveal
-      const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.365 * flashIntensity; // Pass 4863: arc strobe modulation depth 0.20→0.27 — Pass 5605: 0.27→0.365 deeper route arc strobe flicker
+      const _arcStrobeMod = _identityRevealed ? 0 : Math.sin(ts * 12 * Math.PI * 2) * 0.493 * flashIntensity; // Pass 4863: arc strobe modulation depth 0.20→0.27 — Pass 5605: 0.27→0.365 deeper route arc strobe flicker — Pass 6384: 0.365→0.493 deeper route arc strobe flicker depth
       // Pass 289: route arc reveal spike — Pass 338: 0.45→0.65 — Pass 644: →0.90 — Pass 855: →1.40 — Pass 1438: →2.00 for bolder arc flash at lock-on
       const _arcRevealSpike = _identityRevealed ? Math.exp(-(ft - 0.85) * 16) * 40.1 : 0; // Pass 2562: arc reveal spike 3.65→4.93 — Pass 3003: 4.93→6.66 — Pass 3197: 6.66→8.99 — Pass 3425: 8.99→12.1 — Pass 3539: 12.1→16.3 — Pass 3993: 16.3→22.0 — Pass 4561: 22.0→29.7 bolder scan arc at identity lock-on — Pass 5437: 29.7→40.1 bolder scan arc reveal spike
       // Pass 644: post-reveal arc opacity 0.35→0.50 — Pass 856: →0.80 — Pass 1075: →1.10 — Pass 1439: →1.55 for more solid confirmed-route arc
@@ -3702,8 +3702,8 @@ function animate(ts) {
     _ov.style.top  = (_sy - 90) + 'px';
     // Pass 103: HUD breathes with scan flash intensity — slight scale pulse
     // Pass 219: completion bounce — Pass 566: 0.12→0.22 — Pass 619: →0.32 — Pass 817: →0.48
-    const _ovBounce = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 0.878 : 0; // Pass 4892: scan HUD completion bounce amplitude 0.48→0.65 — Pass 5603: 0.65→0.878 punchier scan HUD completion bounce
-    _ov.style.transform = `translateX(-50%) scale(${(1.0 + flashIntensity * 0.182 + _ovBounce).toFixed(4)})`; // Pass 4799: scan overlay flash scale 0.10→0.135 — Pass 5525: 0.135→0.182 punchier scan overlay flash scale
+    const _ovBounce = barFill >= 0.98 ? (barFill - 0.98) / 0.02 * 1.19 : 0; // Pass 4892: scan HUD completion bounce amplitude 0.48→0.65 — Pass 5603: 0.65→0.878 punchier scan HUD completion bounce — Pass 6381: 0.878→1.19 punchier scan HUD completion bounce amplitude
+    _ov.style.transform = `translateX(-50%) scale(${(1.0 + flashIntensity * 0.246 + _ovBounce).toFixed(4)})`; // Pass 4799: scan overlay flash scale 0.10→0.135 — Pass 5525: 0.135→0.182 punchier scan overlay flash scale — Pass 6382: 0.182→0.246 punchier scan overlay flash scale response
   }
 
   // ── Phase 4: Conveyor to gate (3.1..3.8s) ──
@@ -3732,7 +3732,7 @@ function animate(ts) {
     // Pass 455: urgency pulse frequency ramp — target column beats faster as card approaches.
     // Pass 551: urgency pulse amplitude 0.45+0.45 — Pass 650: Hz 6+16→8+22; amp 0.45→0.30+0.70
     // Pass 779: base 0.30→0.18, amp 0.70→0.88 — Pass 1294: amp 0.88→1.10 for even deeper LED throb
-    const _ledUrgencyHz = 8 + ot * 40.1; // 8→48Hz // Pass 4763: LED urgency Hz ramp 22→29.7 more frantic gate pulse — Pass 5526: 29.7→40.1 more frantic gate LED urgency pulse
+    const _ledUrgencyHz = 8 + ot * 54.1; // 8→62Hz // Pass 4763: LED urgency Hz ramp 22→29.7 more frantic gate pulse — Pass 5526: 29.7→40.1 more frantic gate LED urgency pulse — Pass 6383: 40.1→54.1 more frantic gate LED urgency Hz ramp
     const _ledUrgencyPulse = 0.18 + 40.6 * Math.abs(Math.sin(ts * _ledUrgencyHz * Math.PI * 2)); // Pass 2356: urgency pulse depth 2.71→3.66 — Pass 2572: 3.66→4.94 — Pass 3010: 4.94→6.67 — Pass 3208: 6.67→9.00 — Pass 3585: 9.00→12.2 — Pass 3680: 12.2→16.5 — Pass 4373: 16.5→22.3 deeper gate LED urgency throb — Pass 5291: 22.3→30.1 deeper gate LED urgency pulse — Pass 5428: 30.1→40.6 deeper gate LED urgency pulse depth
     GATE_COL_LEDS.forEach(({ mat: gm }, gi) => {
       const _isTarget = gi === ct.col;
@@ -3748,9 +3748,9 @@ function animate(ts) {
     gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, ct.slotZ);
     gateColLight.intensity += (1139 * ot - gateColLight.intensity) * Math.min(1, dt * 7); // Pass 2358: gate col tracking light 103.3→139.5 — Pass 2574: 139.5→188.3 — Pass 3012: 188.3→254.2 — Pass 3210: 254.2→343.2 — Pass 3587: 343.2→463 — Pass 3682: 463→625 — Pass 4374: 625→844 brighter gate column domain pool — Pass 5438: 844→1139 brighter gate column domain pool
     // Fade routing arc out as card leaves scanner
-    routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 4.56); // Pass 4788: route arc fade rate 2.5→3.38 crisper routing arc dismissal — Pass 5527: 3.38→4.56 crisper routing arc fade
+    routeArcMat.opacity = Math.max(0, routeArcMat.opacity - dt * 6.16); // Pass 4788: route arc fade rate 2.5→3.38 crisper routing arc dismissal — Pass 5527: 3.38→4.56 crisper routing arc fade — Pass 6385: 4.56→6.16 crisper routing arc exit fade rate
     routeTargetMat.opacity = routeArcMat.opacity;
-    routeTargetMat.emissiveIntensity = routeArcMat.opacity * 3.65; // Pass 4878: route target emissive multiplier 2→2.7 brighter routing indicator — Pass 5606: 2.7→3.65 brighter route target emissive glow
+    routeTargetMat.emissiveIntensity = routeArcMat.opacity * 4.93; // Pass 4878: route target emissive multiplier 2→2.7 brighter routing indicator — Pass 5606: 2.7→3.65 brighter route target emissive glow — Pass 6386: 3.65→4.93 brighter route target emissive glow multiplier
     activeCard.visible = true;
     activeCardMat.opacity = 1.0;
     const ot = phaseRaw(PH.conveyorOut); // LINEAR for card position (belt speed)
@@ -3814,7 +3814,7 @@ function animate(ts) {
       if (_trailSpawnAcc >= _coronaRate) {
         _trailSpawnAcc = 0;
         const _coronaAng = Math.random() * Math.PI * 2;
-        const _coronaR = 10.9 + Math.random() * 18.2; // Pass 4406: corona radius 6+10→8.1+13.5 wider gate charge aura — Pass 5458: 8.1+13.5→10.9+18.2 wider gate charge corona radius
+        const _coronaR = 14.7 + Math.random() * 24.6; // Pass 4406: corona radius 6+10→8.1+13.5 wider gate charge aura — Pass 5458: 8.1+13.5→10.9+18.2 wider gate charge corona radius — Pass 6387: 10.9+18.2→14.7+24.6 wider gate charge corona radius
         const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
         _trailHead++;
         tp.mesh.position.set(
