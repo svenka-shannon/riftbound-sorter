@@ -5135,7 +5135,7 @@ function animate(ts) {
   {
     const pickOn = inPhase(PH.armDescend) || inPhase(PH.armLift) || inPhase(PH.armSwing);
     const _depthRatio = (stackTopIdx + 1) / Math.max(1, stackCards.length);
-    const _hBase = 0.3 + _depthRatio * 0.85; // Pass 2465: hopper base full-stack 0.47→0.63 — Pass 4076: 0.63→0.85 brighter hopper light when stack is full
+    const _hBase = 0.41 + _depthRatio * 0.85; // Pass 2465: hopper base full-stack 0.47→0.63 — Pass 4076: 0.63→0.85 brighter hopper light when stack is full — Pass 4391: floor 0.3→0.41 brighter empty-stack base
     if (pickOn) {
       hopperLight.color.setHex(ct.hex);
       // Pass 541: hopper pick intensity boost 1.55→2.10 — Pass 1038: →3.20 — Pass 1444: →4.50 brighter during arm cycle
@@ -5181,19 +5181,19 @@ function animate(ts) {
       _ledColor = ct.hex;
       _ledGlow = 74.4 + 32.8 * Math.abs(Math.sin(ts * Math.PI * 2 * 8)); // Pass 2466: pick pulse base 9.11→12.3 Pass 2467: amp 4.01→5.41 — Pass 2711: 12.3→16.6, 5.41→7.30 — Pass 2805: 16.6→22.4 Pass 2806: 7.30→9.86 — Pass 2939/2940: 22.4+9.86→30.2+13.3 — Pass 3146: base 30.2→40.8 Pass 3147: amp 13.3→18.0 — Pass 3317: 40.8+18.0→55.1+24.3 — Pass 4171: base 55.1→74.4 — Pass 4172: amp 24.3→32.8 blazing pick LED
     } else if (_visibleCards >= 5) {
-      _ledColor = 0x00ff44; _ledGlow = 2.0; // green: full
+      _ledColor = 0x00ff44; _ledGlow = 2.70; // green: full — Pass 4392: 2.0→2.70 brighter full-stack LED
     } else if (_visibleCards >= 3) {
-      _ledColor = 0xffcc00; _ledGlow = 2.2; // yellow: half-full
+      _ledColor = 0xffcc00; _ledGlow = 2.97; // yellow: half-full — Pass 4393: 2.2→2.97 brighter half-stack LED
     } else if (_visibleCards >= 1) {
       // Red: low — fast 4Hz blink for urgency (fix: was ts*0.012, far too slow)
       const _blinkOn = Math.sin(ts * Math.PI * 2 * 4) > 0;
-      _ledColor = 0xff2200; _ledGlow = _blinkOn ? 2.8 : 0.4;
+      _ledColor = 0xff2200; _ledGlow = _blinkOn ? 3.78 : 0.54; // Pass 4394: on 2.8→3.78, off 0.4→0.54 brighter low-stack red blink
     } else {
-      _ledColor = 0xff6600; _ledGlow = 1.2; // orange: empty (refilling)
+      _ledColor = 0xff6600; _ledGlow = 1.62; // orange: empty (refilling) — Pass 4395: 1.2→1.62 brighter empty/refilling LED
     }
     hopperLEDMat.color.setHex(_ledColor);
     hopperLEDMat.emissive.setHex(_ledColor);
-    hopperLEDMat.emissiveIntensity += (_ledGlow - hopperLEDMat.emissiveIntensity) * Math.min(1, dt * 8);
+    hopperLEDMat.emissiveIntensity += (_ledGlow - hopperLEDMat.emissiveIntensity) * Math.min(1, dt * 10.8); // Pass 4396: LED tracking rate 8→10.8 crisper LED response
   }
 
   // ── Pass 37: Belt card tracking light ───────────────────────────────────────
@@ -5244,7 +5244,7 @@ function animate(ts) {
     // Pass 663: during scan, shadow pulses with scanner beam frequency (8Hz twitch)
     const _shadowScanPulse = (inPhase(PH.scan) && _onBelt) ? 1.62 * Math.abs(Math.sin(ts * 8 * Math.PI * 2)) : 0; // Pass 2471: shadow scan pulse 0.20→0.27 — Pass 2714: 0.27→0.36 — Pass 2813: 0.36→0.49 — Pass 2945: 0.49→0.66 — Pass 3151: 0.66→0.89 — Pass 3320: 0.89→1.20 — Pass 4175: 1.20→1.62 deeper scan shadow pulse
     const _shadowTarget = _onBelt ? 1.0 + _shadowScanPulse : 0; // Pass 2472: shadow opacity 0.93→1.0
-    _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 8);
+    _shadowMat.opacity += (_shadowTarget - _shadowMat.opacity) * Math.min(1, dt * 10.8); // Pass 4398: shadow tracking rate 8→10.8 snappier shadow response
     if (_onBelt) {
       _shadowMesh.position.set(activeCard.position.x, CONV_Y_TOP + 0.4, activeCard.position.z);
     }
@@ -5252,7 +5252,7 @@ function animate(ts) {
       // Pass 198: shadow speed-stretch — shadow elongates forward along belt when card is moving.
       // conveyorIn/Out → stretch up to ~7 extra units; scan (stationary) → compress back to base.
       const _beltMoving = (_onBelt && (inPhase(PH.conveyorIn) || inPhase(PH.conveyorOut)));
-      const _stretchTarget = _beltMoving ? CARD_H * 0.74 + _beltScrollSpeed * 2124 : CARD_H * 0.74; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863 — Pass 3152: 863→1165 — Pass 3321: 1165→1573 — Pass 4176: 1573→2124 more dynamic speed-stretch
+      const _stretchTarget = _beltMoving ? CARD_H * 1.00 + _beltScrollSpeed * 2124 : CARD_H * 1.00; // Pass 2051: base stretch 0.55→0.74 Pass 2052: belt factor 350→473 — Pass 2814: 473→639 — Pass 2946: 639→863 — Pass 3152: 863→1165 — Pass 3321: 1165→1573 — Pass 4176: 1573→2124 more dynamic speed-stretch — Pass 4397: base 0.74→1.00 wider card shadow
       _shadowMesh.scale.x += (_stretchTarget - _shadowMesh.scale.x) * Math.min(1, dt * 6);
     }
     _shadowMesh.visible = _shadowMat.opacity > 0.01;
