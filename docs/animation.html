@@ -41,7 +41,7 @@
   #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; transition: color 0.3s; display: inline-block; }
   @keyframes countBump {
     0%   { transform: scale(1.0);   text-shadow: none; }
-    20%  { transform: scale(42.0);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale — Pass 5938: 3.81→5.14 more dramatic score count bump peak scale — Pass 6001: 5.14→6.94 more dramatic score count bump peak scale — Pass 6444: 6.94→9.37 more dramatic score count bump peak scale — Pass 6866: 9.37→12.6 more dramatic score count bump peak scale — Pass 6958: 12.6→17.0 more dramatic score count bump peak scale — Pass 7183: 17.0→23.0 more dramatic score count bump peak scale — Pass 7363: 23.0→31.1 more dramatic score count bump peak scale — Pass 7419: 31.1→42.0 more dramatic score count bump peak scale */
+    20%  { transform: scale(56.7);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale — Pass 5938: 3.81→5.14 more dramatic score count bump peak scale — Pass 6001: 5.14→6.94 more dramatic score count bump peak scale — Pass 6444: 6.94→9.37 more dramatic score count bump peak scale — Pass 6866: 9.37→12.6 more dramatic score count bump peak scale — Pass 6958: 12.6→17.0 more dramatic score count bump peak scale — Pass 7183: 17.0→23.0 more dramatic score count bump peak scale — Pass 7363: 23.0→31.1 more dramatic score count bump peak scale — Pass 7419: 31.1→42.0 more dramatic score count bump peak scale — Pass 7427: 42.0→56.7 more dramatic score count bump peak scale */
     55%  { transform: scale(0.95);  text-shadow: 0 0 8px currentColor; }
     100% { transform: scale(1.0);   text-shadow: none; }
   }
@@ -212,7 +212,7 @@
   /* ── Stats count bounce ─────────────────────────────────────────────── */
   @keyframes countBounce {
     0%   { transform: scale(1); }
-    35%  { transform: scale(54.1); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop — Pass 5802: 3.65→4.93 more dramatic stats count bounce peak scale — Pass 5942: 4.93→6.66 more dramatic stats count bounce peak scale — Pass 6000: 6.66→8.99 more dramatic stats count bounce peak scale — Pass 6407: 8.99→12.1 more dramatic stats count bounce peak scale — Pass 6868: 12.1→16.3 more dramatic stats count bounce peak scale — Pass 6960: 16.3→22.0 more dramatic stats count bounce peak scale — Pass 7178: 22.0→29.7 more dramatic stats count bounce peak scale — Pass 7365: 29.7→40.1 more dramatic stats count bounce peak scale — Pass 7426: 40.1→54.1 more dramatic stats count bounce peak scale */
+    35%  { transform: scale(73.0); } /* Pass 4912: stats count bounce peak scale 1.5→2.0 more dramatic count pop — Pass 5036: 2.0→2.70 more dramatic count pop — Pass 5333: 2.70→3.65 more dramatic card deal bounce energy count pop — Pass 5802: 3.65→4.93 more dramatic stats count bounce peak scale — Pass 5942: 4.93→6.66 more dramatic stats count bounce peak scale — Pass 6000: 6.66→8.99 more dramatic stats count bounce peak scale — Pass 6407: 8.99→12.1 more dramatic stats count bounce peak scale — Pass 6868: 12.1→16.3 more dramatic stats count bounce peak scale — Pass 6960: 16.3→22.0 more dramatic stats count bounce peak scale — Pass 7178: 22.0→29.7 more dramatic stats count bounce peak scale — Pass 7365: 29.7→40.1 more dramatic stats count bounce peak scale — Pass 7426: 40.1→54.1 more dramatic stats count bounce peak scale — Pass 7428: 54.1→73.0 more dramatic stats count bounce peak scale */
     65%  { transform: scale(0.92); }
     100% { transform: scale(1); }
   }
@@ -925,14 +925,14 @@ const scanBarMesh = new THREE.Mesh(
 );
 // Positioned on front face of scanner hood (Z=-50 is front edge of 100-deep hood)
 // Hood centre X=-40, top Y=CONV_Y_TOP+65; bar sits 3u below top on front face
-scanBarMesh.position.set(-40, CONV_Y_TOP + 278, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 higher scan bar mount — Pass 5056: 83.7→113.0 higher scan bar mount — Pass 6350: 113.0→152.6 higher scan bar mount — Pass 6513: 152.6→206 higher scan bar mount — Pass 7411: 206→278 higher scan bar mount
+scanBarMesh.position.set(-40, CONV_Y_TOP + 375, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 higher scan bar mount — Pass 5056: 83.7→113.0 higher scan bar mount — Pass 6350: 113.0→152.6 higher scan bar mount — Pass 6513: 152.6→206 higher scan bar mount — Pass 7411: 206→278 higher scan bar mount — Pass 7429: 278→375 higher scan bar mount
 scanBarMesh.visible = false;
 scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
 const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(21.3, 21.3, 21.3), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block — Pass 5030: 6.39→8.63 larger cursor block — Pass 5744: 8.63→11.7 larger scan bar leading-edge cursor block — Pass 6437: 11.7→15.8 larger scan bar leading-edge cursor block — Pass 6884: 15.8→21.3 larger scan bar leading-edge cursor block
-scanBarCursor.position.set(-40, CONV_Y_TOP + 278, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount — Pass 6351: 113.0→152.6 higher scan bar cursor mount — Pass 6513: 152.6→206 higher scan bar cursor mount — Pass 7411: 206→278 higher scan bar cursor mount
+scanBarCursor.position.set(-40, CONV_Y_TOP + 375, -51); // Pass 4650: scan bar reveal lift distance 62→83.7 — Pass 5056: 83.7→113.0 higher scan bar cursor mount — Pass 6351: 113.0→152.6 higher scan bar cursor mount — Pass 6513: 152.6→206 higher scan bar cursor mount — Pass 7411: 206→278 higher scan bar cursor mount — Pass 7429: 278→375 higher scan bar cursor mount
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
 
@@ -2405,7 +2405,7 @@ function animate(ts) {
     } else {
       const _bt = (a.t - 0.80) / 0.20; // 0→1 over the bounce phase
       // Pass 325: arrival bounce boost — Pass 902: 7→11 — Pass 1003: →16 — Pass 1231: →23 — Pass 1400: →32 — Pass 3465: →43 — Pass 3642: →58 — Pass 3783: →78.3 — Pass 3888: →106 for more physical slot landing — Pass 4769: →193 stronger slot landing
-      _yPos = a.targetY + 2874 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy — Pass 5996: 352→475 stronger slot landing bounce energy — Pass 6323: 475→641 stronger slot tray arrival bounce energy — Pass 6339: 641→865 stronger slot tray arrival bounce energy — Pass 6360: 865→1168 stronger slot tray arrival bounce energy — Pass 6515: 1168→1577 stronger slot tray arrival bounce energy — Pass 6752: 1577→2129 stronger slot tray arrival bounce energy — Pass 7412: 2129→2874 stronger slot tray arrival bounce energy
+      _yPos = a.targetY + 3880 * Math.sin(_bt * Math.PI) * (1 - _bt * 0.47); // Pass 4257: tray arrival bounce 106→143 more physical slot landing — Pass 4640: bounce decay 0.35→0.47 snappier slot bounce settling — Pass 4769: bounce 143→193 stronger slot landing — Pass 5065: 193→261 stronger slot landing — Pass 5330: 261→352 stronger card deal bounce energy — Pass 5996: 352→475 stronger slot landing bounce energy — Pass 6323: 475→641 stronger slot tray arrival bounce energy — Pass 6339: 641→865 stronger slot tray arrival bounce energy — Pass 6360: 865→1168 stronger slot tray arrival bounce energy — Pass 6515: 1168→1577 stronger slot tray arrival bounce energy — Pass 6752: 1577→2129 stronger slot tray arrival bounce energy — Pass 7412: 2129→2874 stronger slot tray arrival bounce energy — Pass 7430: 2874→3880 stronger slot tray arrival bounce energy
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
@@ -2897,7 +2897,7 @@ function animate(ts) {
     if(inPhase(PH.armLift) && stackCards[stackTopIdx]) {
       const lt = phaseRaw(PH.armLift);
       const baseY = CARD_T/2 + 6 + stackTopIdx * (CARD_T + 0.5);
-      stackCards[stackTopIdx].position.y = baseY + lt * 630; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 — Pass 1838: →lt*57 — Pass 3948: 57→77.0 — Pass 4195: 77.0→104.0 higher card elevation during lift — Pass 5025: 104.0→140.4 higher card lift — Pass 5207: 140.4→189.5 higher stack card lift apex — Pass 5985: 189.5→256 higher stack card lift apex height — Pass 6528: 256→346 higher stack card lift apex height — Pass 6814: 346→467 higher stack card lift apex height — Pass 7413: 467→630 higher stack card lift apex height
+      stackCards[stackTopIdx].position.y = baseY + lt * 851; // Pass 1067: lt*20→lt*30 — Pass 1502: →lt*42 — Pass 1838: →lt*57 — Pass 3948: 57→77.0 — Pass 4195: 77.0→104.0 higher card elevation during lift — Pass 5025: 104.0→140.4 higher card lift — Pass 5207: 140.4→189.5 higher stack card lift apex — Pass 5985: 189.5→256 higher stack card lift apex height — Pass 6528: 256→346 higher stack card lift apex height — Pass 6814: 346→467 higher stack card lift apex height — Pass 7413: 467→630 higher stack card lift apex height — Pass 7431: 630→851 higher stack card lift apex height
     }
 
     // Card tracks suction cup (pass 154: Z follows pivot during arm phases)
@@ -2946,7 +2946,7 @@ function animate(ts) {
       const _stPeak = phaseRaw(PH.armSwing);
       if (!_swingPeakFlashFired && _stPeak >= 0.46) {
         _swingPeakFlashFired = true;
-        const _spfl = new THREE.PointLight(ct.hex, 1193, 628); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7 — Pass 3772: 79.7→108 — Pass 3879: 108→146 — Pass 4200: 146→197 — Pass 4919: 197→266 brighter arc apex flash — Pass 5298: arc apex flash intensity 266→359 brighter slot entry arc apex pop — Pass 5588: 359→485 brighter arc apex flash intensity — Pass 5603: 485→655 brighter grab burst light range arc apex flash intensity — Pass 6658: 655→884 brighter armSwing arc-peak flash intensity — Pass 6957: 344→465 wider armSwing arc-peak flash light range — Pass 7414: 884→1193 brighter armSwing arc-peak flash intensity — Pass 7415: 465→628 wider armSwing arc-peak flash light range
+        const _spfl = new THREE.PointLight(ct.hex, 1611, 628); // Pass 2285: armSwing arc-peak flash 32.4→43.7 — Pass 3429: 43.7→59.0 — Pass 3638: 59.0→79.7 — Pass 3772: 79.7→108 — Pass 3879: 108→146 — Pass 4200: 146→197 — Pass 4919: 197→266 brighter arc apex flash — Pass 5298: arc apex flash intensity 266→359 brighter slot entry arc apex pop — Pass 5588: 359→485 brighter arc apex flash intensity — Pass 5603: 485→655 brighter grab burst light range arc apex flash intensity — Pass 6658: 655→884 brighter armSwing arc-peak flash intensity — Pass 6957: 344→465 wider armSwing arc-peak flash light range — Pass 7414: 884→1193 brighter armSwing arc-peak flash intensity — Pass 7415: 465→628 wider armSwing arc-peak flash light range — Pass 7433: 1193→1611 brighter armSwing arc-peak flash intensity
         _spfl.position.copy(activeCard.position);
         scene.add(_spfl);
         if (!window._flashLights) window._flashLights = [];
@@ -2986,7 +2986,7 @@ function animate(ts) {
     if (!_depositFired) {
       _depositFired = true;
       // Pass 559: belt deposit flash intensity 4.5→8.0 — Pass 678: →11.0 — Pass 868: →16.0 — Pass 1095: →24.0 — Pass 1300: →34.0 — Pass 1379: →46.0 — Pass 1684: →62.0, dist→175
-      const _dfl = new THREE.PointLight(ct.hex, 1245, 431); // Pass 2287: belt deposit flash 83.7→113.0 — Pass 3416: 113.0→152.6 — Pass 3528: 152.6→206 — Pass 3711: 206→278 — Pass 3824: 278→375 — Pass 4203: 375→506 bigger belt deposit flash — Pass 4501: belt entry deposit flash reach 175→236 wider entry flash — Pass 5180: 506→683 brighter belt deposit flash — Pass 5794: range 236→319 wider belt deposit flash reach — Pass 6530: 683→922 brighter belt deposit flash intensity — Pass 7418: 922→1245 brighter belt deposit flash intensity — Pass 7419: 319→431 wider belt deposit flash light range
+      const _dfl = new THREE.PointLight(ct.hex, 1681, 431); // Pass 2287: belt deposit flash 83.7→113.0 — Pass 3416: 113.0→152.6 — Pass 3528: 152.6→206 — Pass 3711: 206→278 — Pass 3824: 278→375 — Pass 4203: 375→506 bigger belt deposit flash — Pass 4501: belt entry deposit flash reach 175→236 wider entry flash — Pass 5180: 506→683 brighter belt deposit flash — Pass 5794: range 236→319 wider belt deposit flash reach — Pass 6530: 683→922 brighter belt deposit flash intensity — Pass 7418: 922→1245 brighter belt deposit flash intensity — Pass 7419: 319→431 wider belt deposit flash light range — Pass 7434: 1245→1681 brighter belt deposit flash intensity
       _dfl.position.set(-111, CONV_Y_TOP + 10, 0); // belt entry X at armSwing end
       scene.add(_dfl);
       if (!window._flashLights) window._flashLights = [];
@@ -3835,7 +3835,7 @@ function animate(ts) {
     slotSweepLight.intensity = 0; // pass 81: off during conveyor
     scanBloom.intensity = 0;
     // Pass 165: smooth LED decay from scan peak (~2.0) to idle (1.2) — was hard snap
-    scanLEDMat.emissiveIntensity += (9.84 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 14.7); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest — Pass 4694: idle tracking speed dt*6→dt*8.1 snappier scan LED idle settle — Pass 5369: 8.1→10.9 snappier scan LED idle settle tracking — Pass 5506: 5.40→7.29 brighter scan LED idle emissive floor — Pass 6583: 7.29→9.84 brighter scan LED idle emissive floor target — Pass 7410: 10.9→14.7 snappier scan LED idle emissive settle tracking
+    scanLEDMat.emissiveIntensity += (13.3 - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 14.7); // Pass 2364: scan LED idle 1.62→2.19 — Pass 3021: 2.19→2.96 — Pass 3997: 2.96→4.00 — Pass 4310: 4.00→5.40 brighter scan LED at rest — Pass 4694: idle tracking speed dt*6→dt*8.1 snappier scan LED idle settle — Pass 5369: 8.1→10.9 snappier scan LED idle settle tracking — Pass 5506: 5.40→7.29 brighter scan LED idle emissive floor — Pass 6583: 7.29→9.84 brighter scan LED idle emissive floor target — Pass 7410: 10.9→14.7 snappier scan LED idle emissive settle tracking — Pass 7432: 9.84→13.3 brighter scan LED idle emissive floor target
     scanLine.visible = false; scanLine2.visible = false; scanBarMesh.visible = false;
     cardShimmerMesh.visible = false; // pass 90
     scanPings.forEach(p => { p.mesh.visible = false; p.mat.opacity = 0; });
