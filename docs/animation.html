@@ -762,7 +762,7 @@ const hopperLEDMat = new THREE.MeshStandardMaterial({
   color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 16.3, // Pass 4041: hopper LED emissive 2.0→2.70 brighter status indicator — Pass 4668: 2.70→3.65 brighter hopper LED — Pass 4955: 3.65→4.93 brighter hopper LED — Pass 5043: 4.93→6.66 brighter hopper LED — Pass 5066: 6.66→8.99 brighter hopper LED — Pass 5303: 8.99→12.1 brighter slot wall LED color urgency — Pass 5739: 12.1→16.3 brighter hopper status LED emissive
   roughness: 0.05, metalness: 0.0,
 });
-const hopperLED = new THREE.Mesh(new THREE.SphereGeometry(3.5, 14, 14), hopperLEDMat); // Pass 4984: hopper LED sphere segments 10→14 smoother status indicator
+const hopperLED = new THREE.Mesh(new THREE.SphereGeometry(3.5, 19, 19), hopperLEDMat); // Pass 4984: hopper LED sphere segments 10→14 smoother status indicator — Pass 5823: 14→19 smoother hopper LED sphere
 // Position on front-right face of hopper body (Z=52 = front side wall)
 hopperLED.position.set(HOPPER_X + 55, 80, 52);
 scene.add(hopperLED);
@@ -837,7 +837,7 @@ for(let lx of [-140, -40, 60]) {
 }
 
 // Conveyor end rollers at belt ends
-const rollerGeo = new THREE.CylinderGeometry(8, 8, 76, 22); // Pass 4961: roller radial segments 16→22 smoother conveyor rollers
+const rollerGeo = new THREE.CylinderGeometry(8, 8, 76, 30); // Pass 4961: roller radial segments 16→22 smoother conveyor rollers — Pass 5818: 22→30 smoother conveyor rollers
 // Pass 101: per-roller materials so each can glow independently when card passes over
 const rollerMats = [-140, 60].map(() => new THREE.MeshStandardMaterial({
   color: 0x606068, roughness: 0.3, metalness: 0.6,
@@ -866,7 +866,7 @@ scannerHood.position.set(-40, CONV_Y_TOP + 32.5, 0);
 scene.add(scannerHood);
 
 // Camera lens aperture on hood underside
-const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 27); // Pass 4953: lens radial segments 20→27 smoother camera aperture
+const lensGeo = new THREE.CylinderGeometry(7, 7, 2, 36); // Pass 4953: lens radial segments 20→27 smoother camera aperture — Pass 5819: 27→36 smoother camera aperture
 const lensMat = new THREE.MeshStandardMaterial({
   color: 0x001122, roughness: 0.05, metalness: 0.9,
   emissive: new THREE.Color(0x002244), emissiveIntensity: 1.33 // Pass 4761: camera lens base emissive 0.4→0.54 — Pass 4969: 0.54→0.729 brighter camera lens aperture — Pass 5130: 0.729→0.984 brighter camera lens aperture — Pass 5707: 0.984→1.33 brighter camera lens aperture emissive
@@ -893,7 +893,7 @@ const scanLEDMat = new THREE.MeshStandardMaterial({
   transparent: true, opacity: 0.85,
   roughness: 0.1, metalness: 0.2
 });
-const scanLED = new THREE.Mesh(new THREE.BoxGeometry(78, 4.05, 4.05), scanLEDMat); // Pass 4986: scanner LED strip cross-section 3→4.05 chunkier scanner LED
+const scanLED = new THREE.Mesh(new THREE.BoxGeometry(78, 5.47, 5.47), scanLEDMat); // Pass 4986: scanner LED strip cross-section 3→4.05 chunkier scanner LED — Pass 5824: 4.05→5.47 chunkier scanner LED strip
 scanLED.position.set(-40, CONV_Y_TOP + 0.5, 20);
 scene.add(scanLED);
 
@@ -1078,7 +1078,7 @@ paddlePivot.add(paddleMesh);
 paddleMesh.position.set(0, 0, 0);
 // Connecting shaft from servo to paddle
 const shaftMesh = new THREE.Mesh(
-  new THREE.CylinderGeometry(3, 3, 10, 14), // Pass 4954: shaft radial segments 10→14 smoother connector shaft
+  new THREE.CylinderGeometry(3, 3, 10, 19), // Pass 4954: shaft radial segments 10→14 smoother connector shaft — Pass 5820: 14→19 smoother connector shaft
   new THREE.MeshStandardMaterial({ color: 0x888890, roughness: 0.3, metalness: 0.7 })
 );
 shaftMesh.position.set(0, 8, 0);
@@ -1240,7 +1240,7 @@ scene.add(suctionPivot);
 
 // Arm rod: cylindrical metal rod
 const armRod = new THREE.Mesh(
-  new THREE.CylinderGeometry(2.5, 2.5, 80, 16), // Pass 4955: arm rod radial segments 12→16 smoother arm rod
+  new THREE.CylinderGeometry(2.5, 2.5, 80, 22), // Pass 4955: arm rod radial segments 12→16 smoother arm rod — Pass 5821: 16→22 smoother arm rod
   new THREE.MeshStandardMaterial({
     color: 0x909098, roughness: 0.2, metalness: 0.7,
     emissive: new THREE.Color(0xffffff), emissiveIntensity: 0
@@ -1259,7 +1259,7 @@ flange.position.set(0, 0, 0);
 suctionPivot.add(flange);
 
 // Suction cup — round disc with emissive capability for domain color glow
-const suctionCupGeo = new THREE.CylinderGeometry(7, 5, 4, 16); // Pass 4957: suction cup radial segments 12→16 smoother grip cup
+const suctionCupGeo = new THREE.CylinderGeometry(7, 5, 4, 22); // Pass 4957: suction cup radial segments 12→16 smoother grip cup — Pass 5822: 16→22 smoother grip cup
 const suctionCupMat = new THREE.MeshStandardMaterial({
   color: 0x222233, roughness: 0.8,
   emissive: new THREE.Color(0x000000), emissiveIntensity: 0
@@ -2712,10 +2712,10 @@ function animate(ts) {
       }
       // Pass 102: air displacement trail — cup cuts through air on rapid descent
       // Only active in faster descent portion (pt > 0.25); spawns every 90ms
-      // Pass 571: armDescend air trail spawn interval 0.09→0.065s — Pass 1678: →0.045s — Pass 4065: →0.030s denser descent trail
+      // Pass 571: armDescend air trail spawn interval 0.09→0.065s — Pass 1678: →0.045s — Pass 4065: →0.030s denser descent trail — Pass 5794: 0.030→0.019 denser armDescend contrail
       if (pt > 0.25) {
         _trailSpawnAcc += dt;
-        if (_trailSpawnAcc >= 0.030) {
+        if (_trailSpawnAcc >= 0.019) { // Pass 5794: 0.030→0.019 denser armDescend contrail
           _trailSpawnAcc = 0;
           const _dRot = suctionPivot.rotation.z;
           const _dCupX = PIV_X + 83 * Math.sin(_dRot);
@@ -3467,7 +3467,7 @@ function animate(ts) {
     // Reuses TRAIL_PARTICLES (idle during scan since no arm-swing/deflect overlap).
     // Pass 535: 0.14→0.10s — Pass 722: →0.07s — Pass 842: →0.048s for denser exhaust
     _scanExhaustAcc += dt;
-    if (_scanExhaustAcc >= 0.022 && flashIntensity > 0.15) { // Pass 2541: exhaust interval 0.048→0.030 denser — Pass 4294: 0.030→0.022 even denser exhaust plume
+    if (_scanExhaustAcc >= 0.014 && flashIntensity > 0.15) { // Pass 2541: exhaust interval 0.048→0.030 denser — Pass 4294: 0.030→0.022 even denser exhaust plume — Pass 5795: 0.022→0.014 even denser exhaust plume
       _scanExhaustAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -3500,7 +3500,7 @@ function animate(ts) {
           const _pingZ311 = _identityRevealed ? ct.slotZ * Math.min(1, (ft - 0.85) / 0.15) * 40.1 : 0; // Pass 2546: ping Z drift 2.00→2.70 — Pass 2837: 2.70→3.65 — Pass 2984: 3.65→4.93 — Pass 3183: 4.93→6.66 — Pass 3424: 6.66→8.99 — Pass 3532: 8.99→12.1 — Pass 3770: 12.1→16.3 — Pass 3877: 16.3→22.0 — Pass 4242: 22.0→29.7 more pronounced destination lean — Pass 5386: 29.7→40.1 more pronounced destination lean
           p.mesh.position.z = _pingZ311;
           // Pass 274: post-reveal ping scale — Pass 400: 8.5→11.0 — Pass 716: →14.0 — Pass 797: →19.0 — Pass 1165: →26.0 — Pass 1410: →36.0 — Pass 1524: →50.0 (wider confirm rings)
-          const _pingMaxScale = _identityRevealed ? 224.2 : 33.2; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1 — Pass 3184: 166.1→224.2 — Pass 3470: pre-reveal 10.0→13.5 — Pass 3769: 13.5→18.2 — Pass 4243: pre-reveal 18.2→24.6 wider pre-reveal ping rings — Pass 5432: pre-reveal 24.6→33.2 wider pre-reveal ping rings
+          const _pingMaxScale = _identityRevealed ? 303 : 33.2; // Pass 2544: post-reveal ping scale 67.5→91.1 Pass 2545: pre-reveal 5.5→7.4 — Pass 2838: 91.1→123.0 Pass 2839: 7.4→10.0 — Pass 2985: 123.0→166.1 — Pass 3184: 166.1→224.2 — Pass 3470: pre-reveal 10.0→13.5 — Pass 3769: 13.5→18.2 — Pass 4243: pre-reveal 18.2→24.6 wider pre-reveal ping rings — Pass 5432: pre-reveal 24.6→33.2 wider pre-reveal ping rings — Pass 5825: post-reveal 224.2→303 wider post-reveal ping rings
           const s = 1 + localFt * _pingMaxScale;
           p.mesh.scale.setScalar(s);
           // Pass 91: pings are cool blue-white (unknown) before 85% confirm, then domain color
@@ -3808,7 +3808,7 @@ function animate(ts) {
       : 0;
     paddleMat.emissiveIntensity += (_gateChargeTarget + _gateFlicker - paddleMat.emissiveIntensity) * Math.min(1, dt * 14.6); // Pass 4821: paddle charge emissive tracking rate 8→10.8 — Pass 5556: 10.8→14.6 snappier paddle charge emissive tracking
     // Pass 124: gate charge static corona — slow drift particles emanate from paddle when charged
-    if (ot > 0.26) { // Pass 2075: corona spawn start 0.45→0.35 — Pass 4295: 0.35→0.26 earlier gate corona
+    if (ot > 0.17) { // Pass 2075: corona spawn start 0.45→0.35 — Pass 4295: 0.35→0.26 earlier gate corona — Pass 5796: 0.26→0.17 earlier gate corona spawn
       _trailSpawnAcc += dt;
       const _coronaRate = 0.18 - (ot - 0.45) * 0.182; // faster spawn as charge peaks // Pass 4516: corona spawn interval minimum 0.10→0.135 denser corona burst at peak charge — Pass 5568: coefficient 0.135→0.182 denser peak corona
       if (_trailSpawnAcc >= _coronaRate) {
@@ -3858,7 +3858,7 @@ function animate(ts) {
     // Pass 459: final-approach trail density boost — last 35% of conveyorOut spawns at 38ms
     // instead of 70ms, creating a denser contrail "surge" as card punches toward the gate.
     // Pass 459: final-approach density — Pass 823: early 0.07→0.05, final 0.038→0.026 for denser contrail
-    const _convTrailRate = ot > 0.65 ? 0.019 : 0.028; // Pass 2080: early trail density 0.05→0.038 — Pass 4296: early 0.038→0.028 final 0.026→0.019 denser conveyor trail
+    const _convTrailRate = ot > 0.65 ? 0.012 : 0.018; // Pass 2080: early trail density 0.05→0.038 — Pass 4296: early 0.038→0.028 final 0.026→0.019 denser conveyor trail — Pass 5797: early 0.028→0.018 final 0.019→0.012 denser conveyor trail
     _trailSpawnAcc += dt;
     if (_trailSpawnAcc >= _convTrailRate) {
       _trailSpawnAcc = 0;
@@ -4051,7 +4051,7 @@ function animate(ts) {
     _beltScrollSpeed = 0.0729; // half speed while card arcs off belt — Pass 4876: deflect belt speed 0.04→0.054 livelier belt during arc — Pass 5091: 0.054→0.0729 livelier belt scroll during arc flight
     // Pass 35: spawn contrail particles tracing the card's arc trajectory
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.022) { // Pass 2102: deflect trail spawn 0.040→0.030 denser — Pass 4297: 0.030→0.022 even denser deflect contrail
+    if (_trailSpawnAcc >= 0.014) { // Pass 2102: deflect trail spawn 0.040→0.030 denser — Pass 4297: 0.030→0.022 even denser deflect contrail — Pass 5798: 0.022→0.014 even denser deflect contrail
       _trailSpawnAcc = 0;
       const tp = TRAIL_PARTICLES[_trailHead % TRAIL_PARTICLE_COUNT];
       _trailHead++;
@@ -4523,7 +4523,7 @@ function animate(ts) {
     // (armReturn and deflect/armSwing never overlap, so pool is free here)
     // Pass 557: armReturn trail spawn interval 0.07→0.05s — Pass 672: →0.038s — Pass 1055: →0.026s denser trail
     _trailSpawnAcc += dt;
-    if (_trailSpawnAcc >= 0.0096) { // Pass 2151: armReturn trail interval 0.018→0.013 denser — Pass 4342: 0.013→0.0096 denser return contrail
+    if (_trailSpawnAcc >= 0.0062) { // Pass 2151: armReturn trail interval 0.018→0.013 denser — Pass 4342: 0.013→0.0096 denser return contrail — Pass 5799: 0.0096→0.0062 denser return contrail
       _trailSpawnAcc = 0;
       const _aRot = suctionPivot.rotation.z;
       const _aCupX = PIV_X + 83 * Math.sin(_aRot);
@@ -4535,7 +4535,7 @@ function animate(ts) {
       // Pass 558: domain wisp opacity 0.30+0.15 → 0.48+0.22 — Pass 643: extend wisp to 45%; boost 0.48+0.22→0.62+0.28
       // Pass 865: domain wisp opacity 0.62+0.28→0.80+0.40 — Pass 1052: →0.90+0.48 richer memory trail
       const _arT245 = phaseRaw(PH.armReturn);
-      if (_arT245 < 0.88) { // Pass 643: 0.30→0.45 — Pass 1507: →0.55 — Pass 1602: →0.65 even longer domain memory on return — Pass 4283: 0.65→0.88 dominant domain memory on return
+      if (_arT245 < 1.19) { // Pass 643: 0.30→0.45 — Pass 1507: →0.55 — Pass 1602: →0.65 even longer domain memory on return — Pass 4283: 0.65→0.88 dominant domain memory on return — Pass 5800: 0.88→1.19 full domain color throughout armReturn
         tp.mat.color.setHex(ct.hex);
         // Pass 1599: domain wisp opacity 0.90+0.10→1.0 (max brightness)
         tp.mat.opacity = Math.min(1.0, 0.95 + Math.random() * 0.10);
@@ -4920,7 +4920,7 @@ function animate(ts) {
     _shakePhase2 += dt * 239; // ~38Hz
     const _n  = (Math.random() - 0.5) * 2;             // white noise
     const _h1 = Math.sin(_shakePhase1);                  // first harmonic
-    const _h2 = Math.sin(_shakePhase2) * 14.2;            // Pass 2531: second harmonic 1.28→1.73 — Pass 2685: 1.73→2.34 — Pass 2781: 2.34→3.16 — Pass 2915: 3.16→4.27 — Pass 3125: 4.27→5.76 — Pass 3296: 5.76→7.78 — Pass 3612: 7.78→10.5 — Pass 4752: 10.5→14.2
+    const _h2 = Math.sin(_shakePhase2) * 19.2;            // Pass 2531: second harmonic 1.28→1.73 — Pass 2685: 1.73→2.34 — Pass 2781: 2.34→3.16 — Pass 2915: 3.16→4.27 — Pass 3125: 4.27→5.76 — Pass 3296: 5.76→7.78 — Pass 3612: 7.78→10.5 — Pass 4752: 10.5→14.2 — Pass 5801: 14.2→19.2 stronger shake harmonic weight
     // Hotfix 3333a: clamp effective shake to prevent runaway displacement — shake values & multipliers
     // have been individually boosted over many passes; compound product was reaching 10,000+ world units.
     // Hotfix 3333b: camera shake DISABLED — shake magnitudes (up to 397) and displacement
