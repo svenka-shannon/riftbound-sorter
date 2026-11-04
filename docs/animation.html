@@ -903,7 +903,7 @@ scanSlot.position.set(-80, CONV_Y_TOP + 2, 0);
 scene.add(scanSlot);
 
 // Flash point light inside scanner (animated during scan phase)
-const scanFlash = new THREE.PointLight(0xffffff, 0, 135); // Pass 4021: scanFlash range 100→135
+const scanFlash = new THREE.PointLight(0xffffff, 0, 182); // Pass 4021: scanFlash range 100→135 — Pass 4904: 135→182 wider scan flash reach
 scanFlash.position.set(-40, CONV_Y_TOP + 20, 0);
 scene.add(scanFlash);
 
@@ -920,7 +920,7 @@ const scanBarMat = new THREE.MeshStandardMaterial({
   transparent: true, opacity: 0, depthWrite: false,
 });
 const scanBarMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 3.38, 3.38), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar
+  new THREE.BoxGeometry(SCAN_BAR_MAX_W, 4.56, 4.56), // Pass 4010: scan bar thickness 2.5→3.38 more prominent progress bar — Pass 4905: 3.38→4.56 chunkier scan bar
   scanBarMat
 );
 // Positioned on front face of scanner hood (Z=-50 is front edge of 100-deep hood)
@@ -931,19 +931,19 @@ scene.add(scanBarMesh);
 
 // Pass 151: Scan bar leading-edge cursor — bright vertical marker at bar's right end
 const scanBarCursorMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(4.73, 4.73, 4.73), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge
+const scanBarCursor = new THREE.Mesh(new THREE.BoxGeometry(6.39, 6.39, 6.39), scanBarCursorMat); // Pass 4011: scan bar cursor size 3.5→4.73 more visible leading edge — Pass 4906: 4.73→6.39 larger cursor block
 scanBarCursor.position.set(-40, CONV_Y_TOP + 83.7, -51); // Pass 4650: scan bar reveal lift distance 62→83.7
 scanBarCursor.visible = false;
 scene.add(scanBarCursor);
 
 // Scan destination target light — illuminates the slot the card is going to
 // during scan phase so viewer immediately knows the routing decision
-const scanTargetLight = new THREE.PointLight(0xffffff, 0, 122); // Pass 4022: scanTargetLight range 90→122
+const scanTargetLight = new THREE.PointLight(0xffffff, 0, 165); // Pass 4022: scanTargetLight range 90→122 — Pass 4907: 122→165 wider scan target reach
 scanTargetLight.decay = 2.70; // Pass 4809: scan target light decay 2→2.70 tighter spotlight falloff
 scene.add(scanTargetLight);
 
 // Pass 81: slot sweep light — travels through tray slot during slotDrop
-const slotSweepLight = new THREE.PointLight(0xffffff, 0, 74); // Pass 4007: sweep light reach 55→74 deeper slot illumination
+const slotSweepLight = new THREE.PointLight(0xffffff, 0, 99.9); // Pass 4007: sweep light reach 55→74 deeper slot illumination — Pass 4908: 74→99.9 wider slot sweep reach
 slotSweepLight.decay = 2.70; // Pass 4810: slot sweep light decay 2→2.70 focused slot beam falloff
 scene.add(slotSweepLight);
 
@@ -968,7 +968,7 @@ const scanBeamMat = new THREE.MeshBasicMaterial({
   color: 0x00ff88, transparent: true, opacity: 0, depthWrite: false
 });
 const scanBeam = new THREE.Mesh(
-  new THREE.CylinderGeometry(2.0, 2.0, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core
+  new THREE.CylinderGeometry(2.70, 2.70, 55, 8), // Pass 4330: scan beam radius 1.5→2.0 fatter laser core — Pass 4909: 2.0→2.70 even fatter beam core
   scanBeamMat
 );
 scanBeam.position.set(-40, CONV_Y_TOP + 10, 0);
@@ -1061,7 +1061,7 @@ const GATE_COL_LEDS = COL_ZS.map((z, ci) => {
 });
 
 // Pass 141: Gate column tracking light — point light that follows the active LED column
-const gateColLight = new THREE.PointLight(0xffffff, 0, 122); // Pass 4040: gate col light range 90→122 wider column tracking reach
+const gateColLight = new THREE.PointLight(0xffffff, 0, 165); // Pass 4040: gate col light range 90→122 wider column tracking reach — Pass 4910: 122→165 even wider gate column reach
 gateColLight.position.set(GATE_X + 14, CONV_Y_TOP + 38, 0);
 scene.add(gateColLight);
 
@@ -1519,7 +1519,7 @@ scene.add(routeArcLine);
 const routeTargetMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0, roughness: 0.3, transparent: true, opacity: 0
 });
-const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(5.40, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator
+const routeTarget = new THREE.Mesh(new THREE.SphereGeometry(7.29, 10, 10), routeTargetMat); // Pass 4478: route target sphere radius 4→5.40 larger slot destination indicator — Pass 4911: 5.40→7.29 even larger destination orb
 scene.add(routeTarget);
 
 // ─── Ghost trail: 3 transparent card copies that lag behind during belt travel ──
