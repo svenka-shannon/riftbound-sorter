@@ -41,7 +41,7 @@
   #stats-count { font-size: 22px; font-weight: 700; color: #fff; line-height: 1.2; transition: color 0.3s; display: inline-block; }
   @keyframes countBump {
     0%   { transform: scale(1.0);   text-shadow: none; }
-    20%  { transform: scale(6.94);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale — Pass 5938: 3.81→5.14 more dramatic score count bump peak scale — Pass 6001: 5.14→6.94 more dramatic score count bump peak scale */
+    20%  { transform: scale(9.37);  text-shadow: 0 0 12px currentColor, 0 0 25px currentColor; } /* Pass 4871: score count bump peak scale 1.55→2.09 more dramatic score pop — Pass 5032: 2.09→2.82 more dramatic score pop — Pass 5850: 2.82→3.81 more dramatic score count bump peak scale — Pass 5938: 3.81→5.14 more dramatic score count bump peak scale — Pass 6001: 5.14→6.94 more dramatic score count bump peak scale — Pass 6444: 6.94→9.37 more dramatic score count bump peak scale */
     55%  { transform: scale(0.95);  text-shadow: 0 0 8px currentColor; }
     100% { transform: scale(1.0);   text-shadow: none; }
   }
@@ -82,7 +82,7 @@
   }
   /* Pass 62: lock-on snap animation — brackets contract on card ID */
   @keyframes hudLockOn {
-    0%   { transform: translateX(-50%) scale(5.85); opacity: 0.4; } /* Pass 4914: scanner HUD lock-on initial scale 1.3→1.76 bigger bracket snap — Pass 5033: 1.76→2.38 bigger bracket snap — Pass 5851: 2.38→3.21 bigger scanner HUD lock-on initial bracket scale — Pass 5939: 3.21→4.33 bigger scanner HUD lock-on initial bracket scale — Pass 6220: 4.33→5.85 bigger scanner HUD lock-on initial bracket scale */
+    0%   { transform: translateX(-50%) scale(7.90); opacity: 0.4; } /* Pass 4914: scanner HUD lock-on initial scale 1.3→1.76 bigger bracket snap — Pass 5033: 1.76→2.38 bigger bracket snap — Pass 5851: 2.38→3.21 bigger scanner HUD lock-on initial bracket scale — Pass 5939: 3.21→4.33 bigger scanner HUD lock-on initial bracket scale — Pass 6220: 4.33→5.85 bigger scanner HUD lock-on initial bracket scale — Pass 6445: 5.85→7.90 bigger scanner HUD lock-on initial bracket scale */
     35%  { transform: translateX(-50%) scale(0.95); opacity: 1.0; }
     65%  { transform: translateX(-50%) scale(1.02); opacity: 0.9; }
     100% { transform: translateX(-50%) scale(1.0); opacity: 0.7; }
@@ -580,7 +580,7 @@ scene.add(ambientLight);
 scene.add(new THREE.HemisphereLight(0x304060, 0x0a0810, 2.88)); // Pass 4864: hemisphere ambient intensity 0.35→0.473 stronger sky/ground fill — Pass 5415: 0.473→0.639 stronger sky/ground fill — Pass 5738: 0.639→0.863 stronger sky/ground hemisphere fill — Pass 5991: 0.863→1.17 stronger sky/ground hemisphere ambient fill — Pass 6049: 1.17→1.58 stronger sky/ground hemisphere ambient fill — Pass 6342: 1.58→2.13 stronger sky/ground hemisphere ambient fill — Pass 6430: 2.13→2.88 stronger sky/ground hemisphere ambient fill
 
 // Increase key light slightly to compensate for lower ambient
-const keyLight = new THREE.DirectionalLight(0xfff8f0, 13.9); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light — Pass 5963: 5.67→7.65 stronger key light — Pass 6050: 7.65→10.3 stronger key light — Pass 6380: 10.3→13.9 stronger key light
+const keyLight = new THREE.DirectionalLight(0xfff8f0, 18.8); // Pass 4784: key light intensity 1.7→2.30 brighter key illumination — Pass 4986: 2.30→3.11 stronger key light — Pass 5026: 3.11→4.20 stronger key light — Pass 5900: 4.20→5.67 stronger key light — Pass 5963: 5.67→7.65 stronger key light — Pass 6050: 7.65→10.3 stronger key light — Pass 6380: 10.3→13.9 stronger key light — Pass 6436: 13.9→18.8 stronger key light
 keyLight.position.set(400, 600, 400);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(2048, 2048);
@@ -589,11 +589,11 @@ keyLight.shadow.camera.top = 984;   keyLight.shadow.camera.bottom = -493; // Pas
 keyLight.shadow.bias = -0.00246; // Pass 4879: shadow bias -0.001→-0.00135 stronger ambient occlusion falloff — Pass 5422: -0.00135→-0.00182 stronger shadow bias — Pass 6340: -0.00182→-0.00246 stronger shadow bias
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xc0d8ff, 5.54); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill — Pass 5964: 2.25→3.04 stronger cool fill — Pass 6051: 3.04→4.10 stronger cool fill — Pass 6381: 4.10→5.54 stronger cool fill
+const fillLight = new THREE.DirectionalLight(0xc0d8ff, 7.48); // Pass 4037: fill light intensity 0.5→0.68 brighter cool fill — Pass 4665: 0.68→0.918 stronger cool fill — Pass 4952: 0.918→1.24 stronger cool fill — Pass 5027: 1.24→1.67 stronger cool fill — Pass 5901: 1.67→2.25 stronger cool fill — Pass 5964: 2.25→3.04 stronger cool fill — Pass 6051: 3.04→4.10 stronger cool fill — Pass 6381: 4.10→5.54 stronger cool fill — Pass 6437: 5.54→7.48 stronger cool fill
 fillLight.position.set(-400, 300, 200);
 scene.add(fillLight);
 
-const rimLight = new THREE.DirectionalLight(0xffeedd, 3.86); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim — Pass 5965: 1.57→2.12 stronger back rim — Pass 6052: 2.12→2.86 stronger back rim — Pass 6382: 2.86→3.86 stronger back rim
+const rimLight = new THREE.DirectionalLight(0xffeedd, 5.21); // Pass 4038: rim light intensity 0.35→0.47 stronger back rim — Pass 4666: 0.47→0.635 stronger back rim — Pass 4953: 0.635→0.857 stronger back rim — Pass 5028: 0.857→1.16 stronger back rim — Pass 5902: 1.16→1.57 stronger back rim — Pass 5965: 1.57→2.12 stronger back rim — Pass 6052: 2.12→2.86 stronger back rim — Pass 6382: 2.86→3.86 stronger back rim — Pass 6438: 3.86→5.21 stronger back rim
 rimLight.position.set(200, 100, -400);
 scene.add(rimLight);
 
@@ -979,8 +979,8 @@ scene.add(scanBeam);
 const scanLineMat = new THREE.MeshStandardMaterial({
   color: 0x00ff88,
   emissive: new THREE.Color(0x00ff88),
-  emissiveIntensity: 44.4, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive — Pass 5969: 18.1→24.4 brighter scan crosshair primary beam emissive — Pass 6060: 24.4→32.9 brighter scan crosshair primary beam emissive — Pass 6307: 32.9→44.4 brighter scan crosshair primary beam emissive
-  transparent: true, opacity: 2.34 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam — Pass 5879: 1.28→1.73 overdrive scan crosshair primary beam opacity — Pass 6307: 1.73→2.34 overdrive scan crosshair primary beam opacity
+  emissiveIntensity: 59.9, // Pass 4326: scan crosshair primary emissive 3.0→4.05 brighter scan beam — Pass 4671: 4.05→5.47 brighter scan crosshair — Pass 4958: 5.47→7.38 brighter scan crosshair — Pass 5049: 7.38→9.96 brighter scan crosshair — Pass 5311: 9.96→13.4 brighter scan crosshair primary beam — Pass 5866: 13.4→18.1 brighter scan crosshair primary beam emissive — Pass 5969: 18.1→24.4 brighter scan crosshair primary beam emissive — Pass 6060: 24.4→32.9 brighter scan crosshair primary beam emissive — Pass 6307: 32.9→44.4 brighter scan crosshair primary beam emissive — Pass 6439: 44.4→59.9 brighter scan crosshair primary beam emissive
+  transparent: true, opacity: 3.16 // Pass 4327: scan crosshair primary opacity 0.8→0.95 more visible beam — Pass 5557: 0.95→1.28 fully opaque scan crosshair primary beam — Pass 5879: 1.28→1.73 overdrive scan crosshair primary beam opacity — Pass 6307: 1.73→2.34 overdrive scan crosshair primary beam opacity — Pass 6440: 2.34→3.16 overdrive scan crosshair primary beam opacity
 });
 const scanLine = new THREE.Mesh(new THREE.BoxGeometry(243, 5.47, 2.70), scanLineMat); // Pass 4009: scan crosshair primary height 3→4.05 thicker visible beam — Pass 4464: line length 73→98.6 wider beam span — Pass 5010: 98.6→133 wider scan beam span — Pass 5914: 133→180 wider scan crosshair primary beam span — Pass 6228: 180→243 wider scan crosshair primary beam span — Pass 6309: height 4.05→5.47 depth 2→2.70 chunkier scan crosshair primary beam
 scanLine.visible = false;
@@ -989,8 +989,8 @@ scene.add(scanLine);
 const scanLineMat2 = new THREE.MeshStandardMaterial({
   color: 0x00ddff,
   emissive: new THREE.Color(0x00ddff),
-  emissiveIntensity: 20.4, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive — Pass 5995: 11.2→15.1 brighter scan crosshair secondary sweep bar emissive — Pass 6061: 15.1→20.4 brighter scan crosshair secondary sweep bar emissive
-  transparent: true, opacity: 2.17 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep — Pass 5880: 1.19→1.61 overdrive scan crosshair secondary sweep opacity — Pass 6308: 1.61→2.17 overdrive scan crosshair secondary sweep opacity
+  emissiveIntensity: 27.5, // Pass 4328: scan crosshair secondary emissive 2.5→3.38 brighter sweep bar — Pass 4959: 3.38→4.56 brighter sweep bar — Pass 5050: 4.56→6.16 brighter sweep bar — Pass 5312: 6.16→8.32 brighter scan crosshair secondary sweep bar — Pass 5867: 8.32→11.2 brighter scan crosshair secondary sweep bar emissive — Pass 5995: 11.2→15.1 brighter scan crosshair secondary sweep bar emissive — Pass 6061: 15.1→20.4 brighter scan crosshair secondary sweep bar emissive — Pass 6441: 20.4→27.5 brighter scan crosshair secondary sweep bar emissive
+  transparent: true, opacity: 2.93 // Pass 4329: scan crosshair secondary opacity 0.65→0.88 more opaque sweep — Pass 5558: 0.88→1.19 fully opaque scan crosshair secondary sweep — Pass 5880: 1.19→1.61 overdrive scan crosshair secondary sweep opacity — Pass 6308: 1.61→2.17 overdrive scan crosshair secondary sweep opacity — Pass 6442: 2.17→2.93 overdrive scan crosshair secondary sweep opacity
 });
 const scanLine2 = new THREE.Mesh(new THREE.BoxGeometry(2.70, 4.05, 221), scanLineMat2); // Pass 4012: scan crosshair secondary Z span 90→121.5 wider X-sweep coverage — Pass 4473: secondary scanline width 2→2.70 thicker secondary beam — Pass 4496: secondary scanline height 3→4.05 thicker visible beam height — Pass 5072: 121.5→164 wider secondary scan sweep — Pass 6310: 164→221 wider secondary scan crosshair sweep span
 scanLine2.visible = false;
@@ -1068,7 +1068,7 @@ scene.add(gateColLight);
 const paddleGeo = new THREE.BoxGeometry(4, 55, 18);
 const paddleMat = new THREE.MeshStandardMaterial({
   color: 0xff6600, roughness: 0.3,
-  emissive: new THREE.Color(0xff3300), emissiveIntensity: 0.797 // pass 72: starts low; charges up — Pass 4331: paddle base emissive 0.18→0.24 warmer resting glow — Pass 4972: 0.24→0.324 stronger paddle resting glow — Pass 5054: 0.324→0.437 stronger paddle resting glow — Pass 5729: 0.437→0.590 stronger paddle resting emissive glow — Pass 6259: 0.590→0.797 stronger paddle resting emissive glow
+  emissive: new THREE.Color(0xff3300), emissiveIntensity: 1.075 // pass 72: starts low; charges up — Pass 4331: paddle base emissive 0.18→0.24 warmer resting glow — Pass 4972: 0.24→0.324 stronger paddle resting glow — Pass 5054: 0.324→0.437 stronger paddle resting glow — Pass 5729: 0.437→0.590 stronger paddle resting emissive glow — Pass 6259: 0.590→0.797 stronger paddle resting emissive glow — Pass 6446: 0.797→1.075 stronger paddle resting emissive glow
 });
 const paddleMesh = new THREE.Mesh(paddleGeo, paddleMat);
 paddleMesh.castShadow = true;
@@ -1086,7 +1086,7 @@ paddlePivot.add(shaftMesh);
 // Tip indicator on paddle bottom (contact face)
 const tipMesh = new THREE.Mesh(
   new THREE.BoxGeometry(6, 4, 20),
-  new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.4, emissive: 0x442200, emissiveIntensity: 1.010 }) // Pass 4332: paddle tip emissive 0.3→0.41 brighter contact face glow — Pass 5000: 0.41→0.554 brighter paddle tip glow — Pass 5730: 0.554→0.748 brighter paddle contact tip glow — Pass 6260: 0.748→1.010 brighter paddle contact tip glow
+  new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.4, emissive: 0x442200, emissiveIntensity: 1.364 }) // Pass 4332: paddle tip emissive 0.3→0.41 brighter contact face glow — Pass 5000: 0.41→0.554 brighter paddle tip glow — Pass 5730: 0.554→0.748 brighter paddle contact tip glow — Pass 6260: 0.748→1.010 brighter paddle contact tip glow — Pass 6447: 1.010→1.364 brighter paddle contact tip glow
 );
 tipMesh.position.set(0, -30, 0);
 paddlePivot.add(tipMesh);
@@ -1134,7 +1134,7 @@ function makeTrayFloor(yBase, colorHex) {
     const capMat = new THREE.MeshStandardMaterial({
       color: capColor,
       emissive: new THREE.Color(capColor),
-      emissiveIntensity: 8.84, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest — Pass 5407: 2.66→3.59 brighter slot tray floor cap guide rail emissive — Pass 5863: 3.59→4.85 brighter slot tray floor cap guide rail emissive — Pass 5996: 4.85→6.55 brighter slot tray floor cap guide rail emissive — Pass 6062: 6.55→8.84 brighter slot tray floor cap guide rail emissive
+      emissiveIntensity: 11.9, // Pass 4764: tray floor cap strip emissive 0.8→1.08 — Pass 4963: 1.08→1.46 brighter tray floor cap strip — Pass 5055: 1.46→1.97 brighter tray floor cap strip — Pass 5322: 1.97→2.66 brighter slot tray emissive at rest — Pass 5407: 2.66→3.59 brighter slot tray floor cap guide rail emissive — Pass 5863: 3.59→4.85 brighter slot tray floor cap guide rail emissive — Pass 5996: 4.85→6.55 brighter slot tray floor cap guide rail emissive — Pass 6062: 6.55→8.84 brighter slot tray floor cap guide rail emissive — Pass 6448: 8.84→11.9 brighter slot tray floor cap guide rail emissive
       roughness: 0.3,
       metalness: 0.2
     });
@@ -1205,7 +1205,7 @@ CARD_TYPES.forEach(ct => {
 // Flat (0 rad) = card falls through to lower floor. ~0.65 rad (~37°) = ramp to upper floor.
 const DIVERTER_X = TRAY_X_START - 5;
 const DIVERTER_FLOOR0 = 0;    // lower floor: flat
-const DIVERTER_FLOOR1 = 2.17; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp — Pass 4987: 0.878→1.19 steeper diverter ramp — Pass 5915: 1.19→1.61 steeper diverter upper floor ramp angle — Pass 6229: 1.61→2.17 steeper diverter upper floor ramp angle
+const DIVERTER_FLOOR1 = 2.93; // upper floor: ramp up ~37° — Pass 4476: diverter max angle 0.65→0.878 steeper upper floor ramp — Pass 4987: 0.878→1.19 steeper diverter ramp — Pass 5915: 1.19→1.61 steeper diverter upper floor ramp angle — Pass 6229: 1.61→2.17 steeper diverter upper floor ramp angle — Pass 6449: 2.17→2.93 steeper diverter upper floor ramp angle
 const diverterServoBox = makeBox(14, 14, 22, 0x9aa0b0);
 diverterServoBox.position.set(DIVERTER_X - 3, CONV_Y_TOP + 7, 0);
 scene.add(diverterServoBox);
@@ -1217,7 +1217,7 @@ const diverterFlapMat = new THREE.MeshStandardMaterial({
   emissive: new THREE.Color(0x441f00), emissiveIntensity: 1.36 // Pass 4044: floor diverter emissive 0.22→0.30 brighter routing flap — Pass 4891: 0.30→0.41 more visible diverter — Pass 5057: 0.41→0.554 more vivid diverter flap glow — Pass 5138: 0.554→0.748 stronger floor diverter emissive ramp — Pass 5709: 0.748→1.01 stronger floor diverter emissive glow — Pass 6305: 1.01→1.36 stronger floor diverter emissive glow
 });
 const diverterFlapMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(TX_DEP + 6, 7.38, TRAY_Z_HALF * 2), // Pass 4991: diverter flap thickness 3→4.05 chunkier routing flap — Pass 5930: 4.05→5.47 chunkier routing diverter flap — Pass 6230: 5.47→7.38 chunkier routing diverter flap thickness
+  new THREE.BoxGeometry(TX_DEP + 6, 9.96, TRAY_Z_HALF * 2), // Pass 4991: diverter flap thickness 3→4.05 chunkier routing flap — Pass 5930: 4.05→5.47 chunkier routing diverter flap — Pass 6230: 5.47→7.38 chunkier routing diverter flap thickness — Pass 6450: 7.38→9.96 chunkier routing diverter flap thickness
   diverterFlapMat
 );
 // Pivot is at left edge — offset mesh half its width to the right
@@ -1478,8 +1478,8 @@ activeCardEdge.visible = false;
 scene.add(activeCardEdge);
 
 // Card glow: increased range and physical falloff
-const cardGlow = new THREE.PointLight(0xffffff, 0, 1213); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range — Pass 5734: 493→666 wider card glow illumination range — Pass 5960: 666→899 wider card glow illumination range — Pass 6231: 899→1213 wider card glow illumination range
-cardGlow.decay = 6.66; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff — Pass 6339: 4.93→6.66 tighter card glow falloff
+const cardGlow = new THREE.PointLight(0xffffff, 0, 1638); // Pass 4020: card glow range 200→270 wider card illumination — Pass 4964: 270→365 wider card glow reach — Pass 5457: 365→493 wider card glow illumination range — Pass 5734: 493→666 wider card glow illumination range — Pass 5960: 666→899 wider card glow illumination range — Pass 6231: 899→1213 wider card glow illumination range — Pass 6451: 1213→1638 wider card glow illumination range
+cardGlow.decay = 8.99; // Pass 4483: card glow decay 2→2.7 tighter card illumination falloff — Pass 4965: 2.7→3.65 crisper card illumination falloff — Pass 5417: 3.65→4.93 crisper card glow falloff — Pass 6339: 4.93→6.66 tighter card glow falloff — Pass 6443: 6.66→8.99 tighter card glow falloff
 scene.add(cardGlow);
 
 // ─── Pass 177: Card contact shadow disc ──────────────────────────────────────
@@ -2681,7 +2681,7 @@ function animate(ts) {
           _contactFlashFired = true;
           const _cfRot = suctionPivot.rotation.z;
           // Pass 509: contact flash intensity boost 3.5→6.0 — Pass 624: →8.5 — Pass 884: →13.0 — Pass 1129: →20.0 — Pass 1215: →30.0 — Pass 1312: →42.0 — Pass 1668: →58.0, dist→150
-          const _cfL = new THREE.PointLight(0xffffff, 641, 150); // Pass 3430: suction contact flash 58.0→78.3 — Pass 3536: 78.3→106 — Pass 3771: 106→143 — Pass 3878: 143→193 — Pass 4336: 193→261 brighter suction contact flash — Pass 5025: 261→352 brighter suction contact flash — Pass 5096: 352→475 brighter suction contact flash peak — Pass 5128: 475→641 brighter suction contact flash peak
+          const _cfL = new THREE.PointLight(0xffffff, 865, 150); // Pass 3430: suction contact flash 58.0→78.3 — Pass 3536: 78.3→106 — Pass 3771: 106→143 — Pass 3878: 143→193 — Pass 4336: 193→261 brighter suction contact flash — Pass 5025: 261→352 brighter suction contact flash — Pass 5096: 352→475 brighter suction contact flash peak — Pass 5128: 475→641 brighter suction contact flash peak — Pass 6444: 641→865 brighter suction contact flash peak
           _cfL.position.set(PIV_X + 83 * Math.sin(_cfRot), PIV_Y - 83 * Math.cos(_cfRot), 0);
           scene.add(_cfL);
           if (!window._flashLights) window._flashLights = [];
@@ -3049,7 +3049,7 @@ function animate(ts) {
     // Pass 144: scan anticipation — card brightens in final 15% of conveyorIn as scanner looms
     const _approachT = Math.max(0, (ct2 - 0.85) / 0.15); // 0→1 in last 15%
     // Pass 217: belt deposit flash — Pass 406: boost 0.85→1.4, slower decay 28→20 (more visible slap) — Pass 1592: →1.9
-    const _entryBoost = Math.exp(-ct2 * 27.0) * 8.53; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 — Pass 4209: 4.68→6.32 bigger entry flash — Pass 4523: belt entry flash decay rate 20→27.0 snappier entry flash — Pass 5360: 6.32→8.53 bigger belt entry flash peak
+    const _entryBoost = Math.exp(-ct2 * 27.0) * 11.5; // Pass 2292: belt entry boost 2.57→3.47 — Pass 3932: 3.47→4.68 — Pass 4209: 4.68→6.32 bigger entry flash — Pass 4523: belt entry flash decay rate 20→27.0 snappier entry flash — Pass 5360: 6.32→8.53 bigger belt entry flash peak — Pass 6445: 8.53→11.5 bigger belt entry flash peak
     // Pass 272: approach emissive frequency ramp — Pass 487: 20→28Hz — Pass 623: add secondary 5Hz
     // Pass 874: emissive amplitude 0.65→0.85, pulse amp 0.3→0.45 — Pass 1145: pulse amp 0.45→0.65 for stronger scanner-approach tension — Pass 1590: amplitude 0.85→1.15, pulse 0.90→1.22
     const _approachFreq272 = 8 + _approachT * 49.3; // Pass 4764: approach flicker ramp 20→27 more nervous pre-pick tension — Pass 5107: approach flicker ramp 27→36.5 more nervous pre-pick tension — Pass 5340: 36.5→49.3 more nervous pre-pick approach flicker ramp
@@ -3066,7 +3066,7 @@ function animate(ts) {
     const _earlyDetect = (ct2 >= 0.60 && ct2 < 0.80)
       ? (ct2 - 0.60) / 0.20 * 3.66 * Math.abs(Math.sin(ts * 10 * Math.PI * 2)) : 0; // Pass 1706: early detect amp 0.8→1.10 — Pass 3967: 1.10→1.49 — Pass 4216: 1.49→2.01 stronger card-entering-field detection — Pass 5028: 2.01→2.71 more vivid early detection flicker — Pass 5229: 2.71→3.66 more vivid early card detection flicker
     // Pass 561: scanner LED pre-warm peak boost 2.5→3.5 — Pass 887: →5.5 — Pass 1146: →7.5 — Pass 1306: →10.5 for more vivid warmup before scan
-    const _ledWarmTarget = 0.41 + _warmupT * 47.3 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 — Pass 4217: 19.2→25.9 brighter LED pre-warm — Pass 4434: LED approach warmup base 0.30→0.41 brighter approach floor — Pass 5029: 25.9→35.0 brighter LED pre-warm peak — Pass 5230: 35.0→47.3 brighter LED pre-warm peak
+    const _ledWarmTarget = 0.41 + _warmupT * 63.9 + _earlyDetect; // Pass 1306: 7.5→10.5 — Pass 1859: →14.2 — Pass 3962: 14.2→19.2 — Pass 4217: 19.2→25.9 brighter LED pre-warm — Pass 4434: LED approach warmup base 0.30→0.41 brighter approach floor — Pass 5029: 25.9→35.0 brighter LED pre-warm peak — Pass 5230: 35.0→47.3 brighter LED pre-warm peak — Pass 6446: 47.3→63.9 brighter scanner LED pre-warm peak
     scanLEDMat.emissiveIntensity += (_ledWarmTarget - scanLEDMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4584: LED warmup spring 5→6.75 crisper approach warmup tracking — Pass 5231: 6.75→9.11 snappier LED warmup tracking
     cardGlow.position.copy(activeCard.position);
     cardGlow.position.y += 12;
@@ -3205,11 +3205,11 @@ function animate(ts) {
     // Pass 162: rapid iris-open at scan start — lens "snaps open" in first 7% of phase
     const _irisOpen = ft < 0.128 ? easeOut(ft / 0.128) : 1.0; // Pass 4926: iris snap-open window 0.07→0.095 longer lens open sweep — Pass 5552: 0.095→0.128 longer iris snap-open sweep window
     // Pass 255/371: iris lock-on expand — Pass 597: 0.40→0.65 — Pass 947: →1.0 — Pass 1154: →1.55 — Pass 1237: →2.20 — Pass 1288: →3.00 for even bigger iris pop at reveal
-    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 34.3 : 0; // Pass 2306: iris reveal pulse 5.67→7.65 — Pass 3370: 7.65→10.3 — Pass 3760: 10.3→13.9 — Pass 3868: 13.9→18.8 — Pass 4341: 18.8→25.4 bigger iris flare at reveal — Pass 5252: 25.4→34.3 bigger iris flare at reveal
+    const _irisRevealPulse = _identityRevealed ? Math.exp(-(ft - 0.85) * 30) * 46.3 : 0; // Pass 2306: iris reveal pulse 5.67→7.65 — Pass 3370: 7.65→10.3 — Pass 3760: 10.3→13.9 — Pass 3868: 13.9→18.8 — Pass 4341: 18.8→25.4 bigger iris flare at reveal — Pass 5252: 25.4→34.3 bigger iris flare at reveal — Pass 6447: 34.3→46.3 bigger iris reveal pulse flare
     lens.scale.x = (_irisScale + _irisRevealPulse) * _irisOpen; lens.scale.z = lens.scale.x;
     lensMat.emissive.lerp(new THREE.Color(ft < 0.85 ? 0xaaddff : ct.hex), Math.min(1, dt * 7.3)); // Pass 4816: scan lens emissive color tracking rate 4→5.4 — Pass 5545: 5.4→7.3 snappier scan lens emissive tracking
     // Pass 370: lens reveal spike — Pass 596: 2.5→4.5 — Pass 792: 4.5→7.0 + base 3.5→4.8 — Pass 1081: spike 7.0→10.0 — Pass 1284: →14.0 — Pass 1374: →19.0 — Pass 1519: →26.0 bigger lens pop
-    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 386 : 0; // Pass 2307: lens reveal spike 35.1→47.4 — Pass 3371: 47.4→64.0 — Pass 3479: 64.0→86.4 — Pass 3545: 86.4→116.6 — Pass 3732: 116.6→157 — Pass 3838: 157→212 — Pass 4156: 212→286 bigger lens spike — Pass 5253: 286→386 bigger lens reveal spike
+    const _lensReveal370 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 521 : 0; // Pass 2307: lens reveal spike 35.1→47.4 — Pass 3371: 47.4→64.0 — Pass 3479: 64.0→86.4 — Pass 3545: 86.4→116.6 — Pass 3732: 116.6→157 — Pass 3838: 157→212 — Pass 4156: 212→286 bigger lens spike — Pass 5253: 286→386 bigger lens reveal spike — Pass 6448: 386→521 bigger lens reveal spike
     // Pass 793: lens flash base 3.5→4.8 — Pass 1518: →6.5 for brighter scanner lens during scan
     lensMat.emissiveIntensity = 0.4 + flashIntensity * 97.5 + _lensReveal370; // Pass 2315: lens emissive flash contribution 8.78→11.9 — Pass 3384: 11.9→16.1 — Pass 3515: 16.1→21.7 — Pass 3652: 21.7→29.3 — Pass 3983: 29.3→39.6 — Pass 4111: 39.6→53.5 brighter scanner lens — Pass 5254: 53.5→72.2 brighter scanner lens emissive flash — Pass 6433: 72.2→97.5 brighter scanner lens emissive flash
     // Wide bloom soft halo around scanner
@@ -3255,11 +3255,11 @@ function animate(ts) {
     const _cardCenterZ = activeCard.position.z;
     const _beamProxZ = Math.max(0, 1 - Math.abs(_beamZ - _cardCenterZ) / 10);
     // Pass 343: scan beam reveal spike — Pass 575: 4.0→6.5 — Pass 845: →9.5 — Pass 1286: →13.5 — Pass 1422: →18.0 — Pass 1528: →25.0 for stronger beam pop at lock-on
-    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 275 : 0; // Pass 2309: beam reveal spike 33.75→45.6 — Pass 3480: 45.6→61.6 — Pass 3546: 61.6→83.2 — Pass 3659: 83.2→112 — Pass 3985: 112→151 — Pass 4139: 151→204 bigger spike — Pass 5258: 204→275 bigger beam reveal spike
+    const _beamRevealSpike343 = _identityRevealed ? Math.exp(-(ft - 0.85) * 25) * 371 : 0; // Pass 2309: beam reveal spike 33.75→45.6 — Pass 3480: 45.6→61.6 — Pass 3546: 61.6→83.2 — Pass 3659: 83.2→112 — Pass 3985: 112→151 — Pass 4139: 151→204 bigger spike — Pass 5258: 204→275 bigger beam reveal spike — Pass 6449: 275→371 bigger beam reveal spike
     // Pass 599: beam base 3.0→4.5 — Pass 844: →6.5 + prox boost 3.5→5.5 — Pass 1423: base →9.0, prox →7.5 — Pass 1529: base →12.0, prox →10.0 for brighter scan lines
-    scanLineMat.emissiveIntensity = 98.3 + _beamProxZ * 81.7 + _beamRevealSpike343; // Pass 2310: beam base 16.2→21.9, Pass 2311: prox boost 13.5→18.2 — Pass 3463: base 21.9→29.6 — Pass 3464: prox boost 18.2→24.6 — Pass 3657: base 29.6→39.9 — Pass 3658: prox 24.6→33.2 — Pass 3986: base 39.9→53.9 — Pass 3987: prox 33.2→44.8 — Pass 4140: base 53.9→72.8 — Pass 4145: prox 44.8→60.5 stronger proximity boost — Pass 5259: base 72.8→98.3 — Pass 5260: prox 60.5→81.7 brighter scan beam
+    scanLineMat.emissiveIntensity = 98.3 + _beamProxZ * 110 + _beamRevealSpike343; // Pass 2310: beam base 16.2→21.9, Pass 2311: prox boost 13.5→18.2 — Pass 3463: base 21.9→29.6 — Pass 3464: prox boost 18.2→24.6 — Pass 3657: base 29.6→39.9 — Pass 3658: prox 24.6→33.2 — Pass 3986: base 39.9→53.9 — Pass 3987: prox 33.2→44.8 — Pass 4140: base 53.9→72.8 — Pass 4145: prox 44.8→60.5 stronger proximity boost — Pass 5259: base 72.8→98.3 — Pass 5260: prox 60.5→81.7 brighter scan beam — Pass 6450: prox 81.7→110 brighter scan beam proximity boost
     // Pass 345/575: secondary beam — Pass 600: base 2.5→3.5 — Pass 846: base →5.0, reveal 6.0→8.5 — Pass 1424: base →7.0, reveal →12.0 — Pass 1530: base →9.5, reveal →17.0
-    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 103 : 0; // Pass 2312: beam2 reveal 22.95→30.98 — Pass 3749: 30.98→41.8 — Pass 3857: 41.8→56.4 — Pass 4141: 56.4→76.1 — Pass 5261: 76.1→103 bigger secondary beam reveal
+    const _beam2Reveal345 = _identityRevealed ? Math.exp(-(ft - 0.85) * 14) * 139 : 0; // Pass 2312: beam2 reveal 22.95→30.98 — Pass 3749: 30.98→41.8 — Pass 3857: 41.8→56.4 — Pass 4141: 56.4→76.1 — Pass 5261: 76.1→103 bigger secondary beam reveal — Pass 6451: 103→139 bigger secondary beam reveal spike
     scanLineMat2.emissiveIntensity = 77.8 + _beam2Reveal345; // Pass 2313: beam2 base 12.8→17.3 — Pass 3750: 17.3→23.4 — Pass 3858: 23.4→31.6 — Pass 4142: 31.6→42.7 brighter secondary beam — Pass 5262: 42.7→57.6 brighter secondary scan beam base — Pass 5849: 57.6→77.8 brighter secondary scan beam base emissive
     // Pass 244: beam reversal flare — Pass 485: 2.0→3.5 — Pass 574: →5.5 — Pass 847: →8.5 — Pass 1242: →12.5 — Pass 1290: →17.0 — Pass 1376: →24.0 — Pass 1531: →33.0 — Pass 1691: →44.0
     const _revFlare = Math.exp(-Math.abs(ft - 0.5) * 25) * 266; // Pass 2314: beam reversal flare 59.4→80.2 — Pass 3751: 80.2→108.3 — Pass 3859: 108.3→146.2 — Pass 4143: 146.2→197 bigger reversal flare — Pass 5263: 197→266 bigger beam reversal flare
