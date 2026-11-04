@@ -2666,7 +2666,7 @@ function animate(ts) {
         const _earlyT = (pt - 0.50) / 0.30; // 0→1 in early warmup window
         suctionCupMat.emissive.setHex(ct.hex);
         // Pass 1315: early vacuum warmup emissive 0.25→0.40 — Pass 3958: 0.40→0.540 more visible vacuum build — Pass 4290: 0.540→0.729 brighter vacuum warmup
-        suctionCupMat.emissiveIntensity += (1.80 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4616: suction cup descent emissive track rate 5→6.75 faster warmup tracking — Pass 5095: vacuum warmup emissive 0.729→0.984 brighter gate pre-glow warmup — Pass 5523: track rate 6.75→9.11 faster suction cup warmup tracking — Pass 5827: vacuum warmup emissive 0.984→1.33 brighter gate pre-glow warmup — Pass 6328: 1.33→1.80 brighter vacuum cup early descent warmup emissive
+        suctionCupMat.emissiveIntensity += (2.43 * _earlyT - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 9.11); // Pass 4616: suction cup descent emissive track rate 5→6.75 faster warmup tracking — Pass 5095: vacuum warmup emissive 0.729→0.984 brighter gate pre-glow warmup — Pass 5523: track rate 6.75→9.11 faster suction cup warmup tracking — Pass 5827: vacuum warmup emissive 0.984→1.33 brighter gate pre-glow warmup — Pass 6328: 1.33→1.80 brighter vacuum cup early descent warmup emissive — Pass 7152: 1.80→2.43 brighter vacuum cup early descent warmup emissive
       }
       if (pt > 0.80) {
         const _sq = (pt - 0.80) / 0.20; // 0→1 in approach window
@@ -2675,7 +2675,7 @@ function animate(ts) {
         const _cupApproach = _sq;
         suctionCupMat.emissive.setHex(ct.hex);
         // Pass 886: cup pre-contact approach emissive target 0.9→1.5 — Pass 1128: →2.4 — Pass 1214: →3.6 — Pass 1311: →5.2 — Pass 1427: →7.0 — Pass 3959: 7.0→9.45 more vivid suction warmup — Pass 4774: 12.76→17.2 more vivid suction warmup
-        suctionCupMat.emissiveIntensity += (42.3 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10); // Pass 4223: cup approach emissive 9.45→12.76 more vivid suction warmup — Pass 4774: emissive 12.76→17.2 more vivid suction warmup — Pass 5071: 17.2→23.2 more vivid suction warmup — Pass 5772: 23.2→31.3 more vivid suction cup pre-contact glow — Pass 6718: 31.3→42.3 more vivid suction cup pre-contact glow
+        suctionCupMat.emissiveIntensity += (57.1 * _cupApproach - suctionCupMat.emissiveIntensity) * Math.min(1, dt * 10); // Pass 4223: cup approach emissive 9.45→12.76 more vivid suction warmup — Pass 4774: emissive 12.76→17.2 more vivid suction warmup — Pass 5071: 17.2→23.2 more vivid suction warmup — Pass 5772: 23.2→31.3 more vivid suction cup pre-contact glow — Pass 6718: 31.3→42.3 more vivid suction cup pre-contact glow — Pass 7153: 42.3→57.1 more vivid suction cup pre-contact glow
         // Pass 167: suction contact flash — bright white burst at first cup-to-card contact
         if (!_contactFlashFired) {
           _contactFlashFired = true;
@@ -2732,8 +2732,8 @@ function animate(ts) {
             tp.mat.color.set(0x9aaabb); // cool steel-gray (no domain reveal yet)
           }
           // Pass 883: descent trail opacity 0.22+0.12→0.32+0.18, life 0.20+0.10→0.28+0.14 — Pass 1091: opacity 0.32+0.18→0.48+0.26, life 0.28+0.14→0.40+0.20 — Pass 1494: opacity →0.65+0.35, Pass 1495: life →0.55+0.28 — Pass 1676: opacity →0.80+0.45, Pass 1677: life →0.72+0.36 — Pass 3908: life 0.72+0.36→0.97+0.49 longer arm trail — Pass 4775: opacity 1.08→1.46 brighter descent trail
-          tp.mat.opacity = 6.55 + Math.random() * 1.11; // Pass 4417: arm trail opacity 0.80+0.45→1.08+0.61 brighter descent trail — Pass 4775: opacity 1.08→1.46 brighter descent trail — Pass 5125: 1.46→1.97 brighter arm descent trail — Pass 5776: 1.97→2.66 brighter arm descent contrail opacity — Pass 5834: 2.66→3.59 brighter arm descent contrail opacity — Pass 6329: base 3.59→4.85 rand 0.82→1.11 brighter arm descent contrail opacity — Pass 6838: base 4.85→6.55 brighter arm descent contrail opacity
-          tp.age = 0; tp.life = 5.89 + Math.random() * 0.89; // Pass 4418: arm trail life 0.97+0.49→1.31+0.66 longer descent trail — Pass 5077: 1.31→1.77 longer descent trail — Pass 5777: 1.77→2.39 longer arm descent contrail particle lifetime — Pass 5835: 2.39→3.23 longer arm descent contrail particle lifetime — Pass 6531: 3.23→4.36 longer arm descent contrail particle lifetime — Pass 6839: 4.36→5.89 longer arm descent contrail particle lifetime
+          tp.mat.opacity = 8.84 + Math.random() * 1.50; // Pass 4417: arm trail opacity 0.80+0.45→1.08+0.61 brighter descent trail — Pass 4775: opacity 1.08→1.46 brighter descent trail — Pass 5125: 1.46→1.97 brighter arm descent trail — Pass 5776: 1.97→2.66 brighter arm descent contrail opacity — Pass 5834: 2.66→3.59 brighter arm descent contrail opacity — Pass 6329: base 3.59→4.85 rand 0.82→1.11 brighter arm descent contrail opacity — Pass 6838: base 4.85→6.55 brighter arm descent contrail opacity — Pass 7154: base 6.55→8.84 rand 1.11→1.50 brighter arm descent contrail opacity
+          tp.age = 0; tp.life = 7.95 + Math.random() * 1.20; // Pass 4418: arm trail life 0.97+0.49→1.31+0.66 longer descent trail — Pass 5077: 1.31→1.77 longer descent trail — Pass 5777: 1.77→2.39 longer arm descent contrail particle lifetime — Pass 5835: 2.39→3.23 longer arm descent contrail particle lifetime — Pass 6531: 3.23→4.36 longer arm descent contrail particle lifetime — Pass 6839: 4.36→5.89 longer arm descent contrail particle lifetime — Pass 7155: base 5.89→7.95 rand 0.89→1.20 longer arm descent contrail particle lifetime
           tp.active = true; tp.mesh.visible = true;
         }
       }
@@ -4094,11 +4094,11 @@ function animate(ts) {
     {
       const _diverterTarget3 = ct.floor === 1 ? DIVERTER_FLOOR1 : DIVERTER_FLOOR0;
       const _diverterRelease = dt3 > 0.90 ? DIVERTER_FLOOR0 : _diverterTarget3; // return after landing
-      _diverterAngle += (_diverterRelease - _diverterAngle) * Math.min(1, dt * (dt3 > 0.90 ? 7.29 : 14.6)); // Pass 4525: floor diverter hold lerp rate 8→10.8 snappier servo hold — Pass 4923: diverter motor release rate 4→5.4 snappier servo return — Pass 5625: release rate 5.4→7.29 hold rate 10.8→14.6 snappier floor diverter servo tracking
+      _diverterAngle += (_diverterRelease - _diverterAngle) * Math.min(1, dt * (dt3 > 0.90 ? 9.84 : 19.7)); // Pass 4525: floor diverter hold lerp rate 8→10.8 snappier servo hold — Pass 4923: diverter motor release rate 4→5.4 snappier servo return — Pass 5625: release rate 5.4→7.29 hold rate 10.8→14.6 snappier floor diverter servo tracking — Pass 7156: release 7.29→9.84 hold 14.6→19.7 snappier floor diverter servo tracking
       floorDiverterPivot.rotation.z = -_diverterAngle;
     }
     // startY must match where deflect phase ended (arcY)
-    const startY = ct.floor === 1 ? CONV_Y_TOP + 54.7 : CONV_Y_TOP + 36.5; // Pass 4563: slot drop fall start height floor-0 20→27 floor-1 30→40.5 longer gravity drop arc — Pass 5626: floor-1 40.5→54.7 floor-0 27→36.5 longer slot drop fall arc
+    const startY = ct.floor === 1 ? CONV_Y_TOP + 73.8 : CONV_Y_TOP + 49.3; // Pass 4563: slot drop fall start height floor-0 20→27 floor-1 30→40.5 longer gravity drop arc — Pass 5626: floor-1 40.5→54.7 floor-0 27→36.5 longer slot drop fall arc — Pass 7157: floor-1 54.7→73.8 floor-0 36.5→49.3 longer slot drop fall arc
     let cy;
     if (ct.floor === 0) {
       // Gravity fall: quadratic easeIn (slow start, accelerates down — realistic)
@@ -4182,11 +4182,11 @@ function animate(ts) {
       slotSweepLight.color.setHex(ct.hex);
       // Pass 315: sweep light Z oscillation — light sways laterally as it travels into the slot
       const _sweepZOsc315 = 16.6 * Math.sin(dt3 * Math.PI * 4.05) * Math.max(0, 1 - dt3 * 1.5); // Pass 4008: sweep Z oscillation amplitude 5→6.75 wider slot sweep sway — Pass 4894: slot entry sweep Z oscillation count 3→4.05 — Pass 5629: 6.75→9.11 wider slot entry sweep Z oscillation amplitude — Pass 5641: 9.11→12.3 wider slot entry sweep arc angle oscillation amplitude — Pass 6839: 12.3→16.6 wider slot entry sweep arc Z oscillation amplitude
-      slotSweepLight.position.set(_sweepX, ct.slotFloorY + 52.9, ct.slotZ + _sweepZOsc315); // Pass 4853: slot sweep light Y height 29→39.2 higher slot entry spotlight — Pass 5630: 39.2→52.9 higher slot entry sweep spotlight
+      slotSweepLight.position.set(_sweepX, ct.slotFloorY + 71.4, ct.slotZ + _sweepZOsc315); // Pass 4853: slot sweep light Y height 29→39.2 higher slot entry spotlight — Pass 5630: 39.2→52.9 higher slot entry sweep spotlight — Pass 7158: 52.9→71.4 higher slot entry sweep spotlight
       // Pass 266: sweep light entry punch — Pass 503: boost peak 4.0→5.5 — Pass 529: →7.0 — Pass 622: →9.5
       // Pass 959: sweep peak 9.5→14.0 — Pass 1113: →20.0 — Pass 1388: →28.0; tail 14→20 (Pass 1389) for brighter domain spotlight in slot interior
       slotSweepLight.intensity = dt3 < 0.35 ? THREE.MathUtils.lerp(0, 1026, dt3 / 0.35) // Pass 4488: slot sweep peak 228.9→309.0 brighter slot entry spotlight — Pass 5028: 309.0→417 brighter slot entry spotlight — Pass 5092: 417→563 brighter slot entry sweep peak — Pass 5101: 563→760 brighter slot entry sweep peak — Pass 6283: 760→1026 brighter slot entry sweep peak intensity
-                                             : THREE.MathUtils.lerp(298, 0, (dt3 - 0.35) / 0.65); // Pass 2117: sweep peak 51.0→68.9 Pass 2118: sweep tail 36.5→49.3 — Pass 2615: 68.9→93.0, 49.3→66.6 — Pass 3056: 93.0→125.6, 66.6→89.9 — Pass 3243: peak 125.6→169.6, tail 89.9→121.4 — Pass 3410: peak 169.6→228.9 Pass 3411: tail 121.4→163.9 — Pass 4743: tail 163.9→221 brighter slot sweep tail — Pass 5631: 221→298 brighter slot entry sweep tail intensity
+                                             : THREE.MathUtils.lerp(402, 0, (dt3 - 0.35) / 0.65); // Pass 2117: sweep peak 51.0→68.9 Pass 2118: sweep tail 36.5→49.3 — Pass 2615: 68.9→93.0, 49.3→66.6 — Pass 3056: 93.0→125.6, 66.6→89.9 — Pass 3243: peak 125.6→169.6, tail 89.9→121.4 — Pass 3410: peak 169.6→228.9 Pass 3411: tail 121.4→163.9 — Pass 4743: tail 163.9→221 brighter slot sweep tail — Pass 5631: 221→298 brighter slot entry sweep tail intensity — Pass 7159: 298→402 brighter slot entry sweep tail intensity
     }
     // Pass 60: gate column LED holds then fades as card lands
     // Pass 230: LED confirmation spike at slotDrop entry — active column briefly superflares
