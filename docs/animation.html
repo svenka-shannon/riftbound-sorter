@@ -570,7 +570,7 @@ controls.target.set(-30, 30, 0);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
 controls.minDistance = 100;
-controls.maxDistance = 5468; // Pass 8092: orbital zoom max distance 3000→4050 wider view range — Pass 8124: 4050→5468 wider orbital zoom max distance
+controls.maxDistance = 7382; // Pass 8092: orbital zoom max distance 3000→4050 wider view range — Pass 8124: 4050→5468 wider orbital zoom max distance — Pass 8227: 5468→7382 wider orbital zoom max distance
 controls.update();
 
 // ─── Lights ───────────────────────────────────────────────────────────────────
@@ -1576,7 +1576,7 @@ let _confirmRingT2 = -1; // -1=idle; 0..1=animation progress (fires 0.12s after 
 const grabRingMat = new THREE.MeshBasicMaterial({
   color: 0xccddff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
 });
-const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 20.1, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring — Pass 4978: 1.35→1.82 fatter grab suction ring — Pass 5475: 1.82→2.46 fatter grab suction ring tube — Pass 5732: 2.46→3.32 fatter grab contact ring tube — Pass 6844: 3.32→4.48 fatter grab contact ring tube — Pass 7140: 4.48→6.05 fatter grab contact ring tube — Pass 7465: 6.05→8.17 fatter grab contact ring tube — Pass 7578: 8.17→11.0 fatter grab contact ring tube — Pass 7650: 11.0→14.9 fatter grab contact ring tube — Pass 7793: 14.9→20.1 fatter grab contact ring tube
+const grabRing = new THREE.Mesh(new THREE.TorusGeometry(6, 27.1, 4, 32), grabRingMat); // Pass 4079: grab ring tube 1.0→1.35 chunkier suction ring — Pass 4978: 1.35→1.82 fatter grab suction ring — Pass 5475: 1.82→2.46 fatter grab suction ring tube — Pass 5732: 2.46→3.32 fatter grab contact ring tube — Pass 6844: 3.32→4.48 fatter grab contact ring tube — Pass 7140: 4.48→6.05 fatter grab contact ring tube — Pass 7465: 6.05→8.17 fatter grab contact ring tube — Pass 7578: 8.17→11.0 fatter grab contact ring tube — Pass 7650: 11.0→14.9 fatter grab contact ring tube — Pass 7793: 14.9→20.1 fatter grab contact ring tube — Pass 8221: 20.1→27.1 fatter grab contact ring tube
 grabRing.rotation.x = -Math.PI / 2; // lie flat in the belt plane
 grabRing.visible = false;
 scene.add(grabRing);
@@ -1587,7 +1587,7 @@ const vacuumRingMat = new THREE.MeshBasicMaterial({
   color: 0xaaccff, transparent: true, opacity: 0, side: THREE.DoubleSide,
 });
 const vacuumRing = new THREE.Mesh(
-  new THREE.TorusGeometry(98.3, 2.74, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep — Pass 5011: 2.03→2.74 chunkier suction ring tube — Pass 5728: 16.2→21.9 wider vacuum pick suction ring sweep — Pass 6852: 21.9→29.6 wider vacuum pick suction ring sweep — Pass 7141: 29.6→39.9 wider vacuum pick suction ring sweep — Pass 7455: 39.9→53.9 wider vacuum pick suction ring sweep — Pass 7794: 53.9→72.8 wider vacuum pick suction ring sweep — Pass 7834: 72.8→98.3 wider vacuum pick suction ring sweep
+  new THREE.TorusGeometry(133, 2.74, 6, 24), // Pass 4484: vacuum ring tube radius 1.5→2.03 chunkier suction ring — Pass 4579: vacuum ring outer radius 12→16.2 wider pick suction ring sweep — Pass 5011: 2.03→2.74 chunkier suction ring tube — Pass 5728: 16.2→21.9 wider vacuum pick suction ring sweep — Pass 6852: 21.9→29.6 wider vacuum pick suction ring sweep — Pass 7141: 29.6→39.9 wider vacuum pick suction ring sweep — Pass 7455: 39.9→53.9 wider vacuum pick suction ring sweep — Pass 7794: 53.9→72.8 wider vacuum pick suction ring sweep — Pass 7834: 72.8→98.3 wider vacuum pick suction ring sweep — Pass 8222: 98.3→133 wider vacuum pick suction ring sweep
   vacuumRingMat
 );
 vacuumRing.rotation.x = -Math.PI / 2; // flat (XZ plane)
@@ -1595,7 +1595,7 @@ vacuumRing.visible = false;
 scene.add(vacuumRing);
 
 // Pass 63: Scanner sonar ping rings — 3 concentric rings that expand from scanner during scan
-const SCAN_PING_COUNT = 74; // Pass 4990: scan ping ring count 3→4 denser sonar burst — Pass 6349: 4→5 denser sonar burst ring count — Pass 6779: 5→7 denser sonar burst ring count — Pass 7031: 7→9 denser sonar burst ring count — Pass 7337: 9→12 denser sonar burst ring count — Pass 7388: 12→16 denser sonar burst ring count — Pass 7679: 16→22 denser sonar burst ring count — Pass 7784: 22→30 denser sonar burst ring count — Pass 8018: 30→41 denser sonar burst ring count — Pass 8127: 41→55 denser sonar burst ring count — Pass 8197: 55→74 denser sonar burst ring count
+const SCAN_PING_COUNT = 100; // Pass 4990: scan ping ring count 3→4 denser sonar burst — Pass 6349: 4→5 denser sonar burst ring count — Pass 6779: 5→7 denser sonar burst ring count — Pass 7031: 7→9 denser sonar burst ring count — Pass 7337: 9→12 denser sonar burst ring count — Pass 7388: 12→16 denser sonar burst ring count — Pass 7679: 16→22 denser sonar burst ring count — Pass 7784: 22→30 denser sonar burst ring count — Pass 8018: 30→41 denser sonar burst ring count — Pass 8127: 41→55 denser sonar burst ring count — Pass 8197: 55→74 denser sonar burst ring count — Pass 8226: 74→100 denser sonar burst ring count
 const scanPings = Array.from({ length: SCAN_PING_COUNT }, () => {
   const mat = new THREE.MeshBasicMaterial({
     color: 0xaaddff, transparent: true, opacity: 0, side: THREE.DoubleSide,
@@ -1640,7 +1640,7 @@ const floorDiscMat = new THREE.MeshBasicMaterial({
   color: 0xffffff, transparent: true, opacity: 0,
   depthWrite: false, side: THREE.DoubleSide,
 });
-const floorDisc = new THREE.Mesh(new THREE.CircleGeometry(286, 32), floorDiscMat); // Pass 6349: floor halo disc radius 35→47.3 wider card floor glow halo — Pass 6843: 47.3→63.9 wider card floor glow halo disc — Pass 7035: 63.9→86.3 wider card floor glow halo disc — Pass 7221: 86.3→116.5 wider card floor glow halo disc — Pass 7458: 116.5→157.3 wider card floor glow halo disc — Pass 7786: 157.3→212 wider card floor glow halo disc — Pass 8095: 212→286 wider card floor glow halo disc
+const floorDisc = new THREE.Mesh(new THREE.CircleGeometry(386, 32), floorDiscMat); // Pass 6349: floor halo disc radius 35→47.3 wider card floor glow halo — Pass 6843: 47.3→63.9 wider card floor glow halo disc — Pass 7035: 63.9→86.3 wider card floor glow halo disc — Pass 7221: 86.3→116.5 wider card floor glow halo disc — Pass 7458: 116.5→157.3 wider card floor glow halo disc — Pass 7786: 157.3→212 wider card floor glow halo disc — Pass 8095: 212→286 wider card floor glow halo disc — Pass 8225: 286→386 wider card floor glow halo disc
 floorDisc.rotation.x = -Math.PI / 2; // lay flat on grid floor
 floorDisc.position.y = 1.5;          // just above grid floor (avoids z-fighting)
 scene.add(floorDisc);
@@ -2409,7 +2409,7 @@ function animate(ts) {
     }
     a.mesh.position.y = _yPos;
     // Pass 108: decay arrival emissive glow — bright flash fades to resting level
-    if (a.glowAge < 44.3) { // Pass 4431: arrival glow max age 1.2→1.62 longer slot landing flash — Pass 4990: 1.62→2.19 even longer arrival glow — Pass 5522: 2.19→2.96 even longer slot tray arrival glow window — Pass 6334: 2.96→4.00 even longer slot tray arrival glow window — Pass 6361: 4.00→5.40 even longer slot tray arrival glow window — Pass 7025: 5.40→7.29 even longer slot tray arrival glow window — Pass 7321: 7.29→9.84 even longer slot tray arrival glow window — Pass 7538: 9.84→13.3 even longer slot tray arrival glow window — Pass 7685: 13.3→18.0 even longer slot tray arrival glow window — Pass 7787: 18.0→24.3 even longer slot tray arrival glow window — Pass 8040: 24.3→32.8 even longer slot tray arrival glow window — Pass 8114: 32.8→44.3 even longer slot tray arrival glow window
+    if (a.glowAge < 59.8) { // Pass 4431: arrival glow max age 1.2→1.62 longer slot landing flash — Pass 4990: 1.62→2.19 even longer arrival glow — Pass 5522: 2.19→2.96 even longer slot tray arrival glow window — Pass 6334: 2.96→4.00 even longer slot tray arrival glow window — Pass 6361: 4.00→5.40 even longer slot tray arrival glow window — Pass 7025: 5.40→7.29 even longer slot tray arrival glow window — Pass 7321: 7.29→9.84 even longer slot tray arrival glow window — Pass 7538: 9.84→13.3 even longer slot tray arrival glow window — Pass 7685: 13.3→18.0 even longer slot tray arrival glow window — Pass 7787: 18.0→24.3 even longer slot tray arrival glow window — Pass 8040: 24.3→32.8 even longer slot tray arrival glow window — Pass 8114: 32.8→44.3 even longer slot tray arrival glow window — Pass 8224: 44.3→59.8 even longer slot tray arrival glow window
       a.glowAge += dt;
       if (a.mesh.material) {
         // Pass 903: tray arrival emissive peak 4.0→6.5 — Pass 997: →9.5 — Pass 1232: →14.0 — Pass 1394: →20.0 — Pass 1652: →28.0, decay 5.0→3.8 — Pass 3614: 28.0→37.8 — Pass 3784: 37.8→51.0 — Pass 3889: 51.0→68.9 — Pass 4770: 93.0→126 brighter landing flash
@@ -2448,7 +2448,7 @@ function animate(ts) {
       f.age += dt;
       const _fPeak = f.peak || 32.9; // use stored creation intensity; fallback 3.0 — Pass 4918: arrival flash fallback peak intensity 3.0→4.05 brighter default flash — Pass 5529: 4.05→5.47 brighter arrival flash fallback peak — Pass 6338: 5.47→7.38 brighter arrival flash fallback peak — Pass 7095: 7.38→9.96 brighter arrival flash fallback peak — Pass 7079: 9.96→13.4 brighter arrival flash fallback peak — Pass 7326: 13.4→18.1 brighter arrival flash fallback peak — Pass 7881: 18.1→24.4 brighter arrival flash fallback peak — Pass 8043: 24.4→32.9 brighter arrival flash fallback peak
       // Pass 915: flash light decay duration 0.5→0.70s — Pass 1002: →0.90s — Pass 1234: →1.20s — Pass 1396: →1.65s — Pass 1636: →2.20s for even longer flash persistence
-      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 146)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence — Pass 6339: 13.3→17.9 longer slot arrival flash glow persistence — Pass 7096: 17.9→24.2 longer slot arrival flash glow persistence — Pass 7080: 24.2→32.7 longer slot arrival flash glow persistence — Pass 7327: 32.7→44.1 longer slot arrival flash glow persistence — Pass 7533: 44.1→59.5 longer slot arrival flash glow persistence — Pass 7840: 59.5→80.3 longer slot arrival flash glow persistence — Pass 8037: 80.3→108 longer slot arrival flash glow persistence — Pass 8119: 108→146 longer slot arrival flash glow persistence
+      f.light.intensity = Math.max(0, _fPeak * (1 - f.age / 197)); // Pass 2509: flash decay duration 2.20→2.97s — Pass 3469: 2.97→4.01 — Pass 3643: 4.01→5.41 longer glow persistence — Pass 4254: 5.41→7.30 — Pass 4942: 7.30→9.86s longer flash glow persistence — Pass 5515: 9.86→13.3 longer slot arrival flash glow persistence — Pass 6339: 13.3→17.9 longer slot arrival flash glow persistence — Pass 7096: 17.9→24.2 longer slot arrival flash glow persistence — Pass 7080: 24.2→32.7 longer slot arrival flash glow persistence — Pass 7327: 32.7→44.1 longer slot arrival flash glow persistence — Pass 7533: 44.1→59.5 longer slot arrival flash glow persistence — Pass 7840: 59.5→80.3 longer slot arrival flash glow persistence — Pass 8037: 80.3→108 longer slot arrival flash glow persistence — Pass 8119: 108→146 longer slot arrival flash glow persistence — Pass 8223: 146→197 longer slot arrival flash glow persistence
       if(f.age > 109) { scene.remove(f.light); return false; } // Pass 5509: flash light removal threshold 7.30→9.86 longer glow cleanup window — Pass 6396: 9.86→13.3 longer flash light removal threshold — Pass 7097: 13.3→18.0 longer flash light removal threshold — Pass 7081: 18.0→24.3 longer flash light removal threshold — Pass 7328: 24.3→32.8 longer flash light removal threshold — Pass 7534: 32.8→44.3 longer flash light removal threshold — Pass 7841: 44.3→59.8 longer flash light removal threshold — Pass 8038: 59.8→80.7 longer flash light removal threshold — Pass 8120: 80.7→109 longer flash light removal threshold
       return true;
     });
@@ -2689,9 +2689,9 @@ function animate(ts) {
           // Pass 203: cup contact dust puff — tiny displaced air burst upward from card surface.
           // 4 particles shoot upward and sideways, simulating air compressed under the cup.
           {
-            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 — Pass 1313: →20 — Pass 1670: →28 — Pass 4064: →38 bigger suction contact burst — Pass 5770: 38→51 bigger suction contact burst — Pass 6971: 51→69 bigger suction contact burst — Pass 7208: 69→93 bigger suction contact burst — Pass 7792: 93→126 bigger suction contact burst
+            // Pass 509: boost contact dust puff count 4→6 — Pass 572: 6→9 — Pass 885: →14 — Pass 1313: →20 — Pass 1670: →28 — Pass 4064: →38 bigger suction contact burst — Pass 5770: 38→51 bigger suction contact burst — Pass 6971: 51→69 bigger suction contact burst — Pass 7208: 69→93 bigger suction contact burst — Pass 7792: 93→126 bigger suction contact burst — Pass 8220: 126→170 bigger suction contact burst
           let _cpSpawned = 0;
-            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 126; _ci++) {
+            for (let _ci = 0; _ci < GRAB_PARTICLES.length && _cpSpawned < 170; _ci++) {
               const _cp = GRAB_PARTICLES[_ci];
               if (_cp.active) continue;
               _cp.active = true; _cp.age = 0; _cp.life = 2.55 + Math.random() * 0.66; // Pass 1130: 0.20+0.10→0.30+0.15 — Pass 1671: →0.42+0.20 — Pass 4066: →0.57+0.27 longer pick dust — Pass 4898: base 0.57→0.77 — Pass 4899: rand 0.27→0.36 longer contact dust — Pass 5524: base 0.77→1.04 longer pick dust base life — Pass 5525: rand 0.36→0.49 longer pick dust life variance — Pass 6630: base 1.04→1.40 rand 0.49→0.66 longer pick dust particle lifetime — Pass 7361: base 1.40→1.89 longer pick dust particle lifetime base — Pass 8011: base 1.89→2.55 longer pick dust particle lifetime base
