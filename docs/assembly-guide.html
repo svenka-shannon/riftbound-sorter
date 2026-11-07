@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riftbound Card Sorter — Assembly Guide</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3e;
+    --gold: #c9a84c;
+    --gold-dim: #8a6e30;
+    --gold-glow: rgba(201,168,76,0.15);
+    --teal: #4cd9c9;
+    --teal-dim: #2a7a72;
+    --red: #e05555;
+    --green: #55c97a;
+    --text: #e8e8f0;
+    --text-dim: #8888aa;
+    --text-muted: #55556a;
+    --sidebar-w: 240px;
+    --progress-h: 4px;
+    --radius: 8px;
+    --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ── Progress bar ── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--progress-h);
+    background: var(--border);
+    z-index: 100;
+  }
+  #progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--teal));
+    transition: width var(--transition);
+    box-shadow: 0 0 8px var(--gold);
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    position: fixed;
+    top: var(--progress-h);
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+  }
+  #sidebar-header {
+    padding: 18px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  #sidebar-header .logo {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  #sidebar-header .title {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.3;
+  }
+  #sidebar-nav {
+    padding: 8px 0;
+    flex: 1;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active {
+    background: var(--gold-glow);
+    border-left-color: var(--gold);
+    color: var(--gold);
+  }
+  .nav-item .nav-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .nav-item.active .nav-num { background: var(--gold); color: var(--bg); }
+  .nav-item.completed .nav-num { background: var(--green); color: var(--bg); }
+  .nav-item .nav-label { flex: 1; line-height: 1.2; }
+
+  /* ── Main content ── */
+  #main {
+    margin-left: var(--sidebar-w);
+    height: calc(100vh - var(--progress-h));
+    margin-top: var(--progress-h);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Slides ── */
+  .slide {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 60px;
+    overflow-y: auto;
+    padding: 32px 40px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity var(--transition), transform var(--transition);
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ── Stage header ── */
+  .stage-badge {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .stage-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  .stage-subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .stage-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-dim), transparent);
+    margin-bottom: 28px;
+  }
+
+  /* ── Hero image ── */
+  .hero-img {
+    width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    display: block;
+    margin-bottom: 28px;
+  }
+  .hero-img-row {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .hero-img-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .hero-img-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .hero-img-row img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .img-caption {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ── Steps ── */
+  .steps-list {
+    counter-reset: step;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .step {
+    counter-increment: step;
+    display: flex;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    position: relative;
+  }
+  .step::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: var(--gold-dim);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .step-content { flex: 1; }
+  .step-content strong { color: var(--gold); }
+  .step.warning {
+    border-color: rgba(224,85,85,0.4);
+    background: rgba(224,85,85,0.05);
+  }
+  .step.warning::before { background: var(--red); }
+  .step.tip {
+    border-color: rgba(85,201,122,0.3);
+    background: rgba(85,201,122,0.04);
+  }
+  .step.tip::before { background: var(--green); }
+
+  /* ── Wiring diagram SVG container ── */
+  .wiring-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+  }
+  .wiring-box svg { display: block; margin: auto; }
+
+  /* ── GPIO / pin tables ── */
+  .pin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-size: 13px;
+  }
+  .pin-table th {
+    background: var(--surface2);
+    color: var(--gold);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .pin-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .pin-table tr:last-child td { border-bottom: none; }
+  .pin-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .pin-table td:first-child { font-weight: 600; color: var(--teal); font-family: monospace; }
+  .pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: monospace;
+  }
+  .pill.red { background: rgba(224,85,85,0.2); color: #e07070; border: 1px solid rgba(224,85,85,0.3); }
+  .pill.black { background: rgba(100,100,120,0.3); color: #aaaacc; border: 1px solid var(--border); }
+  .pill.yellow { background: rgba(201,168,76,0.2); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+  .pill.orange { background: rgba(220,130,50,0.2); color: #e08040; border: 1px solid rgba(220,130,50,0.3); }
+  .pill.white { background: rgba(220,220,240,0.1); color: #ddddee; border: 1px solid var(--border); }
+  .pill.green { background: rgba(85,201,122,0.15); color: var(--green); border: 1px solid rgba(85,201,122,0.3); }
+  .pill.blue { background: rgba(76,180,217,0.15); color: #4cb4d9; border: 1px solid rgba(76,180,217,0.3); }
+
+  /* ── Checklist ── */
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .check-item:hover { background: var(--surface2); }
+  .check-item.checked {
+    background: rgba(85,201,122,0.06);
+    border-color: rgba(85,201,122,0.3);
+  }
+  .check-item input[type=checkbox] { display: none; }
+  .check-box {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .check-item.checked .check-box {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .check-box::after {
+    content: '';
+    width: 5px;
+    height: 9px;
+    border: 2px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translate(-1px,-1px);
+    display: none;
+  }
+  .check-item.checked .check-box::after { display: block; }
+  .check-label { flex: 1; line-height: 1.4; }
+  .check-label strong { color: var(--text); display: block; margin-bottom: 2px; }
+  .check-label span { color: var(--text-dim); font-size: 13px; }
+
+  /* ── Parts grid (Stage 0) ── */
+  .parts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .part-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .part-card:hover { background: var(--surface2); }
+  .part-card.checked { background: rgba(85,201,122,0.06); border-color: rgba(85,201,122,0.3); }
+  .part-card input[type=checkbox] { display: none; }
+  .part-check {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .part-card.checked .part-check { background: var(--green); border-color: var(--green); }
+  .part-check::after {
+    content: '';
+    width: 4px; height: 7px;
+    border: 2px solid #fff;
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translate(-1px,-1px);
+    display: none;
+  }
+  .part-card.checked .part-check::after { display: block; }
+  .part-info { flex: 1; }
+  .part-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .part-detail { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .part-qty {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    background: var(--gold-glow);
+    border: 1px solid var(--gold-dim);
+    border-radius: 10px;
+    padding: 1px 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── Print grid (Stage 1) ── */
+  .print-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .print-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .print-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 8px;
+  }
+  .print-card-body { padding: 10px 12px; }
+  .print-card-num {
+    font-size: 10px;
+    color: var(--gold);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+  .print-card-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .print-card-note { font-size: 11px; color: var(--text-dim); margin-top: 4px; line-height: 1.3; }
+
+  /* ── Code block ── */
+  .code-block {
+    background: #0d0d15;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px;
+    color: #c8c8e0;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    line-height: 1.7;
+    white-space: pre;
+  }
+  .code-block .c { color: #666688; }
+  .code-block .cmd { color: var(--teal); }
+  .code-block .str { color: #c9a84c; }
+
+  /* ── Info box ── */
+  .info-box {
+    display: flex;
+    gap: 12px;
+    background: rgba(76,217,201,0.06);
+    border: 1px solid rgba(76,217,201,0.2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .info-box .icon { font-size: 18px; flex-shrink: 0; }
+  .warn-box {
+    display: flex;
+    gap: 12px;
+    background: rgba(224,85,85,0.07);
+    border: 1px solid rgba(224,85,85,0.25);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .warn-box .icon { font-size: 18px; flex-shrink: 0; }
+
+  /* ── 2-column layout ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  .two-col .col-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  /* ── Progress summary ── */
+  .progress-summary {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .progress-summary .pct {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  /* ── Bottom nav ── */
+  #bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: var(--sidebar-w);
+    right: 0;
+    height: 60px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    z-index: 90;
+  }
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 20px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    font-family: inherit;
+  }
+  .nav-btn:hover { background: var(--border); color: var(--text); }
+  .nav-btn.primary {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: #fff;
+  }
+  .nav-btn.primary:hover { background: var(--gold); color: #000; }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .stage-counter { font-size: 13px; color: var(--text-muted); }
+  .print-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .print-btn:hover { color: var(--text-dim); border-color: var(--text-muted); }
+
+  /* ── Section heading ── */
+  .section-heading {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-heading:first-child { margin-top: 0; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3a5a; }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    :root { --sidebar-w: 0px; }
+    #sidebar { transform: translateX(-240px); transition: transform var(--transition); width: 240px; }
+    #sidebar.open { transform: translateX(0); }
+    #mobile-menu { display: flex; }
+    .slide { padding: 20px 16px; }
+    #bottom-nav { padding: 0 16px; left: 0; }
+    .two-col { grid-template-columns: 1fr; }
+    .hero-img-row.cols-3 { grid-template-columns: 1fr 1fr; }
+  }
+  #mobile-menu {
+    display: none;
+    position: fixed;
+    top: 10px; left: 10px;
+    z-index: 200;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--text-dim);
+  }
+
+  /* ── Print styles ── */
+  @media print {
+    #sidebar, #bottom-nav, #progress-bar { display: none; }
+    #main { margin-left: 0; height: auto; overflow: visible; }
+    .slide { position: static; opacity: 1; transform: none; pointer-events: auto; overflow: visible; bottom: 0; }
+    .slide:not(.active) { display: none; }
+    body { overflow: auto; }
+  }
+
+  /* ── Tooltip ── */
+  [data-tip] { position: relative; cursor: help; }
+  [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222235;
+    color: var(--text);
+    font-size: 11px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    border: 1px solid var(--border);
+    z-index: 999;
+    pointer-events: none;
+  }
+
+  /* animated entrance for checklist items */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .slide.active .check-item,
+  .slide.active .part-card,
+  .slide.active .print-card,
+  .slide.active .step {
+    animation: fadeUp 0.3s ease both;
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"><div id="progress-fill" style="width:0%"></div></div>
+
+<button id="mobile-menu" onclick="toggleSidebar()">☰</button>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo">Riftbound Sorter</div>
+    <div class="title">Assembly Guide v1.0</div>
+  </div>
+  <nav id="sidebar-nav">
+    <div class="nav-item active" onclick="goTo(0)" data-stage="0">
+      <div class="nav-num">0</div>
+      <div class="nav-label">Parts Checklist</div>
+    </div>
+    <div class="nav-item" onclick="goTo(1)" data-stage="1">
+      <div class="nav-num">1</div>
+      <div class="nav-label">Print Order</div>
+    </div>
+    <div class="nav-item" onclick="goTo(2)" data-stage="2">
+      <div class="nav-num">2</div>
+      <div class="nav-label">Power Wiring</div>
+    </div>
+    <div class="nav-item" onclick="goTo(3)" data-stage="3">
+      <div class="nav-num">3</div>
+      <div class="nav-label">Pi + I²C Setup</div>
+    </div>
+    <div class="nav-item" onclick="goTo(4)" data-stage="4">
+      <div class="nav-num">4</div>
+      <div class="nav-label">Relay + Motors</div>
+    </div>
+    <div class="nav-item" onclick="goTo(5)" data-stage="5">
+      <div class="nav-num">5</div>
+      <div class="nav-label">Servo Wiring</div>
+    </div>
+    <div class="nav-item" onclick="goTo(6)" data-stage="6">
+      <div class="nav-num">6</div>
+      <div class="nav-label">Mechanical Assembly</div>
+    </div>
+    <div class="nav-item" onclick="goTo(7)" data-stage="7">
+      <div class="nav-num">7</div>
+      <div class="nav-label">Software Setup</div>
+    </div>
+    <div class="nav-item" onclick="goTo(8)" data-stage="8">
+      <div class="nav-num">8</div>
+      <div class="nav-label">Calibration</div>
+    </div>
+  </nav>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main id="main">
+
+<!-- ════════════════════════════════════════
+     STAGE 0 — PARTS CHECKLIST
+════════════════════════════════════════ -->
+<section class="slide active" id="stage-0">
+  <div class="stage-badge">Stage 0</div>
+  <h1 class="stage-title">Parts Checklist</h1>
+  <p class="stage-subtitle">Gather everything before you begin. Click each item to mark it as collected.</p>
+  <div class="stage-divider"></div>
+
+  <div class="progress-summary">
+    <div class="pct" id="parts-pct">0%</div>
+    <div>of parts gathered &nbsp;·&nbsp; click items to check off</div>
+  </div>
+
+  <div class="section-heading">Electronics</div>
+  <div class="parts-grid" id="parts-electronics">
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p0"><div class="part-check"></div><div class="part-info"><div class="part-name">Raspberry Pi Zero 2W</div><div class="part-detail">Brain + WiFi — Adafruit $15</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p1"><div class="part-check"></div><div class="part-info"><div class="part-name">Pi Camera Module 3</div><div class="part-detail">Card identification — Adafruit $25</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p2"><div class="part-check"></div><div class="part-info"><div class="part-name">PCA9685 16-ch PWM Board</div><div class="part-detail">Servo driver (I²C) — Amazon $6</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p3"><div class="part-check"></div><div class="part-info"><div class="part-name">MG996R Servo</div><div class="part-detail">Arm / gate / bin select — Amazon $12 (3-pack)</div></div><div class="part-qty">×3</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p4"><div class="part-check"></div><div class="part-info"><div class="part-name">HX711 + 50g Load Cell Kit</div><div class="part-detail">Double-pick detection — Amazon $6</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p5"><div class="part-check"></div><div class="part-info"><div class="part-name">5V Relay Module (1-ch)</div><div class="part-detail">Vacuum pump switch — Amazon $4</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p6"><div class="part-check"></div><div class="part-info"><div class="part-name">12V Mini Diaphragm Pump</div><div class="part-detail">Card suction — Amazon $10</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p7"><div class="part-check"></div><div class="part-info"><div class="part-name">LM2596 Buck Converter</div><div class="part-detail">12V → 5V 3A — Amazon $5</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p8"><div class="part-check"></div><div class="part-info"><div class="part-name">12V 2A DC Barrel Jack Adapter</div><div class="part-detail">Main power — Amazon $8</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p9"><div class="part-check"></div><div class="part-info"><div class="part-name">N20 Gear Motor 6V 200rpm</div><div class="part-detail">Conveyor rollers — Amazon $8 (2-pack)</div></div><div class="part-qty">×2</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p10"><div class="part-check"></div><div class="part-info"><div class="part-name">L9110S Dual Motor Driver</div><div class="part-detail">Controls N20 motors — Amazon $3</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p11"><div class="part-check"></div><div class="part-info"><div class="part-name">LED Ring / White LED Strip</div><div class="part-detail">Scanner lighting — Amazon $6</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p12"><div class="part-check"></div><div class="part-info"><div class="part-name">Dupont Jumper Wire Kit</div><div class="part-detail">M-F / F-F / M-M — Amazon $7</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p13"><div class="part-check"></div><div class="part-info"><div class="part-name">32GB Micro SD (Class 10)</div><div class="part-detail">Pi OS + software — Amazon $7</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="p14"><div class="part-check"></div><div class="part-info"><div class="part-name">Suction Cup + 4mm Barbed Fitting</div><div class="part-detail">Card pickup head — Amazon $4</div></div><div class="part-qty">×1</div></label>
+  </div>
+
+  <div class="section-heading">Hardware</div>
+  <div class="parts-grid">
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="h0"><div class="part-check"></div><div class="part-info"><div class="part-name">608ZZ Bearings</div><div class="part-detail">Conveyor rollers — $5</div></div><div class="part-qty">×4</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="h1"><div class="part-check"></div><div class="part-info"><div class="part-name">8mm Steel Rod 150mm</div><div class="part-detail">Roller axles — $3</div></div><div class="part-qty">×2</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="h2"><div class="part-check"></div><div class="part-info"><div class="part-name">M3 Screw + Nut Kit</div><div class="part-detail">50 pc assorted — $5</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="h3"><div class="part-check"></div><div class="part-info"><div class="part-name">M3 Heat-Set Inserts</div><div class="part-detail">20 pc — $4</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="h4"><div class="part-check"></div><div class="part-info"><div class="part-name">4mm Silicone Tubing 30cm</div><div class="part-detail">Vacuum line — $3</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="h5"><div class="part-check"></div><div class="part-info"><div class="part-name">#010 O-Rings (16mm ID × 2mm)</div><div class="part-detail">Roller grip — $3</div></div><div class="part-qty">×4</div></label>
+  </div>
+
+  <div class="section-heading">3D Printed Parts</div>
+  <div class="parts-grid">
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="d0"><div class="part-check"></div><div class="part-info"><div class="part-name">baseplate_tile.stl</div><div class="part-detail">40% infill — start overnight</div></div><div class="part-qty">×4-8</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="d1"><div class="part-check"></div><div class="part-info"><div class="part-name">bin_body.stl</div><div class="part-detail">Standard settings — batch</div></div><div class="part-qty">×8-16</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="d2"><div class="part-check"></div><div class="part-info"><div class="part-name">conveyor_rail_left/right.stl</div><div class="part-detail">40% infill, 0.15mm layer height</div></div><div class="part-qty">×2 ea</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="d3"><div class="part-check"></div><div class="part-info"><div class="part-name">scanner_hood.stl</div><div class="part-detail">Black filament — reduces glare</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="d4"><div class="part-check"></div><div class="part-info"><div class="part-name">suction_arm_base/elbow/wrist.stl</div><div class="part-detail">Base: 40% infill; others standard</div></div><div class="part-qty">×1 ea</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="d5"><div class="part-check"></div><div class="part-info"><div class="part-name">hopper_body.stl + hopper_gate.stl</div><div class="part-detail">Standard settings</div></div><div class="part-qty">×1 ea</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="d6"><div class="part-check"></div><div class="part-info"><div class="part-name">electronics_tray.stl</div><div class="part-detail">Standard — print before electronics</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="d7"><div class="part-check"></div><div class="part-info"><div class="part-name">motor_mount.stl</div><div class="part-detail">40% infill</div></div><div class="part-qty">×1</div></label>
+    <label class="part-card" onclick="togglePart(this)"><input type="checkbox" data-key="d8"><div class="part-check"></div><div class="part-info"><div class="part-name">camera_bracket.stl</div><div class="part-detail">Standard — small, quick print</div></div><div class="part-qty">×1</div></label>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     STAGE 1 — PRINT ORDER
+════════════════════════════════════════ -->
+<section class="slide" id="stage-1">
+  <div class="stage-badge">Stage 1</div>
+  <h1 class="stage-title">Print Order</h1>
+  <p class="stage-subtitle">Print in this sequence so sub-assemblies are ready when needed. Total print time: ~20–25 hrs on Bambu P1S fast profile.</p>
+  <div class="stage-divider"></div>
+
+  <div class="info-box"><div class="icon">ℹ️</div><div>All parts: PLA for most, PETG for arm + gate levers (~30g PETG, ~360g PLA). Layer height 0.2mm, 3 perimeters, 20% infill unless noted. Set overrides below.</div></div>
+
+  <div class="print-grid">
+    <div class="print-card">
+      <img src="images/part-baseplate_tile.png" alt="Baseplate Tile" onerror="this.style.background='#1a1a26';this.style.display='block'">
+      <div class="print-card-body">
+        <div class="print-card-num">Print #1</div>
+        <div class="print-card-name">Baseplate Tiles</div>
+        <div class="print-card-note">baseplate_tile.stl × 4–8 &nbsp;·&nbsp; <strong>40% infill</strong> &nbsp;·&nbsp; Start overnight — longest print</div>
+      </div>
+    </div>
+    <div class="print-card">
+      <img src="images/part-output_bin.png" alt="Bins" onerror="this.style.background='#1a1a26'">
+      <div class="print-card-body">
+        <div class="print-card-num">Print #2</div>
+        <div class="print-card-name">Output Bins</div>
+        <div class="print-card-note">bin_body.stl × 8–16 &nbsp;·&nbsp; Standard &nbsp;·&nbsp; Batch on build plate</div>
+      </div>
+    </div>
+    <div class="print-card">
+      <img src="images/part-conveyor_rail.png" alt="Conveyor Rail" onerror="this.style.background='#1a1a26'">
+      <div class="print-card-body">
+        <div class="print-card-num">Print #3</div>
+        <div class="print-card-name">Conveyor Rails</div>
+        <div class="print-card-note">conveyor_rail_left/right.stl &nbsp;·&nbsp; <strong>40% infill, 0.15mm layers</strong> — must be dimensionally accurate</div>
+      </div>
+    </div>
+    <div class="print-card">
+      <img src="images/part-electronics_tray.png" alt="Electronics Tray" onerror="this.style.background='#1a1a26'">
+      <div class="print-card-body">
+        <div class="print-card-num">Print #4</div>
+        <div class="print-card-name">Electronics Tray</div>
+        <div class="print-card-note">electronics_tray.stl × 1 &nbsp;·&nbsp; Needed before electronics work begins</div>
+      </div>
+    </div>
+    <div class="print-card">
+      <img src="images/part-conveyor_roller.png" alt="Motor Mount" onerror="this.style.background='#1a1a26'">
+      <div class="print-card-body">
+        <div class="print-card-num">Print #5</div>
+        <div class="print-card-name">Motor Mount</div>
+        <div class="print-card-note">motor_mount.stl × 1 &nbsp;·&nbsp; <strong>40% infill</strong> &nbsp;·&nbsp; Pair with rails</div>
+      </div>
+    </div>
+    <div class="print-card">
+      <img src="images/part-hopper.png" alt="Hopper" onerror="this.style.background='#1a1a26'">
+      <div class="print-card-body">
+        <div class="print-card-num">Print #6</div>
+        <div class="print-card-name">Hopper Body + Gate</div>
+        <div class="print-card-note">hopper_body.stl + hopper_gate.stl &nbsp;·&nbsp; Standard settings</div>
+      </div>
+    </div>
+    <div class="print-card">
+      <img src="images/part-scanner_hood.png" alt="Scanner Hood" onerror="this.style.background='#1a1a26'">
+      <div class="print-card-body">
+        <div class="print-card-num">Print #7</div>
+        <div class="print-card-name">Scanner Hood</div>
+        <div class="print-card-note">scanner_hood.stl &nbsp;·&nbsp; <strong>Black filament</strong> — eliminates reflections &nbsp;·&nbsp; Print before camera work</div>
+      </div>
+    </div>
+    <div class="print-card">
+      <img src="images/part-suction_arm.png" alt="Suction Arm" onerror="this.style.background='#1a1a26'">
+      <div class="print-card-body">
+        <div class="print-card-num">Print #8</div>
+        <div class="print-card-name">Suction Arm</div>
+        <div class="print-card-note">base/elbow/wrist.stl &nbsp;·&nbsp; <strong>PETG recommended</strong> &nbsp;·&nbsp; Base 40% infill &nbsp;·&nbsp; Confirm servo dimensions first</div>
+      </div>
+    </div>
+    <div class="print-card">
+      <img src="images/part-sorting_tray-2floor.png" alt="Camera Bracket" onerror="this.style.background='#1a1a26'">
+      <div class="print-card-body">
+        <div class="print-card-num">Print #9</div>
+        <div class="print-card-name">Camera Bracket</div>
+        <div class="print-card-note">camera_bracket.stl &nbsp;·&nbsp; Small, quick &nbsp;·&nbsp; Print while arm is printing</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box"><div class="icon">⚠️</div><div>Insert heat-set inserts into baseplate tiles and arm base while the parts are still warm from the printer using a soldering iron at 200°C. Much easier than fighting them in cold plastic later.</div></div>
+</section>
+
+<!-- ════════════════════════════════════════
+     STAGE 2 — POWER WIRING
+════════════════════════════════════════ -->
+<section class="slide" id="stage-2">
+  <div class="stage-badge">Stage 2</div>
+  <h1 class="stage-title">Power Wiring</h1>
+  <p class="stage-subtitle">12V DC in → LM2596 buck converter → 5V regulated rail. Build the power tree before connecting any logic.</p>
+  <div class="stage-divider"></div>
+
+  <div class="warn-box"><div class="icon">⚡</div><div><strong>Safety first.</strong> Keep the 12V adapter unplugged throughout all wiring steps. Only plug in after completing a stage and double-checking all connections.</div></div>
+
+  <div class="wiring-box">
+    <svg width="680" height="260" viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#c9a84c"/></marker>
+        <marker id="arr-g" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#55c97a"/></marker>
+        <marker id="arr-r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#e05555"/></marker>
+        <marker id="arr-t" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#4cd9c9"/></marker>
+      </defs>
+
+      <!-- Wall Adapter box -->
+      <rect x="20" y="80" width="110" height="60" rx="6" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1.5"/>
+      <text x="75" y="104" fill="#8888aa" font-size="10" text-anchor="middle">Wall Adapter</text>
+      <text x="75" y="119" fill="#c9a84c" font-size="12" font-weight="700" text-anchor="middle">12V 2A</text>
+      <text x="75" y="133" fill="#8888aa" font-size="10" text-anchor="middle">DC Barrel Jack</text>
+
+      <!-- LM2596 box -->
+      <rect x="200" y="70" width="110" height="80" rx="6" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1.5"/>
+      <text x="255" y="94" fill="#8888aa" font-size="10" text-anchor="middle">LM2596</text>
+      <text x="255" y="109" fill="#c9a84c" font-size="12" font-weight="700" text-anchor="middle">Buck Converter</text>
+      <text x="255" y="123" fill="#8888aa" font-size="10" text-anchor="middle">IN: 12V → OUT: 5.1V</text>
+      <text x="255" y="137" fill="#55c97a" font-size="10" text-anchor="middle">Adjust trim pot first</text>
+
+      <!-- GND bus -->
+      <rect x="200" y="195" width="110" height="30" rx="4" fill="#12121a" stroke="#3a3a5a" stroke-width="1" stroke-dasharray="4,2"/>
+      <text x="255" y="214" fill="#8888aa" font-size="10" text-anchor="middle">Common GND Bus</text>
+
+      <!-- 5V Rail box -->
+      <rect x="390" y="30" width="110" height="40" rx="6" fill="#12121a" stroke="rgba(85,201,122,0.4)" stroke-width="1.5"/>
+      <text x="445" y="48" fill="#55c97a" font-size="10" text-anchor="middle">5V RAIL</text>
+      <text x="445" y="62" fill="#55c97a" font-size="10" text-anchor="middle">Pi · PCA9685 · Relay</text>
+
+      <!-- 12V Rail box -->
+      <rect x="390" y="100" width="110" height="40" rx="6" fill="#12121a" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+      <text x="445" y="118" fill="#c9a84c" font-size="10" text-anchor="middle">12V RAIL</text>
+      <text x="445" y="132" fill="#c9a84c" font-size="10" text-anchor="middle">Pump · L9110S COM</text>
+
+      <!-- Consumer boxes -->
+      <rect x="560" y="20" width="100" height="30" rx="4" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="610" y="39" fill="#8888aa" font-size="10" text-anchor="middle">Raspberry Pi Zero 2W</text>
+
+      <rect x="560" y="60" width="100" height="30" rx="4" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="610" y="79" fill="#8888aa" font-size="10" text-anchor="middle">PCA9685 (V+)</text>
+
+      <rect x="560" y="96" width="100" height="30" rx="4" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="610" y="115" fill="#8888aa" font-size="10" text-anchor="middle">Relay VCC</text>
+
+      <rect x="560" y="132" width="100" height="30" rx="4" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="610" y="151" fill="#8888aa" font-size="10" text-anchor="middle">Vacuum Pump</text>
+
+      <rect x="560" y="168" width="100" height="30" rx="4" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="610" y="187" fill="#8888aa" font-size="10" text-anchor="middle">L9110S VCC</text>
+
+      <!-- 12V from barrel to LM2596 IN+ (red) -->
+      <line x1="130" y1="100" x2="198" y2="100" stroke="#e05555" stroke-width="2" marker-end="url(#arr-r)"/>
+      <text x="164" y="94" fill="#e05555" font-size="9" text-anchor="middle">12V+</text>
+
+      <!-- GND from barrel to LM2596 -->
+      <line x1="130" y1="128" x2="198" y2="210" stroke="#8888aa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- LM2596 OUT+ to 5V rail -->
+      <line x1="310" y1="88" x2="388" y2="50" stroke="#55c97a" stroke-width="2" marker-end="url(#arr-g)"/>
+      <text x="348" y="62" fill="#55c97a" font-size="9" text-anchor="middle">5V OUT</text>
+
+      <!-- 12V direct to 12V rail -->
+      <line x1="130" y1="108" x2="388" y2="120" stroke="#c9a84c" stroke-width="2" marker-end="url(#arr)"/>
+      <text x="258" y="142" fill="#c9a84c" font-size="9" text-anchor="middle">12V direct</text>
+
+      <!-- 5V rail to consumers -->
+      <line x1="500" y1="43" x2="558" y2="35" stroke="#55c97a" stroke-width="1.5" marker-end="url(#arr-g)"/>
+      <line x1="500" y1="47" x2="558" y2="75" stroke="#55c97a" stroke-width="1.5" marker-end="url(#arr-g)"/>
+      <line x1="500" y1="47" x2="558" y2="111" stroke="#55c97a" stroke-width="1.5" marker-end="url(#arr-g)"/>
+
+      <!-- 12V rail to consumers -->
+      <line x1="500" y1="120" x2="558" y2="147" stroke="#c9a84c" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="500" y1="120" x2="558" y2="183" stroke="#c9a84c" stroke-width="1.5" marker-end="url(#arr)"/>
+    </svg>
+  </div>
+
+  <div class="steps-list">
+    <div class="step"><div class="step-content"><strong>Step 1 — Barrel jack wires.</strong> Solder 22 AWG red wire to the barrel jack center pin (12V+) and black wire to the sleeve (GND). Sleeve-to-center confirmation: insert a 12V adapter and measure with multimeter — center should be positive.</div></div>
+    <div class="step"><div class="step-content"><strong>Step 2 — LM2596 input.</strong> Connect 12V+ to LM2596 <code>IN+</code> and GND to <code>IN–</code>. Do not connect any load yet.</div></div>
+    <div class="step warning"><div class="step-content"><strong>Step 3 — Set output voltage FIRST.</strong> Plug in 12V adapter. Measure LM2596 <code>OUT+</code> / <code>OUT–</code> with multimeter while turning the trim pot. Dial in <strong>5.10–5.20 V</strong>. Unplug before continuing.</div></div>
+    <div class="step"><div class="step-content"><strong>Step 4 — 5V rail.</strong> Run 22 AWG red wire from LM2596 <code>OUT+</code> to a breadboard positive rail (or terminal block). This is your 5V rail. Connect LM2596 <code>OUT–</code> to the GND bus.</div></div>
+    <div class="step"><div class="step-content"><strong>Step 5 — 12V rail.</strong> Tap the barrel jack 12V+ for a separate 12V rail (or use a wye connector). This feeds the vacuum pump and L9110S motor driver. Keep these wires twisted and away from signal lines.</div></div>
+    <div class="step"><div class="step-content"><strong>Step 6 — Common GND.</strong> Run GND wires from the breadboard GND rail to every module's GND pin. A shared GND bus is critical — floating grounds cause erratic behavior.</div></div>
+    <div class="step tip"><div class="step-content"><strong>Step 7 — Label wires now.</strong> Use red tape for 12V+, red with stripe for 5V, black for GND. You'll thank yourself during debugging at 2 AM.</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     STAGE 3 — Pi + I2C SETUP
+════════════════════════════════════════ -->
+<section class="slide" id="stage-3">
+  <div class="stage-badge">Stage 3</div>
+  <h1 class="stage-title">Pi + I²C Setup</h1>
+  <p class="stage-subtitle">Connect PCA9685 (servo driver) and HX711 (load cell) to the Pi Zero 2W GPIO header.</p>
+  <div class="stage-divider"></div>
+
+  <div class="hero-img-row cols-2">
+    <div>
+      <img src="images/card-sorter-wiring.png" alt="Wiring Overview" class="" style="width:100%;height:200px;object-fit:contain;background:#1a1a26;border:1px solid #2a2a3e;border-radius:8px;">
+      <div class="img-caption">Full wiring overview</div>
+    </div>
+    <div>
+      <img src="images/card-sorter-architecture.png" alt="System Architecture" class="" style="width:100%;height:200px;object-fit:contain;background:#1a1a26;border:1px solid #2a2a3e;border-radius:8px;">
+      <div class="img-caption">System architecture</div>
+    </div>
+  </div>
+
+  <div class="section-heading">PCA9685 — Servo Driver (I²C)</div>
+
+  <div class="wiring-box">
+    <svg width="600" height="160" viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+      <defs>
+        <marker id="a2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#4cd9c9"/></marker>
+      </defs>
+      <!-- Pi box -->
+      <rect x="20" y="20" width="140" height="120" rx="6" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1.5"/>
+      <text x="90" y="40" fill="#c9a84c" font-size="11" font-weight="700" text-anchor="middle">Pi Zero 2W</text>
+      <text x="90" y="58" fill="#8888aa" font-size="9" text-anchor="middle">GPIO Header</text>
+      <text x="90" y="78" fill="#e07070" font-size="10" text-anchor="middle">Pin 1 → 3.3V</text>
+      <text x="90" y="94" fill="#aaaacc" font-size="10" text-anchor="middle">Pin 6 → GND</text>
+      <text x="90" y="110" fill="#4cb4d9" font-size="10" text-anchor="middle">Pin 3 → SDA1</text>
+      <text x="90" y="126" fill="#4cb4d9" font-size="10" text-anchor="middle">Pin 5 → SCL1</text>
+
+      <!-- PCA box -->
+      <rect x="380" y="20" width="140" height="120" rx="6" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1.5"/>
+      <text x="450" y="40" fill="#c9a84c" font-size="11" font-weight="700" text-anchor="middle">PCA9685</text>
+      <text x="450" y="58" fill="#8888aa" font-size="9" text-anchor="middle">Addr: 0x40</text>
+      <text x="450" y="78" fill="#e07070" font-size="10" text-anchor="middle">VCC (3.3V logic)</text>
+      <text x="450" y="94" fill="#aaaacc" font-size="10" text-anchor="middle">GND</text>
+      <text x="450" y="110" fill="#4cb4d9" font-size="10" text-anchor="middle">SDA</text>
+      <text x="450" y="126" fill="#4cb4d9" font-size="10" text-anchor="middle">SCL</text>
+
+      <!-- Arrows -->
+      <line x1="162" y1="78" x2="378" y2="78" stroke="#e07070" stroke-width="1.5" marker-end="url(#a2)" stroke-dasharray="4,2"/>
+      <line x1="162" y1="94" x2="378" y2="94" stroke="#8888aa" stroke-width="1.5" marker-end="url(#a2)" stroke-dasharray="4,2"/>
+      <line x1="162" y1="110" x2="378" y2="110" stroke="#4cb4d9" stroke-width="2" marker-end="url(#a2)"/>
+      <line x1="162" y1="126" x2="378" y2="126" stroke="#4cb4d9" stroke-width="2" marker-end="url(#a2)"/>
+
+      <!-- 5V rail to V+ -->
+      <text x="300" y="50" fill="#55c97a" font-size="10" text-anchor="middle">5V RAIL → V+</text>
+      <text x="300" y="62" fill="#8888aa" font-size="9" text-anchor="middle">(servo power — not Pi pin)</text>
+      <line x1="250" y1="55" x2="378" y2="68" stroke="#55c97a" stroke-width="1.5" stroke-dasharray="3,2"/>
+    </svg>
+  </div>
+
+  <table class="pin-table">
+    <thead><tr><th>Pi Pin</th><th>Signal</th><th>Wire</th><th>PCA9685 Pin</th></tr></thead>
+    <tbody>
+      <tr><td>Pin 1</td><td>3.3V</td><td><span class="pill red">Red</span></td><td>VCC</td></tr>
+      <tr><td>Pin 6</td><td>GND</td><td><span class="pill black">Black</span></td><td>GND</td></tr>
+      <tr><td>Pin 3 (GPIO 2)</td><td>SDA1</td><td><span class="pill blue">Blue</span></td><td>SDA</td></tr>
+      <tr><td>Pin 5 (GPIO 3)</td><td>SCL1</td><td><span class="pill yellow">Yellow</span></td><td>SCL</td></tr>
+      <tr><td>5V Rail</td><td>Servo Power</td><td><span class="pill red">Red</span></td><td>V+ (servo rail)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-heading">HX711 — Load Cell Amplifier</div>
+
+  <table class="pin-table">
+    <thead><tr><th>Pi Pin</th><th>Signal</th><th>Wire</th><th>HX711 Pin</th></tr></thead>
+    <tbody>
+      <tr><td>Pin 1</td><td>3.3V</td><td><span class="pill red">Red</span></td><td>VCC</td></tr>
+      <tr><td>Pin 9</td><td>GND</td><td><span class="pill black">Black</span></td><td>GND</td></tr>
+      <tr><td>Pin 29 (GPIO 5)</td><td>DT (data)</td><td><span class="pill green">Green</span></td><td>DT</td></tr>
+      <tr><td>Pin 31 (GPIO 6)</td><td>SCK (clock)</td><td><span class="pill yellow">Yellow</span></td><td>SCK</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-heading">Load Cell 4-Wire (to HX711)</div>
+  <table class="pin-table">
+    <thead><tr><th>Wire Color</th><th>Load Cell Terminal</th><th>HX711 Pin</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill red">Red</span></td><td>E+ (excitation +)</td><td>E+</td></tr>
+      <tr><td><span class="pill black">Black</span></td><td>E– (excitation –)</td><td>E–</td></tr>
+      <tr><td><span class="pill white">White</span></td><td>A+ (signal +)</td><td>A+</td></tr>
+      <tr><td><span class="pill green">Green</span></td><td>A– (signal –)</td><td>A–</td></tr>
+    </tbody>
+  </table>
+
+  <div class="steps-list">
+    <div class="step"><div class="step-content"><strong>Step 1 — Wire PCA9685.</strong> Connect the 4 I²C wires per table above. Connect 5V rail to PCA9685 <code>V+</code> for servo power — never use the Pi's 5V pin for servos (overcurrent risk).</div></div>
+    <div class="step"><div class="step-content"><strong>Step 2 — Wire HX711.</strong> Clamp or solder the load cell wires to HX711 E+/E–/A+/A– terminals. Run the cable through the electronics tray channel before mounting.</div></div>
+    <div class="step"><div class="step-content"><strong>Step 3 — Verify I²C after first boot.</strong> SSH into the Pi and run: <code>i2cdetect -y 1</code>. You should see address <code>0x40</code> for the PCA9685.</div></div>
+    <div class="step tip"><div class="step-content"><strong>Tip — CSI Ribbon (Camera).</strong> Lift the CSI connector latch on the Pi Zero. Insert ribbon with <strong>metal contacts facing away from the latch</strong>. Press latch down firmly. Route through camera bracket slot before attaching module.</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     STAGE 4 — RELAY + MOTORS
+════════════════════════════════════════ -->
+<section class="slide" id="stage-4">
+  <div class="stage-badge">Stage 4</div>
+  <h1 class="stage-title">Relay + Motors</h1>
+  <p class="stage-subtitle">Wire the vacuum pump relay and N20 conveyor motors via L9110S driver.</p>
+  <div class="stage-divider"></div>
+
+  <div class="section-heading">5V Relay Module — Vacuum Pump Switch</div>
+
+  <div class="wiring-box">
+    <svg width="640" height="200" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+      <defs>
+        <marker id="a3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#c9a84c"/></marker>
+      </defs>
+
+      <!-- Pi -->
+      <rect x="20" y="30" width="130" height="100" rx="6" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1.5"/>
+      <text x="85" y="50" fill="#c9a84c" font-size="11" font-weight="700" text-anchor="middle">Pi Zero 2W</text>
+      <text x="85" y="70" fill="#e07070" font-size="10" text-anchor="middle">Pin 4 → 5V</text>
+      <text x="85" y="86" fill="#aaaacc" font-size="10" text-anchor="middle">Pin 6 → GND</text>
+      <text x="85" y="102" fill="#55c97a" font-size="10" text-anchor="middle">Pin 11 → GPIO17</text>
+
+      <!-- Relay -->
+      <rect x="230" y="30" width="130" height="100" rx="6" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1.5"/>
+      <text x="295" y="50" fill="#c9a84c" font-size="11" font-weight="700" text-anchor="middle">Relay Module</text>
+      <text x="295" y="70" fill="#e07070" font-size="10" text-anchor="middle">VCC</text>
+      <text x="295" y="86" fill="#aaaacc" font-size="10" text-anchor="middle">GND</text>
+      <text x="295" y="102" fill="#55c97a" font-size="10" text-anchor="middle">IN (signal)</text>
+      <text x="295" y="118" fill="#c9a84c" font-size="10" text-anchor="middle">NO (Normally Open)</text>
+
+      <!-- Pump -->
+      <rect x="440" y="30" width="130" height="100" rx="6" fill="#1a1a26" stroke="rgba(224,85,85,0.4)" stroke-width="1.5"/>
+      <text x="505" y="50" fill="#e05555" font-size="11" font-weight="700" text-anchor="middle">12V Vacuum Pump</text>
+      <text x="505" y="70" fill="#e07070" font-size="10" text-anchor="middle">12V+ ← Relay COM</text>
+      <text x="505" y="86" fill="#e07070" font-size="10" text-anchor="middle">Pump+ ← Relay NO</text>
+      <text x="505" y="102" fill="#aaaacc" font-size="10" text-anchor="middle">Pump– → GND</text>
+      <text x="505" y="118" fill="#8888aa" font-size="9" text-anchor="middle">Twist pump wires!</text>
+
+      <!-- Lines -->
+      <line x1="152" y1="70" x2="228" y2="70" stroke="#e07070" stroke-width="1.5" marker-end="url(#a3)"/>
+      <line x1="152" y1="86" x2="228" y2="86" stroke="#8888aa" stroke-width="1.5" marker-end="url(#a3)"/>
+      <line x1="152" y1="102" x2="228" y2="102" stroke="#55c97a" stroke-width="1.5" marker-end="url(#a3)"/>
+      <line x1="362" y1="118" x2="438" y2="80" stroke="#c9a84c" stroke-width="1.5" marker-end="url(#a3)"/>
+
+      <!-- 12V label -->
+      <text x="505" y="162" fill="#c9a84c" font-size="9" text-anchor="middle">12V rail → COM terminal</text>
+    </svg>
+  </div>
+
+  <table class="pin-table">
+    <thead><tr><th>Pi Pin</th><th>Signal</th><th>Relay Pin</th></tr></thead>
+    <tbody>
+      <tr><td>Pin 4</td><td>5V (coil power)</td><td>VCC</td></tr>
+      <tr><td>Pin 6</td><td>GND</td><td>GND</td></tr>
+      <tr><td>Pin 11 (GPIO 17)</td><td>Relay trigger</td><td>IN</td></tr>
+      <tr><td>12V Rail</td><td>Pump power source</td><td>COM</td></tr>
+      <tr><td>Relay NO</td><td>→ Pump + terminal</td><td>NO</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-heading">L9110S Dual H-Bridge — N20 Conveyor Motors</div>
+
+  <table class="pin-table">
+    <thead><tr><th>Pi Pin</th><th>GPIO</th><th>L9110S Pin</th><th>Function</th></tr></thead>
+    <tbody>
+      <tr><td>5V Rail</td><td>—</td><td>VCC</td><td>Motor power (5–6V)</td></tr>
+      <tr><td>GND</td><td>—</td><td>GND</td><td>Common ground</td></tr>
+      <tr><td>Pin 33</td><td>GPIO 13</td><td>A-IA</td><td>Motor A forward (PWM)</td></tr>
+      <tr><td>Pin 35</td><td>GPIO 19</td><td>A-IB</td><td>Motor A reverse (PWM)</td></tr>
+      <tr><td>Pin 37</td><td>GPIO 26</td><td>B-IA</td><td>Motor B forward (PWM)</td></tr>
+      <tr><td>Pin 38</td><td>GPIO 20</td><td>B-IB</td><td>Motor B reverse (PWM)</td></tr>
+      <tr><td>OA1 / OA2</td><td>—</td><td>Output A</td><td>N20 Motor A terminals</td></tr>
+      <tr><td>OB1 / OB2</td><td>—</td><td>Output B</td><td>N20 Motor B terminals</td></tr>
+    </tbody>
+  </table>
+
+  <div class="steps-list">
+    <div class="step"><div class="step-content"><strong>Step 1 — Relay wiring.</strong> Wire per table above. Use the <strong>Normally Open (NO)</strong> terminal so the pump is off when Pi GPIO 17 is LOW. The relay LED should illuminate when you trigger GPIO 17 high.</div></div>
+    <div class="step warning"><div class="step-content"><strong>Step 2 — Pump wire routing.</strong> Twist the two 12V pump wires together and route them away from I²C/signal wires. 12V switching creates noise that can corrupt sensor readings.</div></div>
+    <div class="step"><div class="step-content"><strong>Step 3 — L9110S motor wiring.</strong> Connect N20 Motor A to OA1/OA2, Motor B to OB1/OB2. Motor polarity determines direction — if conveyor runs backwards, swap the two output wires for that motor.</div></div>
+    <div class="step tip"><div class="step-content"><strong>Step 4 — Test motor direction before assembly.</strong> With soft code, briefly run GPIO 13 high. Motor A should run forward (feeding cards toward scanner). Confirm before mounting to rails.</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     STAGE 5 — SERVO WIRING
+════════════════════════════════════════ -->
+<section class="slide" id="stage-5">
+  <div class="stage-badge">Stage 5</div>
+  <h1 class="stage-title">Servo Wiring</h1>
+  <p class="stage-subtitle">Connect all 3× MG996R servos to PCA9685 channels. Camera CSI ribbon connects directly to Pi.</p>
+  <div class="stage-divider"></div>
+
+  <div class="info-box"><div class="icon">ℹ️</div><div>All servo power (5V+, GND) comes from the PCA9685 V+ rail — never from Pi GPIO pins. The Pi only provides the signal wire via PCA9685 channels.</div></div>
+
+  <div class="wiring-box">
+    <svg width="600" height="240" viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+      <defs>
+        <marker id="a4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#8888aa"/></marker>
+        <marker id="a4g" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#c9a84c"/></marker>
+      </defs>
+
+      <!-- PCA9685 center -->
+      <rect x="210" y="80" width="150" height="140" rx="6" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1.5"/>
+      <text x="285" y="100" fill="#c9a84c" font-size="11" font-weight="700" text-anchor="middle">PCA9685</text>
+      <text x="285" y="115" fill="#8888aa" font-size="9" text-anchor="middle">16-ch PWM Driver</text>
+      <text x="285" y="133" fill="#4cd9c9" font-size="10" text-anchor="middle">Ch 0 → Shoulder servo</text>
+      <text x="285" y="149" fill="#4cd9c9" font-size="10" text-anchor="middle">Ch 1 → Elbow servo</text>
+      <text x="285" y="165" fill="#4cd9c9" font-size="10" text-anchor="middle">Ch 2 → Wrist / Z servo</text>
+      <text x="285" y="181" fill="#55c97a" font-size="10" text-anchor="middle">Ch 3 → Hopper gate</text>
+      <text x="285" y="197" fill="#c9a84c" font-size="10" text-anchor="middle">Ch 4 → Bin select gate</text>
+      <text x="285" y="213" fill="#8888aa" font-size="10" text-anchor="middle">Ch 5–15 → Reserved</text>
+
+      <!-- Shoulder servo -->
+      <rect x="20" y="80" width="110" height="40" rx="4" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="75" y="98" fill="#4cd9c9" font-size="10" text-anchor="middle">Shoulder Servo</text>
+      <text x="75" y="112" fill="#8888aa" font-size="9" text-anchor="middle">MG996R · Ch 0</text>
+      <line x1="130" y1="100" x2="208" y2="133" stroke="#4cd9c9" stroke-width="1.5" marker-end="url(#a4)"/>
+
+      <!-- Elbow servo -->
+      <rect x="20" y="135" width="110" height="40" rx="4" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="75" y="153" fill="#4cd9c9" font-size="10" text-anchor="middle">Elbow Servo</text>
+      <text x="75" y="167" fill="#8888aa" font-size="9" text-anchor="middle">MG996R · Ch 1</text>
+      <line x1="130" y1="155" x2="208" y2="149" stroke="#4cd9c9" stroke-width="1.5" marker-end="url(#a4)"/>
+
+      <!-- Wrist servo -->
+      <rect x="20" y="190" width="110" height="40" rx="4" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="75" y="208" fill="#4cd9c9" font-size="10" text-anchor="middle">Wrist / Z Servo</text>
+      <text x="75" y="222" fill="#8888aa" font-size="9" text-anchor="middle">MG996R · Ch 2</text>
+      <line x1="130" y1="210" x2="208" y2="165" stroke="#4cd9c9" stroke-width="1.5" marker-end="url(#a4)"/>
+
+      <!-- Hopper gate servo -->
+      <rect x="460" y="100" width="110" height="40" rx="4" fill="#1a1a26" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="515" y="118" fill="#55c97a" font-size="10" text-anchor="middle">Hopper Gate</text>
+      <text x="515" y="132" fill="#8888aa" font-size="9" text-anchor="middle">MG996R · Ch 3</text>
+      <line x1="460" y1="120" x2="362" y2="181" stroke="#55c97a" stroke-width="1.5" marker-end="url(#a4)"/>
+
+      <!-- 5V rail annotation -->
+      <rect x="210" y="20" width="150" height="40" rx="4" fill="#12121a" stroke="rgba(85,201,122,0.4)" stroke-width="1"/>
+      <text x="285" y="37" fill="#55c97a" font-size="10" text-anchor="middle">5V Rail → V+</text>
+      <text x="285" y="52" fill="#8888aa" font-size="9" text-anchor="middle">Servo power (not Pi pin)</text>
+      <line x1="285" y1="60" x2="285" y2="78" stroke="#55c97a" stroke-width="1.5" marker-end="url(#a4g)"/>
+    </svg>
+  </div>
+
+  <table class="pin-table">
+    <thead><tr><th>PCA9685 Channel</th><th>Servo Function</th><th>Wire Colors (3-pin)</th></tr></thead>
+    <tbody>
+      <tr><td>Ch 0</td><td>Suction arm — shoulder</td><td><span class="pill black">Brown/GND</span> <span class="pill red">Red/5V</span> <span class="pill orange">Orange/Signal</span></td></tr>
+      <tr><td>Ch 1</td><td>Suction arm — elbow</td><td><span class="pill black">Brown/GND</span> <span class="pill red">Red/5V</span> <span class="pill orange">Orange/Signal</span></td></tr>
+      <tr><td>Ch 2</td><td>Suction arm — wrist / Z</td><td><span class="pill black">Brown/GND</span> <span class="pill red">Red/5V</span> <span class="pill orange">Orange/Signal</span></td></tr>
+      <tr><td>Ch 3</td><td>Hopper gate</td><td><span class="pill black">Brown/GND</span> <span class="pill red">Red/5V</span> <span class="pill orange">Orange/Signal</span></td></tr>
+      <tr><td>Ch 4</td><td>Bin select gate (if used)</td><td><span class="pill black">Brown/GND</span> <span class="pill red">Red/5V</span> <span class="pill orange">Orange/Signal</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="steps-list">
+    <div class="step"><div class="step-content"><strong>Step 1 — Plug servos into PCA9685.</strong> Each servo connector is 3-pin: GND (brown/black), 5V (red), signal (orange/yellow/white). The signal wire plugs into the innermost pin row on PCA9685 (labeled <code>S</code>).</div></div>
+    <div class="step"><div class="step-content"><strong>Step 2 — Set servos to 90° center before mounting.</strong> Power up and briefly run code to send 90° to all channels. Attach servo horns while servos are centered — this ensures the full range of motion is usable in both directions.</div></div>
+    <div class="step warning"><div class="step-content"><strong>Step 3 — Don't exceed current limit.</strong> MG996R draws up to 2.5A stall. Ensure your 5V rail (LM2596 rated 3A) can supply all servos. Avoid stalling multiple servos simultaneously.</div></div>
+    <div class="step><div class="step-content"><strong>Step 4 — Camera CSI ribbon.</strong> On Pi Zero 2W, the CSI connector is between the micro-USB ports. Lift the plastic latch. Insert ribbon with metal contacts facing the board (away from latch). Lock the latch down firmly.</div></div>
+    <div class="step tip"><div class="step-content"><strong>Step 5 — Verify config.yaml channel mapping.</strong> Open <code>config.yaml</code> and confirm each servo's channel number matches the physical connection before first full power-on.</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     STAGE 6 — MECHANICAL ASSEMBLY
+════════════════════════════════════════ -->
+<section class="slide" id="stage-6">
+  <div class="stage-badge">Stage 6</div>
+  <h1 class="stage-title">Mechanical Assembly</h1>
+  <p class="stage-subtitle">Build in this order to avoid back-tracking. Each step depends on the previous.</p>
+  <div class="stage-divider"></div>
+
+  <div class="hero-img-row cols-2">
+    <div>
+      <img src="images/assembly-iso.png" alt="Assembly Isometric" style="width:100%;height:220px;object-fit:contain;background:#1a1a26;border:1px solid #2a2a3e;border-radius:8px;">
+      <div class="img-caption">Isometric overview</div>
+    </div>
+    <div>
+      <img src="images/assembly-top.png" alt="Assembly Top" style="width:100%;height:220px;object-fit:contain;background:#1a1a26;border:1px solid #2a2a3e;border-radius:8px;">
+      <div class="img-caption">Top view</div>
+    </div>
+  </div>
+
+  <div class="steps-list">
+    <div class="step"><div class="step-content">
+      <strong>Step 1 — Baseplate.</strong> Lay out all baseplate tiles on a flat surface and click/bolt them together. Fasten to a flat backing board (MDF or acrylic) with M3 × 8mm screws from below.
+      <br><br><em style="color:var(--text-dim);font-size:13px">Flatness check: place a ruler across tiles. Any gap &gt;0.5mm will cause card misfeeds.</em>
+    </div></div>
+
+    <div class="step"><div class="step-content">
+      <strong>Step 2 — Electronics Tray.</strong> Snap the electronics tray into the baseplate cutout. Mount components using M2.5 standoffs (use standoffs for serviceability, not hot glue):
+      <ul style="margin-top:8px;padding-left:18px;color:var(--text-dim);font-size:13px;line-height:1.8">
+        <li>Raspberry Pi Zero 2W</li><li>PCA9685</li><li>HX711</li><li>L9110S</li><li>Relay module</li><li>LM2596 buck converter</li>
+      </ul>
+      Route all power wires along tray channels before connecting. Leave signal wires loose until rails are in place.
+    </div></div>
+
+    <div class="step"><div class="step-content">
+      <strong>Step 3 — Conveyor Rails.</strong> Insert N20 motors into motor mounts. Slot each mount into conveyor rails. Clip rails onto baseplate guide pins — should click firmly with no rocking.
+      Thread the conveyor belt over motor pulleys and idler rollers. Tension by sliding idler until belt deflects ~2mm under light finger pressure. Secure motor mount screws (M3 × 10mm).
+    </div></div>
+
+    <div class="step"><div class="step-content">
+      <strong>Step 4 — Hopper.</strong> Slide hopper body onto the inlet end of conveyor rails until locating tabs engage. Insert hopper gate servo (Ch 3) into its slot. Attach servo horn to gate arm.
+      <br><br><em style="color:var(--text-dim);font-size:13px">Set servo to 90° center before fixing horn — gate is half-open at rest.</em>
+    </div></div>
+
+    <div class="step"><div class="step-content">
+      <strong>Step 5 — Suction Arm.</strong> Press shoulder servo into arm base; secure with M2 × 8mm screws. Attach elbow servo, routing cable through arm channel. Attach wrist servo; press-fit suction cup mount.
+      Connect silicone tubing from vacuum pump through arm channel to suction cup. Mount completed arm onto baseplate arm post using M3 × 16mm bolts. Plug servos: shoulder → Ch0, elbow → Ch1, wrist → Ch2.
+    </div></div>
+
+    <div class="step"><div class="step-content">
+      <strong>Step 6 — Scanner Hood.</strong> Position hood over scanning zone. Mount camera bracket inside top cutout; secure with M2.5 screws. Route CSI ribbon through rear cable slot. Attach camera module; lock ribbon latch.
+      Clip hood onto baseplate posts — should be removable for cleaning without tools.
+    </div></div>
+
+    <div class="step"><div class="step-content">
+      <strong>Step 7 — Load Cell + Weigh Platform.</strong> Mount load cell between lower plate and upper weigh platform using M3 bolts. <strong>Torque to hand-tight + ¼ turn only</strong> — overtightening corrupts readings.
+      Seat weigh platform in designated tray cutout so cards land flat. Route load cell cable to HX711.
+    </div></div>
+
+    <div class="step"><div class="step-content">
+      <strong>Step 8 — Bins.</strong> Snap each bin body into its row slot on the baseplate. Connect bin gate servo horn links if used. Confirm each bin removes individually without lifting the full assembly.
+    </div></div>
+  </div>
+
+  <div class="hero-img-row cols-3" style="margin-top:16px">
+    <div>
+      <img src="images/assembly-front.png" alt="Front view" style="width:100%;height:150px;object-fit:contain;background:#1a1a26;border:1px solid #2a2a3e;border-radius:8px;">
+      <div class="img-caption">Front</div>
+    </div>
+    <div>
+      <img src="images/assembly-back-iso.png" alt="Back isometric" style="width:100%;height:150px;object-fit:contain;background:#1a1a26;border:1px solid #2a2a3e;border-radius:8px;">
+      <div class="img-caption">Back isometric</div>
+    </div>
+    <div>
+      <img src="images/assembly.png" alt="Full assembly" style="width:100%;height:150px;object-fit:contain;background:#1a1a26;border:1px solid #2a2a3e;border-radius:8px;">
+      <div class="img-caption">Full assembly</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     STAGE 7 — SOFTWARE SETUP
+════════════════════════════════════════ -->
+<section class="slide" id="stage-7">
+  <div class="stage-badge">Stage 7</div>
+  <h1 class="stage-title">Software Setup</h1>
+  <p class="stage-subtitle">Flash Pi OS, run the setup script, build the card database, and do initial hardware calibration.</p>
+  <div class="stage-divider"></div>
+
+  <div class="hero-img-row cols-2">
+    <div>
+      <img src="images/card-sorter-software.png" alt="Software Architecture" style="width:100%;height:180px;object-fit:contain;background:#1a1a26;border:1px solid #2a2a3e;border-radius:8px;">
+      <div class="img-caption">Software stack</div>
+    </div>
+    <div>
+      <img src="images/card-sorter-architecture.png" alt="Architecture" style="width:100%;height:180px;object-fit:contain;background:#1a1a26;border:1px solid #2a2a3e;border-radius:8px;">
+      <div class="img-caption">System architecture</div>
+    </div>
+  </div>
+
+  <div class="section-heading">7a. Flash Pi OS</div>
+  <div class="steps-list">
+    <div class="step"><div class="step-content"><strong>Download Pi OS Lite (64-bit).</strong> Use Raspberry Pi Imager from <code>raspberrypi.com/software</code>. Select "Raspberry Pi OS Lite (64-bit)" for Pi Zero 2W.</div></div>
+    <div class="step"><div class="step-content"><strong>Configure before flashing</strong> (Imager gear icon → Advanced):
+      <ul style="margin-top:8px;padding-left:18px;color:var(--text-dim);font-size:13px;line-height:1.8">
+        <li>Enable SSH</li><li>Hostname: <code>riftbound.local</code></li><li>Username + password of your choice</li><li>Wi-Fi SSID + password (or leave for Ethernet)</li>
+      </ul>
+    </div></div>
+    <div class="step"><div class="step-content"><strong>Flash to 32GB micro SD.</strong> Insert SD into Pi. Power on. SSH in: <code>ssh &lt;user&gt;@riftbound.local</code></div></div>
+  </div>
+
+  <div class="section-heading">7b. Run setup.sh</div>
+  <div class="code-block"><span class="cmd">git clone</span> <span class="str">https://github.com/svenka-shannon/riftbound-sorter.git</span>
+<span class="cmd">cd</span> riftbound-sorter
+<span class="cmd">chmod</span> +x setup.sh
+<span class="cmd">sudo ./setup.sh</span></div>
+
+  <div class="info-box"><div class="icon">📦</div><div><strong>setup.sh installs:</strong> system packages (python3, libcamera, i2c-tools), enables I²C/SPI/Camera via raspi-config, creates Python venv + requirements.txt, installs systemd service <code>riftbound.service</code>, copies config.yaml.example.</div></div>
+
+  <div class="section-heading">7c. Build Card Database</div>
+  <div class="code-block"><span class="cmd">cd</span> ~/riftbound-sorter
+<span class="cmd">python main.py</span> --build-db
+<span class="c"># Downloads card image data, builds local SQLite DB
+# Requires internet. Runtime: 5–15 min depending on set size.</span></div>
+
+  <div class="section-heading">7d. Initial Hardware Calibration</div>
+  <div class="code-block"><span class="cmd">python main.py</span> --calibrate
+<span class="c"># Interactive wizard covers:
+#   · Load cell zero (tare with empty platform)
+#   · Servo angle limits for each axis
+#   · Conveyor speed (cards per minute)
+#   · Camera exposure/white balance lock</span></div>
+
+  <div class="section-heading">7e. Camera Calibration</div>
+  <div class="code-block"><span class="cmd">python calibrate_camera.py</span>
+<span class="c"># Print the checkerboard sheet, hold in scanner zone
+# Follow on-screen prompts
+# Produces: camera_calibration.npz</span></div>
+
+  <div class="section-heading">7f. Verify Service</div>
+  <div class="code-block"><span class="cmd">sudo systemctl status</span> riftbound.service
+<span class="c"># Should show: active (running)
+# Web UI accessible at: http://riftbound.local:5000</span></div>
+</section>
+
+<!-- ════════════════════════════════════════
+     STAGE 8 — CALIBRATION CHECKLIST
+════════════════════════════════════════ -->
+<section class="slide" id="stage-8">
+  <div class="stage-badge">Stage 8</div>
+  <h1 class="stage-title">Calibration Checklist</h1>
+  <p class="stage-subtitle">Complete after first assembly and again after any mechanical change. Check items off as you go — progress is saved in your browser.</p>
+  <div class="stage-divider"></div>
+
+  <div class="progress-summary">
+    <div class="pct" id="cal-pct">0%</div>
+    <div>of calibration steps complete</div>
+  </div>
+
+  <div class="section-heading">Load Cell Zero</div>
+  <div class="checklist">
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c0"><div class="check-box"></div><div class="check-label"><strong>Remove all weight from weigh platform</strong><span>Platform must be completely bare</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c1"><div class="check-box"></div><div class="check-label"><strong>Tare load cell via calibration wizard</strong><span>python main.py --calibrate → select Tare load cell</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c2"><div class="check-box"></div><div class="check-label"><strong>Verify 100g calibration mass reads within ±2g</strong><span>Place known weight, confirm readout accuracy</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c3"><div class="check-box"></div><div class="check-label"><strong>Update scale.calibration_factor in config.yaml if drift &gt;±5g</strong><span>Fine-tune until stable across multiple readings</span></div></label>
+  </div>
+
+  <div class="section-heading">Servo Angle Tuning</div>
+  <div class="checklist">
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c4"><div class="check-box"></div><div class="check-label"><strong>Jog each servo — record min/max safe angles</strong><span>Use --calibrate wizard; note values for config.yaml</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c5"><div class="check-box"></div><div class="check-label"><strong>Arm reaches weigh platform without binding</strong><span>Test full down stroke on each axis</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c6"><div class="check-box"></div><div class="check-label"><strong>Arm reaches each bin entry point</strong><span>Sweep through all bin positions; check for cable snag</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c7"><div class="check-box"></div><div class="check-label"><strong>Update config.yaml servo angle limits</strong><span>servos.ch0–ch4: min_angle, max_angle, pick_angle</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c8"><div class="check-box"></div><div class="check-label"><strong>Suction cup aligns with card center at pick height</strong><span>Adjust servos.ch2.pick_angle in ±2° increments</span></div></label>
+  </div>
+
+  <div class="section-heading">Camera Crop</div>
+  <div class="checklist">
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c9"><div class="check-box"></div><div class="check-label"><strong>Live preview confirms card fills crop rectangle</strong><span>python calibrate_camera.py --preview (needs display/VNC)</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c10"><div class="check-box"></div><div class="check-label"><strong>Crop captures full card face with &lt;5px margin wasted</strong><span>Update camera.crop_x/y/w/h in config.yaml</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c11"><div class="check-box"></div><div class="check-label"><strong>No arm shadow falls inside crop during simulated pick</strong><span>Run a pick cycle and inspect captured frame</span></div></label>
+  </div>
+
+  <div class="section-heading">Conveyor Speed</div>
+  <div class="checklist">
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c12"><div class="check-box"></div><div class="check-label"><strong>Single card feeds from hopper to weigh platform cleanly</strong><span>python main.py --test-conveyor</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c13"><div class="check-box"></div><div class="check-label"><strong>Timing: 0.8–1.2 seconds per card hopper-to-platform</strong><span>Measure; adjust conveyor.speed_pwm (0–100) in config.yaml</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c14"><div class="check-box"></div><div class="check-label"><strong>No double-feeds in 10-card run</strong><span>Load 10 cards; each should stop on weigh platform individually</span></div></label>
+  </div>
+
+  <div class="section-heading">Final System Check</div>
+  <div class="checklist">
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c15"><div class="check-box"></div><div class="check-label"><strong>Web UI loads at http://riftbound.local:5000</strong><span>Confirm riftbound.service is active (running)</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c16"><div class="check-box"></div><div class="check-label"><strong>i2cdetect -y 1 shows 0x40 (PCA9685)</strong><span>I²C bus confirmed working</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c17"><div class="check-box"></div><div class="check-label"><strong>End-to-end sort test: 20 cards, all identified correctly</strong><span>Compare output bins to known card set</span></div></label>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════════ BOTTOM NAV ═══════════ -->
+<div id="bottom-nav">
+  <button class="nav-btn" id="btn-prev" onclick="prevStage()">← Prev</button>
+  <div style="display:flex;align-items:center;gap:16px">
+    <span class="stage-counter" id="stage-counter">Stage 0 of 8</span>
+    <button class="print-btn" onclick="printStage()">🖨 Print this step</button>
+  </div>
+  <button class="nav-btn primary" id="btn-next" onclick="nextStage()">Next →</button>
+</div>
+
+<script>
+  const TOTAL = 9;
+  let current = 0;
+
+  // ── Load saved state ──
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem('riftbound-asm') || '{}'); } catch { return {}; }
+  }
+  function saveState(state) {
+    try { localStorage.setItem('riftbound-asm', JSON.stringify(state)); } catch {}
+  }
+
+  const state = loadState();
+
+  // ── Restore checkboxes ──
+  document.querySelectorAll('[data-key]').forEach(el => {
+    if (state[el.dataset.key]) {
+      el.checked = true;
+      const card = el.closest('.part-card, .check-item');
+      if (card) card.classList.add('checked');
+    }
+  });
+
+  updatePartsProgress();
+  updateCalProgress();
+  updateProgress();
+
+  // ── Navigation ──
+  function goTo(n) {
+    if (n === current) return;
+    const slides = document.querySelectorAll('.slide');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    slides[current].classList.remove('active');
+    slides[current].classList.add(n > current ? 'exit-left' : '');
+
+    // Clear exit-left after transition
+    setTimeout(() => slides[current === n ? current : (n > current ? current : current)].classList.remove('exit-left'), 350);
+
+    current = n;
+    slides[current].classList.add('active');
+    navItems.forEach((item, i) => {
+      item.classList.toggle('active', i === current);
+    });
+
+    updateProgress();
+    document.getElementById('btn-prev').disabled = current === 0;
+    document.getElementById('btn-next').disabled = current === TOTAL - 1;
+    document.getElementById('stage-counter').textContent = `Stage ${current} of ${TOTAL - 1}`;
+
+    // Scroll slide to top
+    slides[current].scrollTop = 0;
+  }
+
+  function nextStage() { if (current < TOTAL - 1) goTo(current + 1); }
+  function prevStage() { if (current > 0) goTo(current - 1); }
+
+  // ── Progress bar ──
+  function updateProgress() {
+    const pct = (current / (TOTAL - 1)) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  // ── Keyboard navigation ──
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextStage();
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prevStage();
+  });
+
+  // ── Checklist toggles ──
+  function toggleCheck(label) {
+    const cb = label.querySelector('input[type=checkbox]');
+    cb.checked = !cb.checked;
+    label.classList.toggle('checked', cb.checked);
+    state[cb.dataset.key] = cb.checked;
+    saveState(state);
+    updateCalProgress();
+  }
+
+  function togglePart(label) {
+    const cb = label.querySelector('input[type=checkbox]');
+    cb.checked = !cb.checked;
+    label.classList.toggle('checked', cb.checked);
+    state[cb.dataset.key] = cb.checked;
+    saveState(state);
+    updatePartsProgress();
+  }
+
+  function updatePartsProgress() {
+    const all = document.querySelectorAll('#stage-0 [data-key]');
+    const done = Array.from(all).filter(el => el.checked).length;
+    const pct = Math.round((done / all.length) * 100);
+    const el = document.getElementById('parts-pct');
+    if (el) el.textContent = pct + '%';
+  }
+
+  function updateCalProgress() {
+    const all = document.querySelectorAll('#stage-8 [data-key]');
+    const done = Array.from(all).filter(el => el.checked).length;
+    const pct = Math.round((done / all.length) * 100);
+    const el = document.getElementById('cal-pct');
+    if (el) el.textContent = pct + '%';
+  }
+
+  // ── Print ──
+  function printStage() {
+    window.print();
+  }
+
+  // ── Mobile sidebar ──
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  // ── Init buttons ──
+  document.getElementById('btn-prev').disabled = true;
+  document.getElementById('stage-counter').textContent = `Stage 0 of ${TOTAL - 1}`;
+
+  // ── Animate checklist items on slide entry ──
+  document.querySelectorAll('.slide').forEach(slide => {
+    slide.addEventListener('transitionend', () => {
+      if (slide.classList.contains('active')) {
+        slide.querySelectorAll('.check-item, .part-card, .print-card, .step').forEach((el, i) => {
+          el.style.animationDelay = (i * 0.04) + 's';
+        });
+      }
+    });
+  });
+</script>
+</body>
+</html>
