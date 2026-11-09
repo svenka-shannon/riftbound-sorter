@@ -500,6 +500,44 @@
   }
   .warn-box .icon { font-size: 18px; flex-shrink: 0; }
 
+  /* ── Audit / BOM-gap callout ── */
+  .audit-box {
+    display: flex;
+    gap: 12px;
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .audit-box .icon { font-size: 16px; flex-shrink: 0; }
+  .not-included-box {
+    background: rgba(224,85,85,0.07);
+    border: 2px solid rgba(224,85,85,0.4);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 28px;
+  }
+  .not-included-box h3 {
+    color: var(--red);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .not-included-box ul {
+    padding-left: 20px;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 2.0;
+  }
+  .not-included-box ul li strong { color: var(--text); }
+
   /* ── 2-column layout ── */
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
   .two-col .col-label {
@@ -733,6 +771,25 @@
   <p class="stage-subtitle">Gather everything before you begin. Click each item to mark it as collected.</p>
   <div class="stage-divider"></div>
 
+  <div class="not-included-box">
+    <h3>⚠️ Items NOT Included in Original Order — Order Before Starting</h3>
+    <ul>
+      <li><strong>12V DC power supply rated ≥ 3A</strong> — Guide requires ≥3A; 2A adapter ordered may be undersized for servos + motor load</li>
+      <li><strong>Soldering iron and solder</strong> — Required for barrel jack wires, load cell terminals, and heat-set inserts</li>
+      <li><strong>Multimeter</strong> — Safety-critical: required to dial in LM2596 output to 5.10–5.20 V before connecting any load</li>
+      <li><strong>22 AWG stranded wire, red and black</strong> — Power runs (barrel jack, 5V rail, GND bus)</li>
+      <li><strong>Breadboard positive rail or terminal block</strong> — For 5V and GND bus distribution</li>
+      <li><strong>Heat-shrink tubing assortment</strong> — For insulating power wire joints</li>
+      <li><strong>Conveyor belt or timing belt</strong> — Threaded over motor pulleys and idler rollers (Stage 6 Step 3)</li>
+      <li><strong>MDF or acrylic backing board</strong> — Baseplate tiles fasten to this from below (Stage 6 Step 1)</li>
+      <li><strong>M2.5 standoffs</strong> — For mounting all electronics to tray (Stage 6 Step 2)</li>
+      <li><strong>M2 × 8mm screws</strong> — Shoulder servo securing screws in arm base (Stage 6 Step 5)</li>
+      <li><strong>M2.5 screws</strong> — Camera bracket mounting inside scanner hood (Stage 6 Step 6)</li>
+      <li><strong>Micro-USB cable for Pi power (3A-rated)</strong> — Required to power the Pi Zero 2W</li>
+      <li><strong>Known calibration mass, 100g recommended</strong> — Required for load cell calibration (Stage 8)</li>
+    </ul>
+  </div>
+
   <div class="progress-summary">
     <div class="pct" id="parts-pct">0%</div>
     <div>of parts gathered &nbsp;·&nbsp; click items to check off</div>
@@ -868,6 +925,7 @@
   </div>
 
   <div class="warn-box"><div class="icon">⚠️</div><div>Insert heat-set inserts into baseplate tiles and arm base while the parts are still warm from the printer using a soldering iron at 200°C. Much easier than fighting them in cold plastic later.</div></div>
+  <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: Soldering iron (and solder)</strong> — not included in original order. Required here for heat-set inserts, and again in Stage 2 for barrel jack wires and load cell terminals.</div></div>
 </section>
 
 <!-- ════════════════════════════════════════
@@ -880,6 +938,7 @@
   <div class="stage-divider"></div>
 
   <div class="warn-box"><div class="icon">⚡</div><div><strong>Safety first.</strong> Keep the 12V adapter unplugged throughout all wiring steps. Only plug in after completing a stage and double-checking all connections.</div></div>
+  <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: 12V DC power supply rated ≥ 3A</strong> — not included in original order. The ordered 12V 2A adapter may be undersized: the guide requires ≥3A for the combined load of Pi, PCA9685, three MG996R servos, vacuum pump, and L9110S motor driver. Order a 12V 3A+ adapter before powering up under full load.</div></div>
 
   <div class="wiring-box">
     <svg width="680" height="260" viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
@@ -961,9 +1020,13 @@
 
   <div class="steps-list">
     <div class="step"><div class="step-content"><strong>Step 1 — Barrel jack wires.</strong> Solder 22 AWG red wire to the barrel jack center pin (12V+) and black wire to the sleeve (GND). Sleeve-to-center confirmation: insert a 12V adapter and measure with multimeter — center should be positive.</div></div>
+    <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional items needed: 22 AWG stranded wire (red and black)</strong> and <strong>soldering iron + solder</strong> — not included in original order. Required for this step to wire the barrel jack and all subsequent power runs.</div></div>
     <div class="step"><div class="step-content"><strong>Step 2 — LM2596 input.</strong> Connect 12V+ to LM2596 <code>IN+</code> and GND to <code>IN–</code>. Do not connect any load yet.</div></div>
     <div class="step warning"><div class="step-content"><strong>Step 3 — Set output voltage FIRST.</strong> Plug in 12V adapter. Measure LM2596 <code>OUT+</code> / <code>OUT–</code> with multimeter while turning the trim pot. Dial in <strong>5.10–5.20 V</strong>. Unplug before continuing.</div></div>
+    <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: Multimeter</strong> — not included in original order. This step is safety-critical: without a multimeter you cannot safely dial in the LM2596 output voltage before connecting the Pi and other logic.</div></div>
     <div class="step"><div class="step-content"><strong>Step 4 — 5V rail.</strong> Run 22 AWG red wire from LM2596 <code>OUT+</code> to a breadboard positive rail (or terminal block). This is your 5V rail. Connect LM2596 <code>OUT–</code> to the GND bus.</div></div>
+    <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: Breadboard positive rail or terminal block</strong> — not included in original order. Required to distribute the 5V and GND bus to multiple modules. A shared GND bus (Step 6) also depends on this.</div></div>
+    <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: Heat-shrink tubing assortment</strong> — not included in original order. Use on all soldered power wire joints to insulate and protect connections.</div></div>
     <div class="step"><div class="step-content"><strong>Step 5 — 12V rail.</strong> Tap the barrel jack 12V+ for a separate 12V rail (or use a wye connector). This feeds the vacuum pump and L9110S motor driver. Keep these wires twisted and away from signal lines.</div></div>
     <div class="step"><div class="step-content"><strong>Step 6 — Common GND.</strong> Run GND wires from the breadboard GND rail to every module's GND pin. A shared GND bus is critical — floating grounds cause erratic behavior.</div></div>
     <div class="step tip"><div class="step-content"><strong>Step 7 — Label wires now.</strong> Use red tape for 12V+, red with stripe for 5V, black for GND. You'll thank yourself during debugging at 2 AM.</div></div>
@@ -1261,6 +1324,7 @@
     <div class="step"><div class="step-content">
       <strong>Step 1 — Baseplate.</strong> Lay out all baseplate tiles on a flat surface and click/bolt them together. Fasten to a flat backing board (MDF or acrylic) with M3 × 8mm screws from below.
       <br><br><em style="color:var(--text-dim);font-size:13px">Flatness check: place a ruler across tiles. Any gap &gt;0.5mm will cause card misfeeds.</em>
+      <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: MDF or acrylic backing board</strong> — not included in original order. Required to mount and stiffen the joined baseplate tiles. Cut to match the assembled tile footprint.</div></div>
     </div></div>
 
     <div class="step"><div class="step-content">
@@ -1269,11 +1333,14 @@
         <li>Raspberry Pi Zero 2W</li><li>PCA9685</li><li>HX711</li><li>L9110S</li><li>Relay module</li><li>LM2596 buck converter</li>
       </ul>
       Route all power wires along tray channels before connecting. Leave signal wires loose until rails are in place.
+      <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: M2.5 standoffs (for electronics tray)</strong> — not included in original order. Required to mount all circuit boards to the tray with proper clearance for serviceability.</div></div>
+      <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: Micro-USB cable for Pi power (must support 3A)</strong> — not included in original order. Required to power the Pi Zero 2W from the 5V rail. Standard charge-only cables are insufficient.</div></div>
     </div></div>
 
     <div class="step"><div class="step-content">
       <strong>Step 3 — Conveyor Rails.</strong> Insert N20 motors into motor mounts. Slot each mount into conveyor rails. Clip rails onto baseplate guide pins — should click firmly with no rocking.
       Thread the conveyor belt over motor pulleys and idler rollers. Tension by sliding idler until belt deflects ~2mm under light finger pressure. Secure motor mount screws (M3 × 10mm).
+      <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: Conveyor belt or timing belt</strong> — not included in original order and not in the 3D-printed parts list. Required to link the N20 motor drive pulleys to the idler rollers. Match belt pitch to your pulleys.</div></div>
     </div></div>
 
     <div class="step"><div class="step-content">
@@ -1284,11 +1351,13 @@
     <div class="step"><div class="step-content">
       <strong>Step 5 — Suction Arm.</strong> Press shoulder servo into arm base; secure with M2 × 8mm screws. Attach elbow servo, routing cable through arm channel. Attach wrist servo; press-fit suction cup mount.
       Connect silicone tubing from vacuum pump through arm channel to suction cup. Mount completed arm onto baseplate arm post using M3 × 16mm bolts. Plug servos: shoulder → Ch0, elbow → Ch1, wrist → Ch2.
+      <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: M2 × 8mm screws (for shoulder servo in suction arm base)</strong> — not included in original order. The M3 assorted kit does not include M2 screws. Required to secure the shoulder servo inside the arm base.</div></div>
     </div></div>
 
     <div class="step"><div class="step-content">
       <strong>Step 6 — Scanner Hood.</strong> Position hood over scanning zone. Mount camera bracket inside top cutout; secure with M2.5 screws. Route CSI ribbon through rear cable slot. Attach camera module; lock ribbon latch.
       Clip hood onto baseplate posts — should be removable for cleaning without tools.
+      <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: M2.5 screws (for camera bracket inside scanner hood)</strong> — not included in original order. Required to fasten the camera bracket to the hood's top cutout. The M3 assorted kit does not cover M2.5.</div></div>
     </div></div>
 
     <div class="step"><div class="step-content">
@@ -1401,6 +1470,7 @@
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c0"><div class="check-box"></div><div class="check-label"><strong>Remove all weight from weigh platform</strong><span>Platform must be completely bare</span></div></label>
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c1"><div class="check-box"></div><div class="check-label"><strong>Tare load cell via calibration wizard</strong><span>python main.py --calibrate → select Tare load cell</span></div></label>
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c2"><div class="check-box"></div><div class="check-label"><strong>Verify 100g calibration mass reads within ±2g</strong><span>Place known weight, confirm readout accuracy</span></div></label>
+    <div class="audit-box"><div class="icon">⚠️</div><div><strong>Additional item needed: Known calibration mass (100g recommended)</strong> — not included in original order. Required to verify load cell accuracy. Note: the ordered HX711 + 50g load cell kit has a 50g rated range; the 100g calibration mass exceeds it. Confirm your load cell range before ordering the mass.</div></div>
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c3"><div class="check-box"></div><div class="check-label"><strong>Update scale.calibration_factor in config.yaml if drift &gt;±5g</strong><span>Fine-tune until stable across multiple readings</span></div></label>
   </div>
 
