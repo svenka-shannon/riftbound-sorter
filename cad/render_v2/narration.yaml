@@ -1,0 +1,41 @@
+# Riftbound Card Sorter - assembly video v2: narration + subtitles per segment.
+# Each step's animation length = its narration clip length + padding (see make_narration.py).
+voice: af_heart
+speed: 1.0
+segments:
+  - id: intro
+    caption: "Riftbound Card Sorter - mechanical assembly"
+    say: "This is the Riftbound card sorter. Let's build the mechanical side in ten steps."
+  - id: baseplate
+    caption: "1. Join the 9 baseplate tiles; screw to a backing board from below, M3 x 8"
+    say: "Step one. Click the nine baseplate tiles together, and screw them to a flat backing board from below with M three by eight millimetre screws. Any gap over half a millimetre will cause card misfeeds."
+  - id: electronics
+    caption: "2. Snap in the electronics tray; Pi, PCA9685, HX711 on M2.5 standoffs"
+    say: "Step two. Snap the electronics tray into its cutout behind the conveyor, then mount the Raspberry Pi, the P C A servo board and the H X seven eleven on M two point five standoffs."
+  - id: rails
+    caption: "3. Clip both conveyor rails onto the guide pins; motor mounts M3 x 10"
+    say: "Step three. With the N twenty motors in their mounts, clip both conveyor rails onto the guide pins. They should click in firmly, with no rocking. Tighten the motor mounts with M three by ten screws."
+  - id: rollers
+    caption: "4. Push the 8 mm steel rods and O-ring rollers through the shaft holes"
+    say: "Step four. Push the eight millimetre steel rods through the rail shaft holes, with an O-ring roller on each. Tension the belt until it gives about two millimetres under light finger pressure."
+  - id: hopper
+    caption: "5. Slide the hopper onto the belt inlet until the tabs click"
+    say: "Step five. Slide the hopper onto the inlet end of the rails until the locating tabs click. Centre the gate servo at ninety degrees before fixing its horn."
+  - id: arm
+    caption: "6. Bolt the suction arm to its post, 2x M3 x 16; servos to ch0, ch1, ch2"
+    say: "Step six. Bolt the suction arm onto its post with two M three by sixteen bolts. The shoulder, elbow and wrist servos plug into servo channels zero, one and two."
+  - id: hood
+    caption: "7. Clip the scanner hood over the scan zone; camera bracket on M2.5"
+    say: "Step seven. Clip the scanner hood over the scan zone. The camera bracket fixes inside the top cutout with M two point five screws, and the ribbon cable leaves through the rear slot."
+  - id: loadcell
+    caption: "8. Seat the load cell in its tray pocket; M3, hand-tight + 1/4 turn"
+    say: "Step eight. Seat the load cell in its pocket and fix it with M three bolts. Hand tight plus a quarter turn only. Over-tightening will spoil the weight readings."
+  - id: tray
+    caption: "9. Slide the 2-floor sorting tray in at the belt exit"
+    say: "Step nine. Slide the two-floor sorting tray in at the belt exit. Each bin should lift out on its own, without disturbing the rest."
+  - id: gates
+    caption: "10. Fit the 3 sort-gate levers onto their servo horns, M3"
+    say: "Step ten. Fit the three sort-gate levers onto their servo horns, and secure each one with an M three screw."
+  - id: outro
+    caption: "Assembly complete - 8 sort slots across 2 floors"
+    say: "And that's the mechanical build: eight sort slots across two floors. Next up, wiring and first-time setup."
