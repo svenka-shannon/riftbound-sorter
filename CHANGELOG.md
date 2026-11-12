@@ -5,6 +5,43 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2.3.0] — 2026-11-12 — fourth CAD / code round (branch `audit-fixes`)
+
+Fixes from the third independent audits (commits 93c6986 REX naming / identify.json / setup order, 2e8712f tilt crank and all-pairs shuttle checker, 30cd027 code round 3, 2149c5b CAD round 4). Docs: `BOM.md`, `docs/ASSEMBLY.md`, `README.md`, `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch` updated to match. A few details are still changing in code round 4 (idle servo release, cup-hold expiry, upper bin-limit cap, a possible boot pull-up line); they are marked `PENDING code r4` in the docs.
+
+### Changed: shuttle
+- **Tilt crank really fits the sled.** The crank hub overlapped solid sled material in every pose (the old checker never compared parts inside one moving group). The sled's crank pocket is now the crank's swept outline + 0.7 mm with a front insertion channel and 45° roofs; the crank arm has a straight lower edge that clears the +Y LM8UU; the tilt frame's link slot follows the link's real swing, with a bridge block tying the crossbar halves (bed plane ≈ 1420 mm²). **New install step:** crank + link joined on the bench, crank pointing +X, slid hub-first along −X into the pocket before the tilt frame and cheeks (ASSEMBLY.md §13.2).
+- `cad/shuttle_check.py` now tests **every part pair in every pose**, with LM8UUs, 688ZZs, dowels, screws and the crank–link pivot modelled; the only allowed overlaps are an explicit, capped, commented whitelist.
+- **Rod set screws** are M3 × 8 flat point in a 2 mm boss on each end post's +X face (insert pocket 2.3 mm from the rod bore). **ch2 rear ear:** two Ø6 bosses on the shelf give the M2.5 screws ≈ 5.6 mm of thread.
+- **Shared MG996R tab pattern** 49.5 × 10 (`cad/machine_frame.scad`) for the arm head, ch1 cage (ear holes now Z 29.4 / 78.9) and ch2 ears (Y −109.4 / −158.9). Measure your servos.
+- The tilt shaft is called the REX shaft everywhere in the CAD and code.
+
+### Changed: other CAD
+- **Pick arm:** the bellows pad rode into the guide-screw heads at every pick (hidden by a blanket checker exclusion). Guide screws moved to X ±14.5 (1.25 mm clear at any compression); hand beams and cup sled widened; `pick_arm_check.py` checks hand against sled with a specific whitelist. Servo-tab screws **M3 × 8** (an M3 × 10 bottomed out in the 6.2 mm insert hole). The head's plate runs down to the head floor, so the print has no 9.7 mm overhang.
+- **Screw lengths:** electronics tray **4 × M3 × 18** SHCS; sorting-tray lower floor and reject bin **12 × M3 × 18** countersunk (were M3 × 20: those poked 7.5 mm out below the board). Every part file now says board tee-nuts, washer + nut as the fallback.
+- **Hopper:** a square through-slot replaces the knife-edge flaps where the T8 pocket broke out of the carriage faces; the home-switch lug's underside is one 45° ramp; cap coupler hole Ø22.6.
+- Card guides export watertight (flare seam and chamfer fixed); 45° fixes on the sled's ch2 arm.
+- Volumes re-measured: arm head 50.8, hand 20.0, cup sled 6.2, end posts 49.1 / 18.6, shuttle sled 64.6, tilt frame 19.6, tilt crank 1.7, hopper cap 13.9 cm³ (net +2 cm³; filament unchanged).
+
+### Changed: software and safety
+- **Strict calibration files:** `config/shuttle_calibration.json` and `config/servo_calibration.json` are validated like `machine.json`: known keys only, finite numbers within the servo range **and within ±25° of the nominal pose** (arm: or its mirror, 180° − nominal), pose order (tilt lower < level, hold < upper; carriage reject < 3 < 2 < home < 1 < 0; arm PICK and DROP either side of PARK), timings ≥ 0, `actuation_range` 180 or 270. `calibrate_servos.py` refuses to save a value that would make a file invalid.
+- **`config/identify.json`** validated the same way (exit 78 instead of a warning).
+- **`config/bin_limits.json`** validated: whole numbers from 1 to a geometric cap per bin; anything else exits 78.
+- **Exit 78** (not restarted by systemd) now covers all five files: `machine.json`, `identify.json`, `shuttle_calibration.json`, `servo_calibration.json`, `bin_limits.json`.
+- **Tools mark the machine unclean:** `test_hardware.py`, `calibrate_servos.py` and `calibrate_camera.py` take the sorter's lock (they refuse while the sorter or another tool runs, and vice versa) and record the machine as not clean before anything moves, so the next start asks for Machine clear. The state file is written atomically and fsynced; `cmdline_param.py` writes `cmdline.txt` durably.
+- **Top switch must be NC:** `TOP_SWITCH_NC: false` is refused (exit 78). A capped raise without a trip near the top limit now means "hopper empty", lower down "top switch not detected". A mechanically stuck NC switch on the first raise after homing remains undetectable (listed as a residual risk).
+- **Start-up** records the machine unclean before it moves anything. A Stop while a card waits on the cradle for a full bin ends in `needs_confirm`, not `stopped`.
+- **Idle servos off:** while the sorter idles at rest the servos are switched off (no stall against the home ledges) and the rest pose is re-asserted with one write each before the next move.
+- **Cup hold:** a card the arm could not carry to the belt is held with the pump on for at most `CUP_HOLD_MAX_S` (new `sort` key, default 600 s, 10–3600); the web UI says "card held on cup — remove it by hand before stopping the service".
+- `setup.sh` "next steps": reboot first, then stop the service, build the DB and calibrate in the guide's order. Docstrings fixed (`elevator.py` Reg #3, `vacuum.py` diode direction, `web/app.py` token).
+
+### Documentation
+- `BOM.md`: fastener table recounted from the round-4 BOM footers (M3 × 20 SHCS 29 → 25, M3 × 20 countersunk 16 → 4, + 4 M3 × 18 SHCS, + 12 M3 × 18 countersunk, arm tabs M3 × 8, rod set screws M3 × 8, M3 × 10 24 → 20); + M3 × 18 packs $7; totals: still to buy ≈ $645, whole machine ≈ $832, cost-down ≈ $585 / ≈ $531; printed-part volumes re-measured.
+- `docs/ASSEMBLY.md`: §13.2 crank insertion order; inserts, screw lengths and coordinates from CAD round 4; tee-nut screw-tip rule (4–7 mm below the board); shared MG996R pattern; relay bench check also at the ≈ 2.7 V boot level; top switch NC only; tool interlock and "never run the tools with sudo"; every calibration file's validation; bin-limit caps; `CUP_HOLD_MAX_S`; new test-first items (MG996R pattern, 20-dump column test with ≈ ±0.95 mm allowed, ≤ 3 N tilt-crank drag test with dry PTFE lube, stuck NC top switch); §20: all seven 2.2.0 rows closed, two minor new ones listed.
+- `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch`: top switch NC only; relay bench check at 3.3 V and ≈ 2.7 V.
+
+---
+
 ## [2.2.0] — 2026-11-12 — third CAD / code round (branch `audit-fixes`)
 
 Fixes for the second independent code and CAD re-audits (commits f274d7f CAD round 3, 0be14a0 code round 2, 2e5a3a0 shuttle round 3, 4261e75 servo invert + direction check). Docs: `BOM.md`, `docs/ASSEMBLY.md`, `README.md`, `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch` updated to match; every section that 2.1.0 left marked as pending is resolved.

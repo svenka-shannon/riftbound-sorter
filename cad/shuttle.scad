@@ -171,7 +171,7 @@ module cradle() {
 // =====================================================================
 // The plate bottom is FLAT at Z 63.8 from X 112.8 to 160 (the skid nub's bottom
 // tangent, the crossbar bottom): printed upright (crossbar down) the part stands on
-// that plane (≈ 1480 mm²) and needs no supports; the 45° step at X 110..112.8 and
+// that plane (≈ 1420 mm²) and needs no supports; the 45° step at X 110..112.8 and
 // the 53° rear edge are self-supporting, the nub carries the plate tail. Behind
 // X 112.5 the bottom must stay ≥ 0.6 above what swings into the R-bar in LOWER
 // (about the skid): 66.0 at X 107.5, 66.6 at X 110 (needs 65.9 / 66.0).

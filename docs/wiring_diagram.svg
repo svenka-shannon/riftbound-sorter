@@ -49,7 +49,7 @@ text{font-family:'DejaVu Sans Mono','Courier New',monospace}
 <text x="320" y="713" class="p" text-anchor="start">COM1, COM2 ← 12 V</text>
 <text x="320" y="728" class="p" text-anchor="start">NO1 → pump +    NO2 → valve +</text>
 <text x="320" y="743" class="p" text-anchor="start">10 kΩ GPIO 17, 27 → 3.3 V (pull-ups)</text>
-<text x="320" y="762" class="warn" text-anchor="start">bench-check: OFF at IN = 3.3 V</text>
+<text x="320" y="762" class="warn" text-anchor="start">bench-check: OFF at IN 3.3 V and 2.7 V</text>
 <path d="M290,713 L310,713" fill="none" stroke="#f85149" stroke-width="2.2"/>
 <text x="292" y="707" class="w" text-anchor="start">COM</text>
 <rect x="310" y="790" width="300" height="92" rx="6" fill="#161b22" stroke="#f85149" stroke-width="2"/>
@@ -192,7 +192,7 @@ text{font-family:'DejaVu Sans Mono','Courier New',monospace}
 <text x="1170" y="684" class="p" text-anchor="start">top-of-stack: C → GND, NC → GPIO 12</text>
 <text x="1170" y="699" class="p" text-anchor="start">home:         C → GND, NC → GPIO 13</text>
 <text x="1170" y="714" class="p" text-anchor="start">NO tab unused · broken wire = "pressed"</text>
-<text x="1170" y="729" class="p" text-anchor="start">machine.json TOP/BOTTOM_SWITCH_NC = true</text>
+<text x="1170" y="729" class="p" text-anchor="start">TOP_SWITCH_NC must be true (NO refused)</text>
 <path d="M1040,690 L1160,690" fill="none" stroke="#58a6ff" stroke-width="2.2"/>
 <text x="1046" y="684" class="w" text-anchor="start">GPIO 12/13</text>
 <rect x="720" y="750" width="300" height="90" rx="6" fill="#161b22" stroke="#56d4dd" stroke-width="2"/>

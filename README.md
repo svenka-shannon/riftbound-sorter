@@ -23,7 +23,7 @@ Machine footprint: 570 × 540 mm baseplate (3 × 3 printed tiles, keyed together
   floor)      parallelogram)  belts)     at X +5)          at rest)         or reject)     lower floor)
 ```
 
-1. **Hopper elevator.** A 28BYJ-48 stepper turns a T8 lead screw and raises the hopper floor until a light feeler flag on the top card trips a microswitch. The top card is then at pick height, level with the belt. When the floor plate reaches the top without tripping the flag, the hopper is empty. Both microswitches are wired **normally closed**, so a broken wire reads as "pressed" (the safe direction), and every raise after the first is capped at 3 mm.
+1. **Hopper elevator.** A 28BYJ-48 stepper turns a T8 lead screw and raises the hopper floor until a light feeler flag on the top card trips a microswitch. The top card is then at pick height, level with the belt. When the floor plate reaches the top without tripping the flag, the hopper is empty. Both microswitches are wired **normally closed**, so a broken wire reads as "pressed" (the safe direction); the top switch *must* be NC (normally-open wiring is refused at start-up). Every raise after the first is capped at 3 mm: no trip within it means "hopper empty" near the top of travel, or a wiring fault anywhere lower.
 2. **Pick arm (PCA9685 ch0).** One MG996R drives a crank with two phased followers (a triple parallelogram). The suction cup always points straight down. It comes down onto the card, lifts it vertically, carries it over a ~170° arc and lowers it flat onto the belt, 3 mm above it at X −95. A spring slider under the cup takes up height errors.
    - Vacuum comes from a 12 V diaphragm pump on relay channel 1 (GPIO 17).
    - To release the card, the pump goes off and a **12 V normally-closed vent valve**, teed into the vacuum line, opens for 0.4 s (relay channel 2, GPIO 27). The arm then lifts slowly so a card still stuck to the cup peels off onto the belt.
@@ -37,7 +37,7 @@ Machine footprint: 570 × 540 mm baseplate (3 × 3 printed tiles, keyed together
    - **ch2** slides the carriage to one of 4 columns or the reject position.
    - ch1 then tips the card forward into the **upper** slot, or swings the cradle down onto a fixed ramp into the **lower** slot (or the reject bin).
    - The cradle is checked empty and re-tared for the next card.
-6. **Bin capacity.** The software counts cards per bin. The default limits are conservative: lower floor 40, upper floor 12, reject 35 (raise them in `config/bin_limits.json` once tested). When a bin is full it **pauses with the card held on the cradle** until you empty the bin and reset it.
+6. **Bin capacity.** The software counts cards per bin. The default limits are conservative: lower floor 40, upper floor 12, reject 35. Raise them in `config/bin_limits.json` once tested, up to the geometric caps (lower 54, upper 15, reject 52; anything else refuses to start)<!-- PENDING code r4: upper cap 24 → 15 -->. When a bin is full it **pauses with the card held on the cradle** until you empty the bin and reset it.
 
 Unidentified or ambiguous cards, double or unknown weights all go to the reject bin. Jams, lost cards, a camera stall, a switch fault and an empty hopper stop the machine safely: pump off, belt stopped, arm parked, cradle in HOLD. After any exit, even a crash, the systemd unit drives every output to its safe level.
 
@@ -56,7 +56,7 @@ Unidentified or ambiguous cards, double or unknown weights all go to the reject 
 | Hopper | 28BYJ-48 + ULN2003, T8×8 lead screw; feeler-flag switch + home switch, both **NC** (C → GND, NC → GPIO) | GPIO 16/19/20/21; switches GPIO 12 (top), 13 (home) |
 | Power | **12 V 5 A** adapter → three fixed 5 V Pololu bucks: D24V22F5 logic (Pi, LEDs, relay), D24V50F5 servos (PCA9685 V+), D36V28F5 motors (L9110S, ULN2003) | PCA9685 VCC = Pi 3.3 V |
 
-Total ≈ $825, of which ≈ $638 is still to buy (plus goBILDA shipping); the optional cost-downs in [`BOM.md`](BOM.md) bring that to ≈ $578 without changing the design (≈ $524 with all of them). About 4 kg of filament.
+Total ≈ $832, of which ≈ $645 is still to buy (plus goBILDA shipping); the optional cost-downs in [`BOM.md`](BOM.md) bring that to ≈ $585 without changing the design (≈ $531 with all of them). About 4 kg of filament.
 
 ---
 
@@ -64,7 +64,7 @@ Total ≈ $825, of which ≈ $638 is still to buy (plus goBILDA shipping); the o
 
 ### 1. Build the machine
 
-Follow [`docs/ASSEMBLY.md`](docs/ASSEMBLY.md): print list, 50 heat-set inserts, board tee-nuts, 11 mechanical steps (the shuttle in the install order `cad/shuttle_check.py assembly` verifies), wiring, calibration. Read its **Known risks / test first** section before printing: servo travel (arm 170°, ch2 176°), relay at 3.3 V, camera mode and focus, HX711 timing, belt speed, bin capacities, valve / pump fit, coupler indexing and the ribbon's ≈ 50 mm of slack all need checking on the real machine.
+Follow [`docs/ASSEMBLY.md`](docs/ASSEMBLY.md): print list, 50 heat-set inserts, board tee-nuts, 11 mechanical steps (the shuttle in the install order `cad/shuttle_check.py assembly` verifies), wiring, calibration. Read its **Known risks / test first** section before printing: servo travel (arm 170°, ch2 176°) and the MG996R tab-hole pattern, relay at 3.3 V, camera mode and focus, HX711 timing, belt speed, bin capacities, valve / pump fit, coupler indexing, the ribbon's ≈ 50 mm of slack, the 20-dump column test (≈ ±0.95 mm allowed), the tilt-crank drag test (≤ 3 N) and a stuck top switch all need checking on the real machine.
 
 ### 2. Set up the Pi
 
@@ -96,17 +96,21 @@ Follow ASSEMBLY.md §16 for the full order (load cell → arm → elevator trip 
 venv/bin/python scripts/test_hardware.py --no-mock       # menu of 11 subsystem tests
 venv/bin/python main.py --calibrate                      # load cell: 5.000 g US nickel (or --mass G)
 venv/bin/python scripts/calibrate_servos.py --no-mock    # d direction check (bare ch1/ch2 servos), 1 arm, 2 cradle tilt, 3 shuttle columns
-venv/bin/python scripts/calibrate_camera.py --no-mock    # empty station, then a centred card → crop
+venv/bin/python scripts/calibrate_camera.py --no-mock    # empty station, then a centred card → crop (take the card off afterwards)
 cp config/machine.example.json config/machine.json       # belt centring, focus, exit run, hopper switches, … (§16.6)
 ```
 
+Stop the service before any of these (`sudo systemctl stop riftbound-sorter`), and **never run the tools or `main.py` with `sudo`**: a root-owned `data/sorter.lock` stops the service from starting (fix: `sudo chown <user> data/sorter.lock data/machine_state.json`). The tools and the sorter share one lock, and each tool records the machine as **not clean** before it moves anything, so the next sorter start asks for **Machine clear**. `calibrate_servos.py` never saves a value that would make its file invalid.
+
 Calibration files are written to `config/`:
-- `servo_calibration.json`, `shuttle_calibration.json` (servo angles; ch1/ch2 `invert` from the direction check; actuation range)
+- `servo_calibration.json`, `shuttle_calibration.json` (servo angles; ch1/ch2 `invert` from the direction check; actuation range). Validated at start-up: known keys only, every angle within the servo range and within ±25° of its nominal pose, poses in order
 - `loadcell_calibration.json` (scale factor + empty-cradle reference)
 - `camera_crop.json`
-- `machine.json` (per-machine tunables, every key optional; **validated at start-up**: any bad key refuses to start with exit status 78, which systemd does not restart)
-- `bin_limits.json` (optional, to raise bin limits)
+- `machine.json` (per-machine tunables, every key optional; `elevator.TOP_SWITCH_NC` must stay `true`)
+- `bin_limits.json` (optional, to raise bin limits: whole numbers from 1 to the cap, lower 54, upper 15, reject 52)
 - `identify.json` (optional: `min_conf`, `min_margin_bits`, `fallback`, `fallback_min_phash_conf`, `max_missing_fraction`)
+
+All five (`machine.json`, `identify.json`, `shuttle_calibration.json`, `servo_calibration.json`, `bin_limits.json`) are **validated at start-up**: any bad key refuses to start with exit status 78, every problem listed, and systemd does not restart it.
 
 ### 5. Run (bulk commons first)
 
@@ -124,7 +128,10 @@ venv/bin/python main.py --web-token          # show the web UI token
 - **It refuses to start with a card on the cradle:** at every start it compares the cradle with the stored empty-cradle reference before taring (re-run `--calibrate` after re-taping the cradle or re-routing its lead).
 - **It refuses to sort with an incomplete hash DB** (more than 1 % of cards missing): run `--build-db`.
 - **Pause / Resume:** a bin-full pause resumes by itself 2 s after the bin is reset, unless you pressed Pause: then it waits for Resume. **Machine clear** is refused while paused or starting.
-- **Stopping:** the first stop signal (`systemctl stop`, Ctrl-C) finishes the current card; a second one stops immediately (a card being carried on the cup is still put down first). Teardown parks the arm, leaves the shuttle where it is and makes every servo limp; `ExecStopPost` then drives all outputs safe. Stop the service before unplugging.
+- **Stopping:** the first stop signal (`systemctl stop`, Ctrl-C) finishes the current card; a second one stops immediately (a card being carried on the cup is still put down first). Teardown parks the arm, leaves the shuttle where it is and makes every servo limp; `ExecStopPost` then drives all outputs safe. Stop the service before unplugging. A Stop while a card waits on the cradle for a full bin ends in `needs_confirm` (Resume refused): remove the card, then **Machine clear**.
+- **Card held on the cup:** if the arm can't carry a card to the belt, the pump keeps holding it and the web UI says "card held on cup — remove it by hand before stopping the service". Take it off by hand first: stopping the service switches the pump off and drops it. After `CUP_HOLD_MAX_S` (600 s, `machine.json`) the pump switches off by itself. <!-- PENDING code r4: cup-hold expiry behaviour -->
+- **Idle servos:** <!-- PENDING code r4: ch1 only --> while the sorter is stopped, paused at a card boundary or waiting with an empty hopper, the three servos are switched off (no stalling against the home ledges); one write each re-asserts the rest pose before the next move.
+- **After any hardware tool** (`test_hardware.py`, `calibrate_servos.py`, `calibrate_camera.py`) the next start asks for **Machine clear**.
 
 ### Development (any machine)
 
@@ -163,7 +170,7 @@ Pi Zero 2 W
 PCA9685 VCC = Pi 3.3 V · 10 kΩ pull-ups GPIO 17, 27 · 10 kΩ pull-downs GPIO 23–26
 ```
 
-There is only one I²C device (the PCA9685 at 0x40). The relay module must switch off with a 3.3 V input; ASSEMBLY.md §14.1 has the bench check. The full pin tables are in ASSEMBLY.md §14 and in [`docs/wiring_diagram.svg`](docs/wiring_diagram.svg). `riftbound_sorter.kicad_sch` is a text-only sheet that mirrors the same tables.
+There is only one I²C device (the PCA9685 at 0x40). The relay module must stay off with its input at 3.3 V and at the ≈ 2.7 V it sees at boot (Pi pull-down against the 10 kΩ pull-up); ASSEMBLY.md §14.1 has the bench check. The full pin tables are in ASSEMBLY.md §14 and in [`docs/wiring_diagram.svg`](docs/wiring_diagram.svg). `riftbound_sorter.kicad_sch` is a text-only sheet that mirrors the same tables.
 
 ---
 

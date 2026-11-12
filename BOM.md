@@ -12,19 +12,19 @@ Prices are approximate US prices from Nov 2026. Links are examples, not endorsem
 
 ## Totals
 
-Recounted for 2.2.0 from the tables below (each table's subtotal is the sum of its rows).
+Recounted for 2.3.0 from the tables below (each table's subtotal is the sum of its rows).
 
 | | ~Cost |
 |---|---|
 | Already have / ordered (confirmed) | $151 |
 | Probably on hand from the Nov 5 order (verify) | $36 |
-| **Still to buy** | **$638** (parts $526 + filament $112) |
-| Whole machine | ~$825 |
+| **Still to buy** | **$645** (parts $533 + filament $112) |
+| Whole machine | ~$832 |
 
-**Still-to-buy subtotal: ~$638** (was ~$609 in 2.1.0). What changed: + tee-nuts $9, + insert top-up $8, + M3 × 14 $3, + M2.5 button heads $4, + silicone branch tube $6, the goBILDA REX shaft + coupler + one disc horn ($28.48) replace the 400 mm D-cut tilt shaft, two disc horns and the rigid coupling ($29); goBILDA shipping is extra.
-- If the "verify" items turn out to be missing, it rises to ~$674.
+**Still-to-buy subtotal: ~$645** (was ~$638 in 2.2.0). What changed in 2.3.0: + M3 × 18 screws $7 (4 SHCS for the electronics tray, 12 countersunk for the sorting tray and reject bin: CAD round 4 shortened those from M3 × 20). The other 2.3.0 fastener changes (arm tabs M3 × 8, rod set screws M3 × 8, fewer M3 × 20) come out of packs already listed. goBILDA shipping is extra.
+- If the "verify" items turn out to be missing, it rises to ~$681.
 - If the Arducam IMX708 from the earlier order fits the camera bracket, it drops by $25.
-- The **Optional cost-down** section below can take another ~$60 off without changing the design (~$578).
+- The **Optional cost-down** section below can take another ~$60 off without changing the design (~$585).
 - The owned 12 V 3 A adapter is counted under "have" but is **replaced** by a 12 V 5 A adapter (see Power budget). Keep the 3 A one for bench work.
 
 ### Still to buy (summary)
@@ -36,7 +36,7 @@ Recounted for 2.2.0 from the tables below (each table's subtotal is the sum of i
   - Shuttle: 400 mm rod, **goBILDA 8 mm REX shaft (cut to 417 mm) + goBILDA 4001-0025-4008 clamping coupler** (ch1), 2 × 688ZZ, Ø3 dowel pins (1 × 20, 4 × 8).
   - Shared: 4 × LM8UU, 1 × 25T aluminium disc horn (arm), 4 mm silver-steel rod + 2 Ø4 dowels, 8 × 6 tube, push-on washers, slider springs.
 - **Pneumatics:** SMC ZPT16BS-B5 pad, M5 × 4 mm barb, 4 mm OD tube, pump adapter, **12 V normally-closed mini solenoid vent valve**, **1/8" barbed tee**, 2 × 4 mm silicone tube for the valve branch.
-- **Fasteners:** **49 M3 tee-nuts** (backing board), M3 insert top-up, 2 × 4 mm shoulder screws (M3 thread), 2 × M3 × 4 short heat-set inserts, M3 × 40, M3 × 80, M3 × 20 top-up, M3 × 14, M3 countersunk set, M3 set screws (cup + flat point), M2/M2.5 set (incl. 16 self-tappers for the tray boards), 4 × M2.5 × 10 button heads, M1.6 × 4.
+- **Fasteners:** **49 M3 tee-nuts** (backing board), M3 insert top-up, 2 × 4 mm shoulder screws (M3 thread), 2 × M3 × 4 short heat-set inserts, M3 × 40, M3 × 80, M3 × 20 top-up, M3 × 14, M3 × 18 (SHCS + countersunk), M3 countersunk set, M3 set screws (cup point + M3 × 8 flat point), M2/M2.5 set (incl. 16 self-tappers for the tray boards), 4 × M2.5 × 10 button heads, M1.6 × 4.
 - **Frame and consumables:** PTFE tape (required), 6 mm backing board, rubber feet ≥ 10 mm, black foam, foam tape, neoprene strip (pump sleeve and head pad, or print them in TPU), zip ties, heat-shrink, 600-grit paper, ~3.4 kg PLA + ~0.5 kg PETG + ~0.2 kg black.
 
 ### Removed from the v1 BOM (no longer used)
@@ -52,6 +52,7 @@ The v1 hopper, sorter, arm and weigh station are gone; [`CHANGELOG.md`](CHANGELO
 - LM2596 adjustable bucks: replaced by fixed-output modules, because there is no multimeter.
 - The tilt-crank M3 × 4 set screw and the M3 tap (the crank now slides on the shaft with no set screw).
 - **Dropped in 2.2.0:** the 400 mm 8 mm D-cut tilt shaft (replaced by the goBILDA REX shaft), the ch1 disc horn and the 8 mm rigid coupling with its 4 × M3 × 8 (replaced by the goBILDA clamping coupler), the 4 × M2.5 self-tappers for the ch1 ears (now 4 × M3 × 10 + washers into inserts), the shuttle rod clamp screws (now set screws into inserts), the T8-nut M3 × 10 (now M3 × 14), and the ~47 nuts + washers under the board (replaced by tee-nuts).
+- **Changed in 2.3.0:** the arm's servo-tab screws are M3 × 8 (an M3 × 10 bottomed out in the 6.2 mm insert hole), the shuttle rod set screws are M3 × 8 (they now go through a 2 mm boss), and the electronics tray, sorting tray and reject bin take M3 × 18 instead of M3 × 20.
 
 **Owned but not used by v2** (not in the totals): the 1-channel relay module (replaced by a 2-channel one for the vent valve), the M2.5 brass standoff kit (the electronics tray now has printed posts), and from the Nov 5 order the 27 mm suction cup (it doesn't fit the arm's cup sled), the 12 V 2 A adapter (too small), the 2 × LM2596, the WS2812B ring and the 16 mm O-rings.
 
@@ -100,26 +101,28 @@ These are worst-case figures; none has been measured on this machine yet.
 
 ## Fastener counts
 
-Counted from the hardware notes and BOM footers of every `cad/*.scad` file (2.2.0: `baseplate_tile`, `hopper`, `pump_bracket`, `riser`, `shuttle` re-read), de-duplicated across steps. Screw lengths assume the **6 mm backing board** with **M3 tee-nuts** in it (ASSEMBLY.md §4): every baseplate screw goes in from above, length = clamp + 4 mm, tip ≤ 7 mm below the tee-nut flange. Without tee-nuts the same screws take a washer + nut under the board. "Self-tap" means a thread-forming screw into a printed pilot.
+Counted from the hardware notes and BOM footers of every `cad/*.scad` file (2.3.0: re-read after CAD round 4: `electronics_tray`, `sorting_tray`, `reject_bin`, `suction_arm`, `shuttle`, `hopper`, `riser`, `pump_bracket`, `lower_ramp`, `conveyor_rail`), de-duplicated across steps. Screw lengths assume the **6 mm backing board** with **M3 tee-nuts** in it (ASSEMBLY.md §4): every baseplate screw goes in from above, length ≥ clamp + 4 mm, and the tip ends 4–7 mm below the board underside (7 mm: the hopper base's M3 × 20 countersunk; 7.5 mm if you fit an M3 × 20 where the table says M3 × 18). Without tee-nuts the same screws take a washer + nut under the board (the fallback in every part file). "Self-tap" means a thread-forming screw into a printed pilot.
 
 | Size | Qty | Where (ASSEMBLY.md step) |
 |---|---|---|
 | **M3 four-prong tee-nut** (barrel Ø4.5 × 5, flange Ø13) | **49** | in the backing board under every grid hole a part uses (§4): tray 4, riser anchors 5, rail through-feet 4, hopper 4, arm tower 4, sorting tray 8, end posts 6, lower ramp 4, reject bin 4, pump bracket 4, vent-valve clip 2. +18 for the optional tile clamps |
 | M3 × 6 SHCS | 5 | arm crank → disc horn 4 (§11); goBILDA coupler → ch1 spline 1 (§13.3) |
 | M3 × 6 cup-point set screw | 2 | roller grub screws (§8) |
-| M3 × 6 flat-point set screw | 2 | shuttle rod, one per end post (§13.4) |
-| M3 × 8 SHCS | 2 | 28BYJ-48 ears → cap inserts (§10) |
-| M3 × 10 SHCS / BHCS | 24 | motor mounts 4 BHCS (§8); rail insert feet X −50 front, X +40 back 2 (§7); hopper cap 4 (§10); MG996R tabs on the arm 4 (§11); load cell → cradle 2 (§13.1); ch1 ears → cage 4 (§13.3); R-bar splice 2 (§13.4); pump-bracket cap 2 (§14.6) |
+| M3 × 8 flat-point set screw | 2 | shuttle rod, one per end-post +X-face boss (§13.4) |
+| M3 × 8 SHCS | 6 | 28BYJ-48 ears → cap inserts 2 (§10); MG996R tabs on the arm head 4 (§11) |
+| M3 × 10 SHCS / BHCS | 20 | motor mounts 4 BHCS (§8); rail insert feet X −50 front, X +40 back 2 (§7); hopper cap 4 (§10); load cell → cradle 2 (§13.1); ch1 ears → cage 4 (§13.3); R-bar splice 2 (§13.4); pump-bracket cap 2 (§14.6) |
 | M3 × 12 SHCS | 9 | riser joint 3 + nut (§6); arm head → tower 4 (§11); tilt frame → load cell 2 (§13.1) |
 | M3 × 14 SHCS | 2 | hopper T8 nut flange → carriage-bottom inserts (§10) |
 | M3 × 16 SHCS | 3 | camera bracket + rail feet X −20 / +10 2 (§9); tilt crank ↔ tilt link 1 + nylock (§13.2) |
-| M3 × 20 SHCS (into tee-nuts) | 29 | electronics tray 4 (§5), riser anchors 5 (§6), arm tower 4 (§11), shuttle end posts 6, lower ramp 4 (§13), pump bracket 4, vent-valve clip 2 (§14.6) |
+| M3 × 18 SHCS (into tee-nuts) | 4 | electronics tray (§5) |
+| M3 × 20 SHCS (into tee-nuts) | 25 | riser anchors 5 (§6), arm tower 4 (§11), shuttle end posts 6, lower ramp 4 (§13), pump bracket 4, vent-valve clip 2 (§14.6) |
 | M3 × 20 SHCS + nylock | 1 | hopper feeler-flag axle (§10) |
 | M3 × 40 SHCS | 2 | cup-slider guide screws (§11) |
 | M3 × 80 SHCS (or 85 mm M3 threaded rod + washer + nut on top) | 4 | rail through-feet X −80 front, X −120 / −80 / +10 back, into tee-nuts (§7) |
 | M3 × 10 countersunk | 10 | hopper floor plate 2 (§10); riser front tie 2 (§6); shuttle cheeks → sled 6 (§13.2) |
 | M3 × 12 countersunk | 9 | sorting-tray stacking 8, self-tap into Ø2.5 pilots (§12); ch2 crank hub → servo spline 1 (§13.5) |
-| M3 × 20 countersunk (into tee-nuts) | 16 | hopper base 4 (§10), sorting-tray lower floor 8 (§12), reject bin 4 (§13.7) |
+| M3 × 18 countersunk (into tee-nuts) | 12 | sorting-tray lower floor 8 (§12), reject bin 4 (§13.7) |
+| M3 × 20 countersunk (into tee-nuts) | 4 | hopper base (§10) |
 | M4 clamp screw | 1 | ch1 coupler clamp (comes with the goBILDA coupler) |
 | Shoulder screw, 4 mm shoulder, M3 × 4 thread, head ≤ Ø8 × 4 | 2 | ch2 crank tip (5 mm shoulder) and ch2 drive pin (6 mm shoulder) (§13.7) |
 | M3 nuts (plain) | 3 | riser joint (§6). With threaded rod for the through-feet: +4 |
@@ -139,7 +142,7 @@ Counted from the hardware notes and BOM footers of every `cad/*.scad` file (2.2.
 
 ## Printed parts
 
-Everything fits a 256 × 256 mm bed (Bambu P1S); the largest parts are the 248 mm R-bar +Y half and the 240 mm card guides. Volumes are the solid volume of each exported part (`openscad --backend=manifold`, measured for this BOM). Most v2 parts are thin-walled, so the printed mass is about 75–90 % of solid × 1.24 g/cm³. **Total ≈ 4 050 cm³ solid, ≈ 4.0 kg of filament (3.4 kg PLA, 0.5 kg PETG, 0.2 kg black, ~7 g TPU).** (Re-measured in 2.2.0 for the changed parts: end post −Y with its support ladder +17 cm³, pump base with the head cradle +7, valve clip +8.5, hopper carriage −4, tiles with tee-nut counterbores −0.6 each.) Most of it is the 9 baseplate tiles (1.2 L) and the riser (0.7 L). Expect about 120 h of printing on a P1S; slice to confirm.
+Everything fits a 256 × 256 mm bed (Bambu P1S); the largest parts are the 248 mm R-bar +Y half and the 240 mm card guides. Volumes are the solid volume of each exported part (`openscad --backend=manifold`, measured for this BOM). Most v2 parts are thin-walled, so the printed mass is about 75–90 % of solid × 1.24 g/cm³. **Total ≈ 4 050 cm³ solid, ≈ 4.0 kg of filament (3.4 kg PLA, 0.5 kg PETG, 0.2 kg black, ~7 g TPU).** (Re-measured in 2.3.0 for every part CAD round 4 and the crank fix changed: arm head 50.8 (+1.5), arm hand 20.0 (+0.2), cup sled 6.2 (+0.8), end post −Y 49.1 (+0.4) and +Y 18.6 (+0.2), shuttle sled 64.6 (−1.0), tilt frame 19.6 (+0.4), tilt crank 1.7 (−0.5), hopper cap 13.9 (+0.1); riser B, hopper carriage and both card guides unchanged to 0.1 cm³. Net +2 cm³, ≈ 2 g of PETG: the filament figures don't change.) Most of it is the 9 baseplate tiles (1.2 L) and the riser (0.7 L). Expect about 120 h of printing on a P1S; slice to confirm.
 
 | Part | Qty | Material / settings | File (`part=` or module) | Print orientation | Supports | Solid cm³ (each) |
 |---|---|---|---|---|---|---|
@@ -153,34 +156,34 @@ Everything fits a 256 × 256 mm bed (Bambu P1S); the largest parts are the 248 m
 | Race spacer 11/8.3 × 1 | 4 | PLA/PETG | `conveyor_roller.scad` `race_spacer()` | flat | none | 0.04 |
 | Motor mount | 2 | PETG/PLA 0.2, 4 walls, 40 % | `motor_mount.scad` | floor down | none | 14.9 |
 | Slide bed 174 × 89 | 1 | PLA/PETG 0.2, 3 walls, 20 % | `slide_bed.scad` | upside down (lands on bed) | none | 88.1 |
-| Card guide back / front | 1 + 1 | PETG (black if possible) 0.2, 3 walls, 20 % | `card_guide.scad` `guide_back`, `guide_front` | upside down (flat top on bed) | none | 21.3 |
+| Card guide back / front | 1 + 1 | PETG (black if possible) 0.2, 3 walls, 20 % | `card_guide.scad` `guide_back`, `guide_front` | upside down (flat top on bed) | none | 21.3 (each) |
 | Guide clip | 4 | PETG | `card_guide.scad` `clip` | profile on bed | none | 0.32 |
 | Scanner hood | 1 | **black** PLA/PETG 0.2, 3 walls, 15 % | `scanner_hood.scad` `hood` | roof down; **brim 8–10 mm required** (101 mm tall on a 451 mm² footprint; or 4 Ø15 mouse ears), outer walls ≤ 60 mm/s | none | 127.1 |
 | Camera bracket | 1 | PLA/PETG 0.2, 4 walls, 30–40 % | `camera_bracket.scad` `print_orient=true` | on its −X side | none | 114.2 |
 | Hopper body | 1 | PLA/PETG 0.2, 3–4 walls, 25–40 % | `hopper.scad` `body` | upright | none | 191.1 |
-| Hopper cap | 1 | same | `hopper.scad` `cap` | top face down (pre-flipped) | none | 13.8 |
-| Hopper carriage | 1 | same | `hopper.scad` `carriage` | upright (shelf on bed); the Ø22.6 T8-nut pocket opens upward | none | 31.7 |
+| Hopper cap | 1 | same | `hopper.scad` `cap` | top face down (pre-flipped) | none | 13.9 |
+| Hopper carriage | 1 | same | `hopper.scad` `carriage` | upright (shelf on bed); the Ø22.6 T8-nut pocket and its square through-slot open upward; the home-switch lug underside is one 45° ramp | none | 31.7 |
 | Hopper floor plate | 1 | same | `hopper.scad` `plate` | card face down on PEI | none | 25.1 |
 | Feeler flag | 1 | same | `hopper.scad` `flag` | on its side | none | 1.0 |
-| Arm head | 1 | PETG 0.2, 4 walls, 40 % gyroid | `suction_arm.scad` `head` | plate front face down | none | 49.3 |
+| Arm head | 1 | PETG 0.2, 4 walls, 40 % gyroid | `suction_arm.scad` `head` | plate front face down (the plate now runs down to the head floor, so floor and walls stand on it) | none | 50.8 |
 | Arm tower (≈155 tall) | 1 | PETG, 30 % | `suction_arm.scad` `tower` | upright on foot | none | 117.9 |
 | Arm crank | 1 | PETG, 5 walls, 100 % round the hub | `suction_arm.scad` `crank` | flat | none | 8.1 |
 | Arm links B + C | 2 (one print) | PETG, 5 walls | `suction_arm.scad` `link` | flat | none | 7.6 (both) |
-| Arm hand | 1 | PETG | `suction_arm.scad` `hand` | back face down, beams up | none | 19.8 |
-| Cup sled | 1 | PETG | `suction_arm.scad` `sled` | upright, hex pocket down | none | 5.4 |
+| Arm hand | 1 | PETG | `suction_arm.scad` `hand` | back face down, beams up | none | 20.0 |
+| Cup sled | 1 | PETG | `suction_arm.scad` `sled` | upright, hex pocket down | none | 6.2 |
 | Arm sleeves (4 lengths) | 4 | PETG (or nylon spacers) | `suction_arm.scad` `sleeves` | upright | none | 4.7 (all 4) |
 | Tray section A / B (lower) | 1 + 1 | PLA 0.2, 40 % | `sorting_tray.scad` `tray_floor_section(0,true,false)` / `(2,false,true)` | open top up | none (label windows bridge) | 102.0 |
 | Tray section C / D (upper) | 1 + 1 | PLA 0.2, 40 % | `tray_floor_section(4,true,false)` / `(6,false,true)` | open top up | none | 90.4 |
 | Tray shelf half | 2 | PLA | `floor_shelf_half()` | flat | none | 40.2 |
 | Cradle | 1 | PLA **0.12**, 3 walls, 15 %, iron top | `shuttle.scad` `cradle` | bed top up, ribs on the plate; **use a brim** (≈ 600 mm² on the bed) | none | 13.7 |
-| Tilt frame | 1 | PETG 0.2, 4 walls, 40 % | `shuttle.scad` `tilt_frame` | upright, crossbar down: crossbar, plate bottoms and skid nubs are one flat plane (≈ 1480 mm²) | **none** | 19.2 |
-| Shuttle sled | 1 | PETG 0.2, 4 walls, 40 % | `shuttle.scad` `sled` | on its +y face (crank pocket has a 45° roof) | **none** | 65.6 |
+| Tilt frame | 1 | PETG 0.2, 4 walls, 40 % | `shuttle.scad` `tilt_frame` | upright, crossbar down: crossbar, plate bottoms and skid nubs are one flat plane (≈ 1420 mm²) | **none** | 19.6 |
+| Shuttle sled | 1 | PETG 0.2, 4 walls, 40 % | `shuttle.scad` `sled` | on its +y face (the crank pocket closes with 45° roofs) | **none** | 64.6 |
 | Shuttle cheek −Y / +Y | 1 + 1 | PETG 0.2, 4 walls, 40 % | `shuttle.scad` `cheek_neg`, `cheek_pos` | flat on the outer face | none | 18.0 |
-| Tilt crank / tilt link | 1 + 1 | PETG 100 % | `shuttle.scad` `tilt_crank` (REX bore), `tilt_link` | flat | none | 2.2 / 0.9 |
+| Tilt crank / tilt link | 1 + 1 | PETG 100 % | `shuttle.scad` `tilt_crank` (REX bore), `tilt_link` | flat | none | 1.7 / 0.9 |
 | ch2 crank (155 mm) | 1 | PETG 0.2, 5 walls, 50 % | `shuttle.scad` `c2_crank` | flat, countersinks down | none | 8.0 |
 | ch2 link (173 mm) | 1 | PETG | `shuttle.scad` `c2_link` | flat | none | 7.8 |
 | R-bar −Y / +Y | 1 + 1 | PLA, 4 walls | `shuttle.scad` `rbar_neg`, `rbar_pos` | on the −X face; sand the top | none | 21.4 / 33.6 |
-| End post −Y / +Y | 1 + 1 | PETG/PLA, 4 walls, 40 % | `shuttle.scad` `end_post_neg`, `end_post_pos` | upright (floor plate down) | −Y: the export **includes a break-away ladder** under the ch2 rear-ear ledge; snap it out. +Y: none | 48.7 (incl. ladder) / 18.4 |
+| End post −Y / +Y | 1 + 1 | PETG/PLA, 4 walls, 40 % | `shuttle.scad` `end_post_neg`, `end_post_pos` | upright (floor plate down) | −Y: the export **includes a break-away ladder** under the ch2 rear-ear ledge; snap it out. +Y: none (the rod set-screw boss has a 45° underside) | 49.1 (incl. ladder) / 18.6 |
 | Lower ramp halves | 2 | PLA **0.16**, 3 walls, 15 %, bridge fan 100 % | `lower_ramp.scad` `ramp_neg`, `ramp_pos` | **upright as modelled** (base on the bed) | none; sand lanes 600 grit | 69.0 |
 | Reject bin | 1 | PLA 0.2, 3 walls, 15 % | `reject_bin.scad` | upright | none | 78.8 |
 | Pump bracket base / cap | 1 + 1 | PETG or PLA | `pump_bracket.scad` `base` (saddle + head cradle), `cap` | base upright; cap on its end face | none | 26.6 / 3.4 |
@@ -202,7 +205,7 @@ Not printed in v2: `sort_gate_lever.scad`, `output_bin.scad`. These files are wr
 | 1 | PCA9685 16-ch 12-bit PWM board (I²C 0x40) | [amazon.com](https://www.amazon.com/s?k=PCA9685+16+channel+servo+driver) | $7 | **have** | The tray posts are on the Adafruit #815 pattern, 55.88 × 19.05 mm; the common blue clone copies it |
 | 3 | MG996R metal-gear servo: ch0 arm, ch1 cradle tilt, ch2 shuttle | [amazon.com](https://www.amazon.com/dp/B07MFK266B) | $19 | **have** | 4-pack ordered, so 1 spare. Must reach ~170° (arm) and ~176° (ch2): test first |
 | 1 | HX711 amplifier + TAL221 50 g mini load cell (47 × 12 × 6, 4 × M3) | [amazon.com](https://www.amazon.com/dp/B09K7G3477) | $10 | **have** | the HX711 sits in a corner-stop pocket on foam tape |
-| 1 | **2-channel** 5 V relay module, opto-isolated, active-LOW inputs (Songle type, ≈ 50 × 38.5, holes ≈ 44.3 × 32.8) | [amazon.com](https://www.amazon.com/s?k=2+channel+5V+relay+module+optocoupler+low+level+trigger) | $7 | buy | ch1 pump (GPIO 17), ch2 vent valve (GPIO 27). Replaces the owned 1-channel module. Must switch off with a 3.3 V input: bench-test it (ASSEMBLY.md §14.1); a board with a JD-VCC jumper can be fixed if not |
+| 1 | **2-channel** 5 V relay module, opto-isolated, active-LOW inputs (Songle type, ≈ 50 × 38.5, holes ≈ 44.3 × 32.8) | [amazon.com](https://www.amazon.com/s?k=2+channel+5V+relay+module+optocoupler+low+level+trigger) | $7 | buy | ch1 pump (GPIO 17), ch2 vent valve (GPIO 27). Replaces the owned 1-channel module. Must stay off with IN at 3.3 V and at the ≈ 2.7 V it sees at boot: bench-test it (ASSEMBLY.md §14.1); a board with a JD-VCC jumper can be fixed if not |
 | 1 | 12 V R385 diaphragm pump (Gikfun), used as the vacuum source | [amazon.com](https://www.amazon.com/dp/B0744FWNFR) | $10 | **have** | 0.5–0.7 A at 12 V. Mounted in the printed pump bracket |
 | 2 | N20 gear motor 6 V 200 rpm (GA12-N20, 3 mm D-flat output shaft) | [amazon.com](https://www.amazon.com/dp/B0DFVHGZS4) | $13 | **have** | price is the 2-pack |
 | 1 | L9110S dual H-bridge board | [amazon.com](https://www.amazon.com/dp/B0FTFLK1FC) | $7 | **have** | 3-pack ordered; sits in a corner-stop pocket on foam tape |
@@ -276,19 +279,20 @@ Subtotal: $54 (have $0, verify $0, buy $54)
 | 1 | M3 × 5.7 heat-set inserts, top-up pack (same type) | [amazon.com](https://www.amazon.com/s?k=M3x5.7+heat+set+insert) | $8 | buy | spares: the build now uses exactly 50, and inserts get spoiled |
 | 1 | **M3 four-prong tee-nuts**, zinc steel, barrel Ø4.5 × 5, flange Ø13 (pack of 100, e.g. FastenRight FF01 M3) | [amazon.com](https://www.amazon.com/s?k=M3+tee+nut+four+prong) | $9 | buy | 49 in the backing board (+18 for the optional tile clamps). Replace every nut + washer under the board |
 | 1 | M3 SHCS/BHCS assortment 6–20 mm with nuts, washers and nylocks (counts in the table above) | [amazon.com](https://www.amazon.com/dp/B0GDG2WGRV) | $8 | verify (Nov 5 order) | assortment on the Nov 5 order; check it covers the counts |
-| 1 | M3 × 20 SHCS, 50-pack (top-up) | [amazon.com](https://www.amazon.com/s?k=M3x20+socket+head+cap+screw+50) | $6 | buy | the build needs 30 × M3 × 20; an assortment rarely has that many |
+| 1 | M3 × 20 SHCS, 50-pack (top-up) | [amazon.com](https://www.amazon.com/s?k=M3x20+socket+head+cap+screw+50) | $6 | buy | the build needs 26 × M3 × 20 (25 into tee-nuts + the flag axle); an assortment rarely has that many |
+| 1 | M3 × 18 screws: 4 × SHCS + 12 × countersunk (ISO 10642), two small packs | [amazon.com](https://www.amazon.com/s?k=M3x18+countersunk+screw) | $7 | buy | SHCS: electronics tray; countersunk: sorting-tray lower floor 8 + reject bin 4. Rarely in 6–20 assortments. An M3 × 20 also fits, but its tip ends 7.5 mm below the board |
 | 1 | M3 × 14 SHCS (pack) | [amazon.com](https://www.amazon.com/s?k=M3x14+socket+head+cap+screw) | $3 | buy | 2 for the hopper T8 nut; not in most 6–20 assortments |
 | 2 | Shoulder screw, 4 mm shoulder, M3 × 4 thread, head ≤ Ø8 × 4: one 5 mm shoulder, one 6 mm (ISO 7379 style, e.g. MISUMI MSB4-5 / MSB4-6) | [amazon.com](https://www.amazon.com/s?k=M3+shoulder+screw+4mm+shoulder) | $8 | buy | ch2 pivots |
 | 2 | M3 × 4 short heat-set insert, OD ≤ 4.6 mm (pack) | [amazon.com](https://www.amazon.com/s?k=M3x4+brass+heat+set+insert) | $6 | buy | pressed flush into the ch2 link top |
 | 2 | M3 × 40 SHCS (cup-slider guide screws) | [amazon.com](https://www.amazon.com/s?k=M3x40+socket+head) | $3 | buy |  |
 | 4 | M3 × 80 SHCS (rail through-feet) or M3 threaded rod, 85 mm, + extra nuts | [amazon.com](https://www.amazon.com/s?k=M3x80+socket+head+screw) | $5 | buy |  |
-| 1 | M3 countersunk (ISO 10642) assortment: 10 × M3×10, 9 × M3×12, 16 × M3×20 | [amazon.com](https://www.amazon.com/s?k=M3+countersunk+screw+assortment) | $8 | buy |  |
-| 1 | M3 set screws: 2 × M3×6 cup point (rollers), 2 × M3×6 flat point (shuttle rod) | [amazon.com](https://www.amazon.com/s?k=M3+set+screw+assortment) | $4 | buy |  |
+| 1 | M3 countersunk (ISO 10642) assortment: 10 × M3×10, 9 × M3×12, 4 × M3×20 | [amazon.com](https://www.amazon.com/s?k=M3+countersunk+screw+assortment) | $8 | buy |  |
+| 1 | M3 set screws: 2 × M3×6 cup point (rollers), 2 × **M3×8** flat point (shuttle rod) | [amazon.com](https://www.amazon.com/s?k=M3+set+screw+assortment) | $4 | buy |  |
 | 1 | M2 / M2.5 self-tapping assortment (pan + countersunk): 4 × M2×12 + nuts (switches), 4 × M2×10 (camera), 4 × M2×6 countersunk (ch2 horn), 6 × M2×5–6 (Pololus), 16 × M2.5×6–8 (tray boards) | [amazon.com](https://www.amazon.com/s?k=M2+M2.5+self+tapping+screw+assortment) | $12 | buy |  |
 | 1 | M2.5 × 10 button-head hex socket screws, ISO 7380 (pack) | [amazon.com](https://www.amazon.com/s?k=M2.5x10+button+head+hex+socket+screw) | $4 | buy | 4 for the ch2 servo ears, driven from below with a 1.5 mm L-key |
 | 4 | M1.6 × 4 pan head (N20 gearbox face) | [amazon.com](https://www.amazon.com/s?k=M1.6x4+screw) | $5 | buy |  |
 
-Subtotal: $97 (have $0, verify $16, buy $81)
+Subtotal: $104 (have $0, verify $16, buy $88)
 
 ### Consumables and frame
 
@@ -296,7 +300,7 @@ Subtotal: $97 (have $0, verify $16, buy $81)
 |---|---|---|---|---|---|
 | 1 | 0.1 mm skived PTFE tape, self-adhesive (silicone), ≥ 75 mm wide (cradle bed + kick) — REQUIRED | [amazon.com](https://www.amazon.com/s?k=skived+PTFE+tape+0.1mm+adhesive+75mm) | $15 | buy |  |
 | 1 | Backing board, 6 mm plywood/MDF, ≥ 570 × 540 mm | [amazon.com](https://www.amazon.com/s?k=6mm+plywood+sheet+24x24) | $12 | buy |  |
-| 1 | Rubber feet ≥ 10 mm tall (8) | [amazon.com](https://www.amazon.com/s?k=rubber+feet+10mm+adhesive) | $6 | buy | clear of the tee-nut flanges; screw tips poke out ≤ 7 mm |
+| 1 | Rubber feet ≥ 10 mm tall (8) | [amazon.com](https://www.amazon.com/s?k=rubber+feet+10mm+adhesive) | $6 | buy | clear of the tee-nut flanges; screw tips end ≤ 7 mm below the board (7.5 with an M3 × 20 in place of an M3 × 18) |
 | 1 | Black adhesive foam, 2–3 mm (light seal round the lens on the hood roof) | [amazon.com](https://www.amazon.com/s?k=black+adhesive+foam+3mm) | $6 | buy |  |
 | 1 | Double-sided foam tape (HX711, L9110S, 1 mm strip under the vent valve) | [amazon.com](https://www.amazon.com/s?k=double+sided+foam+mounting+tape) | $6 | buy |  |
 | 1 | Neoprene or EPDM strip, 1.5 mm thick, ≥ 40 mm wide (pump isolation sleeve + 30 × 40 head pad) | [amazon.com](https://www.amazon.com/s?k=1.5mm+neoprene+rubber+strip) | $7 | buy | skip it if you can print the TPU sleeve and pad |
@@ -335,7 +339,7 @@ These options cut the still-to-buy total **without changing the design**: the CA
 | 5. Budget PLA (≈ $13–15/kg) for the big, non-critical parts: tiles (if printed), riser, sorting tray, reject bin | **~$10–15** | Diameter and shrink vary between spools. Keep a good spool for the press fits: rails (608 pockets), hopper carriage and shuttle sled (LM8UU pockets), rollers |
 | 6. Plain 8 mm rods with a filed flat instead of the two 150 mm D-cut rods | **~$5** | You file a 4 mm wide, 0.5 mm deep flat full length by hand. Not for the shuttle tilt shaft: that is the goBILDA REX (hex) shaft, which the crank and coupler need |
 
-With options 1 and 2 the still-to-buy total is about **$578**. With 1–6 (and the Arducam fits), it is about **$524**.
+With options 1 and 2 the still-to-buy total is about **$585**. With 1–6 (and the Arducam fits), it is about **$531**.
 
 ### 1. Drilling template instead of printed tiles
 
@@ -347,7 +351,7 @@ The 9 tiles are 1.2 L of the 4.0 L printed (≈ 1.2 kg of PLA). They do two jobs
   openscad --backend=manifold -o template.stl -D 'part="tile"' -D tile_h=2 cad/baseplate_tile.scad
   ```
 
-- **Use a thicker board.** Use 9 mm MDF or plywood instead of 6 mm. The tiles (4 mm) plus the 6 mm board are a 10 mm floor, so a 9 mm board keeps every clamp length within 1 mm of the design and **every screw in the fastener table still fits**: the tee-nut barrel (5 mm) sits in the 9 mm board with its thread 4 mm below the top, and every screw still runs through the full thread and pokes ≤ 6 mm out below the flange. It also gives back the stiffness the tiles added. On a 6 mm board without tiles the screws still fit, but each sticks out 4 mm further underneath (up to ≈ 11 mm), so use rubber feet ≥ 15 mm.
+- **Use a thicker board.** Use 9 mm MDF or plywood instead of 6 mm. The tiles (4 mm) plus the 6 mm board are a 10 mm floor, so a 9 mm board keeps every clamp length within 1 mm of the design and **every screw in the fastener table still fits**: the tee-nut barrel (5 mm) sits in the 9 mm board with its thread 4 mm below the top, and every screw still runs through the full thread and ends ≤ 8 mm below the board (1 mm more than on the tiled 6 mm board). It also gives back the stiffness the tiles added. On a 6 mm board without tiles the screws still fit, but each sticks out 4 mm further underneath (up to ≈ 11 mm), so use rubber feet ≥ 15 mm.
 - **Drill.** Draw the 3 × 3 tile outlines on the board (corners at X −285/−95/95/285, Y −270/−90/90/270, measured from the board centre). Clamp the template inside each outline in turn and drill only the 49 holes in the ASSEMBLY.md §4 table: a Ø2 pilot through the template hole first, then Ø3.4 through the board. A drill press or drill guide is better than a hand drill.
 - **Tee-nuts: unchanged.** Open each hole to Ø4.5 from below and tap in the tee-nut exactly as in ASSEMBLY.md §4 step 5.
 - **Alignment: what you lose.** Printed tiles put every grid hole within about ±0.2 mm, and the keyed seams hold the tiles together to about ±0.3 mm. With a template, each hole's position is the template placement (≈ ±0.5 mm against a pencil line) plus drill wander (≈ ±0.3 mm), so holes on different template placements can be ≈ 1 mm out relative to each other. What that means for the build:
