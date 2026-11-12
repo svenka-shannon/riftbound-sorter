@@ -30,7 +30,7 @@
 //   baseplate top           base_top        =  4   (baseplate_tile tile_h)
 //   roller shaft centre     + shaft_y       = 19   (conveyor_rail shaft_y = 15)
 //   roller top / belt face  + roller_dia/2  = 30   (conveyor_roller dia 22)
-//   → card face  card_z = 30 (+ belt_t if a flat belt is run over the rollers)
+//   → card face  card_z = 30 + belt_t 0.9 (round belts) = 30.9
 //   Bracket foot sits on the baseplate top: foot underside = 4 − 30 = −26 local.
 //
 // LENS HEIGHT
@@ -84,8 +84,8 @@
 lens_h      = 100;     // lens tip above card face
 lens_proj   = 6.98;    // lens tip in front of PCB front face (RPi drawing)
 pcb_t       = 1.12;    // PCB thickness
-belt_t      = 0;       // flat-belt thickness if used (raises card face; set e.g. 1.5)
-card_z      = 4 + 15 + 22 / 2 + belt_t;  // card face, machine Z (= 30)
+belt_t      = 0.9;     // round-belt O-rings (135x3) ride 0.9mm above the roller body (conveyor_roller.scad)
+card_z      = 4 + 15 + 22 / 2 + belt_t;  // card face, machine Z (= 30.9)
 base_top    = 4;       // baseplate top, machine Z
 
 // --- Pi Cam 3 hole pattern (local XY, lens at origin) ---
