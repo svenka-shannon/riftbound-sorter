@@ -508,7 +508,7 @@ module hopper_elevator_local(plate_z = zp_min, flag_phi = -1, cards = true) {
     hopper_cap();
     hopper_carriage(plate_z);
     hopper_plate(plate_z);
-    hopper_flag(flag_phi >= 0 ? flag_phi : phi_rest);
+    hopper_flag(flag_phi >= 0 ? flag_phi : (cards ? phi_trip : phi_rest));   // per header: rests on the top card when loaded
     color("silver") { hw_rods(); hw_screw(); hw_coupler(); hw_nut(plate_z); hw_bushings(plate_z); }
     color("gold") hw_motor();
     color("dimgray") { hw_sw_bottom_body(); hw_sw_top_body(); }

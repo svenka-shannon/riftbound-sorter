@@ -1,41 +1,45 @@
 # Riftbound Card Sorter - assembly video v2: narration + subtitles per segment.
 # Each step's animation length = its narration clip length + padding (see make_narration.py).
+# Segment ids are the step keys in blender-config.yaml (cameras + movers).
 voice: af_heart
 speed: 1.0
 segments:
   - id: intro
     caption: "Riftbound Card Sorter - mechanical assembly"
-    say: "This is the Riftbound card sorter. Let's build the mechanical side in ten steps."
+    say: "This is the Riftbound card sorter. Let's build the mechanical side in eleven steps."
   - id: baseplate
     caption: "1. Join the 9 baseplate tiles; screw to a backing board from below, M3 x 8"
     say: "Step one. Click the nine baseplate tiles together, and screw them to a flat backing board from below with M three by eight millimetre screws. Any gap over half a millimetre will cause card misfeeds."
   - id: electronics
-    caption: "2. Snap in the electronics tray; Pi, PCA9685, HX711 on M2.5 standoffs"
-    say: "Step two. Snap the electronics tray into its cutout behind the conveyor, then mount the Raspberry Pi, the P C A servo board and the H X seven eleven on M two point five standoffs."
+    caption: "2. Electronics tray behind the riser; Pi, PCA9685, HX711 on M2.5 standoffs"
+    say: "Step two. Fix the electronics tray at the back of the baseplate, then mount the Raspberry Pi, the P C A servo board and the H X seven eleven on M two point five standoffs."
+  - id: riser
+    caption: "3. Bolt the 60 mm riser to the baseplate: 5 anchors, M3 x 80 through"
+    say: "Step three. Join the two riser halves with four M three screws, and bolt the riser to the baseplate through its five anchor wells. Do this before the conveyor goes on, because the slide bed covers two of the wells."
   - id: rails
-    caption: "3. Clip both conveyor rails onto the guide pins; motor mounts M3 x 10"
-    say: "Step three. With the N twenty motors in their mounts, clip both conveyor rails onto the guide pins. They should click in firmly, with no rocking. Tighten the motor mounts with M three by ten screws."
-  - id: rollers
-    caption: "4. Push the 8 mm steel rods and O-ring rollers through the shaft holes"
-    say: "Step four. Push the eight millimetre steel rods through the rail shaft holes, with an O-ring roller on each. Tension the belt until it gives about two millimetres under light finger pressure."
+    caption: "4. Rails on the riser deck, 608 bearings in; N20 motor mounts on the front rail, M3 x 10"
+    say: "Step four. Press the six oh eight bearings into the rails and stand both rails on the riser deck. The rail feet bolt through the riser into the baseplate, or into heat-set inserts in the deck. Then fix the two N twenty motor mounts to the front rail with M three by ten screws."
+  - id: belts
+    caption: "5. Slide bed + 4 O-ring belts, rollers on 8 mm rods, collars"
+    say: "Step five. Lay the slide bed between the rails and loop the four O-ring belts around it. Put a roller in each end of the loops, push the eight millimetre rods through, and lock them with the collars."
+  - id: scan
+    caption: "6. Scan station: card guides + clips, light hood, camera bracket on the front rail feet"
+    say: "Step six. Clip the card guides onto the rails, lower the light hood straight down over them, then stand the camera bracket on the two front rail feet so the lens drops into the roof port."
   - id: hopper
-    caption: "5. Slide the hopper onto the belt inlet until the tabs click"
-    say: "Step five. Slide the hopper onto the inlet end of the rails until the locating tabs click. Centre the gate servo at ninety degrees before fixing its horn."
+    caption: "7. Hopper elevator at the belt inlet; 28BYJ-48 lead-screw tower to the back"
+    say: "Step seven. Stand the hopper elevator at the belt inlet, with its lead screw tower to the back. The floor plate rises to keep the top card at pick height."
   - id: arm
-    caption: "6. Bolt the suction arm to its post, 2x M3 x 16; arm servo to ch0"
-    say: "Step six. Bolt the suction arm onto its post with two M three by sixteen bolts. The arm servo plugs into servo channel zero."
-  - id: hood
-    caption: "7. Clip the scanner hood over the scan zone; camera bracket on M2.5"
-    say: "Step seven. Clip the scanner hood over the scan zone. The camera bracket fixes inside the top cutout with M two point five screws, and the ribbon cable leaves through the rear slot."
-  - id: loadcell
-    caption: "8. Seat the load cell in its tray pocket; M3, hand-tight + 1/4 turn"
-    say: "Step eight. Seat the load cell in its pocket and fix it with M three bolts. Hand tight plus a quarter turn only. Over-tightening will spoil the weight readings."
+    caption: "8. Pick arm tower on the front edge, 4x M3; MG996R to ch0"
+    say: "Step eight. Bolt the pick arm tower to the front edge of the baseplate with four M three screws. Its servo plugs into channel zero, and the arm parks straight up."
   - id: tray
-    caption: "9. Slide the 2-floor sorting tray in at the belt exit"
-    say: "Step nine. Slide the two-floor sorting tray in at the belt exit. Each bin should lift out on its own, without disturbing the rest."
-  - id: gates
-    caption: "10. Fit the 2 sort-gate levers onto their servo horns, M3; ch1 deflect, ch2 bin select"
-    say: "Step ten. Fit the two sort-gate levers onto their servo horns, and secure each one with an M three screw. The deflect gate servo goes on channel one, the bin select servo on channel two."
+    caption: "9. 2-floor sorting tray at X 178..276, 8x M3 countersunk"
+    say: "Step nine. Screw the lower floor of the sorting tray to the baseplate, add the shelf, then the upper floor. Each slot holds one card category."
+  - id: sorter
+    caption: "10. Cradle shuttle + load cell (ch1 tilt, ch2 shuttle), lower ramp, reject bin"
+    say: "Step ten. Fit the cradle shuttle between the belt end and the tray, with its load cell under the cradle. The tilt servo goes on channel one, the shuttle servo on channel two. Then add the lower ramp and the reject bin."
+  - id: wiring
+    caption: "11. Wiring: harness round the hopper into the tray, camera FFC, vacuum pump + tube"
+    say: "Step eleven. Run the motor and servo harness along the riser front and round the hopper into the electronics tray. Route the camera ribbon over the hood, and connect the vacuum tube from the pump to the arm."
   - id: outro
-    caption: "Assembly complete - 8 sort slots across 2 floors"
-    say: "And that's the mechanical build: eight sort slots across two floors. Next up, wiring and first-time setup."
+    caption: "Assembly complete - 8 sort slots across 2 floors, plus a reject bin"
+    say: "And that's the mechanical build: eight sort slots across two floors, plus a reject bin. Next up, first-time setup."

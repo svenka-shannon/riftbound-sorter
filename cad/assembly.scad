@@ -1,69 +1,108 @@
-// Riftbound Card Sorter — Assembly View
-// All parts positioned at machine coordinates
-// Updated for 250mm conveyor + 2-floor sorting tray
+// Riftbound Card Sorter — Assembly View (Nov 11 redesign)
+// Every part at machine coordinates; cad/machine_frame.scad is the single
+// source of truth for the card path.
 //
-// Coordinate frame (matches every part file's print orientation, Z up):
-//   X = card travel direction (hopper → conveyor → sorting tray)
+// Coordinate frame (matches machine_frame.scad and every part file):
+//   X = card travel (hopper → belt → shuttle → sorting tray)
 //   Y = across the belt (+Y = back of machine, electronics side)
-//   Z = up; baseplate top surface at Z = 4
+//   Z = up; Z = 0 underside of the baseplate tiles, baseplate top Z = 4
 //
-// Each asm_* module below is one step of docs/ASSEMBLY.md §4 and is used by
-// cad/assembly-steps.yaml to render the assembly video (docs/assembly-video.mp4).
+// Each asm_* module below is one build step (cad/assembly-steps.yaml and
+// cad/render_v2/parts.scad use them; `use` is not transitive, so the part
+// files' own asm_* modules are wrapped here under distinct names).
+//
+// ── Machine layout ──────────────────────────────────────────────────────────
+//   Baseplate        3 × 3 tiles, X −285..285, Y −270..270, top Z 4
+//   Electronics tray X −150..35, Y 80..205, on the baseplate
+//   Riser            X −165..85, Y −113..80, Z 4..64 (deck = rail base)
+//   Conveyor         belt X −165..85, rollers X −140 / 60, rod axis Z 79,
+//                    card face Z 90.9, slide bed X −127..47, rail top Z 99
+//   Scan station     hood X −49..59 over the rails, camera on X 5, Z ≈ 191
+//   Hopper elevator  cavity centre X −215, Y 0; tower +Y, motor top Z ≈ 158
+//   Pick arm         servo axis X ≈ −154.7, Z ≈ 151.8; tower on the front
+//                    (−Y) side at Y −173..−122; pick X −215 → drop X −95
+//   Shuttle          cradle at X 92..169, carriage rod X 106, travel Y −102..176
+//   Sorting tray     X 178..276, Y −137..137 (back/open face at X 178)
+//   Reject bin       beside the tray at the shuttle's reject Y 176
+//
+// ── Pose ────────────────────────────────────────────────────────────────────
+//   pose = "running" (default) | "home" | "pick" | "drop" | "custom"
+//   "custom" uses arm_angle / elev_plate_z / shuttle_col / shuttle_tilt.
 
-use <hopper.scad>
+use <machine_frame.scad>
+use <baseplate_tile.scad>
+use <electronics_tray.scad>
+use <riser.scad>
 use <conveyor_rail.scad>
 use <conveyor_roller.scad>
 use <motor_mount.scad>
 use <slide_bed.scad>
 use <scanner_hood.scad>
+use <hopper.scad>
+use <hopper_elevator.scad>
 use <suction_arm.scad>
-use <sort_gate_lever.scad>
 use <sorting_tray.scad>
-use <electronics_tray.scad>
-use <baseplate_tile.scad>
+use <shuttle_geom.scad>
+use <shuttle.scad>
 
-// ── Machine layout ────────────────────────────────────────────────────────
-//   Arm post:              X = -270
-//   Hopper:                X = -262 .. -165
-//   Belt start / end:      X = -165 .. 85   (250mm belt, 2 × 125mm rails)
-//   Rollers / rods:        X = -140 and +60 (200mm centres), rod axis Z = 19
-//   Round belts:           4 × NBR O-ring 135 × 3 at Y = ±8.5, ±25.5
-//   Card face (belt top):  Z = 30.9; slide bed X = -127 .. 47
-//   Motors:                front (-Y) rail, brackets reach Y = -113.5
-//   Sorting tray:          X =   85 .. 183  (98mm deep), Y = -137 .. 137 (274mm wide)
-//   Electronics tray:      behind the belt, Y = 80 .. 205
-base_top  = 4;     // baseplate_tile tile_h
-belt_x0   = -165;  // belt start
-rail_in   = 45;    // inner face of each rail (|Y|); roller_w = 88 (1mm each side)
-rail_top  = base_top + 35;  // rail_h = 35
-roller_x  = [belt_x0 + 25, belt_x0 + 225];   // [-140, 60]
-shaft_z   = base_top + 15;                   // 19 — rod axis
-card_z    = shaft_z + 11.9;                  // 30.9 — belt top = card face
-rod_len   = 150;                             // 8mm rod, centred on Y = 0
+/* [Pose] */
+pose         = "running"; // [running, home, pick, drop, custom]
+arm_angle    = 120;       // PCA9685 ch0 servo angle (custom pose); pick ≈ 175, park 90, drop ≈ 5
+elev_plate_z = 55;        // hopper floor-plate top, MACHINE Z (custom); travel 19..90.6
+shuttle_col  = 1;         // 0..3, "reject" or "home" (custom)
+shuttle_tilt = "hold";    // level | hold | upper | lower (custom)
+show_cards   = true;      // card on the arm / in the cradle
 
-// Step 1 — Baseplate: 3 × 3 grid of 190 × 180mm tiles, centred under machine
+// ── Frame values (functions: `use` does not import variables) ──────────────
+base_top = frame_base_top();       // 4
+deck_z   = frame_deck_z();         // 64  rail base on the riser
+belt_x0  = frame_belt_x0();        // −165
+rail_in  = frame_rail_in();        // 45
+roller_x = frame_roller_x();       // [−140, 60]
+shaft_z  = deck_z + 15;            // 79  rod axis
+card_z   = frame_card_z();         // 90.9 card face (belt top)
+rod_len  = 150;                    // 8 mm rod, centred on Y = 0
+assert(abs(shaft_z + roller_belt_top_r() - card_z) < 0.05, "belt top is not at frame_card_z()");
+
+// ── Pose resolution ─────────────────────────────────────────────────────────
+// hopper plate: local Z = machine Z − base_top (hopper_elevator.scad API)
+function _plate_local(zm) = max(hopper_zp_min(), min(hopper_zp_max(), zm - base_top));
+pose_arm   = pose == "home" ? pick_arm_servo_park()
+           : pose == "pick" ? pick_arm_servo_pick()
+           : pose == "drop" ? pick_arm_servo_drop()
+           : pose == "running" ? 120 : arm_angle;
+pose_plate = pose == "home" ? hopper_zp_min()
+           : pose == "pick" ? hopper_zp_max() - 20
+           : pose == "drop" ? hopper_zp_max() - 20
+           : pose == "running" ? _plate_local(55) : _plate_local(elev_plate_z);
+pose_col   = pose == "running" ? 1 : pose == "custom" ? shuttle_col : "home";
+pose_tilt  = pose == "running" ? "hold" : pose == "custom" ? shuttle_tilt : "level";
+pose_arm_card = show_cards && (pose == "running" || pose == "drop" || pose == "custom");
+pose_cradle_card = show_cards && pose != "home";
+
+// ── Step 1 — Baseplate: 3 × 3 grid of 190 × 180 tiles ─────────────────────
 module asm_baseplate()
     for (col = [0:2]) for (row = [0:2])
-        translate([col * 190 - 285, row * 180 - 270, 0])
-            baseplate_tile();
+        translate([col * 190 - 285, row * 180 - 270, 0]) baseplate_tile();
 
-// Step 2 — Electronics tray (185 × 125 × 45), behind the conveyor
+// ── Step 2 — Electronics tray (185 × 125 × 45) on the baseplate, behind the riser
 module asm_electronics_tray()
     translate([-150, 80, base_top]) electronics_tray();
 
-// Step 3 — Conveyor rails × 2 (each split into 2 × 125mm), groove faces inward.
-// Front (-Y) rail = motor side: insert pads for the motor brackets.
-// Each rail line has 4 L-feet → M3 into the baseplate grid row |Y| = 75.
+// ── Step 3 — Conveyor riser (2 prints, 60 mm), anchored to the baseplate ───
+module asm_deck_riser() asm_riser();
+
+// ── Step 4 — Conveyor on the riser deck (geometry unchanged, lifted 60 mm) ─
+// Rails × 2 (each 2 × 125), groove faces inward; front (−Y) = motor side.
 module asm_rails() {
     for (side = [-1, 1])
-        translate([belt_x0, side * rail_in, base_top])
+        translate([belt_x0, side * rail_in, deck_z])
             mirror([0, side < 0 ? 1 : 0, 0]) {
                 rail_half(add_shaft_far = false, motor_mount = (side < 0));
                 translate([125, 0, 0]) rail_half(add_shaft_far = true, motor_mount = (side < 0));
             }
 }
-
-// Step 3a — 608ZZ bearings pressed into the 4 rail pockets (|Y| 48..55)
+// 608ZZ bearings in the 4 rail pockets (|Y| 48..55)
 module asm_bearings()
     for (x = roller_x) for (side = [-1, 1])
         translate([x, side * (rail_in + 3), shaft_z])
@@ -72,97 +111,127 @@ module asm_bearings()
                 cylinder(d = 22, h = 7, $fn = 48);
                 translate([0, 0, -0.1]) cylinder(d = 8, h = 7.2, $fn = 32);
             }
-
-// Step 3b — Slide bed between the rails (inside the belt loops)
+// Slide bed between the rails (inside the belt loops)
 module asm_slide_bed()
-    translate([slide_bed_x0(), 0, base_top]) slide_bed();
-
-// Step 3c — Rollers (88mm, centred, 1mm to each rail face) on 8mm × 150 rods
-module asm_rollers() {
+    translate([slide_bed_x0(), 0, deck_z]) slide_bed();
+// Rollers (88 mm, 1 mm to each rail face) on the 8 mm rods
+module asm_rollers()
     for (x = roller_x)
         translate([x, -roller_width() / 2, shaft_z]) rotate([-90, 0, 0]) roller();
-}
-module asm_rods()   // full-length flat (4mm wide, 0.54 deep) faces -Z, like the roller D-bore
+module asm_rods()   // flat (4 mm wide, 0.54 deep) faces −Z, like the roller D-bore
     for (x = roller_x)
         translate([x, -rod_len / 2, shaft_z]) rotate([-90, 0, 0])
             difference() {
                 cylinder(d = 8, h = rod_len, $fn = 32);
                 translate([-5, sqrt(16 - 4), -1]) cube([10, 5, rod_len + 2]);
             }
-// Race spacer + 8mm collar outside each bearing (front ones live inside the
-// motor bracket's flange hole); locates the rod axially.
+// Race spacer + 8 mm collar outside each bearing
 module asm_collars()
     for (x = roller_x) for (side = [-1, 1])
-        translate([x, side * (rail_in + rail_boss_face_y()), base_top])
+        translate([x, side * (rail_in + rail_boss_face_y()), deck_z])
             mirror([0, side < 0 ? 1 : 0, 0]) motor_mount_collar();
-
-// Step 3d — Round belts: 4 × O-ring 135 × 3 per conveyor, stretched 7.4 %
+// Round belts: 4 × O-ring 135 × 3, stretched over the rollers
 module asm_belts()
     for (y = roller_belt_y())
         translate([roller_x[0], y, shaft_z]) belt_strand(roller_x[1] - roller_x[0]);
-
-// Step 3e — N20 motor brackets on the front rail, one per rod, with the
-// 3→8mm coupling and N20 shown as reference solids
+// N20 motor brackets on the front rail (+ coupling and N20 reference solids)
 module asm_motor_mounts()
     for (x = roller_x)
-        translate([x, -rail_in, base_top]) mirror([0, 1, 0])
+        translate([x, -rail_in, deck_z]) mirror([0, 1, 0])
             translate([0, rail_boss_face_y(), 0]) motor_mount();
 module asm_motors()
     for (x = roller_x)
-        translate([x, -rail_in, base_top]) mirror([0, 1, 0])
+        translate([x, -rail_in, deck_z]) mirror([0, 1, 0])
             translate([0, rail_boss_face_y(), 0]) {
                 motor_mount_coupling();
                 motor_mount_n20();
             }
+module asm_conveyor() {
+    asm_rails(); asm_bearings(); asm_slide_bed(); asm_rollers(); asm_rods();
+    asm_collars(); asm_belts(); asm_motor_mounts(); asm_motors();
+}
 
-// Step 4 — Hopper at the belt inlet, exit slot facing +X (down the belt)
-module asm_hopper()
-    translate([belt_x0, -36, base_top]) rotate([0, 0, 90]) hopper_body();
+// ── Step 5 — Scan station: card guides + clips, light hood, camera bracket ─
+module asm_scan() asm_scan_station();
 
-// Step 5 — Suction arm on its baseplate post (post is a 12mm stand-in, not a printed part)
-module asm_arm_post()
-    translate([-270, 0, base_top]) cylinder(d = 12, h = 121, $fn = 32);
-module asm_suction_arm()
-    translate([-280, -10, base_top + 121]) suction_arm();
+// ── Step 6 — Hopper elevator (motor-raised floor), plate_z = LOCAL plate top
+// The flag is shown riding on the top card (phi_trip): the stack always
+// reaches pick height in the assembly (hopper.scad hw_cards fills to pick_z).
+module asm_hopper_lift(plate_z = -1) asm_hopper_elevator(plate_z, hopper_phi_trip());
 
-// Step 6 — Scanner hood, straddling the rails over the scan zone
-module asm_scanner_hood()
-    translate([-2.5, -47.5, rail_top]) rotate([0, 0, 90]) scanner_hood();
+// ── Step 7 — Pick arm: tower + head + MG996R (ch0) + triple parallelogram
+module asm_arm(angle = 90, card = false) asm_pick_arm(angle, card);
 
-// Step 7 — Load cell (TAL221 50g beam stand-in) seated in the tray's beam pocket
-module asm_load_cell()
-    translate([-150 + 140, 80 + 60, base_top + 45 - 3]) cube([60, 12, 8]);
-
-// Step 8 — 2-floor sorting tray at the belt exit, label windows facing +X.
-// Centred on the belt axis: width comes from sorting_tray.scad (2 × 137 = 274mm).
+// ── Step 8 — 2-floor sorting tray, open back face at X 178 (shuttle_geom) ──
 module asm_sorting_tray()
-    translate([85 + sorting_tray_depth(), -sorting_tray_width() / 2, base_top])
+    translate([shuttle_tray_x0() + sorting_tray_depth(), -sorting_tray_width() / 2, base_top])
         rotate([0, 0, 90]) full_2floor_assembly();
 
-// Step 8b — Sort gate levers × 2 on the back rail near the belt exit.
-// Matches hardware/servos.py: PCA9685 ch1 = deflect gate (floor select),
-// ch2 = bin select (column). ch0 is the pickup arm, not a gate.
-function gate_lever_x() = [30, 65];   // [deflect gate (ch1), bin select (ch2)]
-module asm_gate_levers()
-    for (x = gate_lever_x())
-        translate([x, rail_in + 3, rail_top]) rotate([0, 0, -90]) gate_lever();
+// ── Step 9 — Cradle shuttle (ch1 tilt, ch2 shuttle), load cell, lower ramp,
+//             reject bin
+module asm_sorter(col = "home", tilt = "level", card = false) asm_sorter_end(col, tilt, card);
 
-// ── Full assembly ─────────────────────────────────────────────────────────
+// ── Step 10 — Wiring + vacuum (rough routing reference, not printed) ──────
+// Cable bundles are hulls of spheres along a polyline. Routes:
+//   vacuum tube Ø4: pump (front-left corner, X −265..−205) → along Y −205 →
+//     up behind the arm column (X A+8, Y −160) → into the tube anchor on the
+//     servo axis from behind (Y −152). The free spoke anchor → A' pin moves
+//     with the arm and is checked by cad/pick_arm_check.py.
+//   front harness Ø7: N20 ×2, ch1/ch2 servo, arm servo; clipped to the riser's
+//     front face at Z 45 (above the ch2 crank, Z 5..13.5), round the −X end in
+//     front of the arm column, down to Z 12 at X −277 (outside the hopper),
+//     along the −X edge to Y 215, behind the electronics tray to X 45 and in
+//     through its existing +X cable slot (Y 130..140, Z 40.5..46.5).
+//     The riser has no front→back pass, so this is the only route that stays
+//     clear of the crank sweep; a −X wall slot in the tray would save ≈ 0.4 m.
+//   arm servo Ø5: head-floor slot (Y ≈ −108) → under the head → down in front
+//     of the column (Y −117.5) onto the harness.
+//   hopper drop Ø5: 28BYJ-48 + 2 switches, down the tower back (Y 80).
+//   camera FFC (16 mm, two Ø1.2 strands): connector → out of the bracket's
+//     −Y plate slot → up the plate, over the gusset and arm top → down behind
+//     the hood and back rail → into the tray from above at X 5, Y 88 (≈ 0.5 m).
+//   load-cell cable: trailing service loop from the carriage (moves, not modelled).
+pump_c = [-235, -205, 18];   // 12 V mini diaphragm pump stand-in (Ø27 × 60 along X)
+module asm_pump() color("DimGray") {
+    translate(pump_c - [30, 0, 0]) rotate([0, 90, 0]) cylinder(d = 27, h = 60, $fn = 40);
+    translate(pump_c + [-22, -18, -14]) cube([44, 36, 2.5]);   // bracket plate
+}
+module cable(pts, d = 6) for (i = [0 : len(pts) - 2])
+    hull() for (p = [pts[i], pts[i + 1]]) translate(p) sphere(d = d, $fn = 12);
+function _ax() = pick_arm_pivot()[0];
+function _az() = pick_arm_pivot()[1];
+module asm_vac_tube()   // vacuum tube (4 mm OD, PU)
+    color("SkyBlue") cable([pump_c + [30, 0, 0], [_ax() + 8, -205, 18], [_ax() + 8, -160, 18],
+                            [_ax() + 8, -160, _az()], [_ax(), -160, _az()], [_ax(), -152.5, _az()]], 4);
+module asm_harness() {
+    color("Black") {
+        // main front harness (Ø7)
+        cable([[66, -117.5, 52], [60, -117.5, 45], [-277, -117.5, 45], [-277, -117.5, 12],
+               [-277, 215, 12], [45, 215, 12], [45, 135, 20]], 7);
+        // fans out into the tray's three +X cable slots (10 × 6, Z 40.5..46.5)
+        for (y = [105, 135, 165]) cable([[45, 135, 20], [45, y, 43.5], [32, y, 43.5]], 5);
+        // N20 drops onto the harness
+        for (x = roller_x) cable([[x, -116, 66], [x, -117.5, 45]], 5);
+        // arm servo cable: head floor slot → under the head → down in front of the column
+        cable([[_ax(), -108, 99], [_ax(), -117.5, 99], [_ax(), -117.5, 45]], 5);
+        // hopper motor + switches, down the tower back to the harness
+        cable([[-215, 80, 150], [-215, 82, 12], [-277, 82, 12]], 5);
+    }
+}
+module asm_ribbon()   // camera FFC, rough (two strands at the ribbon edges)
+    color("Wheat") for (s = [-1, 1]) let(x = frame_cam_x() + s * 6)
+        cable([[x, -9.5, 200.6], [x, -68.8, 200.6], [x, -68.8, 233.9], [x, -61, 233.9], [x, -41, 213.9],
+               [x, 16.7, 213.9], [x, 62, 104], [x, 62, 84], [x, 88, 84], [x, 88, 30]], 1.2);
+module asm_wiring() { asm_pump(); asm_vac_tube(); asm_harness(); asm_ribbon(); }
+
+// ── Full assembly (default "running" pose) ─────────────────────────────────
 asm_baseplate();
 asm_electronics_tray();
-asm_rails();
-asm_bearings();
-asm_slide_bed();
-asm_rollers();
-asm_rods();
-asm_collars();
-asm_belts();
-asm_motor_mounts();
-%asm_motors();
-asm_hopper();
-asm_arm_post();
-asm_suction_arm();
-asm_scanner_hood();
-asm_load_cell();
+asm_deck_riser();
+asm_conveyor();
+asm_scan();
+asm_hopper_lift(pose_plate);
+asm_arm(pose_arm, pose_arm_card);
 asm_sorting_tray();
-asm_gate_levers();
+asm_sorter(pose_col, pose_tilt, pose_cradle_card);
+asm_wiring();

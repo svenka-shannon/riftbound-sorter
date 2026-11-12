@@ -1,8 +1,10 @@
-# Riftbound Card Sorter — assembly video steps (docs/ASSEMBLY.md §4 order)
+# Riftbound Card Sorter — assembly video steps (Nov 11 redesign build order)
 # Render:
 #   ~/.claude/skills/cad/scripts/cad-assembly-video cad/assembly.scad \
 #       --steps cad/assembly-steps.yaml --out docs/assembly-video.mp4 --gif --keyframes /tmp/kf
 # Every part module lives in assembly.scad (asm_*), already at its assembled position.
+# Moving parts are shown at HOME: arm parked (servo 90), hopper plate at the bottom,
+# shuttle at home / level.
 title: "Riftbound Card Sorter - mechanical assembly"
 seconds_per_step: 3.5
 fly_fraction: 0.6
@@ -17,60 +19,64 @@ steps:
     explode: "+z 70"
     intro_explode: [0, 0, 0]
 
-  - caption: "Snap in electronics tray; Pi, PCA9685, HX711 on M2.5 standoffs"
+  - caption: "Electronics tray behind the riser; Pi, PCA9685, HX711 on M2.5 standoffs"
     part: asm_electronics_tray()
     color: "#5FCB8A"
     explode: "+z"
     intro_explode: [0, 110, 170]
 
-  - caption: "Clip both conveyor rails onto guide pins; motor mounts M3 x 10"
-    part: asm_rails()
+  - caption: "Bolt the 60 mm riser (2 prints) to the baseplate: 5 anchors, M3 x 80 through"
+    part: asm_deck_riser()
+    color: "#8A9BB0"
+    explode: "+z 90"
+    intro_explode: [0, -40, 200]
+
+  - caption: "Rails on the riser deck, 608 bearings in; N20 motor mounts on the front rail, M3 x 10"
+    parts: ["asm_rails()", "asm_bearings()", "asm_motor_mounts()", "asm_motors()"]
     color: "#F5A65B"
     explode: [0, -120, 60]
-    intro_explode: [0, -60, 170]
-
-  - caption: "Push 8 mm rods + O-ring rollers through the rail shaft holes"
-    part: asm_rollers()
-    color: "#B8B8B8"
-    explode: "-y 140"
-    intro_explode: [0, -200, 170]
-
-  - caption: "Slide hopper onto the belt inlet until the tabs click"
-    part: asm_hopper()
-    color: "#6FB3E8"
-    explode: "-x 120"
-    intro_explode: [-60, -40, 170]
-
-  - caption: "Mount suction arm on its post, 2x M3 x 16; servo to ch0"
-    parts: ["asm_arm_post()", "asm_suction_arm()"]
-    color: "#F0626B"
-    explode: "+z"
-    intro_explode: [-60, 230, 190]
-
-  - caption: "Clip scanner hood over the scan zone; camera on M2.5"
-    part: asm_scanner_hood()
-    color: "#8E9AA6"
-    explode: "+z"
     intro_explode: [0, -60, 230]
 
-  - caption: "Seat load cell in tray pocket; M3 hand-tight + 1/4 turn"
-    part: asm_load_cell()
-    color: "#D9D9D9"
+  - caption: "Slide bed + 4 O-ring belts, rollers on 8 mm rods, collars"
+    parts: ["asm_slide_bed()", "asm_belts()", "asm_rollers()", "asm_rods()", "asm_collars()"]
+    color: "#B8B8B8"
     explode: "+z 90"
-    intro_explode: [200, 0, 400]
-    camera: {fit: step, rot: [62, 0, 20], zoom: 0.55}
+    intro_explode: [0, 0, 260]
 
-  - caption: "Slide sorting tray floors in at the belt exit"
+  - caption: "Scan station: card guides + clips, light hood, camera bracket on the front rail feet"
+    part: asm_scan()
+    color: "#8E9AA6"
+    explode: "+z"
+    intro_explode: [0, -60, 300]
+
+  - caption: "Hopper elevator at the belt inlet; 28BYJ-48 lead-screw tower to the back"
+    part: asm_hopper_lift()
+    color: "#6FB3E8"
+    explode: "-x 120"
+    intro_explode: [-80, 0, 200]
+
+  - caption: "Pick arm tower on the front edge, 4x M3; MG996R to ch0"
+    part: asm_arm()
+    color: "#F0626B"
+    explode: "-y 120"
+    intro_explode: [-60, -230, 200]
+
+  - caption: "2-floor sorting tray at X 178..276, 8x M3 countersunk"
     part: asm_sorting_tray()
     color: "#A99BF0"
     explode: "+x"
-    intro_explode: [140, 0, 170]
+    intro_explode: [160, 0, 170]
 
-  - caption: "Fit 2 sort-gate levers onto their servo horns (ch1 deflect, ch2 bin select), M3"
-    part: asm_gate_levers()
+  - caption: "Cradle shuttle + load cell (ch1 tilt, ch2 shuttle), lower ramp, reject bin"
+    part: asm_sorter()
     color: "#FFD43B"
-    explode: "+z 80"
-    intro_explode: [170, -290, 130]
-    camera: {fit: step, rot: [32, 0, 15], zoom: 0.5}
+    explode: "+z 100"
+    intro_explode: [120, 0, 260]
 
-outro: {spin: true, seconds: 5, zoom: 1.4, caption: "Assembly complete - 8 sort slots, 2 floors"}
+  - caption: "Wiring: harness round the hopper into the tray, camera FFC, vacuum pump + tube"
+    part: asm_wiring()
+    color: "#3A3A3A"
+    explode: "+z 60"
+    intro_explode: [-60, 0, 320]
+
+outro: {spin: true, seconds: 5, zoom: 1.4, caption: "Assembly complete - 8 sort slots, 2 floors + reject bin"}
