@@ -1,156 +1,551 @@
 // =============================================
-// Riftbound Card Sorter — Input Hopper
+// Riftbound Card Sorter — Input Hopper (motor-raised floor, top pick)
 // =============================================
-// Fits: 63mm W × 88mm H Riftbound cards (standard TCG size)
-// Capacity: ~300 cards
-// Printer: Bambu P1S (256×256×256mm bed)
-// Material: PLA, 0.2mm layers, 40% infill
-// =============================================
-
-// Parameters
-card_w      = 63;      // card width mm
-card_h      = 88;      // card height mm
-card_thick  = 0.3;     // single card thickness mm (range 0.28–0.35mm)
-n_cards     = 300;     // design capacity
-clearance   = 1.5;     // per-side clearance for smooth feeding
-
-wall        = 3.0;     // wall thickness
-inner_w     = card_w + clearance * 2;   // 66mm
-inner_d     = card_h + clearance * 2;   // 91mm
-stack_h     = n_cards * card_thick;     // 90mm
-inner_h     = stack_h + 15;             // 105mm (15mm headroom above full stack)
-
-outer_w     = inner_w + wall * 2;       // 72mm
-outer_d     = inner_d + wall * 2;       // 97mm
-outer_h     = inner_h + wall;           // 108mm
-
-// Exit slot — single-card clearance
+// Replaces the bottom-feed hopper. A 28BYJ-48 stepper turns a T8 lead screw
+// that lifts a carriage + floor plate, so the TOP card of the stack always
+// sits at a fixed pick height `pick_z`. A suction cup comes straight down onto
+// the card centre and lifts it straight up (owner decision 2026-11-11: no
+// friction roller, the cards are valuable).
 //
-// Card thickness spec: 0.28–0.35mm (standard TCG).
-// 0.65mm slot allows one card (≤0.35mm) with 0.30mm of flex clearance.
-// Two perfectly flat stacked cards would need ≥0.56mm; the separation wedge
-// below blocks them from entering the outer 1mm of the slot (see module).
-// FDM minimum feature on Bambu P1S: ~0.5mm. 0.65mm is safely printable.
+// Material: PLA or PETG, 0.2 mm layers, 3-4 walls, 25-40 % infill.
 //
-// Previous value was 3.5mm — that 3.2mm of excess clearance allowed 2–3
-// cards to exit simultaneously before the load cell could detect a double-pick.
-exit_slot_h = 0.80;   // single-card slot: 0.80mm > card_thick_max (0.35mm), wedge brings effective to 0.40mm
-                      // FIX: was 0.65mm — wedge (sep_wedge_h) was only 0.15mm which is below 0.4mm nozzle min
-exit_slot_w = inner_w + 0.5;
-
-// Separation wedge parameters
+// LOCAL FRAME (everything in this file):
+//   origin = cavity centre in X/Y, Z = 0 = underside of the hopper base
+//   X = card LENGTH (88 mm), Y = card WIDTH (63 mm), Z up.
+//   Identical axes to machine coords: hopper_elevator.scad only translates
+//   by [hopper_cx, 0, frame_base_top()] (no rotation).
 //
-// The wedge is a triangular lip that fills the top-outer corner of the exit
-// slot, projecting sep_wedge_h mm downward from the slot ceiling at the outer
-// face (Y=0) and tapering to nothing at sep_wedge_depth mm inside the slot.
+// LAYOUT (top view)            -X end: feeler flag + top switch
+//      +Y  ┌──────────────┐     +Y side: drive tower (rods, screw, motor on top)
+//          │ tower        │     -Y side: finger slot (machine front)
+//          ├──┐slot┌──────┤     +X end: faces the belt (outer wall X = +48.5,
+//      flag│  cavity      │             i.e. machine X = -166.5 <= -166)
+//      ◄───│   91 x 66    │
+//          └──finger slot─┘
 //
-// How it works (cards are flat, stacked in Z):
-//   First card  (floor of hopper): Z = wall .. wall+0.35mm
-//               clears the wedge — exits freely.
-//   Second card (riding on first): Z = wall+0.30 .. wall+0.65mm
-//               its top edge at Z≈wall+0.65 hits the wedge at the outer face,
-//               blocking it from entering the slot while card 1 is still exiting.
+// PARTS (`part` selector at the bottom, exported in PRINT orientation):
+//   body     hopper shell + drive tower + flag cheeks   upright, no supports
+//   cap      tower cap / motor plate                    upside down, no supports
+//   carriage carriage (2× LM8UU, T8 nut, plate shelf)   upright, no supports
+//   plate    floor plate                                card face DOWN, no supports
+//   flag     top-of-stack feeler flag                   flat on its side, no supports
 //
-//   Effective slot at outer face = exit_slot_h − sep_wedge_h = 0.50mm
-//   One card (max 0.35mm) fits with 0.15mm margin.  ✓
-//   Two stacked cards (min 0.56mm) are blocked.       ✓
+// HEIGHT CHAIN (all derived below, numbers for the default pick_z = 86.9):
+//   plate top travel    zp_min 15.0 .. zp_max 86.6  -> 71.6 mm stack
+//                       = ~217 raw cards @ 0.33 mm (205 @ 0.35 mm)
+//   carriage            = plate - 11 .. +16 (shelf 7 + plate 4 below the top)
+//   T8 nut flange top   106.1 at the top of travel
+//   coupler 5->8 D19L25 107.6 .. 132.6
+//   cap (motor plate)   129.6 .. 134.6, 28BYJ-48 body on top -> 153.6
+//   guide rods 8 x 150  0.6 .. 150.6 (stick 16 mm out of the cap)
+//   cavity walls        to pick_z + 3.5 = 90.4
 //
-// Angle note: a "standard" 30° wedge at 1mm depth projects tan(30°)×1mm ≈ 0.58mm,
-// which would leave only 0.07mm clearance — all cards would jam.  The actual angle
-// here is arctan(0.15 / 1.0) ≈ 8.5°, which is the steepest angle that keeps a
-// worst-case 0.35mm card moving freely while still blocking a double-card entry.
-sep_wedge_h     = 0.40;   // lip projection downward into slot at outer face (mm)
-                          // FIX: was 0.15mm — below 0.4mm nozzle dia, slicer drops it entirely
-                          // 0.40mm = 1 extrusion width exactly (printable), effective slot = 0.40mm
-sep_wedge_depth = 1.0;    // wedge length into slot in Y direction (mm); ≥0.5mm for P1S
-
-spring_w    = 25;
-spring_d    = 8;
-
-// =============================================
-// Spring pusher / gravity sled — design notes
-//
-// This design uses a GRAVITY-FED sled (no spring).  The sled sits on top of
-// the card stack and presses it downward by its own weight (~30–50g PLA),
-// supplying roughly 0.3–0.5 N of feed force at all fill levels.
-//
-// Sled position with 300 cards (full hopper):
-//   stack top  = wall + stack_h     = 3 + 90 = 93mm from base
-//   sled top   = 93 + sled_h (20mm) = 113mm — 5mm above the hopper rim
-//   The sled rides above the rim when full; that is intentional.
-//   As cards are consumed the sled descends into the cavity.
-//
-// Sled position when empty:
-//   sled bottom = wall = 3mm (resting on cavity floor)
-//   sled top    = 3 + 20 = 23mm — fully inside cavity (outer_h = 108mm)  ✓
-//
-// The spring channel (inner_h = 105mm tall) gives full travel for the sled
-// from floor (empty) to Z = wall + stack_h = 93mm (full).  ✓
-//
-// To upgrade to a spring-assisted feed (recommended for reliability):
-//   Add a 4mm-diameter × 5mm-deep pocket to the top face of the sled.
-//   Drop in a 4mm OD × 20mm compressed-length coil spring anchored to the lid.
-//   Target spring force: 0.5–1.0 N (light; heavy springs buckle thin cards).
+// TOP-OF-STACK SENSING (why a flag, not the bare switch lever):
+//   A microswitch lever resting on the card would be dragged up with the card
+//   when the cup lifts it, and an SS-type switch only has ~0.8 mm overtravel.
+//   So a light printed flag (≈1.2 g) rests on the top card's -X end margin
+//   (5 mm in from the cavity wall) with a rounded, edge-chamfered Ø5 tip. Its
+//   pivot is outside the wall and BELOW the tip, so when the card is lifted the
+//   tip rises AND swings outward and slides off the card end after ≤5.7 mm of
+//   lift; then it falls back onto the next card. The arm is cranked (elbow
+//   above the wall) so the tip is always the lowest point over the cavity.
+//   A conjugate cam on the flag hub drives the switch roller: rising stack ->
+//   ramp -> switch closes exactly at pick_z -> peak 0.4 mm into overtravel ->
+//   slow descent (switch spring returns the flag; never over-travels).
+//   Force on the card: flag weight ≈ 0.006 N; while the roller is on the ramp
+//   (the elevator has just stopped) ≈ 0.1 N with an SS-5GL2-F (16 gf) switch,
+//   ≈ 0.05 N with an SS-01GL2-E (8 gf); while the card is being lifted ≈ 0.015 N.
+//   The floor plate has a notch under the flag, so an EMPTY plate passes the
+//   flag without closing the switch; the soft top limit then reports empty.
 // =============================================
 
-module separation_wedge() {
-    // Triangular prism spanning the full slot width (X axis).
-    // Cross-section in the YZ plane: full sep_wedge_h tall at Y=0 (outer face),
-    // tapering to a line at Y=sep_wedge_depth (inside the slot).
-    // hull() of two thin slabs gives the tapered wedge reliably on all OpenSCAD versions.
-    x0 = (outer_w - exit_slot_w) / 2;
-    hull() {
-        // Front slab at outer face — full lip height
-        translate([x0, 0, wall + exit_slot_h - sep_wedge_h])
-            cube([exit_slot_w, 0.001, sep_wedge_h]);
-        // Inner line at sep_wedge_depth — zero height (tapers to nothing)
-        translate([x0, sep_wedge_depth, wall + exit_slot_h - 0.001])
-            cube([exit_slot_w, 0.001, 0.001]);
+use <machine_frame.scad>
+
+/* [Export] */
+part = "body";   // body | cap | carriage | plate | flag | assembly | pos_* (see bottom)
+zp   = -1;       // plate-top Z for "assembly"/"pos_*" (-1 = bottom of travel)
+flag_phi_in = -1;// flag angle for "assembly"/"pos_flag" (-1 = resting on the stop)
+card_dx  = 0;     // shift the checked card stack in X (±1.5 = against a wall)
+
+$fn = 64;
+
+// ── Card & cavity ──────────────────────────────────────────────────────────
+card_l   = 88;  card_w = 63;  card_t = 0.33;  card_t_max = 0.35;
+clr      = 1.5;                 // per side
+cav_x    = card_l + 2 * clr;    // 91
+cav_y    = card_w + 2 * clr;    // 66
+hx = cav_x / 2;  hy = cav_y / 2;
+wall     = 3;
+ox = hx + wall;  oy = hy + wall;   // 48.5, 36
+base_t   = 3;
+
+// Pick height (top of the card stack, above the hopper base). Single source:
+// machine_frame.scad card_z (belt top = suction-arm arc low point).
+pick_z   = frame_card_z() - frame_base_top();   // 86.9
+lip      = 3.5;                 // walls rise this far above pick_z (guides the top cards)
+wall_top = pick_z + lip;        // 90.4
+corner_r = 2.5;                 // vertical corner relief
+top_ch   = 1.5;                 // 45° chamfer on the cavity rim
+edge_ch  = 0.6;                 // chamfer on slot edges that cards slide past
+
+// Slots (all open to the top, so no card edge can catch while rising)
+slot_w      = 34;               // carriage shelf passage in the +Y wall
+finger_w    = 24;  finger_z0 = 14;   // loading/finger slot in the -Y wall
+air_w       = 2.5; air_h     = 12;   // air-separation slots, top 12 mm of walls
+air_x       = [-33, 33];
+
+// ── Floor plate & carriage ────────────────────────────────────────────────
+plate_t   = 4;   plate_gap = 1.0;    // 1 mm per side to the cavity walls
+plate_rib = 5;                       // stiffening ribs under the plate
+shelf_t   = 7;   shelf_w = 30;  shelf_y0 = 20;
+plate_screw = [[-9, 26.5], [9, 26.5]];   // M3 countersunk into shelf inserts
+car_gap_floor = 1;
+zp_min    = base_t + car_gap_floor + shelf_t + plate_t;  // 15
+zp_max    = pick_z - 0.3;            // soft top: one card below pick height
+function car_z0(z) = z - plate_t - shelf_t;
+
+rod_d  = 8;  rod_len = 150;  rod_dx = 28;  rod_y = 48.5;  rod_sock = 2.4;
+lm_d   = 15; lm_l = 24; lm_lip = 1.5;    // LM8UU 8 x 15 x 24
+car_y0 = 38; car_y1 = 59; car_h = 27; car_hx = rod_dx + lm_d / 2 + 3;  // 38.5
+
+// ── Lead screw, nut, coupler, motor ───────────────────────────────────────
+nut_style  = "t8";          // "t8" = T8 brass flange nut (default) | "m8" = M8 hex nut on M8 rod
+t8_fl_d = 22; t8_fl_t = 3.5; t8_body_d = 10.2; t8_len = 15; t8_pcd = 16;
+m8_af   = 13; m8_h   = 6.5;
+screw_d = 8; screw_len = 100;
+screw_z0   = car_z0(zp_min) + car_h - (t8_len - t8_fl_t) - 3.5;      // 16
+coupler_d  = 19; coupler_l = 25;
+coupler_z0 = car_z0(zp_max) + car_h + t8_fl_t + 1.5;                 // 107.6
+motor_face_z = coupler_z0 + coupler_l + 2;                           // 134.6
+motor_off  = 8;             // 28BYJ-48: body centre is 8 mm from the shaft (+Y here)
+motor_ear  = 35;            // ear hole spacing (Ø4.2 holes)
+cap_t   = 5;
+cap_z0  = motor_face_z - cap_t;                                      // 129.6
+tower_y1 = 70; tower_wall = 8; back_t = 3;
+tower_ins = [[-44.5, 41], [44.5, 41], [-44.5, 64.5], [44.5, 64.5]];  // M3 inserts, cap screws
+
+// ── Switches (Omron SS footprint: 19.8 x 6.4 x 10.2, Ø2.35 holes 9.5 apart) ─
+sw_l = 19.8; sw_t = 6.4; sw_h = 10.2;
+sw_hole_x = [5.1, 14.6]; sw_hole_z = 2.9;
+sw_roll_x = 19.6;            // roller centre from the hole-end of the body
+sw_op     = 14.5;            // roller top at Operating Position, above the hole line
+sw_roll_d = 4.8; sw_roll_w = 3.2;
+// bottom (home) switch: on the tower floor against the back wall
+bsw_x0 = -3.6;  bsw_y0 = tower_y1 - back_t - sw_t;   // body X -3.6..16.2, Y 60.6..67
+bsw_op_z = base_t + sw_hole_z + sw_op;                // 20.4: roller top at OP
+lug_dz = bsw_op_z - (base_t + car_gap_floor) - 0.3;  // carriage lug 0.3 mm past OP at zp_min
+lug_x  = [10, 22];
+
+// ── Feeler flag + cam (top switch) ────────────────────────────────────────
+flag_d   = 10.5;   // pivot outboard of the -X cavity face
+flag_hp  = 6;      // pivot below pick_z
+flag_e   = 5;      // tip contact inboard of the -X cavity face
+flag_rt  = 2.5;    // tip radius
+flag_t   = 5.4;    // hub / tip thickness (Y); arm is 4
+flag_w   = 4;      // arm width in its plane
+rest_drop = 5;     // with no card at pick height the tip rests at pick_z - 5
+piv   = [-hx - flag_d, pick_z - flag_hp];           // [X, Z] = [-56, 80.9]
+tip_t = [-hx + flag_e, pick_z + flag_rt];           // tip centre at trip
+flag_L   = norm(tip_t - piv);                        // ≈17.5
+phi_trip = atan2(tip_t[1] - piv[1], tip_t[0] - piv[0]);              // ≈29°
+phi_rest = asin((pick_z - rest_drop + flag_rt - piv[1]) / flag_L);   // ≈15°
+cam_ds   = 6.5;    // pivot -> switch roller top at OP
+cam_R1   = cam_ds + 0.4;   // peak radius: 0.4 mm into overtravel (OT min 0.8)
+cam_R0   = cam_ds - 1.8;   // base radius: clears the roller even at FP (PT max 1.2)
+cam_ramp = 12;             // deg of flag rotation for the ramp
+cam_lead = 2.2;            // deg: the Ø4.8 roller lags the ideal ramp (measured, sweep of the conjugate cam)
+phi_a    = phi_trip - cam_ramp * (cam_ds - cam_R0) / (cam_R1 - cam_R0) - cam_lead;
+phi_b    = phi_a + cam_ramp;
+cheek_t  = 4;  cheek_in = flag_t / 2 + 0.5;          // cheek inner faces at ±3.2
+// The arm is CRANKED: pivot -> elbow (above the wall) -> tip. A straight arm
+// from a pivot below pick_z would slope up toward the tip, so its underside
+// would hit the card edge before the tip; with the elbow the rounded tip is
+// always the lowest point of the flag over the cavity.
+elbow_t  = [-hx - 2, pick_z + 5.5];                  // elbow centre at trip [X, Z]
+pe_off   = atan2(elbow_t[1] - piv[1], elbow_t[0] - piv[0]) - phi_trip;  // P->E vs P->T, ≈22°
+pe_len   = norm(elbow_t - piv);
+elbow_f  = pe_len * [cos(pe_off), sin(pe_off)];      // elbow in the flag frame (P->T = +u)
+phi_stop = 80;                                       // flag upper stop
+stop_r   = 9;
+stop_ang = phi_stop + pe_off + asin((flag_w / 2 + 2) / stop_r);   // stop pin Ø4 on the P->E segment
+notch_hw = 3.7;                                        // -X wall notch half-width
+// lowest P->E underside over the wall (outer face X = -ox) at rest = notch floor
+notch_z  = let(a = phi_rest + pe_off)
+           piv[1] + (-ox - piv[0]) * tan(a) - (flag_w / 2) / cos(a);
+// top switch: roller centre straight below the pivot, body runs toward -X
+tsw_roll_top = piv[1] - cam_ds;
+tsw_z0   = tsw_roll_top - sw_hole_z - sw_op;
+tsw_x0   = piv[0] - sw_roll_x;
+// plate notch under the flag tip/arm (empty plate passes the flag)
+pnotch_x1 = piv[0] + flag_L * cos(phi_rest) + flag_rt + 1.5;
+pnotch_hw = 4;
+
+// Baseplate M3 grid holes that land inside the footprint (machine grid 30 mm,
+// see baseplate_tile.scad; hopper centre X=-215 -> local X -25 / +35)
+base_holes = [[-25, -15], [-25, 15], [35, -15], [35, 15]];
+
+// ── Sanity checks ─────────────────────────────────────────────────────────
+assert(ox <= 48.5 + 1e-6, "outer +X wall must stay at machine X <= -166");
+assert(screw_z0 + screw_len - coupler_z0 >= 7, "lead screw too short for the coupler");
+assert(phi_a > phi_rest + 2, "cam ramp starts before the flag rest angle");
+assert(car_hx + 2 <= ox - tower_wall, "carriage too wide for the tower");
+
+// =========================================================================
+// Helpers
+// =========================================================================
+module vch(x, y, z0, h, c = edge_ch)      // vertical 45° edge-chamfer cutter
+    translate([x, y, z0]) rotate([0, 0, 45]) cube([c * sqrt(2), c * sqrt(2), h], center = false);
+
+module vch_c(x, y, z0, h, c = edge_ch)
+    translate([x, y, z0 + h / 2]) rotate([0, 0, 45]) cube([c * sqrt(2), c * sqrt(2), h], center = true);
+
+// Slot through a wall: profile in the wall plane (s along the wall, z up),
+// flat bottom with 45° bottom corners, open to the top.
+module slot_profile(w, z0, ztop, c0 = 1.5)
+    let(c = min(c0, w / 2 - 0.3))
+    polygon([[-w / 2, z0 + c], [-w / 2 + c, z0], [w / 2 - c, z0], [w / 2, z0 + c],
+             [w / 2, ztop], [-w / 2, ztop]]);
+
+module slot_y(xc, y_in, y_out, w, z0, ztop)   // through a wall normal to Y
+    translate([xc, (y_in + y_out) / 2, 0]) rotate([90, 0, 0])
+        linear_extrude(height = abs(y_out - y_in) + 0.2, center = true) slot_profile(w, z0, ztop);
+
+module slot_x(yc, x_in, x_out, w, z0, ztop)   // through a wall normal to X
+    translate([(x_in + x_out) / 2, yc, 0]) rotate([90, 0, 90])
+        linear_extrude(height = abs(x_out - x_in) + 0.2, center = true) slot_profile(w, z0, ztop);
+
+module insert_hole(h = 6)  cylinder(d = 4.0, h = h, $fn = 24);     // M3 heat-set (Ø4.0-4.2 pilot)
+
+// =========================================================================
+// BODY: hopper shell + drive tower + flag cheeks (one print, upright)
+// =========================================================================
+module tower_shell()
+    difference() {
+        translate([-ox, oy - 0.01, 0]) cube([2 * ox, tower_y1 - oy + 0.01, cap_z0]);
+        translate([-ox + tower_wall, oy - 1, base_t])
+            cube([2 * (ox - tower_wall), tower_y1 - back_t - oy + 1, cap_z0]);
+        // back access window, pointed top (prints without a bridge)
+        translate([0, tower_y1 - back_t / 2, 0]) rotate([90, 0, 0])
+            linear_extrude(height = back_t + 1, center = true)
+                polygon([[-26, 30], [26, 30], [26, 100], [0, 126], [-26, 100]]);
     }
-}
 
-module spring_pusher() {
-    // Gravity-fed sled that rests on top of the card stack.
-    // Rides downward as cards exit; no spring required.
-    // 0.4mm subtracted per side for smooth sliding fit in spring channel.
-    cube([spring_w - 0.4, spring_d - 0.4, 20]);
+// Cheek profiles in the XZ plane (attached to the -X wall outer face)
+module cheek_pos_2d()     // +Y cheek: pivot, flag stop, top switch
+    let(xf = tsw_x0 - 2.5, zb = tsw_z0 - 3, zl = zb - (-ox - xf))
+    polygon([[-ox + 0.01, zl], [xf, zb], [xf, piv[1] + 4], [piv[0] - 8.5, piv[1] + 13],
+             [-ox + 0.01, piv[1] + 13]]);
+module cheek_neg_2d()     // -Y cheek: pivot and flag stop only
+    let(xf = piv[0] - 8.5, zb = piv[1] - 7, zl = zb - (-ox - xf))
+    polygon([[-ox + 0.01, zl], [xf, zb], [xf, piv[1] + 13], [-ox + 0.01, piv[1] + 13]]);
+
+module flag_cheeks() {
+    translate([0, cheek_in + cheek_t, 0]) rotate([90, 0, 0])
+        linear_extrude(height = cheek_t) cheek_pos_2d();
+    translate([0, -cheek_in, 0]) rotate([90, 0, 0])
+        linear_extrude(height = cheek_t) cheek_neg_2d();
+    // upper stop pin bridging the cheeks (flag stops at ≈80°)
+    translate([piv[0] + stop_r * cos(stop_ang), 0, piv[1] + stop_r * sin(stop_ang)])
+        rotate([90, 0, 0]) cylinder(d = 4, h = 2 * cheek_in + 2, center = true, $fn = 24);
 }
 
 module hopper_body() {
-    union() {
-        difference() {
-            // Outer shell
-            cube([outer_w, outer_d, outer_h]);
-
-            // Inner cavity (open top)
-            translate([wall, wall, wall])
-                cube([inner_w, inner_d, outer_h]);
-
-            // Card exit slot (bottom front face, single-card height)
-            translate([(outer_w - exit_slot_w) / 2, 0, wall])
-                cube([exit_slot_w, wall + 0.1, exit_slot_h]);
-
-            // Gravity-sled / spring pusher channel (back wall interior).
-            // Sled travels the full inner_h range in Z as the stack is consumed.
-            translate([(outer_w - spring_w) / 2, outer_d - wall - spring_d, wall])
-                cube([spring_w, spring_d + 0.1, inner_h]);
+    difference() {
+        union() {
+            translate([-ox, -oy, 0]) cube([2 * ox, 2 * oy, wall_top]);
+            tower_shell();
+            flag_cheeks();
         }
-
-        // Separation wedge: adds a triangular lip to the top of the exit slot
-        // to block double-picks at the mechanical level (before load cell).
-        separation_wedge();
+        // cavity, corner reliefs, rim chamfer
+        translate([-hx, -hy, base_t]) cube([cav_x, cav_y, wall_top]);
+        for (sx = [-1, 1], sy = [-1, 1])
+            translate([sx * hx, sy * hy, base_t]) cylinder(r = corner_r, h = wall_top, $fn = 32);
+        hull() {
+            translate([-hx, -hy, wall_top - top_ch]) cube([cav_x, cav_y, 0.01]);
+            translate([-hx - top_ch, -hy - top_ch, wall_top]) cube([cav_x + 2 * top_ch, cav_y + 2 * top_ch, 0.01]);
+        }
+        // carriage shelf passage through the +Y wall (open to the top)
+        translate([-slot_w / 2, hy - 0.1, base_t]) cube([slot_w, wall + 0.2, cap_z0]);
+        for (sx = [-1, 1]) vch_c(sx * slot_w / 2, hy, base_t, wall_top);
+        // finger slot in the -Y wall
+        slot_y(0, -hy, -oy, finger_w, finger_z0, wall_top + 1);
+        for (sx = [-1, 1]) vch_c(sx * finger_w / 2, -hy, finger_z0 + 1.6, wall_top);
+        // air-separation slots (both long walls + the +X end wall)
+        for (x = air_x, s = [-1, 1]) {
+            slot_y(x, s * hy, s * oy, air_w, wall_top - air_h, wall_top + 1);
+            for (sx = [-1, 1]) vch_c(x + sx * air_w / 2, s * hy, wall_top - air_h + 1.2, air_h, 0.4);
+        }
+        slot_x(0, hx, ox, air_w, wall_top - air_h, wall_top + 1);
+        // flag notch in the -X end wall
+        slot_x(0, -hx, -ox, 2 * notch_hw, notch_z, wall_top + 1);
+        for (sy = [-1, 1]) vch_c(-hx, sy * notch_hw, notch_z + 1.6, wall_top);
+        // guide-rod sockets
+        for (sx = [-1, 1]) translate([sx * rod_dx, rod_y, base_t - rod_sock])
+            cylinder(d = rod_d + 0.15, h = rod_sock + 0.1);
+        // cap screw inserts in the tower walls
+        for (p = tower_ins) translate([p[0], p[1], cap_z0 - 6]) insert_hole(6.1);
+        // baseplate screws (M3 countersunk, flush with the cavity floor)
+        for (p = base_holes) translate([p[0], p[1], -0.1]) {
+            cylinder(d = 3.4, h = base_t + 0.2, $fn = 20);
+            translate([0, 0, base_t - 1.6 + 0.1]) cylinder(d1 = 3.4, d2 = 6.6, h = 1.6, $fn = 24);
+        }
+        // bottom switch: M2 through the back wall
+        for (hx_ = sw_hole_x) translate([bsw_x0 + hx_, tower_y1 - back_t - 0.1, base_t + sw_hole_z])
+            rotate([-90, 0, 0]) cylinder(d = 2.2, h = back_t + 0.2, $fn = 16);
+        // flag pivot (M3 axle through both cheeks)
+        translate([piv[0], 0, piv[1]]) rotate([90, 0, 0])
+            cylinder(d = 3.4, h = 2 * (cheek_in + cheek_t) + 1, center = true, $fn = 24);
+        // top switch: M2 slots (±1.2 mm along the actuation axis, to set the trip height)
+        for (hx_ = sw_hole_x) translate([tsw_x0 + hx_, cheek_in + cheek_t / 2, tsw_z0 + sw_hole_z])
+            hull() for (dz = [-1.2, 1.2]) translate([0, 0, dz]) rotate([90, 0, 0])
+                cylinder(d = 2.4, h = cheek_t + 1, center = true, $fn = 16);
     }
 }
 
-// Render hopper body by default
-hopper_body();
+// =========================================================================
+// CAP: tower cap / motor plate (screws onto the 4 tower inserts)
+// =========================================================================
+module hopper_cap() {
+    difference() {
+        union() {
+            translate([-ox, oy, cap_z0]) cube([2 * ox, tower_y1 - oy, cap_t]);
+            // bosses under the motor-ear inserts
+            for (sx = [-1, 1]) translate([sx * motor_ear / 2, rod_y + motor_off, cap_z0 - 2.5])
+                cylinder(r = 4, h = 2.6, $fn = 32);
+        }
+        for (sx = [-1, 1]) translate([sx * rod_dx, rod_y, cap_z0 - 1]) cylinder(d = rod_d + 0.15, h = cap_t + 2);
+        translate([0, rod_y, cap_z0 - 1]) cylinder(d = coupler_d + 4, h = cap_t + 2);
+        for (sx = [-1, 1]) translate([sx * motor_ear / 2, rod_y + motor_off, cap_z0 - 2.6]) insert_hole(cap_t + 3);
+        for (p = tower_ins) translate([p[0], p[1], cap_z0 - 1]) cylinder(d = 3.4, h = cap_t + 2, $fn = 20);
+    }
+}
 
-// Uncomment to render gravity sled:
-// spring_pusher();
+// =========================================================================
+// CARRIAGE (z = plate-top position `z`)
+// =========================================================================
+module hopper_carriage(z = zp_min) {
+    c0 = car_z0(z);
+    difference() {
+        union() {
+            translate([-car_hx, car_y0, c0]) cube([2 * car_hx, car_y1 - car_y0, car_h]);
+            // shelf that reaches through the +Y wall slot under the floor plate
+            translate([-shelf_w / 2, shelf_y0, c0]) cube([shelf_w, car_y0 - shelf_y0 + 0.01, shelf_t]);
+            // lug that presses the bottom (home) switch: 45° underside, then a
+            // 4.4 mm flat that the switch roller (Y 62.2..65.4) meets
+            translate([lug_x[0], 0, c0]) rotate([90, 0, 90])
+                linear_extrude(height = lug_x[1] - lug_x[0])
+                    polygon([[car_y1 - 0.01, lug_dz - 3], [car_y1 + 3, lug_dz], [bsw_y0 + sw_t - 0.6, lug_dz],
+                             [bsw_y0 + sw_t - 0.6, lug_dz + 5], [car_y1 - 0.01, lug_dz + 5]]);
+        }
+        // LM8UU bores (press fit from the top onto a 1.5 mm lip)
+        for (sx = [-1, 1]) translate([sx * rod_dx, rod_y, c0]) {
+            translate([0, 0, lm_lip]) cylinder(d = lm_d, h = car_h);
+            translate([0, 0, -1]) cylinder(d = rod_d + 2, h = car_h + 2);
+        }
+        if (nut_style == "t8") {
+            translate([0, rod_y, c0 - 1]) cylinder(d = t8_body_d + 0.6, h = car_h + 2);
+            for (sx = [-1, 1]) translate([sx * t8_pcd / 2, rod_y, c0 + car_h - 6]) insert_hole(6.1);
+        } else {
+            // M8 hex nut, captive in a side pocket entered from +Y (carriage rests on it)
+            translate([0, rod_y, c0 - 1]) cylinder(d = screw_d + 0.8, h = car_h + 2);
+            translate([0, rod_y, c0 + car_h - 12]) {
+                cylinder(d = (m8_af + 0.3) / cos(30), h = m8_h + 0.3, $fn = 6);
+                translate([-(m8_af + 0.3) / 2, 0, 0]) cube([m8_af + 0.3, car_y1 - rod_y + 1, m8_h + 0.3]);
+            }
+        }
+        // plate screw inserts in the shelf
+        for (p = plate_screw) translate([p[0], p[1], c0 - 0.1]) insert_hole(shelf_t + 0.2);
+    }
+}
+
+// =========================================================================
+// FLOOR PLATE (z = plate-top position)
+// =========================================================================
+module hopper_plate(z = zp_min) {
+    px = hx - plate_gap;  py = hy - plate_gap;
+    difference() {
+        union() {
+            // top edge chamfered 0.8, corners rounded r 2.5
+            hull() for (sx = [-1, 1], sy = [-1, 1])
+                translate([sx * (px - 2.5), sy * (py - 2.5), z - plate_t]) {
+                    cylinder(r = 2.5, h = plate_t - 0.8, $fn = 24);
+                    cylinder(r = 1.7, h = plate_t, $fn = 24);
+                }
+            // ribs underneath (clear of the shelf, the flag notch and the base screws)
+            for (sx = [-1, 1]) translate([sx * 25 - 1.5, -py + 3, z - plate_t - plate_rib]) cube([3, 2 * py - 6, plate_rib + 0.01]);
+            translate([-px + 3, -22 - 1.5, z - plate_t - plate_rib]) cube([2 * px - 6, 3, plate_rib + 0.01]);
+        }
+        // notch so the empty plate passes under the resting flag
+        translate([-hx - 1, -pnotch_hw, z - plate_t - plate_rib - 1]) cube([pnotch_x1 + hx + 1, 2 * pnotch_hw, plate_t + plate_rib + 2]);
+        // M3 countersunk screws into the shelf
+        for (p = plate_screw) translate([p[0], p[1], z - plate_t - 0.1]) {
+            cylinder(d = 3.4, h = plate_t + 0.2, $fn = 20);
+            translate([0, 0, plate_t - 1.6 + 0.1]) cylinder(d1 = 3.4, d2 = 6.6, h = 1.6 + 0.01, $fn = 24);
+        }
+    }
+}
+
+// =========================================================================
+// FEELER FLAG (flag-local: pivot at origin, arm along +X, thickness along Y)
+// =========================================================================
+// Cam radius under the roller vs flag angle: base (no contact) -> ramp (switch
+// closes at phi_trip) -> peak R1 (0.4 mm overtravel) -> slow descent to below FP
+// at the stop. The descent makes the switch spring push the flag back DOWN
+// (≈0.15-0.2 N·mm), which beats pivot friction (a constant-radius dwell would
+// give zero return torque and the 1.2 g flag could hang up). Extra force on
+// the card while it is being lifted: ≈0.015 N.
+cam_Rend = cam_ds - 0.8;
+cam_hold = 12;     // deg of plateau at R1 after the ramp (a round roller shaves a sharp peak)
+function cam_r(phi) = phi <= phi_a ? cam_R0
+                    : phi <= phi_b ? cam_R0 + (cam_R1 - cam_R0) * (phi - phi_a) / (phi_b - phi_a)
+                    : phi <= phi_b + cam_hold ? cam_R1
+                    : cam_R1 - (cam_R1 - cam_Rend) * min(1, (phi - phi_b - cam_hold) / (phi_stop - phi_b - cam_hold));
+// Conjugate cam: the roller (Ø4.8, straight below the pivot) must have its top
+// at distance cam_r(phi) from the pivot at flag angle phi. In the flag frame the
+// roller sits at rotate(-phi) of that position; the cam is a Ø(2·R1) disc minus
+// the roller swept over the whole flag travel (round-roller flank contact included).
+module cam_2d()
+    union() {
+        circle(r = cam_R0);
+        difference() {
+            circle(r = cam_R1);
+            for (p = [phi_rest - 3 : 0.5 : phi_stop + 3])
+                rotate(-p) translate([0, -(cam_r(p) + sw_roll_d / 2)]) circle(d = sw_roll_d, $fn = 32);
+        }
+    }
+
+module flag_local() {
+    difference() {
+        union() {
+            rotate([90, 0, 0]) linear_extrude(height = flag_t, center = true)
+                cam_2d();
+            rotate([90, 0, 0]) linear_extrude(height = 4, center = true) {
+                hull() { circle(r = flag_w / 2); translate(elbow_f) circle(r = flag_w / 2); }
+                hull() { translate(elbow_f) circle(r = flag_w / 2); translate([flag_L, 0]) circle(r = flag_w / 2); }
+            }
+            // rounded, edge-chamfered Ø5 tip
+            translate([flag_L, 0, 0]) rotate([90, 0, 0]) hull() {
+                cylinder(r = flag_rt, h = flag_t - 1.2, center = true);
+                cylinder(r = flag_rt - 0.6, h = flag_t, center = true);
+            }
+        }
+        rotate([90, 0, 0]) cylinder(d = 3.4, h = flag_t + 2, center = true, $fn = 24);
+    }
+}
+module hopper_flag(phi = phi_rest)
+    translate([piv[0], 0, piv[1]]) rotate([0, -phi, 0]) flag_local();
+
+// =========================================================================
+// Reference hardware (not printed) — for the assembly view and collision checks
+// =========================================================================
+module hw_rods()     for (sx = [-1, 1]) translate([sx * rod_dx, rod_y, base_t - rod_sock + 0.01]) cylinder(d = rod_d, h = rod_len);
+module hw_bushings(z = zp_min)
+    for (sx = [-1, 1]) translate([sx * rod_dx, rod_y, car_z0(z) + lm_lip + 0.01])
+        difference() { cylinder(d = lm_d - 0.05, h = lm_l); translate([0, 0, -1]) cylinder(d = rod_d + 0.05, h = lm_l + 2); }
+module hw_screw()    translate([0, rod_y, screw_z0]) cylinder(d = screw_d, h = screw_len);
+module hw_nut(z = zp_min) {
+    top = car_z0(z) + car_h;
+    translate([0, rod_y, 0]) difference() {
+        union() {
+            translate([0, 0, top + 0.01]) cylinder(d = t8_fl_d, h = t8_fl_t);
+            translate([0, 0, top + t8_fl_t - t8_len]) cylinder(d = t8_body_d, h = t8_len - t8_fl_t + 0.02);
+        }
+        translate([0, 0, top - t8_len]) cylinder(d = screw_d + 0.05, h = 2 * t8_len);
+    }
+}
+module hw_coupler()  translate([0, rod_y, coupler_z0]) difference() {
+    cylinder(d = coupler_d, h = coupler_l);
+    translate([0, 0, -1]) cylinder(d = screw_d + 0.05, h = coupler_l / 2 + 1);
+    translate([0, 0, coupler_l / 2]) cylinder(d = 5.05, h = coupler_l);
+}
+module hw_motor() {   // 28BYJ-48 (Fulling drawing), mounted shaft-DOWN on the cap
+    mz = motor_face_z + 0.01;
+    translate([0, rod_y + motor_off, mz]) {
+        cylinder(d = 28, h = 19);
+        hull() for (sx = [-1, 1]) translate([sx * motor_ear / 2, 0, 0]) cylinder(r = 3.5, h = 0.8);
+        translate([-7.25, 0, 2.7]) cube([14.5, 17.5, 19 - 2.7]);   // wire cover (side opposite the shaft)
+    }
+    translate([0, rod_y, mz - 1.5]) cylinder(d = 9, h = 1.5);       // boss
+    translate([0, rod_y, mz - 10]) intersection() {                // Ø5 shaft, 3 mm across flats
+        cylinder(d = 5, h = 8.5);
+        translate([-2.5, -1.5, 0]) cube([5, 3, 8.5]);
+    }
+}
+module sw_body() cube([sw_l, sw_t, sw_h]);
+module sw_roller() rotate([90, 0, 0]) cylinder(d = sw_roll_d, h = sw_roll_w, center = true, $fn = 24);
+// switch drawn at its Operating Position (roller top at sw_op above the hole line)
+module hw_sw_bottom_body()   translate([bsw_x0, bsw_y0, base_t]) sw_body();
+module hw_sw_bottom_roller() translate([bsw_x0 + sw_roll_x, bsw_y0 + sw_t / 2, base_t + sw_hole_z + sw_op - sw_roll_d / 2]) sw_roller();
+module hw_sw_top_body()      translate([tsw_x0, -sw_t / 2, tsw_z0]) sw_body();
+module hw_sw_top_roller()    translate([piv[0], 0, tsw_roll_top - sw_roll_d / 2]) sw_roller();
+module hw_cards(z = zp_min, n = 0)    // n cards on the plate (default: fill to pick_z)
+    let(nn = n > 0 ? n : floor((pick_z - z) / card_t))
+    translate([-card_l / 2, -card_w / 2, z]) cube([card_l, card_w, nn * card_t]);
+
+// Assembled hopper in LOCAL coords. plate_z = plate top; flag_phi -1 = resting
+// on the top card if the stack reaches pick_z, otherwise on its stop.
+module hopper_elevator_local(plate_z = zp_min, flag_phi = -1, cards = true) {
+    hopper_body();
+    hopper_cap();
+    hopper_carriage(plate_z);
+    hopper_plate(plate_z);
+    hopper_flag(flag_phi >= 0 ? flag_phi : phi_rest);
+    color("silver") { hw_rods(); hw_screw(); hw_coupler(); hw_nut(plate_z); hw_bushings(plate_z); }
+    color("gold") hw_motor();
+    color("dimgray") { hw_sw_bottom_body(); hw_sw_top_body(); }
+    color("white") { hw_sw_bottom_roller(); hw_sw_top_roller(); }
+    if (cards) %hw_cards(plate_z);
+}
+
+// Exported for hopper_elevator.scad / assembly
+function hopper_pick_z()   = pick_z;
+function hopper_zp_min()   = zp_min;
+function hopper_zp_max()   = zp_max;
+function hopper_phi_rest() = phi_rest;
+function hopper_phi_trip() = phi_trip;
+function hopper_outer()    = [[-ox, -oy], [ox, tower_y1]];   // footprint (excl. flag cheeks)
+
+// =========================================================================
+// Export selector
+// =========================================================================
+_zp  = zp >= 0 ? zp : zp_min;
+_phi = flag_phi_in >= 0 ? flag_phi_in : phi_rest;
+
+if (part == "body")     hopper_body();
+if (part == "cap")      translate([0, 0, cap_z0 + cap_t]) mirror([0, 0, 1]) hopper_cap();   // top face on the bed
+if (part == "carriage") translate([0, 0, -car_z0(zp_min)]) hopper_carriage(zp_min);
+if (part == "plate")    translate([0, 0, zp_min]) mirror([0, 0, 1]) hopper_plate(zp_min); // card face on the bed
+if (part == "flag")     translate([0, 0, flag_t / 2]) rotate([-90, 0, 0]) flag_local();   // lies flat
+if (part == "assembly") hopper_elevator_local(_zp, _phi);
+// positioned single parts (local coords) for collision checks
+if (part == "pos_body")      hopper_body();
+if (part == "pos_cap")       hopper_cap();
+if (part == "pos_carriage")  hopper_carriage(_zp);
+if (part == "pos_plate")     hopper_plate(_zp);
+if (part == "pos_flag")      hopper_flag(_phi);
+if (part == "pos_rods")      hw_rods();
+if (part == "pos_bushings")  hw_bushings(_zp);
+if (part == "pos_screw")     hw_screw();
+if (part == "pos_nut")       hw_nut(_zp);
+if (part == "pos_coupler")   hw_coupler();
+if (part == "pos_motor")     hw_motor();
+if (part == "pos_swb_body")  hw_sw_bottom_body();
+if (part == "pos_swb_roll")  hw_sw_bottom_roller();
+if (part == "pos_swt_body")  hw_sw_top_body();
+if (part == "pos_swt_roll")  hw_sw_top_roller();
+if (part == "pos_cards")     hw_cards(_zp);
+// stack whose top is exactly at pick_z (what the flag sees at trip)
+if (part == "pos_cards_pick") translate([card_dx - card_l / 2, -card_w / 2, _zp]) cube([card_l, card_w, pick_z - _zp]);
 
 // =============================================
-// PRINT ORIENTATION: flat base on bed
-// SUPPORTS: none needed
-// POST-PROCESS: light sanding on inner walls
-//               for smooth card feeding
+// PRINT ORIENTATION / SUPPORTS
+//   body     upright as modelled (base on bed). No supports: every slot is
+//            open to the top, the tower window has a 45° pointed top, the
+//            flag cheeks have 45° undersides, horizontal holes are ≤ Ø3.4.
+//            ~97 x 106 x 130 mm (+ cheeks to X -78).
+//   cap      top face down (part="cap" is already flipped). No supports.
+//   carriage upright (shelf on the bed). No supports (lug has a 45° underside).
+//   plate    card face down on the PEI (part="plate" is flipped) -> smooth
+//            card face, ribs up. No supports.
+//   flag     on its side (part="flag"). No supports.
 // =============================================

@@ -26,6 +26,13 @@ scan_flat  = [-127, 47];                  // slide-bed backed flat zone (X)
 // Scanner
 cam_x      = -40;    // lens axis; card centred here for capture
 
+// Hopper (motor-raised floor keeps top card at card_z)
+hopper_x   = -215;   // cavity centre X (Y = 0)
+
+// Baseplate extents (3x3 tiles of 190x180)
+base_x     = [-285, 285];
+base_y     = [-270, 270];
+
 // Pick & place hand-off
 drop_x     = -95;    // card CENTRE when the suction arm releases it onto the belt
                      // (card spans -139..-51: on belts, clear of hopper wall)
@@ -48,6 +55,9 @@ function frame_rail_in()   = rail_in;
 function frame_card_z()    = card_z;
 function frame_scan_flat() = scan_flat;
 function frame_cam_x()     = cam_x;
+function frame_hopper_x()  = hopper_x;
+function frame_base_x()    = base_x;
+function frame_base_y()    = base_y;
 function frame_drop_x()    = drop_x;
 function frame_drop_clear()= drop_clear;
 function frame_tray_floor_lower_z() = tray_floor_lower_z;
