@@ -10,8 +10,10 @@
 // PRINT: 1 piece, 115 × 75 × 56 mm (X 159.4..274, Y 138.4..213.6, Z 4..60),
 //   upright as modelled, PLA 0.2 mm, 3 walls, 15 %; ≈ 8100 mm² on the bed, no
 //   overhangs. The lane surface prints as a 40°→8° slope (layer steps face downhill).
-// FASTEN: 4× M3 countersunk through the box floor into the baseplate grid
-//   (X 200, 230; Y 165, 195), nut under the board.
+// FASTEN: 4× M3 × 18 countersunk through the 2.5 mm box floor into the baseplate
+//   grid (X 200, 230; Y 165, 195) and the board's tee-nuts: clamp 12.5, tip 5.5
+//   below the board underside (4.6 below the tee-nut flange). Fallback without
+//   tee-nuts: washer + nut under the board.
 // =============================================
 
 use <shuttle_geom.scad>

@@ -14,6 +14,14 @@ follower links, hand, cup sled + pad, held card, vacuum-tube spoke) to every
 fixed body and to the other moving bodies. Pin-in-bore joints are excluded by
 design (they are bearings); everything else must stay > 0.
 
+The slider is checked part by part: hand (plate + beams), guide-screw heads
+and shanks (fixed to the hand), printed sled, bellows pad + barb (ride on the
+sled), held card. Only these slider contacts are whitelisted (CONTACT / WHITELIST
+below): shank threaded into the beam insert, pad seated in the sled, cup lip on
+the held card, and the sled RESTING on the screw heads (allowed only as face
+contact: the sled lifted 0.05 mm must be clear). The pad must clear the screw
+heads by ≥ 1 mm in every pose (RULES).
+
 Usage:
   cad/pick_arm_check.py                 # pick→drop, servo step 10° + ends + fine lift
   cad/pick_arm_check.py --step 5 --full # also sweep the full servo range 0..180
@@ -74,7 +82,7 @@ if (obst == "etray") translate([-150, 80, frame_base_top()]) electronics_tray();
 """
 
 ARM_PARTS = ["head", "tower", "servo", "gpin_b", "gpin_c", "crank", "link_b", "link_c",
-             "hand", "hpin_a", "hpin_b", "hpin_c", "sled", "card"]
+             "hand", "gs_head", "gs_shank", "hpin_a", "hpin_b", "hpin_c", "sled", "pad", "card"]
 OBSTACLES = ["hopper", "flag", "riser", "rails", "motor_mounts", "scan_station", "etray"]
 
 
@@ -188,9 +196,10 @@ def main() -> None:
         T["link_b"] = rot(th, [px + g["gB"][0], 0, pz + g["gB"][1]])
         T["link_c"] = rot(th, [px + g["gC"][0], 0, pz + g["gC"][1]])
         hand = trimesh.transformations.translation_matrix([R * np.cos(np.radians(th)) - R, 0, R * np.sin(np.radians(th))])
-        for k in ("hand", "hpin_a", "hpin_b", "hpin_c"):
+        for k in ("hand", "gs_head", "gs_shank", "hpin_a", "hpin_b", "hpin_c"):
             T[k] = hand
         T["sled"] = trimesh.transformations.translation_matrix([R * np.cos(np.radians(th)) - R, 0, R * np.sin(np.radians(th)) + c])
+        T["pad"] = T["sled"]
         T["card"] = T["sled"]
         # vacuum tube spoke: hollow A' pin back end → anchor on the servo axis
         a_prime = np.array([px + R * np.cos(np.radians(th)), pz + R * np.sin(np.radians(th))])
@@ -202,20 +211,32 @@ def main() -> None:
         pts = np.column_stack([xz[:, 0], y, xz[:, 1]])
         return th, c, T, capsule_chain(pts, 2.0)
 
-    moving = ["crank", "link_b", "link_c", "hand", "hpin_a", "hpin_b", "hpin_c", "sled", "card", "tube"]
-    # pairs that are bearings / intended contact (excluded)
+    moving = ["crank", "link_b", "link_c", "hand", "gs_head", "gs_shank", "hpin_a", "hpin_b", "hpin_c",
+              "sled", "pad", "card", "tube"]
+    # pairs that are bearings / pins pressed into their plate (excluded)
     joint = {("crank", "servo"), ("crank", "hpin_a"), ("link_b", "gpin_b"), ("link_b", "hpin_b"),
              ("link_c", "gpin_c"), ("link_c", "hpin_c"), ("hand", "hpin_a"), ("hand", "hpin_b"),
              ("hand", "hpin_c"), ("hpin_a", "hpin_b"), ("hpin_a", "hpin_c"), ("hpin_b", "hpin_c"),
-             ("hand", "sled"), ("hand", "card"), ("sled", "card"), ("hpin_a", "tube"),
-             ("hpin_a", "sled"), ("hpin_a", "card"), ("hpin_b", "sled"), ("hpin_c", "sled"),
-             ("hpin_b", "card"), ("hpin_c", "card")}
+             ("hpin_a", "tube")}
+    # slider: the ONLY whitelisted overlaps / contacts, each with its reason
+    whitelist = {("hand", "gs_shank"): "guide screw threaded into the beam's heat-set insert",
+                 ("gs_head", "gs_shank"): "head and shank of the same guide screw",
+                 ("sled", "pad"): "pad hex seated in the sled pocket, barb through the web",
+                 ("pad", "card"): "cup lip on the card it holds"}
+    # contact-only pairs: (moving part, other) -> lift (mm) along +Z of the moving part
+    # that must make them clear (i.e. face contact, no interpenetration)
+    contact = {("sled", "gs_head"): (0.05, "sled resting on the guide-screw heads (spring preload stop)")}
+    # minimum clearances (mm) over every pose
+    rules = {("pad", "gs_head"): (1.0, "bellows pad ↔ guide-screw heads with the slider compressed")}
+
+    def pair_in(a, b, d):
+        return (a, b) in d or (b, a) in d
 
     def excluded(a, b, c, th):
-        if (a, b) in joint or (b, a) in joint:
+        if pair_in(a, b, joint) or pair_in(a, b, whitelist) or pair_in(a, b, contact):
             return True
         # cup on the card on the stack at pick (intended contact)
-        if {a, b} & {"card_stack"} and {a, b} & {"sled", "card"} and abs(th - g["th_p"]) < 6:
+        if {a, b} & {"card_stack"} and {a, b} & {"sled", "pad", "card"} and abs(th - g["th_p"]) < 6:
             return True
         # flag: designed light touch — it rests on the held card's -Y margin and is
         # pushed up/out by the card (reported separately below). Cup, sled, hand
@@ -226,6 +247,7 @@ def main() -> None:
 
     def sweep(angles, label):
         worst = {}
+        contact_worst = {}
         rows = []
         for s in angles:
             th, c, T, tube = poses(s)
@@ -259,6 +281,16 @@ def main() -> None:
                         worst[key] = (d, s)
                     if d < row_min[0]:
                         row_min = (d, f"{a}/{b}")
+            # contact-only pairs: lift the moving part by the allowance, then it must be clear
+            for (a, b), (lift, _) in contact.items():
+                ma, Ta = bodies[a]
+                mb, Tb = bodies[b]
+                cm = CollisionManager()
+                cm.add_object(b, mb, transform=Tb)
+                d = cm.min_distance_single(ma, transform=trimesh.transformations.translation_matrix([0, 0, lift]) @ Ta)
+                key = (a, b, "contact")
+                if key not in contact_worst or d < contact_worst[key][0]:
+                    contact_worst[key] = (d, s)
             lip = pz + R * np.sin(np.radians(th)) - h + c
             cup_x = px + R * np.cos(np.radians(th))
             rows.append((s, th, cup_x, lip, c, row_min))
@@ -271,6 +303,21 @@ def main() -> None:
         print("  closest pairs over the sweep (mm, at servo angle):")
         for (a, b), (d, s) in sorted(worst.items(), key=lambda kv: kv[1][0])[:args.top]:
             print(f"    {a:7s} vs {b:14s} {d:8.2f}  @ {s:6.2f}")
+        print("  slider rules / contacts:")
+        for (a, b), (need, why) in rules.items():
+            d, s = worst[(a, b)] if (a, b) in worst else worst[(b, a)]
+            ok = d >= need - 1e-6
+            print(f"    {'OK ' if ok else 'BAD'} {a} vs {b}: {d:.2f} @ {s:.2f} (need ≥ {need}: {why})")
+            if not ok:
+                hits.append(((a, b), (d, s)))
+        for (a, b, _), (d, s) in contact_worst.items():
+            lift, why = contact[(a, b)]
+            ok = d > 0
+            print(f"    {'OK ' if ok else 'BAD'} {a} vs {b}: contact only, {d:.3f} clear when lifted {lift} @ {s:.2f} ({why})")
+            if not ok:
+                hits.append(((a, b), (d, s)))
+        for (a, b), why in whitelist.items():
+            print(f"    whitelisted {a} vs {b}: {why}")
         if hits:
             print("  COLLISIONS:")
             for (a, b), (d, s) in hits:

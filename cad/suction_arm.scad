@@ -128,12 +128,17 @@ lc_y1 = lb_y0 - 3.5;                 lc_y0 = lc_y1 - lk_t;          // link C
 cr_t  = 6;
 cr_y1 = lc_y0 - 2.5;                 cr_y0 = cr_y1 - cr_t;          // crank
 
-// ── MG996R (TowerPro datasheet 40.7 × 19.7 × 42.9; tab holes 49.5 × 10).
-//    Tab height / shaft offset are typical values — MEASURE YOUR SERVO and
-//    adjust sv_tab_z0 / horn_gap; a printed shim under the tabs is fine.
+// ── MG996R (TowerPro datasheet 40.7 × 19.7 × 42.9). Tab-hole pattern from the
+//    shared frame_mg996r_hole_pitch() × frame_mg996r_hole_dx() (49.5 × 10,
+//    machine_frame.scad), the same value the shuttle's ch1 / ch2 mounts use.
+//    A real MG996R's tab holes are Ø4.5+ (grommet holes), so an M3 still finds
+//    its insert for a pitch within about ±0.7 mm of this. Tab height / shaft
+//    offset are typical values — MEASURE YOUR SERVO and adjust sv_tab_z0 /
+//    horn_gap; a printed shim under the tabs is fine.
 sv_l = 40.7;  sv_w = 19.7;  sv_case_h = 37.0;  sv_h = 42.9;   // bottom → spline top
 sv_tab_z0 = 26.8;  sv_tab_t = 2.5;  sv_tab_span = 54.0;
-sv_hole_p = 49.5;  sv_hole_dx = 10.0;  sv_shaft_off = 10.2;    // spline centre from case end
+sv_hole_p = frame_mg996r_hole_pitch();  sv_hole_dx = frame_mg996r_hole_dx();
+sv_shaft_off = 10.2;                  // spline centre from case end
 sv_spline_d = 5.9;
 // 25T aluminium DISC horn (Ø25, 4× M3 tapped holes on 14–18 mm PCD)
 horn_d = 25;  horn_t = 3;  horn_hub_d = 10;
@@ -161,16 +166,24 @@ horn_slot = [6.5, 9.5];               // radial slots for horn screws (PCD 13–
 
 // ── Hand (hand-local: origin = A' in XZ, Y machine) ─────────────────────────
 hp_ap_r = 10;  hp_pin_r = 7;
-beam_x  = [8, 16];                    // |X| of the two slider beams (rel. A')
+// Guide screws at X ±14.5: their Ø5.5 heads (fixed to the hand, lip-relative
+// Z 21..24) have their inner edge at r 11.75, 1.25 outside the Ø21 bellows
+// pad, which rides up with the sled into the heads' height band whenever the
+// slider compresses (at rod_dx 12 the pad hit both heads at every pick).
+beam_x  = [10.5, 18.5];               // |X| of the two slider beams (rel. A'), centred on the screws
 beam_z  = [56, 64] - [h_cup, h_cup];  // beam Z rel. A' (lip-relative 56..64)
 beam_y1 = 7;
-rod_dx  = 12;                         // guide screws at X ±12, Y 0
+rod_dx  = 14.5;                       // guide screws at X ±14.5, Y 0
+gs_head_d = 5.5;  gs_head_h = 3;      // M3 SHCS head
 // Sled (cup carrier), lip-relative Z, at rest (fully extended)
-sl_z0 = 24;  sl_z1 = 38;  sl_hx = 17;  sl_hy = 7;
+sl_z0 = 24;  sl_z1 = 38;  sl_hx = 19;  sl_hy = 7;
 pad_hex_af = 8.0;  pad_top = 29;  web_t = 1.6;
 sl_stroke = 10;
 // SMC ZPT16BS-B5: Ø16 silicone bellows, M5 female, 29 tall, Ø21 max, hex 8 AF
 pad_d = 21;  pad_lip_d = 18;
+assert(rod_dx - gs_head_d / 2 - pad_d / 2 >= 1.0, "guide-screw heads within 1 mm of the bellows pad");
+assert(sl_hx - rod_dx - m3_clr / 2 >= 2.5, "sled wall outside the guide bores too thin");
+assert(min(beam_x[1] - rod_dx, rod_dx - beam_x[0]) - ins_d / 2 >= 1.9, "beam wall round the guide-screw insert too thin");
 
 // ── Tower / column / anchor ─────────────────────────────────────────────────
 hd_wall_x = [10.6, 14.6];   // head side walls |X| rel A (servo case ±9.85)
@@ -269,11 +282,17 @@ module barb_fitting() color("Gold") {        // Festo CN-M5-PK-3 (M5 male, barb 
 // FIXED SIDE
 // =========================================================================
 // Ground plate outline (A-local XZ)
+// The plate also runs down to the head floor (Z −50) across the floor width,
+// so in the print (front face down) the floor, side walls and web stand on the
+// plate instead of overhanging its lower edge by up to 9.7 mm.
 module gp_outline_2d()
-    hull() {
-        translate([-16, -40]) square([32, 62]);
-        translate(gB) circle(r = 8);
-        translate(gC) circle(r = 8);
+    union() {
+        hull() {
+            translate([-16, -40]) square([32, 62]);
+            translate(gB) circle(r = 8);
+            translate(gC) circle(r = 8);
+        }
+        translate([-16, hd_floor[0]]) square([32, -40 - hd_floor[0] + 1]);   // ±16: no edge coincident with the floor's ±14.6
     }
 
 module head() {   // A-local (translate by [px, 0, pz])
@@ -432,11 +451,11 @@ module hand_pins() color("Silver") {     // hand-local
     at_xz(gB) ycyl(dowel_d / 2, lb_y0 - 1, hp_y1);
 }
 // Guide screws (M3 × 40, heads down) — fixed to the hand
-module guide_screws() color("DimGray")
-    for (s = [-1, 1]) translate([s * rod_dx, 0, 0]) {
-        translate([0, 0, sl_z0 - h_cup - 3]) cylinder(d = 5.5, h = 3);
-        translate([0, 0, sl_z0 - h_cup]) cylinder(d = 3, h = 40);
-    }
+module guide_screw_heads() color("DimGray")
+    for (s = [-1, 1]) translate([s * rod_dx, 0, sl_z0 - h_cup - gs_head_h]) cylinder(d = gs_head_d, h = gs_head_h);
+module guide_screw_shanks() color("DimGray")
+    for (s = [-1, 1]) translate([s * rod_dx, 0, sl_z0 - h_cup]) cylinder(d = 3, h = 40);
+module guide_screws() { guide_screw_heads(); guide_screw_shanks(); }
 // Sled group in hand-local coords, raised by `comp` (slider compression)
 module sled_group(comp = 0)
     translate([0, 0, comp - h_cup]) {
@@ -516,11 +535,14 @@ if (part == "ref_gpin_c") translate([px, 0, pz]) at_xz(gC) { ycyl(slv_d / 2, gp_
 if (part == "ref_crank")  translate([px, 0, pz]) { crank(); horn(); }
 if (part == "ref_link_b") translate([px + gB[0], 0, pz + gB[1]]) link(lb_y0);
 if (part == "ref_link_c") translate([px + gC[0], 0, pz + gC[1]]) link(lc_y0);
-if (part == "ref_hand")   translate([px + R, 0, pz]) { hand(); guide_screws(); }
+if (part == "ref_hand")   translate([px + R, 0, pz]) hand();
+if (part == "ref_gs_head")  translate([px + R, 0, pz]) guide_screw_heads();    // fixed to the hand
+if (part == "ref_gs_shank") translate([px + R, 0, pz]) guide_screw_shanks();
 if (part == "ref_hpin_a") translate([px + R, 0, pz]) { ycyl(slv_ap_d / 2, cr_y1 + slv_gap, hp_y0 + eps); ycyl(ap_od / 2, cr_y0 - 1.5, hp_y1); }
 if (part == "ref_hpin_b") translate([px + R, 0, pz]) at_xz(gB) ycyl(dowel_d / 2, lb_y0 - 1, hp_y1);
 if (part == "ref_hpin_c") translate([px + R, 0, pz]) at_xz(gC) { ycyl(slv_d / 2, lc_y1 + slv_gap, hp_y0 + eps); ycyl(dowel_d / 2, lc_y0 - 1, hp_y1); }
-if (part == "ref_sled")   translate([px + R, 0, pz]) sled_group(0);
+if (part == "ref_sled")   translate([px + R, 0, pz - h_cup]) sled();            // printed carrier only
+if (part == "ref_pad")    translate([px + R, 0, pz - h_cup]) { bellows_pad(); barb_fitting(); }
 if (part == "ref_card")   translate([px + R, 0, pz]) held_card(0);
 
 // =============================================
@@ -540,7 +562,9 @@ if (part == "ref_card")   translate([px + R, 0, pz]) held_card(0);
 //
 // HARDWARE
 //   1× MG996R + 25T aluminium disc horn (Ø25, 4× M3); 4× M3×6 horn screws;
-//      4× M3×10 + 4× M3 heat-set inserts (tabs → plate back face)
+//      4× M3×8 SHCS + 4× M3 heat-set inserts (tabs → plate back face): 2.5 tab
+//      + 5.5 into the 5.7 insert, tip 0.7 short of the 6.2 hole bottom (an M3×10
+//      would bottom out: 7.5 > 6.2, and the 8 mm plate leaves no room to deepen)
 //   1× 8×6 mm brass/aluminium tube, 30.5 mm (hollow A' pin) + 8 mm flat push-on washer
 //   4 mm silver-steel rod (or h6 dowels) cut to the echoed lengths, ends
 //      chamfered: B ground 38, C ground 29.5, B' 13, C' 21.5 mm. Each sticks
@@ -551,8 +575,9 @@ if (part == "ref_card")   translate([px + R, 0, pz]) held_card(0);
 //   1× SMC ZPT16BS-B5 bellows pad (Ø16 silicone, M5 female)
 //   1× Festo CN-M5-PK-3 barb (M5 male, 4 mm OD tube) — or any M5 × 4 mm barb
 //   ~400 mm 4 mm OD vacuum tube (soft PU PUN-H-4×0.75 or silicone 2×4)
-//   Tower: 4× M3×20 + washer + nut through foot (6) + tile (4) + 6 mm backing
-//      board = 16 mm clamp (+0.5 washer + 2.4 nut + ≥1 thread → M3×20);
+//   Tower: 4× M3×20 through foot (6) + tile (4) + 6 mm backing board = 16 mm
+//      clamp into the board's tee-nuts (fallback washer + nut: +0.5 washer +
+//      2.4 nut + ≥1 thread → still M3×20);
 //      head→tower 4× M3×12 into 4 heat-set inserts in the column top.
 // ASSEMBLY ORDER
 //   1. Inserts. Press B/C dowels into the plate (from the front, flush at the back).

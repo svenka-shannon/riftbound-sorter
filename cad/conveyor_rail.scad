@@ -222,8 +222,8 @@ if (part == "front2") mirror([0, 1, 0]) rail_half(add_shaft_far = true,  motor_m
 //   the whole riser or into a deck insert:
 //   - through-feet front X −80, back X −120 / −80 / +10: clamp = foot 4 +
 //     riser 60 + tile 4 + 6 mm backing board = 74 → M3 × 80 (or 85 mm M3
-//     threaded rod), washer + nut under the board (6 mm left for 0.5 washer
-//     + 2.4 nut + thread).
+//     threaded rod) into the board's tee-nut (washer + nut under the board is
+//     the fallback: 6 mm left for 0.5 washer + 2.4 nut + thread).
 //   - insert feet front X −50, back X +40: M3 × 10 into the deck's M3 × 5.7
 //     heat-set insert. Front X −20 / +10 also carry the camera bracket foot
 //     (6 mm): M3 × 16 there (the insert has a 14 mm relief below).

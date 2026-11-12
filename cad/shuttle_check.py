@@ -287,10 +287,10 @@ WHITELIST = {frozenset(k): v for k, v in {
     ("tf", "rbar"):              (1.0, "rear skid resting on the R-bar (LOWER) / home ledge (LEVEL)"),
     # -- fixed --
     ("rod_grubs", "rod"):        (0.5, "set-screw tips on the rod"),
-    ("tray", "lower_ramp"):      (1e9, "ramp hooked into the tray (separate check in lower_ramp.scad)"),
+    ("tray", "lower_ramp"):      (0.5, "ramp hooked into the tray (face contact; hook fit checked in lower_ramp.scad)"),
     ("riser", "etray"):          (1.0, "riser foot beside the electronics tray"),
-    ("rails", "riser"):          (1e9, "rails bolted onto the riser"),
-    ("motor_mounts", "riser"):   (1e9, "motor mounts bolted onto the riser"),
+    ("rails", "riser"):          (0.5, "rails bolted onto the riser (face contact)"),
+    ("motor_mounts", "riser"):   (0.5, "motor mounts bolted onto the riser (face contact)"),
     # -- ch2 --
     ("c2_crank", "c2_horn"):     (1.0, "horn disc against the crank top"),
     ("c2_horn", "servo_ch2"):    (120.0, "25T spline inside the horn hub (horn bore not modelled)"),
@@ -301,7 +301,7 @@ WHITELIST = {frozenset(k): v for k, v in {
     ("c2_tip_pin", "c2_link"):   (2.0, "tip M3 × 4 insert pressed into the link's Ø4.0 hole"),
     ("c2_ear_screws", "servo_ch2"): (60.0, "ear screws through the servo ears (ear holes not modelled)"),
     ("c2_ear_screws", "riser"):  (18.0, "2 × M2.5 self-threading ≈ 5 deep into riser_b's Ø2.1 pilots"),
-    ("c2_ear_screws", "end_posts"): (10.0, "M2.5 self-threading into the end-post shelf's Ø2.1 pilots"),
+    ("c2_ear_screws", "end_posts"): (20.0, "2 × M2.5 self-threading 5.6 deep into the end-post shelf + boss Ø2.1 pilots (2·π·(1.25²−1.05²)·5.6 ≈ 16)"),
 }.items()}
 # design-rule minimum clearances; "carriage" = sled + both cheeks
 RULES = {("cradle", "tf"): (0.5, "weighing gap: cradle must never touch the tilt frame"),
@@ -566,7 +566,8 @@ def run_assembly(meshes):
     V = echo_vals({"tie": "riser_tie_screws()", "fy": "riser_front_y()", "holes": "sh_end_post_holes()",
                    "pina": "sh_pin_a_y()", "pivot": "sh_tilt_pivot_hw()", "crank_y": "sg_crank_y()", "link_y": "sg_link_y()", "c1e": "sh_c1_ear_holes()", "c1y": "sg_c1_face_y()",
                    "grub": "sh_rod_grubs()", "rear": "sg_c2_ear_y()", "face": "sg_c2_face_z()",
-                   "riser_ear": "riser_ear_screws()", "hold": 'sg_crank_phi("hold")',
+                   "riser_ear": "riser_ear_screws()", "hold": 'sg_crank_phi("hold")', "ear_x": "sg_c2_ear_x()",
+                   "grub_len": "sh_rod_grub_len()",
                    "clamp_m": 'sh_c1_clamp(sg_crank_phi("hold") - 30)', "clamp_0": 'sh_c1_clamp(sg_crank_phi("hold"))',
                    "clamp_p": 'sh_c1_clamp(sg_crank_phi("hold") + 30)'},
                   ["riser", "shuttle", "shuttle_geom"])
@@ -672,7 +673,7 @@ def run_assembly(meshes):
         for yc in (TARGETS["0"], TARGETS["reject"]):
             others = {**fixed, "carriage": meshes["carriage"].copy().apply_transform(trans(y=yc))}
             ok &= clear(cyl_between([x + 0.2, y, z], [x + 150, y, z], 1.5), others,
-                        f"rod M3 × 6 set screw along −X into the insert (Y {y}, Z {z}), 1.5 mm key, carriage at Y {yc:.0f}")
+                        f"rod M3 × {V['grub_len']:.0f} set screw along −X into the insert (Y {y}, Z {z}), 1.5 mm key, carriage at Y {yc:.0f}")
     # ---- 3. bench: ch2 servo (horn + crank + hub screw fitted, crank at ψ_park) hung under the shelf
     print(f" 3. bench: ch2 MG996R with horn, crank, hub screw; crank parked at ψ {PSI_PARK:.0f}°; lifted under the −Y shelf")
     c2 = {"servo_ch2": meshes["servo_ch2"], "c2_horn": meshes["c2_horn"],
@@ -682,7 +683,7 @@ def run_assembly(meshes):
                 {"end_posts": meshes["end_posts"]}, [trans(z=-d) for d in np.arange(40, -0.01, -1.0)],
                 allow={("servo_ch2", "end_posts")})
     face = V["face"]; zb = face + 8.1 - 1.8          # screw head bottom
-    for x in (75, 85):
+    for x in V["ear_x"]:
         ok &= key_swing(x, V["rear"][1], zb, {"end_posts": meshes["end_posts"], **c2},
                         f"ch2 REAR ear M2.5 button head from below (X {x}, Y {V['rear'][1]})")
     # ---- 4. module set down 10 mm in front of its place, then slid +Y 10 mm (front ear into the riser pocket)

@@ -45,7 +45,7 @@
 // RETENTION: the groove fill rests on the rail groove floor and the guide
 //   body bears against the rail inner face (its centre of mass is inboard of
 //   the ledge, so it leans into the rail on its own). The hood stands on the
-//   rails' 1.2 mm top fins just outboard of the guides (0.4 mm above them),
+//   rails' 1.2 mm top fins just outboard of the guides (0.4 mm clear of them),
 //   and a clip at each end of the hood snaps over the rail wall: bridge on
 //   the guide top + fin top, inner leg in a pocket in the guide top, outer jaw
 //   on the rail's outer face (fin + full wall). No screws, no holes in the rails.
@@ -164,16 +164,20 @@ module along_x(x0, len) translate([x0, 0, 0]) rotate([90, 0, 90]) linear_extrude
 module guide_back() {
     difference() {
         union() {
-            // Straight section
-            along_x(g_x0 + flare_len - 0.01, g_x1 - g_x0 - flare_len + 0.01) prof_main(0);
+            // Straight section. The flare hull below carries on 1 mm past the
+            // flare end with the straight profile, and the straight section starts
+            // 0.5 mm inside that prismatic stub: the two bodies overlap in volume
+            // with identical faces (a 0.01 mm overlap at the seam left degenerate
+            // sliver faces, STL not watertight) and the contact face has no step.
+            along_x(g_x0 + flare_len + 0.5, g_x1 - g_x0 - flare_len - 0.5) prof_main(0);
             // Upstream flare: linear sweep of the convex body (hull of end slices),
             // clipped to the guide envelope next to the rail
             intersection() {
                 hull() {
                     along_x(g_x0, 0.01) prof_main(flare_d);
-                    along_x(g_x0 + flare_len, 0.01) prof_main(0);
+                    along_x(g_x0 + flare_len, 1) prof_main(0);
                 }
-                translate([g_x0, 0, g_z0 - 1]) cube([flare_len + 0.01, g_out, rail_top - g_z0 + 2]);
+                translate([g_x0, 0, g_z0 - 1]) cube([flare_len + 1, g_out, rail_top - g_z0 + 2]);
             }
             // Groove fill, full length
             along_x(g_x0, g_x1 - g_x0) prof_fill();
@@ -182,10 +186,15 @@ module guide_back() {
         for (x = guide_clip_x())
             translate([x - clip_l / 2 - 0.2, pocket_y[0], rail_top - pocket_d])
                 cube([clip_l + 0.4, pocket_y[1] - pocket_y[0], pocket_d + 1]);
-        // 1.5 mm chamfers on the two exposed end corners of the contact face
-        for (e = [[g_x0, ch_hw + flare_d], [g_x1, ch_hw]])
-            translate([e[0], e[1], (g_z0 + rail_top) / 2]) rotate([0, 0, 45])
-                cube([1.5 * sqrt(2), 1.5 * sqrt(2), rail_top - g_z0 + 2], center = true);
+        // 1.5 mm chamfers on the two exposed end corners of the contact face.
+        // Upstream: the face there runs at the 15° flare, so the cut goes from
+        // 1.5 along the end face to 1.5 along the flare face (a 45°-turned cube
+        // left its tip exactly on the funnel surface → non-manifold edge).
+        let(c = [g_x0, ch_hw + flare_d], a = c + [0, 1.5], b = c + 1.5 * [cos(flare_a), -sin(flare_a)])
+            translate([0, 0, g_z0 - 1]) linear_extrude(rail_top - g_z0 + 2)
+                polygon([a, b, [b[0], c[1] - 3], [c[0] - 2, c[1] - 3], [c[0] - 2, a[1]]]);
+        translate([g_x1, ch_hw, (g_z0 + rail_top) / 2]) rotate([0, 0, 45])
+            cube([1.5 * sqrt(2), 1.5 * sqrt(2), rail_top - g_z0 + 2], center = true);
     }
 }
 
@@ -249,7 +258,8 @@ module clip_print() linear_extrude(clip_l) prof_clip();
 // INSTALL: drop each guide into its rail's top groove from above (groove
 //   fill down, flat face against the rail inner face), then press the
 //   clip(s) over the rail wall so the inner leg seats in the guide's pocket.
-//   Fit the guides before the hood; the hood rests on the guides' tops.
+//   Fit the guides before the hood; the hood stands on the rails' top fins,
+//   0.4 mm clear of the guides (it does not rest on them).
 // CHECK: slide a sleeved card along the channel by hand — it should move
 //   freely with ~1.7 mm play each side and never touch the clip or hood.
 // =============================================

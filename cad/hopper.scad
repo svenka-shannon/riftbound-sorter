@@ -142,6 +142,7 @@ nut_style  = "t8";          // "t8" = T8 brass flange nut (default) | "m8" = M8 
 // flange -> pocket floor in compression; the screws only stop the nut turning.
 t8_fl_d = 22; t8_fl_t = 3.5; t8_body_d = 10.2; t8_len = 15; t8_pcd = 16;
 t8_pocket_d = t8_fl_d + 0.6;                 // Ø22.6 pocket (the flange locates in it)
+t8_slot_hw  = 7;                             // square through-slot where the pocket meets the ±Y faces
 t8_screw_bore = 8.8;                         // lead-screw clearance below the pocket floor
 m8_af   = 13; m8_h   = 6.5;
 screw_d = 8; screw_len = 100;
@@ -167,6 +168,16 @@ bsw_x0 = -3.6;  bsw_y0 = tower_y1 - back_t - sw_t;   // body X -3.6..16.2, Y 60.
 bsw_op_z = base_t + sw_hole_z + sw_op;                // 20.4: roller top at OP
 lug_dz = bsw_op_z - (base_t + car_gap_floor) - 0.3;  // carriage lug 0.3 mm past OP at zp_min
 lug_x  = [10, 22];
+// The lug's underside is ONE 45° plane falling toward +X (along the roller's
+// rolling direction, i.e. a cam ramp in the lever's plane), so the lug prints
+// without support and has no flat ledge. It is placed tangent to the Ø4.8
+// roller with the roller 0.3 past OP at zp_min (the same trip point as the old
+// flat face): the carriage still pushes the roller down 1:1, the extra force on
+// the roller points along the lever toward its hinge.
+lug_xr = bsw_x0 + sw_roll_x;                                   // roller centre X (16.0)
+lug_zr = bsw_op_z - 0.3 - sw_roll_d / 2;                       // roller centre Z at zp_min
+function lug_u(x) = lug_zr + sw_roll_d / 2 * sqrt(2) - (x - lug_xr) - car_z0(zp_min);   // underside, carriage-relative
+lug_top = lug_dz + 8;                                          // carriage-relative top of the lug
 
 // ── Feeler flag + cam (top switch) ────────────────────────────────────────
 // The flag sits on the -Y long wall (machine front; the tower is on +Y) and
@@ -234,6 +245,11 @@ assert(car_hx + 2 <= ox - tower_wall, "carriage too wide for the tower");
 assert(t8_pcd / 2 - 4.0 / 2 - t8_screw_bore / 2 >= 1.5, "T8 flange inserts too close to the screw bore");
 assert(t8_pocket_d / 2 + 1.5 <= rod_dx - lm_d / 2, "T8 pocket too close to the LM8UU bores");
 assert(car_h - t8_len >= 5.7 + 4, "too little carriage under the T8 pocket for the inserts");
+// wall left between the T8 pocket and a ±Y face at the slot edge (|X| = t8_slot_hw)
+assert(min(rod_y - car_y0, car_y1 - rod_y) - sqrt(pow(t8_pocket_d / 2, 2) - pow(t8_slot_hw, 2)) >= 1.5,
+       "T8 pocket leaves a thin flap beside the slot");
+assert(lug_u(lug_x[1]) > 0 && lug_u(lug_x[0]) < lug_top, "bottom-switch lug ramp out of range");
+assert(rod_y - (coupler_d + 3.6) / 2 - oy >= 1.2 - 0.01, "cap wall in front of the coupler hole < 1.2");
 
 // =========================================================================
 // Helpers
@@ -371,7 +387,8 @@ module hopper_cap() {
                 cylinder(r = 4, h = 2.6, $fn = 32);
         }
         for (sx = [-1, 1]) translate([sx * rod_dx, rod_y, cap_z0 - 1]) cylinder(d = rod_d + 0.15, h = cap_t + 2);
-        translate([0, rod_y, cap_z0 - 1]) cylinder(d = coupler_d + 4, h = cap_t + 2);
+        // coupler pass Ø22.6 (1.8 radial play): leaves 1.2 of cap wall at its −Y edge (oy)
+        translate([0, rod_y, cap_z0 - 1]) cylinder(d = coupler_d + 3.6, h = cap_t + 2);
         for (sx = [-1, 1]) translate([sx * motor_ear / 2, rod_y + motor_off, cap_z0 - 2.6]) insert_hole(cap_t + 3);
         for (p = tower_ins) translate([p[0], p[1], cap_z0 - 1]) cylinder(d = 3.4, h = cap_t + 2, $fn = 20);
     }
@@ -387,12 +404,12 @@ module hopper_carriage(z = zp_min) {
             translate([-car_hx, car_y0, c0]) cube([2 * car_hx, car_y1 - car_y0, car_h]);
             // shelf that reaches through the +Y wall slot under the floor plate
             translate([-shelf_w / 2, shelf_y0, c0]) cube([shelf_w, car_y0 - shelf_y0 + 0.01, shelf_t]);
-            // lug that presses the bottom (home) switch: 45° underside, then a
-            // 4.4 mm flat that the switch roller (Y 62.2..65.4) meets
-            translate([lug_x[0], 0, c0]) rotate([90, 0, 90])
-                linear_extrude(height = lug_x[1] - lug_x[0])
-                    polygon([[car_y1 - 0.01, lug_dz - 3], [car_y1 + 3, lug_dz], [bsw_y0 + sw_t - 0.6, lug_dz],
-                             [bsw_y0 + sw_t - 0.6, lug_dz + 5], [car_y1 - 0.01, lug_dz + 5]]);
+            // lug that presses the bottom (home) switch roller (Y 62.2..65.4):
+            // 45° ramp underside falling toward +X (see lug_u), out to Y 66.4
+            translate([0, bsw_y0 + sw_t - 0.6, c0]) rotate([90, 0, 0])
+                linear_extrude(height = bsw_y0 + sw_t - 0.6 - (car_y1 - 0.01))
+                    polygon([[lug_x[0], lug_u(lug_x[0])], [lug_x[1], lug_u(lug_x[1])],
+                             [lug_x[1], lug_top], [lug_x[0], lug_top]]);
         }
         // LM8UU bores (press fit from the top onto a 1.5 mm lip)
         for (sx = [-1, 1]) translate([sx * rod_dx, rod_y, c0]) {
@@ -400,13 +417,18 @@ module hopper_carriage(z = zp_min) {
             translate([0, 0, -1]) cylinder(d = rod_d + 2, h = car_h + 2);
         }
         if (nut_style == "t8") {
-            // inverted T8 nut: Ø22.6 pocket from the top (open to the top; it
-            // breaks out of the ±Y faces at |X| < 4.2: harmless), screw bore
-            // below. 2 flange screws at PCD 16 (along X): Ø3.4 from the pocket
+            // inverted T8 nut: Ø22.6 pocket from the top. The carriage is only
+            // 21 deep in Y, so the pocket would break out of both ±Y faces at
+            // |X| < 4.2 and leave 0..0.75 mm knife-edge flaps beside the
+            // break-outs; instead a square slot (|X| ≤ t8_slot_hw, pocket
+            // height) is cut cleanly through both faces, leaving ≥ 1.6 mm of
+            // wall at its edges. The flange still locates on the pocket arcs
+            // at |X| 7..11.3. Screw bore below. 2 flange screws at PCD 16 (along X): Ø3.4 from the pocket
             // floor down, into M3 inserts pressed in FROM THE CARRIAGE BOTTOM
             // (flush with it: free iron access, no reaching 15 mm down the
             // pocket beside the wall)
             translate([0, rod_y, c0 + car_h - t8_len]) cylinder(d = t8_pocket_d, h = t8_len + 1);
+            translate([-t8_slot_hw, car_y0 - 1, c0 + car_h - t8_len]) cube([2 * t8_slot_hw, car_y1 - car_y0 + 2, t8_len + 1]);
             translate([0, rod_y, c0 - 1]) cylinder(d = t8_screw_bore, h = car_h + 2);
             for (sx = [-1, 1]) translate([sx * t8_pcd / 2, rod_y, c0 - 0.1]) {
                 insert_hole(5.8);
@@ -611,8 +633,9 @@ if (part == "pos_cards_pick") translate([-card_l / 2, card_dy - card_w / 2, _zp]
 //            flag cheeks have 45° undersides, horizontal holes are ≤ Ø3.4.
 //            97 x 135.6 x 126.1 mm (Y -65.6 .. +70 incl. the flag cheeks).
 //   cap      top face down (part="cap" is already flipped). No supports.
-//   carriage upright (shelf on the bed). No supports (lug has a 45° underside;
-//            the T8 pocket opens upward).
+//   carriage upright (shelf on the bed). No supports (the lug underside is
+//            one 45° ramp; the T8 pocket and its square through-slot open
+//            upward).
 // HARDWARE (carriage): 2 × M3 heat-set inserts pressed into the carriage
 //   BOTTOM at local (±8, 48.5), flush; T8 nut dropped into the top pocket
 //   flange-first, body up, flange holes on the X axis; 2 × M3 × 14 SHCS down

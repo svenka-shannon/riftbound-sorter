@@ -5,8 +5,9 @@
 # Every part module lives in assembly.scad (asm_*), already at its assembled position.
 # Moving parts are shown at HOME: arm parked (servo 90), hopper plate at the bottom,
 # shuttle at home / level (the load-cell loop is drawn for the home carriage Y 0).
-# Fastener lengths follow the part files' BOM footers and the 6 mm-board rule
-# (clamp + 4 mm for washer + nut, or for a board tee-nut: baseplate_tile.scad).
+# Fastener lengths follow the part files' BOM footers: baseplate screws go into
+# board tee-nuts (baseplate_tile.scad; washer + nut under the board is the
+# fallback), length ≥ clamp + 4 mm.
 title: "Riftbound Card Sorter - mechanical assembly"
 seconds_per_step: 3.5
 fly_fraction: 0.6
@@ -21,7 +22,7 @@ steps:
     explode: "+z 70"
     intro_explode: [0, 0, 0]
 
-  - caption: "Electronics tray behind the riser, 4x M3 x 20; boards on the printed posts and pockets"
+  - caption: "Electronics tray behind the riser, 4x M3 x 18; boards on the printed posts and pockets"
     part: asm_electronics_tray()
     color: "#5FCB8A"
     explode: "+z"
@@ -63,7 +64,7 @@ steps:
     explode: "-y 120"
     intro_explode: [-60, -230, 200]
 
-  - caption: "2-floor sorting tray at X 178..276: 8x M3 x 20 csk to the board, 8x M3 x 12 csk stacking"
+  - caption: "2-floor sorting tray at X 178..276: 8x M3 x 18 csk to the board, 8x M3 x 12 csk stacking"
     part: asm_sorting_tray()
     color: "#A99BF0"
     explode: "+x"

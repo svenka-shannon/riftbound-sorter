@@ -45,9 +45,12 @@
 //   Orientation: flat on bed (open top facing up); shelf halves flat.
 //
 // FASTENING (all M3):
-//   Lower section → baseplate: 4× M3 countersunk per section, from inside
+//   Lower section → baseplate: 4× M3 × 18 countersunk per section, from inside
 //     the slots (fit BEFORE the shelf). Holes land coaxially on the
 //     baseplate_tile 30mm mounting grid at the assembly.scad position.
+//     Into the board's tee-nuts: floor 2.5 + tile 4 + board 6 = 12.5, tip 5.5
+//     below the board underside (4.6 below the tee-nut flange), all 5.9 mm of
+//     tee-nut thread engaged. Fallback: washer + nut under the board.
 //   Upper section → shelf → lower section: 4× M3 × 12 countersunk per
 //     section, from inside the upper slots' front corners, through the
 //     upper floor (2.5) + shelf half (3) into a Ø2.5 pilot in the lower

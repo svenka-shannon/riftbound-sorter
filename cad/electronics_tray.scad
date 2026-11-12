@@ -37,7 +37,11 @@
 // from each 190 × 180 tile edge, so the X grid restarts on every tile column:
 // X −270..−120 | −80..70 | 110..260; Y −255+30j): machine (−120, 105),
 // (−50, 105), (−120, 195), (10, 195),
-// M3 × 20 SHCS + washer + nut (floor 2.5 + tile 4 + 6 mm board = 12.5 clamp).
+// M3 × 18 SHCS into the board's tee-nuts (baseplate_tile.scad): floor 2.5 +
+// tile 4 + 6 mm board = 12.5 clamp, so the tip runs through all 5.9 mm of
+// tee-nut thread and ends 5.5 mm below the board underside (4.6 below the
+// tee-nut flange; M3 × 20 poked out 7.5). Fallback without tee-nuts: washer +
+// nut under the board (0.5 + 2.4, 2.6 mm of thread past the nut).
 //
 // LAYOUT (tray-local, x = machine X + 150, y = machine Y − 80):
 //   front strip  Pi Zero 2 W x 107..172, y 5..35, CSI connector to +X

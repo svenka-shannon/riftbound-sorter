@@ -25,8 +25,9 @@
 //
 // FASTENING (all M3; the baseplate is 4 mm tiles on a 6 mm board):
 //   Rail L-feet → riser → baseplate, ONE bolt per foot where possible:
-//     through-bolt feet (M3 threaded rod 85 mm, or M3 × 80 + board ≤ 12 mm,
-//     nut + washer both ends): front X −80; back X −120, −80, 10.
+//     through-bolt feet (M3 × 80 SHCS into the board's tee-nut; or 85 mm M3
+//     threaded rod with nut + washer at the top and the tee-nut / a washer +
+//     nut under the board as the fallback): front X −80; back X −120, −80, 10.
 //   The other feet use M3 × 5.7 heat-set inserts in the deck with a 14 mm Ø3.4
 //     relief below, so a 6 mm longer screw still fits: front X −50, −20, 10
 //     (over the tunnel) and back X 40. The camera bracket stands on the front feet at
@@ -42,15 +43,17 @@
 //       (insert Y −109.8..−104.1, Ø3.2 relief on to Y −102.2: the screw tip at
 //       Y −103.0 has 0.8 mm to spare, 1.2 mm of wall behind).
 //   Riser → baseplate: 5 anchors, head down a Ø6.8 well from the deck top onto
-//     the 6 mm floor of the boss (head at Z 10), washer + nut under the board.
-//     Grip 6 + tile 4 + board 6 = 16, + washer 0.5 + nut 2.4 → M3 × 20
+//     the 6 mm floor of the boss (head at Z 10), into the board's tee-nut
+//     (baseplate_tile.scad; washer + nut under the board is the fallback).
+//     Grip 6 + tile 4 + board 6 = 16 (+ washer 0.5 + nut 2.4 for the fallback) → M3 × 20
 //     (use a long-arm 2.5 mm hex key down the 54 mm well). Fit the riser BEFORE
 //     the conveyor: the slide bed covers two of the wells.
 //   ch2 servo front ear: pocket in riser_b's front face (X 69..86, Y −113..−105.8,
 //     Z 25..37.0). Over it a SOLID block (X 69..85, Y −113..−105, Z 37..64, i.e.
 //     up to the deck, so it prints as a column) plus the lug on riser_b's +X face
 //     (X 84.5..89): the pocket ceiling is real material over the whole ear. The ear
-//     screws (2 × M2.5 × 10 button-head, X 75 and 85, Y −109.8) go up into Ø2.1
+//     screws (2 × M2.5 × 10 button-head, X 75 and 85, Y −109.4: shared MG996R
+//     pitch, machine_frame.scad) go up into Ø2.1
 //     pilots 9 mm deep in the block/lug, driven from below through the tunnel
 //     (1.5 mm L-key, short arm up). The block's front-bottom edge has a 1 mm 45°
 //     lead-in: the ear slides in from −Y when the shuttle module is set down
@@ -83,7 +86,7 @@ roof_t = 3;
 feet_through = [[-80, -75], [-120, 75], [-80, 75], [10, 75]];
 feet_insert  = [[-50, -75], [-20, -75], [10, -75], [40, 75]];
 // riser → baseplate anchors (counterbored from the deck top; fit BEFORE the
-// conveyor goes on): M3 × 20 + washer/nut under the board
+// conveyor goes on): M3 × 20 into the board tee-nuts (washer/nut fallback)
 anchors      = [[-150, -105], [-150, 75], [-80, -15], [-20, 75], [-20, 45]];
 joint_bolts  = [[-30, 40], [30, 30], [65, 30]];            // (Y, Z) through the X −40 walls
 // front tie: tab on riser_a, inserts in riser_b
@@ -91,7 +94,7 @@ tie_x  = [XJ, XJ + 16];   tie_z = [30, dz];
 tie_screws = [[XJ + 9.5, 37], [XJ + 9.5, 56]];             // (X, Z)
 // ch2 front-ear lug beyond riser_b's +X face
 lug_x  = [frame_belt_x1() - 0.5, 89];
-ear_x  = [75, 85];                                         // ch2 front-ear screws (X)
+ear_x  = sg_c2_ear_x();                                    // ch2 front-ear screws (X 75 / 85)
 ear_blk = [69, -105];                                      // solid block over the front-ear pocket: X 69..x1, Y Y0..−105, Z 37..deck
 
 // ch2 crank + link swept area (+8 mm margin), from shuttle_geom.scad
@@ -209,7 +212,7 @@ module tie_tab() difference() {          // on riser_a: front-skin extension, fl
 }
 module ear_lug() difference() {          // on riser_b: carries the X 85 front-ear screw
     translate([lug_x[0], Y0, sg_c2_shelf_z()]) cube([lug_x[1] - lug_x[0], sg_c2_ear_end_y()[0] + 2 - Y0, dz - sg_c2_shelf_z()]);
-    translate([85, sg_c2_ear_y()[0], sg_c2_shelf_z() - 1]) cylinder(d = 2.1, h = 10, $fn = 16);
+    translate([ear_x[1], sg_c2_ear_y()[0], sg_c2_shelf_z() - 1]) cylinder(d = 2.1, h = 10, $fn = 16);
     lead_in(lug_x[0] - 1, lug_x[1] + 1);
 }
 // 1 × 1 mm 45° lead-in along the front-bottom edge (Y0, ceiling Z 37) from X a to b

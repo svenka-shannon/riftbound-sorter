@@ -260,11 +260,12 @@ module cheek_2d() union() {
 }
 // F pin path in LOWER mode (arc about the skid) → channel in the cheek
 function f_path() = [for (i = [0 : 12]) sg_rot(sg_F(), sg_SJ(), sg_dl_lower() * i / 12)];
-// ch2 drive-pin arm (XY), modelled in carriage coordinates. The 45° flank on its
-// +y side keeps it self-supporting when the sled prints on its +y face.
+// ch2 drive-pin arm (XY), modelled in carriage coordinates. The flank on its +y
+// side and the 45° corner where it meets the sled face (X 86..91, y 16.5..21.5)
+// keep it self-supporting when the sled prints on its +y face.
 module c2_arm_2d() hull() {
     translate([sg_c2_pivot()[0], sg_c2_pin_dy()]) circle(r = 6, $fn = 48);
-    translate([86, sg_c2_pin_dy() - 6]) square([92 - 86, 21.5 - sg_c2_pin_dy() + 6]);
+    polygon([[86, sg_c2_pin_dy() - 6], [92, sg_c2_pin_dy() - 6], [92, 21.5], [91, 21.5], [86, 16.5]]);
 }
 // ch1 crank pocket (XZ, machine coordinates), cut through the crank slab ± pk_c:
 //  - the crank (tilt_crank_2d) swept about D over φ pk_rng, + pk_c running clearance.
@@ -287,9 +288,16 @@ module crank_pocket_2d() offset(r = pk_c, $fn = 24) translate(D) union() {
 // and the tip boss); under each piece a 45° frustum (the piece inset by k at depth k),
 // started 0.3 inside the slab so it meets the slab bottom 0.35 inside the outline
 // (a 0.35 ledge, less than one extrusion width).
-module pocket_roof(k) {
+// n > 1: the hull runs through n inset slices (depth t, inset t + 0.35) instead of
+// only the two end ones. For a convex piece the exact 45° roof is the hull of ALL its
+// inset slices; two slices are enough for circles / stadiums, but the tapered crank
+// arm loses its narrow tip end first, and a 2-slice hull then has shallow end faces.
+module pocket_roof(k, n = 1) {
     y0 = sg_crank_y()[0] - pk_c;
-    hull() { xz(y0 + 0.3, y0 + 0.3 + eps) offset(delta = -0.05) children(); xz(y0 - k, y0 - k + eps) offset(delta = -k - 0.35) children(); }
+    hull() {
+        xz(y0 + 0.3, y0 + 0.3 + eps) offset(delta = -0.05) children();
+        for (i = [1 : n]) let(t = k * i / n) xz(y0 - t, y0 - t + eps) offset(delta = -t - 0.35) children();
+    }
 }
 module sled_crank_pocket() {
     cy = sg_crank_y();
@@ -297,7 +305,10 @@ module sled_crank_pocket() {
     pocket_roof(8 + pk_c - 0.6) translate(D) offset(r = pk_c, $fn = 24) hull() { circle(d = 16); translate([25, 0]) circle(d = 16); }
     for (a = [pk_rng[0] : 2 : pk_rng[1]]) {
         pocket_roof(4.5 + pk_c - 0.6) translate(D) rotate(a) translate([sg_crank_r(), 0]) offset(r = pk_c, $fn = 24) circle(d = 9);
-        pocket_roof(3.6) translate(D) rotate(a) offset(r = pk_c, $fn = 24) tilt_crank_arm_hull_2d();
+        // 5.0 deep in 25 slices: the last inset (5.35) is a sliver near D, inside the
+        // hub frustum, and every ceiling face is 45° (3.6 deep in one step left a 38 mm²
+        // flat fan along the swept arm at the roof bottom)
+        pocket_roof(5.0, 25) translate(D) rotate(a) offset(r = pk_c, $fn = 24) tilt_crank_arm_hull_2d();
     }
 }
 // LM8UU pockets Ø15.1 × 24.1 at both ends (the cheek roots close the mouths)
@@ -488,11 +499,12 @@ module c2_tip_pin() translate([0, sg_c2_r(), 0]) c2_shoulder_screw(sg_c2_z()[1],
 module c2_drive_pin() translate([sg_c2_pivot()[0], sg_c2_pin_dy(), 0]) c2_shoulder_screw(sg_c2_arm_z()[1], sg_c2_sh_l()[1]);
 // ch2 servo ear screws: M2.5 × 10 button-head hex socket (ISO 7380, head Ø4.7 × 1.5,
 // modelled Ø4.5 × 1.8), self-threading up into Ø2.1 pilots: front ear into the solid
-// block / lug of riser_b, rear ear into the end-post shelf. Driven from BELOW with a
+// block / lug of riser_b, rear ear into the end-post shelf + its Ø6 bosses (5.6 mm
+// of thread, tip 0.9 under the boss top). Driven from BELOW with a
 // 1.5 mm L-key, short arm up (rear: on the bench; front: through the riser tunnel,
 // crank parked at ψ ≈ 100°) — see the install order at the end of this file.
 module c2_ear_screws_at(y) color("DarkGray")
-    for (x = [75, 85]) translate([x, y, sg_c2_face_z() + 8.1 - 1.8]) {
+    for (x = sg_c2_ear_x()) translate([x, y, sg_c2_face_z() + 8.1 - 1.8]) {
         cylinder(d = 4.5, h = 1.8, $fn = 16); cylinder(d = 2.5, h = 10, $fn = 12);
     }
 module c2_ear_screws() for (y = sg_c2_ear_y()) c2_ear_screws_at(y);
@@ -548,8 +560,9 @@ module rbar_pos() difference() {          // Y −16..232, upper half only over 
 }
 
 // End posts → baseplate: M3 SHCS down through the floor plate on the 30 mm
-// baseplate grid, washer + nut under the board: plate 4 + tile 4 + 6 mm board +
-// washer + nut → M3 × 20. −Y post: (110, −225) behind the ch1 servo, (140, −195),
+// baseplate grid into the board's tee-nuts (baseplate_tile.scad; washer + nut under
+// the board is the fallback): plate 4 + tile 4 + 6 mm board = 14 clamp → M3 × 20
+// (also leaves washer 0.5 + nut 2.4 + thread for the fallback). −Y post: (110, −225) behind the ch1 servo, (140, −195),
 // (140, −165); +Y post: (110, 225), (110, 255), (140, 255).
 ep_neg_holes = [[110, -225], [140, -195], [140, -165]];
 ep_pos_holes = [[110, 225], [110, 255], [140, 255]];
@@ -557,15 +570,24 @@ function sh_end_post_holes() = concat(ep_neg_holes, ep_pos_holes);
 function sh_pin_a_y() = pinA_y;
 function sh_tilt_pivot_hw() = pivot_hw;   // ch1 crank-link M3 × 16 + nylock: head Ø, head h, nut Ø, nut h, length
 // Rod: 400 mm, Y −160..240 (through the −Y post, 8 mm into the +Y post). Each post
-// holds it with a SIDE grub screw: M3 × 5.7 heat-set insert pressed into the post's
-// +X face (X 116 → 110.3) on the rod's centre height, M3 × 6 flat-point set screw
-// through it onto the rod (tip on the rod at X 110, end flush with the face),
-// driven along −X with a 1.5 mm hex key from the open +X side.
+// holds it with a SIDE grub screw: M3 × 5.7 heat-set insert pressed into a 2 mm
+// boss on the post's +X face (face X 118, insert pocket X 118 → 112.3, so 2.3 mm of
+// plastic stays between the insert and the Ø8.05 rod bore at X 110.03) on the rod's
+// centre height, M3 × 8 flat-point set screw through it onto the rod (tip on the rod
+// at X 110, end flush with the boss face), driven along −X with a 1.5 mm hex key
+// from the open +X side. The boss underside is a 45° chamfer (prints upright).
 function sh_rod_y() = [sg_rod_y()[0], sg_rod_y()[1] + 8];
-function sh_rod_grubs() = [[116, sg_rod_y()[0] + 5, rod[1]], [116, sg_rod_y()[1] + 5, rod[1]]];   // insert mouth (X, Y, Z)
-module rod_grub_hole(y) translate([116 + 1, y, rod[1]]) rotate([0, -90, 0]) {
-    cylinder(d = 4.0, h = 1 + 5.7, $fn = 24);              // M3 × 5.7 insert from the +X face
-    cylinder(d = 3.2, h = 1 + 116 - rod[0], $fn = 16);     // set-screw clearance into the rod bore
+grub_face = 118;                                            // boss face X (post face 116)
+grub_len  = grub_face - (rod[0] + 4);                       // 8: M3 × 8 set screw, flush
+function sh_rod_grubs() = [[grub_face, sg_rod_y()[0] + 5, rod[1]], [grub_face, sg_rod_y()[1] + 5, rod[1]]];   // insert mouth (X, Y, Z)
+function sh_rod_grub_len() = grub_len;
+assert(grub_face - 5.7 - (rod[0] + 8.05 / 2) >= 1.5, "rod set-screw insert pocket too close to the rod bore");
+// boss on a post's +X face (post Y y0..y0 + 10): Z rod ± 5, 45° underside
+module rod_grub_boss(y0) xz(y0, y0 + 10)
+    polygon([[116 - eps, rod[1] - 5 - (grub_face - 116)], [grub_face, rod[1] - 5], [grub_face, rod[1] + 5], [116 - eps, rod[1] + 5]]);
+module rod_grub_hole(y) translate([grub_face + 1, y, rod[1]]) rotate([0, -90, 0]) {
+    cylinder(d = 4.0, h = 1 + 5.7, $fn = 24);              // M3 × 5.7 insert from the boss face
+    cylinder(d = 3.2, h = 1 + grub_face - rod[0], $fn = 16);   // set-screw clearance into the rod bore
 }
 // −Y end block: rod / shaft (688ZZ) / R-bar post + ch1 servo cage + ch2 rear ear shelf.
 // Everything at X < 90 stays above Z 21 (ch2 crank + tip screw sweep below Z 23
@@ -579,6 +601,7 @@ module rod_grub_hole(y) translate([116 + 1, y, rod[1]]) rotate([0, -90, 0]) {
 // coupler's swept boss which never comes below Z 32).
 // print_aid = true adds a free-standing break-away support ladder under the ch2
 // rear-ear ledge (see the header); the assembly and the checks use print_aid = false.
+c2_boss_h = 6.5;          // rear-ear shelf + boss height above the shelf underside
 module end_post_neg(print_aid = false) {
     y0 = sg_rod_y()[0];       // −160: post Y −160..−150
     yc = [c1_yf - 8.1, c1_yf - 0.1];                                        // cage Y −193.1..−185.1
@@ -592,6 +615,9 @@ module end_post_neg(print_aid = false) {
             translate([91, yc[0], 4]) cube([3, y0 + 10 - yc[0], 54]);       // ch2 wall (1.75 off the crank), cage → post
             translate([116 - eps, yc[1] - eps, 4]) cube([4 + eps, y0 - yc[1], 26]);   // +X rib, cage → post (Z ≤ 30)
             translate([68, sy[0], sz]) cube([26, sy[1] - sy[0], 3.4]);     // ch2 rear ear shelf (0.5 off the case)
+            // Ø6 bosses on the shelf over the rear-ear screws: 6.5 of thread (shelf 3.4 + 3.1)
+            for (x = sg_c2_ear_x()) translate([x, sg_c2_ear_y()[1], sz + 3.4 - eps]) cylinder(d = 6, h = c2_boss_h - 3.4 + eps, $fn = 32);
+            rod_grub_boss(y0);
             // gusset web beside the ear (Y −166..−162): 45° underside from the wall
             // (prints without support; ≥ 2.1 above the crank body, which is the only
             // thing sweeping under it: the tip screw never reaches Y −166..−162),
@@ -607,8 +633,8 @@ module end_post_neg(print_aid = false) {
         translate([D[0] - 10.15, yc[0] - 1, D[1] - 10.5]) cube([20.3, yc[1] - yc[0] + 2, 41.3]);
         for (p = c1_ear_holes) { cyl_y(p, 4.0, yc[0] - 1, yc[0] + 6, 24); cyl_y(p, 3.2, yc[0] + 5.9, yc[1] - 0.5, 16); }
         for (p = ep_neg_holes) translate([p[0], p[1], 0]) cylinder(d = 3.4, h = 20, $fn = 16);
-        for (x = [75, 85]) translate([x, sg_c2_ear_y()[1], sz - 4.2])
-            cylinder(d = 2.1, h = 10, $fn = 16);                              // ch2 ear screws (M2.5)
+        for (x = sg_c2_ear_x()) translate([x, sg_c2_ear_y()[1], sz - 4.2])
+            cylinder(d = 2.1, h = 4.2 + c2_boss_h + 1, $fn = 16);             // ch2 ear screws (M2.5), through the boss
         translate([sg_rbar_x()[0] - 0.1, y0 + 6, sg_rbar_z0() - 0.1]) cube([sg_rbar_x()[1] - sg_rbar_x()[0] + 0.2, 5, 30]); // R-bar end seat
     }
     // break-away ladder under the rear-ear ledge (print only): 0.8 walls, 0.2 gap
@@ -626,6 +652,7 @@ module end_post_pos() {
             translate([104, 219, 4]) cube([18, y1 - 219 + eps, 4]);          // tongue to the Y 225 hole (under the carriage path, Z ≤ 8)
             translate([90, y1, 4]) cube([32, 261 - y1, 4]);
             translate([121.9, 249, 4]) cube([24.1, 12, 4]);                  // tongue to the X 140 hole
+            rod_grub_boss(y1);
         }
         cyl_y(rod, 8.05, y1 - 1, y1 + 11);
         rod_grub_hole(y1 + 5);
@@ -670,9 +697,9 @@ module sh_cell_screws() color("DarkGray") for (y = [-3, 3]) {
     translate([cxc + 20, y, 65]) { cylinder(d = 5.5, h = 3, $fn = 24); cylinder(d = 3, h = 3 + 12, $fn = 16); }
     translate([cxc - 20, y, czt - 9]) { cylinder(d = 5.5, h = 3, $fn = 24); cylinder(d = 3, h = 3 + 10, $fn = 16); }
 }
-// rod set screws, fixed: M3 × 6 flat point in each end post's +X-face insert, tip on the rod
+// rod set screws, fixed: M3 × 8 flat point in each end post's +X-face insert, tip on the rod
 module sh_rod_grub_screws() color("DarkGray") for (g = sh_rod_grubs())
-    translate([rod[0] + 4, g[1], g[2]]) rotate([0, 90, 0]) cylinder(d = 3, h = 6, $fn = 16);
+    translate([rod[0] + 4, g[1], g[2]]) rotate([0, 90, 0]) cylinder(d = 3, h = grub_len, $fn = 16);
 module mg996r() color("DimGray") {    // origin = output spline axis at the top face, body below (−Z)
     translate([-10.2, -9.85, -36.6]) cube([40.7, 19.7, 36.6]);
     translate([-17.2, -9.85, -10.6]) cube([54.7, 19.7, 2.5]);   // ears
@@ -681,12 +708,15 @@ module mg996r() color("DimGray") {    // origin = output spline axis at the top 
 // ---- ch1 tilt servo + coupler (−Y end; numbers in shuttle_geom.scad) ----
 // MG996R spline on the shaft axis, case face at Yf = −185, body toward −Y, mounted
 // LONG SIDE UP (rotated 180° about its own output axis: body Z 33.8..74.5, ears
-// Z 26.8..81.5, ear holes at X 100/110, Z 29.5/78.5), so nothing is near the floor
+// Z 26.8..81.5, ear holes at X 100/110, Z 29.4/78.9), so nothing is near the floor
 // plate. Its ears sit on the −Y face of the cage (Y −193.1..−185.1) and are held by
 // 4 × M3 × 10 SHCS + washers driven along +Y from BEHIND the servo into M3 × 5.7
 // heat-set inserts in the cage. The case nose (Yf−8.1..Yf) sits in the cage opening.
 c1_yf = sg_c1_face_y();
-c1_ear_holes = [for (x = [100, 110], z = [29.5, 78.5]) [x, z]];
+// ear holes: case centre 10.15 above the spline axis (long side up), shared MG996R
+// pattern sg_mg996r_hole_pitch() × sg_mg996r_hole_dx() → X 100 / 110, Z 29.4 / 78.9
+c1_ear_holes = let(zc = D[1] + 10.15, h = sg_mg996r_hole_pitch() / 2, dx = sg_mg996r_hole_dx() / 2)
+    [for (x = [D[0] - dx, D[0] + dx], z = [zc - h, zc + h]) [x, z]];
 c1_rng = [-80, 55];        // coupler boss direction range (shaft φ −48.5..22.2 ± 30° hex indexing)
 module c1_servo() translate([D[0], c1_yf, D[1]]) rotate([0, 180, 0]) rotate([-90, 0, 0]) rotate(90) mg996r();
 // goBILDA 4001-0025-4008 clamping servo-to-shaft coupler (25T → 8 mm REX), simplified
@@ -859,9 +889,10 @@ if (part == "end_post_pos") end_post_pos();
 //       (ch2 ears: 2 into the end-post shelf, 2 into riser_b's ear block / lug)
 //  1  MG996R Ø25 round 25T horn (in the servo bag) between the ch2 crank and the servo
 //  2  M3 × 10 SHCS + 2 M3 × 5.7 inserts (R-bar lap splice)
-//  2  M3 × 6 flat-point set screws + 2 M3 × 5.7 heat-set inserts (rod grub screws,
-//       one in each end post's +X face)
-//  6  M3 × 20 SHCS + washers + nuts (end posts → baseplate, 3 per post)
+//  2  M3 × 8 flat-point set screws + 2 M3 × 5.7 heat-set inserts (rod grub screws,
+//       one in each end post's +X-face boss)
+//  6  M3 × 20 SHCS (end posts → baseplate, 3 per post) into board tee-nuts
+//       (fallback: + washers + nuts under the board)
 // =============================================
 //
 // INSTALL ORDER (every insertion and driving path is checked by

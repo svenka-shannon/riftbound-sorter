@@ -45,6 +45,15 @@ tray_floor_upper_z = base_top + 65 + 3 + 2.5;  // = 74.5 upper slot floor
 // Card
 card_w = 63; card_l = 88; card_t = 0.33;  // RAW cards (owner confirmed 2026-11-11: no sleeves), ~1.75 g
 
+// MG996R mounting-tab holes (all three servos: pick arm ch0, shuttle ch1 / ch2).
+// ONE value for every mount: hole-centre pitch along the case (49.5, TowerPro
+// MG996R drawing) × across it (10), symmetric about the case centre. Clones
+// vary (48.5..50 seen); the servo's own tab holes are Ø4.5+ grommet holes, so
+// an M3 / M2.5 still lands for ±0.7 mm. MEASURE YOUR SERVO; if it is further
+// off, change it here and re-export the arm head and the shuttle end post / riser.
+mg996r_hole_pitch = 49.5;
+mg996r_hole_dx    = 10;
+
 function frame_base_top()  = base_top;
 function frame_riser_h()   = riser_h;
 function frame_deck_z()    = deck_z;
@@ -62,3 +71,5 @@ function frame_drop_x()    = drop_x;
 function frame_drop_clear()= drop_clear;
 function frame_tray_floor_lower_z() = tray_floor_lower_z;
 function frame_tray_floor_upper_z() = tray_floor_upper_z;
+function frame_mg996r_hole_pitch() = mg996r_hole_pitch;
+function frame_mg996r_hole_dx()    = mg996r_hole_dx;

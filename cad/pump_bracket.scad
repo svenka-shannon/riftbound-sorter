@@ -17,8 +17,9 @@
 //   Bracket X −276..−200, Y −234..−186, Z 4..47 (saddle + cap at X −264..−246,
 //   head cradle at X −232..−200).
 //   Grid holes (tile 0,0: X −270..−120, Y −255..−105 every 30): (−270, −225), (−270, −195),
-//   (−240, −225), (−240, −195): 4 × M3 × 20 SHCS + washer + nut
-//   (base 5 + tile 4 + 6 mm board = 15 clamp, + 4 → 19 → M3 × 20).
+//   (−240, −225), (−240, −195): 4 × M3 × 20 SHCS into the board's tee-nuts
+//   (base 5 + tile 4 + 6 mm board = 15 clamp, + 4 → 19 → M3 × 20; washer + nut
+//   under the board is the fallback).
 //   Clear of: arm-tower foot (X −188..−112, Y −173..−122: ≥ 13 mm in Y),
 //   hopper (Y ≥ −65.6), riser (X ≥ −165), the arm sweep (all ≥ Y −152 and
 //   Z ≥ 60 at this X) and the shuttle (X ≥ 92).
@@ -48,8 +49,8 @@
 //   barb Ø3 × 5) is a reference envelope, not a vendor drawing.
 //   It lies along Y with the axial (line) barb toward +Y and the side barb up
 //   (open to air = the vent). Clip on grid holes (−180, −255), (−150, −255):
-//   2 × M3 × 20 SHCS + washer + nut (plate 5 + tile 4 + board 6 = 15, as the
-//   base). The valve snaps down between two lipped walls onto a strip of 1 mm
+//   2 × M3 × 20 SHCS into tee-nuts (plate 5 + tile 4 + board 6 = 15, as the
+//   base; washer + nut fallback). The valve snaps down between two lipped walls onto a strip of 1 mm
 //   foam tape (floor Z 19.5, valve axis Z 28 = the vacuum line height).
 //   TEE: a 1/8" (3.2 mm) barbed plastic tee (≈ 22 × 11, Ø3 barbs) hangs in
 //   the tube at X −165, Y −210, Z 28, 18 mm past the pump nozzle; its branch
@@ -70,9 +71,9 @@
 //   sleeve      TPU isolation sleeve                           upright, no supports
 //   pad         TPU head pad 30 × 40 × 1.5                     flat, no supports
 //   valve_clip  vent-valve clip                                upright, no supports (lips 45°)
-// HARDWARE: 4 × M3 × 20 SHCS + washer + nut (base → baseplate),
+// HARDWARE: 4 × M3 × 20 SHCS into board tee-nuts (base → baseplate; washer + nut fallback),
 //   2 × M3 × 10 SHCS + 2 × M3 heat-set inserts (Ø4.0 × 5.7) (cap → base),
-//   2 × M3 × 20 SHCS + washer + nut (valve clip → baseplate),
+//   2 × M3 × 20 SHCS into board tee-nuts (valve clip → baseplate; washer + nut fallback),
 //   1 × 12 V NC mini solenoid valve, 1 × 1/8" barbed tee, 20 mm 2 × 4 silicone tube,
 //   1 mm foam tape 14 × 16 (valve seat).
 // =============================================

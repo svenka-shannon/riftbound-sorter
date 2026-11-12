@@ -28,7 +28,8 @@
 //   little bridge sag is harmless. PLA, 0.16 mm, 3 walls, 15 %, bridge fan
 //   100 %. Sand the lane surface lightly with 600 grit; no supports.
 // FASTEN: 2× M3 per half through the rear floor tabs into the baseplate grid
-//   (X 140; Y ±45, ±105) + nut under the board.
+//   (X 140; Y ±45, ±105) into the board's tee-nuts (washer + nut under the
+//   board is the fallback).
 // =============================================
 
 use <shuttle_geom.scad>

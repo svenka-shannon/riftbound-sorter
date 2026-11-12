@@ -48,6 +48,9 @@ function sg_base_top()  = frame_base_top();            // 4
 function sg_card_z()    = frame_card_z();              // 90.9
 function sg_deck_z()    = frame_deck_z();              // 64
 function sg_belt_x1()   = frame_belt_x1();             // 85
+// MG996R tab holes (shared with the pick arm): pitch along the case × across it
+function sg_mg996r_hole_pitch() = frame_mg996r_hole_pitch();   // 49.5
+function sg_mg996r_hole_dx()    = frame_mg996r_hole_dx();      // 10
 
 // ---------- tray (moved) ----------
 function sg_tray_x0()   = 178;      // tray back (open) face; tray spans X 178..276
@@ -154,7 +157,10 @@ function sg_c2_sh_l()   = [5, 6];        // shoulder length: crank tip (crank 4 
 function sg_c2_roof_z() = 26;            // riser tunnel roof underside
 function sg_c2_face_z() = sg_c2_z()[1] + 1.4 + 5.9;          // 26.3
 function sg_c2_shelf_z()= sg_c2_face_z() + 10.7;             // 37.0
-function sg_c2_ear_y()  = [sg_c2_pivot()[1] + 14.2, sg_c2_pivot()[1] - 34.5];  // ear hole Ys (front, rear)
+// ear holes: symmetric about the case centre (10.15 from the spline toward −Y),
+// pitch sg_mg996r_hole_pitch() → Y −109.4 / −158.9; X = pivot ± dx/2 (75 / 85)
+function sg_c2_ear_y()  = let(c = sg_c2_pivot()[1] - 10.15, h = sg_mg996r_hole_pitch() / 2) [c + h, c - h];  // (front, rear)
+function sg_c2_ear_x()  = [sg_c2_pivot()[0] - sg_mg996r_hole_dx() / 2, sg_c2_pivot()[0] + sg_mg996r_hole_dx() / 2];
 function sg_c2_body_y() = [sg_c2_pivot()[1] + 10.2, sg_c2_pivot()[1] - 30.5];  // case Y extent
 function sg_c2_ear_end_y() = [sg_c2_pivot()[1] + 17.2, sg_c2_pivot()[1] - 37.5];
 
