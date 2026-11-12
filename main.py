@@ -449,12 +449,23 @@ class BinFull(Exception):
 
 
 # ── Bin capacity tracking ─────────────────────────────────────────────────────
+class BinCountsError(RuntimeError):
+    """data/bin_counts.json exists but cannot be read or parsed at start-up
+    (audit 5 minor 2: e.g. left root-owned 0600 by `sudo main.py --empty-bin`).
+    Starting with every bin at 0 would overfill the bins, so main.py refuses
+    with exit 78 (EX_CONFIG: systemd does not restart) and the fix."""
+
+
 class BinCounts:
     """Cards in each bin, persisted to BIN_COUNTS_FILE. Thread-safe (the web UI
     resets bins) and process-safe (`main.py --empty-bin N` while the sorter
     runs): every read-modify-write holds an flock on a sidecar lock file, the
     file is written via a UNIQUE temp file + os.replace, and a change is
-    detected by a content hash (+ a version counter), not by mtime alone."""
+    detected by a content hash (+ a version counter), not by mtime alone.
+    The file is written mode 0644 and, by root, given to the owner of data/
+    (like hardware/instance.py's files), so a `sudo` run never leaves a
+    counts file the service cannot read. An existing file that cannot be read
+    or parsed at construction raises BinCountsError (never "all bins 0")."""
 
     def __init__(self, counts_file: Path, limits_file: Path, default_limits: dict):
         self._lock = threading.RLock()
@@ -464,7 +475,7 @@ class BinCounts:
         self.counts = {b: 0 for b in self.limits}
         self.version = 0
         self._hash = None
-        self._refresh()
+        self._refresh(startup=True)                                        # BinCountsError
 
     @contextmanager
     def _file_lock(self):
@@ -473,19 +484,32 @@ class BinCounts:
             return
         self.counts_file.parent.mkdir(parents=True, exist_ok=True)
         lock_path = self.counts_file.with_name(self.counts_file.name + ".lock")
+        created = not lock_path.exists()
         with open(lock_path, "a+") as fh:
+            if created:
+                instance._match_parent_owner(lock_path)     # root (sudo) run: data/'s owner
             fcntl.flock(fh, fcntl.LOCK_EX)
             try:
                 yield
             finally:
                 fcntl.flock(fh, fcntl.LOCK_UN)
 
-    def _refresh(self):
+    def _refresh(self, startup: bool = False):
+        """Re-read the file if it changed. startup: an existing file that cannot
+        be read or parsed raises BinCountsError; later (running) such a file
+        only warns and the counts in memory stay as they are."""
         try:
             raw = self.counts_file.read_bytes()
         except FileNotFoundError:
             return
         except OSError as exc:
+            if startup:
+                owned, me = instance._owner_hint(self.counts_file)
+                raise BinCountsError(
+                    f"cannot read {self.counts_file}{owned}: {exc} — refusing to start: counting "
+                    "every bin from 0 would overfill the bins. It was probably left by main.py or "
+                    f"a tool run with sudo. Fix: sudo chown -R {me}: {self.counts_file.parent} "
+                    "(never run main.py or the tools with sudo)") from exc
             print(f"[bins] Warning: could not read {self.counts_file}: {exc}")
             return
         digest = hashlib.sha256(raw).hexdigest()
@@ -493,13 +517,23 @@ class BinCounts:
             return
         try:
             data = json.loads(raw)
+            counts = {}
             for k, v in data.get("counts", {}).items():
                 if str(k).isdigit() and int(k) in self.counts:
-                    self.counts[int(k)] = int(v)
-            self.version = int(data.get("version", 0))
-            self._hash = digest
+                    counts[int(k)] = int(v)
+            version = int(data.get("version", 0))
         except Exception as exc:
+            if startup:
+                raise BinCountsError(
+                    f"{self.counts_file} is not a valid bin counts file ({exc!r}) — refusing to "
+                    "start: counting every bin from 0 would overfill the bins. Fix: count the "
+                    'cards in each bin and correct the file ({"counts": {"0": 12, "4": 3}}), or '
+                    "empty EVERY bin and delete the file (all counts then start at 0)") from exc
             print(f"[bins] Warning: could not parse {self.counts_file}: {exc}")
+            return
+        self.counts.update(counts)
+        self.version = version
+        self._hash = digest
 
     def _save(self):
         self.counts_file.parent.mkdir(parents=True, exist_ok=True)
@@ -514,6 +548,11 @@ class BinCounts:
                 fh.write(payload)
                 fh.flush()
                 os.fsync(fh.fileno())        # data on disk BEFORE the rename (audit 4 m6)
+            # mkstemp makes 0600 files: readable by anyone (it is just counts), and
+            # by root given to data/'s owner, so the service can always read it
+            # (audit 5 minor 2: a `sudo main.py --empty-bin` left a root 0600 file)
+            os.chmod(tmp, 0o644)
+            instance._match_parent_owner(tmp)
             os.replace(tmp, self.counts_file)
         except BaseException:
             try:
@@ -571,9 +610,10 @@ class BinCounts:
 
 try:
     _bins = BinCounts(BIN_COUNTS_FILE, BIN_LIMITS_FILE, DEFAULT_BIN_LIMITS)
-except BinLimitsError as _exc:
+except (BinLimitsError, BinCountsError) as _exc:
     if __name__ == "__main__":
-        print(f"[config] ERROR: {_exc}", file=sys.stderr)
+        tag = "config" if isinstance(_exc, BinLimitsError) else "bins"
+        print(f"[{tag}] ERROR: {_exc}", file=sys.stderr)
         sys.exit(78)                         # EX_CONFIG: not restarted by systemd
     raise
 
@@ -1795,7 +1835,7 @@ def _claim_instance_or_exit() -> None:
     — is refused with the file and the chown fix named, exit 78: systemd's
     RestartPreventExitStatus=78 keeps the service out of a crash/restart loop
     (audit 4 m2). Lock held by another process → exit 1 (a restart may help)."""
-    problems = instance.data_dir_problems(INSTANCE_LOCK_FILE)
+    problems = instance.data_dir_problems(INSTANCE_LOCK_FILE, _bins.counts_file)
     for prob in problems:
         print(f"[main] ERROR: {prob}", file=sys.stderr)
     try:
@@ -1856,6 +1896,18 @@ def _via_running_sorter(paths: list[str]) -> int:
     return 0
 
 
+def _cli_check_data_dir() -> None:
+    """--empty-bin / --empty-all / --confirm-clear write in data/ (bin counts,
+    machine state): refuse up front, naming the file and the chown fix, if
+    this user cannot (audit 5 minor 2). LockFileError → main() exits 78."""
+    problems = instance.data_dir_problems(INSTANCE_LOCK_FILE, _bins.counts_file)
+    if problems:
+        for prob in problems:
+            print(f"[main] ERROR: {prob}", file=sys.stderr)
+        raise instance.LockFileError("data/ is not usable by this user (see above) — nothing "
+                                     "changed")
+
+
 def cli_empty_bins(bins: list[int], all_bins: bool) -> int:
     """--empty-bin / --empty-all. With a sorter running, the reset goes through
     its web API so can_empty_bin() applies (never while starting / running);
@@ -1904,12 +1956,20 @@ def main():
     args = parser.parse_args()
 
     try:
+        if args.empty_all or args.empty_bin or args.confirm_clear:
+            _cli_check_data_dir()
         if args.empty_all or args.empty_bin:
             sys.exit(cli_empty_bins(args.empty_bin or [], args.empty_all))
         if args.confirm_clear:
             sys.exit(cli_confirm_clear())
     except instance.LockFileError as exc:
         print(f"[main] ERROR: {exc}", file=sys.stderr)
+        sys.exit(instance.EX_CONFIG)
+    except PermissionError as exc:
+        # anything data_dir_problems() did not foresee (e.g. a file replaced
+        # mid-way): the same message and exit 78, never a traceback
+        path = Path(exc.filename) if exc.filename else _bins.counts_file
+        print(f"[main] ERROR: {instance.lock_file_error(path, exc)}", file=sys.stderr)
         sys.exit(instance.EX_CONFIG)
     if args.web_token:
         print(load_or_create_web_token())

@@ -68,7 +68,7 @@ SWAPPED_SHUTTLE = {
     "col0_153": {"0": 153.0},
     "col3_54": {"3": 54.0},                          # 45 → 54
     "col2_56.2": {"2": 56.2},                        # 65.2 → 56.2
-    "home_too_close_to_col1": {"home": 83.0},        # inside its ±8° but < 5° from column 1
+    "home_too_close_to_col1": {"home": 83.0},        # inside its ±12° but < 5° from column 1
 }
 SWAPPED_ARM = {
     "pick_157": {"ARM_PICK": 157},                   # 175 → 157
@@ -111,16 +111,20 @@ def test_swapped_digit_file_refused_at_init_nothing_written():
 
 
 def test_window_sizes():
-    assert shuttle.SANITY_WINDOW_DEG == 8.0 and servos.SANITY_WINDOW_DEG == 10.0
-    assert shuttle.SHUTTLE_MIN_GAP_DEG == 5.0
+    # audit 5: carriage ±12° (MJ-B), arm widened towards PARK only (MJ-A); tilt unchanged
+    assert shuttle.SANITY_WINDOW_DEG == {"tilt": 8.0, "shuttle": 12.0}
+    assert servos.SANITY_WINDOW_DEG == 10.0 and servos.SANITY_WINDOW_TOWARD_PARK_DEG == 20.0
+    assert servos.ARM_SYMMETRY_MAX_DEG == 10.0
+    assert shuttle.SHUTTLE_MIN_GAP_DEG == 5.0 and shuttle.SHUTTLE_PAIR_GAPS == ((3, 2, 12.0),)
     assert shuttle.TILT_GAPS == (("lower", "level", 30.0, None), ("level", "hold", 2.0, 8.0),
                                  ("hold", "upper", 8.0, None))
-    assert servos.sanity_windows("ARM_PICK") == [(0.0, 15.0), (165.0, 180.0)]
+    assert servos.sanity_windows("ARM_PICK") == [(0.0, 25.0), (155.0, 180.0)]
+    assert servos.sanity_windows("ARM_DROP") == [(0.0, 25.0), (155.0, 180.0)]
     assert servos.sanity_windows("ARM_PARK") == [(80.0, 100.0)]
 
 
 # Valid calibrations: nominal, the CAD-derived geometric angles (φ + 90°), the
-# documented example (docs/ASSEMBLY.md §16.4), the coupler residual (≤ 0.6°, all
+# documented example (docs/ASSEMBLY.md §16.4), the coupler residual (≤ 1.2°, all
 # ch1 poses together) and a crank re-fit on a neighbouring spline tooth's
 # half-way point (ch2, all poses together), plus per-pose trims.
 VALID_SHUTTLE = {
@@ -132,6 +136,8 @@ VALID_SHUTTLE = {
                             "actuation_range": {"2": 270}},
     "coupler_plus_0.6": {"tilt": {k: v + 0.6 for k, v in shuttle.NOMINAL_TILT_ANGLES.items()}},
     "coupler_minus_0.6": {"tilt": {k: v - 0.6 for k, v in shuttle.NOMINAL_TILT_ANGLES.items()}},
+    "coupler_plus_1.2": {"tilt": {k: v + 1.2 for k, v in shuttle.NOMINAL_TILT_ANGLES.items()}},
+    "coupler_minus_1.2": {"tilt": {k: v - 1.2 for k, v in shuttle.NOMINAL_TILT_ANGLES.items()}},
     "level_preload_1.5": {"tilt": {"level": 92.1}},
     "tilt_trims": {"tilt": {"level": 94.5, "hold": 99.0, "upper": 118.0, "lower": 36.0}},
     "crank_plus_2": {"shuttle": {str(k): v + 2 for k, v in shuttle.NOMINAL_SHUTTLE_ANGLES.items()
@@ -150,7 +156,8 @@ def test_documented_calibrations_accepted(case):
 
 @pytest.mark.parametrize("arm", [{}, {"ARM_PICK": 172, "ARM_DROP": 8, "ARM_PARK": 92},
                                  {"ARM_PICK": 5, "ARM_DROP": 175},          # mirrored servo
-                                 {"ARM_PICK": 167.5, "ARM_DROP": 12.5, "ARM_PARK": 83}])
+                                 {"ARM_PICK": 167.5, "ARM_DROP": 12.5, "ARM_PARK": 88},     # +10 % gain
+                                 {"ARM_PICK": 172, "ARM_DROP": 9, "ARM_PARK": 86.5}])     # PARK jogged vertical
 def test_arm_calibrations_accepted(arm):
     _, problems, _ = servos.validate_calibration({"pickup_arm": arm})
     assert problems == [], problems
@@ -161,12 +168,12 @@ def test_nominals_well_inside_windows_and_gaps():
         assert shuttle.sanity_window("tilt", k) == (pytest.approx(n - 8), pytest.approx(n + 8))
     for k, n in shuttle.NOMINAL_SHUTTLE_ANGLES.items():
         lo, hi = shuttle.sanity_window("shuttle", k)
-        assert (lo, hi) == (pytest.approx(max(0.0, n - 8)), pytest.approx(min(180.0, n + 8)))
+        assert (lo, hi) == (pytest.approx(max(0.0, n - 12)), pytest.approx(min(180.0, n + 12)))
     t = shuttle.NOMINAL_TILT_ANGLES
     for a, b, gmin, gmax in shuttle.TILT_GAPS:
         assert t[b] - t[a] >= gmin + 1.5 and (gmax is None or t[b] - t[a] <= gmax - 1.5)
     c, order = shuttle.NOMINAL_SHUTTLE_ANGLES, shuttle._SHUTTLE_ORDER
-    assert min(c[b] - c[a] for a, b in zip(order, order[1:])) >= shuttle.SHUTTLE_MIN_GAP_DEG + 5
+    assert all(c[b] - c[a] >= shuttle._shuttle_min_gap(a, b) + 5 for a, b in zip(order, order[1:]))
     for k, n in servos.NOMINAL_ARM.items():
         assert any(lo + 5 <= n <= hi - 5 for lo, hi in servos.sanity_windows(k)), k
 
@@ -197,7 +204,9 @@ def test_allowed_range_follows_the_other_poses():
 
 def test_calibrate_tool_jogs_inside_the_module_limits(cs, monkeypatch):
     """section_tilt / section_columns / section_arm hand jog() exactly the
-    module's limits (allowed_range / the arm sanity window)."""
+    module's per-pose sanity window (audit 5 minor 3: no longer narrowed by
+    the order / gap rules against the other poses — those are checked when
+    saving)."""
     seen = {}
     monkeypatch.setattr(cs, "ask", lambda prompt="": "n")
     monkeypatch.setattr(time, "sleep", lambda s: None)
@@ -211,15 +220,15 @@ def test_calibrate_tool_jogs_inside_the_module_limits(cs, monkeypatch):
     cs.section_tilt()
     cs.section_columns()
     for pose in shuttle.NOMINAL_TILT_ANGLES:
-        assert seen[f"tilt {pose}"] == pytest.approx(shuttle.allowed_range("tilt", pose)), pose
+        assert seen[f"tilt {pose}"] == pytest.approx(shuttle.sanity_window("tilt", pose)), pose
     for key in ("home", 0, 1, 2, 3, "reject"):
-        lo, hi = shuttle.allowed_range("shuttle", key)
+        lo, hi = shuttle.sanity_window("shuttle", key)
         lo, hi = max(lo, cs.CARRIAGE_LIMITS[0]), min(hi, cs.CARRIAGE_LIMITS[1])
         assert seen[f"carriage {key}"] == pytest.approx((lo, hi)), key
-    assert seen["ARM_PICK"] == (165.0, 180.0) and seen["ARM_DROP"] == (0.0, 15.0)
+    assert seen["ARM_PICK"] == (155.0, 180.0) and seen["ARM_DROP"] == (0.0, 25.0)
     assert seen["ARM_PARK"] == (80.0, 100.0)
     for (lo, hi) in seen.values():
-        assert hi - lo <= 20.0
+        assert hi - lo <= 25.0
 
 
 def test_calibrate_window_pins_when_no_room(cs):
@@ -227,12 +236,21 @@ def test_calibrate_window_pins_when_no_room(cs):
     assert cs.window(97.0, 180, (89.0, 105.0)) == (89.0, 105.0)
 
 
-def test_calibrate_save_refuses_swapped_value(cs):
-    assert cs.save_shuttle("tilt", "hold", 93.2) is False          # 0.1° above level 93.1
+def test_calibrate_save_never_writes_swapped_value(cs):
+    # audit 5 minor 3: a value inside its own window that breaks a rule between
+    # poses is HELD (not written); unresolved at the end of the menu it is dropped
+    assert cs.save_shuttle("tilt", "hold", 93.2) is True           # 0.1° above level 93.1: held
+    assert cs._held["tilt"] == {"hold": 93.2} and not shuttle._CALIBRATION_FILE.exists()
+    cs.finish_held("tilt")
     assert shuttle.TILT_ANGLES["hold"] == 97.0 and not shuttle._CALIBRATION_FILE.exists()
-    assert cs.save_shuttle("shuttle", 1, 78.3) is False
-    assert cs.save_arm("ARM_PICK", 157.0) is False
+    assert cs.save_shuttle("shuttle", 1, 78.3) is True             # < 5° above home: held
+    cs.finish_held("shuttle")
+    assert shuttle.SHUTTLE_ANGLES[1] == 87.3 and not shuttle._CALIBRATION_FILE.exists()
+    assert cs.save_arm("ARM_PICK", 157.0) is True                  # breaks the symmetry: held
+    cs.finish_held("arm")
     assert servos.ARM_PICK == 175 and not servos._CALIBRATION_FILE.exists()
+    assert cs.save_shuttle("shuttle", 1, 60.0) is False            # outside its own window: refused
+    assert cs.save_arm("ARM_PICK", 150.0) is False
 
 
 # ══ m1: --calibrate records the machine NOT clean (tool marker) ══════════════

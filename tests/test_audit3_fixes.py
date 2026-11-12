@@ -122,12 +122,13 @@ def test_shuttle_calibration_valid_file_applied_and_absent_keys_reset():
 
 
 def test_shuttle_sanity_window_matches_calibrate_tool():
-    # audit 4 MJ1: ±8° (was ±25°); the tool's jog window IS the module's range now
+    # audit 4 MJ1: ±8° (was ±25°); audit 5 MJ-B: carriage ±12°. The tool's jog
+    # window IS the module's per-pose window
     cs = _load_script("calibrate_servos")
-    assert shuttle.SANITY_WINDOW_DEG == 8.0 and not hasattr(cs, "WINDOW_DEG")
+    assert shuttle.SANITY_WINDOW_DEG == {"tilt": 8.0, "shuttle": 12.0} and not hasattr(cs, "WINDOW_DEG")
     lo, hi = shuttle.sanity_window("tilt", "upper")
     assert (lo, hi) == (pytest.approx(104.2), pytest.approx(120.2))
-    assert shuttle.sanity_window("shuttle", 0) == (pytest.approx(170.0), 180.0)   # clipped to the range
+    assert shuttle.sanity_window("shuttle", 0) == (pytest.approx(166.0), 180.0)   # clipped to the range
 
 
 # ══ M1: servo_calibration.json validated strictly ════════════════════════════
@@ -136,7 +137,7 @@ SERVO_BAD = {
     "pick_nan": ('{"pickup_arm": {"ARM_PICK": NaN}}', "NaN is not a valid JSON number"),
     "drop_400": ({"pickup_arm": {"ARM_DROP": 400}}, "pickup_arm.ARM_DROP: 400° is outside the servo range"),
     "arm_list": ({"pickup_arm": []}, "pickup_arm: must be a JSON object"),
-    "drop_120": ({"pickup_arm": {"ARM_DROP": 120}}, "pickup_arm.ARM_DROP: 120° is more than 10°"),
+    "drop_120": ({"pickup_arm": {"ARM_DROP": 120}}, "pickup_arm.ARM_DROP: 120° is outside the sanity window"),
     "same_side": ({"pickup_arm": {"ARM_PICK": 175, "ARM_DROP": 170}}, "opposite sides of ARM_PARK"),
     "unknown_key": ({"pickup_arm": {"ARM_PIKC": 170}}, "pickup_arm.ARM_PIKC: unknown key"),
     "unknown_section": ({"pickup": {"ARM_PICK": 170}}, "pickup: unknown section"),
@@ -231,11 +232,11 @@ def test_calibrate_jog_refused_save_keeps_jogging(cs, monkeypatch):
 
 
 def test_calibrate_jog_window_inside_sanity_window(cs):
-    # audit 4 MJ1: the jog window is exactly the module's accepted range
+    # audit 4 MJ1 / audit 5: the jog window is exactly the module's per-pose window
     assert cs.window(112.2, 180, shuttle.sanity_window("tilt", "upper")) == (pytest.approx(104.2),
                                                                            pytest.approx(120.2))
-    assert cs.window(170.0, 180, servos.sanity_window("ARM_PICK", 170.0)) == (165.0, 180.0)
-    assert cs.window(10.0, 180, servos.sanity_window("ARM_PICK", 10.0)) == (0.0, 15.0)   # mirrored
+    assert cs.window(170.0, 180, servos.sanity_window("ARM_PICK", 170.0)) == (155.0, 180.0)
+    assert cs.window(10.0, 180, servos.sanity_window("ARM_PICK", 10.0)) == (0.0, 25.0)   # mirrored
 
 
 def test_calibrate_tool_exits_78_on_invalid_file_before_claiming(cs, monkeypatch):

@@ -15,7 +15,9 @@ appended at the end under its own "[all]" filter — so a model filter such as
 is kept as config.txt.riftbound.bak the first time. Writes are durable like
 cmdline_param.py (fsynced temp file, rename, fsynced directory: the FAT boot
 partition must never be left with a half-written config.txt). A reboot
-applies it.
+applies it. A --file that does not exist, a file that is not UTF-8 text or one
+that cannot be read / written is reported in one line (exit 1, nothing
+changed), never with a traceback.
 
 Why (audit 4 m9) — "gpio=17,27=ip,pu": GPIO 17 (pump relay IN) and 27 (vent
 valve relay IN) come out of reset as inputs with the SoC's default ~50 kΩ
@@ -44,10 +46,10 @@ CANDIDATES = (Path("/boot/firmware/config.txt"), Path("/boot/config.txt"))
 def find_config(candidates=CANDIDATES):
     for p in candidates:
         try:
-            text = p.read_text()
+            raw = p.read_bytes()        # bytes: a non-UTF-8 file is reported by ensure_line
         except OSError:
             continue
-        if "DO NOT EDIT" in text:
+        if b"DO NOT EDIT" in raw:
             continue
         return p
     return None
@@ -105,7 +107,21 @@ def main(argv=None) -> int:
     if path is None:
         print("config.txt not found in " + ", ".join(map(str, CANDIDATES)), file=sys.stderr)
         return 1
-    print(f"updated {path}" if ensure_line(path, line, args.comment) else "unchanged")
+    if not path.is_file():
+        what = "not a regular file" if path.exists() else "no such file"
+        print(f"{path}: {what} — nothing changed (check --file)", file=sys.stderr)
+        return 1
+    try:
+        changed = ensure_line(path, line, args.comment)
+    except UnicodeDecodeError as exc:
+        print(f"{path} is not UTF-8 text ({exc.reason} at byte {exc.start}) — nothing changed; "
+              "is it really config.txt?", file=sys.stderr)
+        return 1
+    except OSError as exc:
+        print(f"cannot update {path}: {exc} — nothing changed (run it as root, like setup.sh)",
+              file=sys.stderr)
+        return 1
+    print(f"updated {path}" if changed else "unchanged")
     return 0
 
 

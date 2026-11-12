@@ -26,6 +26,9 @@ root-owned by a tool run with sudo) raises LockFileError naming the file and
 the fix (`sudo chown -R <user>: data/`); main.py refuses with exit 78, which
 the unit's RestartPreventExitStatus keeps from a restart loop. Run as root
 anyway, the files this module creates are given to the owner of data/.
+data_dir_problems() also covers main.py's bin counts (data/bin_counts.json
+and its .lock, audit 5 minor 2): a counts file the service cannot read would
+otherwise start every bin from 0 and overfill them.
 
 MOCK runs use their own files (machine_state.mock.json, sorter.mock.lock) so
 a mock run never touches the real machine's record.
@@ -44,6 +47,7 @@ except ImportError:          # non-POSIX dev machine
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
+BIN_COUNTS_NAME = "bin_counts.json"          # main.BIN_COUNTS_FILE (+ ".lock" sidecar)
 
 
 class LockBusy(RuntimeError):
@@ -105,18 +109,26 @@ def _mkdir(directory: Path) -> None:
     _match_parent_owner(directory)
 
 
-def data_dir_problems(lock_path: Path) -> list[str]:
-    """Start-up check (audit 4 m2): what this process must be able to write in
-    data/ — the instance lock, and its directory (the clean-shutdown marker is
-    replaced atomically there). One line per problem, each naming the file and
-    the chown fix; empty if all is well (or the files do not exist yet)."""
+def data_dir_problems(lock_path: Path, counts_file: Path | None = None) -> list[str]:
+    """Start-up check (audit 4 m2, audit 5 minor 2): what this process must be
+    able to use in data/ — the directory (the clean-shutdown marker and the bin
+    counts are replaced atomically there), the instance lock, the bin counts
+    file (read) and its .lock sidecar (read + write). counts_file defaults to
+    data/bin_counts.json next to the lock. One line per problem, each naming
+    the file and the chown fix; empty if all is well (or the files do not
+    exist yet)."""
     lock_path = Path(lock_path)
+    counts = Path(counts_file) if counts_file is not None else lock_path.parent / BIN_COUNTS_NAME
+    checks = ((lock_path.parent, os.W_OK | os.X_OK), (lock_path, os.R_OK | os.W_OK),
+              (counts, os.R_OK), (counts.with_name(counts.name + ".lock"), os.R_OK | os.W_OK))
     problems = []
-    for path, mode in ((lock_path.parent, os.W_OK | os.X_OK), (lock_path, os.R_OK | os.W_OK)):
+    for path, mode in checks:
         if path.exists() and not os.access(path, mode):
             owned, me = _owner_hint(path)
-            problems.append(f"{path} is not writable by this user{owned} — left by a tool run "
-                            f"with sudo? Fix: sudo chown -R {me}: {lock_path.parent}")
+            what = "readable" if mode == os.R_OK else "writable"
+            fix_dir = path if path == lock_path.parent else path.parent
+            problems.append(f"{path} is not {what} by this user{owned} — left by a tool or "
+                            f"main.py run with sudo? Fix: sudo chown -R {me}: {fix_dir}")
     return problems
 
 

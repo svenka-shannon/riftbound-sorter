@@ -4,7 +4,7 @@ Channels:
   0 - Pickup arm    single-servo parallelogram arm (cad/suction_arm.scad):
                     ARM_PICK = cup on the top card in the hopper,
                     ARM_DROP = card 3 mm above the belt at X -95,
-                    ARM_PARK = crank straight up (servo 90°)
+                    ARM_PARK = top of the arc (servo 90° = crank 93°, th_mid)
   1, 2 - cradle tilt + shuttle carriage: hardware/shuttle.py (shares this PCA9685)
   3-15 - unused
 
@@ -44,12 +44,15 @@ if not _MOCK:
 # ── Pickup arm (ch0) ──────────────────────────────────────────────────────
 # Parallelogram arm, cad/suction_arm.scad: the cup stays vertical and moves on
 # a 60.3 mm-radius arc about the servo axis (X -154.7, Z 151.8). Servo 90° =
-# crank straight up; increasing angle swings the cup towards the hopper. The
-# working arc is symmetric about 90°, so if your servo turns the other way just
-# swap ARM_PICK and ARM_DROP (calibration file) — it never leaves the safe arc.
+# crank th_mid = 93.0° (3° past vertical toward the hopper: the middle of the
+# pick 178° … drop 8° arc), which is how the crank is fitted (docs/ASSEMBLY.md
+# §11 step 3: 25T spline × 4 horn slots = 3.6° steps, so within 1.8° of 93°);
+# increasing angle swings the cup towards the hopper. The working arc is
+# symmetric about 90°, so if your servo turns the other way just swap ARM_PICK
+# and ARM_DROP (calibration file) — it never leaves the safe arc.
 ARM_PICK = 175   # crank 178°: cup lip 3 mm below the top card (Z 90.9), spring slider takes it
 ARM_DROP = 5     # crank 8°: card underside 3 mm above the belt, card centre X -95
-ARM_PARK = 90    # crank vertical: hand over X -155 at the top of the arc (rest / refill)
+ARM_PARK = 90    # crank 93° (th_mid): hand over X ≈ -158 at the top of the arc (rest / refill)
 ARM_ACTUATION_RANGE = 180   # MG996R at 500–2500 µs; 270 for a DS3218MG-270 drop-in:
                             # config/machine.json {"servos": {"ARM_ACTUATION_RANGE": 270}}
                             # (then re-calibrate the arm angles)
@@ -78,21 +81,37 @@ _arm_released = False   # ch0 switched off (limp) since the last write; _arm_ang
 #   sections   "pickup_arm" (keys ARM_PICK, ARM_DROP, ARM_PARK; legacy ARM_DOWN /
 #              ARM_UP, see below); legacy "gate" / "bin_select" (ignored: those
 #              servos are now the shuttle's); keys "_…" are comments.
-#   values     finite JSON numbers in [0, ARM_ACTUATION_RANGE], each within
-#              SANITY_WINDOW_DEG (±10°) of its nominal pose — or of the MIRRORED
-#              pose (180° − nominal: a servo that turns the other way swaps PICK
-#              and DROP, the arc is symmetric about PARK 90°). PICK and DROP must
-#              lie on opposite sides of PARK. So a typo (ARM_DROP 400, a string,
-#              NaN, 120 for 12, 157 for 175) can never swing the arm into the
-#              hopper. Why ±10° (audit 4 MJ1): the crank sits on a 25T disc horn,
-#              so the nearest spline tooth is within ±7.2° of nominal; the rest
-#              is trim (PICK slider compression, DROP height). The windows
-#              (PICK 165–180 / 0–15, DROP 0–15 / 165–180, PARK 80–100) are far
-#              apart, and calibrate_servos.py clamps its jog to the same limits.
+#   values     finite JSON numbers in [0, ARM_ACTUATION_RANGE], each inside its
+#              sanity window round the nominal pose — or round the MIRRORED pose
+#              (180° − nominal: a servo that turns the other way swaps PICK and
+#              DROP, the arc is symmetric about PARK 90°):
+#                PICK 155–180 (mirror 0–25)    DROP 0–25 (mirror 155–180)
+#                PARK 80–100
+#              i.e. SANITY_WINDOW_DEG (10°) away from PARK / either side of PARK,
+#              SANITY_WINDOW_TOWARD_PARK_DEG (20°) towards PARK (clipped to the
+#              servo range). Plus two rules between the poses:
+#                PICK and DROP on opposite sides of PARK;
+#                symmetry |(PICK − PARK) − (PARK − DROP)| ≤ ARM_SYMMETRY_MAX_DEG
+#                (10°) — both ends sit 85°/(1 + gain) from PARK on a crank
+#                fitted as documented, whatever the servo's gain.
+#              So a typo (ARM_DROP 400, a string, NaN, 120 for 12, 157 for 175)
+#              can never swing the arm into the hopper.
+#              Why these numbers (audit 5 MJ-A): the crank is fitted within
+#              1.8° of th_mid (3.6° spline × slot lattice), the rest is trim
+#              (PICK slider compression, DROP height) and MG996R GAIN: a servo
+#              that turns 10 % more than commanded needs PICK ≈ 167 / DROP ≈ 13
+#              — so the windows open towards PARK only; away from PARK the arm
+#              would go past the hopper / belt. Every build with gain −10…+10 %
+#              whose poses the servo can reach passes (tests/test_audit5_fixes.py
+#              models it), while 157 for 175 breaks the symmetry rule by 18°.
+#              calibrate_servos.py clamps its jog to the per-pose window and
+#              checks the symmetry / side rules when it saves.
 #   legacy     ARM_DOWN → ARM_PICK, ARM_UP → ARM_PARK, only when the new key is
 #              absent (with a warning; checked like the key it stands in for).
 #              Superseded legacy keys are ignored.
-SANITY_WINDOW_DEG = 10.0
+SANITY_WINDOW_DEG = 10.0                # PARK ±; PICK / DROP away from PARK
+SANITY_WINDOW_TOWARD_PARK_DEG = 20.0    # PICK / DROP towards PARK (servo gain, audit 5 MJ-A)
+ARM_SYMMETRY_MAX_DEG = 10.0             # |(PICK − PARK) − (PARK − DROP)|
 NOMINAL_ARM = {"ARM_PICK": float(ARM_PICK), "ARM_DROP": float(ARM_DROP), "ARM_PARK": float(ARM_PARK)}
 _ARM_KEYS = ("ARM_PICK", "ARM_DROP", "ARM_PARK")
 _LEGACY_ARM = {"ARM_DOWN": "ARM_PICK", "ARM_UP": "ARM_PARK"}
@@ -113,11 +132,19 @@ def _is_number(v) -> bool:
 
 def sanity_windows(key: str, actuation_range: int | None = None) -> list[tuple[float, float]]:
     """Allowed (lo, hi) windows for ARM_PICK / ARM_DROP / ARM_PARK: around the
-    nominal pose and around its mirror (180° − nominal), clipped to the range."""
+    nominal pose and around its mirror (180° − nominal), clipped to the range.
+    PARK: ±SANITY_WINDOW_DEG. PICK / DROP: SANITY_WINDOW_TOWARD_PARK_DEG on the
+    side towards PARK 90° (a servo with more gain than nominal needs less
+    command), SANITY_WINDOW_DEG on the side away from it."""
     rng = float(actuation_range if actuation_range is not None else ARM_ACTUATION_RANGE)
     out = []
     for c in sorted({NOMINAL_ARM[key], 180.0 - NOMINAL_ARM[key]}):
-        out.append((max(0.0, c - SANITY_WINDOW_DEG), min(rng, c + SANITY_WINDOW_DEG)))
+        below = above = SANITY_WINDOW_DEG
+        if c > 90.0:
+            below = SANITY_WINDOW_TOWARD_PARK_DEG
+        elif c < 90.0:
+            above = SANITY_WINDOW_TOWARD_PARK_DEG
+        out.append((max(0.0, c - below), min(rng, c + above)))
     return out
 
 
@@ -181,20 +208,38 @@ def validate_calibration(cal, actuation_range: int | None = None) -> tuple[dict,
         wins = sanity_windows(key, rng)
         if not any(lo <= v <= hi for lo, hi in wins):
             allowed = " or ".join(f"{lo:g}–{hi:g}°" for lo, hi in wins)
-            problems.append(f"{where}: {v:g}° is more than {SANITY_WINDOW_DEG:g}° from the nominal "
-                            f"{NOMINAL_ARM[key]:g}° (or its mirror {180 - NOMINAL_ARM[key]:g}°; "
-                            f"allowed {allowed}) — a typo? Re-calibrate with "
-                            "scripts/calibrate_servos.py")
+            mirror = (f" (or its mirror {180 - NOMINAL_ARM[key]:g}°)"
+                      if NOMINAL_ARM[key] != 90.0 else "")
+            problems.append(f"{where}: {v:g}° is outside the sanity window round the nominal "
+                            f"{NOMINAL_ARM[key]:g}°{mirror}; allowed {allowed} — a typo? Re-calibrate with "
+                            "scripts/calibrate_servos.py (re-fit the crank, docs/ASSEMBLY.md §11, "
+                            "if the pose really is that far off)")
             continue
         values[key] = v
         good.add(key)
     if {"ARM_PICK", "ARM_DROP", "ARM_PARK"} <= good | (set(_ARM_KEYS) - set(source)):
-        pk, dr, pa = values["ARM_PICK"], values["ARM_DROP"], values["ARM_PARK"]
-        if not (pk - pa) * (dr - pa) < 0:
-            problems.append(f"pickup_arm: ARM_PICK ({pk:g}°) and ARM_DROP ({dr:g}°) must lie on "
-                            f"opposite sides of ARM_PARK ({pa:g}°) — swap BOTH for a servo that "
-                            "turns the other way")
+        problems.extend(pose_rule_problems(values))
     return values, problems, notes
+
+
+def pose_rule_problems(values: dict) -> list[str]:
+    """The rules BETWEEN the three arm poses (each already inside its own
+    window): PICK and DROP on opposite sides of PARK, and the two half-arcs
+    within ARM_SYMMETRY_MAX_DEG of each other. Pure; used by
+    validate_calibration() and by calibrate_servos.py when it saves."""
+    pk, dr, pa = (float(values[k]) for k in _ARM_KEYS)
+    if not (pk - pa) * (dr - pa) < 0:
+        return [f"pickup_arm: ARM_PICK ({pk:g}°) and ARM_DROP ({dr:g}°) must lie on "
+                f"opposite sides of ARM_PARK ({pa:g}°) — swap BOTH for a servo that "
+                "turns the other way"]
+    asym = (pk - pa) - (pa - dr)
+    if abs(asym) > ARM_SYMMETRY_MAX_DEG + 1e-9:
+        return [f"pickup_arm: ARM_PICK − ARM_PARK ({pk - pa:+g}°) and ARM_PARK − ARM_DROP "
+                f"({pa - dr:+g}°) differ by {abs(asym):g}°, more than {ARM_SYMMETRY_MAX_DEG:g}° — "
+                "the arc is symmetric about PARK (a typo such as 157 for 175?). Re-calibrate "
+                "with scripts/calibrate_servos.py; if the poses really are that lopsided, the "
+                "crank is not on the 93° fit (docs/ASSEMBLY.md §11 step 3)"]
+    return []
 
 
 def _reject_constant(token):
@@ -350,7 +395,7 @@ def arm_to_drop(duration_s: float | None = None, settle_s: float = 0.15) -> None
 
 
 def arm_park(duration_s: float | None = None, settle_s: float = 0.15) -> None:
-    """Crank straight up: hopper and belt both clear (rest / refill position)."""
+    """Top of the arc (crank 93°, 3° past vertical): hopper and belt both clear (rest / refill)."""
     move_arm_smooth(ARM_PARK, duration_s, settle_s)
 
 

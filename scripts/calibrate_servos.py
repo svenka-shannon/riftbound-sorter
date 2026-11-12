@@ -48,20 +48,25 @@ Jog commands (at every pose):
 Safety: every move is a ramped move of the owning module (servos.move_arm_smooth,
 shuttle hold/level/tip/to_column). The carriage only moves with the cradle in
 HOLD, and always finishes towards +ψ like shuttle.to_column() (backlash).
-Jogging is clamped to exactly what the sorter accepts (audit 4 MJ1): the
-modules' sanity window — ±10° around the nominal arm pose (or its mirror
-180° − nominal), ±8° around the nominal tilt / carriage pose — AND, for the
-shuttle, the order / gap rules against the other poses as they stand
-(shuttle.allowed_range(): lower < level < hold < upper with 2–8° from level to
-hold, ≥ 8° from hold to upper, ≥ 30° from lower to level; carriage stops ≥ 5°
-apart). If you need more, the horn / coupler is on the wrong spline tooth:
-re-seat it (one MG996R spline tooth is 14.4°).
+Jogging is clamped to each pose's own sanity window (the same window the
+sorter checks the file against): arm PICK 155–180 / DROP 0–25 / PARK 80–100
+(or the mirror, 180° − angle, for a servo that turns the other way), tilt ±8°
+and carriage ±12° round the nominal pose. If you need more, the horn / crank /
+coupler is on the wrong spline tooth: re-fit it (docs/ASSEMBLY.md §11, §13).
 
-Saving: a pose is only written if the WHOLE file still passes the module's
-validation (hardware/servos.py / hardware/shuttle.py validate_calibration:
-types, ranges, sanity window, pose order such as lower < level, hold < upper,
-carriage reject < 3 < 2 < home < 1 < 0, arm PICK / DROP either side of PARK);
-otherwise the tool says why and keeps the old value. An invalid file at start
+Saving: the rules BETWEEN poses (arm PICK / DROP either side of PARK and
+symmetric about it within 10°; tilt lower < level < hold < upper with 2–8°
+from level to hold, ≥ 8° from hold to upper, ≥ 30° from lower to level;
+carriage reject < 3 < 2 < home < 1 < 0, stops ≥ 5° apart, 2 − 3 ≥ 12°) are
+checked when you save, against the other poses as they stand. A pose that is
+fine on its own but breaks one of them only because poses still to come in
+this menu have their old values is HELD (the tool says which rule): it is
+written, together with the held poses, by the first later save that makes the
+whole file valid — so a build whose every pose sits ~8° off nominal is done in
+one pass (audit 5 minor 3). Whatever is still held at the end of the menu (or
+at 'q') is NOT written, and the tool says so. The file on disk always passes
+the module's validation (hardware/servos.py / hardware/shuttle.py
+validate_calibration). An invalid file at start
 stops the tool (exit 78) with the list of bad keys — fix or delete them. Every
 config error exits 78 (EX_CONFIG): config/machine.json, an unreadable
 calibration file, and an instance lock / data/ this user cannot open (left
@@ -106,6 +111,10 @@ _elevator_ready = False
 _pump_on = False
 _lock = None                    # instance lock handle, held for the life of the tool
 EX_CONFIG = 78
+# Poses saved in the current menu that are fine on their own but not written
+# yet: they break a rule between poses (order / gap / arm symmetry) against
+# poses still to come. Written with the first save that makes the file valid.
+_held: dict = {"arm": {}, "tilt": {}, "shuttle": {}}
 
 
 class Quit(Exception):
@@ -281,25 +290,76 @@ def _refuse(what: str, problems) -> bool:
     return False
 
 
+def _hold(kind: str, what: str, key, value: float, rule_problems) -> bool:
+    """A pose fine on its own that breaks a rule between poses: keep it (not
+    written) until a later save in this menu makes the whole file valid."""
+    _held[kind][key] = value
+    print(f"  HELD, not written yet — {what} is inside its window, but against the other "
+          "poses as they are now:")
+    for p in rule_problems:
+        print(f"    - {p}")
+    print("    It is written together with the next pose you save that puts this right "
+          "(set the other poses of this menu next).")
+    return True
+
+
+def finish_held(kind: str) -> None:
+    """End of a menu (or quit): poses still held are dropped — the file keeps
+    its old values, and so does the module."""
+    held, _held[kind] = _held[kind], {}
+    if not held:
+        return
+    names = ", ".join(f"{k} {v:g}°" for k, v in held.items())
+    if kind == "arm":
+        values, problems, _ = servos.validate_calibration(read_json(servos._CALIBRATION_FILE))
+        if not problems:
+            for k in held:
+                setattr(servos, k, values[k])
+            servos.PICKUP_ARM_UP, servos.PICKUP_ARM_DOWN = servos.ARM_PARK, servos.ARM_PICK
+        path = servos._CALIBRATION_FILE
+    else:
+        eff, problems = shuttle.validate_calibration(read_json(shuttle._CALIBRATION_FILE))
+        if not problems:
+            live = shuttle.TILT_ANGLES if kind == "tilt" else shuttle.SHUTTLE_ANGLES
+            for k in held:
+                live[k] = eff[kind][k]
+        path = shuttle._CALIBRATION_FILE
+    print(f"  NOT saved: {names} — still held at the end of the menu (the rules between "
+          f"poses are not met yet; {path} keeps the old values). Re-run this menu and set "
+          "every pose.")
+
+
 def save_arm(key: str, angle: float) -> bool:
-    """Write pickup_arm.<key> if the resulting file passes servos.validate_calibration().
-    Returns False (file untouched) otherwise."""
+    """Write pickup_arm.<key> (plus any poses held earlier in this menu) if
+    the resulting file passes servos.validate_calibration(). A value that only
+    breaks the rules between the poses (side of PARK, symmetry) is held
+    (_hold); one that fails its own checks is refused: returns False, file
+    untouched."""
     path = servos._CALIBRATION_FILE
     data = read_json(path)
     arm = data.get("pickup_arm")
     if not isinstance(arm, dict):
         arm = data["pickup_arm"] = {}
-    arm[key] = round(angle, 2)
-    legacy = {"ARM_PICK": "ARM_DOWN", "ARM_PARK": "ARM_UP"}.get(key)
-    if legacy:
-        arm.pop(legacy, None)       # superseded by the new key
-    _, problems, _ = servos.validate_calibration(data)
+    staged = {**_held["arm"], key: round(angle, 2)}
+    for k, v in staged.items():
+        arm[k] = v
+        legacy = {"ARM_PICK": "ARM_DOWN", "ARM_PARK": "ARM_UP"}.get(k)
+        if legacy:
+            arm.pop(legacy, None)       # superseded by the new key
+    values, problems, _ = servos.validate_calibration(data)
     if problems:
-        return _refuse(f"pickup_arm.{key} = {arm[key]}", problems)
+        rules = servos.pose_rule_problems(values)
+        if any(p not in rules for p in problems):
+            return _refuse(f"pickup_arm.{key} = {arm[key]}", problems)
+        setattr(servos, key, angle)          # the moves in this menu use it
+        servos.PICKUP_ARM_UP, servos.PICKUP_ARM_DOWN = servos.ARM_PARK, servos.ARM_PICK
+        return _hold("arm", f"pickup_arm.{key} = {arm[key]}", key, round(angle, 2), problems)
     write_json(path, data)
-    setattr(servos, key, angle)
+    _held["arm"] = {}
+    for k, v in staged.items():
+        setattr(servos, k, angle if k == key else v)
+        print(f"  saved pickup_arm.{k} = {v}{'' if k == key else ' (held)'} → {path}")
     servos.PICKUP_ARM_UP, servos.PICKUP_ARM_DOWN = servos.ARM_PARK, servos.ARM_PICK
-    print(f"  saved pickup_arm.{key} = {arm[key]} → {path}")
     return True
 
 
@@ -322,20 +382,32 @@ def save_invert(ch: int, value: bool) -> bool:
 
 
 def save_shuttle(section: str, key, angle: float) -> bool:
-    """Write <section>.<key> if the resulting file passes shuttle.validate_calibration()
-    (range, sanity window, pose order). Returns False (file untouched) otherwise."""
+    """Write <section>.<key> (plus any poses held earlier in this menu) if the
+    resulting file passes shuttle.validate_calibration(). A value that only
+    breaks the order / gap rules against the other poses is held (_hold); one
+    that fails its own checks (range, sanity window) is refused: returns
+    False, file untouched."""
     path = shuttle._CALIBRATION_FILE
     data = read_json(path)
     sec = data.get(section)
     if not isinstance(sec, dict):
         sec = data[section] = {}
-    sec[str(key)] = round(angle, 2)
-    _, problems = shuttle.validate_calibration(data)
+    staged = {**_held[section], key: round(angle, 2)}
+    for k, v in staged.items():
+        sec[str(k)] = v
+    eff, problems = shuttle.validate_calibration(data)
+    live = shuttle.TILT_ANGLES if section == "tilt" else shuttle.SHUTTLE_ANGLES
     if problems:
-        return _refuse(f"{section}.{key} = {round(angle, 2)}", problems)
+        rules = shuttle.pose_rule_problems(eff["tilt"], eff["shuttle"])
+        if any(p not in rules for p in problems):
+            return _refuse(f"{section}.{key} = {round(angle, 2)}", problems)
+        live[key] = angle                    # the moves in this menu use it
+        return _hold(section, f"{section}.{key} = {round(angle, 2)}", key, round(angle, 2), problems)
     write_json(path, data)
-    (shuttle.TILT_ANGLES if section == "tilt" else shuttle.SHUTTLE_ANGLES)[key] = angle
-    print(f"  saved {section}.{key} = {round(angle, 2)} → {path}")
+    _held[section] = {}
+    for k, v in staged.items():
+        live[k] = angle if k == key else v
+        print(f"  saved {section}.{k} = {v}{'' if k == key else ' (held)'} → {path}")
     return True
 
 
@@ -393,8 +465,9 @@ def jog(title: str, *, start: float, stored: float, nominal: float, lo: float, h
                 continue
             new = round(min(hi, max(lo, cur + d)), 2)
             if new != round(cur + d, 2):
-                print(f"  at the window edge ({lo:.1f}–{hi:.1f}°): save here and re-run the tool "
-                      "to go further, or check the horn is on the right spline tooth")
+                print(f"  at the edge of this pose's sanity window ({lo:.1f}–{hi:.1f}°): if the "
+                      "pose is still not right, the horn / crank / coupler is on the wrong "
+                      "spline tooth — re-fit it (docs/ASSEMBLY.md §11, §13)")
             if new == cur:
                 continue
             move(new)
@@ -425,11 +498,11 @@ def jog(title: str, *, start: float, stored: float, nominal: float, lo: float, h
 
 
 def window(stored: float, top: float, sanity=None):
-    """Jog window: [0, top] clamped to `sanity` = (lo, hi), the range the
-    module accepts for this pose (servos.sanity_window / shuttle.allowed_range:
-    the same limits the sorter checks the file against, audit 4 MJ1). If that
-    leaves nothing (the other poses as they stand leave no room), the jog is
-    pinned to the stored value."""
+    """Jog window: [0, top] clamped to `sanity` = (lo, hi), the pose's own
+    sanity window (servos.sanity_window / shuttle.sanity_window: the same
+    per-pose limits the sorter checks the file against). The rules between
+    poses are checked at save time (save_arm / save_shuttle), not here (audit
+    5 minor 3). If (lo, hi) is empty the jog is pinned to the stored value."""
     lo, hi = 0.0, float(top)
     if sanity is not None:
         lo, hi = max(lo, sanity[0]), min(hi, sanity[1])
@@ -458,8 +531,10 @@ ARM_STEPS = (
         "  the side guides. The card is released onto the belt when you leave this pose.",
     ]),
     ("ARM_PARK", [
-        "PARK — crank straight up (rest / refill pose).",
-        "  Jog until the crank is vertical (check with a small square). Hopper and belt both clear.",
+        "PARK — top of the arc (rest / refill pose): the crank 3° past vertical towards the",
+        "  hopper (93°), the pose it was fitted at (docs/ASSEMBLY.md §11 step 3). The default",
+        "  90° is right for a crank fitted that way: 'n' keeps it. Only jog if the hopper and",
+        "  the belt are not both clear of the cup.",
     ]),
 )
 
@@ -501,6 +576,17 @@ def section_arm() -> None:
         return False
 
     top = float(servos.ARM_ACTUATION_RANGE)
+    try:
+        _arm_steps(top, arm_extra)
+    finally:
+        finish_held("arm")
+    if _pump_on:
+        set_pump(False)
+    servos.arm_park()
+    print("  arm parked")
+
+
+def _arm_steps(top: float, arm_extra) -> None:
     for key, advice in ARM_STEPS:
         print("\n  " + "\n  ".join(advice))
         stored = float(getattr(servos, key))
@@ -517,10 +603,6 @@ def section_arm() -> None:
         if key == "ARM_DROP" and _pump_on:
             set_pump(False)           # same order as the sort cycle: release at DROP, then park
             time.sleep(0.3)
-    if _pump_on:
-        set_pump(False)
-    servos.arm_park()
-    print("  arm parked")
 
 
 # ---------------------------------------------------------------------------
@@ -584,8 +666,16 @@ def section_tilt() -> None:
     print("  Cradle EMPTY unless the step asks for a card. HOLD and LEVEL are set at HOME;")
     print(f"  UPPER and LOWER at a column (default {DEFAULT_TILT_COLUMN}; calibrate the columns first if a")
     print("  tip clips the tray). The carriage only ever moves in HOLD.")
-    col_state = {"col": DEFAULT_TILT_COLUMN}
+    try:
+        _tilt_steps()
+    finally:
+        finish_held("tilt")
+    shuttle.home()
+    print("  cradle home + level")
 
+
+def _tilt_steps() -> None:
+    col_state = {"col": DEFAULT_TILT_COLUMN}
     for pose, where, advice in TILT_STEPS:
         print("\n  " + "\n  ".join(advice))
         target = shuttle.state()[0]
@@ -595,7 +685,7 @@ def section_tilt() -> None:
             carriage_to(col_state["col"])
         stored = float(shuttle.TILT_ANGLES[pose])
         lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_TILT],
-                        shuttle.allowed_range("tilt", pose))
+                        shuttle.sanity_window("tilt", pose))
 
         def move(a, p=pose):
             shuttle.TILT_ANGLES[p] = a
@@ -624,8 +714,6 @@ def section_tilt() -> None:
                   extra=extra, extra_help="  c N  move to column N (0-3, reject) and tip again" if where == "column" else "")
         if got is None:
             move(stored)                     # unsaved: back to the stored angle (and dict value)
-    shuttle.home()
-    print("  cradle home + level")
 
 
 COLUMN_STEPS = (
@@ -646,11 +734,20 @@ def section_columns() -> None:
     print("  slot and line the cradle up with it. The cradle is in HOLD for every move.")
     print("  Backlash: like shuttle.to_column(), every move ENDS travelling towards +ψ")
     print("  (increasing angle); a '-' jog dips 3° below the target and comes back up.")
+    try:
+        _column_steps()
+    finally:
+        finish_held("shuttle")
+    shuttle.home()
+    print("  cradle home + level")
+
+
+def _column_steps() -> None:
     for key, advice in COLUMN_STEPS:
         print(f"\n  {advice}")
         stored = float(shuttle.SHUTTLE_ANGLES[key])
         lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_SHUTTLE],
-                        shuttle.allowed_range("shuttle", key))
+                        shuttle.sanity_window("shuttle", key))
         lo, hi = max(lo, CARRIAGE_LIMITS[0]), min(hi, CARRIAGE_LIMITS[1])
 
         def move(a, k=key):
@@ -664,8 +761,6 @@ def section_columns() -> None:
                   save=lambda a, k=key: save_shuttle("shuttle", k, a))
         if got is None:
             shuttle.SHUTTLE_ANGLES[key] = stored      # carriage moves on from here anyway
-    shuttle.home()
-    print("  cradle home + level")
 
 
 # ---------------------------------------------------------------------------

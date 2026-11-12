@@ -26,8 +26,9 @@ Bins: 0-3 lower floor (column = bin), 4-7 upper floor (column = bin - 4),
 9 reject. All angles live in TILT_ANGLES / SHUTTLE_ANGLES and can be overridden
 from config/shuttle_calibration.json (same idea as servos.py), which is
 validated strictly (validate_calibration(): known keys, finite numbers inside
-the servo range AND a ±8° sanity window around the nominal pose, pose order
-and minimum / maximum gaps between poses; any problem → ShuttleConfigError,
+the servo range AND a sanity window around the nominal pose — tilt ±8°,
+carriage ±12° — pose order and minimum / maximum gaps between poses; any
+problem → ShuttleConfigError,
 nothing applied, main.py exits 78). They are always
 GEOMETRIC angles (crank φ + 90° / crank ψ); a servo that turns the wrong way
 is handled by the per-channel "invert" option (SHUTTLE_INVERT) at the PWM write.
@@ -115,8 +116,9 @@ if not _MOCK:
 #   with ch1 powered to HOLD (97°) the coupler is pressed onto the spline at the
 #   tooth that puts two flats of its hex bore 7° up from horizontal toward +X
 #   (φ_hold = 7°), and its M4 clamp is tightened with the cradle 10° nose-down
-#   (cad/shuttle.scad header + INSTALL ORDER steps 1-2). 25T × hex indexing
-#   leaves ≤ 0.6° residual: trim it with scripts/calibrate_servos.py.
+#   (cad/shuttle.scad header + INSTALL ORDER steps 1-2). 25T (14.4°) × hex
+#   (60°) indexing gives a 2.4° lattice, so the nearest tooth leaves ≤ 1.2°
+#   residual: trim it with scripts/calibrate_servos.py.
 #   φ: level 3.6, hold 7.0, upper 22.2, lower -48.5  (shuttle_check.py geom)
 #   level is set 0.5° past the geometric value (93.6) so the skids sit on the
 #   home ledges (hard stop), which fixes the bed height for the incoming card.
@@ -209,21 +211,30 @@ def clear_jam() -> None:
 #   sections        tilt, shuttle, timing, actuation_range, invert (keys "_…" = comments)
 #   actuation_range {"1"|"2": 180 | 270}
 #   tilt / shuttle  finite JSON numbers in [0, actuation_range] AND inside the
-#                   sanity window: within SANITY_WINDOW_DEG (±8°) of the nominal
-#                   pose below — the calibrate tool's jog window is clamped to
-#                   the same limits (allowed_range()). Why ±8° (audit 4 MJ1):
-#                     ch1: the coupler is indexed at HOLD on the 25T spline, so
-#                          the residual is ≤ 0.6° (25T × hex indexing, see the
-#                          TILT_ANGLES note) — every tilt pose shares that offset;
-#                     ch2: the crank horn is fitted at a commanded pose; a 25T
-#                          spline tooth is 14.4°, so the nearest tooth is always
-#                          within ±7.2° of nominal.
-#                   ±8° covers both with margin, and is tight enough that a
-#                   swapped-digit typo of any nominal (79 / 107 for hold 97,
-#                   103 for level 93.1, 98 for upper 112.2, 78.3 for column 1
-#                   87.3, …) or a sign slip lands outside. Angles are geometric
-#                   (see "invert"), so the window holds for a 270° servo too.
-#                   Order + gaps (geometry; TILT_GAPS / SHUTTLE_MIN_GAP_DEG):
+#                   sanity window: within SANITY_WINDOW_DEG of the nominal pose
+#                   below (tilt ±8°, carriage ±12°) — the calibrate tool's jog
+#                   window is clamped to the same per-pose limits
+#                   (sanity_window()); it checks the order / gap rules when it
+#                   saves. Why:
+#                     ch1 ±8° (audit 4 MJ1): the coupler is indexed at HOLD on
+#                          the 25T spline, so the residual is ≤ 1.2° (25T × hex
+#                          = 2.4° lattice, see the TILT_ANGLES note) — every
+#                          tilt pose shares that offset; the rest is gain.
+#                     ch2 ±12° (audit 5 MJ-B): the crank horn is fitted at HOME;
+#                          a 25T spline tooth is 14.4°, so the nearest tooth is
+#                          within ±7.2°, and MG996R gain (±10 %) moves a stop
+#                          up to (7.2 + 0.1 × 30.5) / 0.9 = 11.4° from nominal
+#                          (column 3, 30.5° from home). ±8° failed ~7 % of
+#                          builds at 8 % gain.
+#                   Tight enough that a swapped-digit typo of a tilt nominal
+#                   (79 / 107 for hold 97, 103 for level 93.1, 98 for upper
+#                   112.2, …) or a sign slip lands outside the window; the
+#                   carriage typos the window no longer catches (54 for column
+#                   3's 45, 56.2 for column 2's 65.2, 78.3 for column 1's 87.3)
+#                   break the gap rules below. Angles are geometric (see
+#                   "invert"), so the window holds for a 270° servo too.
+#                   Order + gaps (geometry; TILT_GAPS / SHUTTLE_MIN_GAP_DEG /
+#                   SHUTTLE_PAIR_GAPS):
 #                     tilt  lower < level < hold < upper with
 #                           2° ≤ hold − level ≤ 8°   (nominal 3.9°: hold must lift
 #                                                    the tail, level must not be
@@ -231,12 +242,14 @@ def clear_jam() -> None:
 #                           upper − hold ≥ 8°        (nominal 15.2°)
 #                           level − lower ≥ 30°      (nominal 51.6°)
 #                     carriage reject < 3 < 2 < home < 1 < 0, neighbours ≥ 5°
-#                           apart (nominal gaps 43 / 20.2 / 10.3 / 11.8 / 90.7°)
+#                           apart (nominal gaps 43 / 20.2 / 10.3 / 11.8 / 90.7°),
+#                           and 2 − 3 ≥ 12° (nominal 20.2°; ≥ 18.4° at +10 %
+#                           gain): catches 54 for 45 and 56.2 for 65.2
 #                   A window alone cannot catch two poses typed into each
 #                   other's place (hold 93.2 with level 93.1): the gaps do.
 #   timing          finite numbers inside TIMING_LIMITS (all ≥ 0)
 #   invert          JSON booleans, channels "1" / "2"
-SANITY_WINDOW_DEG = 8.0
+SANITY_WINDOW_DEG = {"tilt": 8.0, "shuttle": 12.0}
 # (lower pose, upper pose, min gap °, max gap ° or None): TILT[b] − TILT[a] in [min, max]
 TILT_GAPS = (
     ("lower", "level", 30.0, None),
@@ -244,6 +257,8 @@ TILT_GAPS = (
     ("hold", "upper", 8.0, None),
 )
 SHUTTLE_MIN_GAP_DEG = 5.0
+# Carriage neighbours that need more than SHUTTLE_MIN_GAP_DEG: (lower, upper, min gap °)
+SHUTTLE_PAIR_GAPS = ((3, 2, 12.0),)
 VALID_ACTUATION_RANGES = (180, 270)
 TIMING_LIMITS = {
     "tilt_s_per_deg": (0.0, 0.2),
@@ -275,12 +290,53 @@ def _shuttle_key(k):
 
 
 def sanity_window(section: str, key, actuation_range: int | None = None) -> tuple[float, float]:
-    """(lo, hi) allowed for tilt.<key> / shuttle.<key>: nominal ± SANITY_WINDOW_DEG,
-    clipped to [0, actuation_range]."""
+    """(lo, hi) allowed for tilt.<key> / shuttle.<key>: nominal ±
+    SANITY_WINDOW_DEG[section], clipped to [0, actuation_range]."""
     nominal = (NOMINAL_TILT_ANGLES if section == "tilt" else NOMINAL_SHUTTLE_ANGLES)[key]
     ch = CH_TILT if section == "tilt" else CH_SHUTTLE
     rng = actuation_range if actuation_range is not None else SHUTTLE_ACTUATION_RANGE[ch]
-    return max(0.0, nominal - SANITY_WINDOW_DEG), min(float(rng), nominal + SANITY_WINDOW_DEG)
+    w = SANITY_WINDOW_DEG[section]
+    return max(0.0, nominal - w), min(float(rng), nominal + w)
+
+
+def _shuttle_min_gap(a, b) -> float:
+    """Minimum gap between carriage neighbours a < b."""
+    return max([SHUTTLE_MIN_GAP_DEG] + [g for lo, hi, g in SHUTTLE_PAIR_GAPS if (lo, hi) == (a, b)])
+
+
+def pose_rule_problems(tilt: dict, carriage: dict, skip=frozenset()) -> list[str]:
+    """The rules BETWEEN poses (order and gaps), for full tilt / carriage
+    angle dicts. Pairs with a (section, key) in `skip` (poses that already
+    failed their own check) are not compared. Pure; used by
+    validate_calibration() and by calibrate_servos.py when it saves."""
+    problems = []
+    t = tilt
+    for a, b, gmin, gmax in TILT_GAPS:
+        if ("tilt", a) in skip or ("tilt", b) in skip:
+            continue
+        gap = t[b] - t[a]
+        if gap <= 0:
+            problems.append(f"tilt.{a} ({t[a]:g}°) must be below tilt.{b} ({t[b]:g}°) — "
+                            "the order is lower < level < hold < upper")
+        elif gap < gmin or (gmax is not None and gap > gmax):
+            want = f"{gmin:g}–{gmax:g}°" if gmax is not None else f"at least {gmin:g}°"
+            problems.append(f"tilt.{b} − tilt.{a} = {gap:g}° must be {want} (nominal "
+                            f"{NOMINAL_TILT_ANGLES[b] - NOMINAL_TILT_ANGLES[a]:.1f}°) — two poses "
+                            "swapped or mistyped?")
+    c = carriage
+    for a, b in zip(_SHUTTLE_ORDER, _SHUTTLE_ORDER[1:]):
+        if ("shuttle", a) in skip or ("shuttle", b) in skip:
+            continue
+        gmin = _shuttle_min_gap(a, b)
+        if not c[a] < c[b]:
+            problems.append(f"shuttle.{a} ({c[a]:g}°) must be below shuttle.{b} ({c[b]:g}°) — the "
+                            "carriage order is reject < 3 < 2 < home < 1 < 0 (crank angle ψ)")
+        elif c[b] - c[a] < gmin:
+            problems.append(f"shuttle.{b} − shuttle.{a} = {c[b] - c[a]:g}° must be at least "
+                            f"{gmin:g}° (neighbouring stops; nominal "
+                            f"{NOMINAL_SHUTTLE_ANGLES[b] - NOMINAL_SHUTTLE_ANGLES[a]:.1f}°) — two "
+                            "poses swapped or mistyped?")
+    return problems
 
 
 def _is_number(v) -> bool:
@@ -356,7 +412,7 @@ def validate_calibration(cal) -> tuple[dict, list[str]]:
             lo, hi = sanity_window(sec, key, rng)
             nominal = (NOMINAL_TILT_ANGLES if sec == "tilt" else NOMINAL_SHUTTLE_ANGLES)[key]
             if not lo <= v <= hi:
-                problems.append(f"{where}: {v:g}° is more than {SANITY_WINDOW_DEG:g}° from the nominal "
+                problems.append(f"{where}: {v:g}° is more than {SANITY_WINDOW_DEG[sec]:g}° from the nominal "
                                 f"{nominal:g}° (allowed {lo:g}–{hi:g}°) — a typo? Re-calibrate with "
                                 "scripts/calibrate_servos.py (re-seat the horn / coupler if the "
                                 "pose really is that far off)")
@@ -378,30 +434,7 @@ def validate_calibration(cal) -> tuple[dict, list[str]]:
             eff["timing"][k] = float(v)
 
     # Geometric order + gaps (only between values that passed their own checks)
-    t = eff["tilt"]
-    for a, b, gmin, gmax in TILT_GAPS:
-        if ("tilt", a) in bad_angle or ("tilt", b) in bad_angle:
-            continue
-        gap = t[b] - t[a]
-        if gap <= 0:
-            problems.append(f"tilt.{a} ({t[a]:g}°) must be below tilt.{b} ({t[b]:g}°) — "
-                            "the order is lower < level < hold < upper")
-        elif gap < gmin or (gmax is not None and gap > gmax):
-            want = f"{gmin:g}–{gmax:g}°" if gmax is not None else f"at least {gmin:g}°"
-            problems.append(f"tilt.{b} − tilt.{a} = {gap:g}° must be {want} (nominal "
-                            f"{NOMINAL_TILT_ANGLES[b] - NOMINAL_TILT_ANGLES[a]:.1f}°) — two poses "
-                            "swapped or mistyped?")
-    c = eff["shuttle"]
-    for a, b in zip(_SHUTTLE_ORDER, _SHUTTLE_ORDER[1:]):
-        if ("shuttle", a) in bad_angle or ("shuttle", b) in bad_angle:
-            continue
-        if not c[a] < c[b]:
-            problems.append(f"shuttle.{a} ({c[a]:g}°) must be below shuttle.{b} ({c[b]:g}°) — the "
-                            "carriage order is reject < 3 < 2 < home < 1 < 0 (crank angle ψ)")
-        elif c[b] - c[a] < SHUTTLE_MIN_GAP_DEG:
-            problems.append(f"shuttle.{b} − shuttle.{a} = {c[b] - c[a]:g}° must be at least "
-                            f"{SHUTTLE_MIN_GAP_DEG:g}° (neighbouring stops; nominal "
-                            f"{NOMINAL_SHUTTLE_ANGLES[b] - NOMINAL_SHUTTLE_ANGLES[a]:.1f}°)")
+    problems += pose_rule_problems(eff["tilt"], eff["shuttle"], skip=bad_angle)
     return eff, problems
 
 
@@ -410,9 +443,10 @@ def allowed_range(section: str, key, current: dict | None = None,
     """(lo, hi) a single pose may take with every OTHER pose of its section at
     `current` (default: the live TILT_ANGLES / SHUTTLE_ANGLES): the sanity
     window intersected with the order / gap rules of validate_calibration().
-    scripts/calibrate_servos.py clamps its jog window to this, so a jog can
-    never reach a value the save (and the sorter) would refuse. If the other
-    poses leave no room, lo > hi (the caller pins the jog to the stored value)."""
+    If the other poses leave no room, lo > hi. (scripts/calibrate_servos.py
+    clamps its jog to sanity_window() only — audit 5 minor 3: clamping to
+    this made a build whose every pose sits 7.5° off need two passes — and
+    checks the order / gap rules when it saves.)"""
     lo, hi = sanity_window(section, key, actuation_range)
     if section == "tilt":
         cur = TILT_ANGLES if current is None else current
@@ -429,9 +463,11 @@ def allowed_range(section: str, key, current: dict | None = None,
         cur = SHUTTLE_ANGLES if current is None else current
         i = _SHUTTLE_ORDER.index(key)
         if i > 0:
-            lo = max(lo, cur[_SHUTTLE_ORDER[i - 1]] + SHUTTLE_MIN_GAP_DEG)
+            prev = _SHUTTLE_ORDER[i - 1]
+            lo = max(lo, cur[prev] + _shuttle_min_gap(prev, key))
         if i < len(_SHUTTLE_ORDER) - 1:
-            hi = min(hi, cur[_SHUTTLE_ORDER[i + 1]] - SHUTTLE_MIN_GAP_DEG)
+            nxt = _SHUTTLE_ORDER[i + 1]
+            hi = min(hi, cur[nxt] - _shuttle_min_gap(key, nxt))
     return lo, hi
 
 
