@@ -5,6 +5,47 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2.1.0] — 2026-11-12 — second audit round (branch `audit-fixes`)
+
+Independent code/electrical and CAD audits of 2.0.0, and their fixes (commits ebffbf3, cdbe457, d08117b, 36f80ba, plus the build-order fix 8eae932). Docs: `BOM.md`, `docs/ASSEMBLY.md`, `README.md`, `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch` updated to match. Some details are still changing in a further code and CAD round; the affected doc sections are marked `PENDING` in the source.
+
+### Added
+- **Vent valve.** A 12 V normally-closed mini solenoid valve, teed into the vacuum line, on relay channel 2 (GPIO 27, header pin 13, 10 kΩ pull-up to 3.3 V, flyback diode across the coil). `vacuum.release()` = pump off, vent open 0.4 s, vent closed; the arm then lifts the first ~10° slowly. The relay is now a **2-channel** 5 V active-LOW module. Docs include a bench check that the relay switches off at 3.3 V logic. New test 3 in `test_hardware.py`.
+- **Pump bracket** (`cad/pump_bracket.scad`): base, cap and a TPU isolation sleeve (or a 1.5 mm neoprene strip), on 4 grid holes at the front-left. The vacuum tube now starts at the pump nozzle.
+- **Baseplate keys:** 24 printed bow-tie keys lock the tile seams (the old edge pins could never engage).
+- **`config/machine.json`** (`hardware/machine_config.py`, example in `config/machine.example.json`): belt-centring constants, camera focus/exposure/rotation, exit run, arm lift and calibration mass are per-machine settings instead of code edits.
+- **Web UI controls:** Pause, Resume, Stop and **Machine clear**, all behind a token stored in `config/web.json` (`main.py --web-token`). Bins can only be reset while the machine is paused or stopped (or the bin it is paused on).
+- **Start-up / shutdown safety.** The first start, or any start after an unclean stop, needs `--confirm-clear` or the web confirmation (`data/machine_state.json`). The sorter refuses to start with a card on the cradle (raw reading against the stored empty-cradle reference, before taring). The first stop signal finishes the current card; a second stops at once. Shutdown leaves the shuttle where it is, with its servos limp.
+- `RIFTBOUND_WEB_PORT`; offline card-cache fallback.
+- **BOM "Optional cost-down"** section: drill the board from a printed template instead of printing tiles, fixed-output buck modules from quality brands instead of Pololu, and smaller options, each with its trade-off.
+
+### Changed: software and electrical
+- **HX711:** the gandalf15 library is vendored (`hardware/vendor/hx711.py`); the PyPI `hx711` package is a different library. Weights are the median of 7 reads; failed reads are retried.
+- **Camera:** forced into the IMX708's 2304 × 1296 full-field binned mode at 50 fps (picamera2 otherwise picked a 2/3 crop), fixed focus at `LensPosition` 10, AE/AWB locked after warm-up, sensor mode read back and checked.
+- **Load-cell calibration** (`main.py --calibrate`) uses a 5.000 g US nickel (or `--mass G`) instead of an assumed card weight, and stores the empty-cradle reference.
+- **Belt exit** runs a distance (144 mm) at the belt speed measured during centring; the card must weigh in fully on the level cradle before it is tipped.
+- **Bin limits** lowered to 40 (lower floor) / 12 (upper floor) / 35 (reject), from the slide simulation. Raise them in `config/bin_limits.json` after testing.
+- **Tilt level** default 93.1° (0.5° preload onto the home ledges). ch2 servo actuation range is configurable (`"actuation_range"` in `shuttle_calibration.json`) for a DS3218MG-270 fallback.
+- **setup.sh:** Bookworm and trixie; apt `python3-picamera2`, `python3-libcamera`, `python3-rpi-lgpio`, numpy/scipy/Pillow, `libtiff6`; venv with `--system-site-packages` (re-created if not); prints the web token.
+- Elevator raise timeout scales with the remaining travel; the L9110S stop never leaves a reverse input high; the PCA9685 is switched fully off before release; the shuttle never moves with the tilt unknown or after a jam until cleared.
+
+### Changed: CAD
+- **Electronics tray** 185 × 150 (was 185 × 125), X −150..35, Y 80..230, bolted to **real grid holes**, with posts or blocks for every board (16 × M2.5 and 6 × M2 self-tapping), the PCA9685 on its real 55.9 × 19.05 pattern, the 2-channel relay, and the barrel-jack hole (Ø8.2, +Y wall). The Pi moved to the +X end, closer to the camera ribbon.
+- **Harness** now enters the tray through the −X wall slots (≈ 0.8 m trunk from the riser front).
+- **Hopper:** lift relief (cavity steps out 1.0 mm on +X, 0.5 mm elsewhere, from just below the top card), 0.8 mm rim chamfer, r 1.2 corner reliefs. A card lying 1.5 mm off-centre now clears the hopper by ≥ 0.49 mm during the lift.
+- **Arm tower:** M3 × 20 through a 6 mm board; zip-tie tunnels at Z 55 / 80.
+- **Rails:** card-guide groove 1.8 mm deep, leaving a 1.2 mm top fin; the hood stands on the fins. Through-feet M3 × 80 or threaded rod; insert feet M3 × 10 (M3 × 16 under the camera bracket).
+- **Riser:** joint 3 × M3 × 12 plus a front tie (2 × M3 × 10 countersunk into inserts); anchors M3 × 20; ch2 front-ear pocket at Z 25..37.
+- **Shuttle:** carriage split into a **sled + 2 cheeks** (fit pin A before the cheeks); tilt pin A is a Ø3 × 20 dowel pushed in from outside; ch2 stack raised 5 mm, with 4 mm shoulder screws dropped in from above into M3 × 4 inserts in the link, the horn on 4 × M2 × 6 countersunk and an M3 × 12 countersunk hub screw (fitted on the bench); the tilt crank has no set screw (it slides on the D-flat); R-bar 9 wide with an M3 × 10 splice at Y ±10; end posts 3 × M3 × 20 each on the grid; ch1 servo on 4 ear screws; support-free cradle (rib plane) and carriage.
+- **Lower ramp** prints upright; roller grooves have 45° flanks (support-free).
+- Every printed part exports watertight.
+
+### Documentation
+- `BOM.md`: new and changed parts, fastener table recounted from the SCAD BOM footers (44 heat-set inserts), printed-part volumes re-measured (≈ 4.0 kg), power budget with the vent valve and second relay coil, totals (still to buy ≈ $609, whole machine ≈ $796), optional cost-down section.
+- `docs/ASSEMBLY.md`: rewritten steps for the tray, riser, rails, hopper, arm, shuttle (sled + cheeks, F-pin and pin-A order, ch2 bench fitting), pump bracket and vent valve; GPIO 27; software setup, web UI, start-up/shutdown and `config/machine.json` calibration; known-issue list re-verified.
+
+---
+
 ## [2.0.0] — 2026-11-11 — v2 redesign (branch `audit-fixes`)
 
 The whole card path is redesigned for **valuable raw (unsleeved) cards**: no friction feeding, no gates that slide a card sideways, and every card weighed at rest. The pre-build audit fixes ship in the same release. Build guide: `docs/ASSEMBLY.md`. Parts and power: `BOM.md`.
