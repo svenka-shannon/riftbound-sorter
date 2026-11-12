@@ -13,15 +13,16 @@
 //   origin = cavity centre in X/Y, Z = 0 = underside of the hopper base
 //   X = card LENGTH (88 mm), Y = card WIDTH (63 mm), Z up.
 //   Identical axes to machine coords: hopper_elevator.scad only translates
-//   by [hopper_cx, 0, frame_base_top()] (no rotation).
+//   by [frame_hopper_x(), 0, frame_base_top()] (no rotation).
 //
-// LAYOUT (top view)            -X end: feeler flag + top switch
+// LAYOUT (top view)
 //      +Y  ┌──────────────┐     +Y side: drive tower (rods, screw, motor on top)
-//          │ tower        │     -Y side: finger slot (machine front)
-//          ├──┐slot┌──────┤     +X end: faces the belt (outer wall X = +48.5,
-//      flag│  cavity      │             i.e. machine X = -166.5 <= -166)
-//      ◄───│   91 x 66    │
-//          └──finger slot─┘
+//          │ tower        │     -Y side: finger slot (machine front) + feeler
+//          ├──┐slot┌──────┤              flag / top switch at X -30
+//          │   cavity     │     +X end: faces the belt (outer wall X = +48.5,
+//          │   91 x 66    │             i.e. machine X = -166.5 <= -166)
+//          └─flag─finger──┘
+//             ▼ cheeks + switch hang out to Y -65.6
 //
 // PARTS (`part` selector at the bottom, exported in PRINT orientation):
 //   body     hopper shell + drive tower + flag cheeks   upright, no supports
@@ -43,10 +44,10 @@
 // TOP-OF-STACK SENSING (why a flag, not the bare switch lever):
 //   A microswitch lever resting on the card would be dragged up with the card
 //   when the cup lifts it, and an SS-type switch only has ~0.8 mm overtravel.
-//   So a light printed flag (≈1.2 g) rests on the top card's -X end margin
+//   So a light printed flag (≈1.2 g) rests on the top card's -Y long-edge margin
 //   (5 mm in from the cavity wall) with a rounded, edge-chamfered Ø5 tip. Its
 //   pivot is outside the wall and BELOW the tip, so when the card is lifted the
-//   tip rises AND swings outward and slides off the card end after ≤5.7 mm of
+//   tip rises AND swings outward and slides off the card edge after ≤5.7 mm of
 //   lift; then it falls back onto the next card. The arm is cranked (elbow
 //   above the wall) so the tip is always the lowest point over the cavity.
 //   A conjugate cam on the flag hub drives the switch roller: rising stack ->
@@ -65,7 +66,7 @@ use <machine_frame.scad>
 part = "body";   // body | cap | carriage | plate | flag | assembly | pos_* (see bottom)
 zp   = -1;       // plate-top Z for "assembly"/"pos_*" (-1 = bottom of travel)
 flag_phi_in = -1;// flag angle for "assembly"/"pos_flag" (-1 = resting on the stop)
-card_dx  = 0;     // shift the checked card stack in X (±1.5 = against a wall)
+card_dy  = 0;     // shift the checked card stack in Y (±1.5 = against a long wall)
 
 $fn = 64;
 
@@ -137,15 +138,25 @@ lug_dz = bsw_op_z - (base_t + car_gap_floor) - 0.3;  // carriage lug 0.3 mm past
 lug_x  = [10, 22];
 
 // ── Feeler flag + cam (top switch) ────────────────────────────────────────
-flag_d   = 10.5;   // pivot outboard of the -X cavity face
+// The flag sits on the -Y long wall (machine front; the tower is on +Y) and
+// rests on the card's LONG-edge margin. Everything below (flag, cheeks, top
+// switch, wall notch, plate notch) is defined in a FLAG FRAME (fx, fy, z):
+// fx = horizontal toward the cavity, the flag wall's cavity face at fx = -fwd,
+// fy = along the wall, flag plane fy = 0. at_flag() places that frame in the
+// local frame: flag frame -X -> local -Y, flag plane at local X = flag_x.
+flag_x   = -30;    // flag plane along the -Y wall (clear of the finger slot, the
+                   // plate ribs and the +X side where the suction arm comes down)
+fwd = hy;  fwo = hy + wall;   // flag wall: cavity face / outer face distance (33 / 36)
+module at_flag() translate([flag_x, 0, 0]) rotate([0, 0, 90]) children();
+flag_d   = 10.5;   // pivot outboard of the cavity face
 flag_hp  = 6;      // pivot below pick_z
-flag_e   = 5;      // tip contact inboard of the -X cavity face
+flag_e   = 5;      // tip contact inboard of the cavity face (card long-edge margin)
 flag_rt  = 2.5;    // tip radius
-flag_t   = 5.4;    // hub / tip thickness (Y); arm is 4
+flag_t   = 5.4;    // hub / tip thickness (fy); arm is 4
 flag_w   = 4;      // arm width in its plane
 rest_drop = 5;     // with no card at pick height the tip rests at pick_z - 5
-piv   = [-hx - flag_d, pick_z - flag_hp];           // [X, Z] = [-56, 80.9]
-tip_t = [-hx + flag_e, pick_z + flag_rt];           // tip centre at trip
+piv   = [-fwd - flag_d, pick_z - flag_hp];          // [fx, Z] = [-43.5, 80.9]
+tip_t = [-fwd + flag_e, pick_z + flag_rt];          // tip centre at trip
 flag_L   = norm(tip_t - piv);                        // ≈17.5
 phi_trip = atan2(tip_t[1] - piv[1], tip_t[0] - piv[0]);              // ≈29°
 phi_rest = asin((pick_z - rest_drop + flag_rt - piv[1]) / flag_L);   // ≈15°
@@ -161,18 +172,18 @@ cheek_t  = 4;  cheek_in = flag_t / 2 + 0.5;          // cheek inner faces at ±3
 // from a pivot below pick_z would slope up toward the tip, so its underside
 // would hit the card edge before the tip; with the elbow the rounded tip is
 // always the lowest point of the flag over the cavity.
-elbow_t  = [-hx - 2, pick_z + 5.5];                  // elbow centre at trip [X, Z]
+elbow_t  = [-fwd - 2, pick_z + 5.5];                 // elbow centre at trip [fx, Z]
 pe_off   = atan2(elbow_t[1] - piv[1], elbow_t[0] - piv[0]) - phi_trip;  // P->E vs P->T, ≈22°
 pe_len   = norm(elbow_t - piv);
 elbow_f  = pe_len * [cos(pe_off), sin(pe_off)];      // elbow in the flag frame (P->T = +u)
 phi_stop = 80;                                       // flag upper stop
 stop_r   = 9;
 stop_ang = phi_stop + pe_off + asin((flag_w / 2 + 2) / stop_r);   // stop pin Ø4 on the P->E segment
-notch_hw = 3.7;                                        // -X wall notch half-width
-// lowest P->E underside over the wall (outer face X = -ox) at rest = notch floor
+notch_hw = 3.7;                                        // flag-wall notch half-width
+// lowest P->E underside over the wall (outer face fx = -fwo) at rest = notch floor
 notch_z  = let(a = phi_rest + pe_off)
-           piv[1] + (-ox - piv[0]) * tan(a) - (flag_w / 2) / cos(a);
-// top switch: roller centre straight below the pivot, body runs toward -X
+           piv[1] + (-fwo - piv[0]) * tan(a) - (flag_w / 2) / cos(a);
+// top switch: roller centre straight below the pivot, body runs outward (-fx)
 tsw_roll_top = piv[1] - cam_ds;
 tsw_z0   = tsw_roll_top - sw_hole_z - sw_op;
 tsw_x0   = piv[0] - sw_roll_x;
@@ -232,12 +243,12 @@ module tower_shell()
 
 // Cheek profiles in the XZ plane (attached to the -X wall outer face)
 module cheek_pos_2d()     // +Y cheek: pivot, flag stop, top switch
-    let(xf = tsw_x0 - 2.5, zb = tsw_z0 - 3, zl = zb - (-ox - xf))
-    polygon([[-ox + 0.01, zl], [xf, zb], [xf, piv[1] + 4], [piv[0] - 8.5, piv[1] + 13],
-             [-ox + 0.01, piv[1] + 13]]);
+    let(xf = tsw_x0 - 2.5, zb = tsw_z0 - 3, zl = zb - (-fwo - xf))
+    polygon([[-fwo + 0.01, zl], [xf, zb], [xf, piv[1] + 4], [piv[0] - 8.5, piv[1] + 13],
+             [-fwo + 0.01, piv[1] + 13]]);
 module cheek_neg_2d()     // -Y cheek: pivot and flag stop only
-    let(xf = piv[0] - 8.5, zb = piv[1] - 7, zl = zb - (-ox - xf))
-    polygon([[-ox + 0.01, zl], [xf, zb], [xf, piv[1] + 13], [-ox + 0.01, piv[1] + 13]]);
+    let(xf = piv[0] - 8.5, zb = piv[1] - 7, zl = zb - (-fwo - xf))
+    polygon([[-fwo + 0.01, zl], [xf, zb], [xf, piv[1] + 13], [-fwo + 0.01, piv[1] + 13]]);
 
 module flag_cheeks() {
     translate([0, cheek_in + cheek_t, 0]) rotate([90, 0, 0])
@@ -254,7 +265,7 @@ module hopper_body() {
         union() {
             translate([-ox, -oy, 0]) cube([2 * ox, 2 * oy, wall_top]);
             tower_shell();
-            flag_cheeks();
+            at_flag() flag_cheeks();
         }
         // cavity, corner reliefs, rim chamfer
         translate([-hx, -hy, base_t]) cube([cav_x, cav_y, wall_top]);
@@ -270,15 +281,21 @@ module hopper_body() {
         // finger slot in the -Y wall
         slot_y(0, -hy, -oy, finger_w, finger_z0, wall_top + 1);
         for (sx = [-1, 1]) vch_c(sx * finger_w / 2, -hy, finger_z0 + 1.6, wall_top);
-        // air-separation slots (both long walls + the +X end wall)
-        for (x = air_x, s = [-1, 1]) {
+        // air-separation slots: +Y wall at X ±33, -Y wall at X +33 (the flag
+        // notch at X -30 is the second one there), both end walls at Y 0
+        for (xs = [[air_x[0], 1], [air_x[1], 1], [air_x[1], -1]]) let(x = xs[0], s = xs[1]) {
             slot_y(x, s * hy, s * oy, air_w, wall_top - air_h, wall_top + 1);
             for (sx = [-1, 1]) vch_c(x + sx * air_w / 2, s * hy, wall_top - air_h + 1.2, air_h, 0.4);
         }
-        slot_x(0, hx, ox, air_w, wall_top - air_h, wall_top + 1);
-        // flag notch in the -X end wall
-        slot_x(0, -hx, -ox, 2 * notch_hw, notch_z, wall_top + 1);
-        for (sy = [-1, 1]) vch_c(-hx, sy * notch_hw, notch_z + 1.6, wall_top);
+        for (s = [-1, 1]) {
+            slot_x(0, s * hx, s * ox, air_w, wall_top - air_h, wall_top + 1);
+            for (sy = [-1, 1]) vch_c(s * hx, sy * air_w / 2, wall_top - air_h + 1.2, air_h, 0.4);
+        }
+        // flag notch in the -Y wall (flag frame)
+        at_flag() {
+            slot_x(0, -fwd, -fwo, 2 * notch_hw, notch_z, wall_top + 1);
+            for (sy = [-1, 1]) vch_c(-fwd, sy * notch_hw, notch_z + 1.6, wall_top);
+        }
         // guide-rod sockets
         for (sx = [-1, 1]) translate([sx * rod_dx, rod_y, base_t - rod_sock])
             cylinder(d = rod_d + 0.15, h = rod_sock + 0.1);
@@ -292,13 +309,15 @@ module hopper_body() {
         // bottom switch: M2 through the back wall
         for (hx_ = sw_hole_x) translate([bsw_x0 + hx_, tower_y1 - back_t - 0.1, base_t + sw_hole_z])
             rotate([-90, 0, 0]) cylinder(d = 2.2, h = back_t + 0.2, $fn = 16);
-        // flag pivot (M3 axle through both cheeks)
-        translate([piv[0], 0, piv[1]]) rotate([90, 0, 0])
-            cylinder(d = 3.4, h = 2 * (cheek_in + cheek_t) + 1, center = true, $fn = 24);
-        // top switch: M2 slots (±1.2 mm along the actuation axis, to set the trip height)
-        for (hx_ = sw_hole_x) translate([tsw_x0 + hx_, cheek_in + cheek_t / 2, tsw_z0 + sw_hole_z])
-            hull() for (dz = [-1.2, 1.2]) translate([0, 0, dz]) rotate([90, 0, 0])
-                cylinder(d = 2.4, h = cheek_t + 1, center = true, $fn = 16);
+        at_flag() {
+            // flag pivot (M3 axle through both cheeks)
+            translate([piv[0], 0, piv[1]]) rotate([90, 0, 0])
+                cylinder(d = 3.4, h = 2 * (cheek_in + cheek_t) + 1, center = true, $fn = 24);
+            // top switch: M2 slots (±1.2 mm along the actuation axis, to set the trip height)
+            for (hx_ = sw_hole_x) translate([tsw_x0 + hx_, cheek_in + cheek_t / 2, tsw_z0 + sw_hole_z])
+                hull() for (dz = [-1.2, 1.2]) translate([0, 0, dz]) rotate([90, 0, 0])
+                    cylinder(d = 2.4, h = cheek_t + 1, center = true, $fn = 16);
+        }
     }
 }
 
@@ -372,11 +391,11 @@ module hopper_plate(z = zp_min) {
                     cylinder(r = 1.7, h = plate_t, $fn = 24);
                 }
             // ribs underneath (clear of the shelf, the flag notch and the base screws)
-            for (sx = [-1, 1]) translate([sx * 25 - 1.5, -py + 3, z - plate_t - plate_rib]) cube([3, 2 * py - 6, plate_rib + 0.01]);
-            translate([-px + 3, -22 - 1.5, z - plate_t - plate_rib]) cube([2 * px - 6, 3, plate_rib + 0.01]);
+            for (sx = [-1, 1]) translate([sx * 20 - 1.5, -py + 3, z - plate_t - plate_rib]) cube([3, 2 * py - 6, plate_rib + 0.01]);
+            translate([-px + 3, -15 - 1.5, z - plate_t - plate_rib]) cube([2 * px - 6, 3, plate_rib + 0.01]);
         }
         // notch so the empty plate passes under the resting flag
-        translate([-hx - 1, -pnotch_hw, z - plate_t - plate_rib - 1]) cube([pnotch_x1 + hx + 1, 2 * pnotch_hw, plate_t + plate_rib + 2]);
+        at_flag() translate([-fwd - 1, -pnotch_hw, z - plate_t - plate_rib - 1]) cube([pnotch_x1 + fwd + 1, 2 * pnotch_hw, plate_t + plate_rib + 2]);
         // M3 countersunk screws into the shelf
         for (p = plate_screw) translate([p[0], p[1], z - plate_t - 0.1]) {
             cylinder(d = 3.4, h = plate_t + 0.2, $fn = 20);
@@ -432,7 +451,7 @@ module flag_local() {
         rotate([90, 0, 0]) cylinder(d = 3.4, h = flag_t + 2, center = true, $fn = 24);
     }
 }
-module hopper_flag(phi = phi_rest)
+module hopper_flag(phi = phi_rest) at_flag()
     translate([piv[0], 0, piv[1]]) rotate([0, -phi, 0]) flag_local();
 
 // =========================================================================
@@ -476,8 +495,8 @@ module sw_roller() rotate([90, 0, 0]) cylinder(d = sw_roll_d, h = sw_roll_w, cen
 // switch drawn at its Operating Position (roller top at sw_op above the hole line)
 module hw_sw_bottom_body()   translate([bsw_x0, bsw_y0, base_t]) sw_body();
 module hw_sw_bottom_roller() translate([bsw_x0 + sw_roll_x, bsw_y0 + sw_t / 2, base_t + sw_hole_z + sw_op - sw_roll_d / 2]) sw_roller();
-module hw_sw_top_body()      translate([tsw_x0, -sw_t / 2, tsw_z0]) sw_body();
-module hw_sw_top_roller()    translate([piv[0], 0, tsw_roll_top - sw_roll_d / 2]) sw_roller();
+module hw_sw_top_body()      at_flag() translate([tsw_x0, -sw_t / 2, tsw_z0]) sw_body();
+module hw_sw_top_roller()    at_flag() translate([piv[0], 0, tsw_roll_top - sw_roll_d / 2]) sw_roller();
 module hw_cards(z = zp_min, n = 0)    // n cards on the plate (default: fill to pick_z)
     let(nn = n > 0 ? n : floor((pick_z - z) / card_t))
     translate([-card_l / 2, -card_w / 2, z]) cube([card_l, card_w, nn * card_t]);
@@ -503,7 +522,7 @@ function hopper_zp_min()   = zp_min;
 function hopper_zp_max()   = zp_max;
 function hopper_phi_rest() = phi_rest;
 function hopper_phi_trip() = phi_trip;
-function hopper_outer()    = [[-ox, -oy], [ox, tower_y1]];   // footprint (excl. flag cheeks)
+function hopper_outer()    = [[-ox, tsw_x0 - 2.5], [ox, tower_y1]];   // footprint incl. flag cheeks (excl. motor wire cover)
 
 // =========================================================================
 // Export selector
@@ -535,14 +554,14 @@ if (part == "pos_swt_body")  hw_sw_top_body();
 if (part == "pos_swt_roll")  hw_sw_top_roller();
 if (part == "pos_cards")     hw_cards(_zp);
 // stack whose top is exactly at pick_z (what the flag sees at trip)
-if (part == "pos_cards_pick") translate([card_dx - card_l / 2, -card_w / 2, _zp]) cube([card_l, card_w, pick_z - _zp]);
+if (part == "pos_cards_pick") translate([-card_l / 2, card_dy - card_w / 2, _zp]) cube([card_l, card_w, pick_z - _zp]);
 
 // =============================================
 // PRINT ORIENTATION / SUPPORTS
 //   body     upright as modelled (base on bed). No supports: every slot is
 //            open to the top, the tower window has a 45° pointed top, the
 //            flag cheeks have 45° undersides, horizontal holes are ≤ Ø3.4.
-//            ~97 x 106 x 130 mm (+ cheeks to X -78).
+//            97 x 135.6 x 129.6 mm (Y -65.6 .. +70 incl. the flag cheeks).
 //   cap      top face down (part="cap" is already flipped). No supports.
 //   carriage upright (shelf on the bed). No supports (lug has a 45° underside).
 //   plate    card face down on the PEI (part="plate" is flipped) -> smooth

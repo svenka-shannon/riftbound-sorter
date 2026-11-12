@@ -5,27 +5,34 @@
 // the machine frame; origin = cavity centre, Z 0 = hopper base underside).
 // For assembly.scad:   use <hopper_elevator.scad>   then   asm_hopper_elevator();
 //
-// Placement (coordinator, 2026-11-11; see machine_frame.scad):
-//   cavity centre        machine X = -215, Y = 0      (card 88 along X, 63 along Y)
-//   hopper base          machine Z = frame_base_top() = 4 (stands on the baseplate)
-//   pick height          machine Z = frame_card_z()   = 90.9 (pick_z 86.9 local)
-//   +X outer wall        machine X = -166.5            (belt starts at -165)
-//   drive tower          machine Y +36 .. +70, motor on top to Z 157.6
-//   flag cheeks / switch machine X -263.5 .. -293.1 (overhangs the -285 baseplate edge by ~8)
-// Nothing is above the cavity: the space over X -260.5..-169.5, Y -33..33 is clear
-// from Z 94.4 (rim) upward, except the feeler flag (≤ Z ~101 at full lift, -X end,
-// 39-55 mm from the cavity centre) — keep the suction-arm links off that corner.
+// Placement (machine_frame.scad is the single source of truth):
+//   cavity centre        X = frame_hopper_x() = -215, Y = 0 (card 88 along X, 63 along Y)
+//   hopper base          Z = frame_base_top() = 4 (stands on the baseplate)
+//   pick height          Z = frame_card_z()   = 90.9 (pick_z 86.9 local)
+//   +X outer wall        X = -166.5            (belt starts at -165)
+//   footprint            X -263.5 .. -166.5, Y -65.6 .. +74 (motor wire cover;
+//                        tower back wall +70; flag cheeks / top switch on the
+//                        -Y wall down to -65.6) — inside the baseplate
+//                        (frame_base_x/y = ±285 / ±270), asserted below
+//   heights              rim Z 94.4, tower cap Z 138.6, motor top Z 157.6
+// Nothing is above the cavity: X -260.5..-169.5, Y -33..33 is clear from Z 94.4
+// upward, except the feeler flag on the -Y wall at X -245 (≤ Z ~101 at full lift,
+// within 8 mm of that wall) — keep the suction-arm links off that spot.
 // =============================================
 
 use <machine_frame.scad>
 use <hopper.scad>
 
-hopper_cx = -215;   // cavity centre (not in machine_frame.scad yet)
-
 /* [Preview] */
 plate_z_in = -1;    // plate top, LOCAL Z (-1 = bottom of travel)
 
-function hopper_machine_origin() = [hopper_cx, 0, frame_base_top()];
+function hopper_machine_origin() = [frame_hopper_x(), 0, frame_base_top()];
+
+// footprint must stay on the baseplate
+let(o = hopper_machine_origin(), b = hopper_outer(), bx = frame_base_x(), by = frame_base_y())
+    assert(o[0] + b[0][0] >= bx[0] && o[0] + b[1][0] <= bx[1] &&
+           o[1] + b[0][1] >= by[0] && o[1] + b[1][1] <= by[1],
+           "hopper footprint leaves the baseplate");
 
 // plate_z: plate top in LOCAL Z (hopper_zp_min() .. hopper_zp_max()), -1 = bottom
 module asm_hopper_elevator(plate_z = -1, flag_phi = -1, cards = true)
