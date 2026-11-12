@@ -693,14 +693,15 @@ GND ── 10 kΩ ── GPIO 23, 24, 25, 26 (L9110S inputs), one resistor each
 ```
 
 - **The relay is a 2-channel 5 V module with active-LOW inputs:** IN1 = pump, IN2 = vent valve. Leave its JD-VCC jumper (if it has one) fitted so the coils run from VCC.
-- **Check the relay switches OFF with 3.3 V logic, and with IN at only ≈ 2.7 V (bench test, before wiring it in).** The module runs from 5 V, but the Pi drives IN at 3.3 V, and the pull-ups hold IN at 3.3 V for "off". **At boot it is worse:** until a program configures GPIO 17 / 27, the SoC's own ≈ 50 kΩ pull-*down* fights the 10 kΩ pull-up, so IN sits at only ≈ 3.3 × 50 / 60 ≈ 2.7 V, and the relay must stay released at that level too. On a board where the input indicator LED is in series with the opto LED, 5 V − 3.3 V = 1.7 V isn't enough to light them, so 3.3 V reads as off. On a board without that series LED, 1.7 V can still half-light the opto and the relay may stay on. Test each channel:
+- **Check the relay switches OFF with 3.3 V logic, and with IN at only ≈ 2.7 V (bench test, before wiring it in).** The module runs from 5 V, but the Pi drives IN at 3.3 V, and the pull-ups hold IN at 3.3 V for "off". **At power-on it is worse:** from reset until the firmware applies the boot pull-up (below), the SoC's own ≈ 50 kΩ pull-*down* fights the 10 kΩ pull-up, so IN sits at only ≈ 3.3 × 50 / 60 ≈ 2.7 V, and the relay must stay released at that level too. On a board where the input indicator LED is in series with the opto LED, 5 V − 3.3 V = 1.7 V isn't enough to light them, so 3.3 V reads as off. On a board without that series LED, 1.7 V can still half-light the opto and the relay may stay on. Test each channel:
   1. Module VCC to 5 V (Reg #1 or a 5 V bench supply), GND to GND. Nothing on IN1 / IN2.
   2. Jumper IN1 to GND: the relay must click and its indicator LED light.
   3. Move the jumper from GND to the Pi's 3.3 V pin (pin 1 or 17): the relay must click **off** and the LED go fully dark. Repeat a few times.
   4. Repeat for IN2.
   5. **The ≈ 2.7 V (boot) case, on the Pi.** Stop the service. Wire IN1 to GPIO 17 and IN2 to GPIO 27, each with its 10 kΩ pull-up to 3.3 V (§14.2), module VCC from Reg #1. Run `pinctrl set 17 ip pd` and `pinctrl set 27 ip pd` (input with the SoC pull-down on: the state at power-on). Both relays must stay **released** with the LEDs fully dark, and must stay so through a reboot. Then `pinctrl set 17 op dl` must click relay 1 on and `pinctrl set 17 op dh` off (same for 27); finish with `sudo python3 scripts/safe_outputs.py`.
-  <!-- PENDING code r4: the code agent may add a config.txt line that turns on a boot-time pull-UP for GPIO 17 / 27 (setup.sh); if it lands, describe it here and in §15.1, and the boot level becomes 3.3 V. -->
-  
+
+  **Boot pull-up (`config.txt`).** `scripts/setup.sh` adds the line **`gpio=17,27=ip,pu`** to `/boot/firmware/config.txt` (§15.1). After the next reboot, the firmware switches GPIO 17 / 27 to inputs with the SoC's internal pull-*up* a few seconds after power-on, before Linux starts, so IN sits at ≈ 3.3 V (relay released) from then until the sorter drives the pins. It does **not** cover those first few seconds after power-on, so keep the ≈ 2.7 V test in step 5. Check after the reboot: `pinctrl get 17,27` must show `pu` on both lines. **Alternative:** fit **4.7 kΩ** pull-ups on GPIO 17 / 27 instead of the 10 kΩ ones: IN is then ≈ 3.3 × 50 / 54.7 ≈ 3.0 V even straight out of reset.
+
   If a channel stays on (or chatters) at 3.3 V or at ≈ 2.7 V, the module is not 3.3 V-compatible. If it has a **JD-VCC jumper**, remove the jumper, feed **VCC** (the opto side) from the Pi's 3.3 V and **JD-VCC** (the coils) from Reg #1's 5 V, keep GND common, and repeat the test. Otherwise use a relay module sold as 3.3 V-logic compatible.
 - **PCA9685 VCC is 3.3 V from the Pi, never 5 V.** The board's I²C pull-ups go to VCC; at 5 V they would pull the Pi's SDA/SCL pins to 5 V. Servo power comes only through the **V+ screw terminal** from Reg #2. Leave the V+ pins on the side headers unconnected (same net).
 - **Why three rails:**
@@ -746,7 +747,7 @@ GND ── 10 kΩ ── GPIO 23, 24, 25, 26 (L9110S inputs), one resistor each
 - **The L9110S is plain GPIO, not I²C.** Its VCC comes from Reg #3, not the Pi rail.
 - **Released pins float; kept pins stay driven.** The SoC's default pulls only apply from power-on until a program configures the pin. RPi.GPIO `cleanup()` (`conveyor.deinit()`, `vacuum.deinit()`, `elevator.deinit()`) returns a pin to an input with **no pull**. And by default the Raspberry Pi kernel keeps a GPIO **output driven at its last level** when the process holding it dies (`pinctrl_bcm2835.persist_gpio_outputs=1`), so a pump left ON would stay ON. Three layers make every exit safe:
   - `scripts/setup.sh` sets **`pinctrl_bcm2835.persist_gpio_outputs=0`** on the kernel command line (applies after a **reboot**): freed lines revert to inputs.
-  - The external resistors then set the level: **10 kΩ pull-ups on GPIO 17 and 27** (pump off, vent valve closed) and **10 kΩ pull-downs on GPIO 23–26** (belt stopped).
+  - The external resistors then set the level: **10 kΩ pull-ups on GPIO 17 and 27** (pump off, vent valve closed) and **10 kΩ pull-downs on GPIO 23–26** (belt stopped). At power-on, `setup.sh`'s `config.txt` line `gpio=17,27=ip,pu` adds the SoC's own pull-up on GPIO 17 / 27 a few seconds in, so the relay inputs sit at ≈ 3.3 V instead of ≈ 2.7 V (§14.1).
   - The service's **`ExecStopPost`** runs `scripts/safe_outputs.py` as root after **any** exit (clean, crash, `kill -9`, watchdog): it drives GPIO 17 / 27 HIGH, GPIO 23–26 and 16–21 LOW (with `pinctrl`, or `raspi-gpio` on Bookworm), switches every PCA9685 channel fully off and puts the PCA9685 to sleep (§14.8).
 - **Hopper switches are wired normally-closed (NC).** Each SS-5GL2-F has three tabs: C (common), NO and NC. Wire **C → GND and NC → the GPIO** (top switch → GPIO 12, home switch → GPIO 13), with the Pi's internal pull-ups; leave NO unconnected. Released, the contact is closed to GND and reads LOW; pressed, it opens and reads HIGH. A broken wire or unplugged switch then reads **pressed**, which is the safe reading:
   - top switch: "top card at pick height", so the floor stops rising and never drives the stack into the arm (the cycle then stops with "card never seen");
@@ -772,7 +773,7 @@ GND ── 10 kΩ ── GPIO 23, 24, 25, 26 (L9110S inputs), one resistor each
 | 3–15 | unused | | |
 
 - All ch1 / ch2 angles are **geometric** (ch1 = 90° + crank angle φ, ch2 = crank angle ψ). A servo that turns the wrong way is handled by `"invert"` in `config/shuttle_calibration.json` (the direction check, §13.3 / §13.5), never by editing angles.
-- **Level is 93.1°**, 0.5° past the geometric 93.6° (toward the ledges: level and lower are the same ch1 direction) so the skids sit firmly on the home ledges. Keep that preload small: past the hard stop the servo stalls against the ledge while the cradle waits level. <!-- PENDING code r4: idle release becomes ch1 only (not ch0/ch2); final wording from the coordinator --> While the machine **idles at rest** (paused at a card boundary, stopped, hopper empty) the sorter switches ch0, ch1 and ch2 **off**, so nothing stalls; before the next move it re-asserts the rest pose with one write per servo (a small snap back by whatever they sagged). A card held on the cradle or the cup keeps its servos powered.
+- **Level is 93.1°**, 0.5° past the geometric 93.6° (toward the ledges: level and lower are the same ch1 direction) so the skids sit firmly on the home ledges. Keep that preload small: past the hard stop the servo stalls against the ledge while the cradle waits level. While the machine **idles at rest with no card in it** (paused at a card boundary, stopped, hopper empty) the sorter switches **only ch1 (tilt) off**, so it doesn't stall: the cradle just rests on the home ledges. **ch0 (arm at PARK) and ch2 (carriage at home) stay powered and hold their pose** while you work in the machine (refilling the hopper, emptying bins). Before the next move ch1 gets one write to re-assert LEVEL (a small snap back by whatever it sagged). With a card anywhere in the machine (bin-full pause, jam, card held on the cup) nothing is switched off.
 - PCA9685 power: VCC = 3.3 V from the Pi (logic and I²C pull-ups), V+ = Reg #2 servo rail (5 V 5 A), with 1000 µF across V+/GND at the board.
 - Servo leads: brown/black = GND, red = V+, orange = signal (the `PWM` row). Use 100 cm extensions from the tray to each servo.
 
@@ -869,20 +870,27 @@ What the hardware and the service guarantee on their own:
 | Event | Pump / vent valve | Servos | Belt / elevator |
 |---|---|---|---|
 | 12 V pulled | pump **off** (relay NO opens); valve **closed** (normally closed) | limp. **The arm falls and drops any card.** Always stop the sorter before unplugging. | stop; the 28BYJ-48 gearbox holds the hopper floor |
-| Boot, before the sorter starts | **off / closed**: the 10 kΩ pull-ups on GPIO 17 and 27 hold both relay inputs HIGH | PCA9685 not yet driven: limp | the 10 kΩ pull-downs on GPIO 23–26 keep the L9110S off; the ULN2003 stays off |
+| Boot, before the sorter starts | **off / closed**: the 10 kΩ pull-ups on GPIO 17 and 27 hold both relay inputs HIGH (≈ 2.7 V for the first seconds after power-on, ≈ 3.3 V once the firmware applies the `config.txt` pull-up, §14.1) | PCA9685 not yet driven: limp | the 10 kΩ pull-downs on GPIO 23–26 keep the L9110S off; the ULN2003 stays off |
 | The sorter exits for **any** reason (clean stop, crash, `kill -9`, watchdog) | `ExecStopPost` → `safe_outputs.py` drives GPIO 17 / 27 HIGH: **off / closed**. After the reboot that applies `persist_gpio_outputs=0`, the freed pins also fall back to the pull-ups on their own. | `safe_outputs.py` switches every PCA9685 channel fully off and puts it to sleep: **limp** | GPIO 23–26 and 16–21 driven LOW: belt stopped, stepper coils off |
 | Main loop hangs | systemd watchdog (`WatchdogSec=60`): no ping for 60 s → SIGABRT, then `ExecStopPost` as above, then a restart that comes up in `needs_confirm` | | |
-| The sorter idles at rest (paused at a card boundary, stopped, hopper empty) <!-- PENDING code r4: ch1 only --> | off / closed | ch0–ch2 switched **off** (limp, parked / home + level); one write per servo re-asserts the pose before anything moves | stopped / coils off |
-| A card the arm could not carry to the belt is held on the cup <!-- PENDING code r4: what happens to the card when CUP_HOLD_MAX_S expires --> | pump **on**, for at most `CUP_HOLD_MAX_S` (600 s), then off: the card may drop | arm powered where it stopped | stopped |
+| The sorter idles at rest with no card in the machine (paused at a card boundary, stopped, hopper empty) | off / closed | **only ch1 (tilt) switched off**: the cradle rests on the home ledges. ch0 (arm at PARK) and ch2 (carriage at home) stay powered and hold. One write re-asserts LEVEL before anything moves | stopped / coils off |
+| A card the arm could not carry to the belt is held on the cup | pump **on**, for at most `CUP_HOLD_MAX_S` (600 s), then off: **the card drops** from wherever the arm stopped (see below) | arm **never parked**: powered and holding where the failed carry left it | stopped |
 
 What the software does on a stop, in outline (details in §15.4 and in `main.py`):
 - A **stop request** (web UI Stop, or the first SIGTERM / SIGINT / SIGHUP) finishes the card in progress first; a **second** signal stops at once.
-- A card on the cup is never dropped mid-arc: it is released back onto the stack if the cup is still at the pick pose, otherwise carried to the drop pose and released onto the belt. A second signal during that carry waits until the card is down; if the arm can't get there (3 tries), the **pump stays on** and the card stays held: the web UI says **"card held on cup — remove it by hand before stopping the service"** (stopping the service switches the pump off and drops it). After `CUP_HOLD_MAX_S` (default 600 s) the pump is switched off anyway. <!-- PENDING code r4: cup-hold expiry behaviour -->
-- The pump is switched off and the line vented, the belt stopped, the arm parked, a tipped cradle brought back to HOLD.
+- A card on the cup is never dropped mid-arc: it is released back onto the stack if the cup is still at the pick pose, otherwise carried to the drop pose and released onto the belt. A second signal during that carry waits until the card is down.
+- **If the arm can't carry it to the belt** (3 tries), the card is held, but only for a while. The arm is **never parked** with a card on the cup: it stays where the failed carry left it, powered, and the pump keeps holding the card. The web UI says **"card held on cup — remove it by hand before stopping the service"**, with the seconds left and where the card will land. When `CUP_HOLD_MAX_S` (default 600 s) runs out, or the service stops, the pump lets go and **the card falls from that pose**. A service stop lets go of it *before* the arm goes limp, so it falls from the known pose, not from a sagging arm. Where it lands depends on the arm angle (measured from your calibrated PICK / DROP, so it holds for a mirrored servo too):
+  - within **2°** of PICK: never held at all; it is released straight back onto the stack;
+  - within **10°** of PICK: flat back onto the hopper stack (a fall of ≤ 7 mm);
+  - within **40°** of DROP: flat onto the belt in the drop zone (card X −160…−51; a fall of 3 mm at DROP, ≤ 18 mm within 15°, ≤ 39 mm at 40°);
+  - anywhere else, PARK included: across the hopper's +X rim / the belt inlet from 12–55 mm up. It lands tilted, may catch on the rail inlet or the feeler flag, and **may be bent**.
+
+  **Remove the card by hand first**, then **Machine clear**.
+- The pump is switched off and the line vented, the belt stopped, the arm parked (unless a card is still held on the cup, above), a tipped cradle brought back to HOLD.
 - **Teardown leaves the shuttle carriage where it is**; it never homes on the way out. Then every servo channel is switched off and the PCA9685 sleeps: **the servos are limp where they stand** and may sag a little.
 - Every stop is recorded in `data/machine_state.json` as **clean** (no card in the machine, pump off, arm parked, shuttle at home + level, cradle empty) or **unclean** (with the reason). After a clean stop the next start re-asserts the rest pose with **one write per servo** (a small snap back by whatever the limp servos sagged, never a sweep). After an unclean stop **nothing on ch0–ch2 is commanded** until you confirm the machine is clear (§15.4).
 
-**Safe-state test** (pump hose off): boot the machine and watch the relay. Neither channel may click or light. After boot, `pinctrl get 17` and `pinctrl get 27` read `hi`, and `pinctrl get 23-26` read `lo`. Repeat after `sudo systemctl stop riftbound-sorter`, and once after `sudo systemctl kill -s KILL riftbound-sorter` (with the pump running): the pump must stop within a second, by `ExecStopPost`.
+**Safe-state test** (pump hose off): boot the machine and watch the relay. Neither channel may click or light. After boot, `pinctrl get 17` and `pinctrl get 27` read `hi` (and show `pu`, from the `config.txt` line), and `pinctrl get 23-26` read `lo`. Repeat after `sudo systemctl stop riftbound-sorter`, and once after `sudo systemctl kill -s KILL riftbound-sorter` (with the pump running): the pump must stop within a second, by `ExecStopPost`.
 
 ---
 
@@ -903,11 +911,12 @@ What the software does on a stop, in outline (details in §15.4 and in `main.py`
    - Installs the apt packages: `python3-pip python3-venv python3-picamera2 python3-libcamera python3-numpy python3-scipy python3-pywt python3-pil i2c-tools git libopenjp2-7 libtiff6 avahi-daemon`.
    - Makes sure **`pinctrl`** is installed (package `raspi-utils-core`, normally preinstalled; `raspi-gpio` is the Bookworm fallback). `safe_outputs.py` needs one of them.
    - Adds the **kernel parameter `pinctrl_bcm2835.persist_gpio_outputs=0`** to `cmdline.txt` (`scripts/cmdline_param.py`: `/boot/firmware/cmdline.txt`, or `/boot/cmdline.txt` on older images; keeps a `cmdline.txt.riftbound.bak` copy the first time). It stops the kernel keeping a GPIO output driven after the process dies (§14.2). **It takes effect after a reboot.**
+   - Adds **`gpio=17,27=ip,pu`** to `config.txt` (`scripts/config_txt_line.py`: `/boot/firmware/config.txt`, or `/boot/config.txt` on older images; appended once under its own `[all]` section; keeps a `config.txt.riftbound.bak` copy the first time). The firmware then pulls the relay inputs up a few seconds after power-on (§14.1). **It takes effect after a reboot.**
    - Installs **`python3-rpi-lgpio`**, the drop-in that provides `import RPi.GPIO` on current Raspberry Pi OS (it replaces `python3-rpi.gpio`). If the archive doesn't have it, it falls back to `python3-rpi.gpio`.
    - Creates `venv/` **with `--system-site-packages`**, so the venv can import the apt-only camera, GPIO and numpy modules. An existing venv made without that flag is deleted and re-created.
    - Installs the Python packages from the **lock file**: `pip install --no-deps --require-hashes -r requirements.lock`. Every package is pinned to an exact version and sha256 hash, the same for Python 3.11 (Bookworm) and 3.13 (trixie). `--no-deps` means pip never replaces the apt numpy / Pillow / scipy / PyWavelets. `adafruit-blinka` is held below 10 (Blinka 10 needs libgpiod bindings that nothing installs). `requirements.txt` only lists the top-level ranges.
    - Checks that the venv imports `picamera2`, `libcamera`, `RPi.GPIO`, `numpy`, `PIL`, `imagehash`, `flask`, `board`, `busio`, `adafruit_pca9685` and `adafruit_motor.servo`, and validates `config/machine.json` if there is one (§16.6).
-   - Runs `i2cdetect`, creates `cache/` and `data/`, sets the hostname.
+   - Runs `i2cdetect`, creates `cache/` and `data/` and gives `cache/`, `data/` and `config/` to your user (`chown -R`; this also repairs root-owned files left by a tool run with `sudo`, §15.2), sets the hostname.
    - Installs and enables the **systemd service** for this checkout and user (`scripts/riftbound-sorter.service`, below).
    - Runs `safe_outputs.py` once, so every output is safe right away.
    - Prints the **web UI token** at the very end (§15.3).
@@ -915,7 +924,7 @@ What the software does on a stop, in outline (details in §15.4 and in `main.py`
    Notes:
    - **HX711:** the gandalf15/HX711 library is **vendored** as `hardware/vendor/hx711.py` (BSD-3 licence alongside, one marked local fix). There is nothing to install. **Do not** pip-install a package called `hx711`: the PyPI package of that name is a different library with an incompatible API.
    - **trixie:** `libtiff5` and `libatlas-base-dev` no longer exist there; setup.sh uses `libtiff6` and the apt builds of numpy, scipy and Pillow, which also keeps them ABI-matched with picamera2.
-3. **Reboot** (`sudo reboot`) to apply the kernel parameter. The service starts by itself after the reboot and waits in `needs_confirm` (§15.4). Check `cat /proc/cmdline` contains `pinctrl_bcm2835.persist_gpio_outputs=0`.
+3. **Reboot** (`sudo reboot`) to apply the kernel parameter and the `config.txt` line. The service starts by itself after the reboot and waits in `needs_confirm` (§15.4). Check `cat /proc/cmdline` contains `pinctrl_bcm2835.persist_gpio_outputs=0`, and `pinctrl get 17,27` shows `pu` on both lines.
 4. **Check the venv:**
 
    ```bash
@@ -932,7 +941,7 @@ What the software does on a stop, in outline (details in §15.4 and in `main.py`
 - `ExecStart` runs `venv/bin/python main.py` as your user, with the groups `gpio i2c video`.
 - **`ExecStopPost=+/usr/bin/python3 …/scripts/safe_outputs.py`** runs as root after **every** exit (clean, crash, kill, watchdog). It uses only the standard library, so it works even if the venv or the config is broken (§14.8). `sudo python3 scripts/safe_outputs.py --dry-run` prints what it would do.
 - **Watchdog:** `WatchdogSec=60`, `NotifyAccess=main`. The main loop pings systemd (`WATCHDOG=1`) at most once a second while it is healthy, including inside long waits and elevator moves. If the pings stop for 60 s, systemd aborts the process, `ExecStopPost` makes the outputs safe, and the restart comes up needing **Machine clear**.
-- `Restart=on-failure` (10 s), but **`RestartPreventExitStatus=78`**: a bad config file exits with status 78 and is *not* restarted. The five files checked are `config/machine.json` (§16.6), `config/identify.json` (§16.8), `config/shuttle_calibration.json` (§16.4), `config/servo_calibration.json` (§16.2) and `config/bin_limits.json` (§16.7).
+- `Restart=on-failure` (10 s), but **`RestartPreventExitStatus=78`**: a bad config file exits with status 78 and is *not* restarted. The five files checked are `config/machine.json` (§16.6), `config/identify.json` (§16.8), `config/shuttle_calibration.json` (§16.4), `config/servo_calibration.json` (§16.2) and `config/bin_limits.json` (§16.7). A `data/` directory or `data/sorter.lock` the service user can't open (left root-owned by a `sudo` run, §15.2) also exits 78, so the service doesn't loop through restarts.
 - `TimeoutStopSec=60`: the first SIGTERM finishes the current card; that fits well inside 60 s.
 - Optional extra: the **hardware** watchdog covers a hung OS (not just a hung sorter): add `dtparam=watchdog=on` to `/boot/firmware/config.txt`, set `RuntimeWatchdogSec=15` in `/etc/systemd/system.conf`, reboot and check that `/dev/watchdog` exists.
 
@@ -940,9 +949,9 @@ What the software does on a stop, in outline (details in §15.4 and in `main.py`
 
 Stop the service first (`sudo systemctl stop riftbound-sorter`). `venv/bin/python scripts/test_hardware.py --no-mock` gives a menu (A runs them all, Q quits). Before anything moves it asks you to confirm the arm, belt and cradle are clear, because the arm then parks and the shuttle homes with direct (full-speed) moves.
 
-**The hardware tools and the sorter exclude each other.** `test_hardware.py`, `calibrate_servos.py` and `calibrate_camera.py` take the sorter's lock (`data/sorter.lock`): a tool refuses to run while the sorter service or another tool runs, and the sorter refuses to start while a tool runs. Before anything moves, a tool records the machine as **not clean** in `data/machine_state.json` ("tool ran: …") and never marks it clean again, because it may have stopped with the carriage at a column, the cradle tipped or a card in the machine. So **after any tool run the next sorter start asks for Machine clear** (§15.4). An invalid `servo_calibration.json` or `shuttle_calibration.json` stops a tool with the list of bad keys (exit 78) before anything moves, exactly as it stops the sorter.
+**The hardware tools and the sorter exclude each other.** `test_hardware.py`, `calibrate_servos.py` and `calibrate_camera.py` take the sorter's lock (`data/sorter.lock`): a tool refuses to run while the sorter service or another tool runs, and the sorter refuses to start while a tool runs. Before anything moves, a tool records the machine as **not clean** in `data/machine_state.json` ("tool ran: …") and never marks it clean again, because it may have stopped with the carriage at a column, the cradle tipped or a card in the machine. So **after any tool run the next sorter start asks for Machine clear** (§15.4). `main.py --calibrate` (§16.1) counts as a tool here too: it records "tool ran: main.py --calibrate" the same way. **Any config error stops a tool with exit 78** before anything moves, exactly as it stops the sorter: an invalid `machine.json`, `servo_calibration.json` or `shuttle_calibration.json` (with the list of bad keys), an unreadable calibration file, or a lock / `data/` it can't open (below). All three tools and `main.py` use the same status.
 
-**Never run the tools or `main.py` with `sudo`.** Run them as your own user (the one the service runs as, in the `gpio i2c video` groups). A tool or sorter started as root creates a **root-owned `data/sorter.lock`** (and state file), and the service then can't open the lock and won't start. Fix it with `sudo chown <user> data/sorter.lock data/machine_state.json` (your user name). Only `safe_outputs.py` is meant to run as root.
+**Never run the tools or `main.py` with `sudo`.** Run them as your own user (the one the service runs as, in the `gpio i2c video` groups). A tool or sorter started as root can leave a **root-owned `data/`, `data/sorter.lock` or `data/machine_state.json`**. The service then refuses to start with an error naming the file, e.g. "cannot open …/data/sorter.lock … Fix: sudo chown -R <user>: …/data", and exits 78, so systemd does not keep restarting it. Fix it with `sudo chown -R <user>: data` (your user name, from the checkout), or re-run `bash scripts/setup.sh`, which gives `cache/`, `data/` and `config/` back to your user. Only `safe_outputs.py` is meant to run as root.
 
 | Menu | What it runs |
 |---|---|
@@ -986,10 +995,10 @@ The web UI runs at `http://riftbound-sorter.local:5000` (or `http://<pi-ip>:5000
 |---|---|
 | `starting` | start-up checks running: belt stop, arm / shuttle to rest, elevator homing, cradle check. **The machine may move.** |
 | `running` | sorting |
-| `paused` | operator Pause, or a bin is full (card held on the cradle); nothing moves. Paused at a card boundary, the servos are switched off <!-- PENDING code r4: ch1 only --> |
-| `stopped` | operator Stop; the process and web UI stay up; servos off <!-- PENDING code r4: ch1 only --> |
+| `paused` | operator Pause, or a bin is full (card held on the cradle); nothing moves. Paused at a card boundary with no card in the machine, only ch1 (tilt) is switched off; the arm and carriage keep holding |
+| `stopped` | operator Stop; the process and web UI stay up; only ch1 (tilt) switched off, the arm and carriage keep holding |
 | `hopper_empty` | refill and press Resume |
-| `needs_confirm` | first start, unclean stop (also after any hardware tool ran), a card found on the cradle, a Stop while a card waited on the cradle for a full bin, or a **card held on the cup** ("card held on cup — remove it by hand before stopping the service"): check the machine, remove any card, then **Machine clear** |
+| `needs_confirm` | first start, unclean stop (also after any hardware tool or `main.py --calibrate` ran), a card found on the cradle, a Stop while a card waited on the cradle for a full bin, or a **card held on the cup** ("card held on cup — remove it by hand before stopping the service"): check the machine, remove any card, then **Machine clear** |
 | `jam`, `error` | something stopped the machine (camera fault, elevator switch fault, load-cell fault, hash DB incomplete, …); the message says what |
 | `idle` | `--web-only` mode |
 
@@ -1032,10 +1041,10 @@ The web UI runs at `http://riftbound-sorter.local:5000` (or `http://<pi-ip>:5000
 **Stopping:**
 - **Web UI Stop or Pause:** finishes the current card; the process stays up.
 - **`sudo systemctl stop riftbound-sorter`, Ctrl-C or SIGHUP:** the **first** signal finishes the card in progress, then shuts down. A **second** signal stops immediately; a card on the cup is put back on the stack or carried to the belt, never dropped mid-arc (a second signal *during* that carry waits until the card is down).
-- **Teardown:** pump off and vented, belt stopped, arm parked, a tipped cradle brought back to HOLD. **The shuttle carriage stays where it is**; it never homes on the way out. Then every servo goes **limp** (channels off, PCA9685 asleep) and the service's `ExecStopPost` drives all outputs safe (§14.8).
+- **Teardown:** pump off and vented, belt stopped, arm parked (a card still held on the cup is let go first, from where the arm stands, see below), a tipped cradle brought back to HOLD. **The shuttle carriage stays where it is**; it never homes on the way out. Then every servo goes **limp** (channels off, PCA9685 asleep) and the service's `ExecStopPost` drives all outputs safe (§14.8).
 - **Clean or not.** The stop is recorded as clean only with no card in the machine, the pump off, the arm parked and the shuttle at home + level with an empty cradle. A card still on the cradle (for example during a bin-full pause) stays there; the state becomes `needs_confirm` (Resume refused), the stop is recorded as unclean and the next start asks you to remove it.
-- **Card held on the cup.** If the arm couldn't carry a card to the belt, the pump keeps holding it and the web UI says "card held on cup — remove it by hand before stopping the service". Remove it by hand first: stopping the service switches the pump off and drops it. After `CUP_HOLD_MAX_S` (600 s) the pump switches off by itself. <!-- PENDING code r4: cup-hold expiry behaviour -->
-- **Idle servos.** <!-- PENDING code r4: ch1 only --> While the sorter waits at rest (stopped, paused at a card boundary, hopper empty) ch0–ch2 are switched off (§14.3); they get one write each before the next move.
+- **Card held on the cup.** If the arm couldn't carry a card to the belt, the arm is left where it stopped (never parked), powered, and the pump holds the card for at most `CUP_HOLD_MAX_S` (600 s). The web UI says "card held on cup — remove it by hand before stopping the service", the time left, and where the card will land. When the time runs out, or the service stops (it lets go before the arm goes limp), the pump lets go and the card falls from that pose: within 10° of PICK back onto the stack, within 40° of DROP flat onto the belt, anywhere else (PARK included) across the hopper rim / belt inlet, possibly bent (§14.8). **Remove it by hand first**, then **Machine clear**.
+- **Idle servos.** While the sorter waits at rest with no card in the machine (stopped, paused at a card boundary, hopper empty) **only ch1 (tilt)** is switched off, so it doesn't stall against the home ledges; ch0 (arm at PARK) and ch2 (carriage at home) keep holding while you work in the machine (§14.3). ch1 gets one write before the next move.
 - Before unplugging the 12 V, always stop the service first.
 
 ### 15.5 Card database
@@ -1067,7 +1076,13 @@ Jog keys at every pose:
 | `q` | quit (parks everything) |
 
 Notes:
-- Jogging is limited to ±25° round the stored value **and** to the sorter's sanity window (±25° round the nominal pose; for the arm also round its mirror, 180° − nominal). One MG996R spline tooth is 14.4°; if you need more, the horn, crank or coupler is on the wrong tooth: re-seat it.
+- **Jogging is clamped to exactly what the sorter accepts** (the same limits it checks the file against, §16.2, §16.4):
+  - arm (ch0): **±10°** round the nominal pose, or round its mirror (180° − nominal) for a servo that turns the other way: PICK 165–180 (or 0–15), DROP 0–15 (or 165–180), PARK 80–100;
+  - tilt (ch1) and carriage (ch2): **±8°** round the nominal pose (§14.3 table);
+  - tilt, also against the other tilt poses as they stand: lower < level < hold < upper, with **hold − level 2–8°**, **upper − hold ≥ 8°**, **level − lower ≥ 30°**;
+  - carriage, also against its neighbours: reject < 3 < 2 < home < 1 < 0, each stop **≥ 5°** from the next.
+
+  If the jog runs into a limit before the pose is right, the horn, crank or coupler is on the wrong spline tooth (one MG996R tooth is 14.4°): re-seat it.
 - **The tool never saves an invalid file.** Each save is checked against the same validation the sorter uses (§16.2, §16.4); a value that would make the file invalid is refused with the reason and the old value is kept. An invalid file at start stops the tool (exit 78) with the list of bad keys, before anything moves.
 - **Interlock** (§15.2): the tool refuses to run while the sorter service runs, and records the machine as not clean before anything moves, so the next sorter start asks for **Machine clear**.
 - Saved values go to `config/servo_calibration.json` (arm, keys `ARM_PICK` / `ARM_DROP` / `ARM_PARK`) and `config/shuttle_calibration.json` (`tilt`, `shuttle`, and `invert` from the direction check).
@@ -1093,7 +1108,7 @@ Both calibration files are validated at every start, as strictly as `machine.jso
 
 ### 16.1 Load cell
 
-1. Stop the service, then run `venv/bin/python main.py --calibrate`. <!-- PENDING code r4: --calibrate will also record the machine as not clean (like the tools), so the next start asks for Machine clear --> If the arm / shuttle pose isn't known to be at rest, it first asks you to check the machine is clear and moves them there directly. The cradle goes to HOLD.
+1. Stop the service, then run `venv/bin/python main.py --calibrate`. Like the hardware tools (§15.2), it first records the machine as **not clean** ("tool ran: main.py --calibrate") and never marks it clean again, so the next sorter start asks for **Machine clear**: take the reference mass off before you confirm. If the arm / shuttle pose isn't known to be at rest, it first asks you to check the machine is clear and moves them there directly. The cradle goes to HOLD.
 2. Press Enter with the cradle **empty** to tare. This stores the empty-cradle reference.
 3. Put the reference mass flat in the middle of the cradle and press Enter. The default reference is a **US 5-cent nickel, 5.000 g**. For another known mass use `--mass G`, e.g. `main.py --calibrate --mass 10.0`. The scale factor is saved to `config/loadcell_calibration.json` and the script prints what the reference now reads.
 4. Remove the reference and press Enter. The empty cradle is read again; if it reads empty it is tared once more, otherwise you are told to re-run the calibration.
@@ -1131,9 +1146,9 @@ Menu **1**. Use a sacrificial card. PICK and DROP start 8° short (toward PARK);
 - **ARM_DROP (≈5):** card flat and ~3 mm above the belts. Its upstream edge should be **26 mm downstream of the rail inlet end** (card X −139..−51).
 - **ARM_PARK (90):** crank vertical.
 
-**`config/servo_calibration.json`** (section `pickup_arm`, written by menu 1) is validated at start (exit 78 on any problem): only `ARM_PICK`, `ARM_DROP`, `ARM_PARK` (old `ARM_DOWN` / `ARM_UP` are still read, with a warning, if the new key is missing); every angle a finite number within the servo's range and within ±25° of its nominal (175 / 5 / 90) **or of the mirrored pose** (180° − nominal, for a servo that turns the other way); PICK and DROP on opposite sides of PARK; unknown sections and keys refused. A typo such as `ARM_DROP` 400 can never swing the arm into the hopper.
+**`config/servo_calibration.json`** (section `pickup_arm`, written by menu 1) is validated at start (exit 78 on any problem): only `ARM_PICK`, `ARM_DROP`, `ARM_PARK` (old `ARM_DOWN` / `ARM_UP` are still read, with a warning, if the new key is missing); every angle a finite number within the servo's range and within **±10°** of its nominal (175 / 5 / 90) **or of the mirrored pose** (180° − nominal, for a servo that turns the other way), i.e. PICK 165–180 or 0–15, DROP 0–15 or 165–180, PARK 80–100 (the crank sits on a 25T horn, so the nearest spline tooth is always within ±7.2°; the rest is trim); PICK and DROP on opposite sides of PARK; unknown sections and keys refused. A typo such as `ARM_DROP` 400, or 157 for 175, can never swing the arm into the hopper.
 
-**DS3218MG-270 fallback** (§19): set `"servos": {"ARM_ACTUATION_RANGE": 270}` in `config/machine.json` (default 180; only 180 or 270 are accepted), then re-calibrate all three arm angles: they are servo degrees within that range. Fit the crank at the commanded PARK (90°) so the angles stay near nominal: the ±25° window still applies.
+**DS3218MG-270 fallback** (§19): set `"servos": {"ARM_ACTUATION_RANGE": 270}` in `config/machine.json` (default 180; only 180 or 270 are accepted), then re-calibrate all three arm angles: they are servo degrees within that range. Fit the crank at the commanded PARK (90°) so the angles stay near nominal: the ±10° window still applies.
 
 **Check:** `test_hardware.py` test 4 (pick and place). The card lands flat inside the guide funnel, released ≤ 1.7 mm off-centre in Y.
 
@@ -1176,11 +1191,12 @@ The first raise after homing may travel the whole stack height (that is why the 
 ```
 
 - **`invert`**: per-channel direction. `true` makes the code write `actuation_range − angle`, so every stored angle keeps its geometric meaning. Set by the direction check (menu `d`), never guessed. Only `"1"` and `"2"` with JSON `true` / `false` are accepted.
-- **`actuation_range`** (DS3218MG-270 fallback, §19): `{"2": 270}` for ch2 (ch1 can take `"1"` the same way); only 180 or 270. Re-calibrate every angle of that channel afterwards, and fit the crank (ch2) or coupler (ch1) at the commanded pose so the angles stay near nominal: the ±25° window below still applies.
+- **`actuation_range`** (DS3218MG-270 fallback, §19): `{"2": 270}` for ch2 (ch1 can take `"1"` the same way); only 180 or 270. Re-calibrate every angle of that channel afterwards, and fit the crank (ch2) or coupler (ch1) at the commanded pose so the angles stay near nominal: the ±8° window below still applies.
 - **Validation** (`hardware/shuttle.py`, at every start; any problem refuses to start with every bad key listed, exit 78, and nothing is applied):
   - valid JSON; sections only `tilt`, `shuttle`, `timing`, `actuation_range`, `invert` (keys starting with `_` are comments); unknown keys refused;
-  - every angle a finite JSON number within `[0, actuation_range]` **and within ±25° of its nominal** (the values in the table in §14.3), so a typo (1122 for 112.2, a sign slip) can never command a wild pose;
-  - pose order: tilt `lower` < `level`, `hold` < `upper`; carriage `reject` < 3 < 2 < `home` < 1 < 0;
+  - every angle a finite JSON number within `[0, actuation_range]` **and within ±8° of its nominal** (the values in the table in §14.3). ch1's coupler is indexed at HOLD to ≤ 0.6°, and ch2's crank horn is always within ±7.2° (half a 14.4° tooth) of nominal, so ±8° covers both, while a typo (1122 for 112.2, a sign slip, swapped digits such as 79 for hold 97) lands outside;
+  - tilt order and gaps: `lower` < `level` < `hold` < `upper`, with **`hold` − `level` 2–8°** (nominal 3.9°), **`upper` − `hold` ≥ 8°** (nominal 15.2°) and **`level` − `lower` ≥ 30°** (nominal 51.6°), so two poses typed into each other's place (hold 93.2 with level 93.1) are refused too;
+  - carriage order: `reject` < 3 < 2 < `home` < 1 < 0, neighbouring stops **at least 5° apart**;
   - every `timing` value a finite number ≥ 0 within its range.
 
 ### 16.5 Camera
@@ -1281,7 +1297,7 @@ There is no silent fall-back to the defaults. Delete the file to use them. `setu
 | `WEIGH_SETTLE_S`, `TARE_SETTLE_S` | 0.2, 0.3 | 0..5 each | settle before weighing / taring |
 | `RESUME_DELAY_S` | 2.0 | 0..30 | bin reset → hands out of the tray before the shuttle moves |
 | `CALIBRATION_MASS_G` | 5.0 | 0.5..500 | default reference mass for `--calibrate` |
-| `CUP_HOLD_MAX_S` | 600.0 | 10..3600 | how long the pump keeps holding a card the arm could not carry to the belt, while the machine waits for you; then the pump switches off (the card may drop) <!-- PENDING code r4: cup-hold expiry behaviour --> |
+| `CUP_HOLD_MAX_S` | 600.0 | 10..3600 | how long the pump keeps holding a card the arm could not carry to the belt, while the machine waits for you, with the arm left where the carry failed; then the pump switches off and the card drops from that pose (where it lands: §14.8) |
 
 **`elevator` section** (`hardware/elevator.py`):
 
@@ -1320,7 +1336,7 @@ The sorter counts cards per bin and pauses when a bin reaches its limit (`main.p
 {"0": 45, "4": 14}
 ```
 
-Every value must be a **whole number from 1 to the cap** of its bin: **lower 0–3: 54** (18 mm, the highest pile `cad/shuttle_check.py slide` covers), **upper 4–7: 15** (≈ 5 mm, 1 mm past the highest pile the slide simulation still lands a card on)<!-- PENDING code r4: BIN_LIMIT_MAX upper 24 → 15 in main.py --> , **reject 9: 52** (17.4 mm under the lane lip). Keys are `"0"`–`"7"` and `"9"` (keys starting with `_` are comments). Anything else (an unknown bin, a string, a fraction, a value over the cap, invalid JSON) refuses to start with exit 78. The caps are geometric maxima, not recommended limits.
+Every value must be a **whole number from 1 to the cap** of its bin: **lower 0–3: 54** (18 mm, the highest pile `cad/shuttle_check.py slide` covers), **upper 4–7: 15** (≈ 5 mm, 1 mm past the 4 mm pile the slide simulation still lands a card on; it already calls an 8 mm pile SHORT), **reject 9: 52** (17.4 mm under the lane lip). Keys are `"0"`–`"7"` and `"9"` (keys starting with `_` are comments). Anything else (an unknown bin, a string, a fraction, a value over the cap, invalid JSON) refuses to start with exit 78. The caps are geometric maxima, not recommended limits.
 
 Raise in small steps (a few cards at a time), and only after a run of bulk commons into that bin shows every card landing flat with the pile at the new height. The upper floor is the one to be careful with: cards that can't slide fully into the slot hang on the cradle lip.
 
@@ -1390,12 +1406,12 @@ Before powering off, always stop with `sudo systemctl stop riftbound-sorter` (or
 | "card on cradle — remove it" at start-up | a card was left on the cradle, or the empty reference is stale | Remove the card and confirm. If the cradle really is empty, re-run `main.py --calibrate`. |
 | "cradle reads … BELOW the stored empty-cradle reference" | load-cell fault, lead tugging, zero drift | Check the cell, lead and loop (§14.7), then `main.py --calibrate`. |
 | "no stored empty-cradle reference" | never calibrated, or an old calibration file | `main.py --calibrate` (§16.1). |
-| Waits in `needs_confirm` | first start, the last stop was unclean, a hardware tool ran since, or a stop while a card waited on the cradle | §15.4: check the machine, remove any card, then **Machine clear** or `--confirm-clear`. |
-| "card held on cup — remove it by hand before stopping the service" | the arm couldn't carry the card to the belt (3 tries); the pump holds it | Take the card off the cup by hand, then **Machine clear**. Don't stop the service first: that switches the pump off and drops the card. After `CUP_HOLD_MAX_S` (600 s) the pump switches off by itself. <!-- PENDING code r4: cup-hold expiry behaviour --> |
-| Won't start: `[config] ERROR: invalid … — refusing to start`, service not restarting (exit 78) | a bad key in one of the five checked files: `config/machine.json`, `identify.json`, `shuttle_calibration.json`, `servo_calibration.json`, `bin_limits.json` (typo, unknown key, string instead of number, out of range or outside the ±25° window, poses out of order, `TOP_SWITCH_NC` false, a bin limit over its cap) | Fix every key listed (§16.6, §16.8, §16.4, §16.2, §16.7), or delete the key / file for the defaults. Then start the service. |
+| Waits in `needs_confirm` | first start, the last stop was unclean, a hardware tool or `main.py --calibrate` ran since, or a stop while a card waited on the cradle | §15.4: check the machine, remove any card, then **Machine clear** or `--confirm-clear`. |
+| "card held on cup — remove it by hand before stopping the service" | the arm couldn't carry the card to the belt (3 tries); the pump holds it | Take the card off the cup by hand, then **Machine clear**. Don't stop the service first: that lets the card go. The arm stays where it stopped (never parked); after `CUP_HOLD_MAX_S` (600 s) the pump switches off by itself and the card drops from there. The message says where: back onto the stack (near PICK), onto the belt (towards DROP) or across the hopper rim / belt inlet (mid-arc or PARK, may be bent) (§14.8). If it already dropped, pick it up from there, check it isn't bent, then **Machine clear**. |
+| Won't start: `[config] ERROR: invalid … — refusing to start`, service not restarting (exit 78) | a bad key in one of the five checked files: `config/machine.json`, `identify.json`, `shuttle_calibration.json`, `servo_calibration.json`, `bin_limits.json` (typo, unknown key, string instead of number, out of range or outside the sanity window (arm ±10°, tilt / carriage ±8°), poses out of order or too close / too far apart, `TOP_SWITCH_NC` false, a bin limit over its cap) | Fix every key listed (§16.6, §16.8, §16.4, §16.2, §16.7), or delete the key / file for the defaults. Then start the service. |
 | "another sorter process or a hardware tool is running" / a tool says "the sorter or another tool is running" | the service is running while you start `main.py` or a tool by hand (or a second copy) | `sudo systemctl stop riftbound-sorter` first, or let the tool finish. |
-| Service won't start after a tool was run with `sudo`: "another sorter process or a hardware tool is running" or a permission error on `data/sorter.lock` | a root-owned `data/sorter.lock` / `data/machine_state.json` | `sudo chown <user> data/sorter.lock data/machine_state.json`; never run the tools or `main.py` with `sudo` (§15.2). |
-| `calibrate_servos.py` says "NOT saved — … would make the calibration file invalid" | the jogged value is outside the ±25° window or breaks the pose order | Jog back inside, or re-seat the horn / crank / coupler one spline tooth (§16). |
+| Service, `main.py` or a tool won't start: "cannot open …/data/sorter.lock … Fix: sudo chown -R <user>: …/data" or "…/data is not writable by this user", exit 78, the service not restarting | a root-owned `data/`, `data/sorter.lock` or `data/machine_state.json`, left by a tool or `main.py` run with `sudo` | `sudo chown -R <user>: data` (your user name, in the checkout), or re-run `bash scripts/setup.sh`; then start the service. Never run the tools or `main.py` with `sudo` (§15.2). |
+| `calibrate_servos.py` won't jog any further, or says "NOT saved — … would make the calibration file invalid" | the pose is at the edge of what the sorter accepts: arm ±10°, tilt / carriage ±8° round nominal, or the tilt gaps / carriage spacing against the other poses (§16, §16.4) | Check the other poses first (a wrong neighbour narrows the window), or re-seat the horn / crank / coupler one spline tooth (§16). |
 | `error`: "hash DB incomplete" | card image downloads failed | `main.py --build-db` with internet (§15.5); it retries by itself every 60 s. |
 | Web UI or CLI action refused (HTTP 409) | not allowed in the current state | The message says why; see the table in §15.3. |
 | ch2 crank swings toward the end post / wrong way | servo direction not checked or `invert` lost | Unplug ch2 at once. Remove the crank, re-run the direction check bare (menu `d`, §13.5). |
@@ -1425,7 +1441,7 @@ None of these can be settled in CAD or in the mock tests. Check each one on the 
 
 1. **Servo travel (before printing the arm).** The arm needs **~170°** of servo travel (ARM_DROP 5° → ARM_PICK 175°) and ch2 needs **~176°** (reject 2° → column 0 178°). Many MG996Rs give only ~120° with standard pulses; the code uses 500–2500 µs. **Test:** bolt a horn on, command 5°, 90° and 175° with `calibrate_servos.py --no-mock`, and measure with a protractor. **Fallback: DS3218MG-270** (~$15): arm `"servos": {"ARM_ACTUATION_RANGE": 270}` in `config/machine.json` (§16.2); ch2 `"actuation_range": {"2": 270}` in `config/shuttle_calibration.json` (§16.4). Re-calibrate after either.
 2. **Servo direction (ch1, ch2).** Run the bare-servo direction check (menu `d`) before the coupler or the crank goes on (§13.3, §13.5). MG996R clones differ; a reversed ch2 without `invert` drives the crank into the end post.
-3. **Relay at 3.3 V logic.** The 5 V relay module is driven from 3.3 V GPIO; some boards never fully switch off. At boot IN sits at only ≈ 2.7 V (the SoC's ≈ 50 kΩ pull-down against the 10 kΩ pull-up). Bench-test both channels at 3.3 V and at the boot level before wiring (§14.1 step 5).
+3. **Relay at 3.3 V logic.** The 5 V relay module is driven from 3.3 V GPIO; some boards never fully switch off. For the first few seconds after power-on IN sits at only ≈ 2.7 V (the SoC's ≈ 50 kΩ pull-down against the 10 kΩ pull-up), until the firmware applies the `config.txt` pull-up from `setup.sh` (`gpio=17,27=ip,pu`, ≈ 3.3 V; check `pinctrl get 17,27` shows `pu` after the reboot). Bench-test both channels at 3.3 V and at ≈ 2.7 V before wiring (§14.1 step 5). If one is marginal, 4.7 kΩ pull-ups instead of 10 kΩ give ≈ 3.0 V straight out of reset.
 4. **Camera:** check at start-up that the IMX708 really runs the 2304 × 1296 full-field mode (no "NOT the full field of view" warning), that `LensPosition` 10 gives a sharp card, and tune `STOP_LATENCY_S` (and `BRAKE_COAST_MM`) with test 10 (§16.5, §16.6).
 5. **HX711 timing under rpi-lgpio.** The vendored HX711 library bit-bangs SCK through `RPi.GPIO`, which on current Raspberry Pi OS is the `python3-rpi-lgpio` shim. Its per-call overhead and timing on a Pi Zero 2 W are untested here: with test 6, check that repeated empty and one-card readings are stable (0 ± 0.3 g; 1.3–2.3 g) and that no "load cell failed" / retry messages appear.
 6. **Belt speed.** `BELT_SPEED_MM_S` (default 150) is a guess for two N20s at 5 V: measure it (test 9, §16.6). It sets the seek timeout and the exit run.
@@ -1452,7 +1468,7 @@ None of these can be settled in CAD or in the mock tests. Check each one on the 
    - ch2 crank tip at column 0 reaches Y −269 against a 270 mm baseplate edge;
    - hood clips and guide funnel within a few mm of the arm drop.
 5. **Vacuum release** depends on the vent valve (§14.6). A valve fitted the wrong way round can leak during a pick or fail to vent. Run test 3 and the pick-and-place test with commons. Without a valve (`VENT_PIN = None`) the code just waits 0.3 s, and the R385's check valves may hold the card on the cup.
-6. **Servos are limp whenever the sorter isn't running** (and on power loss). The arm is parked before it goes limp, but with the 12 V pulled it falls and drops any card. Always stop the service before unplugging.
+6. **Servos are limp whenever the sorter isn't running** (and on power loss). The arm is parked before it goes limp (a card still held on the cup is let go first, from where the arm stands, §14.8), but with the 12 V pulled it falls and drops any card. While the sorter idles, only ch1 is off; the arm and carriage keep holding. Always stop the service before unplugging.
 7. **First moves after an unclean stop are full-speed jumps**, and only after **Machine clear** (§15.4). Keep hands out of the machine when you confirm after a crash or power loss. After a clean stop the servos snap back by whatever they sagged while limp.
 8. **12 V supply.** The arm-move peak with the pump on is ≈ 3.2 A, over the owned 3 A adapter. **Use the 12 V 5 A adapter** (64 % at peak). The 3 A one is for bench tests with the servos unplugged.
 9. **O-ring belts** run at 7.4 % stretch. NBR relaxes over time; if a card slips, replace the belts.
@@ -1460,13 +1476,13 @@ None of these can be settled in CAD or in the mock tests. Check each one on the 
 11. **Glare.** The LED strips must stay below 21 mm above the card or foils will show a hotspot. No GPIO switches them: they are on whenever the logic rail is.
 12. **Hopper-empty detection** depends on the plate notch passing under the flag. Check it in §10 with an empty plate.
 13. **Shoulder screws.** The ch2 pivots need 4 mm-shoulder screws with an M3 × 4 thread (5 and 6 mm shoulders). Order them early; they are not in common assortments.
-14. **Kernel parameter needs a reboot.** Until the first reboot after `setup.sh`, only `ExecStopPost` (not the kernel) releases the outputs after a crash. Reboot once after setup (§15.1).
+14. **Kernel parameter and boot pull-up need a reboot.** Until the first reboot after `setup.sh`, only `ExecStopPost` (not the kernel) releases the outputs after a crash, and the relay inputs sit at ≈ 2.7 V at boot (no `config.txt` pull-up yet). Reboot once after setup (§15.1).
 
 ---
 
 ## 20. Where the code and the CAD disagree
 
-Re-checked against the repo on 12 Nov 2026 for release 2.3.0 (after commits 93c6986, 2e8712f, 30cd027 and 2149c5b). Every row of the 2.1.0 list was closed in 2.2.0, and **every row left open in 2.2.0 is now fixed** in the code or the CAD:
+Re-checked against the repo on 12 Nov 2026 for release 2.3.1 (after commits 93c6986, 2e8712f, 30cd027, 2149c5b and b028645). Every row of the 2.1.0 list was closed in 2.2.0, and **every row left open in 2.2.0 is now fixed** in the code or the CAD:
 
 | # (2.2.0) | Where | Closed by |
 |---|---|---|
@@ -1478,9 +1494,9 @@ Re-checked against the repo on 12 Nov 2026 for release 2.3.0 (after commits 93c6
 | 6 | `config/identify.json` was not validated (a bad value only warned) | validated like `machine.json`, exit 78 (93c6986; §16.8) |
 | 7 | `scripts/setup.sh` "next steps" listed calibration before the reboot | reboot first, then stop the service, build the DB and calibrate in the §16 order (93c6986) |
 
-Found in this pass and left as they are (none changes a step in this guide):
+Found in the 2.3.0 pass; both are now closed:
 
 | # | Where | Disagreement | This guide |
 |---|---|---|---|
-| 1 | `cad/shuttle.scad`, tilt-frame comment above `tf_bot` | Still says the bed plane is "≈ 1480 mm²". The print header in the same file says ≈ 1420, and the exported part measures 1420.7 mm² (the open-bottom link slot now cuts more of the crossbar). | ≈ 1420 mm² (§2, BOM). |
-| 2 | `scripts/test_hardware.py` | A bad `config/machine.json` stops it with exit status 1 (the message lists the keys); a bad servo / shuttle calibration file stops it with 78, like the sorter. Only the sorter's exit status matters to systemd. | §15.2 just says the tool stops with the list of bad keys. |
+| 1 | `cad/shuttle.scad`, tilt-frame comment above `tf_bot` | Said the bed plane is "≈ 1480 mm²" (the part measures 1420.7 mm²). **Closed in 7ec74e2:** the comment now says ≈ 1420. | ≈ 1420 mm² (§2, BOM). |
+| 2 | `scripts/test_hardware.py` | A bad `config/machine.json` stopped it with exit status 1, a bad calibration file with 78. **Closed in b028645:** every tool and `main.py` now exit 78 on any config error (also a lock / `data/` they can't open). | §15.2: every config error exits 78. |

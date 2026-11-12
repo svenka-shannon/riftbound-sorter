@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120">
 <defs><style>
 text{font-family:'DejaVu Sans Mono','Courier New',monospace}
 .T{font-size:20px;font-weight:bold;fill:#e6edf3}.st{font-size:12px;fill:#8b949e}
 .h{font-size:13px;font-weight:bold;fill:#e6edf3}.s{font-size:11px;fill:#8b949e;font-style:italic}
 .p{font-size:11px;fill:#c9d1d9}.w{font-size:10.5px;fill:#e6edf3}.lg{font-size:12px;fill:#c9d1d9}.warn{font-size:12px;fill:#ffa657;font-weight:bold}
 </style></defs>
-<rect width="1800" height="1100" fill="#0d1117"/>
+<rect width="1800" height="1120" fill="#0d1117"/>
 <text x="900.0" y="32" class="T" text-anchor="middle">Riftbound Card Sorter v2 — wiring block diagram</text>
 <text x="900.0" y="52" class="st" text-anchor="middle">Source of truth: hardware/*.py (pins, channels). Tables: docs/ASSEMBLY.md §14. Power budget: BOM.md. All GNDs common (GND bus).</text>
 <rect x="20" y="80" width="250" height="70" rx="6" fill="#161b22" stroke="#f85149" stroke-width="2"/>
@@ -48,7 +48,7 @@ text{font-family:'DejaVu Sans Mono','Courier New',monospace}
 <text x="320" y="698" class="p" text-anchor="start">IN2 ← GPIO 27 (LOW = vent OPEN)</text>
 <text x="320" y="713" class="p" text-anchor="start">COM1, COM2 ← 12 V</text>
 <text x="320" y="728" class="p" text-anchor="start">NO1 → pump +    NO2 → valve +</text>
-<text x="320" y="743" class="p" text-anchor="start">10 kΩ GPIO 17, 27 → 3.3 V (pull-ups)</text>
+<text x="320" y="743" class="p" text-anchor="start">10 kΩ (or 4.7 kΩ) on GPIO 17, 27 → 3.3 V</text>
 <text x="320" y="762" class="warn" text-anchor="start">bench-check: OFF at IN 3.3 V and 2.7 V</text>
 <path d="M290,713 L310,713" fill="none" stroke="#f85149" stroke-width="2.2"/>
 <text x="292" y="707" class="w" text-anchor="start">COM</text>
@@ -114,6 +114,10 @@ text{font-family:'DejaVu Sans Mono','Courier New',monospace}
 <text x="710" y="607" class="p" text-anchor="start">         after RPi.GPIO cleanup()</text>
 <text x="710" y="622" class="p" text-anchor="start">[10k↑] = 10 kΩ to 3.3 V: relay off</text>
 <text x="710" y="637" class="p" text-anchor="start">         (pump off, vent closed)</text>
+<text x="710" y="652" class="p" text-anchor="start">         or 4.7 kΩ: IN ≈ 3.0 V at reset</text>
+<text x="710" y="667" class="p" text-anchor="start">config.txt gpio=17,27=ip,pu (setup.sh):</text>
+<text x="710" y="682" class="p" text-anchor="start">  boot pull-up, IN ≈ 2.7 V → 3.3 V</text>
+<text x="710" y="697" class="p" text-anchor="start">  check: pinctrl get 17,27 shows pu</text>
 <path d="M700,318 L670,318 L670,683 L610,683" fill="none" stroke="#58a6ff" stroke-width="2.2"/>
 <text x="614" y="679" class="w" text-anchor="start">GP17</text>
 <path d="M700,333 L685,333 L685,698 L610,698" fill="none" stroke="#58a6ff" stroke-width="2.2"/>
@@ -226,4 +230,5 @@ text{font-family:'DejaVu Sans Mono','Courier New',monospace}
 <text x="700" y="1040" class="lg" text-anchor="start">Safe levels when no program drives the pins: GPIO 17, 27 pulled HIGH (pump off, vent closed), GPIO 23–26 pulled LOW (belt off).</text>
 <text x="700" y="1060" class="lg" text-anchor="start">After ANY exit: ExecStopPost scripts/safe_outputs.py drives 17/27 HIGH, 23–26 and 16–21 LOW, PCA9685 asleep;</text>
 <text x="700" y="1078" class="lg" text-anchor="start">kernel cmdline pinctrl_bcm2835.persist_gpio_outputs=0 (setup.sh, after a reboot) releases freed pins to the pulls.</text>
+<text x="700" y="1098" class="lg" text-anchor="start">Boot: setup.sh adds gpio=17,27=ip,pu to config.txt (after a reboot): 17/27 pulled up a few s after power-on, IN ≈ 2.7 → 3.3 V.</text>
 </svg>

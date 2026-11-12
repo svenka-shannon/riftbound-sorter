@@ -5,9 +5,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2.3.1] — 2026-11-12 — code round 4 (branch `audit-fixes`)
+
+Fixes from the fourth code audit (commit b028645). Docs: `BOM.md`, `docs/ASSEMBLY.md`, `README.md`, `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch` updated to match; every detail 2.3.0 left open for code round 4 is resolved.
+
+### Changed: software and safety
+- **Tight calibration windows** (2.3.0: ±25°): arm **±10°** round its nominal pose or its mirror (PICK 165–180 / 0–15, DROP 0–15 / 165–180, PARK 80–100); tilt and carriage **±8°** round nominal. Tilt poses must be in order lower < level < hold < upper with **hold − level 2–8°**, **upper − hold ≥ 8°**, **level − lower ≥ 30°**; carriage stops **≥ 5° apart**. Swapped-digit typos and two poses typed into each other's place are now refused. `calibrate_servos.py` clamps its jog to exactly what the sorter accepts (`shuttle.allowed_range()`).
+- **A card the arm couldn't carry is never parked.** The arm stays where the failed carry left it, powered, the pump holding the card, for at most `CUP_HOLD_MAX_S` (600 s). When that runs out, or the service stops (teardown now lets go *before* the arm goes limp), the card falls from that pose, and the web UI says where: within 10° of PICK back onto the stack (≤ 7 mm), within 40° of DROP flat onto the belt (3 mm at DROP, ≤ 39 mm at 40°), anywhere else (PARK included) across the hopper rim / belt inlet from 12–55 mm, possibly bent. Within 2° of PICK it is released onto the stack at once, as before.
+- **Idle release is ch1 only:** at rest with no card in the machine, only the tilt servo is switched off (no stall against the home ledges); the arm (parked) and carriage (home) keep holding while you work in the machine. With a card anywhere in the machine nothing is switched off.
+- **`main.py --calibrate` marks the machine not clean** ("tool ran: main.py --calibrate"), like the hardware tools: the next start asks for Machine clear.
+- **Root-owned lock / `data/`** (a tool or `main.py` run with `sudo`): refused with the file named and the fix (`sudo chown -R <user>: data`), exit 78, so systemd does not restart-loop. A tool run as root anyway gives the files it creates to the owner of `data/`. `setup.sh` now `chown -R`s `cache/`, `data/` and `config/` to the service user.
+- **Exit 78 for every config error in every tool** (`test_hardware.py`, `calibrate_servos.py`, `calibrate_camera.py`) as in `main.py`: `machine.json` (was exit 1 in `test_hardware.py`), calibration files, unreadable files, lock / `data/` permissions.
+- **Upper-floor bin cap 24 → 15** (≈ 5 mm; the slide simulation already calls an 8 mm pile SHORT). Example in the error message: `{"0": 45, "4": 14}`.
+- **Bin counts are fsynced** (file and directory) so a power cut never loses a count or leaves a 0-byte file.
+- **Boot pull-up on the relay inputs:** `setup.sh` adds `gpio=17,27=ip,pu` to `config.txt` (new `scripts/config_txt_line.py`: idempotent, own `[all]` section, `.riftbound.bak` copy, durable write). After a reboot the firmware pulls GPIO 17 / 27 up a few seconds after power-on (IN ≈ 3.3 V instead of ≈ 2.7 V); the ≈ 2.7 V bench test still covers the first seconds. Check: `pinctrl get 17,27` shows `pu`.
+
+### Documentation
+- `docs/ASSEMBLY.md`: §14.1 boot pull-up, `pinctrl` check and the 4.7 kΩ alternative (≈ 3.0 V from reset); §14.2, §14.8 boot row and safe-state test; §14.3 / §14.8 / §15.3 / §15.4 idle release ch1 only; §14.8 / §15.4 / §16.6 / §18 held-card landing zones and expiry; §15.1 `config.txt` line, `chown`, reboot check; §15.2 `--calibrate` marks unclean, every tool exit 78, `sudo chown -R <user>: data` or re-run setup; §16.1; §16.2 / §16.4 / §16 jog notes: ±10° / ±8° windows and gap rules; §16.7 upper cap 15; §18 new lock / permission row and jog-limit row; §19 relay item, servo item, reboot item; §20 both 2.3.0 rows closed.
+- `README.md`: upper cap 15, setup adds the `config.txt` line and chowns, `chown -R` fix and exit 78, calibration windows, held card, idle ch1 only, `--calibrate` asks for Machine clear.
+- `BOM.md`: 4.7 kΩ alternative, boot pull-up in "Why the pull-ups".
+- `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch`: relay note gains the `config.txt` boot pull-up (with the `pinctrl` check) and the 4.7 kΩ alternative.
+
+---
+
 ## [2.3.0] — 2026-11-12 — fourth CAD / code round (branch `audit-fixes`)
 
-Fixes from the third independent audits (commits 93c6986 REX naming / identify.json / setup order, 2e8712f tilt crank and all-pairs shuttle checker, 30cd027 code round 3, 2149c5b CAD round 4). Docs: `BOM.md`, `docs/ASSEMBLY.md`, `README.md`, `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch` updated to match. A few details are still changing in code round 4 (idle servo release, cup-hold expiry, upper bin-limit cap, a possible boot pull-up line); they are marked `PENDING code r4` in the docs.
+Fixes from the third independent audits (commits 93c6986 REX naming / identify.json / setup order, 2e8712f tilt crank and all-pairs shuttle checker, 30cd027 code round 3, 2149c5b CAD round 4). Docs: `BOM.md`, `docs/ASSEMBLY.md`, `README.md`, `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch` updated to match. A few details were still changing in code round 4 (idle servo release, cup-hold expiry, upper bin-limit cap, a boot pull-up line); they are resolved in 2.3.1.
 
 ### Changed: shuttle
 - **Tilt crank really fits the sled.** The crank hub overlapped solid sled material in every pose (the old checker never compared parts inside one moving group). The sled's crank pocket is now the crank's swept outline + 0.7 mm with a front insertion channel and 45° roofs; the crank arm has a straight lower edge that clears the +Y LM8UU; the tilt frame's link slot follows the link's real swing, with a bridge block tying the crossbar halves (bed plane ≈ 1420 mm²). **New install step:** crank + link joined on the bench, crank pointing +X, slid hub-first along −X into the pocket before the tilt frame and cheeks (ASSEMBLY.md §13.2).
@@ -24,15 +47,15 @@ Fixes from the third independent audits (commits 93c6986 REX naming / identify.j
 - Volumes re-measured: arm head 50.8, hand 20.0, cup sled 6.2, end posts 49.1 / 18.6, shuttle sled 64.6, tilt frame 19.6, tilt crank 1.7, hopper cap 13.9 cm³ (net +2 cm³; filament unchanged).
 
 ### Changed: software and safety
-- **Strict calibration files:** `config/shuttle_calibration.json` and `config/servo_calibration.json` are validated like `machine.json`: known keys only, finite numbers within the servo range **and within ±25° of the nominal pose** (arm: or its mirror, 180° − nominal), pose order (tilt lower < level, hold < upper; carriage reject < 3 < 2 < home < 1 < 0; arm PICK and DROP either side of PARK), timings ≥ 0, `actuation_range` 180 or 270. `calibrate_servos.py` refuses to save a value that would make a file invalid.
+- **Strict calibration files:** `config/shuttle_calibration.json` and `config/servo_calibration.json` are validated like `machine.json`: known keys only, finite numbers within the servo range **and within a sanity window round the nominal pose** (arm: or its mirror, 180° − nominal; tightened to ±10° / ±8° in 2.3.1), pose order (tilt lower < level, hold < upper; carriage reject < 3 < 2 < home < 1 < 0; arm PICK and DROP either side of PARK), timings ≥ 0, `actuation_range` 180 or 270. `calibrate_servos.py` refuses to save a value that would make a file invalid.
 - **`config/identify.json`** validated the same way (exit 78 instead of a warning).
 - **`config/bin_limits.json`** validated: whole numbers from 1 to a geometric cap per bin; anything else exits 78.
 - **Exit 78** (not restarted by systemd) now covers all five files: `machine.json`, `identify.json`, `shuttle_calibration.json`, `servo_calibration.json`, `bin_limits.json`.
 - **Tools mark the machine unclean:** `test_hardware.py`, `calibrate_servos.py` and `calibrate_camera.py` take the sorter's lock (they refuse while the sorter or another tool runs, and vice versa) and record the machine as not clean before anything moves, so the next start asks for Machine clear. The state file is written atomically and fsynced; `cmdline_param.py` writes `cmdline.txt` durably.
 - **Top switch must be NC:** `TOP_SWITCH_NC: false` is refused (exit 78). A capped raise without a trip near the top limit now means "hopper empty", lower down "top switch not detected". A mechanically stuck NC switch on the first raise after homing remains undetectable (listed as a residual risk).
 - **Start-up** records the machine unclean before it moves anything. A Stop while a card waits on the cradle for a full bin ends in `needs_confirm`, not `stopped`.
-- **Idle servos off:** while the sorter idles at rest the servos are switched off (no stall against the home ledges) and the rest pose is re-asserted with one write each before the next move.
-- **Cup hold:** a card the arm could not carry to the belt is held with the pump on for at most `CUP_HOLD_MAX_S` (new `sort` key, default 600 s, 10–3600); the web UI says "card held on cup — remove it by hand before stopping the service".
+- **Idle servos off:** while the sorter idles at rest the servos are switched off (no stall against the home ledges; 2.3.1: only ch1, the arm and carriage keep holding) and the rest pose is re-asserted with one write each before the next move.
+- **Cup hold:** a card the arm could not carry to the belt is held with the pump on for at most `CUP_HOLD_MAX_S` (new `sort` key, default 600 s, 10–3600), then the pump lets go and the card drops (2.3.1: from wherever the arm stopped, never parked; the web UI says where); the web UI says "card held on cup — remove it by hand before stopping the service".
 - `setup.sh` "next steps": reboot first, then stop the service, build the DB and calibrate in the guide's order. Docstrings fixed (`elevator.py` Reg #3, `vacuum.py` diode direction, `web/app.py` token).
 
 ### Documentation
