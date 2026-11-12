@@ -24,7 +24,7 @@ card_z     = deck_z + 15 + 11.9;          // top of round belts = card face = 90
 scan_flat  = [-127, 47];                  // slide-bed backed flat zone (X)
 
 // Scanner
-cam_x      = -40;    // lens axis; card centred here for capture
+cam_x      = 5;      // lens axis; card centred here for capture (moved from -40 so the hood clears the arm drop zone at X -139..-51)
 
 // Hopper (motor-raised floor keeps top card at card_z)
 hopper_x   = -215;   // cavity centre X (Y = 0)
