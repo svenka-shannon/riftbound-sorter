@@ -9,7 +9,10 @@ Routes:
   /export            → Download inventory CSV
   /export/tcgplayer  → Download TCGPlayer wishlist import CSV
   /api/stats         → JSON stats (for live updates)
-  /api/status        → JSON sorter status (cpm, hopper)
+  /api/status        → JSON sorter status (state, message, cpm, hopper, bin counts)
+  /api/bins          → JSON bin counts + capacity limits
+  POST /api/bins/<n>/empty   → reset bin n's count after emptying it
+  POST /api/bins/empty-all   → reset every bin count
   /api/sessions      → JSON last 5 sort sessions
 """
 
@@ -158,6 +161,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     .speed-box input { background: #0d1117; border: 1px solid #30363d; color: #e6edf3; padding: 6px 10px; border-radius: 6px; width: 90px; font-size: 1em; }
     .speed-box .result { color: #3fb950; font-weight: bold; font-size: 1.05em; min-width: 120px; }
     .no-data { color: #8b949e; font-size: 0.9em; padding: 12px 0; }
+    .empty-btn { background: #1f6feb; color: white; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; }
+    .full { color: #f85149; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -170,6 +175,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     <a href="/export/tcgplayer">Export TCGPlayer</a>
   </nav>
   <div class="banner" id="hopper-banner">&#x26a0;&#xfe0f; Hopper empty — please refill</div>
+  <div class="banner" id="state-banner"></div>
 
   <div class="cards" id="stats-cards">
     <div class="card"><div class="num" id="total">–</div><div class="lbl">Cards Sorted</div></div>
@@ -192,6 +198,13 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     <input type="number" id="card-count" min="1" placeholder="500" oninput="updateEstimate()">
     <span class="result" id="est-time">—</span>
   </div>
+
+  <h2>Bin Capacity</h2>
+  <table id="capacity-table">
+    <thead><tr><th>Bin</th><th>Cards</th><th>Limit</th><th></th></tr></thead>
+    <tbody id="capacity-tbody"></tbody>
+  </table>
+  <button class="empty-btn" style="margin-top:8px" onclick="emptyAll()">All bins emptied</button>
 
   <h2>Bin Activity</h2>
   <table id="bin-table"><thead><tr><th>Bin</th><th>Cards</th></tr></thead><tbody></tbody></table>
@@ -224,10 +237,44 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         const d = await r.json();
         const banner = document.getElementById('hopper-banner');
         banner.style.display = d.hopper_empty ? 'block' : 'none';
+        const sb = document.getElementById('state-banner');
+        const alertStates = ['jam', 'paused', 'error'];
+        if (alertStates.indexOf(d.state) !== -1 && d.message) {
+          sb.textContent = '\u26a0\ufe0f ' + d.state.toUpperCase() + ': ' + d.message;
+          sb.style.display = 'block';
+        } else {
+          sb.style.display = 'none';
+        }
+        renderCapacity(d.bin_counts || {}, d.bin_limits || {}, d.paused_bin);
         currentCpm = parseFloat(d.cards_per_minute) || 0;
         document.getElementById('cpm').textContent = currentCpm;
         updateEstimate();
       } catch(e) {}
+    }
+
+    function renderCapacity(counts, limits, pausedBin) {
+      const rows = Object.keys(limits).map(function(b) {
+        const n = counts[b] || 0, lim = limits[b];
+        const full = n >= lim;
+        const label = b === '9' ? 'Bin 9 (reject)' : 'Bin ' + b;
+        return '<tr><td><span class="badge">' + label + '</span>' +
+          (String(pausedBin) === b ? ' <span class="full">waiting</span>' : '') + '</td>' +
+          '<td class="' + (full ? 'full' : '') + '">' + n + '</td><td>' + lim + '</td>' +
+          '<td><button class="empty-btn" onclick="emptyBin(' + b + ')">Emptied</button></td></tr>';
+      });
+      document.getElementById('capacity-tbody').innerHTML = rows.join('');
+    }
+
+    async function emptyBin(b) {
+      if (!confirm('Bin ' + b + ' is physically empty? The sorter resumes if it was waiting on it.')) return;
+      await fetch('/api/bins/' + b + '/empty', {method: 'POST'});
+      pollStatus();
+    }
+
+    async function emptyAll() {
+      if (!confirm('ALL bins are physically empty?')) return;
+      await fetch('/api/bins/empty-all', {method: 'POST'});
+      pollStatus();
     }
 
     function updateEstimate() {
@@ -397,13 +444,37 @@ def create_app() -> Flask:
     def api_status():
         import main as sorter_main
         elapsed = time.time() - sorter_main._session_start
+        bins = sorter_main._bins.snapshot()
         cpm = round(sorter_main._stats["total"] / elapsed * 60, 1) if elapsed > 0 else 0.0
         return jsonify({
             **sorter_main._status,
             "cards_per_minute": cpm,
             "session_elapsed_s": round(elapsed),
             "total_sorted": sorter_main._stats["total"],
+            "stats": dict(sorter_main._stats),
+            "bin_counts": bins["counts"],
+            "bin_limits": bins["limits"],
         })
+
+    @app.route("/api/bins")
+    def api_bins():
+        import main as sorter_main
+        return jsonify(sorter_main._bins.snapshot())
+
+    @app.route("/api/bins/<int:bin_num>/empty", methods=["POST"])
+    def api_bin_empty(bin_num):
+        import main as sorter_main
+        try:
+            sorter_main.empty_bin(bin_num)
+        except ValueError as exc:
+            return jsonify({"error": str(exc)}), 400
+        return jsonify(sorter_main._bins.snapshot())
+
+    @app.route("/api/bins/empty-all", methods=["POST"])
+    def api_bins_empty_all():
+        import main as sorter_main
+        sorter_main.empty_all_bins()
+        return jsonify(sorter_main._bins.snapshot())
 
     @app.route("/api/sessions")
     def api_sessions():

@@ -26,12 +26,11 @@ _MOCK = os.environ.get("MOCK_HARDWARE", "0") == "1"
 
 _CALIBRATION_FILE = Path(__file__).parent.parent / "config" / "servo_calibration.json"
 
-# PCA9685 channel map (keep in sync with scripts/calibrate_servos.py,
-# scripts/test_hardware.py and cad/sort_gate_lever.scad header)
+# PCA9685 channel map. This module owns ONLY ch0 (pickup arm).
+# ch1 (cradle tilt) and ch2 (shuttle carriage) belong to hardware/shuttle.py,
+# which replaced the old flat gate levers in the Nov 2026 redesign.
 CH_PICKUP_ARM   = 0
-CH_DEFLECT_GATE = 1
-CH_BIN_SELECT   = 2
-SERVO_CHANNELS  = (CH_PICKUP_ARM, CH_DEFLECT_GATE, CH_BIN_SELECT)
+SERVO_CHANNELS  = (CH_PICKUP_ARM,)
 
 if not _MOCK:
     import board
@@ -57,20 +56,6 @@ ARM_FULL_MOVE_S = 1.2       # default time for the full pick↔drop arc (~170°)
 PICKUP_ARM_UP    = ARM_PARK
 PICKUP_ARM_DOWN  = ARM_PICK
 
-GATE_LEFT  = 30          # route to bin group A (bins 0-3)
-GATE_RIGHT = 150         # route to bin group B (bins 4-7)
-GATE_CENTER = 90         # card passes straight (scanner feed)
-
-# Bin select (ch2) positions for 8 bins: 2 floors × 4 columns.
-# Lower floor (gate left):  bins 0,1,2,3 → angles 20,55,90,125
-# Upper floor (gate right): bins 4,5,6,7 → same 4 angles, SAME ch2 servo
-# (the deflect gate on ch1 picks the floor; ch2 only picks the column)
-BIN_SELECT_ANGLES = {
-    0: 20, 1: 55, 2: 90, 3: 125,   # bins 0-3 (row A)
-    4: 20, 5: 55, 6: 90, 7: 125,   # bins 4-7 (row B, same angles)
-    9: 160,                          # reject bin
-}
-
 _pca = None
 _servos = {}
 _arm_angle = None   # last commanded ch0 angle (None until the first move)
@@ -86,8 +71,6 @@ def _load_calibration() -> None:
     re-calibrate with the new labels.)
     """
     global ARM_PICK, ARM_DROP, ARM_PARK, PICKUP_ARM_UP, PICKUP_ARM_DOWN
-    global GATE_LEFT, GATE_CENTER, GATE_RIGHT
-    global BIN_SELECT_ANGLES
 
     if not _CALIBRATION_FILE.exists():
         return
@@ -112,28 +95,8 @@ def _load_calibration() -> None:
     elif "ARM_UP" in arm:
         ARM_PARK = arm["ARM_UP"]
     PICKUP_ARM_UP, PICKUP_ARM_DOWN = ARM_PARK, ARM_PICK
-
-    gate = cal.get("gate", {})
-    if "GATE_LEFT" in gate:
-        GATE_LEFT = gate["GATE_LEFT"]
-    if "GATE_CENTER" in gate:
-        GATE_CENTER = gate["GATE_CENTER"]
-    if "GATE_RIGHT" in gate:
-        GATE_RIGHT = gate["GATE_RIGHT"]
-
-    bin_sel = cal.get("bin_select", {})
-    for raw_key, angle in bin_sel.items():
-        # Keys are stored as "BIN_0" → map to integer 0, "BIN_9_REJECT" → 9
-        label = raw_key  # e.g. "BIN_3" or "BIN_9_REJECT"
-        if label.startswith("BIN_"):
-            suffix = label[4:]
-            try:
-                bin_num = int(suffix.split("_")[0])  # handles "9_REJECT" → 9
-                BIN_SELECT_ANGLES[bin_num] = angle
-            except ValueError:
-                pass
-
-    print(f"[servos] Loaded calibration from {_CALIBRATION_FILE}")
+    # (old "gate"/"bin_select" sections are ignored: those servos are now the
+    #  shuttle's, calibrated in config/shuttle_calibration.json)
 
 
 def init():
@@ -233,40 +196,9 @@ def pickup_arm_up(settle_s=0.4):
     arm_park(settle_s=settle_s)
 
 
-def route_card(bin_number: int, settle_s=0.3):
-    """
-    Set gate and bin-select servo positions for target bin.
-    Call before card reaches the sort gate.
-    """
-    if bin_number not in BIN_SELECT_ANGLES:
-        raise ValueError(f"Unknown bin: {bin_number}. Valid: {list(BIN_SELECT_ANGLES)}")
-
-    if _MOCK:
-        print(f"[servos] MOCK route_card → bin {bin_number}")
-        time.sleep(settle_s)
-        return
-
-    # Gate direction
-    if bin_number <= 3:
-        _servos[CH_DEFLECT_GATE].angle = GATE_LEFT
-    elif bin_number == 9:
-        _servos[CH_DEFLECT_GATE].angle = GATE_CENTER  # reject chute
-    else:
-        _servos[CH_DEFLECT_GATE].angle = GATE_RIGHT
-
-    # Bin select position
-    _servos[CH_BIN_SELECT].angle = BIN_SELECT_ANGLES[bin_number]
-    time.sleep(settle_s)
-
-
 def reset_all():
-    """Return all servos to neutral/home positions."""
+    """Park the pickup arm (the only servo this module owns)."""
     arm_park()
-    if _MOCK:
-        return
-    _servos[CH_DEFLECT_GATE].angle = GATE_CENTER
-    _servos[CH_BIN_SELECT].angle = 90
-    time.sleep(0.5)
 
 
 def deinit():

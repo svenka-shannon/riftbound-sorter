@@ -1,4 +1,4 @@
 # hardware/__init__.py
-from . import camera, conveyor, loadcell, servos, vacuum
+from . import camera, card_detect, conveyor, elevator, loadcell, servos, shuttle, vacuum
 
-__all__ = ["camera", "conveyor", "loadcell", "servos", "vacuum"]
+__all__ = ["camera", "card_detect", "conveyor", "elevator", "loadcell", "servos", "shuttle", "vacuum"]

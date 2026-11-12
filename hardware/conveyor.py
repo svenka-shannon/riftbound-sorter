@@ -14,6 +14,8 @@ Both motors run the same direction (card moves left→right).
 Speed is controlled by software PWM (pigpio for accurate PWM on Pi Zero).
 """
 
+from __future__ import annotations
+
 import os
 import time
 
