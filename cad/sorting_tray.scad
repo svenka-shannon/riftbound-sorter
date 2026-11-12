@@ -1,21 +1,37 @@
 // ============================================================
 // Riftbound Card Sorter — 2-Floor Sorting Tray
 // ============================================================
-// Replaces single-row 9-slot tray.
-// TWO stacked floors of 4 slots each = 8 sort slots.
-// Sort gate routes cards to floor + column position.
+// TWO stacked floors of 4 slots each = 8 sort slots, plus a separate
+// reject bin (reject_bin.scad) beside the tray.
 //
 // COMPACT FOOTPRINT:
 //   Single-row tray: 9 × 65mm = 585mm wide ✗ (too wide)
 //   2-floor tray:    2 sections × 137mm = 274mm wide ✓  (saves 311mm)
 //
-// CARD FLOW:
-//   Gate deflects card to Z column (0-3) AND floor (lower/upper).
-//   Lower floor: slots 0–3 (Champion, Spell, Follower, Equipment)
-//   Upper floor: slots 4–7 (Legendary, Epic/Rare, Common, Basic)
-//   Reject: a separate small tray at end of lower floor.
-//   Cards lie flat and enter through the OPEN BACK (Y = tray_depth),
-//   which faces the belt exit — nothing may obstruct the back.
+// PLACEMENT (assembly.scad asm_sorting_tray): machine X 178..276,
+//   Y −137..137, on the baseplate. Section A (slots 0–1) is at Y −137..0,
+//   section B (slots 2–3) at Y 0..137; C / D above them. Slot centres
+//   (columns) Y −102, −35, 35, 102 on both floors (shuttle_geom.scad sg_col_y).
+//
+// CARD FLOW (cradle shuttle, shuttle.scad / hardware/shuttle.py):
+//   The belt drops the card onto the CRADLE at the belt end, where it is
+//   weighed; the ch2 servo slides the carriage along Y to the target column,
+//   then the ch1 servo tips the cradle:
+//     UPPER (35° about the front pin): the card slides off the cradle lip
+//       straight into the upper-floor slot of that column;
+//     LOWER (the cradle swings down to 58°): the card goes down the fixed
+//       lower ramp (lower_ramp.scad, X 136..178) into the lower-floor slot.
+//   Bin numbering (sorter rules, config/rules.json):
+//     lower floor: bins 0–3 = columns 0–3 (Y −102 → 102)
+//     upper floor: bins 4–7 = columns 0–3 (bin − 4)
+//     reject: bin 9, NOT in this tray — the shuttle's reject position Y 176
+//       tips LOWER into the separate reject bin (X 159..274, Y 138..214).
+//   The default rules fill them as 0 Champions, 1 Spells, 2 Followers,
+//   3 Equipment, 4 Legendary/Epic, 5 Rare, 6 Common/Basic, 7 Default; the
+//   names are config; the label windows on the +X (front) face take a
+//   printed label per slot.
+//   Cards lie flat and enter through the OPEN BACK (local Y = tray_depth,
+//   machine X 178), which faces the shuttle — nothing may obstruct it.
 //
 // PRINT (per tray): 6 pieces, every one fits the P1S 256mm bed
 //   Section A  lower floor, slots 0–1  137 × 98 × 65   (pin on right face)
@@ -321,11 +337,12 @@ tray_floor_section(start_slot=0, is_first=true, is_last=false);
 //   Baseplate screw axes (lower floor):
 //     A: x = 32, 92   B: x = 45, 105   y = 16, 76  (tray back face at world X 178)
 //
-// SLOT ASSIGNMENTS (lower → upper, left → right):
-//   Floor 0 slot 0: Champions     Floor 1 slot 4: Legendary
-//   Floor 0 slot 1: Spells        Floor 1 slot 5: Epic/Rare
-//   Floor 0 slot 2: Followers     Floor 1 slot 6: Common
-//   Floor 0 slot 3: Equipment     Floor 1 slot 7: Basic/Default
+// BINS (hardware/shuttle.py; column 0 at machine Y −102 → column 3 at Y 102):
+//   lower floor  bin 0 col 0 · bin 1 col 1 · bin 2 col 2 · bin 3 col 3
+//   upper floor  bin 4 col 0 · bin 5 col 1 · bin 6 col 2 · bin 7 col 3
+//   Default rules (config/rules.json): 0 Champions, 1 Spells, 2 Followers,
+//   3 Equipment, 4 Legendary/Epic, 5 Rare, 6 Common/Basic, 7 Default.
 //
-// REJECT SLOT: Small 1-slot section (tray_floor_section n=1) at end.
+// REJECT: bin 9 is not part of this tray: the separate reject bin
+//   (reject_bin.scad) beside it at the shuttle's reject position Y 176.
 // ============================================================

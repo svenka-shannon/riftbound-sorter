@@ -13,17 +13,25 @@
 //
 // ── Machine layout ──────────────────────────────────────────────────────────
 //   Baseplate        3 × 3 tiles, X −285..285, Y −270..270, top Z 4
-//   Electronics tray X −150..35, Y 80..205, on the baseplate
-//   Riser            X −165..85, Y −113..80, Z 4..64 (deck = rail base)
+//   Electronics tray X −150..35, Y 80..230, Z 4..49, on the baseplate
+//   Riser            X −165..85 (+ the ch2-ear lug to X 89), Y −113..80,
+//                    Z 4..64 (deck = rail base)
 //   Conveyor         belt X −165..85, rollers X −140 / 60, rod axis Z 79,
 //                    card face Z 90.9, slide bed X −127..47, rail top Z 99
-//   Scan station     hood X −49..59 over the rails, camera on X 5, Z ≈ 191
-//   Hopper elevator  cavity centre X −215, Y 0; tower +Y, motor top Z ≈ 158
+//   Scan station     hood X −49..59 over the rails (roof top Z 195), camera
+//                    on X 5, lens tip Z ≈ 191, bracket to Z 233
+//   Hopper elevator  cavity centre X −215, Y 0, footprint X −263.5..−166.5,
+//                    Y −65.6..74; tower +Y, cap top Z ≈ 135, motor top Z ≈ 154
 //   Pick arm         servo axis X ≈ −154.7, Z ≈ 151.8; tower on the front
 //                    (−Y) side at Y −173..−122; pick X −215 → drop X −95
 //   Shuttle          cradle at X 92..169, carriage rod X 106, travel Y −102..176
-//   Sorting tray     X 178..276, Y −137..137 (back/open face at X 178)
-//   Reject bin       beside the tray at the shuttle's reject Y 176
+//                    (columns −102 / −35 / 35 / 102, home 0, reject 176)
+//   Sorting tray     X 178..276, Y −137..137, Z 4..137 (back/open face at X 178)
+//   Lower ramp       X 136..178 in front of the tray's lower floor
+//   Reject bin       X 159..274, Y 138..214, at the shuttle's reject Y 176
+//   Vacuum pump      bracket X −276..−200, Y −234..−186 (front-left corner)
+//   Vent valve       clip X −186..−144, Y −264..−246; tee in the tube at
+//                    X −165, Y −210, Z 28
 //
 // ── Pose ────────────────────────────────────────────────────────────────────
 //   pose = "running" (default) | "home" | "pick" | "drop" | "custom"
@@ -174,10 +182,16 @@ module asm_sorter(col = "home", tilt = "level", card = false) asm_sorter_end(col
 
 // ── Step 10 — Wiring + vacuum (rough routing reference, not printed) ──────
 // Cable bundles are hulls of spheres along a polyline. Routes:
-//   vacuum tube Ø4: pump (front-left corner, X −265..−205) → along Y −205 →
-//     up behind the arm column (X A+8, Y −160) → into the tube anchor on the
-//     servo axis from behind (Y −152). The free spoke anchor → A' pin moves
-//     with the arm and is checked by cad/pick_arm_check.py.
+//   vacuum tube Ø4: pump nozzles (X −183, Y −210, Z 28) → barbed tee at
+//     X −165 → along Y −205 → up behind the arm column (X A+8, Y −160) → into
+//     the tube anchor on the servo axis from behind (Y −152). The free spoke
+//     anchor → A' pin moves with the arm and is checked by cad/pick_arm_check.py.
+//   vent branch: tee branch (−Y) → 20 mm of tube → the NC vent valve's axial
+//     barb (valve in its clip, pump_bracket.scad); the valve's side barb is
+//     the vent, open to air. asm_vac_tube() draws tube + tee + valve as one
+//     body (the vacuum line), asm_pump() the bracket, pump and valve clip.
+//   12 V leads Ø4: pump terminals and the valve's coil leads → X −280 along
+//     the front-left edge (Y −266.5) → join the harness drop at X −277.
 //   front harness Ø7: N20 ×2, ch1/ch2 servo, arm servo; clipped to the riser's
 //     front face at Z 45 (above the ch2 linkage, Z 9..23), round the −X end in
 //     front of the arm column, down to Z 12 at X −277 (outside the hopper),
@@ -190,16 +204,32 @@ module asm_sorter(col = "home", tilt = "level", card = false) asm_sorter_end(col
 //   camera FFC (16 mm, two Ø1.2 strands): connector → out of the bracket's
 //     −Y plate slot → up the plate, over the gusset and arm top → down behind
 //     the hood and back rail → into the tray from above at X 5, Y 88 (≈ 0.5 m).
-//   load-cell cable: trailing service loop from the carriage (moves, not modelled).
-// Pump: R385 in its isolated bracket (cad/pump_bracket.scad), nozzles at pump_nozzle_tip()
+//   load-cell lead Ø3 (asm_cell_lead(yc), drawn for the current pose only:
+//     the loop geometry changes with the carriage Y): down the −Y cheek's
+//     outer face at X 135 → onto the board at X 128 → a flat rolling loop
+//     under the carriage (moving run X 128 toward −Y, bend, fixed run X 122
+//     toward +Y; bend at Y = (200 + yc − 47.3 − 330) / 2, i.e. ≈ 350 mm of
+//     loop, but never less than 6 mm behind the moving end) → fixed from
+//     Y 205 → −X along Y 205 (clear of the ch2 link, which reaches Y 182) →
+//     up the tray's +X wall at Y 165 → in through the cable slot to the
+//     HX711. The TF-notch → cheek tail is not drawn. The 350 mm loop works
+//     for carriage Y ≥ −70 (columns 1..3, home, reject); column 0 (Y −102)
+//     needs ≈ 30 mm more slack and puts the bend at Y ≈ −155, 5 mm from the
+//     −Y end post: test-fit it (docs §14.7).
+// Pump: R385 in its isolated bracket (cad/pump_bracket.scad), nozzles at
+// pump_nozzle_tip(), + the vent-valve clip
 module asm_pump() asm_pump_bracket();
 module cable(pts, d = 6) for (i = [0 : len(pts) - 2])
     hull() for (p = [pts[i], pts[i + 1]]) translate(p) sphere(d = d, $fn = 12);
 function _ax() = pick_arm_pivot()[0];
 function _az() = pick_arm_pivot()[1];
-module asm_vac_tube()   // vacuum tube (4 mm OD, PU)
-    color("SkyBlue") cable([pump_nozzle_tip(), [_ax() + 8, -205, 28], [_ax() + 8, -205, 18], [_ax() + 8, -160, 18],
-                            [_ax() + 8, -160, _az()], [_ax(), -160, _az()], [_ax(), -152.5, _az()]], 4);
+module asm_vac_hose()   // the 4 mm OD tube runs only
+    color("SkyBlue") {
+        cable([pump_nozzle_tip(), vent_tee_pos(), [_ax() + 8, -205, 28], [_ax() + 8, -205, 18], [_ax() + 8, -160, 18],
+               [_ax() + 8, -160, _az()], [_ax(), -160, _az()], [_ax(), -152.5, _az()]], 4);
+        cable([vent_tee_pos(), vent_valve_root()], 4);           // vent branch (over both barbs)
+    }
+module asm_vac_tube() { asm_vac_hose(); asm_vent_valve(); }   // vacuum line: tube + barbed tee + vent valve
 module asm_harness() {
     color("Black") {
         // main front harness (Ø7)
@@ -213,13 +243,23 @@ module asm_harness() {
         cable([[_ax(), -108, 99], [_ax(), -117.5, 99], [_ax(), -117.5, 45]], 5);
         // hopper motor + switches, down the tower back to the harness
         cable([[-215, 80, 150], [-215, 82, 12], [-277, 82, 12]], 5);
+        // 12 V leads: vent valve (coil end, −Y) and pump (rear terminals) →
+        // X −280 along the front-left edge → the harness drop at X −277
+        let(v = vent_valve_leads())
+            cable([[v[0], v[1] - 2.5, v[2]], [v[0], v[1] - 2.5, 12], [-280, v[1] - 2.5, 12],
+                   [-280, -117.5, 12], [-277, -117.5, 12]], 4);
+        let(pr = pump_rear()) cable([[pr[0] - 2.5, pr[1], pr[2]], [-280, pr[1], pr[2]], [-280, pr[1], 12]], 4);
     }
 }
+// Load-cell lead at carriage Y = yc (rough; see the routing note above)
+module asm_cell_lead(yc = 0) let(ym = yc - 47.3, yb = min((200 + ym - 330) / 2, ym - 6))
+    color("Crimson") cable([[135, ym, 50], [135, ym, 11], [128, ym, 5.6], [128, yb, 5.6], [122, yb, 5.6],
+                            [122, 205, 5.6], [38.5, 205, 5.6], [38.5, 165, 5.6], [38.5, 165, 43.5], [30, 165, 43.5]], 3);
 module asm_ribbon()   // camera FFC, rough (two strands at the ribbon edges)
     color("Wheat") for (s = [-1, 1]) let(x = frame_cam_x() + s * 6)
         cable([[x, -9.5, 200.6], [x, -68.8, 200.6], [x, -68.8, 233.9], [x, -61, 233.9], [x, -41, 213.9],
                [x, 16.7, 213.9], [x, 62, 104], [x, 62, 84], [x, 88, 84], [x, 88, 30]], 1.2);
-module asm_wiring() { asm_pump(); asm_vac_tube(); asm_harness(); asm_ribbon(); }
+module asm_wiring(yc = 0) { asm_pump(); asm_vac_tube(); asm_harness(); asm_ribbon(); asm_cell_lead(yc); }
 
 // ── Full assembly (default "running" pose) ─────────────────────────────────
 asm_baseplate();
@@ -231,4 +271,4 @@ asm_hopper_lift(pose_plate);
 asm_arm(pose_arm, pose_arm_card);
 asm_sorting_tray();
 asm_sorter(pose_col, pose_tilt, pose_cradle_card);
-asm_wiring();
+asm_wiring(sg_target_y(pose_col));

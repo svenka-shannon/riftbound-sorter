@@ -35,10 +35,13 @@
 //   plate top travel    zp_min 15.0 .. zp_max 86.6  -> 71.6 mm stack
 //                       = ~217 raw cards @ 0.33 mm (205 @ 0.35 mm)
 //   carriage            = plate - 11 .. +16 (shelf 7 + plate 4 below the top)
-//   T8 nut flange top   106.1 at the top of travel
-//   coupler 5->8 D19L25 107.6 .. 132.6
-//   cap (motor plate)   129.6 .. 134.6, 28BYJ-48 body on top -> 153.6
-//   guide rods 8 x 150  0.6 .. 150.6 (stick 16 mm out of the cap)
+//   T8 nut (inverted)   flange on the floor of a pocket 15 deep in the carriage
+//                       top, body pointing UP, nut top flush with the carriage
+//                       top: 102.6 at the top of travel
+//   lead screw T8 x 100 12.5 .. 112.5
+//   coupler 5->8 D19L25 104.1 .. 129.1
+//   cap (motor plate)   126.1 .. 131.1, 28BYJ-48 body on top -> 150.1
+//   guide rods 8 x 150  0.6 .. 150.6 (stick 19.5 mm out of the cap)
 //   cavity walls        to pick_z + 3.5 = 90.4; from pick_z - 1 = 85.9 up the
 //                       cavity steps out (lift relief: +X 1.0, other walls 0.5)
 //
@@ -126,17 +129,30 @@ car_y0 = 38; car_y1 = 59; car_h = 27; car_hx = rod_dx + lm_d / 2 + 3;  // 38.5
 
 // ── Lead screw, nut, coupler, motor ───────────────────────────────────────
 nut_style  = "t8";          // "t8" = T8 brass flange nut (default) | "m8" = M8 hex nut on M8 rod
+// T8 brass flange nut (the common 3D-printer Z nut): flange Ø22 × 3.5, body
+// Ø10.2, 15 long overall, 4 × Ø3.5 flange holes on a 16 mm PCD (measure yours).
+// The PCD-16 holes are only 1.15 mm outside the body, so a fastener at PCD 16
+// beside a Ø10.8 body bore leaves 0.6 mm of plastic (an insert there would
+// crack / distort the bore). So the nut is mounted INVERTED: flange down on the
+// floor of a Ø22.6 pocket 15 deep in the carriage top, body pointing up inside
+// the pocket (free, no bore around it). Below the floor the carriage only needs
+// the lead-screw clearance bore Ø8.8; 2 flange screws at PCD 16 run down
+// through it into 2 M3 inserts pressed into the carriage BOTTOM, which keep
+// 16/2 - 2.0 - 4.4 = 1.6 mm of wall to the bore (≥ 1.5). The lift load goes
+// flange -> pocket floor in compression; the screws only stop the nut turning.
 t8_fl_d = 22; t8_fl_t = 3.5; t8_body_d = 10.2; t8_len = 15; t8_pcd = 16;
+t8_pocket_d = t8_fl_d + 0.6;                 // Ø22.6 pocket (the flange locates in it)
+t8_screw_bore = 8.8;                         // lead-screw clearance below the pocket floor
 m8_af   = 13; m8_h   = 6.5;
 screw_d = 8; screw_len = 100;
-screw_z0   = car_z0(zp_min) + car_h - (t8_len - t8_fl_t) - 3.5;      // 16
+screw_z0   = car_z0(zp_min) + car_h - t8_len - 3.5;                  // 12.5 (3.5 below the nut at zp_min)
 coupler_d  = 19; coupler_l = 25;
-coupler_z0 = car_z0(zp_max) + car_h + t8_fl_t + 1.5;                 // 107.6
-motor_face_z = coupler_z0 + coupler_l + 2;                           // 134.6
+coupler_z0 = car_z0(zp_max) + car_h + 1.5;                           // 104.1 (1.5 above the nut top)
+motor_face_z = coupler_z0 + coupler_l + 2;                           // 131.1
 motor_off  = 8;             // 28BYJ-48: body centre is 8 mm from the shaft (+Y here)
 motor_ear  = 35;            // ear hole spacing (Ø4.2 holes)
 cap_t   = 5;
-cap_z0  = motor_face_z - cap_t;                                      // 129.6
+cap_z0  = motor_face_z - cap_t;                                      // 126.1
 tower_y1 = 70; tower_wall = 8; back_t = 3;
 tower_ins = [[-44.5, 41], [44.5, 41], [-44.5, 64.5], [44.5, 64.5]];  // M3 inserts, cap screws
 
@@ -215,6 +231,9 @@ assert(ox <= 48.5 + 1e-6, "outer +X wall must stay at machine X <= -166");
 assert(screw_z0 + screw_len - coupler_z0 >= 7, "lead screw too short for the coupler");
 assert(phi_a > phi_rest + 2, "cam ramp starts before the flag rest angle");
 assert(car_hx + 2 <= ox - tower_wall, "carriage too wide for the tower");
+assert(t8_pcd / 2 - 4.0 / 2 - t8_screw_bore / 2 >= 1.5, "T8 flange inserts too close to the screw bore");
+assert(t8_pocket_d / 2 + 1.5 <= rod_dx - lm_d / 2, "T8 pocket too close to the LM8UU bores");
+assert(car_h - t8_len >= 5.7 + 4, "too little carriage under the T8 pocket for the inserts");
 
 // =========================================================================
 // Helpers
@@ -253,7 +272,7 @@ module tower_shell()
         // back access window, pointed top (prints without a bridge)
         translate([0, tower_y1 - back_t / 2, 0]) rotate([90, 0, 0])
             linear_extrude(height = back_t + 1, center = true)
-                polygon([[-26, 30], [26, 30], [26, 100], [0, 126], [-26, 100]]);
+                polygon([[-26, 30], [26, 30], [26, cap_z0 - 29.6], [0, cap_z0 - 3.6], [-26, cap_z0 - 29.6]]);
     }
 
 // Cheek profiles in the XZ plane (attached to the -X wall outer face)
@@ -381,8 +400,18 @@ module hopper_carriage(z = zp_min) {
             translate([0, 0, -1]) cylinder(d = rod_d + 2, h = car_h + 2);
         }
         if (nut_style == "t8") {
-            translate([0, rod_y, c0 - 1]) cylinder(d = t8_body_d + 0.6, h = car_h + 2);
-            for (sx = [-1, 1]) translate([sx * t8_pcd / 2, rod_y, c0 + car_h - 6]) insert_hole(6.1);
+            // inverted T8 nut: Ø22.6 pocket from the top (open to the top; it
+            // breaks out of the ±Y faces at |X| < 4.2: harmless), screw bore
+            // below. 2 flange screws at PCD 16 (along X): Ø3.4 from the pocket
+            // floor down, into M3 inserts pressed in FROM THE CARRIAGE BOTTOM
+            // (flush with it: free iron access, no reaching 15 mm down the
+            // pocket beside the wall)
+            translate([0, rod_y, c0 + car_h - t8_len]) cylinder(d = t8_pocket_d, h = t8_len + 1);
+            translate([0, rod_y, c0 - 1]) cylinder(d = t8_screw_bore, h = car_h + 2);
+            for (sx = [-1, 1]) translate([sx * t8_pcd / 2, rod_y, c0 - 0.1]) {
+                insert_hole(5.8);
+                cylinder(d = 3.4, h = car_h - t8_len + 0.2, $fn = 20);
+            }
         } else {
             // M8 hex nut, captive in a side pocket entered from +Y (carriage rests on it)
             translate([0, rod_y, c0 - 1]) cylinder(d = screw_d + 0.8, h = car_h + 2);
@@ -481,14 +510,14 @@ module hw_bushings(z = zp_min)
     for (sx = [-1, 1]) translate([sx * rod_dx, rod_y, car_z0(z) + lm_lip + 0.01])
         difference() { cylinder(d = lm_d - 0.05, h = lm_l); translate([0, 0, -1]) cylinder(d = rod_d + 0.05, h = lm_l + 2); }
 module hw_screw()    translate([0, rod_y, screw_z0]) cylinder(d = screw_d, h = screw_len);
-module hw_nut(z = zp_min) {
-    top = car_z0(z) + car_h;
+module hw_nut(z = zp_min) {    // inverted: flange on the pocket floor, body up
+    fl = car_z0(z) + car_h - t8_len;
     translate([0, rod_y, 0]) difference() {
         union() {
-            translate([0, 0, top + 0.01]) cylinder(d = t8_fl_d, h = t8_fl_t);
-            translate([0, 0, top + t8_fl_t - t8_len]) cylinder(d = t8_body_d, h = t8_len - t8_fl_t + 0.02);
+            translate([0, 0, fl + 0.01]) cylinder(d = t8_fl_d, h = t8_fl_t);
+            translate([0, 0, fl + t8_fl_t]) cylinder(d = t8_body_d, h = t8_len - t8_fl_t - 0.02);
         }
-        translate([0, 0, top - t8_len]) cylinder(d = screw_d + 0.05, h = 2 * t8_len);
+        translate([0, 0, fl - 1]) cylinder(d = screw_d + 0.05, h = t8_len + 2);
     }
 }
 module hw_coupler()  translate([0, rod_y, coupler_z0]) difference() {
@@ -580,9 +609,15 @@ if (part == "pos_cards_pick") translate([-card_l / 2, card_dy - card_w / 2, _zp]
 //   body     upright as modelled (base on bed). No supports: every slot is
 //            open to the top, the tower window has a 45° pointed top, the
 //            flag cheeks have 45° undersides, horizontal holes are ≤ Ø3.4.
-//            97 x 135.6 x 129.6 mm (Y -65.6 .. +70 incl. the flag cheeks).
+//            97 x 135.6 x 126.1 mm (Y -65.6 .. +70 incl. the flag cheeks).
 //   cap      top face down (part="cap" is already flipped). No supports.
-//   carriage upright (shelf on the bed). No supports (lug has a 45° underside).
+//   carriage upright (shelf on the bed). No supports (lug has a 45° underside;
+//            the T8 pocket opens upward).
+// HARDWARE (carriage): 2 × M3 heat-set inserts pressed into the carriage
+//   BOTTOM at local (±8, 48.5), flush; T8 nut dropped into the top pocket
+//   flange-first, body up, flange holes on the X axis; 2 × M3 × 14 SHCS down
+//   through the flange (3.5) and the 12 mm under the pocket floor into the
+//   inserts (≈ 4.2 mm engagement, tip 1.5 above the bottom face).
 //   plate    card face down on the PEI (part="plate" is flipped) -> smooth
 //            card face, ribs up. No supports.
 //   flag     on its side (part="flag"). No supports.

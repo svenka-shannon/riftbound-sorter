@@ -20,10 +20,12 @@ Usage:
   cad/pick_arm_check.py --verbose       # per-pose table
 
 Card-offset cases (always run): the card has ±1.5 mm play in X and Y in the
-91 × 66 hopper cavity, so the held card is also swept shifted +X/−X/+Y/−Y by
---card-play (default 1.5) relative to the cup, finely around the lift off the
-stack. It must clear the hopper by ≥ --card-clear (default 0.3 mm) at every
-pose and touch nothing else (the feeler flag is a designed light touch).
+91 × 66 hopper cavity, so the held card is also swept shifted by --card-play
+(default 1.5) relative to the cup along each axis (+X/−X/+Y/−Y) AND on the four
+diagonals (±play, ±play: the card sitting in a cavity corner), finely around
+the lift off the stack. Every case must clear the hopper by ≥ --card-clear
+(default 0.3 mm) at every pose and touch nothing else (the feeler flag is a
+designed light touch).
 """
 import argparse
 import json
@@ -285,16 +287,19 @@ def main() -> None:
         _, hits_full = sweep(sorted(set(list(np.arange(0, 181, args.step)) + [180.0])), "FULL SERVO RANGE 0..180")
         hits = hits + hits_full
 
-    # ---- held card offset in the hopper (±play in X and Y) ----
+    # ---- held card offset in the hopper (±play in X and Y, axes and diagonals) ----
     # The card is picked wherever it lies in the cavity, so relative to the cup
-    # it can sit ±play off-centre. The lift is 2° off vertical (+X drift), so the
-    # +X case is the critical one. Fine steps over the lift off the stack, plus
-    # the whole working arc, vs every static obstacle.
+    # it can sit ±play off-centre in X, in Y, or in both (a corner). The lift
+    # is 2° off vertical (+X drift), so the +X cases are the critical ones.
+    # Fine steps over the lift off the stack, plus the whole working arc, vs
+    # every static obstacle.
     lift = sorted(set(list(np.arange(s_hi, s_hi - 20, -0.25)) + angles))
     play = args.card_play
     print(f"\nHELD CARD OFFSET in the hopper (play ±{play}), {len(lift)} poses, need ≥ {args.card_clear} mm to the hopper:")
     off_fail = []
-    for dx, dy in [(0.0, 0.0), (play, 0.0), (-play, 0.0), (0.0, play), (0.0, -play)]:
+    cases = [(0.0, 0.0), (play, 0.0), (-play, 0.0), (0.0, play), (0.0, -play),
+             (play, play), (play, -play), (-play, play), (-play, -play)]   # axes + corners
+    for dx, dy in cases:
         Toff = trimesh.transformations.translation_matrix([dx, dy, 0.0])
         best = {}
         for s in lift:

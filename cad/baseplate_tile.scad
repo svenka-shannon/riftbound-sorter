@@ -22,8 +22,33 @@
 //   harmless.
 //   Keys needed: 12 interior seams × 2 = 24 (`part = "keys"` prints 24).
 //
-// M3 GRID: Ø3.4 through holes every 30 mm, 15 mm from each tile edge, i.e.
-//   machine X ≡ 15 (mod 30) from −270 to 270, Y ≡ 15 (mod 30) from −255 to 255.
+// M3 GRID: Ø3.4 through holes every 30 mm, 15 mm in from each tile edge,
+//   6 × 6 per tile. In machine coordinates (tiles at X −285 + 190·c,
+//   Y −270 + 180·r, assembly.scad asm_baseplate):
+//     X RESTARTS per tile column (190 is not a multiple of 30):
+//       c 0: X −270, −240, −210, −180, −150, −120
+//       c 1: X  −80,  −50,  −20,   10,   40,   70
+//       c 2: X  110,  140,  170,  200,  230,  260
+//     Y is one continuous grid (180 = 6 × 30): Y = −255 + 30·j, j 0..17
+//       (−255 .. 255).
+//   Every part's bolt holes must land on these (pump_bracket.scad has an
+//   on_grid() check).
+//   Underside: each hole has a Ø5.2 × 1.5 counterbore so the barrel of a
+//   board tee-nut longer than the board (see BOARD FASTENING) has room.
+//
+// BOARD FASTENING (recommendation, see INSTALL below): M3 four-prong
+//   TEE-NUTS (zinc steel, barrel Ø4.5 × 5, flange Ø13 × 0.9, e.g. FastenRight
+//   FF01 M3) hammered into the 6 mm board FROM BELOW, once, at every grid hole
+//   a part uses, before anything is assembled. Then every baseplate screw goes
+//   in from above and nothing ever has to be reached under the loaded board.
+//   Screw lengths stay as listed in the part files (clamp + 4): the screw tip
+//   passes through the 5.9 mm of tee-nut thread and pokes ≤ 7 mm out below
+//   the flange (rubber feet ≥ 10 mm). The barrel stops 1 mm below the board
+//   top (Ø4.5 < board 6); the counterbore above takes barrels up to 7.5 mm.
+//   Rejected: screw-in / press-in threaded inserts for wood. M3 ones are
+//   typically 8–10 mm long (longer than the 6 mm board), and they hold only
+//   by their outer thread in MDF, which strips easily; the tee-nut's flange
+//   bears on the board underside, so tightening pulls it INTO the board.
 //
 // part = "tile" (default) | "key" | "keys" (24 keys on a 6 × 4 grid)
 // =============================================
@@ -39,6 +64,8 @@ tile_h    = 4;
 mount_hole_d = 3.4;
 mount_inset  = 15;
 mount_step   = 30;
+cb_d         = 5.2;  // underside counterbore (tee-nut barrel Ø4.5 + clearance)
+cb_h         = 1.5;
 
 // Bow-tie key (dimensions of the KEY; pockets are 0.15 larger per side)
 key_half   = 8;      // length on each side of the seam
@@ -73,6 +100,12 @@ module baseplate_tile() {
             for (y = [mount_inset : mount_step : tile_d - mount_inset])
                 translate([x, y, -0.1])
                     cylinder(d = mount_hole_d, h = tile_h + 0.2, $fn = 16);
+        // underside counterbore for a tee-nut barrel (prints on the bed: a
+        // 0.9 mm annular step at Z 1.5, no supports)
+        for (x = [mount_inset : mount_step : tile_w - mount_inset])
+            for (y = [mount_inset : mount_step : tile_d - mount_inset])
+                translate([x, y, -0.1])
+                    cylinder(d = cb_d, h = cb_h + 0.1, $fn = 24);
 
         // Bow-tie half-pockets on all four edges
         for (x = key_pos_x) {
@@ -100,6 +133,7 @@ if (part == "tile") baseplate_tile();
 if (part == "key")  baseplate_key();
 if (part == "keys") for (i = [0 : 5], j = [0 : 3]) translate([i * 22, j * 16, 0]) baseplate_key();
 
+assert(tile_h - cb_h >= 2.5, "counterbore leaves too thin a tile");
 // Sanity: a pocket reaches key_half + key_clr = 8.15 in from the edge, the
 // first grid-hole row starts at 15 - 1.7 = 13.3 → ≥ 5.15 mm of tile between.
 assert(mount_inset - mount_hole_d / 2 - (key_half + key_clr) >= 1.2, "key pocket too close to a grid hole");
@@ -110,7 +144,15 @@ assert(key_pos_x[1] + key_end / 2 + key_clr < tile_w - key_half - key_clr - 1.2 
 // PRINT: tile flat, top up (pockets open upward: no bridges). Keys flat.
 // INSTALL: lay the 9 tiles on the board in a 3 × 3 grid, all the same way
 //   round (pockets facing pockets), press a key into every seam pocket
-//   (24, flush −0.1 mm; a light tap with a mallet), then bolt the parts
-//   through the grid. Optional: 2 × M3 × 16 + washer + nut per tile at free
-//   grid holes (tile 4 + board 6 = 10 clamp) to hold the tiles to the board.
+//   (24, flush −0.1 mm; a light tap with a mallet).
+//   TEE-NUTS (recommended, do this before any part goes on): with the tiles
+//   clamped in place, drill Ø3.4 down through every grid hole a part uses
+//   (the hole tables in docs/ASSEMBLY.md), lift the tiles off, open those
+//   board holes to Ø4.5 from below, and tap an M3 tee-nut into each from
+//   below (prongs into the board, flange flush). Lay the tiles back on.
+//   Then bolt the parts from above. Without tee-nuts: washer + nut under the
+//   board on every screw (the parts' BOM lines), which means lifting the
+//   loaded machine for every later bolt.
+//   Optional: 2 × M3 × 16 per tile at free grid holes (tile 4 + board 6 = 10
+//   clamp; into a tee-nut, or washer + nut) to hold the tiles to the board.
 // =============================================

@@ -12,6 +12,12 @@
 // Print 1×, roof down (part = "hood"). Black PLA/PETG, 0.2 mm, 3 walls,
 // 15 % infill. No supports: walls lean ≤ 23° from vertical, everything else
 // opens upward in print orientation.
+// BRIM REQUIRED: the print is 101 mm tall and grows outward from a 26 × 26
+// roof with a 15 × 15 lens port, i.e. only 451 mm² on the bed under a
+// 108 × 103 top. Use an 8–10 mm brim (outer brim only; or 4 Ø15 mouse ears
+// at the roof corners), a clean textured/PEI plate with glue stick for
+// PETG, and ≤ 60 mm/s outer walls; a tall top-heavy part on that footprint
+// otherwise lifts or is knocked off by the nozzle near the top.
 //
 // COORDINATES: machine frame (machine_frame.scad); scanner_hood() is already
 // placed. asm_scan_station() places hood + guides + clips + camera bracket.

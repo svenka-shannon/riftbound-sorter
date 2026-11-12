@@ -14,7 +14,7 @@
 //                        tower back wall +70; flag cheeks / top switch on the
 //                        -Y wall down to -65.6) — inside the baseplate
 //                        (frame_base_x/y = ±285 / ±270), asserted below
-//   heights              rim Z 94.4, tower cap Z 138.6, motor top Z 157.6
+//   heights              rim Z 94.4, tower cap Z 135.1, motor top Z 154.1
 // Nothing is above the cavity: X -260.5..-169.5, Y -33..33 is clear from Z 94.4
 // upward, except the feeler flag on the -Y wall at X -245 (≤ Z ~101 at full lift,
 // within 8 mm of that wall) — keep the suction-arm links off that spot.

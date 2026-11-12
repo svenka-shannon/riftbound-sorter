@@ -248,9 +248,13 @@ else {
 //   Raspberry Pi Camera Cable Standard–Mini 500 mm, part SC1130.
 //   Route: through the plate slot, turn +X round the plate's downstream edge
 //   (X ≈ cam_x + 25), drape over the hood's downstream shoulder, down behind
-//   the back rail and over the electronics-tray wall to the Pi. Estimated
-//   ≈ 420 mm with the Pi's camera connector facing +X (≈ 480 mm facing −X),
-//   so mount the Pi with its CSI end toward +X.
+//   the back rail and over the electronics-tray wall to the Pi. Length,
+//   measured on assembly.scad's asm_ribbon path: 405 mm from the camera
+//   connector to the drop into the tray at X 5, Y 88, Z 30, + ≈ 46 mm inside
+//   the tray to the Pi's CSI connector (X ≈ 22, Y ≈ 100, Z ≈ 13) = ≈ 450 mm
+//   with the Pi's camera connector facing +X (≈ 480 mm facing −X). The cable
+//   is 500 mm, so only ≈ 50 mm of slack: mount the Pi with its CSI end
+//   toward +X and do not add detours.
 // ASSEMBLY: fit the hood first. Connect the ribbon to the camera, feed it
 //   through the plate slot, screw the PCB on lens-down, then lower the
 //   bracket straight down (lens into the hood roof port) onto the rail feet.
