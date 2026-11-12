@@ -66,6 +66,8 @@ Total ≈ $832, of which ≈ $645 is still to buy (plus goBILDA shipping); the o
 
 Follow [`docs/ASSEMBLY.md`](docs/ASSEMBLY.md): print list, 50 heat-set inserts, board tee-nuts, 11 mechanical steps (the shuttle in the install order `cad/shuttle_check.py assembly` verifies), wiring, calibration. Read its **Known risks / test first** section before printing: servo travel (arm 170°, ch2 176°) and the MG996R tab-hole pattern, relay at 3.3 V, camera mode and focus, HX711 timing, belt speed, bin capacities, valve / pump fit, coupler indexing, the ribbon's ≈ 50 mm of slack, the 20-dump column test (≈ ±0.95 mm allowed), the tilt-crank drag test (≤ 3 N) and a stuck top switch all need checking on the real machine.
 
+Print files: `scripts/export_print_stls.py [OUTDIR]` exports all 56 printable parts as STLs already in their print orientation (on Z=0), checks each is watertight and fits a 256 mm bed, and zips them with the printed-parts table as `PRINT_GUIDE.md`. Quantities, materials and supports are in [`BOM.md`](BOM.md) → *Printed parts*.
+
 ### 2. Set up the Pi
 
 Use Raspberry Pi OS Lite 64-bit, **Bookworm or trixie**.
