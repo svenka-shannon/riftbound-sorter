@@ -440,10 +440,11 @@ module tilt_pivot_hw() color("DimGray") {
 // ψ, with ψ 0 = crank pointing +Y (reject), 90 = −X, 180 = −Y (column 0): increasing
 // angle must turn the crank COUNTER-CLOCKWISE SEEN FROM ABOVE (= clockwise looking at
 // the spline of the upside-down servo). MG996R clones differ. On the bench, with only
-// the bare horn on, command 2°, 90°, 178° (calibrate_servos.py) and watch the horn; if
-// it turns the other way, do NOT fit the crank: set "invert": {"2": true} in
-// config/shuttle_calibration.json (hardware/shuttle.py then writes actuation_range − ψ;
-// calibrate_servos.py menu item d does this check and writes it). A reversed servo
+// the bare horn on, run calibrate_servos.py menu d (direction, 80°→100°) and menu t
+// (travel, geometric 0°/90°/180°) and watch the horn; if it turns the other way, do NOT
+// fit the crank: set "invert": {"2": true} in config/shuttle_calibration.json
+// (hardware/shuttle.py then writes range − offset − ψ, offset = (range − 180)/2;
+// menu d does this check and writes it). A reversed servo
 // without invert drives the crank into the end post.
 assert(abs(sg_c2_psi(sg_target_y("reject"))) < 3 && abs(sg_c2_psi(sg_target_y(0)) - 180) < 3
        && sg_c2_tip(sg_target_y(1))[0] < sg_c2_pivot()[0],
@@ -453,9 +454,11 @@ module c2_crank() {        // modelled pointing +Y from the pivot (psi = 0)
     z = sg_c2_z(); r = sg_c2_r();
     translate([0, 0, z[0]]) difference() {
         hull() { cylinder(d = 20, h = z[1] - z[0]); translate([0, r, 0]) cylinder(d = 12, h = z[1] - z[0]); }
-        // horn screws: M2 countersunk (Ø3.8 head) + centre M3 countersunk (Ø6 head)
+        // horn screws: M2 countersunk (Ø3.8 head) + centre M3 countersunk (Ø6 head).
+        // The M2 holes are Ø2.2 CLEARANCE (the self-tappers thread only into the horn
+        // disc, so they pull the crank tight against it instead of jacking it off).
         for (p = c2_horn_holes) translate(p) {
-            translate([0, 0, -1]) cylinder(d = 2.0, h = 10, $fn = 16);
+            translate([0, 0, -1]) cylinder(d = 2.2, h = 10, $fn = 16);
             translate([0, 0, -eps]) cylinder(d1 = 4.2, d2 = 1.8, h = 1.2, $fn = 20);
         }
         translate([0, 0, -1]) cylinder(d = 3.3, h = 10, $fn = 20);
@@ -902,7 +905,7 @@ if (part == "end_post_pos") end_post_pos();
 //     insert. Power ch1 to HOLD = 97° and press the goBILDA coupler onto the spline
 //     at the tooth that puts two flats of its hex bore parallel to the crank arm at
 //     HOLD, i.e. 7° up from horizontal toward +X (the tilt crank's REX bore has its
-//     flats parallel to the arm); 25T × hex gives ≤ 0.6° error. M3 × 6 down its bore.
+//     flats parallel to the arm); 25T × hex gives a 2.4° lattice, ≤ 1.2° error. M3 × 6 down its bore.
 //     Turn the clamp boss UP (servo off, by hand) and push servo + coupler nose-first along
 //     +Y through the cage opening; ears on the cage's −Y face; 4 × M3 × 10 + washers
 //     along +Y from behind the servo (2.5 mm hex driver).
@@ -914,14 +917,20 @@ if (part == "end_post_pos") end_post_pos();
 //     through post +Y, sled, crank, sled, post −Y into the coupler (8 mm deep).
 //     Power ch1 to HOLD (97°), set the cradle 10° nose-down, tighten the coupler's
 //     M4 clamp from ABOVE (3 mm key; the boss sits ±30° of horizontal-+X at HOLD
-//     depending on the hex indexing, the screw head up). Residual ≤ 0.6° (25T ×
-//     hex): trim in calibration. Rod set screws along −X from the +X side (1.5 mm
+//     depending on the hex indexing, the screw head up). Residual ≤ 1.2° (25T ×
+//     hex, 2.4° lattice): trim in calibration. Rod set screws along −X from the +X side (1.5 mm
 //     key). R-bar into its seats.
-//  3. Bench, ch2: check the servo DIRECTION (see the ch2 section) first; horn →
-//     crank (4 × M2), set ψ = 75.5° at home, hub screw M3 × 12. Then command / turn
-//     the crank to ψ ≈ 100° (pointing −X, clear of the riser) and lift the servo
-//     straight up under the −Y shelf; 2 rear-ear screws from below (1.5 mm L-key,
-//     short arm up), left ONE TURN LOOSE.
+//  3. Bench, ch2 (docs/ASSEMBLY.md §13.5): check the servo DIRECTION (see the ch2
+//     section) first. Press the BARE round horn onto the spline (any tooth) and
+//     command ψ 90 (calibrate_servos.py menu 3, column 1 jogged to 90.0, not saved).
+//     Lay the crank on the horn disc and start the M3 × 12 hub screw just enough to
+//     centre it (the crank still turns by hand). Turn the crank until its Ø4.1 tip
+//     journal sits on the paper gauge's ψ 90 line (square to the case, s ≈ 10.2 from
+//     its spline-end face; ≤ 1 mm, 2.4 mm = 1°). Then drive the 4 × M2 self-tappers
+//     through the crank's Ø2.2 clearance holes into the disc (diagonal pairs) and
+//     tighten the hub screw. Then turn the crank (servo off) to ψ ≈ 100° (pointing
+//     −X, clear of the riser) and lift the servo straight up under the −Y shelf;
+//     2 rear-ear screws from below (1.5 mm L-key, short arm up), left ONE TURN LOOSE.
 //  4. Park the carriage at column 3 (Y ≈ 102: its drive-pin arm beyond the riser),
 //     TF level. Set the whole module down 10 mm toward −Y of its place, then slide
 //     it +Y: the ch2 front ear slides under riser_b's ear block (1 mm lead-in).

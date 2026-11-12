@@ -26,7 +26,23 @@ Fixes from the fifth (confirmation) audit. The 2.3.1 windows were too tight for 
   - Only then are the 4 self-tappers driven, then the hub screw tightened.
   - ψ 90 is mid-travel, so the servo's gain error splits between the two ends. A ψ 178 reference would put it all on the sensitive reject end: ≈ 4.6 mm there at −5 % gain, against ≈ 1.6 mm.
 - **ch2 square check on the machine (§13.6 step 6).** The M2.5 ear screws in the MG996R's Ø4.5+ tab holes let the case twist up to ≈ ±2°. With the module bolted down, command ψ 90 again and measure from the riser's front face (Y −113) to the far edge of the crank's tip boss: **17 mm**, 2.4 mm per degree. If it is out, re-seat the case in its tab holes.
-- **DS3218MG-270 recommended for ch0 and ch2** (was a fallback): ≈ $15.59 each, ≈ $31 for the two, not in the totals. Set `ARM_ACTUATION_RANGE` 270 and `"actuation_range": {"2": 270}` before fitting, then fit at the commanded pose. On ch2, keep the MG996R's round plastic horn. The MG996R stays the baseline and the bench travel test decides. The code maps 0° to 500 µs on either range, so the DS3218 also has to pass that test (≥ 87° / 88° each side of commanded 90°, ≈ 261° over 500–2500 µs).
+- **DS3218MG-270 recommended for ch0 and ch2** (was a fallback): ≈ $15.59 each, ≈ $31 for the two, not in the totals. Set `ARM_ACTUATION_RANGE` 270 and `"actuation_range": {"2": 270}` before fitting, then fit at the commanded pose. On ch2, keep the MG996R's round plastic horn. The MG996R stays the baseline and the bench travel test decides.
+- **Centring offset for 270° servos** (arm and both shuttle channels). Until now 0° was 500 µs on either range, so on a DS3218MG-270 the arm's DROP end and ch2's reject end still sat at the pulse limit, and the servo had to turn ≈ 261° over 500–2500 µs (some are reported at ≈ 255°).
+  - The PWM now gets angle + offset, with offset = (actuation_range − 180) / 2: **45° for 270, 0 for 180**. With `invert` it gets range − offset − angle.
+  - Geometric 0 / 90 / 180° are now **833 / 1500 / 2167 µs** on a 270° servo, so both ends keep 45° of servo travel spare. A 180° servo is unchanged.
+  - The offset is derived from the range, not a config key. It is applied only at the PWM write (`servos.arm_pwm_angle` / `arm_pulse_us`, `shuttle.pwm_angle` / `pulse_us`, which `calibrate_servos.py` shows in its readout).
+  - Every stored, nominal and tracked angle stays geometric, and so do the windows and the rules between poses. 90° is 1500 µs on either servo, so the builder still commands PARK 90° / ψ 90 and fits the crank there; the offset is invisible to them.
+  - A geometric angle may now be anything the servo can be commanded to: 0–180°, or −45–225° on a 270° servo (was 0–270). The windows are clipped to that reach, so on a 270° servo arm PICK may go to 185°, DROP to −5°, ch2 reject to −10° and column 0 to 190°.
+  - `calibrate_servos.py` menu 3 stops the carriage 2° inside the reach: 2–178° on a 180° servo as before; on a 270° servo the ±12° windows are the limit.
+- **Bare-servo travel test** (`calibrate_servos.py` menu **`t`**, ch0 / ch1 / ch2). §19.1 said to command 0°, 90° and 180°, but menu 3 clamps ch2 to 2–178°.
+  - It asks the same "is it bare?" question as `d`. It is refused once the arm or the shuttle has been homed in the session.
+  - The servo goes straight to 90°, then ramps slowly to 0°, 180° and back. The builder marks the horn at each stop and types in the two measured sides.
+  - The tool reports them against what is needed: arm ≥ 87° each side (174°); ch2 ≥ 88° each side (176°); ch1 56.5° / 30.2° (nominal tilt range plus its ±8° window, 86.7°).
+  - On a 270° servo, a short side passes if the command that would reach it is inside the calibration limits. For example, a ≈ 255° DS3218 (≈ 85° each side) passes on both channels.
+- **ch2 crank M2 holes Ø2.0 → Ø2.2 clearance** (`cad/shuttle.scad` `c2_crank`, countersinks kept). The self-tappers now thread only into the horn disc, so they pull the crank tight onto it instead of threading into both parts.
+  - `c2_crank` re-exported: watertight, one body.
+  - `cad/shuttle_check.py all` passes.
+  - The install-order comment (step 3) now gives the §13.5 order: bare horn, ψ 90, hub screw started, tip journal on the paper-gauge line, self-tappers, then hub screw tightened.
 
 ### Documentation
 - `docs/ASSEMBLY.md`:
@@ -40,8 +56,24 @@ Fixes from the fifth (confirmation) audit. The 2.3.1 windows were too tight for 
   - §16 jog note, §16.4 (`actuation_range` set before fitting; the ch2 window rationale now that the crank is within ~1°), §18 "won't jog" row: ch2 points at the ψ 90 fit, not a spline tooth.
   - §16.2 / §16.4: DS3218MG-270 is the recommended upgrade, not a fallback.
   - §19.1 item 1: ≥ 87° each side of 90°; ch2 ≥ 88° each side (reject is the sensitive end); the DS3218MG-270 recommendation (price, link, configuration, the ch2 horn, why it still needs the travel test). Item 9: 1.2°.
+  - Centring offset and travel test:
+    - §14.3: new 270° bullet (offset, 833 / 1500 / 2167 µs, nothing to set).
+    - §16: menu `t`, the travel-test note, and the jog windows clipped to the servo's reach.
+    - §16.2 / §16.4: angles stay geometric; fit at the commanded pose with the offset invisible; `invert` writes range − offset − angle; validation range 0–180 / −45–225.
+    - §19.1 item 1: the test uses menu `t`; the DS3218's ends are 45° inside the pulse limits; a ≈ 255° unit can still pass.
+    - §11 "Test first" points at menu `t`; §13.5 step 1 notes the offset.
+  - §3 hole list and §13.5 step 5: crank M2 holes are Ø2.2 clearance.
 - `BOM.md`: new **Upgrade** table under Optional cost-down (2 × DS3218MG-270, ≈ $31, not in the totals), a pointer from Totals and from the MG996R row. The row is gone from Optional / fallback, whose subtotal is now $35.
-- `README.md`: calibration windows and rules, held saves, 93° fit, ch2 crank by eye at ψ 90, the DS3218MG-270 recommendation, unreadable bin counts and exit 78.
+- `README.md`: calibration windows and rules, held saves, 93° fit, ch2 crank by eye at ψ 90, the DS3218MG-270 recommendation, unreadable bin counts and exit 78. Also: travel test (menu `t`), the centring offset with geometric angles and their range, and the Ø2.2 crank clearance holes.
+- Tests: `tests/test_centring_offset.py`, new, covers these cases:
+  - 180 vs 270 mapping, with and without invert, at both ends, for ch0 / ch1 / ch2.
+  - Every pulse of an arm cycle and a full sort cycle is within 500–2500 µs, and on 270 at least 333 µs inside both limits.
+  - The rest-pose write in `init()`.
+  - Windows and validation on 270.
+  - The calibrate readout and jog limits.
+  - The travel test: sweep, refusals, verdicts, bad input.
+
+  `tests/test_shuttle_invert.py`, `test_audit_fixes.py` and `test_audit4_fixes.py` are updated for the offset and the reach.
 
 ---
 

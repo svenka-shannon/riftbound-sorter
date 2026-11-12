@@ -760,8 +760,8 @@ def run_assembly(meshes):
     assert abs(c2_psi(TARGETS["reject"])) < 3 and abs(c2_psi(TARGETS["0"]) - 180) < 3 and t1[0] < C2P[0] and t0[1] > C2P[1], \
         "ch2 convention broken: ψ 0 must point +Y (reject), 90 −X, 180 −Y (column 0)"
     print("  note ch2 DIRECTION: increasing servo angle must swing the crank +Y → −X → −Y, i.e. COUNTER-CLOCKWISE seen\n"
-          "       from ABOVE (clockwise looking at the spline of the upside-down servo). Check it on the bench at 2°, 90°,\n"
-          "       178° BEFORE the horn/crank go on; a reversed servo drives the crank into the end post (shuttle.scad).")
+          "       from ABOVE (clockwise looking at the spline of the upside-down servo). Check it on the bench (calibrate_servos.py d + t)\n"
+          "       BEFORE the horn/crank go on; a reversed servo drives the crank into the end post (shuttle.scad).")
     print("  " + ("Install order and every driving path clear." if ok else "ASSEMBLY FAILURES above."))
     return ok
 

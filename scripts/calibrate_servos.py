@@ -27,9 +27,27 @@ and then ramps slowly to 100°. Increasing angle must turn the spline CLOCKWISE
 looking straight at the spline face (cad/shuttle.scad "ch2 DIRECTION": ψ grows
 counter-clockwise seen from above; ch1: φ grows from +X up toward +Z). If it
 turned the other way, the tool flips that channel's "invert" in the file
-(hardware/shuttle.py then writes actuation_range − angle), so every stored
+(hardware/shuttle.py then writes actuation_range − offset − angle), so every stored
 angle keeps its geometric meaning. Fit the crank / shaft only after a check
 that passed.
+
+Travel test (menu 't', docs/ASSEMBLY.md §19.1 item 1): ch0, ch1 or ch2, with
+the servo BARE (a horn to mark, nothing else) and refused once the arm or the
+shuttle has been homed this session, like 'd'. The servo goes straight to 90°,
+then ramps slowly to 0°, 180° and back to 90°; mark the horn at 90°, 0° and
+180°, measure from the 90° mark to each end and type the two angles in. The
+tool compares them with what the channel needs: arm ≥ 87° each side (174° in
+all), ch2 ≥ 88° each side (176°), ch1 the nominal tilt range plus its ±8°
+window (56.5° below 90°, 30.2° above). On a 270° servo a short end still passes
+if the command that would reach it is one calibration accepts (see below).
+
+Angles are GEOMETRIC everywhere in this tool (readout, windows, files): arm
+0–180° with PARK 90°, ch1 φ + 90°, ch2 ψ. On a 270° servo (ARM_ACTUATION_RANGE /
+"actuation_range" 270) the modules add a centring offset of 45° at the PWM write
+only (hardware/servos.py centring_offset), so geometric 0 / 90 / 180 are 833 /
+1500 / 2167 µs and the servo keeps 45° of travel spare at each end; the pulse
+in the readout includes it. Command the geometric pose and fit there (arm PARK
+90°, ch2 ψ 90, ch1 HOLD): the offset is invisible.
 
 Usage:
     uv run scripts/calibrate_servos.py                  # MOCK (nothing moves), anywhere
@@ -51,7 +69,9 @@ HOLD, and always finishes towards +ψ like shuttle.to_column() (backlash).
 Jogging is clamped to each pose's own sanity window (the same window the
 sorter checks the file against): arm PICK 155–180 / DROP 0–25 / PARK 80–100
 (or the mirror, 180° − angle, for a servo that turns the other way), tilt ±8°
-and carriage ±12° round the nominal pose. If you need more, the horn / crank /
+and carriage ±12° round the nominal pose, all clipped to the servo's geometric
+reach (0–180°; −45–225° on a 270° servo, e.g. arm PICK up to 185, DROP down to
+−5), and the carriage to 2° inside that reach (2–178° on a 180° servo). If you need more, the horn / crank /
 coupler is on the wrong spline tooth: re-fit it (docs/ASSEMBLY.md §11, §13).
 
 Saving: the rules BETWEEN poses (arm PICK / DROP either side of PARK and
@@ -97,9 +117,10 @@ JOG_MAX_DEG = 5.0               # largest single jog
 APPROACH_MARGIN_DEG = 8.0       # arm starts PICK/DROP this far short, towards PARK
 VERIFY_SLOWDOWN = 2.0           # --verify ramps this many times slower than normal
 DEFAULT_TILT_COLUMN = 1         # where upper/lower are calibrated (any column works)
-CARRIAGE_LIMITS = (2.0, 178.0)  # ch2: geometric crank angle ψ limits (reject / column 0 dead centres).
-                                # These are ψ, not servo pulses: they hold for a 270° servo and for invert,
-                                # which shuttle.py applies only at the PWM write.
+CARRIAGE_STOP_MARGIN_DEG = 2.0  # ch2 jog stays this far inside the servo's reach (geometric ψ): 2–178 on a
+                                # 180° servo (reject / column 0 sit at the dead centres, right at its pulse
+                                # limits); on a 270° servo the reach is −45…225 (centring offset), so the
+                                # ±12° pose windows are the limit. Invert / offset apply only at the PWM write.
 
 # Populated by load_modules() — MOCK_HARDWARE must be set before import.
 servos = shuttle = vacuum = elevator = None
@@ -441,11 +462,14 @@ def jog(title: str, *, start: float, stored: float, nominal: float, lo: float, h
         pulse_range: float, move, save, extra=None, extra_help: str = "", pulse_us=None):
     """Jog one pose. move(angle) does the module's ramped move to `angle`.
     Returns the saved angle, or None if skipped. The servo is at `start` on entry.
-    pulse_us(angle): the real pulse width (shuttle channels: invert-aware)."""
+    Every angle here is GEOMETRIC; pulse_us(angle) gives the real pulse width
+    (servos.arm_pulse_us / shuttle.pulse_us: centring offset and invert
+    applied). Without it: 500–2500 µs over pulse_range with the centring offset."""
     cur = start
 
     def readout():
-        us = pulse_us(cur) if pulse_us else 500 + 2000 * cur / pulse_range
+        us = (pulse_us(cur) if pulse_us else
+              500 + 2000 * (cur + servos.centring_offset(pulse_range)) / pulse_range)
         tag = "" if abs(cur - stored) < 1e-9 else "   * unsaved"
         print(f"  ▸ {title}: {cur:6.1f}°  ({us:4.0f} µs)   stored {stored:.1f}°  Δ {cur - stored:+.1f}°"
               f"   nominal {nominal:.1f}°   window {lo:.1f}–{hi:.1f}°{' [MOCK]' if _MOCK else ''}{tag}")
@@ -498,12 +522,14 @@ def jog(title: str, *, start: float, stored: float, nominal: float, lo: float, h
 
 
 def window(stored: float, top: float, sanity=None):
-    """Jog window: [0, top] clamped to `sanity` = (lo, hi), the pose's own
-    sanity window (servos.sanity_window / shuttle.sanity_window: the same
-    per-pose limits the sorter checks the file against). The rules between
-    poses are checked at save time (save_arm / save_shuttle), not here (audit
-    5 minor 3). If (lo, hi) is empty the jog is pinned to the stored value."""
-    lo, hi = 0.0, float(top)
+    """Jog window: the geometric reach of a servo whose actuation range is
+    `top` (servos.geometric_limits: 0–180, or −45–225 on a 270° servo with its
+    centring offset) clamped to `sanity` = (lo, hi), the pose's own sanity
+    window (servos.sanity_window / shuttle.sanity_window: the same per-pose
+    limits the sorter checks the file against). The rules between poses are
+    checked at save time (save_arm / save_shuttle), not here (audit 5 minor
+    3). If (lo, hi) is empty the jog is pinned to the stored value."""
+    lo, hi = servos.geometric_limits(top)
     if sanity is not None:
         lo, hi = max(lo, sanity[0]), min(hi, sanity[1])
     if lo > hi:
@@ -597,7 +623,7 @@ def _arm_steps(top: float, arm_extra) -> None:
             start = min(hi, max(lo, stored - toward * APPROACH_MARGIN_DEG))
         servos.move_arm_smooth(start)
         jog(key, start=start, stored=stored, nominal=NOMINAL["arm"][key], lo=lo, hi=hi,
-            pulse_range=top, move=servos.move_arm_smooth,
+            pulse_range=top, move=servos.move_arm_smooth, pulse_us=servos.arm_pulse_us,
             save=lambda a, k=key: save_arm(k, a),
             extra=arm_extra, extra_help="  v  suction on/off")
         if key == "ARM_DROP" and _pump_on:
@@ -742,13 +768,23 @@ def section_columns() -> None:
     print("  cradle home + level")
 
 
+def carriage_limits(actuation_range=None) -> tuple[float, float]:
+    """ch2 jog limits (geometric ψ): CARRIAGE_STOP_MARGIN_DEG inside the
+    servo's reach — 2–178 on a 180° servo, −43–223 on a 270° one (there the
+    ±12° pose windows are the real limit)."""
+    rng = shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_SHUTTLE] if actuation_range is None else actuation_range
+    lo, hi = servos.geometric_limits(rng)
+    return lo + CARRIAGE_STOP_MARGIN_DEG, hi - CARRIAGE_STOP_MARGIN_DEG
+
+
 def _column_steps() -> None:
     for key, advice in COLUMN_STEPS:
         print(f"\n  {advice}")
         stored = float(shuttle.SHUTTLE_ANGLES[key])
         lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_SHUTTLE],
                         shuttle.sanity_window("shuttle", key))
-        lo, hi = max(lo, CARRIAGE_LIMITS[0]), min(hi, CARRIAGE_LIMITS[1])
+        c_lo, c_hi = carriage_limits()
+        lo, hi = max(lo, c_lo), min(hi, c_hi)
 
         def move(a, k=key):
             shuttle.SHUTTLE_ANGLES[k] = a
@@ -831,10 +867,194 @@ def direction_check(ch: int) -> bool:
             return True
         if not save_invert(ch, not inv):
             return False
-        print(f"  ch{ch} now writes {'actuation_range − angle' if not inv else 'the angle as is'};"
-              " every stored angle keeps its meaning.")
+        print(f"  ch{ch} now writes {'the mirror (actuation_range − offset − angle)' if not inv else 'angle + offset'}"
+              " (offset: 45° on a 270° servo, else 0); every stored angle keeps its meaning.")
         if ask("  Run the check again to confirm? [Y/n] ").lower() in ("n", "no"):
             return False
+
+
+# ---------------------------------------------------------------------------
+# Travel test — bare ch0 / ch1 / ch2 servo, before anything is fitted (§19.1)
+# ---------------------------------------------------------------------------
+
+TRAVEL_SEQUENCE = (90.0, 0.0, 180.0, 90.0)   # geometric; the last move just parks it mid-range
+TRAVEL_MARKS = (90.0, 0.0, 180.0)            # stops where the builder marks the horn
+TRAVEL_S_PER_DEG = 0.05                       # 90° in 4.5 s: slow enough to watch
+TRAVEL_MIN_S = 2.0
+TRAVEL_MAX_DEG = 270.0                        # a typed measurement above this is a typo
+# Physical degrees each side of geometric 90° the servo must turn at commanded 0° / 180°:
+ARM_TRAVEL_SIDE_DEG = 87.0    # crank 85° each side of PARK (pick 178 / drop 8 about 93) + the
+                              # 1.8° crank-fit tolerance (§11 step 3): ≥ 174° in all
+TRAVEL_INFO = {
+    0: ("ch0 pickup arm",
+        "NO arm crank on the spline (bare spline, or a horn alone to mark), arm not assembled"),
+    1: ("ch1 cradle tilt",
+        "NO REX shaft in the coupler (bare spline, a horn, or the loose coupler alone)"),
+    2: ("ch2 shuttle carriage",
+        "NO crank fitted (bare spline, or the round horn alone)"),
+}
+
+
+def travel_required(ch: int) -> tuple[float, float]:
+    """(below, above): physical degrees the bare servo must turn from geometric
+    90° to commanded 0° and to commanded 180°.
+      ch0: ARM_TRAVEL_SIDE_DEG each side (≥ 174° in all).
+      ch2: 90 − reject (2) and column 0 (178) − 90 = 88° each side (≥ 176°),
+           from shuttle.NOMINAL_SHUTTLE_ANGLES.
+      ch1: the nominal tilt poses (lower 41.5 … upper 112.2) plus the ±8° tilt
+           window (shuttle.SANITY_WINDOW_DEG): 56.5° below, 30.2° above (86.7°)."""
+    if ch == servos.CH_PICKUP_ARM:
+        return ARM_TRAVEL_SIDE_DEG, ARM_TRAVEL_SIDE_DEG
+    if ch == shuttle.CH_SHUTTLE:
+        nom = shuttle.NOMINAL_SHUTTLE_ANGLES
+        return 90.0 - nom["reject"], nom[0] - 90.0
+    nom, m = shuttle.NOMINAL_TILT_ANGLES, shuttle.SANITY_WINDOW_DEG["tilt"]
+    return 90.0 - (min(nom.values()) - m), max(nom.values()) + m - 90.0
+
+
+def travel_range(ch: int) -> int:
+    return (servos.ARM_ACTUATION_RANGE if ch == servos.CH_PICKUP_ARM
+            else shuttle.SHUTTLE_ACTUATION_RANGE[ch])
+
+
+def travel_command_limits(ch: int) -> tuple[float, float]:
+    """The furthest geometric commands calibration accepts at each end of the
+    channel's travel: the union of its pose windows (clipped to the servo's
+    reach), and for ch2 also the tool's carriage jog limits. Past 0° / 180°
+    only on a 270° servo (centring offset)."""
+    rng = travel_range(ch)
+    if ch == servos.CH_PICKUP_ARM:
+        wins = [w for k in servos.NOMINAL_ARM for w in servos.sanity_windows(k, rng)]
+    elif ch == shuttle.CH_TILT:
+        wins = [shuttle.sanity_window("tilt", k, rng) for k in shuttle.NOMINAL_TILT_ANGLES]
+    else:
+        wins = [shuttle.sanity_window("shuttle", k, rng) for k in shuttle.NOMINAL_SHUTTLE_ANGLES]
+    lo, hi = min(w[0] for w in wins), max(w[1] for w in wins)
+    if ch == shuttle.CH_SHUTTLE:
+        c_lo, c_hi = carriage_limits(rng)
+        lo, hi = max(lo, c_lo), min(hi, c_hi)
+    return lo, hi
+
+
+def travel_verdict(ch: int, below: float, above: float) -> tuple[bool, list[str]]:
+    """Judge the measured turn from the 90° mark to the 0° mark (`below`) and to
+    the 180° mark (`above`). An end passes if it turned at least
+    travel_required(); on a 270° servo a short end still passes if the command
+    that WOULD reach it (90 ∓ required × 90 / measured) is one calibration
+    accepts (travel_command_limits): the centring offset leaves 45° of servo
+    travel past each end. Returns (passed, report lines). Pure."""
+    req_b, req_a = travel_required(ch)
+    rng = travel_range(ch)
+    lim_lo, lim_hi = travel_command_limits(ch)
+    lines, ok = [], True
+    for label, meas, req, sign, limit in (("0° side  ", below, req_b, -1.0, lim_lo),
+                                          ("180° side", above, req_a, +1.0, lim_hi)):
+        line = f"{label}: {meas:6.1f}° measured, needs ≥ {req:.1f}°"
+        if meas >= req - 1e-9:
+            line += "   ok"
+        else:
+            need = 90.0 + sign * req * 90.0 / meas if meas > 0 else math.copysign(math.inf, sign)
+            reachable = servos.centring_offset(rng) > 0 and (need >= limit if sign < 0 else need <= limit)
+            line += f"   SHORT by {req - meas:.1f}°"
+            if servos.centring_offset(rng) > 0:
+                line += (f" — reaching it takes ≈ {need:.1f}° commanded; calibration allows "
+                         f"{'down to' if sign < 0 else 'up to'} {limit:g}° on this {rng}° servo: "
+                         + ("OK (calibrate that end past " + ("0°)" if sign < 0 else "180°)")
+                            if reachable else "NOT reachable"))
+            ok = ok and reachable
+        lines.append(line)
+    total, req_t = below + above, req_b + req_a
+    lines.append(f"total    : {total:6.1f}° measured, needs ≥ {req_t:.1f}° between commanded 0° and 180°"
+                 + ("   ok" if total >= req_t - 1e-9 else "   short"))
+    return ok, lines
+
+
+def _ask_measured(prompt: str):
+    """A measured angle in degrees (0 < x ≤ TRAVEL_MAX_DEG); None if left empty."""
+    while True:
+        txt = ask(prompt)
+        if not txt:
+            return None
+        try:
+            v = float(txt)
+        except ValueError:
+            v = math.nan
+        if math.isfinite(v) and 0.0 < v <= TRAVEL_MAX_DEG:
+            return v
+        print(f"  a number of degrees, 0–{TRAVEL_MAX_DEG:g} (Enter to skip the result)")
+
+
+def _travel_move(ch: int, angle: float, *, first: bool) -> None:
+    """Slow ramp of the bare servo to the geometric `angle` (the first move
+    goes straight there: the position is unknown at power-up)."""
+    if ch == servos.CH_PICKUP_ARM:
+        cur = servos.arm_angle()
+        dur = None if first or cur is None else max(TRAVEL_MIN_S, abs(angle - cur) * TRAVEL_S_PER_DEG)
+        servos.move_arm_smooth(angle, duration_s=dur)
+    else:
+        shuttle._ramp(ch, angle, TRAVEL_S_PER_DEG, TRAVEL_MIN_S)
+
+
+def travel_test(ch: int):
+    """Bare-servo travel test (§19.1 item 1): sweep slowly to the geometric 0°,
+    90° and 180° (the PWM gets the centring offset on a 270° servo), have the
+    builder mark the horn at each, then judge the measured turn against
+    travel_required(). Refused once the arm or the shuttle has been homed this
+    session (the mechanism may be on) — same rule as the direction check.
+    Returns True / False (passed / failed), None if skipped or refused."""
+    name, bare = TRAVEL_INFO[ch]
+    rng = travel_range(ch)
+    off = servos.centring_offset(rng)
+    req_b, req_a = travel_required(ch)
+    print(f"\n=== Travel test — {name} (ch{ch}) ===")
+    if _arm_ready or _shuttle_ready:
+        homed = " and ".join(n for n, f in (("the arm", _arm_ready), ("the shuttle", _shuttle_ready)) if f)
+        print(f"  {homed[0].upper() + homed[1:]} has been homed this session, so a mechanism may be attached:")
+        print("  the travel test is for a BARE servo on the bench. Re-run the tool before fitting anything.")
+        return None
+    print(f"  Servo must be BARE: {bare}.")
+    print(f"  Actuation range {rng}°" + (f" (centring offset {off:g}°: geometric 0 / 90 / 180 = "
+                                          f"{500 + 2000 * off / rng:.0f} / 1500 / "
+                                          f"{500 + 2000 * (180 + off) / rng:.0f} µs)" if off else
+                                          " (geometric 0 / 90 / 180 = 500 / 1500 / 2500 µs)") + ".")
+    print("  Put a horn on the spline (any tooth) and a sheet of paper or a protractor under it. The")
+    print("  servo goes STRAIGHT to 90° (position unknown at power-up), then ramps slowly to 0°, to")
+    print("  180° and back to 90°. Mark the horn's pointer at each stop (90°, 0°, 180°).")
+    print(f"  Needed: ≥ {req_b:.1f}° from the 90° mark to the 0° mark, ≥ {req_a:.1f}° from the 90° mark")
+    print(f"  to the 180° mark (≥ {req_b + req_a:.1f}° in all).")
+    if ask(f"  Nothing fitted to ch{ch} but the horn, hands clear — Enter to move, 'n' to skip: "
+           ).lower() in ("n", "no"):
+        return None
+    if ch != servos.CH_PICKUP_ARM:
+        shuttle.init()                      # (re)loads shuttle_calibration.json; moves nothing
+    try:
+        for i, a in enumerate(TRAVEL_SEQUENCE):
+            _travel_move(ch, a, first=(i == 0))
+            if i < len(TRAVEL_MARKS):
+                ask(f"  At {a:g}°. Mark the horn — Enter for the next stop... ")
+    finally:
+        if ch == servos.CH_PICKUP_ARM:
+            servos.release_arm(forget=True)   # ch0 off: limp, position no longer tracked
+        else:
+            shuttle.deinit()                # ch1/ch2 fully off: limp (the next shuttle.init() forgets the pose)
+    below = _ask_measured("  Measured angle from the 90° mark to the 0° mark (degrees, Enter to skip): ")
+    if below is None:
+        return None
+    above = _ask_measured("  Measured angle from the 90° mark to the 180° mark (degrees, Enter to skip): ")
+    if above is None:
+        return None
+    ok, lines = travel_verdict(ch, below, above)
+    for line in lines:
+        print(f"    {line}")
+    if ok:
+        print(f"  ch{ch} travel OK: this servo can reach both ends of {name}.")
+    elif off:
+        print(f"  ch{ch} travel FAILED: even with its spare travel this {rng}° servo can't reach both ends")
+        print("  inside the calibration windows. Try another unit (docs/ASSEMBLY.md §19.1 item 1).")
+    else:
+        print(f"  ch{ch} travel FAILED: this servo can't reach both ends of {name}. Use a DS3218MG-270")
+        print("  (actuation range 270, docs/ASSEMBLY.md §19.1 item 1) or another unit.")
+    return ok
 
 
 # ---------------------------------------------------------------------------
@@ -844,13 +1064,15 @@ def direction_check(ch: int) -> bool:
 def print_values() -> None:
     def src(path: Path) -> str:
         return str(path) if path.exists() else f"{path} (absent → module defaults)"
-    print(f"\n  ch0 arm      [{src(servos._CALIBRATION_FILE)}]")
+    print(f"\n  ch0 arm      [{src(servos._CALIBRATION_FILE)}]  ARM_ACTUATION_RANGE "
+          f"{servos.ARM_ACTUATION_RANGE}° (centring offset {servos.centring_offset(servos.ARM_ACTUATION_RANGE):g}°)")
     for k in ("ARM_PICK", "ARM_DROP", "ARM_PARK"):
         print(f"    {k:9s} {float(getattr(servos, k)):6.1f}°   nominal {NOMINAL['arm'][k]:6.1f}°")
     rng, inv = shuttle.SHUTTLE_ACTUATION_RANGE, shuttle.SHUTTLE_INVERT
     print(f"  ch1/ch2      [{src(shuttle._CALIBRATION_FILE)}]")
     for ch in (shuttle.CH_TILT, shuttle.CH_SHUTTLE):
-        print(f"    ch{ch}: actuation_range {rng[ch]}°, invert {'true' if inv[ch] else 'false'}")
+        print(f"    ch{ch}: actuation_range {rng[ch]}° (centring offset "
+              f"{servos.centring_offset(rng[ch]):g}°), invert {'true' if inv[ch] else 'false'}")
     print("  ch1 tilt")
     for k, v in shuttle.TILT_ANGLES.items():
         print(f"    {k:9s} {v:6.1f}°   nominal {NOMINAL['tilt'][k]:6.1f}°")
@@ -922,6 +1144,7 @@ MENU = """
   2  Cradle tilt (ch1)       hold / level / upper / lower
   3  Shuttle carriage (ch2)  home / columns 0-3 / reject
   d  Direction check (ch1/ch2, bare servos on the bench) → invert
+  t  Travel test (ch0/ch1/ch2, bare servo on the bench): 0° / 90° / 180°
   v  Verify: cycle every saved pose slowly
   p  Print current values
   q  Quit (parks everything)"""
@@ -965,6 +1188,12 @@ def main() -> None:
                     direction_check(int(c))
                 else:
                     print("  1 or 2")
+            elif choice == "t":
+                c = ask("  Channel 0 (arm), 1 (tilt) or 2 (shuttle)? ")
+                if c in ("0", "1", "2"):
+                    travel_test(int(c))
+                else:
+                    print("  0, 1 or 2")
             elif choice == "v":
                 verify(args.dwell, args.step)
             elif choice == "p":

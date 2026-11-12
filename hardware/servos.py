@@ -55,7 +55,12 @@ ARM_DROP = 5     # crank 8°: card underside 3 mm above the belt, card centre X 
 ARM_PARK = 90    # crank 93° (th_mid): hand over X ≈ -158 at the top of the arc (rest / refill)
 ARM_ACTUATION_RANGE = 180   # MG996R at 500–2500 µs; 270 for a DS3218MG-270 drop-in:
                             # config/machine.json {"servos": {"ARM_ACTUATION_RANGE": 270}}
-                            # (then re-calibrate the arm angles)
+                            # (then re-calibrate the arm angles). Every arm angle is GEOMETRIC
+                            # (crank − 3°) on either range: a 270° servo gets the CENTRING
+                            # OFFSET (centring_offset(), 45°) added at the PWM write only, so
+                            # the 0–180° working arc sits in the middle of its travel
+                            # (0° → 833 µs, 90° → 1500 µs, 180° → 2167 µs) and neither end
+                            # is at a pulse limit.
 ARM_MAX_STEP_DEG = 4.0      # largest angle change per PWM update (≤200°/s peak; card sees <1 m/s²)
 ARM_UPDATE_S = 0.02         # one update per 50 Hz PWM frame
 ARM_FULL_MOVE_S = 1.2       # default time for the full pick↔drop arc (~170°)
@@ -67,6 +72,42 @@ PICKUP_ARM_DOWN  = ARM_PICK
 import sys as _sys
 from hardware import machine_config as _machine_config
 _machine_config.apply(_sys.modules[__name__], "servos", ("ARM_ACTUATION_RANGE",))
+
+
+# ── Geometric angle → PWM (centring offset) ──────────────────────────────
+# Every angle in this module, in config/servo_calibration.json and in the
+# calibration tool is GEOMETRIC: 0–180° is the arm's working arc, 90° the
+# PARK pose the crank is fitted at. On a 180° servo that is the whole pulse
+# range (0° = 500 µs). On a 270° servo the geometric arc is centred in the
+# servo's travel: the PWM gets angle + centring_offset(270) = angle + 45°, so
+# geometric 0 / 90 / 180 = 833 / 1500 / 2167 µs and both ends keep 45° of
+# servo travel spare (a DS3218 that turns only ~255° over 500–2500 µs still
+# reaches them). The builder never sees the offset: they command the
+# geometric pose (PARK 90°) and fit the crank there. hardware/shuttle.py
+# applies the same offset to ch1 / ch2 (shuttle.pwm_angle()).
+def centring_offset(actuation_range) -> float:
+    """PWM angle of geometric 0°: (actuation_range − 180) / 2 — 0 for a
+    180° servo, 45° for a 270° one. Derived from the range, never configured."""
+    return (float(actuation_range) - 180.0) / 2.0
+
+
+def geometric_limits(actuation_range) -> tuple[float, float]:
+    """Geometric angles a servo of this range can be commanded to:
+    [−offset, range − offset] (0–180 on a 180° servo, −45–225 on a 270° one)."""
+    off = centring_offset(actuation_range)
+    return 0.0 - off, float(actuation_range) - off      # (0.0 - 0.0 = +0.0, not -0.0)
+
+
+def arm_pwm_angle(angle: float) -> float:
+    """Angle written to the ch0 servo (0..ARM_ACTUATION_RANGE) for the
+    geometric arm angle `angle` (clamped to geometric_limits first)."""
+    lo, hi = geometric_limits(ARM_ACTUATION_RANGE)
+    return max(lo, min(hi, float(angle))) + centring_offset(ARM_ACTUATION_RANGE)
+
+
+def arm_pulse_us(angle: float) -> float:
+    """Pulse width (µs, 500–2500) ch0 gets for the geometric arm angle `angle`."""
+    return 500.0 + 2000.0 * arm_pwm_angle(angle) / float(ARM_ACTUATION_RANGE)
 
 _pca = None
 _servos = {}
@@ -81,15 +122,19 @@ _arm_released = False   # ch0 switched off (limp) since the last write; _arm_ang
 #   sections   "pickup_arm" (keys ARM_PICK, ARM_DROP, ARM_PARK; legacy ARM_DOWN /
 #              ARM_UP, see below); legacy "gate" / "bin_select" (ignored: those
 #              servos are now the shuttle's); keys "_…" are comments.
-#   values     finite JSON numbers in [0, ARM_ACTUATION_RANGE], each inside its
+#   values     finite JSON numbers (GEOMETRIC degrees) within the servo's reach
+#              geometric_limits(ARM_ACTUATION_RANGE) (0–180; −45–225 on a 270°
+#              servo, whose PWM gets the 45° centring offset), each inside its
 #              sanity window round the nominal pose — or round the MIRRORED pose
 #              (180° − nominal: a servo that turns the other way swaps PICK and
 #              DROP, the arc is symmetric about PARK 90°):
 #                PICK 155–180 (mirror 0–25)    DROP 0–25 (mirror 155–180)
 #                PARK 80–100
+#              (on a 270° servo the reach clips them at −45 / 225 instead of
+#              0 / 180: PICK 155–185, DROP −5–25, mirrors alike)
 #              i.e. SANITY_WINDOW_DEG (10°) away from PARK / either side of PARK,
 #              SANITY_WINDOW_TOWARD_PARK_DEG (20°) towards PARK (clipped to the
-#              servo range). Plus two rules between the poses:
+#              servo's reach). Plus two rules between the poses:
 #                PICK and DROP on opposite sides of PARK;
 #                symmetry |(PICK − PARK) − (PARK − DROP)| ≤ ARM_SYMMETRY_MAX_DEG
 #                (10°) — both ends sit 85°/(1 + gain) from PARK on a crank
@@ -132,11 +177,12 @@ def _is_number(v) -> bool:
 
 def sanity_windows(key: str, actuation_range: int | None = None) -> list[tuple[float, float]]:
     """Allowed (lo, hi) windows for ARM_PICK / ARM_DROP / ARM_PARK: around the
-    nominal pose and around its mirror (180° − nominal), clipped to the range.
-    PARK: ±SANITY_WINDOW_DEG. PICK / DROP: SANITY_WINDOW_TOWARD_PARK_DEG on the
+    nominal pose and around its mirror (180° − nominal), clipped to the servo's
+    geometric reach (geometric_limits: 0–180, or −45–225 on a 270° servo). PARK: ±SANITY_WINDOW_DEG. PICK / DROP: SANITY_WINDOW_TOWARD_PARK_DEG on the
     side towards PARK 90° (a servo with more gain than nominal needs less
     command), SANITY_WINDOW_DEG on the side away from it."""
-    rng = float(actuation_range if actuation_range is not None else ARM_ACTUATION_RANGE)
+    reach_lo, reach_hi = geometric_limits(actuation_range if actuation_range is not None
+                                          else ARM_ACTUATION_RANGE)
     out = []
     for c in sorted({NOMINAL_ARM[key], 180.0 - NOMINAL_ARM[key]}):
         below = above = SANITY_WINDOW_DEG
@@ -144,7 +190,7 @@ def sanity_windows(key: str, actuation_range: int | None = None) -> list[tuple[f
             below = SANITY_WINDOW_TOWARD_PARK_DEG
         elif c < 90.0:
             above = SANITY_WINDOW_TOWARD_PARK_DEG
-        out.append((max(0.0, c - below), min(rng, c + above)))
+        out.append((max(reach_lo, c - below), min(reach_hi, c + above)))
     return out
 
 
@@ -202,8 +248,10 @@ def validate_calibration(cal, actuation_range: int | None = None) -> tuple[dict,
             problems.append(f"{where}: must be a finite number, got {v}")
             continue
         v = float(v)
-        if not 0.0 <= v <= rng:
-            problems.append(f"{where}: {v:g}° is outside the servo range [0, {rng}] (ARM_ACTUATION_RANGE)")
+        reach_lo, reach_hi = geometric_limits(rng)
+        if not reach_lo <= v <= reach_hi:
+            problems.append(f"{where}: {v:g}° is outside the servo range [{reach_lo:g}, {reach_hi:g}] "
+                            f"(geometric degrees, ARM_ACTUATION_RANGE {rng})")
             continue
         wins = sanity_windows(key, rng)
         if not any(lo <= v <= hi for lo, hi in wins):
@@ -310,26 +358,33 @@ def init(assume_parked: bool = False):
         _servos[ch] = adafruit_servo.Servo(_pca.channels[ch], actuation_range=rng,
                                            min_pulse=500, max_pulse=2500)
     if _arm_angle is not None:
-        _servos[CH_PICKUP_ARM].angle = _arm_angle   # hold the assumed rest pose (no motion if there)
+        _servos[CH_PICKUP_ARM].angle = arm_pwm_angle(_arm_angle)   # hold the assumed rest pose
     print("[servos] PCA9685 initialized on I2C 0x40")
 
 
 def _arm_write(angle: float) -> None:
+    """Command the geometric `angle`; _arm_angle keeps it, the PWM gets arm_pwm_angle()."""
     global _arm_angle, _arm_released
     if not _MOCK:
-        _servos[CH_PICKUP_ARM].angle = angle
+        _servos[CH_PICKUP_ARM].angle = arm_pwm_angle(angle)
     _arm_angle = angle
     _arm_released = False
 
 
-def release_arm() -> None:
+def release_arm(forget: bool = False) -> None:
     """Switch ch0 fully OFF (no pulses): the arm goes limp where it is, and
     stops drawing holding current. The commanded angle stays tracked, so
-    assert_park() can re-assert the park pose with one write later."""
-    global _arm_released
+    assert_park() can re-assert the park pose with one write later.
+    forget=True: the pose is no longer tracked either (someone may turn the
+    spline by hand, e.g. after the calibration tool's bare-servo travel
+    test), so the next move goes straight to its target like the first
+    move after init()."""
+    global _arm_released, _arm_angle
     if not _MOCK and _pca is not None:
         _pca.channels[CH_PICKUP_ARM].duty_cycle = 0       # < 0x10 → FULL_OFF bit
     _arm_released = True
+    if forget:
+        _arm_angle = None
 
 
 def arm_released() -> bool:
@@ -359,7 +414,8 @@ def move_arm_smooth(target: float, duration_s: float | None = None, settle_s: fl
     If the arm position is unknown (first move after init) it is commanded
     directly — call arm_park() once at start-up while the cup is empty.
     """
-    target = max(0.0, min(float(ARM_ACTUATION_RANGE), float(target)))
+    lo, hi = geometric_limits(ARM_ACTUATION_RANGE)
+    target = max(lo, min(hi, float(target)))
     start = _arm_angle
     if start is None:
         print(f"[servos] arm position unknown — moving straight to {target:.1f}°")

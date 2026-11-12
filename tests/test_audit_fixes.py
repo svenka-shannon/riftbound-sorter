@@ -349,8 +349,10 @@ def test_level_preload_and_actuation_range(monkeypatch):
     geometric_level = 90 + 3.6
     assert geometric_level - shuttle.TILT_ANGLES["level"] == pytest.approx(0.5, abs=0.05)
     monkeypatch.setitem(shuttle.SHUTTLE_ACTUATION_RANGE, shuttle.CH_SHUTTLE, 270)
-    shuttle._write(shuttle.CH_SHUTTLE, 250.0)
-    assert shuttle._pos[shuttle.CH_SHUTTLE] == 250.0
+    shuttle._write(shuttle.CH_SHUTTLE, 220.0)
+    assert shuttle._pos[shuttle.CH_SHUTTLE] == 220.0
+    shuttle._write(shuttle.CH_SHUTTLE, 250.0)              # geometric reach on 270: −45 … 225
+    assert shuttle._pos[shuttle.CH_SHUTTLE] == 225.0
     monkeypatch.setitem(shuttle.SHUTTLE_ACTUATION_RANGE, shuttle.CH_SHUTTLE, 180)
     shuttle._write(shuttle.CH_SHUTTLE, 250.0)
     assert shuttle._pos[shuttle.CH_SHUTTLE] == 180.0

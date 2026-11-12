@@ -57,15 +57,16 @@ def test_default_not_inverted(pwm):
 
 
 @pytest.mark.parametrize("rng", [180, 270])
-def test_inverted_write_is_range_minus_angle(pwm, rng):
+def test_inverted_write_is_range_minus_offset_minus_angle(pwm, rng):
     pwm["set_range"](CH2, rng)
     shuttle.SHUTTLE_INVERT[CH2] = True
-    for a in (0.0, 2.0, 45.0, 75.5, 87.3, 178.0, rng / 2, float(rng)):
+    off = (rng - 180) / 2                                     # centring offset: 0 / 45
+    for a in (0.0, 2.0, 45.0, 75.5, 87.3, 90.0, 178.0, 180.0, -off, rng - off):
         shuttle._write(CH2, a)
         assert shuttle._pos[CH2] == a                         # tracked angle stays geometric
-        assert pwm[CH2].angle == pytest.approx(rng - a)       # PWM gets the mirror
-        assert shuttle.pwm_angle(CH2, a) == pytest.approx(rng - a)
-        assert shuttle.pulse_us(CH2, a) == pytest.approx(500 + 2000 * (rng - a) / rng)
+        assert pwm[CH2].angle == pytest.approx(rng - off - a)  # PWM gets the mirror
+        assert shuttle.pwm_angle(CH2, a) == pytest.approx(rng - off - a)
+        assert shuttle.pulse_us(CH2, a) == pytest.approx(500 + 2000 * (rng - off - a) / rng)
     # ch1 untouched by ch2's invert
     shuttle._write(CH1, 97.0)
     assert pwm[CH1].angle == 97.0
@@ -75,11 +76,12 @@ def test_inverted_write_is_range_minus_angle(pwm, rng):
 def test_inverted_write_clamps_before_mirroring(pwm, rng):
     pwm["set_range"](CH1, rng)
     shuttle.SHUTTLE_INVERT[CH1] = True
-    shuttle._write(CH1, rng + 40.0)
-    assert shuttle._pos[CH1] == rng and pwm[CH1].angle == 0.0
-    shuttle._write(CH1, -10.0)
-    assert shuttle._pos[CH1] == 0.0 and pwm[CH1].angle == rng
-    assert shuttle.pulse_us(CH1, 0.0) == 2500.0 and shuttle.pulse_us(CH1, rng) == 500.0
+    off = (rng - 180) / 2
+    shuttle._write(CH1, rng + 40.0)                           # clamped to the reach, range − offset
+    assert shuttle._pos[CH1] == rng - off and pwm[CH1].angle == 0.0
+    shuttle._write(CH1, -off - 10.0)                          # clamped to −offset
+    assert shuttle._pos[CH1] == -off and pwm[CH1].angle == rng
+    assert shuttle.pulse_us(CH1, -off) == 2500.0 and shuttle.pulse_us(CH1, rng - off) == 500.0
 
 
 def _sort_cycle_writes(pwm):
@@ -119,7 +121,7 @@ def test_config_invert_loaded(pwm):
     assert shuttle.SHUTTLE_ACTUATION_RANGE[CH2] == 270
     pwm[CH2].actuation_range = 270
     shuttle._write(CH2, 178.0)
-    assert pwm[CH2].angle == pytest.approx(92.0)
+    assert pwm[CH2].angle == pytest.approx(270 - 45 - 178.0)  # range − centring offset − angle
 
 
 def test_config_invert_absent_resets_to_false():

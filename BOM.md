@@ -356,7 +356,7 @@ How to set it up (ASSEMBLY.md §16.2, §16.4, §19.1 item 1):
 - **Fit the horn and crank at the commanded pose:** arm crank at PARK 90° (§11 step 3); ch2 crank at ψ 90 (§13.5). Then calibrate every angle of that channel.
 - **ch2 horn:** use the MG996R's round plastic horn, not the DS3218's aluminium arm. The crank's M2 self-tappers need the plain plastic disc.
 - **Before printing the arm head, the −Y end post and riser B**, measure the DS3218's tab-hole pitch (49.5 × 10 in the CAD) and its spline-face-to-tab height against an MG996R.
-- **Still run the travel test on it.** The code maps 0° to 500 µs on either range, so the arm's DROP end and ch2's reject end sit at the pulse limit. The servo must turn ≥ 87° (arm) / 88° (ch2) each side of commanded 90°, which is ≥ ≈ 261° over 500–2500 µs. Some units are reported to give only ≈ 255°.
+- **Still run the travel test on it** (`calibrate_servos.py` menu `t`). With `actuation_range` 270 the code centres the 0–180° working span in the servo's travel (offset 45°: geometric 0/90/180° = 833/1500/2167 µs), so both ends have ≈ 45° of spare travel; even a unit that only turns ≈ 255° passes.
 
 ### 1. Drilling template instead of printed tiles
 

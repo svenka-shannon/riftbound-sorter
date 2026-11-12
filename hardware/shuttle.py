@@ -31,7 +31,9 @@ carriage ±12° — pose order and minimum / maximum gaps between poses; any
 problem → ShuttleConfigError,
 nothing applied, main.py exits 78). They are always
 GEOMETRIC angles (crank φ + 90° / crank ψ); a servo that turns the wrong way
-is handled by the per-channel "invert" option (SHUTTLE_INVERT) at the PWM write.
+is handled by the per-channel "invert" option (SHUTTLE_INVERT), and a 270°
+servo's centring offset (45°, hardware/servos.py centring_offset) is added, at
+the PWM write only (pwm_angle()).
 
 Motion is ramped (cosine ease, ~50 Hz updates) so a card never gets jerked:
 tilts take 0.4-0.6 s, shuttle moves ~0.5-1.2 s. Interlocks:
@@ -69,6 +71,8 @@ import os
 import time
 from pathlib import Path
 
+from hardware.servos import centring_offset, geometric_limits
+
 _MOCK = os.environ.get("MOCK_HARDWARE", "0") == "1"
 
 _CALIBRATION_FILE = Path(__file__).parent.parent / "config" / "shuttle_calibration.json"
@@ -78,17 +82,23 @@ CH_SHUTTLE = 2
 
 # Servo actuation range per channel (degrees covered by 500–2500 µs). MG996R: 180.
 # ch2 needs ~176° of crank travel (reject 2° … column 0 178°), right at an
-# MG996R's limit; a DS3218MG-270 is the drop-in fallback — set 270 here or in
-# config/shuttle_calibration.json {"actuation_range": {"2": 270}}. All angles
-# in this file are SERVO degrees within that range (Adafruit's Servo scales
-# angle / actuation_range onto the pulse width), so after changing a servo's
-# range its angles must be re-calibrated (scripts/calibrate_servos.py).
+# MG996R's limit; a DS3218MG-270 is the recommended upgrade — set 270 in
+# config/shuttle_calibration.json {"actuation_range": {"2": 270}}. Every angle
+# in this file is GEOMETRIC on either range (ch1 φ + 90°, ch2 ψ). A 270° servo
+# gets the CENTRING OFFSET at the PWM write (centring_offset(270) = 45°, see
+# hardware/servos.py), so the geometric 0–180° span sits in the middle of its
+# travel (0° → 833 µs, 180° → 2167 µs) and neither end of ch2 (reject at a
+# dead centre) is at a pulse limit. The crank / coupler is fitted at the
+# commanded geometric pose (ch2 ψ 90, ch1 HOLD) whatever the range, so the
+# offset is invisible to the builder; after changing a servo's range,
+# re-calibrate its angles (scripts/calibrate_servos.py) all the same.
 SHUTTLE_ACTUATION_RANGE = {CH_TILT: 180, CH_SHUTTLE: 180}
 
 # Per-channel direction invert, config/shuttle_calibration.json
 #   {"invert": {"1": false, "2": false}}   (JSON booleans only; channels "1"/"2" only)
-# An inverted channel gets (actuation_range − a) on the PWM write for every
-# commanded angle a, so every angle in this file / the calibration file keeps
+# An inverted channel gets (actuation_range − offset − a) on the PWM write for
+# every commanded angle a (offset = centring_offset(actuation_range): 0 for 180,
+# 45 for 270; a plain channel gets a + offset), so every angle in this file / the calibration file keeps
 # its geometric meaning (φ + 90°, ψ) whichever way the servo turns. Everything
 # above the write (_pos, state(), ramps, interlocks, backlash approach) works in
 # those geometric angles. Expected direction for BOTH channels: increasing angle
@@ -210,8 +220,9 @@ def clear_jam() -> None:
 # is good (ShuttleConfigError → main.py exits 78, systemd does not restart).
 #   sections        tilt, shuttle, timing, actuation_range, invert (keys "_…" = comments)
 #   actuation_range {"1"|"2": 180 | 270}
-#   tilt / shuttle  finite JSON numbers in [0, actuation_range] AND inside the
-#                   sanity window: within SANITY_WINDOW_DEG of the nominal pose
+#   tilt / shuttle  finite JSON numbers (geometric degrees) within the servo's
+#                   reach geometric_limits(actuation_range) (0–180; −45–225 on
+#                   a 270° servo) AND inside the sanity window: within SANITY_WINDOW_DEG of the nominal pose
 #                   below (tilt ±8°, carriage ±12°) — the calibrate tool's jog
 #                   window is clamped to the same per-pose limits
 #                   (sanity_window()); it checks the order / gap rules when it
@@ -232,7 +243,8 @@ def clear_jam() -> None:
 #                   carriage typos the window no longer catches (54 for column
 #                   3's 45, 56.2 for column 2's 65.2, 78.3 for column 1's 87.3)
 #                   break the gap rules below. Angles are geometric (see
-#                   "invert"), so the window holds for a 270° servo too.
+#                   "invert" and the centring offset), so the window holds
+#                   for a 270° servo too.
 #                   Order + gaps (geometry; TILT_GAPS / SHUTTLE_MIN_GAP_DEG /
 #                   SHUTTLE_PAIR_GAPS):
 #                     tilt  lower < level < hold < upper with
@@ -291,12 +303,14 @@ def _shuttle_key(k):
 
 def sanity_window(section: str, key, actuation_range: int | None = None) -> tuple[float, float]:
     """(lo, hi) allowed for tilt.<key> / shuttle.<key>: nominal ±
-    SANITY_WINDOW_DEG[section], clipped to [0, actuation_range]."""
+    SANITY_WINDOW_DEG[section], clipped to the servo's geometric reach
+    (geometric_limits: 0–180, or −45–225 on a 270° servo)."""
     nominal = (NOMINAL_TILT_ANGLES if section == "tilt" else NOMINAL_SHUTTLE_ANGLES)[key]
     ch = CH_TILT if section == "tilt" else CH_SHUTTLE
     rng = actuation_range if actuation_range is not None else SHUTTLE_ACTUATION_RANGE[ch]
     w = SANITY_WINDOW_DEG[section]
-    return max(0.0, nominal - w), min(float(rng), nominal + w)
+    reach_lo, reach_hi = geometric_limits(rng)
+    return max(reach_lo, nominal - w), min(reach_hi, nominal + w)
 
 
 def _shuttle_min_gap(a, b) -> float:
@@ -406,8 +420,10 @@ def validate_calibration(cal) -> tuple[dict, list[str]]:
                 problems.append(f"{where}: must be a finite number, got {v}")
                 continue
             v = float(v)
-            if not 0.0 <= v <= rng:
-                problems.append(f"{where}: {v:g}° is outside the servo range [0, {rng}] (ch{ch})")
+            reach_lo, reach_hi = geometric_limits(rng)
+            if not reach_lo <= v <= reach_hi:
+                problems.append(f"{where}: {v:g}° is outside the servo range [{reach_lo:g}, "
+                                f"{reach_hi:g}] (geometric degrees, ch{ch} actuation_range {rng})")
                 continue
             lo, hi = sanity_window(sec, key, rng)
             nominal = (NOMINAL_TILT_ANGLES if sec == "tilt" else NOMINAL_SHUTTLE_ANGLES)[key]
@@ -596,14 +612,20 @@ def at_rest() -> bool:
 
 # --- low-level ramped motion ---------------------------------------------------
 def _clamp(ch, angle) -> float:
-    return max(0.0, min(float(SHUTTLE_ACTUATION_RANGE[ch]), float(angle)))
+    """Geometric `angle` clamped to the channel's reach (geometric_limits)."""
+    lo, hi = geometric_limits(SHUTTLE_ACTUATION_RANGE[ch])
+    return max(lo, min(hi, float(angle)))
 
 
 def pwm_angle(ch, angle) -> float:
-    """Angle actually written to the servo for the geometric angle `angle`
-    (clamped to 0..actuation_range): actuation_range − angle on an inverted channel."""
+    """Angle actually written to the servo (0..actuation_range) for the geometric
+    angle `angle` (clamped to the channel's reach first): angle + offset, or
+    actuation_range − offset − angle on an inverted channel, offset =
+    centring_offset(actuation_range) (0 for 180, 45 for 270)."""
     a = _clamp(ch, angle)
-    return float(SHUTTLE_ACTUATION_RANGE[ch]) - a if SHUTTLE_INVERT[ch] else a
+    rng = float(SHUTTLE_ACTUATION_RANGE[ch])
+    off = centring_offset(rng)
+    return rng - off - a if SHUTTLE_INVERT[ch] else a + off
 
 
 def pulse_us(ch, angle) -> float:

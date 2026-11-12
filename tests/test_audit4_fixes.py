@@ -223,7 +223,8 @@ def test_calibrate_tool_jogs_inside_the_module_limits(cs, monkeypatch):
         assert seen[f"tilt {pose}"] == pytest.approx(shuttle.sanity_window("tilt", pose)), pose
     for key in ("home", 0, 1, 2, 3, "reject"):
         lo, hi = shuttle.sanity_window("shuttle", key)
-        lo, hi = max(lo, cs.CARRIAGE_LIMITS[0]), min(hi, cs.CARRIAGE_LIMITS[1])
+        c_lo, c_hi = cs.carriage_limits()
+        lo, hi = max(lo, c_lo), min(hi, c_hi)
         assert seen[f"carriage {key}"] == pytest.approx((lo, hi)), key
     assert seen["ARM_PICK"] == (155.0, 180.0) and seen["ARM_DROP"] == (0.0, 25.0)
     assert seen["ARM_PARK"] == (80.0, 100.0)
