@@ -55,6 +55,16 @@ module electronics_tray() {
             translate([outer_w - wall - 0.1, 20 + i * 30, outer_h - slot_h - wall])
                 cube([wall + 0.2, slot_w, slot_h]);
 
+        // Cable slots (3× on the LEFT / machine −X wall, same Y/Z as the right
+        // side). The front harness comes round the hopper's −X side; entering
+        // here instead of the +X slots saves ≈ 0.3 m of harness (machine
+        // X −150, Y 100..110 / 130..140 / 160..170, Z 40.5..46.5). Top 2.5 mm
+        // of the wall stays closed (10 mm bridge); nothing mounts on this wall
+        // and the Pi standoffs (x ≥ 7) and corner holes (x 8) are clear of it.
+        for (i = [0:2])
+            translate([-0.1, 20 + i * 30, outer_h - slot_h - wall])
+                cube([wall + 0.2, slot_w, slot_h]);
+
         // M3 baseplate mounting holes (corners)
         for (x = [8, outer_w - 8]) for (y = [8, outer_d - 8])
             translate([x, y, -0.1])

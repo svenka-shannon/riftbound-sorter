@@ -2,241 +2,226 @@
 
 ![Status: Work in Progress](https://img.shields.io/badge/Status-Work%20in%20Progress-yellow)
 
-A DIY card sorting machine for the Riftbound (League of Legends TCG) card game. Identifies cards via perceptual hashing using a Pi Camera, then physically routes them into one of 9 output bins based on configurable sort rules. No cloud API or internet connection required for card identification.
+A DIY sorting machine for Riftbound (League of Legends TCG) cards. It identifies each card with a Pi camera (perceptual hashing, no cloud) and weighs it on a load cell. It then drops the card into one of 8 tray slots (2 floors × 4 columns) or a reject bin, according to JSON sort rules.
 
-Machine footprint: ~580×540mm (under 2ft×2ft).
+The machine handles **raw, unsleeved, valuable cards**. Every card is lifted by suction from the top of the stack, laid flat on the belt, and dropped short distances by gravity. Nothing rubs, pinches or friction-feeds a card. When in doubt the machine rejects the card or stops.
 
----
+Machine footprint: 570 × 540 mm baseplate (3 × 3 printed tiles on a backing board). Every printed part fits a 256 × 256 mm bed (Bambu P1S).
 
-## Features
-
-- **Offline card identification** — perceptual hash matching against a local image database; no cloud calls, no API key needed
-- **Riftcodex integration** — pulls card metadata (set, rarity, type, cost, etc.) from the free Riftcodex API on first sync
-- **Configurable rules engine** — JSON-based sort logic; map any card attribute or combination to a bin
-- **Double-pick detection** — HX711 load cell catches two cards stuck together before they reach the sort gate
-- **SQLite inventory** — every sorted card is logged; query counts by set, rarity, or any field
-- **Flask web UI** — live sort stats, full inventory viewer, rules editor, and manual overrides at `http://<pi-ip>:5000`
-- **9 output bins** — all 3D-printed, designed for Bambu P1S (all parts fit 256×256mm bed; rails split to 2×190mm pieces)
+- **Build guide:** [`docs/ASSEMBLY.md`](docs/ASSEMBLY.md)
+- **Parts, costs and power budget:** [`BOM.md`](BOM.md)
+- **Wiring:** [`docs/wiring_diagram.svg`](docs/wiring_diagram.svg)
+- **History:** [`CHANGELOG.md`](CHANGELOG.md)
 
 ---
 
-## Hardware
+## How it works (v2)
 
-| Component | Purpose | Est. Cost |
-|-----------|---------|-----------|
-| Raspberry Pi Zero 2W | Brain | ~$15 |
-| Pi Camera Module 3 | Card identification | ~$25 |
-| PCA9685 16-ch PWM driver (I2C) | Servo control | ~$5 |
-| 3× MG996R servos | Pickup arm, deflect gate, bin select | ~$15 |
-| HX711 + 50g load cell | Double-pick detection | ~$5 |
-| 5V relay + 12V vacuum pump | Suction card pickup | ~$20 |
-| L9110S motor driver + 2× N20 gear motors | Conveyor belt | ~$10 |
-| 9× 3D-printed output bins + frame | Card output | ~$8 filament |
-| Misc (wiring, connectors, hardware) | — | ~$10–$55 |
+```
+ hopper ──► suction arm ──► belt ──► camera stop ──► cradle (weigh) ──► shuttle ──► tray slot / reject
+ (raised     (one servo,     (4 round   (card centred     (load cell,      (column 0–3,   (upper or
+  floor)      parallelogram)  belts)     at X +5)          at rest)         or reject)     lower floor)
+```
 
-**Total: ~$105–155 USD + filament**
+1. **Hopper elevator.** A 28BYJ-48 stepper turns a T8 lead screw and raises the hopper floor until a light feeler flag on the top card trips a microswitch. The top card is then at pick height, level with the belt. When the floor plate reaches the top without tripping the flag, the hopper is empty.
+2. **Pick arm (PCA9685 ch0).** One MG996R drives a crank with two phased followers (a triple parallelogram). The suction cup always points straight down. It comes down onto the card, lifts it vertically, carries it over a ~170° arc and lowers it flat onto the belt, 3 mm above it at X −95. A spring slider under the cup takes up height errors. A 12 V diaphragm pump, switched by a relay on GPIO 17, provides the vacuum.
+3. **Conveyor.** The conveyor sits on a 60 mm printed riser so cards can later *fall* into both tray floors.
+   - Two N20 gear motors drive the two rollers directly. They are run by an L9110S on plain GPIO 23–26.
+   - Four 135 × 3 mm O-ring round belts carry the card over a slide bed.
+   - Side guides keep it square.
+4. **Scan station.** A light-tight hood holds two LED strips (no ring, so foils show no hotspot). A Pi Camera Module 3 looks down from 100 mm. The belt runs until the camera's low-res stream sees the card **centred under the lens**, then brakes, and the full frame is captured. The image is flipped 180° for the bracket and identified against a local hash DB.
+5. **Cradle shuttle.** The belt pushes the card onto a cradle mounted on a 50 g TAL221 load cell.
+   - **ch1** tips the cradle 10° nose-down (HOLD). The card is weighed **at rest, alone**: empty, single, double pick or unknown.
+   - **ch2** slides the carriage to one of 4 columns or the reject position.
+   - ch1 then tips the card forward into the **upper** slot, or swings the cradle down onto a fixed ramp into the **lower** slot (or the reject bin).
+   - The cradle is checked empty and re-tared for the next card.
+6. **Bin capacity.** The software counts cards per bin (lower 50, upper 24, reject 35). When a bin is full it **pauses with the card held on the cradle** until you empty the bin and reset it from the web UI or with `main.py --empty-bin N`.
 
-3D print files are in `cad/`. All parts fit a 256×256mm print bed; the two conveyor rails each split into 190mm halves.
+Unidentified cards, double or unknown weights all go to the reject bin. Jams, lost cards and an empty hopper stop the machine safely: pump off, belt stopped, arm parked, cradle in HOLD.
 
 ---
 
-## Quick Start
+## Hardware summary
 
-### 1. Flash the Pi
+| Subsystem | Parts | Interface |
+|---|---|---|
+| Brain | Raspberry Pi Zero 2 W | — |
+| Camera | Pi Camera Module 3 (standard), 500 mm SC1130 ribbon | CSI |
+| Servos | 3 × MG996R on a PCA9685: ch0 pick arm, ch1 cradle tilt, ch2 shuttle carriage | I²C 0x40 (GPIO 2/3) |
+| Load cell | TAL221 50 g + HX711, under the cradle | GPIO 5 (DOUT), 6 (SCK) |
+| Vacuum | 12 V R385 diaphragm pump via an active-LOW relay (10 kΩ pull-up = off when floating) | GPIO 17 |
+| Belt | 2 × N20 6 V 200 rpm via L9110S, both rollers driven | **plain GPIO** 23/24 (A), 25/26 (B), not I²C |
+| Hopper | 28BYJ-48 + ULN2003, T8×8 lead screw; feeler-flag switch + home switch | GPIO 16/19/20/21; switches GPIO 12 (top), 13 (home) |
+| Power | **12 V 5 A** adapter → three fixed 5 V Pololu bucks: D24V22F5 logic (Pi, LEDs, relay), D24V50F5 servos (PCA9685 V+), D36V28F5 motors (L9110S, ULN2003) | PCA9685 VCC = Pi 3.3 V |
 
-Use Raspberry Pi OS Lite (64-bit). Enable I2C, SPI, and the camera interface in `raspi-config`.
+Total ≈ $760, of which ≈ $552 is still to buy (see [`BOM.md`](BOM.md), which also has the power budget). About 4 kg of filament.
 
-### 2. Run setup script
+---
+
+## Quick start
+
+### 1. Build the machine
+
+Follow [`docs/ASSEMBLY.md`](docs/ASSEMBLY.md): print list, heat-set inserts, 11 mechanical steps, wiring, calibration. Read its **Known risks / test first** section before printing.
+
+### 2. Set up the Pi
+
+Use Raspberry Pi OS Lite (64-bit, Bookworm).
 
 ```bash
-git clone https://github.com/yourname/riftbound-sorter
+git clone https://github.com/svenka-shannon/riftbound-sorter
 cd riftbound-sorter
 bash scripts/setup.sh
 ```
 
-This enables I2C/camera interfaces, installs all system and Python dependencies (including `avahi-daemon` for mDNS), sets the hostname to `riftbound-sorter`, and installs/enables the systemd service.
+This enables I²C, installs system packages (including `python3-picamera2` from apt), creates `venv/` with `--system-site-packages`, installs `requirements.txt` (the gandalf15 HX711 library is vendored in `hardware/vendor/`), sets the hostname to `riftbound-sorter` and installs the systemd service. Check with `venv/bin/python -c "import picamera2, board"` (ASSEMBLY.md §15).
 
-### 3. Sync card database
+**Always run hardware scripts with the Pi venv's Python** (`venv/bin/python …`). A plain `python` or a `uv run` script environment has no GPIO, camera or PCA9685 libraries.
 
-Downloads card images from Riftcodex and builds the local perceptual-hash index (requires internet, ~10–20 min depending on set size):
-
-```bash
-source venv/bin/activate
-python main.py --build-db
-```
-
-### 4. Calibrate camera crop
-
-Place a card in the scanner station and run the interactive calibration:
+### 3. Build the card database
 
 ```bash
-python scripts/calibrate_camera.py
+venv/bin/python main.py --build-db
 ```
 
-This saves `config/camera_crop.json`. Skip if the default crop region (120, 80, 520, 620) works for your setup.
+This downloads card data and images from Riftcodex and builds the local perceptual-hash index. It needs internet and takes about 10–20 minutes.
 
-### 5. Configure sort rules
+### 4. Test and calibrate
 
-`config/rules.json` ships with sensible defaults (Champion/Spell/Follower/Equipment by type, then by rarity). Edit it directly or use the web Rules Editor. No copy step needed.
-
-### 6. Run
+Follow ASSEMBLY.md §16 for the full order (load cell → arm → elevator trip → shuttle → camera → centring constants).
 
 ```bash
-sudo systemctl start riftbound-sorter
+venv/bin/python scripts/test_hardware.py --no-mock       # menu of 10 subsystem tests
+venv/bin/python main.py --calibrate                      # load cell (cradle in HOLD, one card)
+venv/bin/python scripts/calibrate_servos.py --no-mock    # 1 arm, 2 cradle tilt, 3 shuttle columns
+venv/bin/python scripts/calibrate_camera.py --no-mock    # empty station, then a centred card → crop
 ```
 
-Or run manually:
+Calibration files are written to `config/`:
+- `servo_calibration.json`
+- `shuttle_calibration.json`
+- `loadcell_calibration.json`
+- `camera_crop.json`
+
+### 5. Run (bulk commons first)
 
 ```bash
-python main.py           # normal sort run
-python main.py --dry-run # identify without moving cards
+venv/bin/python main.py --dry-run     # identify + weigh; every card goes to the reject bin
+venv/bin/python main.py               # normal sort
+venv/bin/python main.py --empty-bin 4 # reset bin 4's count after emptying it (also --empty-all)
+sudo systemctl start riftbound-sorter # or as a service
 ```
 
-Web UI is available at `http://riftbound-sorter.local:5000` or `http://<pi-ip>:5000`.
+The web UI runs at `http://riftbound-sorter.local:5000`. Mutating actions (pause, stop, bin resets, rules edits) need the web UI token. The sorter refuses to start with a card on the cradle or after an unclean stop. Stop the service before unplugging; that parks the arm and levels the cradle.
 
-### Development (non-Pi machine)
+### Development (any machine)
 
-Set `MOCK_HARDWARE=1` to stub all GPIO/camera/I2C calls. Combine with `--dry-run` to exercise the full pipeline without any hardware:
+`MOCK_HARDWARE=1` stubs all GPIO, camera and I²C calls and simulates the stack, cradle and belt:
 
 ```bash
 MOCK_HARDWARE=1 python main.py --dry-run
 MOCK_HARDWARE=1 python main.py --web-only
+uv run scripts/test_hardware.py            # mock by default
+uv run scripts/calibrate_servos.py         # mock by default (still writes config/)
+python -m pytest tests/                    # 26 mock tests of the sort cycle and its safety paths
 ```
-
-### Estimated time from unboxing to first sorted card
-
-Assuming all parts are already in hand:
-
-| Step | Time |
-|------|------|
-| 3D print all parts (Bambu P1S) | 6–12 h |
-| Mechanical assembly & wiring | 2–3 h |
-| Pi OS flash + `setup.sh` | 30 min |
-| `--build-db` (first card sync) | 10–20 min |
-| Camera calibration | 15–30 min |
-| Load-cell calibration | 10 min |
-| **Total** | **~10–16 h** (mostly print time) |
-
-Parts not in hand yet: add 1–3 days for domestic shipping.
 
 ---
 
-## Wiring Overview
+## Wiring overview
 
 ```
-Pi Zero 2W
-├── I2C (GPIO 2/3) ──── PCA9685
-│                           ├── CH0 ── MG996R (pickup arm)
-│                           ├── CH1 ── MG996R (deflect gate)
-│                           └── CH2 ── MG996R (bin select)
-│
-├── GPIO 5 / GPIO 6 ─── HX711 (DOUT / SCK)
-│                           └── 50g load cell
-│
-├── GPIO 17 ──────────── 5V relay ──── 12V vacuum pump
-│
-└── I2C shared ──────── L9110S
-                            ├── Motor A ── N20 conveyor left
-                            └── Motor B ── N20 conveyor right
+Pi Zero 2 W
+├── GPIO 2/3 (I²C) ── PCA9685 @0x40 ── ch0 MG996R pick arm
+│                                    ├─ ch1 MG996R cradle tilt
+│                                    └─ ch2 MG996R shuttle carriage
+├── GPIO 5/6 ──────── HX711 ── TAL221 50 g (under the cradle)
+├── GPIO 17 ───────── relay IN (active LOW, 10 kΩ pull-up to 3.3 V) ── 12 V pump
+├── GPIO 23/24/25/26  L9110S (plain GPIO) ── N20 A + N20 B (belt rollers)
+├── GPIO 16/19/20/21  ULN2003 ── 28BYJ-48 (hopper lead screw)
+├── GPIO 12 / 13 ──── top-of-stack switch / home switch (to GND, internal pull-ups)
+└── CSI (faces +X) ── 500 mm SC1130 ── Camera Module 3
 
-Pi Camera Module 3 ─── CSI ribbon
+12 V 5 A ─┬─ Pololu D24V22F5 → 5 V logic: Pi, LEDs, relay
+          ├─ Pololu D24V50F5 → 5 V servo: PCA9685 V+ only (+ 1000 µF)
+          ├─ Pololu D36V28F5 → 5 V motor: L9110S (N20s), ULN2003 (28BYJ-48)
+          └─ relay COM → NO → pump (flyback diode across it)
+PCA9685 VCC = Pi 3.3 V · 10 kΩ pull-up GPIO 17 · 10 kΩ pull-downs GPIO 23–26
 ```
 
-I2C addresses: PCA9685 at `0x40`, L9110S at `0x60` (check with `i2cdetect -y 1`).
-
-Full KiCad schematic: `riftbound_sorter.kicad_sch`
+There is only one I²C device (the PCA9685 at 0x40). The full pin tables are in ASSEMBLY.md §14 and in [`docs/wiring_diagram.svg`](docs/wiring_diagram.svg). `riftbound_sorter.kicad_sch` is a text-only sheet that mirrors the same tables.
 
 ---
 
-## Rules Engine
+## Rules engine
 
-Sort logic lives in `config/rules.json`. Each rule has a list of conditions and a target bin (0–8). Rules are evaluated in order; first match wins.
+Sort logic lives in `config/rules.json`. Rules are evaluated top to bottom and the first match wins. Each rule has a `match` object of `field: value` pairs, all of which must match; a list means "any of". `{"default": true}` matches everything. Bins:
+- 0–3: lower floor, columns 0–3.
+- 4–7: upper floor, columns 0–3.
+- 9: reject bin.
 
-**Example `config/rules.json`:**
+The lower-floor slots hold about twice as many cards as the upper ones, so put the big categories on bins 0–3.
 
 ```json
 {
-  "default_bin": 8,
+  "_bin_count": 8,
+  "_reject_bin": 9,
   "rules": [
-    {
-      "name": "Champions to bin 0",
-      "conditions": [
-        { "field": "type", "op": "eq", "value": "Champion" }
-      ],
-      "bin": 0
-    },
-    {
-      "name": "Rare and above to bin 1",
-      "conditions": [
-        { "field": "rarity", "op": "in", "value": ["Rare", "Epic", "Legendary"] }
-      ],
-      "bin": 1
-    },
-    {
-      "name": "Bilgewater commons to bin 2",
-      "conditions": [
-        { "field": "region", "op": "eq", "value": "Bilgewater" },
-        { "field": "rarity", "op": "eq", "value": "Common" }
-      ],
-      "bin": 2
-    }
+    { "name": "Champions",      "match": {"type": "Champion"},                    "bin": 0 },
+    { "name": "Legendary/Epic", "match": {"rarity": ["Legendary", "Epic"]},      "bin": 4 },
+    { "name": "Default",        "match": {"default": true},                       "bin": 7 }
   ]
 }
 ```
 
-Available card fields mirror the Riftcodex API response: `type`, `rarity`, `region`, `set`, `cost`, `name`, and any other top-level metadata fields.
-
-Edit rules live in the web UI without restarting the sorter.
+Card fields come from the Riftcodex API (`type`, `rarity`, `domain`, `set`, `name`, …). You can edit rules in the web UI.
 
 ---
 
 ## Web UI
 
-Served by Flask on port 5000.
+Flask on port 5000.
 
 | Page | Path | Description |
-|------|------|-------------|
-| Dashboard | `/` | Live sort rate, cards per bin, hopper-empty alert |
-| Inventory | `/inventory` | Full sorted card log by card ID and name |
-| Rules Editor | `/rules` | Edit and save sort rules as JSON in-browser |
-| Export | `/export` | Download full inventory as CSV |
+|---|---|---|
+| Dashboard | `/` | Live state, sort rate, bin counts and limits, hopper-empty / jam / bin-full banners |
+| Inventory | `/inventory` | Sorted-card log with search and bin filter |
+| Rules editor | `/rules` | Edit and save `rules.json` |
+| Export | `/export`, `/export/tcgplayer` | Inventory CSV, TCGPlayer import CSV |
+| API | `/api/status`, `/api/bins`, `POST /api/bins/<n>/empty`, `POST /api/bins/empty-all` | Status and bin resets |
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 riftbound-sorter/
-├── main.py              # Entry point
-├── requirements.txt
-├── riftbound_sorter.kicad_sch
-├── api/                 # Riftcodex API client
-├── cad/                 # 3D print files (.3mf / .stl)
-├── config/              # rules.json, settings.json
-├── hardware/            # Servo, motor, relay, HX711 drivers
-├── scripts/             # sync_cards.py, calibrate.py, etc.
-├── sorter/              # Core sort logic and rules engine
-├── vision/              # Camera capture and perceptual hash matching
-└── web/                 # Flask app, templates, static assets
+├── main.py                 # sort cycle, CLI (--calibrate, --build-db, --dry-run, --web-only, --empty-bin, --empty-all)
+├── hardware/               # servos (arm), shuttle (ch1/ch2), elevator, conveyor, vacuum, loadcell, camera, card_detect
+├── vision/identify.py      # perceptual-hash identification
+├── api/                    # Riftcodex client, SQLite inventory
+├── sorter/rules_engine.py  # JSON rules → bin
+├── web/app.py              # Flask UI + JSON API
+├── scripts/                # setup.sh, test_hardware.py, calibrate_servos.py, calibrate_camera.py, systemd unit
+├── tests/                  # mock-hardware cycle tests
+├── config/                 # rules.json, calibration JSON files
+├── cad/                    # OpenSCAD parts, assembly.scad, assembly-steps.yaml, collision checks
+├── docs/                   # ASSEMBLY.md, wiring_diagram.svg, assembly videos
+└── riftbound_sorter.kicad_sch
 ```
 
 ---
 
-## Development Status
+## Development status
 
-- [x] Card identification via perceptual hashing
-- [x] Riftcodex sync and local hash index
-- [x] Servo control via PCA9685
-- [x] Conveyor belt control
-- [x] HX711 double-pick detection
-- [x] Vacuum pump / relay sequencing
-- [x] Rules engine (JSON)
-- [x] SQLite inventory logging
-- [x] Flask web UI (dashboard, inventory, rules editor, CSV export)
-- [x] `MOCK_HARDWARE` mode for dev without Pi
-- [ ] Full mechanical assembly and physical calibration (hardware needed)
-- [ ] Inventory filter by set/rarity/type in web UI (deferred to v0.2)
-- [ ] Camera crop live-preview in web UI (deferred to v0.2)
+- [x] Card identification via perceptual hashing; Riftcodex sync
+- [x] v2 sort cycle: elevator → suction pick → camera-centred scan → weigh on the cradle → shuttle route
+- [x] Bin capacity tracking with pause and resume
+- [x] Mock-hardware tests for the cycle and its safety paths
+- [x] CAD for every v2 part, with collision and kinematics checks (`cad/pick_arm_check.py`, `cad/shuttle_check.py`)
+- [x] Calibration tools for arm, tilt, columns and camera crop
+- [ ] Physical build and calibration (see ASSEMBLY.md §19 for what to test first)
+- [ ] Camera crop live preview in the web UI
 
 ---
 

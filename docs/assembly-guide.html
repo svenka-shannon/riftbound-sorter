@@ -670,6 +670,26 @@
 </style>
 </head>
 <body>
+<!-- v2 SUPERSEDED BANNER (2026-11-11): this interactive guide describes the v1 machine. -->
+<div id="v2-superseded" style="position:fixed;top:0;left:0;right:0;z-index:10000;background:#b42318;color:#fff;font:600 14px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:8px 16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.5)">
+  OBSOLETE v1 GUIDE — superseded by <a href="ASSEMBLY.md" style="color:#fff;text-decoration:underline">docs/ASSEMBLY.md</a> for the v2 design. Do not build from this page.
+</div>
+<div id="v2-superseded-modal" style="position:fixed;inset:0;z-index:10001;background:rgba(5,5,10,.92);display:flex;align-items:center;justify-content:center;font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#e8e8f0">
+  <div style="max-width:640px;background:#12121a;border:2px solid #b42318;border-radius:10px;padding:28px 32px">
+    <h2 style="margin:0 0 12px;color:#ff6b5e">This assembly guide is superseded</h2>
+    <p>It describes the <strong>v1</strong> machine (gravity hopper, swing arm, sort-gate levers, single regulator). The machine was redesigned in Nov 2026 (v2):</p>
+    <ul style="margin:10px 0 10px 20px">
+      <li>motor-raised hopper (28BYJ-48 + T8 lead screw)</li>
+      <li>single-servo parallelogram suction arm (ch0)</li>
+      <li>60 mm riser with round O-ring belts and a camera-centred stop</li>
+      <li>cradle shuttle on the load cell (ch1 tilt, ch2 carriage) into a 2-floor tray and a reject bin</li>
+      <li>12 V 5 A supply with three fixed 5 V regulators</li>
+    </ul>
+    <p>Build from <a href="ASSEMBLY.md" style="color:#4cd9c9">docs/ASSEMBLY.md</a>, <a href="../BOM.md" style="color:#4cd9c9">BOM.md</a> and <a href="wiring_diagram.svg" style="color:#4cd9c9">wiring_diagram.svg</a>. Nothing on this page applies to v2: parts, steps, wiring, commands and calibration have all changed.</p>
+    <button onclick="document.getElementById('v2-superseded-modal').style.display='none'" style="margin-top:12px;background:#b42318;color:#fff;border:0;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Show the obsolete v1 guide anyway</button>
+  </div>
+</div>
+
 
 <div id="progress-bar"><div id="progress-fill" style="width:0%"></div></div>
 
@@ -1371,7 +1391,7 @@
 #   · Camera exposure/white balance lock</span></div>
 
   <div class="section-heading">7e. Camera Calibration</div>
-  <div class="code-block"><span class="cmd">python calibrate_camera.py</span>
+  <div class="code-block"><span class="cmd">venv/bin/python scripts/calibrate_camera.py --no-mock</span>
 <span class="c"># Print the checkerboard sheet, hold in scanner zone
 # Follow on-screen prompts
 # Produces: camera_calibration.npz</span></div>
@@ -1399,23 +1419,23 @@
   <div class="section-heading">Load Cell Zero</div>
   <div class="checklist">
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c0"><div class="check-box"></div><div class="check-label"><strong>Remove all weight from weigh platform</strong><span>Platform must be completely bare</span></div></label>
-    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c1"><div class="check-box"></div><div class="check-label"><strong>Tare load cell via calibration wizard</strong><span>python main.py --calibrate → select Tare load cell</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c1"><div class="check-box"></div><div class="check-label"><strong>Tare load cell via calibration wizard</strong><span>v2: venv/bin/python main.py --calibrate (empty cradle, then one card)</span></div></label>
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c2"><div class="check-box"></div><div class="check-label"><strong>Verify 100g calibration mass reads within ±2g</strong><span>Place known weight, confirm readout accuracy</span></div></label>
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c3"><div class="check-box"></div><div class="check-label"><strong>Update scale.calibration_factor in config.yaml if drift &gt;±5g</strong><span>Fine-tune until stable across multiple readings</span></div></label>
   </div>
 
   <div class="section-heading">Servo Angle Tuning</div>
   <div class="checklist">
-    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c4"><div class="check-box"></div><div class="check-label"><strong>Jog each servo — record min/max safe angles</strong><span>Use --calibrate wizard; note values for config.yaml</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c4"><div class="check-box"></div><div class="check-label"><strong>Jog each servo — record min/max safe angles</strong><span>v2: venv/bin/python scripts/calibrate_servos.py --no-mock (1 arm, 2 tilt, 3 carriage)</span></div></label>
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c5"><div class="check-box"></div><div class="check-label"><strong>Arm reaches weigh platform without binding</strong><span>Test full down stroke on each axis</span></div></label>
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c6"><div class="check-box"></div><div class="check-label"><strong>Arm reaches each bin entry point</strong><span>Sweep through all bin positions; check for cable snag</span></div></label>
-    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c7"><div class="check-box"></div><div class="check-label"><strong>Update config.yaml servo angle limits</strong><span>servos.ch0–ch4: min_angle, max_angle, pick_angle</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c7"><div class="check-box"></div><div class="check-label"><strong>Servo poses saved</strong><span>v2: config/servo_calibration.json + config/shuttle_calibration.json</span></div></label>
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c8"><div class="check-box"></div><div class="check-label"><strong>Suction cup aligns with card center at pick height</strong><span>Adjust servos.ch2.pick_angle in ±2° increments</span></div></label>
   </div>
 
   <div class="section-heading">Camera Crop</div>
   <div class="checklist">
-    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c9"><div class="check-box"></div><div class="check-label"><strong>Live preview confirms card fills crop rectangle</strong><span>python calibrate_camera.py --preview (needs display/VNC)</span></div></label>
+    <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c9"><div class="check-box"></div><div class="check-label"><strong>Live preview confirms card fills crop rectangle</strong><span>v2: venv/bin/python scripts/calibrate_camera.py --no-mock (writes /tmp/calibration_overlay.jpg)</span></div></label>
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c10"><div class="check-box"></div><div class="check-label"><strong>Crop captures full card face with &lt;5px margin wasted</strong><span>Update camera.crop_x/y/w/h in config.yaml</span></div></label>
     <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" data-key="c11"><div class="check-box"></div><div class="check-label"><strong>No arm shadow falls inside crop during simulated pick</strong><span>Run a pick cycle and inspect captured frame</span></div></label>
   </div>
