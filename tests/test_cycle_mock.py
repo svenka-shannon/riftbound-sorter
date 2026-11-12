@@ -84,6 +84,7 @@ def rig(monkeypatch, tmp_path):
     servos.init()
     servos.arm_park()
     shuttle.init()
+    shuttle.home()                      # init() never homes (audit M7)
     elevator.init()
     assert elevator.home()
     main._prepare_cradle(first=True)

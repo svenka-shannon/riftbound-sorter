@@ -1,6 +1,6 @@
 """
 Flask web UI for Riftbound Card Sorter.
-Runs on port 5000 — access at http://raspberrypi.local:5000
+Runs on port 5000 — access at http://riftbound-sorter.local:5000
 
 Routes:
   /                  → Dashboard (live stats, sort speed calc, session history)
@@ -17,14 +17,24 @@ Mutating endpoints (POST) need the shared-secret token (config/web.json,
 generated on first run and printed; `python main.py --web-token` shows it) in
 an `X-Auth-Token` header or a `token` form field:
   POST /api/bins/<n>/empty   → reset bin n's count after emptying it
-                               (only the bin the machine is paused on, or any
-                               bin while the machine is paused / stopped)
-  POST /api/bins/empty-all   → reset every bin count (paused / stopped only)
+                               (the bin the machine is paused on, or any bin
+                               in an idle state — never starting / running)
+  POST /api/bins/empty-all   → reset every bin count (idle states only)
   POST /api/pause            → pause at the next card boundary
-  POST /api/resume           → resume (after pause / stop / refilled hopper)
+                               (running / starting / paused)
+  POST /api/resume           → resume (paused / stopped / hopper_empty, or
+                               cancel a pending pause / stop)
   POST /api/stop             → stop sorting at the next card boundary
-  POST /api/confirm-clear    → operator checked the machine after an unclean stop / jam
-  POST /rules                → validate, save and hot-reload the rules
+                               (running / starting / paused)
+  POST /api/confirm-clear    → operator checked the machine after an unclean
+                               stop / jam: needs_confirm / jam / error /
+                               stopped, and no run in progress (never while
+                               paused or starting)
+  POST /rules                → validate, save and hot-reload the rules (applied
+                               between cards, so any state)
+A request refused by the state gate gets 409 with {"error": why}. The gates
+are main.can_* — the CLI (--empty-bin, --confirm-clear) goes through these
+same endpoints whenever a sorter process is running.
 """
 
 from flask import Flask, render_template_string, jsonify, request, send_file, Response
@@ -654,31 +664,32 @@ def create_app(token: str | None = None) -> Flask:
         sorter_main.empty_all_bins()
         return jsonify(sorter_main._bins.snapshot())
 
+    def _gated(check, action):
+        ok, why = check()
+        if not ok:
+            return jsonify({"error": why, "state": sorter_main._status.get("state")}), 409
+        action()
+        return jsonify({"ok": True, "state": sorter_main._status["state"]})
+
     @app.route("/api/pause", methods=["POST"])
     @require_token
     def api_pause():
-        sorter_main.request_pause()
-        return jsonify({"ok": True, "state": sorter_main._status["state"]})
+        return _gated(sorter_main.can_pause, sorter_main.request_pause)
 
     @app.route("/api/resume", methods=["POST"])
     @require_token
     def api_resume():
-        sorter_main.request_resume()
-        return jsonify({"ok": True, "state": sorter_main._status["state"]})
+        return _gated(sorter_main.can_resume, sorter_main.request_resume)
 
     @app.route("/api/stop", methods=["POST"])
     @require_token
     def api_stop():
-        sorter_main.request_stop()
-        return jsonify({"ok": True, "state": sorter_main._status["state"]})
+        return _gated(sorter_main.can_stop, sorter_main.request_stop)
 
     @app.route("/api/confirm-clear", methods=["POST"])
     @require_token
     def api_confirm_clear():
-        if sorter_main._status.get("state") not in sorter_main.IDLE_STATES:
-            return jsonify({"error": "machine is running — stop it first"}), 409
-        sorter_main.confirm_clear("web")
-        return jsonify({"ok": True})
+        return _gated(sorter_main.can_confirm_clear, lambda: sorter_main.confirm_clear("web"))
 
     @app.route("/api/sessions")
     def api_sessions():

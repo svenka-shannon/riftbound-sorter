@@ -50,7 +50,9 @@ if not _MOCK:
 ARM_PICK = 175   # crank 178°: cup lip 3 mm below the top card (Z 90.9), spring slider takes it
 ARM_DROP = 5     # crank 8°: card underside 3 mm above the belt, card centre X -95
 ARM_PARK = 90    # crank vertical: hand over X -155 at the top of the arc (rest / refill)
-ARM_ACTUATION_RANGE = 180   # MG996R at 500–2500 µs; set 270 for a DS3218MG-270 drop-in
+ARM_ACTUATION_RANGE = 180   # MG996R at 500–2500 µs; 270 for a DS3218MG-270 drop-in:
+                            # config/machine.json {"servos": {"ARM_ACTUATION_RANGE": 270}}
+                            # (then re-calibrate the arm angles)
 ARM_MAX_STEP_DEG = 4.0      # largest angle change per PWM update (≤200°/s peak; card sees <1 m/s²)
 ARM_UPDATE_S = 0.02         # one update per 50 Hz PWM frame
 ARM_FULL_MOVE_S = 1.2       # default time for the full pick↔drop arc (~170°)
@@ -58,6 +60,10 @@ ARM_FULL_MOVE_S = 1.2       # default time for the full pick↔drop arc (~170°)
 # Legacy names (scripts/test_hardware.py, scripts/calibrate_servos.py): UP = park, DOWN = pick
 PICKUP_ARM_UP    = ARM_PARK
 PICKUP_ARM_DOWN  = ARM_PICK
+
+import sys as _sys
+from hardware import machine_config as _machine_config
+_machine_config.apply(_sys.modules[__name__], "servos", ("ARM_ACTUATION_RANGE",))
 
 _pca = None
 _servos = {}
@@ -106,10 +112,14 @@ def init(assume_parked: bool = False):
     """Initialize PCA9685 and attach servo objects.
 
     assume_parked: the last stop was clean (main.py's machine state file), so
-    the arm rests at ARM_PARK (the calibrated value). The first move then ramps
-    from there instead of jumping. If the arm is really somewhere else, its
-    first PWM command still makes it jump at full speed — hobby servos have no
-    position feedback, so a slow first move cannot be guaranteed."""
+    the arm rests at ARM_PARK (the calibrated value), limp. ARM_PARK is
+    written once (a small snap back by whatever the limp arm sagged) and the
+    first move ramps from there. If the arm is really somewhere else, that
+    write still makes it jump at full speed — hobby servos have no position
+    feedback, so a slow first move cannot be guaranteed.
+    assume_parked=False: NOTHING is written to ch0 (audit M7); the first
+    move_arm_smooth() — main.py only makes it after the operator confirmed
+    the machine clear — goes straight to its target."""
     global _pca, _servos, _arm_angle
 
     # Apply calibration overrides before any hardware move

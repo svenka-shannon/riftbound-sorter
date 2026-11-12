@@ -90,9 +90,10 @@ def rig(monkeypatch, tmp_path):
     servos.init()
     servos.arm_park()
     shuttle.init()
+    shuttle.home()                          # init() never homes (audit M7)
     elevator.init()
     assert elevator.home()
-    loadcell.tare()                         # verified empty: stores the empty reference
+    loadcell.tare(calibration=True)         # calibrated machine: stores the empty reference
     shuttle.level()
     main._set_state("running")
     for k in main._stats:
@@ -423,16 +424,24 @@ def test_card_on_cradle_at_startup_refuses(rig):
     main.teardown()
     ms = main.read_machine_state()
     assert ms["clean"] is False and "cradle" in ms["reason"]
-    # --- restart (new process): the load cell is NOT tared at init ---
+    # --- restart (new process): the load cell is NOT tared at init, nothing moves ---
     loadcell.init()
+    servos.init()
     shuttle.init()
+    assert servos.arm_angle() is None and shuttle.state()[:2] == (None, None)
+    with pytest.raises(main.NeedsConfirm, match="pose not known"):
+        main.prepare_machine(confirmed=False)
+    assert servos.arm_angle() is None and shuttle.state()[:2] == (None, None)   # M7: no command
+    # operator presses "Machine clear" WITHOUT removing the card: still refused (M1)
+    main.confirm_clear("test")
     with pytest.raises(main.NeedsConfirm, match="card on cradle"):
-        main._startup_cradle_check(confirmed=False)
-    # operator removes the card and confirms
+        main.prepare_machine(confirmed=True)
+    assert loadcell.grams_vs_empty_reference() == pytest.approx(1.75)    # NOT tared away
+    # operator removes the card and confirms again
     loadcell.mock_set_load(0.0)
     main.confirm_clear("test")
     assert main.read_machine_state()["confirmed"] is True
-    main._startup_cradle_check(confirmed=True)
+    main.prepare_machine(confirmed=True)
     assert shuttle.state()[:2] == ("home", "level")
     assert abs(loadcell.read_grams()) < 0.01
 
@@ -491,7 +500,7 @@ def test_persistent_load_cell_failure_stops(rig, monkeypatch):
 
 
 def test_median_rejects_a_spike(rig, monkeypatch):
-    vals = iter([1.75, 1.75, 900.0, 1.75, 1.75, 1.74, 1.76])
+    vals = iter([1.75, 1.75, 60.0, 1.75, 1.75, 1.74, 1.76])   # plausible (< 100 g) outlier
     monkeypatch.setattr(loadcell, "_mock_raw", lambda: next(vals) * loadcell.SCALE_FACTOR)
     assert loadcell.read_grams() == pytest.approx(1.75, abs=0.02)
 
@@ -520,7 +529,7 @@ def test_vendored_hx711_api(vendored_hx):
     assert isinstance(vendored_hx.hx, vendored_hx.mod.HX711)
     s = vendored_hx.script
     s.extend([100_000] * 10)                                 # zero(10)
-    loadcell.tare()
+    loadcell.tare(calibration=True)
     assert vendored_hx.hx.get_current_offset() == 100_000
     assert json.loads(loadcell._CALIBRATION_FILE.read_text())["empty_offset"] == 100_000
     card = 100_000 + int(1.75 * loadcell.SCALE_FACTOR)
@@ -568,23 +577,24 @@ def test_stop_drives_all_pins_low(gpio_conveyor):
         assert G.level[pin] == 0, f"GPIO {pin} not LOW after stop()"
 
 
-def test_brake_never_reverses_even_if_interrupted(gpio_conveyor, monkeypatch):
-    conveyor.run()
-    conveyor.brake()
-    assert _no_reverse_ever(G.log)
-
-    class Boom(BaseException):
-        pass
-
-    def sleep(s):
-        raise Boom()
-    monkeypatch.setattr(time, "sleep", sleep)
+def test_brake_never_reverses_and_never_drives_rev_high(gpio_conveyor, monkeypatch):
+    """Audit minor: brake = all inputs LOW, REV pins first; nothing ever drives
+    a REV input HIGH, so IA=L, IB=H (reverse) is impossible on every path."""
+    for seq in (("run", "brake"), ("run", "stop"), ("brake",), ("run", "run", "brake", "stop")):
+        G.log.clear()
+        for name in seq:
+            getattr(conveyor, name)()
+        assert _no_reverse_ever(G.log), seq
+        assert not [e for e in G.log if e[0] == "out" and e[1] in (conveyor.MOTOR_A_REV,
+                                                                 conveyor.MOTOR_B_REV) and e[2]]
+        assert all(G.level[p] == 0 for p in (23, 24, 25, 26)), seq
+    # REV pins are written before the FWD duty drops
     G.log.clear()
     conveyor.run()
-    with pytest.raises(Boom):
-        conveyor.brake()                       # shutdown signal during the 50 ms brake
-    assert _no_reverse_ever(G.log)
-    assert all(G.level[p] == 0 for p in (23, 24, 25, 26))     # coasting
+    conveyor.brake()
+    i_rev = max(i for i, e in enumerate(G.log) if e[0] == "out")
+    i_fwd = min(i for i, e in enumerate(G.log) if e[0] == "pwm" and e[2] == 0)
+    assert i_rev < i_fwd
 
 
 # ── Vent valve ───────────────────────────────────────────────────────────────

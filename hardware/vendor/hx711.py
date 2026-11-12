@@ -356,7 +356,11 @@ class HX711:
         while (not self._ready() and ready_counter <= 40):
             time.sleep(0.01)  # sleep for 10 ms because data is not ready
             ready_counter += 1
-            if ready_counter == 50:  # if counter reached max value then return False
+            # RIFTBOUND LOCAL EDIT (audit M4): upstream tests `== 50`, which the
+            # `<= 40` loop bound never reaches, so a never-ready HX711 (DOUT stuck
+            # HIGH: unpowered / unplugged) fell through and clocked out 0xFFFFFF
+            # = raw -1 as if it were a reading. Give up after the 40 trials instead.
+            if ready_counter > 40:  # if counter reached max value then return False
                 if self._debug_mode:
                     print('self._read() not ready after 40 trials\n')
                 return False

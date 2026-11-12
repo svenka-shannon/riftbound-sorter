@@ -16,11 +16,39 @@ Tare with the EMPTY cradle in HOLD (main.py tares at the end of every cycle,
 right after shuttle.route() has proved the cradle empty), so the weigh pose
 and the tare pose are the same.
 
-Empty-cradle reference (audit M1): every verified-empty tare (and the
-calibration) stores the absolute raw HX711 offset of the EMPTY cradle in
-config/loadcell_calibration.json ("empty_offset"). At start-up main.py
-compares the raw reading against it BEFORE taring, so a card left on the
-cradle by a stop / crash is detected instead of being tared away.
+Empty-cradle reference (audit M1): config/loadcell_calibration.json stores
+the absolute raw HX711 offset of the EMPTY cradle ("empty_offset"). At EVERY
+start-up — also after the operator pressed "Machine clear" — main.py compares
+the raw reading against it BEFORE taring, so a card left on the cradle is
+detected instead of being tared away.
+
+THE PERSISTENCE RULE (what may overwrite "empty_offset"):
+  1. `main.py --calibrate` (tare(calibration=True)): the operator verifies the
+     empty cradle interactively and then proves the scale with a reference
+     mass. This also stores "calibrated_empty_offset", the drift baseline.
+  2. The tare main.py takes right after shuttle.route() proved the cradle
+     emptied by weight drop (tare(anchored=True, persist=True)), and ONLY if
+     the tare that weight was measured against was itself ANCHORED. A weight
+     drop to ~0 g only proves "empty" if that zero was the empty cradle: with
+     an unverified zero (say a card was tared away) the next card could leave
+     and the old one stay, and the cradle would still read ~0 g.
+     Anchored = the tare came from rule 1 or 2, or from the start-up check
+     that compared the raw load with the stored reference (that tare is
+     anchored but NOT persisted). An "operator confirmed" tare without a
+     stored reference is never anchored, so nothing after it persists until
+     --calibrate is run.
+     And ONLY if the new offset stays within REFERENCE_MAX_DRIFT_G of the
+     calibration baseline, so small residues can never ratchet the reference.
+Nothing else persists the reference (not the operator's "Machine clear", not
+a plain tare(), not scripts/test_hardware.py).
+
+Faults (audit M1/M4): a raw reading of -1 (0xFFFFFF: DOUT stuck HIGH, HX711
+unpowered — the vendored lib used to return it as data), a reading at the
+24-bit rails, or one more than PLAUSIBLE_RANGE_G from the zero is a failed
+read (re-read; LoadCellError after MAX_READ_FAILURES). A weight more than
+NEGATIVE_FAULT_G BELOW the tare is a fault (LoadCellError from read_grams()),
+never "empty": is_empty() is true only for -NEGATIVE_FAULT_G <= w <=
+WEIGHT_EMPTY_MAX.
 
 Library: gandalf15/HX711, vendored as hardware/vendor/hx711.py (the PyPI
 package called "hx711" is a different library with another API). Calls used,
@@ -29,7 +57,11 @@ exactly as that file defines them:
   get_raw_data_mean(1) -> int | 0/False one raw 24-bit reading (0 = failed read)
   zero(readings) -> bool               True on ERROR; readings 1..99
   get_current_offset() -> int          offset set by zero()/set_offset()
-  set_offset(int)                      int only (TypeError otherwise)
+  set_offset(int, channel='A', gain_A=128)
+                                       int only (TypeError otherwise); channel and
+                                       gain given explicitly: the default ('' / 0)
+                                       means "current channel", which before the
+                                       first read is not necessarily the A/128 slot
 The library never calls GPIO.setmode(); init() sets BCM first.
 
 Robustness (audit M2): one weight = median of READ_SAMPLES raw readings; a
@@ -68,6 +100,11 @@ WEIGHT_DOUBLE_MIN   = 2.8   # above this = double pick
 # Start-up check against the stored empty offset (no tare yet, so allow for
 # zero drift since the last run). Any card (>= WEIGHT_SINGLE_MIN) still trips it.
 STARTUP_EMPTY_MAX_G = 0.8
+NEGATIVE_FAULT_G    = 0.5   # more than this BELOW the tare = fault, never "empty"
+PLAUSIBLE_RANGE_G   = 100.0 # 2 × the TAL221's 50 g: a raw reading further than this
+                            # from the zero is implausible (failed read)
+REFERENCE_MAX_DRIFT_G = 0.8 # never persist an empty reference this far from the
+                            # one stored by --calibrate (re-calibrate instead)
 
 # Reading
 READ_SAMPLES        = 7     # median of this many raw readings per weight
@@ -81,7 +118,10 @@ MOCK_CARD_G = 1.75          # simulated single card
 
 _hx = None
 _empty_offset = None        # absolute raw counts of the EMPTY cradle (persisted)
+_cal_empty_offset = None    # empty_offset stored by --calibrate (drift baseline)
 _offset = 0                 # MOCK: current tare offset in raw counts
+_offset_valid = False       # the current zero is a real tare / stored reference
+_tare_anchored = False      # the current zero is PROVEN to be the empty cradle
 
 
 class LoadCellError(RuntimeError):
@@ -143,7 +183,7 @@ def _write_file(data: dict) -> None:
 
 
 def _load_calibration() -> None:
-    global SCALE_FACTOR, _empty_offset
+    global SCALE_FACTOR, _empty_offset, _cal_empty_offset
     cal = _read_file()
     if "scale_factor" in cal:
         try:
@@ -152,7 +192,13 @@ def _load_calibration() -> None:
         except (TypeError, ValueError) as exc:
             print(f"[loadcell] Warning: bad scale_factor in {_CALIBRATION_FILE}: {exc}")
     eo = cal.get("empty_offset")
-    _empty_offset = int(eo) if isinstance(eo, (int, float)) else None
+    _empty_offset = int(eo) if isinstance(eo, (int, float)) and not isinstance(eo, bool) else None
+    ce = cal.get("calibrated_empty_offset")
+    _cal_empty_offset = int(ce) if isinstance(ce, (int, float)) and not isinstance(ce, bool) else None
+    if _empty_offset is not None and _cal_empty_offset is None:
+        print("[loadcell] Warning: no calibrated_empty_offset in the calibration file (written "
+              "by an older version) — the empty reference is not refreshed until you run "
+              "`main.py --calibrate` again")
 
 
 def save_calibration(factor: float) -> None:
@@ -167,22 +213,35 @@ def save_calibration(factor: float) -> None:
     print(f"[loadcell] Saved SCALE_FACTOR={SCALE_FACTOR:.2f} to {_CALIBRATION_FILE}")
 
 
-def _persist_empty_offset(offset: int, force: bool = False) -> None:
-    """Store the absolute raw offset of the verified-EMPTY cradle."""
-    global _empty_offset
+def _persist_empty_offset(offset: int, calibration: bool = False) -> bool:
+    """Store the absolute raw offset of the PROVEN-empty cradle (see the
+    persistence rule in the module docstring). Returns False if refused."""
+    global _empty_offset, _cal_empty_offset
     offset = int(offset)
-    if (not force and _empty_offset is not None
-            and abs(offset - _empty_offset) < OFFSET_PERSIST_DELTA_G * SCALE_FACTOR):
-        return                                   # unchanged: spare the SD card
+    if not calibration:
+        if _cal_empty_offset is None:
+            return False                         # no calibration baseline: never refresh
+        drift_g = abs(offset - _cal_empty_offset) / abs(SCALE_FACTOR)
+        if drift_g > REFERENCE_MAX_DRIFT_G:
+            print(f"[loadcell] WARNING: empty cradle is {drift_g:.2f} g away from the "
+                  "calibrated empty reference — NOT stored; re-run `main.py --calibrate`")
+            return False
+        if (_empty_offset is not None
+                and abs(offset - _empty_offset) < OFFSET_PERSIST_DELTA_G * abs(SCALE_FACTOR)):
+            return True                          # unchanged: spare the SD card
     _empty_offset = offset
     data = _read_file()
     data["empty_offset"] = offset
+    if calibration:
+        _cal_empty_offset = offset
+        data["calibrated_empty_offset"] = offset
     data.setdefault("scale_factor", SCALE_FACTOR)
     data["empty_offset_saved"] = time.time()
     try:
         _write_file(data)
     except OSError as exc:
         print(f"[loadcell] Warning: could not save the empty offset: {exc}")
+    return True
 
 
 def empty_offset():
@@ -190,12 +249,21 @@ def empty_offset():
     return _empty_offset
 
 
+def tare_anchored() -> bool:
+    """True if the current zero is PROVEN to be the empty cradle (see the
+    persistence rule): only then may the next route-proven tare be stored."""
+    return _tare_anchored
+
+
+
 # ── Hardware ─────────────────────────────────────────────────────────────────
 def init():
     """Open the HX711. Does NOT tare: whatever is on the cradle stays visible
     until main.py has checked it against the stored empty offset."""
-    global _hx, _offset
+    global _hx, _offset, _offset_valid, _tare_anchored
     _load_calibration()
+    _offset_valid = _empty_offset is not None
+    _tare_anchored = False                       # start-up check decides (main.py)
     if _MOCK:
         _offset = _empty_offset if _empty_offset is not None else 0
         print("[loadcell] MOCK mode — simulated cradle (mock_set_load())")
@@ -205,17 +273,37 @@ def init():
     GPIO.setmode(GPIO.BCM)                       # gandalf15 HX711 never sets the mode
     _hx = HX711(dout_pin=DOUT_PIN, pd_sck_pin=SCK_PIN)
     if _empty_offset is not None:
-        _hx.set_offset(int(_empty_offset))
+        # the slot read_grams() uses (channel A, gain 128), not "current channel"
+        _hx.set_offset(int(_empty_offset), channel='A', gain_A=128)
     print(f"[loadcell] HX711 initialized (DOUT={DOUT_PIN}, SCK={SCK_PIN})")
 
 
+RAW_NOT_READY = -1                 # 0xFFFFFF: DOUT stuck HIGH (HX711 unpowered / not ready)
+RAW_RAILS = (0x7FFFFF, -0x800000)  # 24-bit full scale: saturated / garbage
+
+
+def _plausible(v) -> bool:
+    """Reject readings no real load can produce (see module docstring)."""
+    if v == RAW_NOT_READY or v in RAW_RAILS:
+        return False
+    if _offset_valid:
+        if abs(v - _current_offset()) > PLAUSIBLE_RANGE_G * abs(SCALE_FACTOR):
+            return False
+    return True
+
+
 def _read_raw_once():
-    """One raw reading, or None if the HX711 returned no data."""
+    """One raw reading, or None if the HX711 returned no (valid) data."""
     if _MOCK:
-        return _mock_raw()
-    v = _hx.get_raw_data_mean(1)
-    # gandalf15: a failed read comes back as int(mean([False])) == 0 (or False)
-    if v is None or v is False or v == 0:
+        v = _mock_raw()
+        if v is None:
+            return None
+    else:
+        v = _hx.get_raw_data_mean(1)
+        # gandalf15: a failed read comes back as int(mean([False])) == 0 (or False)
+        if v is None or v is False or v == 0:
+            return None
+    if not _plausible(v):
         return None
     return v
 
@@ -244,10 +332,21 @@ def _current_offset() -> float:
     return _hx.get_current_offset()
 
 
+def read_grams_unchecked(samples: int = READ_SAMPLES) -> float:
+    """Weight relative to the last tare, negative values allowed (diagnostics)."""
+    return (read_raw(samples) - _current_offset()) / SCALE_FACTOR
+
+
 def read_grams(samples: int = READ_SAMPLES) -> float:
     """Weight in grams relative to the last tare (median of `samples` readings).
-    Raises LoadCellError only after repeated failed reads (see read_raw)."""
-    return (read_raw(samples) - _current_offset()) / SCALE_FACTOR
+    Raises LoadCellError after repeated failed reads (see read_raw) and for a
+    weight more than NEGATIVE_FAULT_G BELOW the tare (fault, never "empty")."""
+    w = read_grams_unchecked(samples)
+    if w < -NEGATIVE_FAULT_G:
+        raise LoadCellError(f"cradle reads {w:.2f} g, more than {NEGATIVE_FAULT_G} g BELOW its "
+                            "tare — load cell fault, zero drift, or the tare was taken with "
+                            "something on the cradle")
+    return w
 
 
 def grams_vs_empty_reference(samples: int = READ_SAMPLES):
@@ -260,8 +359,10 @@ def grams_vs_empty_reference(samples: int = READ_SAMPLES):
 
 def classify(weight_g: float) -> str:
     """
-    Returns: 'empty', 'single', 'double', or 'unknown'
+    Returns: 'empty', 'single', 'double', 'unknown', or 'fault' (far below the tare)
     """
+    if weight_g < -NEGATIVE_FAULT_G:
+        return "fault"          # read_grams() raises before this can happen
     if weight_g <= WEIGHT_EMPTY_MAX:
         return "empty"
     elif WEIGHT_SINGLE_MIN <= weight_g <= WEIGHT_SINGLE_MAX:
@@ -273,15 +374,22 @@ def classify(weight_g: float) -> str:
 
 
 def is_empty(weight_g: float) -> bool:
-    """The machine-wide 'cradle is empty' test (same threshold as classify)."""
-    return weight_g <= WEIGHT_EMPTY_MAX
+    """The machine-wide 'cradle is empty' test (same thresholds as classify).
+    A weight far BELOW the tare is a fault, not empty."""
+    return -NEGATIVE_FAULT_G <= weight_g <= WEIGHT_EMPTY_MAX
 
 
-def tare(verified_empty: bool = True):
+def tare(anchored: bool = False, persist: bool = False, calibration: bool = False):
     """Zero the scale. Call ONLY with the cradle empty and in HOLD.
-    verified_empty=True (the default — every caller in main.py has proved the
-    cradle empty first) also stores the offset as the empty-cradle reference."""
-    global _offset
+
+    anchored:    the cradle was PROVEN empty against an anchored zero (see the
+                 persistence rule in the module docstring)
+    persist:     also store this zero as the empty-cradle reference — honoured
+                 only when anchored (and within the calibration drift limit)
+    calibration: `main.py --calibrate`: operator-verified; anchored, persisted,
+                 and becomes the drift baseline
+    A plain tare() is neither anchored nor persisted."""
+    global _offset, _offset_valid, _tare_anchored
     if _MOCK:
         raw = None
         for _ in range(TARE_ATTEMPTS):
@@ -305,15 +413,24 @@ def tare(verified_empty: bool = True):
         else:
             raise LoadCellError("HX711 zero() failed (no valid readings)")
         _offset = _hx.get_current_offset()
-    if verified_empty:
-        _persist_empty_offset(_offset)
+    _offset_valid = True
+    if calibration:
+        _persist_empty_offset(_offset, calibration=True)
+        _tare_anchored = True
+    elif anchored:
+        _tare_anchored = True
+        if persist and not _persist_empty_offset(_offset):
+            _tare_anchored = _cal_empty_offset is not None and (
+                abs(_offset - _cal_empty_offset) / abs(SCALE_FACTOR) <= REFERENCE_MAX_DRIFT_G)
+    else:
+        _tare_anchored = False
 
 
 def calibrate(known_weight_g: float):
     """
     Return (and print) the scale factor for a known weight on the cradle.
-    Call tare() first with the empty cradle in HOLD (that also stores the
-    empty-cradle reference), then place the known weight and call this.
+    Call tare(calibration=True) first with the empty cradle in HOLD (that also
+    stores the empty-cradle reference), then place the known weight and call this.
     """
     net_counts = read_raw(CALIBRATE_SAMPLES) - _current_offset()
     if _MOCK:

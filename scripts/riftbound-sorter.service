@@ -6,12 +6,29 @@ Wants=network.target
 [Service]
 Type=simple
 User=pi
-# TODO: update these paths to match your actual install directory
+# scripts/setup.sh rewrites /opt/riftbound-sorter to the checkout it runs from
 WorkingDirectory=/opt/riftbound-sorter
 ExecStartPre=/bin/sleep 5
 ExecStart=/opt/riftbound-sorter/venv/bin/python main.py
+# After ANY exit (clean, crash, kill, watchdog): pump / vent / belt / stepper
+# pins to their safe levels and the PCA9685 asleep. "+" = run as root.
+# Standard library only, so it works even if the venv is broken.
+ExecStopPost=+/usr/bin/python3 /opt/riftbound-sorter/scripts/safe_outputs.py
 Restart=on-failure
 RestartSec=10
+# 78 = EX_CONFIG: config/machine.json is invalid — restarting will not help
+RestartPreventExitStatus=78
+
+# systemd watchdog: main.py sends WATCHDOG=1 (sd_notify) from its main loop at
+# least every second while it is healthy; no ping for WatchdogSec → SIGABRT,
+# then ExecStopPost and a restart (which comes up needing "Machine clear").
+WatchdogSec=60
+NotifyAccess=main
+
+# SIGTERM = "finish the current card, then stop" (main.py); a card cycle plus
+# teardown is well under this
+TimeoutStopSec=60
+
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=riftbound-sorter
@@ -23,7 +40,7 @@ SupplementaryGroups=gpio i2c video
 WantedBy=multi-user.target
 
 # ─────────────────────────────────────────────
-# Install:
+# Install: scripts/setup.sh (substitutes the paths and user), or by hand:
 #   sudo cp scripts/riftbound-sorter.service /etc/systemd/system/
 #   sudo systemctl daemon-reload
 #   sudo systemctl enable riftbound-sorter

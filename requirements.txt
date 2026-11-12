@@ -15,11 +15,16 @@
 # Do NOT `pip install hx711` — that PyPI name is a different library (Marco Roose)
 # with an incompatible API.
 #
-# Install: venv/bin/pip install -r requirements.txt
+# These are the top-level RANGES. scripts/setup.sh installs the exact, hash-
+# pinned tree from requirements.lock (see its header for how to regenerate):
+#   venv/bin/python -m pip install --no-deps --require-hashes -r requirements.lock
 
 # Hardware (PCA9685 servo driver over I2C)
-# adafruit-blinka provides 'board' and 'busio' for CircuitPython libraries on Pi
-adafruit-blinka>=8.0.0
+# adafruit-blinka provides 'board' and 'busio' for CircuitPython libraries on Pi.
+# < 10: Blinka 10.x needs gpiod>=2.2.2,<3 (libgpiod v2 bindings) which neither
+# apt nor this file installs, so `import board` would fail on a fresh Pi.
+# Blinka 9.x uses RPi.GPIO (apt python3-rpi-lgpio) for the Pi pins.
+adafruit-blinka>=9.2,<10
 adafruit-circuitpython-pca9685>=3.4.7
 adafruit-circuitpython-motor>=3.4.11
 

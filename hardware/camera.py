@@ -51,6 +51,7 @@ import io
 import json
 import os
 import time
+from concurrent.futures import TimeoutError as _FuturesTimeout
 from pathlib import Path
 from PIL import Image
 
@@ -99,6 +100,12 @@ CARD_ROTATE        = 90           # PIL rotate() degrees (CCW) applied to the la
                                   # crop so the card is upright like the reference art;
                                   # use 270 if cards are loaded the other way round
 STABILIZE_DELAY_S  = 0.15         # belt stopped → wait for motion blur / AE to settle
+LORES_TIMEOUT_S    = 0.2          # capture_array("lores", wait=...): no frame → CameraTimeout
+MAIN_TIMEOUT_S     = 1.0          # capture_array("main", wait=...)
+
+
+class CameraTimeout(RuntimeError):
+    """The camera delivered no frame within the timeout (stalled / cable)."""
 
 
 def _default_crop(size=CAPTURE_RESOLUTION) -> tuple[int, int, int, int]:
@@ -126,7 +133,8 @@ def _load_settings() -> None:
     from hardware import machine_config
     machine_config.apply(sys.modules[__name__], "camera", (
         "LENS_POSITION", "AF_MODE", "LOCK_AE_AWB", "EXPOSURE_TIME_US", "ANALOGUE_GAIN",
-        "COLOUR_GAINS", "CARD_ROTATE", "STABILIZE_DELAY_S", "WARMUP_S", "SWAP_RB"))
+        "COLOUR_GAINS", "CARD_ROTATE", "STABILIZE_DELAY_S", "WARMUP_S", "SWAP_RB",
+        "LORES_TIMEOUT_S"))
 
 
 _load_settings()
@@ -248,8 +256,20 @@ def _flip(arr):
     return arr
 
 
+def _capture(stream: str, timeout_s: float):
+    """picamera2 Picamera2.capture_array(name="main", wait=None, signal_function=None):
+    a NUMBER for `wait` makes dispatch_functions() wait that many seconds for
+    the job (Job.get_result(timeout)) and raise a timeout error instead of
+    blocking forever when the camera stalls."""
+    try:
+        return _cam.capture_array(stream, wait=timeout_s)
+    except (TimeoutError, _FuturesTimeout) as exc:
+        raise CameraTimeout(f"no {stream} frame from the camera within {timeout_s:.2f} s — "
+                            "camera stalled (check the ribbon cable)") from exc
+
+
 def _main_image() -> Image.Image:
-    arr = _flip(_cam.capture_array("main"))
+    arr = _flip(_capture("main", MAIN_TIMEOUT_S))
     if SWAP_RB:
         arr = arr[..., 2::-1]       # BGR → RGB (drops a 4th channel if present)
     return Image.fromarray(arr.copy())
@@ -299,12 +319,13 @@ def capture_full_jpeg() -> bytes:
 
 def capture_lores_luma():
     """Next lores frame as a 2-D uint8 numpy array (Y plane), flipped like main.
-    Blocks until the next frame (~1/DETECT_FPS). Not available in MOCK mode —
-    card_detect generates synthetic frames there."""
+    Waits for the next frame (~1/DETECT_FPS) at most LORES_TIMEOUT_S, then
+    raises CameraTimeout. Not available in MOCK mode — card_detect generates
+    synthetic frames there."""
     if _MOCK or _cam is None:
         raise RuntimeError("capture_lores_luma() needs the real camera (MOCK mode uses card_detect's mock scene)")
     w, h = LORES_RESOLUTION
-    yuv = _cam.capture_array("lores")       # YUV420: Y plane is the first h rows
+    yuv = _capture("lores", LORES_TIMEOUT_S)   # YUV420: Y plane is the first h rows
     return _flip(yuv[:h, :w])
 
 

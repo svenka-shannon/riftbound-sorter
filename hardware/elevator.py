@@ -8,12 +8,33 @@ Wiring (BCM numbering; header pins in brackets):
   ULN2003 IN2 → GPIO 19 [35]     ULN2003 −  → common GND
   ULN2003 IN3 → GPIO 20 [38]     motor plug → ULN2003 white JST (keyed)
   ULN2003 IN4 → GPIO 21 [40]
-  Top-of-stack switch  (feeler-flag microswitch)  C → GND [34], NO → GPIO 12 [32]
-  Bottom/home switch   (carriage lug microswitch) C → GND [30], NO → GPIO 13 [33]
-Switches use the Pi's internal pull-ups: open = HIGH, pressed = LOW.
+  Top-of-stack switch  (feeler-flag microswitch)  C → GND [34], NC → GPIO 12 [32]
+  Bottom/home switch   (carriage lug microswitch) C → GND [30], NC → GPIO 13 [33]
+Switches use the Pi's internal pull-ups.
+
+Normally-CLOSED wiring (audit M8, the default: TOP_SWITCH_NC / BOTTOM_SWITCH_NC
+= true in config/machine.json "elevator"): released = contact closed to GND =
+LOW, pressed = contact open = HIGH. A broken wire / unplugged switch then
+reads PRESSED, which is the safe reading:
+  top switch    "top card at pick height" → the floor stops rising (it never
+                drives the stack into the arm). The arm then picks too low and
+                the cycle stops ("card never seen").
+  bottom switch home() stops lowering at once; after the back-off the switch
+                must read RELEASED, so a broken wire (still "pressed") makes
+                home() fail ("bottom switch did not release") instead of
+                zeroing at the wrong height.
+With normally-OPEN wiring (set the *_NC keys false) a broken wire reads
+"never pressed": home() times out (safe), but the top switch would let the
+floor rise to the soft limit, pushing the stack into the arm — which is why
+every raise after the first one following home() is capped at RAISE_CAP_MM
+(a few cards) whatever the wiring: if the switch has not tripped by then the
+machine stops with "top switch not detected — check wiring" (ElevatorError).
 
 Boot / crash safety: GPIO 16–21 default to inputs with pull-DOWN, so all four
-ULN2003 inputs read LOW = every coil off. With the coils off the 28BYJ-48's
+ULN2003 inputs read LOW = every coil off. After a crash / kill the pins would
+otherwise keep their last level (kernel GPIO output persistence, see
+hardware/vacuum.py): setup.sh disables that persistence and the service's
+ExecStopPost (scripts/safe_outputs.py) drives them LOW. With the coils off the 28BYJ-48's
 64:1 gearbox (≈60–120 mN·m friction torque) holds the screw: the load
 back-drives the T8×8 screw with only ≈4 mN·m, so the floor never drops.
 
@@ -45,9 +66,10 @@ if not _MOCK:
 
 # ── Pins (BCM) ───────────────────────────────────────────────────────────────
 STEPPER_PINS = (16, 19, 20, 21)   # ULN2003 IN1..IN4
-TOP_SWITCH_PIN = 12               # feeler flag at pick height (NO contact to GND)
-BOTTOM_SWITCH_PIN = 13            # home switch, carriage at the bottom (NO to GND)
-SWITCH_ACTIVE_LEVEL = 0           # pressed = LOW (pull-up + NO contact to GND)
+TOP_SWITCH_PIN = 12               # feeler flag at pick height
+BOTTOM_SWITCH_PIN = 13            # home switch, carriage at the bottom
+TOP_SWITCH_NC = True              # normally-closed contact to GND: pressed = HIGH (see above)
+BOTTOM_SWITCH_NC = True
 
 # ── Mechanics (keep in sync with cad/hopper.scad) ───────────────────────────
 HALF_STEPS_PER_REV = 4075.7728    # 64 half-steps × 63.68395:1 gearbox
@@ -74,6 +96,8 @@ HOME_MARGIN_MM = 10.0             # home() gives up after TRAVEL_MM + this
 PLATE_Z_ZERO_MM = PLATE_Z_HOME_MM + HOME_BACKOFF_MM  # plate top at position 0 (after homing)
 MAX_POS_MM = PLATE_Z_MAX_MM - PLATE_Z_ZERO_MM        # soft top limit, measured from position 0
 TRIP_EXTRA_STEPS = 0              # extra half-steps after the top switch trips (calibration)
+RAISE_CAP_MM = 3.0                # max travel of a raise after the first one since home()
+                                  # (≈ 9 cards); the switch must trip within it
 # raise_to_pick() timeout = remaining travel at the raise rate × this + margin
 # (a nearly empty hopper right after homing needs ~70 s; a full one < 1 s).
 RAISE_TIMEOUT_FACTOR = 1.2
@@ -85,9 +109,23 @@ _SEQ = (
     (0, 0, 1, 0), (0, 0, 1, 1), (0, 0, 0, 1), (1, 0, 0, 1),
 )
 
+import sys as _sys
+from hardware import machine_config as _machine_config
+_machine_config.apply(_sys.modules[__name__], "elevator", (
+    "TOP_SWITCH_NC", "BOTTOM_SWITCH_NC", "RAISE_CAP_MM", "UP_DIRECTION", "TRIP_EXTRA_STEPS",
+    "HOME_BACKOFF_MM"))
+PLATE_Z_ZERO_MM = PLATE_Z_HOME_MM + HOME_BACKOFF_MM
+MAX_POS_MM = PLATE_Z_MAX_MM - PLATE_Z_ZERO_MM
+
+
+class ElevatorError(RuntimeError):
+    """A switch reading that only a wiring fault can explain: stop the machine."""
+
+
 _phase = 0          # index into _SEQ
 _pos_steps = None   # half-steps above the home position (None = not homed)
 _initialized = False
+_raised_since_home = False   # the first raise after home() is uncapped
 
 # Mock state: plate height and a simulated card stack
 _mock_plate_mm = 40.0
@@ -121,17 +159,34 @@ def _release() -> None:
             print(f"[elevator] release GPIO {pin} failed: {exc!r}")
 
 
+def pressed_level(nc: bool) -> int:
+    """GPIO level of a PRESSED switch: NC contact opens → pull-up → HIGH;
+    NO contact closes to GND → LOW."""
+    return 1 if nc else 0
+
+
+# MOCK: a broken switch wire (tests); None = intact
+_mock_wire_broken = {"top": False, "bottom": False}
+
+
+def _mock_read(name: str, pressed: bool) -> bool:
+    if _mock_wire_broken[name]:
+        nc = TOP_SWITCH_NC if name == "top" else BOTTOM_SWITCH_NC
+        return nc                    # NC: open circuit reads pressed; NO: never pressed
+    return pressed
+
+
 def _top_pressed() -> bool:
     if _MOCK:
         stack_top = _mock_plate_mm + _mock_cards * CARD_THICKNESS_MM
-        return _mock_cards > 0 and stack_top >= PICK_Z_MM
-    return GPIO.input(TOP_SWITCH_PIN) == SWITCH_ACTIVE_LEVEL
+        return _mock_read("top", _mock_cards > 0 and stack_top >= PICK_Z_MM)
+    return GPIO.input(TOP_SWITCH_PIN) == pressed_level(TOP_SWITCH_NC)
 
 
 def _bottom_pressed() -> bool:
     if _MOCK:
-        return _mock_plate_mm <= PLATE_Z_HOME_MM
-    return GPIO.input(BOTTOM_SWITCH_PIN) == SWITCH_ACTIVE_LEVEL
+        return _mock_read("bottom", _mock_plate_mm <= PLATE_Z_HOME_MM)
+    return GPIO.input(BOTTOM_SWITCH_PIN) == pressed_level(BOTTOM_SWITCH_NC)
 
 
 def _wait_until(t: float) -> None:
@@ -220,12 +275,14 @@ def init():
 
 def home(timeout_s: float = 90.0, abort=None) -> bool:
     """
-    Lower the floor until the bottom (home) switch closes, then back off
+    Lower the floor until the bottom (home) switch is pressed, then back off
     HOME_BACKOFF_MM and zero the position. Use before loading cards.
-    Returns False if the switch was not reached (stuck, broken wire, timeout,
-    or abort() returned True).
+    Returns False if the switch was not reached (stuck, broken NO wire,
+    timeout, or abort() returned True). Raises ElevatorError if the switch
+    still reads pressed after the back-off (stuck switch / broken NC wire).
     """
-    global _pos_steps
+    global _pos_steps, _raised_since_home
+    _raised_since_home = False
     deadline = time.perf_counter() + timeout_s
     if not _bottom_pressed():
         max_steps = int((TRAVEL_MM + HOME_MARGIN_MM) * STEPS_PER_MM)
@@ -237,6 +294,11 @@ def home(timeout_s: float = 90.0, abort=None) -> bool:
     # back off so the switch releases; that point is position 0
     _pos_steps = None
     _move(+1, int(HOME_BACKOFF_MM * STEPS_PER_MM), RAISE_STEP_S)
+    if all(_bottom_pressed() for _ in range(DEBOUNCE_READS)):
+        raise ElevatorError(f"bottom (home) switch still pressed {HOME_BACKOFF_MM} mm above it — "
+                            "switch stuck or its wire broken (NC wiring reads a broken wire as "
+                            "pressed); check the wiring on GPIO "
+                            f"{BOTTOM_SWITCH_PIN} (or raise HOME_BACKOFF_MM)")
     _pos_steps = 0
     return True
 
@@ -258,8 +320,13 @@ def raise_to_pick(timeout_s: float | None = None, abort=None) -> bool:
     or when abort() returns True (shutdown requested; check that first).
     timeout_s: None = distance-based, raise_timeout_s(remaining travel), so a
     nearly empty hopper right after homing still reaches pick height.
+    Every raise after the first one since home() may travel at most
+    RAISE_CAP_MM: if the switch has not tripped by then (and the soft top
+    limit was not reached) it raises ElevatorError("top switch not detected").
     """
+    global _raised_since_home
     if _top_pressed():
+        _raised_since_home = True
         return True
     if _pos_steps is None:
         print("[elevator] not homed — call home() first")
@@ -267,14 +334,25 @@ def raise_to_pick(timeout_s: float | None = None, abort=None) -> bool:
     remaining = int(MAX_POS_MM * STEPS_PER_MM) - _pos_steps
     if remaining <= 0:
         return False
+    capped = _raised_since_home
+    cap_steps = int(RAISE_CAP_MM * STEPS_PER_MM)
+    if capped and cap_steps < remaining:
+        steps = cap_steps
+    else:
+        steps, capped = remaining, False
     if timeout_s is None:
-        timeout_s = raise_timeout_s(remaining)
+        timeout_s = raise_timeout_s(steps)
     deadline = time.perf_counter() + timeout_s
-    _, reason = _move(+1, remaining, RAISE_STEP_S, _top_pressed, deadline, abort)
+    _, reason = _move(+1, steps, RAISE_STEP_S, _top_pressed, deadline, abort)
     if reason == "switch":
+        _raised_since_home = True
         if TRIP_EXTRA_STEPS:
             _move(+1, TRIP_EXTRA_STEPS, RAISE_STEP_S)
         return True
+    if reason == "done" and capped:
+        raise ElevatorError(f"top switch not detected — check wiring (GPIO {TOP_SWITCH_PIN}): "
+                            f"the floor rose {RAISE_CAP_MM:g} mm (≈{RAISE_CAP_MM / CARD_THICKNESS_MM:.0f} "
+                            "cards) without the top-of-stack switch tripping")
     why = {"timeout": f"timeout ({timeout_s:.0f} s)", "aborted": "aborted"}.get(reason, "top limit")
     print(f"[elevator] raise_to_pick: {why} at {position_mm():.1f} mm"
           + ("" if reason == "aborted" else " — hopper empty or stuck"))

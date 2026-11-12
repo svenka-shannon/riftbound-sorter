@@ -16,14 +16,30 @@ Relay semantics are configurable (RELAY_ACTIVE_LOW / VENT_ACTIVE_LOW): most
 5 V opto relay boards switch ON when IN is pulled LOW. Set VENT_PIN = None to
 run without a vent valve (falls back to waiting RELEASE_FALLBACK_S).
 
-HARDWARE REQUIREMENT (docs/ASSEMBLY.md §3d, audit B-14): a 10 kΩ pull-up
-from GPIO 17 to 3.3 V — and the same on GPIO 27 for the vent channel.
-Whenever this module is NOT driving a pin — during boot, after deinit()'s
-GPIO.cleanup() (pin reverts to an input), or if the process dies — the pin
-floats with the SoC's default pull-DOWN, which an active-LOW relay reads as ON.
-The external pull-up makes "floating" mean HIGH = OFF. (A floating vent is
-harmless — it only opens the line — but the pull-up keeps the coil cold.)
-Power loss is already safe (relay NO contacts open: pump off, valve closed).
+HARDWARE REQUIREMENTS (docs/ASSEMBLY.md §14.2):
+  * 10 kΩ pull-up from GPIO 17 to 3.3 V, and the same on GPIO 27 (vent).
+    GPIO 17 / 27 reset to INPUTS with the SoC's default pull-DOWN, which an
+    active-LOW relay board reads as ON. That is the state at power-up / boot
+    (before init()), and — with the kernel parameter
+    pinctrl_bcm2835.persist_gpio_outputs=0 that scripts/setup.sh adds to
+    cmdline.txt — after the process exits or deinit()'s GPIO.cleanup()
+    releases the line. The pull-up makes such a released pin read HIGH = OFF.
+  * A flyback diode across EACH coil: the 12 V pump motor and the 12 V vent
+    solenoid (e.g. 1N4007 / 1N5819, cathode to +12 V, anode to the switched
+    side), mounted at the device. The relay modules' own diodes only protect
+    their relay coils, not the loads the contacts switch; without these the
+    inductive kick arcs the relay contacts and couples spikes into the Pi.
+
+What happens when the process dies (corrected, audit M9): Raspberry Pi
+kernels default to persist_gpio_outputs=1, i.e. a line that was an OUTPUT
+STAYS DRIVEN at its last level when the process holding it exits or is
+killed — a pump left ON stays ON; the pull-up cannot help. Two layers fix
+that: setup.sh sets persist_gpio_outputs=0 (freed lines revert to inputs →
+pull-ups → OFF), and the systemd unit's ExecStopPost runs
+scripts/safe_outputs.py, which drives the pump / vent / belt / stepper pins
+to their safe levels and puts the PCA9685 to sleep after ANY exit (clean,
+crash, SIGKILL, watchdog). Power loss is safe by itself (relay NO contacts
+open: pump off, valve closed).
 """
 
 import os

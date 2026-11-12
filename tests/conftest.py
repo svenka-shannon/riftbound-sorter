@@ -15,11 +15,19 @@ import pytest
 @pytest.fixture(autouse=True)
 def _isolated_files(monkeypatch, tmp_path):
     import main
-    from hardware import loadcell
+    from hardware import elevator, loadcell
     from api import riftcodex
     monkeypatch.setattr(loadcell, "_CALIBRATION_FILE", tmp_path / "loadcell_calibration.json")
     monkeypatch.setattr(loadcell, "_empty_offset", None)
+    monkeypatch.setattr(loadcell, "_cal_empty_offset", None)
+    monkeypatch.setattr(loadcell, "_offset", 0)
+    monkeypatch.setattr(loadcell, "_offset_valid", False)
+    monkeypatch.setattr(loadcell, "_tare_anchored", False)
+    monkeypatch.setattr(loadcell, "SCALE_FACTOR", loadcell.SCALE_FACTOR)
     monkeypatch.setattr(loadcell, "_mock_fail_reads", 0)
+    monkeypatch.setattr(loadcell, "_mock_load_g", 0.0)
+    monkeypatch.setattr(elevator, "_mock_wire_broken", {"top": False, "bottom": False})
+    monkeypatch.setattr(elevator, "_raised_since_home", False)
     monkeypatch.setattr(main, "MACHINE_STATE_FILE", tmp_path / "machine_state.json")
     monkeypatch.setattr(main, "WEB_CONFIG_FILE", tmp_path / "web.json")
     monkeypatch.setattr(main, "_marker_armed", False)
@@ -29,6 +37,13 @@ def _isolated_files(monkeypatch, tmp_path):
     monkeypatch.setattr(main, "_card_at", None)
     monkeypatch.setattr(main, "_control", {"pause": False, "stop": False, "resume": False,
                                            "reload_rules": False})
+    monkeypatch.setattr(main, "INSTANCE_LOCK_FILE", tmp_path / "sorter.lock")
+    monkeypatch.setattr(main, "_defer_depth", 0)
+    monkeypatch.setattr(main, "_shutdown_pending", False)
+    monkeypatch.setattr(main, "_active_depth", 0)
+    main._resume_event.clear()
+    monkeypatch.setitem(main._status, "state", "starting")
+    monkeypatch.setitem(main._status, "paused_bin", None)
     monkeypatch.setattr(riftcodex, "CACHE_FILE", tmp_path / "cards.json")
     monkeypatch.setattr(riftcodex, "_card_cache", {})
     monkeypatch.setattr(riftcodex, "_last_fetch", 0)

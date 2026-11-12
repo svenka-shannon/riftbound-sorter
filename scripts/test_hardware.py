@@ -54,11 +54,21 @@ def init_hardware(mock: bool) -> None:
     print(f"[test] {'MOCK mode — no real hardware moves' if mock else 'REAL hardware'}")
 
     # Same order as main.init_hardware(): pump off first, PCA9685 before the shuttle.
+    # Like the sorter, nothing on ch0-ch2 moves until the operator says the
+    # machine is clear (the pose is unknown: the first moves are direct jumps).
     errors = []
     for name, fn in (("vacuum", vacuum.init), ("conveyor", conveyor.init),
-                     ("servos", servos.init), ("arm park", servos.arm_park),
-                     ("shuttle", shuttle.init), ("loadcell", loadcell.init),
-                     ("camera", camera.init), ("elevator", elevator.init)):
+                     ("servos", servos.init), ("shuttle", shuttle.init),
+                     ("loadcell", loadcell.init), ("camera", camera.init),
+                     ("elevator", elevator.init)):
+        try:
+            fn()
+        except Exception as exc:
+            errors.append(f"{name}: {exc!r}")
+    if not mock:
+        wait_for_enter("[test] Arm, belt and cradle clear? The arm parks and the shuttle homes "
+                       "(direct moves) — press Enter...")
+    for name, fn in (("arm park", servos.arm_park), ("shuttle home", shuttle.home)):
         try:
             fn()
         except Exception as exc:
@@ -173,7 +183,7 @@ def test_vacuum_pump() -> None:
 
 
 def test_vent_valve() -> None:
-    section(f"Test 2b — Vent valve (GPIO {vacuum.VENT_PIN}): pump on, then release()")
+    section(f"Test 3 — Vent valve (GPIO {vacuum.VENT_PIN}): pump on, then release()")
     print("  Hold the cup on a card (or your finger) while the pump runs. release() switches")
     print(f"  the pump off and opens the NC vent valve for {vacuum.VENT_S:.1f} s: you should hear")
     print("  the valve click and the suction should vanish at once (not slowly leak away).")
@@ -190,7 +200,7 @@ def test_vent_valve() -> None:
 
 
 def test_pick_and_place() -> None:
-    section("Test 3 — Pick and place one card onto the belt")
+    section("Test 4 — Pick and place one card onto the belt")
     print("  Put ONE card on the hopper stack at pick height. The arm picks it, carries it")
     print("  to the belt (X -95), releases it and parks. The belt does not move.")
     wait_for_enter()
@@ -209,7 +219,7 @@ def test_pick_and_place() -> None:
 
 
 def test_shuttle() -> None:
-    section("Test 4 — Shuttle (ch1 tilt, ch2 carriage): every column, both floors, reject")
+    section("Test 5 — Shuttle (ch1 tilt, ch2 carriage): every column, both floors, reject")
     print("  Cradle EMPTY. Visits columns 0-3 (tips lower then upper) and reject, then home.")
     wait_for_enter()
 
@@ -231,16 +241,16 @@ def test_shuttle() -> None:
 
 
 def test_load_cell() -> None:
-    section("Test 5 — Cradle load cell: tare empty in HOLD, then readings (median of 7)")
+    section("Test 6 — Cradle load cell: tare empty in HOLD, then readings (median of 7)")
     wait_for_enter("  Cradle EMPTY? Press Enter to tare...")
 
     def body():
         shuttle.hold()
         time.sleep(0.3)
-        loadcell.tare()
+        loadcell.tare()                    # diagnostic tare: never stored as the empty reference
         wait_for_enter("  Place ONE card on the cradle (or leave empty), then Enter...")
         for i in range(1, WEIGHT_READINGS + 1):
-            w = loadcell.read_grams()
+            w = loadcell.read_grams_unchecked()
             print(f"    Reading {i:2d}: {w:6.3f} g  ({loadcell.classify(w)})")
             time.sleep(0.2)
         wait_for_enter("  Remove the card, then Enter...")
@@ -249,7 +259,7 @@ def test_load_cell() -> None:
 
 
 def test_camera() -> None:
-    section("Test 6 — Camera: full frame + card crop (both flipped 180°)")
+    section("Test 7 — Camera: full frame + card crop (both flipped 180°)")
     print(f"  Saves {TEST_FULL} and {TEST_CARD}. A card centred under the lens should be")
     print("  upright in the crop. Belt travel should run along the full frame's width.")
     wait_for_enter()
@@ -263,7 +273,7 @@ def test_camera() -> None:
 
 
 def test_card_detect_watch() -> None:
-    section(f"Test 7 — Card detection: live offset for {DETECT_WATCH_S:.0f}s (belt off)")
+    section(f"Test 8 — Card detection: live offset for {DETECT_WATCH_S:.0f}s (belt off)")
     print("  Station EMPTY for the reference, then slide a card along the belt by hand.")
     print("  Offset should read ~0 mm with the card centred under the lens, + when past it.")
     wait_for_enter("  Station empty? Press Enter to take the reference...")
@@ -290,7 +300,7 @@ def test_card_detect_watch() -> None:
 
 
 def test_conveyor() -> None:
-    section(f"Test 8 — Conveyor: runs {CONVEYOR_RUN_DURATION:.0f}s, then brakes")
+    section(f"Test 9 — Conveyor: runs {CONVEYOR_RUN_DURATION:.0f}s, then brakes")
     wait_for_enter()
 
     def body():
@@ -301,7 +311,7 @@ def test_conveyor() -> None:
 
 
 def test_centring() -> None:
-    section("Test 9 — Belt centring: card from the drop zone to the lens")
+    section("Test 10 — Belt centring: card from the drop zone to the lens")
     print("  Takes the empty-station reference, then you place a card on the belt at")
     print("  the arm drop zone (X -95). The belt runs until the card is centred.")
     wait_for_enter("  Station and belt EMPTY? Press Enter...")
@@ -319,7 +329,7 @@ def test_centring() -> None:
 
 
 def test_elevator() -> None:
-    section("Test 10 — Hopper elevator: home, then raise to pick height")
+    section("Test 11 — Hopper elevator: home, then raise to pick height")
     print("  Lowers the floor to the home switch (up to ~60 s), then raises the stack")
     print("  until the top card trips the feeler. Arm must be parked.")
     wait_for_enter()
@@ -327,6 +337,8 @@ def test_elevator() -> None:
     def body():
         servos.arm_park()
         print(f"  home: {elevator.home()}")
+        print(f"  switches: top {'NC' if elevator.TOP_SWITCH_NC else 'NO'}, bottom "
+              f"{'NC' if elevator.BOTTOM_SWITCH_NC else 'NO'} (config/machine.json \"elevator\")")
         print(f"  raise_to_pick: {elevator.raise_to_pick()}  "
               f"(position {elevator.position_mm():.1f} mm, ~{elevator.cards_remaining_estimate()} cards)")
     _run("Elevator home + raise", body)

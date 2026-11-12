@@ -32,6 +32,11 @@ Fail-safe: not seen within SEEK_TIMEOUT_S (or not centred within
 SEEK_HARD_LIMIT_FACTOR × that), card lost after being seen, or card
 far past centre → belt braked/stopped and the result is not ok (main.py treats
 it as a jam). The belt is stopped on ANY exception.
+Camera stall (audit M5): camera.capture_lores_luma() gives up after
+camera.LORES_TIMEOUT_S (CameraTimeout), and on the real camera a watchdog
+thread also brakes the belt if any single grab blocks longer than
+FRAME_TIMEOUT_S (whatever the cause). Either way the result is reason
+"camera" (main.py: camera fault, machine stopped, card left on the belt).
 
 Accuracy (assumptions): position error per frame ≈ lores pixel (0.4 mm) +
 edge blur; the stopping error is dominated by speed × frame interval / 2
@@ -44,7 +49,7 @@ STOP_LATENCY_S is the age of the newest frame when the brake takes effect —
 the frame is exposed mid-period, read out (one frame time) and handed to
 Python through the request queue, then measured (~5 ms on a Zero 2W) — so
 about 1.5 frame periods + processing ≈ 40 ms, not the 25 ms assumed at 60 fps.
-Calibrate it: run test_hardware.py test 9 at the nominal belt speed and adjust
+Calibrate it: run test_hardware.py test 10 at the nominal belt speed and adjust
 STOP_LATENCY_S until the mean stationary offset is ~0.
 
 mm per pixel come from camera.FOV_X_MM, which camera.init() derives from the
@@ -59,6 +64,7 @@ MOCK_SCENE.speed_mm_s while the belt runs) on a simulated clock.
 from __future__ import annotations
 
 import os
+import threading
 import time
 from dataclasses import dataclass
 
@@ -105,6 +111,7 @@ SEEK_MAX_TRAVEL_MM = 125.0
 # Once the card is seen, a slower-than-nominal belt may take longer; LOST_FRAMES and
 # OVERRUN_MM guard that phase, plus a hard cap of this many × SEEK_TIMEOUT_S.
 SEEK_HARD_LIMIT_FACTOR = 3.0
+FRAME_TIMEOUT_S = 0.5       # one lores grab blocking longer than this → brake (watchdog)
 
 # Per-machine calibration: config/machine.json "card_detect" section (code values above
 # are the defaults).
@@ -113,7 +120,7 @@ from hardware import machine_config as _machine_config
 _machine_config.apply(_sys.modules[__name__], "card_detect", (
     "TRAVEL_SIGN", "CENTRE_OFFSET_MM", "BELT_SPEED_MM_S", "BRAKE_COAST_MM", "STOP_LATENCY_S",
     "CENTER_TOL_MM", "MAX_CAPTURE_OFFSET_MM", "PIXEL_DIFF", "COL_FRAC", "VIEW_HALF_MM",
-    "SEEK_MAX_TRAVEL_MM", "SEEK_HARD_LIMIT_FACTOR"))
+    "SEEK_MAX_TRAVEL_MM", "SEEK_HARD_LIMIT_FACTOR", "FRAME_TIMEOUT_S"))
 SEEK_TIMEOUT_S = SEEK_MAX_TRAVEL_MM / BELT_SPEED_MM_S
 
 
@@ -149,7 +156,7 @@ class Detection:
 @dataclass
 class CentreResult:
     ok: bool                           # card centred within MAX_CAPTURE_OFFSET_MM
-    reason: str                        # centred | off_centre | timeout | lost | overrun
+    reason: str                        # centred | off_centre | timeout | lost | overrun | camera
     offset_mm: float | None = None     # final stationary offset (+ = past centre)
     speed_mm_s: float | None = None    # measured belt speed
     frames: int = 0
@@ -159,7 +166,7 @@ class CentreResult:
 
     @property
     def jam(self) -> bool:
-        return self.reason in ("timeout", "lost", "overrun")
+        return self.reason in ("timeout", "lost", "overrun", "camera")
 
 
 def _runs(mask: np.ndarray) -> list[list[int]]:
@@ -216,6 +223,7 @@ def measure(luma: np.ndarray, reference: np.ndarray) -> Detection:
 # ── Frame sources ────────────────────────────────────────────────────────────
 class CameraSource:
     """Real lores stream (hardware/camera.py) on the wall clock."""
+    stall_watchdog = True          # centre_card() guards every grab with a watchdog thread
 
     def now(self) -> float:
         return time.monotonic()
@@ -345,30 +353,93 @@ def _stationary_offset(source, reference) -> float | None:
     return float(np.median(vals)) if vals else None
 
 
+class _GrabWatchdog:
+    """Brakes the belt from a helper thread when one grab() blocks longer than
+    timeout_s (the main thread is stuck inside the camera call and cannot)."""
+
+    def __init__(self, timeout_s: float, on_stall):
+        self.timeout_s = timeout_s
+        self.on_stall = on_stall
+        self.fired = False
+        self._since = None
+        self._lock = threading.Lock()
+        self._done = threading.Event()
+        self._thread = threading.Thread(target=self._watch, name="grab-watchdog", daemon=True)
+        self._thread.start()
+
+    def grab(self, fn):
+        with self._lock:
+            self._since = time.monotonic()
+        try:
+            return fn()
+        finally:
+            with self._lock:
+                self._since = None
+
+    def _watch(self):
+        while not self._done.wait(min(0.05, self.timeout_s / 4)):
+            with self._lock:
+                stalled = (self._since is not None and not self.fired
+                           and time.monotonic() - self._since > self.timeout_s)
+                if stalled:
+                    self.fired = True
+            if stalled:
+                try:
+                    self.on_stall()
+                except Exception as exc:
+                    print(f"[card_detect] watchdog brake failed: {exc!r}")
+
+    def close(self):
+        self._done.set()
+
+
 def centre_card(reference: np.ndarray, run, brake, stop, source=None,
                 timeout_s: float | None = None) -> CentreResult:
     """Run the belt until the card is centred under the lens, then brake.
 
     run/brake/stop: conveyor callables (conveyor.run, conveyor.brake, conveyor.stop).
     Returns a CentreResult; result.jam means stop the machine. The belt is
-    never left running when this returns or raises.
+    never left running when this returns or raises, nor while a camera grab
+    hangs (reason "camera").
     """
     source = source or default_source()
     timeout_s = SEEK_TIMEOUT_S if timeout_s is None else timeout_s
     frame_dt = 1.0 / camera.DETECT_FPS
     belt_on = False
+    belt_lock = threading.RLock()
 
     def _run():
         nonlocal belt_on
-        run()
-        belt_on = True
-        source.belt(True)
+        with belt_lock:
+            run()
+            belt_on = True
+            source.belt(True)
 
     def _brake():
         nonlocal belt_on
-        brake()
-        belt_on = False
-        source.belt(False, braked=True)
+        with belt_lock:
+            brake()
+            belt_on = False
+            source.belt(False, braked=True)
+
+    def _stall_brake():
+        print(f"[card_detect] camera grab blocked > {FRAME_TIMEOUT_S:.2f} s — braking the belt")
+        _brake()
+
+    watchdog = _GrabWatchdog(FRAME_TIMEOUT_S, _stall_brake) if getattr(
+        source, "stall_watchdog", False) else None
+
+    def grab():
+        """One frame, or None on a camera fault (belt already braked)."""
+        try:
+            luma = watchdog.grab(source.grab) if watchdog else source.grab()
+        except camera.CameraTimeout as exc:
+            print(f"[card_detect] {exc}")
+            _brake()
+            return None
+        if watchdog and watchdog.fired:
+            return None
+        return luma
 
     source.begin()
     t0 = source.now()
@@ -385,7 +456,10 @@ def centre_card(reference: np.ndarray, run, brake, stop, source=None,
             if (not seen and waited > timeout_s) or waited > SEEK_HARD_LIMIT_FACTOR * timeout_s:
                 _brake()
                 return CentreResult(False, "timeout", None, speed_seen, frames, waited, seen=seen)
-            luma = source.grab()
+            luma = grab()
+            if luma is None:
+                return CentreResult(False, "camera", None, speed_seen, frames,
+                                    source.now() - t0, seen=seen)
             t = source.now()
             frames += 1
             det = measure(luma, reference)
@@ -411,22 +485,50 @@ def centre_card(reference: np.ndarray, run, brake, stop, source=None,
                 _brake()
                 break
 
-        offset = _stationary_offset(source, reference)
+        def stationary():
+            src = _GuardedSource(source, grab)
+            return _stationary_offset(src, reference), src.failed
+
+        offset, failed = stationary()
         nudges = 0
-        while offset is not None and offset < -CENTER_TOL_MM and nudges < MAX_NUDGES:
+        while not failed and offset is not None and offset < -CENTER_TOL_MM and nudges < MAX_NUDGES:
             dur = max(NUDGE_MIN_S, (-offset - BRAKE_COAST_MM) / speed)
             _run()
             source.wait(dur)
             _brake()
             nudges += 1
-            offset = _stationary_offset(source, reference)
+            offset, failed = stationary()
         elapsed = source.now() - t0
+        if failed:
+            return CentreResult(False, "camera", None, speed_seen, frames, elapsed, nudges)
         if offset is None:
             return CentreResult(False, "lost", None, speed_seen, frames, elapsed, nudges)
         ok = abs(offset) <= MAX_CAPTURE_OFFSET_MM
         return CentreResult(ok, "centred" if ok else "off_centre", offset, speed_seen,
                             frames, elapsed, nudges)
     finally:
-        if belt_on:
-            stop()
-            source.belt(False)
+        if watchdog:
+            watchdog.close()
+        with belt_lock:
+            if belt_on:
+                stop()
+                belt_on = False
+                source.belt(False)
+
+
+class _GuardedSource:
+    """source with grab() replaced by centre_card's guarded grab (a failed
+    grab yields an empty frame and sets .failed)."""
+
+    def __init__(self, source, grab):
+        self._source, self._grab, self.failed = source, grab, False
+
+    def grab(self):
+        luma = None if self.failed else self._grab()
+        if luma is None:
+            self.failed = True
+            return np.zeros((camera.LORES_RESOLUTION[1], camera.LORES_RESOLUTION[0]), np.uint8)
+        return luma
+
+    def wait(self, seconds):
+        self._source.wait(seconds)

@@ -40,11 +40,17 @@ tilts take 0.4-0.6 s, shuttle moves ~0.5-1.2 s. Interlocks:
     clear_jam() is called (operator confirmed the cradle clear). init() clears it.
 
 Shutdown (deinit) does NOT home: the shuttle stays where it is and every
-PCA9685 channel it drives is switched fully OFF (no pulses = de-energized).
-Start-up after a clean stop (rest pose home + level, from main.py's machine
-state file) ramps from that assumed pose; after an unclean stop the pose is
-unknown and the first command is necessarily a full-speed jump — hobby servos
-have no position feedback (see init()).
+PCA9685 channel it drives is switched fully OFF (no pulses = de-energized,
+limp; scripts/safe_outputs.py also sleeps the PCA9685 when the service stops).
+init() never moves anything by itself (audit M7):
+  * clean stop (rest pose home + level, from main.py's machine state file):
+    init(assume_rest=True) re-asserts that rest pose with ONE write per
+    channel — the servos were limp, so they may have sagged a little and snap
+    back by that much, never more — and every later move ramps from it.
+  * unclean stop: init() commands nothing; the pose is unknown (state() is
+    (None, None, ...)). main.py waits for the operator's "Machine clear" and
+    only then calls home(), whose first command is necessarily a full-speed
+    jump (hobby servos have no position feedback).
 
 Requires: adafruit-circuitpython-pca9685, adafruit-circuitpython-motor
 """
@@ -188,14 +194,15 @@ def _shared_pca():
 def init(pca=None, assume_rest: bool = False):
     """Attach ch1/ch2. Pass a PCA9685 object, or call after servos.init() to
     share its instance; otherwise this module opens its own on 0x40.
+    Never homes (audit M7) — call home() explicitly once it is safe.
 
     assume_rest=True: the previous run stopped cleanly with the shuttle at
     home + level (main.py's machine state file), and deinit() left it there
-    de-energized. The rest pose is written once (no motion if the shuttle is
-    really there) and every later move ramps from it, so start-up is slow.
-    assume_rest=False: pose unknown. The tilt goes straight to HOLD, then the
-    carriage straight to HOME — two full-speed jumps (no position feedback),
-    in that order so nothing drags; afterwards everything is ramped."""
+    de-energized. The rest pose is written once (at most a small snap back by
+    whatever the limp servos sagged) and every later move ramps from it.
+    assume_rest=False: pose unknown; NOTHING is commanded (no pulses on ch1 /
+    ch2). home() later goes tilt straight to HOLD, then carriage straight to
+    HOME — two full-speed jumps, in that order so nothing drags."""
     global _pca, _own_pca, _tilt_state, _target, _jammed
     _load_calibration()
     _tilt_state, _target, _jammed = None, None, None
@@ -220,7 +227,16 @@ def init(pca=None, assume_rest: bool = False):
         _write(CH_TILT, TILT_ANGLES["level"])
         _sleep(0.3)
         _target, _tilt_state = "home", "level"
-    home()
+
+
+def pose_known() -> bool:
+    """Both channels have been commanded since init() (positions tracked)."""
+    return _pos[CH_TILT] is not None and _pos[CH_SHUTTLE] is not None
+
+
+def at_rest() -> bool:
+    """Carriage at home and the cradle level (the receive / rest pose)."""
+    return (_target, _tilt_state) == ("home", "level")
 
 
 # --- low-level ramped motion ---------------------------------------------------
@@ -393,8 +409,15 @@ def state():
 
 def make_safe() -> None:
     """After an interruption: if the tilt is unknown (mid-ramp) or tipped,
-    ramp it back to HOLD. Never moves the carriage."""
+    ramp it back to HOLD. Never moves the carriage; never commands a channel
+    whose position is unknown."""
     if _pos[CH_TILT] is not None and _tilt_state not in ("hold", "level"):
+        hold()
+
+
+def hold_if_known() -> None:
+    """hold(), but only if the tilt position is tracked (no blind jump)."""
+    if _pos[CH_TILT] is not None:
         hold()
 
 

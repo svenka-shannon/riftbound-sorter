@@ -118,10 +118,11 @@ def ensure_shuttle() -> None:
     global _shuttle_ready
     if _shuttle_ready:
         return
-    print("\n  shuttle.init() homes the cradle: tilt straight to HOLD, carriage straight to")
-    print("  HOME (positions unknown at power-up), then ramps to LEVEL. Cradle empty, hands clear.")
+    print("\n  Homing the cradle: tilt straight to HOLD, carriage straight to HOME (positions")
+    print("  unknown at power-up), then ramps to LEVEL. Cradle empty, hands clear.")
     ask("  Enter to home the shuttle... ")
-    shuttle.init()          # loads shuttle_calibration.json, then home()
+    shuttle.init()          # loads shuttle_calibration.json; never moves anything
+    shuttle.home()          # the explicit, confirmed homing
     _shuttle_ready = True
 
 

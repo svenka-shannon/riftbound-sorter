@@ -4,9 +4,12 @@
 # from anywhere:  bash scripts/setup.sh
 #
 # Camera / GPIO Python libraries come from apt (python3-picamera2,
-# python3-libcamera, python3-rpi-lgpio) and the venv is created with
-# --system-site-packages so it can import them; pip only installs what apt
-# does not provide (requirements.txt).
+# python3-libcamera, python3-rpi-lgpio, numpy, Pillow, scipy, PyWavelets) and
+# the venv is created with --system-site-packages so it can import them; pip
+# installs only the exact, hash-pinned set in requirements.lock (--no-deps:
+# it never replaces an apt package).
+#
+# Re-running this script is safe (every step is idempotent).
 
 set -euo pipefail
 trap 'echo "setup.sh: FAILED at line $LINENO: $BASH_COMMAND" >&2' ERR
@@ -36,6 +39,20 @@ sudo apt-get install -y \
     libopenjp2-7 libtiff6 \
     avahi-daemon
 
+# pinctrl (scripts/safe_outputs.py, the unit's ExecStopPost) lives in
+# raspi-utils-core on Bookworm and trixie (normally preinstalled).
+if ! command -v pinctrl >/dev/null 2>&1; then
+    sudo apt-get install -y raspi-utils-core || sudo apt-get install -y raspi-utils
+fi
+command -v pinctrl >/dev/null 2>&1 || command -v raspi-gpio >/dev/null 2>&1 \
+    || { echo "neither pinctrl nor raspi-gpio is installed — safe_outputs.py cannot work" >&2; exit 1; }
+
+# Freed GPIO outputs must NOT stay driven when the process dies (audit M9):
+# the pinctrl-bcm2835 driver keeps them by default (persist_gpio_outputs=1).
+# Idempotent; handles /boot/firmware/cmdline.txt and /boot/cmdline.txt.
+# Takes effect after the next reboot.
+sudo python3 "$SCRIPT_DIR/cmdline_param.py" pinctrl_bcm2835.persist_gpio_outputs=0
+
 # RPi.GPIO API: rpi-lgpio is the drop-in for current Raspberry Pi OS (works on
 # every Pi model incl. Pi 5, replaces python3-rpi.gpio). Fall back to the
 # classic RPi.GPIO package if the archive does not have it.
@@ -52,22 +69,32 @@ elif ! grep -q "include-system-site-packages = true" venv/pyvenv.cfg; then
     rm -rf venv
     python3 -m venv --system-site-packages venv
 fi
-venv/bin/python -m pip install --upgrade pip
-venv/bin/python -m pip install -r requirements.txt
+# Exact versions + sha256 hashes, no dependency resolution (see requirements.lock)
+venv/bin/python -m pip install --no-deps --require-hashes -r requirements.lock
+venv/bin/python -m pip check || echo "WARNING: pip check reported problems (often Debian packaging metadata) — see above"
 
-# Check the venv sees the apt-provided modules
+# Check the venv sees the apt-provided modules, and that Blinka really works on
+# this Pi: `import board, busio, adafruit_pca9685` must succeed (Blinka 10.x
+# without gpiod would fail right here).
 venv/bin/python - <<'PY'
 import importlib, sys
 missing = []
-for mod in ("picamera2", "libcamera", "RPi.GPIO", "numpy", "PIL", "imagehash", "flask", "board"):
+for mod in ("picamera2", "libcamera", "RPi.GPIO", "numpy", "PIL", "imagehash", "flask",
+            "board", "busio", "adafruit_pca9685", "adafruit_motor.servo"):
     try:
         importlib.import_module(mod)
     except Exception as exc:
-        missing.append(f"{mod} ({exc})")
+        missing.append(f"{mod} ({exc!r})")
 if missing:
     sys.exit("venv cannot import: " + ", ".join(missing))
-print("venv imports OK")
+import board, busio, adafruit_pca9685  # noqa: E401  (the exact check from the audit)
+print("venv imports OK (board, busio, adafruit_pca9685 included)")
 PY
+
+# The machine config must validate before the service is enabled
+if [ -f config/machine.json ]; then
+    venv/bin/python -c "from hardware import machine_config; machine_config.load(); print('config/machine.json OK')"
+fi
 
 # Verify I2C (PCA9685 should show up at 0x40)
 echo "I2C devices:"
@@ -82,13 +109,20 @@ chmod +x scripts/*.sh
 # Set hostname
 sudo hostnamectl set-hostname riftbound-sorter
 
-# Install and enable the systemd service, pointing at THIS checkout and user
+# Install and enable the systemd service, pointing at THIS checkout and user.
+# The unit has the systemd watchdog (WatchdogSec + NotifyAccess=main; main.py
+# pings it) and ExecStopPost=scripts/safe_outputs.py (outputs safe after ANY exit).
 sed -e "s#/opt/riftbound-sorter#$PROJECT_DIR#g" -e "s#^User=pi#User=$RUN_USER#" \
     "$SCRIPT_DIR/riftbound-sorter.service" | sudo tee /etc/systemd/system/riftbound-sorter.service >/dev/null
+sudo systemd-analyze verify /etc/systemd/system/riftbound-sorter.service || true
 sudo systemctl daemon-reload
 sudo systemctl enable riftbound-sorter
 
-# Web UI token (generated on first use, stored in config/web.json)
+# Make sure every output is safe right now (also exercises the script)
+sudo python3 "$SCRIPT_DIR/safe_outputs.py" || echo "safe_outputs.py reported problems (see above)"
+
+# Web UI token (generated on first use, stored in config/web.json; shown only
+# by --web-token, never in the journal)
 TOKEN="$(venv/bin/python main.py --web-token | tail -n 1)"
 
 echo ""
@@ -98,7 +132,8 @@ echo "  1. venv/bin/python main.py --build-db                          # card li
 echo "  2. venv/bin/python scripts/calibrate_camera.py --no-mock      # first-time camera crop calibration"
 echo "  3. venv/bin/python scripts/calibrate_servos.py --no-mock      # arm, tilt, shuttle angles"
 echo "  4. venv/bin/python main.py --calibrate                         # load cell: 5.000 g US nickel (or --mass G)"
-echo "  5. sudo systemctl start riftbound-sorter"
+echo "  5. sudo reboot     # applies pinctrl_bcm2835.persist_gpio_outputs=0 (cmdline.txt)"
+echo "  6. sudo systemctl start riftbound-sorter   (starts by itself after the reboot)"
 echo "     First start: confirm the machine is clear in the web UI ('Machine clear')"
 echo "     or with: venv/bin/python main.py --confirm-clear"
 echo ""

@@ -36,20 +36,38 @@ damage a card — reject it, or stop):
   9. count the card into the bin; hold, check empty, tare, level for the next card
 
 Stopping (audit B4):
-  * SIGINT / SIGTERM (or the web UI's Stop) only set a flag: the card in
-    progress is finished, then the loop ends at a card boundary. A SECOND
+  * SIGINT / SIGTERM / SIGHUP (or the web UI's Stop) only set a flag: the card
+    in progress is finished, then the loop ends at a card boundary. A SECOND
     signal raises Shutdown immediately; the cycle's handler makes the hardware
-    safe without ever moving the carriage (a card on the cup is either left
-    on the stack or carried to the belt, never dropped mid-arc).
+    safe without ever moving the carriage. A card on the cup is either left
+    on the stack or carried to the belt, never dropped mid-arc: while it is
+    being carried (_make_safe) a second signal is DEFERRED until the card is
+    down, and an error during the carry keeps the pump ON (card held).
   * All teardown happens once, in main()'s finally (teardown()). The shuttle
-    is NOT homed: it stays where it is, de-energized.
+    is NOT homed: it stays where it is.
+  * Teardown pose (decided, audit minor + M7): teardown parks the arm and
+    brings a tipped cradle back to HOLD, then switches every servo channel
+    OFF and sleeps the PCA9685 — the servos are LIMP where they stand. The
+    clean-stop record (rest_pose "home_level") therefore means "de-energized
+    at rest, may have sagged a little"; the next start re-asserts that pose
+    with one write per channel (a small snap back, never a sweep) and ramps
+    from there. Any other stop records no rest pose: nothing is assumed.
   * data/machine_state.json records whether the stop was clean (no card in
-    the machine, shuttle home + level, cradle empty). After an unclean stop
-    the sorter will not start until the operator confirms the machine is
-    clear (web UI "Machine clear" or --confirm-clear).
-  * At start-up the cradle's raw load is compared with the stored empty-
-    cradle offset BEFORE taring: a card left on it stops the start-up
-    ("card on cradle — remove it") instead of being tared away (audit M1).
+    the machine, arm parked, shuttle home + level, cradle empty). After an
+    unclean stop NOTHING on PCA9685 ch0/ch1/ch2 is commanded — no arm park,
+    no shuttle homing — until the operator confirms the machine is clear
+    (web UI "Machine clear" or --confirm-clear) (audit M7).
+  * At EVERY start-up — confirmed or not — the cradle's raw load is compared
+    with the stored empty-cradle reference BEFORE taring: a card left on it
+    stops the start-up ("card on cradle — remove it") instead of being tared
+    away (audit M1). Which tares may update that reference: hardware/loadcell.py.
+  * systemd: the unit has WatchdogSec; the main loop pings it (sd_notify
+    WATCHDOG=1) via _beat(). A hung main loop is killed (SIGABRT) and the
+    unit's ExecStopPost (scripts/safe_outputs.py) makes the outputs safe.
+
+Operator controls / web state machine (audit M2): can_pause() / can_resume() /
+can_stop() / can_confirm_clear() / can_empty_bin() below gate every mutating web
+endpoint and CLI command; prepare_machine() sets "starting" before anything moves.
 
 Hardware:
   - Pi Zero 2W + Pi Camera Module 3 (mounted rotated 180°)
@@ -89,11 +107,23 @@ if __name__ == "__main__":
 
 MOCK_HARDWARE = os.environ.get("MOCK_HARDWARE", "0") == "1"
 
+# Validate config/machine.json BEFORE any hardware module applies it (audit M6):
+# a bad file stops the program with a list of the bad keys, it never falls back.
+try:
+    from hardware import machine_config     # (the package import applies the config too)
+    machine_config.load()
+except Exception as _exc:
+    _mc = sys.modules.get("hardware.machine_config")
+    if __name__ == "__main__" and _mc is not None and isinstance(_exc, _mc.MachineConfigError):
+        print(f"[config] ERROR: {_exc}", file=sys.stderr)
+        sys.exit(_mc.EX_CONFIG)
+    raise
+
 from hardware import servos, vacuum, loadcell, camera, conveyor, elevator, shuttle, card_detect
-from hardware import machine_config
 from hardware.shuttle import ShuttleError
 from hardware.loadcell import LoadCellError
 from vision.identify import build_hash_db, identify
+import vision.identify as identify_mod
 from api import riftcodex, inventory
 from sorter.rules_engine import RulesEngine
 
@@ -105,8 +135,10 @@ BIN_COUNTS_FILE    = ROOT / "data" / "bin_counts.json"       # runtime counts
 BIN_LIMITS_FILE    = ROOT / "config" / "bin_limits.json"     # optional {"0": 40, ..., "9": 35}
 MACHINE_STATE_FILE = ROOT / "data" / "machine_state.json"    # clean-shutdown marker
 WEB_CONFIG_FILE    = ROOT / "config" / "web.json"            # {"token": ...} (generated)
+INSTANCE_LOCK_FILE = ROOT / "data" / "sorter.lock"           # held while a sorter process runs
 if MOCK_HARDWARE:   # a mock run must not touch the real machine's clean-shutdown record
     MACHINE_STATE_FILE = MACHINE_STATE_FILE.with_name("machine_state.mock.json")
+    INSTANCE_LOCK_FILE = INSTANCE_LOCK_FILE.with_name("sorter.mock.lock")
 
 REJECT_BIN = shuttle.REJECT_BIN                          # 9 (physical reject bin)
 SORT_BINS  = tuple(range(8))
@@ -146,6 +178,8 @@ BIN_POLL_S       = 0.5
 RESUME_DELAY_S   = 2.0  # bin reset → hands clear of the tray before the shuttle moves
 OPERATOR_POLL_S  = 0.5
 CARD_DATA_RETRY_S = 60.0
+SECURE_CARRY_TRIES = 3   # attempts to carry a card on the cup to the drop pose
+WATCHDOG_PING_S  = 1.0   # at most one sd_notify WATCHDOG=1 per this many seconds
 WEB_PORT = int(os.environ.get("RIFTBOUND_WEB_PORT", "5000"))
 
 machine_config.apply(sys.modules[__name__], "sort", (
@@ -159,6 +193,10 @@ _tearing_down   = False
 _hw_initialised = False
 _marker_armed   = False    # mark_running() was called: teardown() writes the marker
 _control        = {"pause": False, "stop": False, "resume": False, "reload_rules": False}
+_resume_event   = threading.Event()   # a Resume click not yet acted on (never cleared on entry)
+_defer_depth    = 0        # >0: inside a "card on the cup" critical section
+_shutdown_pending = False  # a second signal arrived inside the critical section
+_active_depth   = 0        # >0: prepare_machine() / run_sorter() in progress
 _card_at        = None     # where the card in progress is: None | "cup" | "belt" | "cradle"
 _engine         = None
 _stats          = {"total": 0, "sorted": 0, "rejects": 0, "errors": 0, "jams": 0,
@@ -174,7 +212,13 @@ _recent_scans   = deque(maxlen=60)   # timestamps of the last 60 cards routed
 _today_midnight = 0.0                # Unix timestamp of today's midnight; set in main()
 
 # States in which nothing moves and an operator may reach into the bins.
+# ("starting" and "running" are NOT idle: prepare_machine homes the elevator,
+#  tilts the cradle and may home the shuttle.)
 IDLE_STATES = ("paused", "stopped", "jam", "hopper_empty", "error", "idle", "needs_confirm")
+# "Machine clear" (confirm) — only once the machine has halted and no run is in
+# progress. Never while paused (a card may be held on the cradle mid-run) or
+# starting (the start-up checks are running).
+CONFIRM_STATES = ("needs_confirm", "jam", "error", "stopped")
 
 
 # ── Outcomes ──────────────────────────────────────────────────────────────────
@@ -208,6 +252,21 @@ class StopRequested(StopMachine):
 class NeedsConfirm(StopMachine):
     """Start-up refused until the operator confirms the machine is clear."""
     state = "needs_confirm"
+
+
+class ElevatorFault(StopMachine):
+    """A hopper switch reading only a wiring fault explains (audit M8)."""
+    state = "error"
+
+
+class CameraFault(StopMachine):
+    """The camera stopped delivering frames (audit M5); belt braked."""
+    state = "error"
+
+
+class CupNotSecured(RuntimeError):
+    """The arm could not carry the card on the cup to the drop pose; the pump
+    stays ON so the card is held instead of dropped mid-arc."""
 
 
 class Shutdown(BaseException):
@@ -372,7 +431,8 @@ def _publish_bins():
 def can_empty_bin(bin_num: int | None = None) -> tuple[bool, str]:
     """Is it safe for the operator to reach into the bins right now?
     A single bin: if it is the bin the machine is paused on, or the machine is
-    paused / stopped. All bins (bin_num None): only paused / stopped."""
+    in an idle state. All bins (bin_num None): only in an idle state. Never
+    while "starting" or "running"."""
     state = _status.get("state")
     if state in IDLE_STATES:
         return True, ""
@@ -381,6 +441,58 @@ def can_empty_bin(bin_num: int | None = None) -> tuple[bool, str]:
     what = f"bin {bin_num}" if bin_num is not None else "all bins"
     return False, (f"machine is {state}: pause or stop it before emptying {what} "
                    "(the shuttle may be moving)")
+
+
+def run_in_progress() -> bool:
+    """prepare_machine() or run_sorter() is executing (the machine may move)."""
+    return _active_depth > 0
+
+
+@contextmanager
+def _machine_active():
+    global _active_depth
+    _active_depth += 1
+    try:
+        yield
+    finally:
+        _active_depth -= 1
+
+
+# Operator controls allowed per state (audit M2). Every mutating web endpoint
+# and CLI command goes through these.
+def can_pause() -> tuple[bool, str]:
+    state = _status.get("state")
+    if state in ("running", "starting", "paused"):
+        return True, ""
+    return False, f"machine is {state}: nothing to pause"
+
+
+def can_resume() -> tuple[bool, str]:
+    state = _status.get("state")
+    if state in ("paused", "stopped", "hopper_empty"):
+        return True, ""
+    if state in ("running", "starting") and (_control["pause"] or _control["stop"]):
+        return True, ""                       # cancels a pending pause / stop
+    if state in ("needs_confirm", "jam", "error"):
+        return False, f"machine is {state}: check it and press 'Machine clear' instead"
+    return False, f"machine is {state}: nothing to resume"
+
+
+def can_stop() -> tuple[bool, str]:
+    state = _status.get("state")
+    if state in ("running", "starting", "paused"):
+        return True, ""
+    return False, f"machine is {state}: already stopped"
+
+
+def can_confirm_clear() -> tuple[bool, str]:
+    state = _status.get("state")
+    if state not in CONFIRM_STATES:
+        return False, (f"machine is {state}: 'Machine clear' is only accepted once it has "
+                       f"halted ({', '.join(CONFIRM_STATES)}) — stop it first")
+    if run_in_progress():
+        return False, "a run is still in progress — wait for it to halt"
+    return True, ""
 
 
 def empty_bin(bin_num: int):
@@ -404,12 +516,15 @@ def request_pause():
 
 
 def request_resume():
-    """Resume after a pause / operator stop / empty hopper."""
+    """Resume after a pause / operator stop / empty hopper. The click is kept
+    (an Event, not a flag cleared on entry) until a waiting loop acts on it,
+    so a click that lands while the machine is still halting is not lost."""
     _control["pause"] = False
     _control["stop"] = False
     _control["resume"] = True
     _status["pause_requested"] = False
     _status["stop_requested"] = False
+    _resume_event.set()
 
 
 def request_stop():
@@ -424,7 +539,42 @@ def request_rules_reload():
 
 
 def _stop_wanted() -> bool:
+    _beat()                      # called from every long loop (elevator steps, waits)
     return not _running or _control["stop"]
+
+
+# ── systemd watchdog (audit M5) ───────────────────────────────────────────────
+_last_ping = 0.0
+
+
+def _sd_notify(message: str) -> bool:
+    """sd_notify(3) without a dependency: one datagram to $NOTIFY_SOCKET.
+    No-op (False) when not running under systemd."""
+    addr = os.environ.get("NOTIFY_SOCKET")
+    if not addr:
+        return False
+    import socket
+    if addr.startswith("@"):
+        addr = "\0" + addr[1:]            # abstract namespace
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as sock:
+            sock.connect(addr)
+            sock.sendall(message.encode())
+        return True
+    except OSError:
+        return False
+
+
+def _beat():
+    """Main loop is alive: ping the systemd watchdog (rate-limited). Only the
+    main thread pings, so a hung main loop really does stop the pings."""
+    global _last_ping
+    if threading.current_thread() is not threading.main_thread():
+        return
+    now = time.monotonic()
+    if now - _last_ping >= WATCHDOG_PING_S:
+        _last_ping = now
+        _sd_notify("WATCHDOG=1")
 
 
 # ── Machine state marker (clean shutdown) ─────────────────────────────────────
@@ -454,12 +604,14 @@ def _write_machine_state(**fields):
 
 def confirm_clear(source: str = "cli"):
     """Operator: the arm, belt and cradle are clear (any card removed). Lets the
-    sorter start after an unclean stop / jam, and re-tares the cradle."""
+    sorter start after an unclean stop / jam. Callers check can_confirm_clear()
+    first (the web endpoint; the CLI goes through the web endpoint whenever a
+    sorter process is running). The start-up cradle check still compares the
+    cradle with the stored empty reference afterwards (audit M1)."""
     st = read_machine_state()
     _write_machine_state(clean=bool(st.get("clean")), confirmed=True,
                          reason=st.get("reason", ""), confirmed_by=source,
                          rest_pose=st.get("rest_pose"))
-    _control["resume"] = True
     print(f"[main] machine confirmed clear ({source})")
 
 
@@ -475,7 +627,8 @@ def mark_running():
 # ── Web token ─────────────────────────────────────────────────────────────────
 def load_or_create_web_token() -> str:
     """Shared secret for the web UI's mutating endpoints, from config/web.json.
-    Generated (and printed) on first use."""
+    Generated on first use. Never printed here (it would end up in the
+    journal): only `main.py --web-token` prints it."""
     try:
         tok = json.loads(WEB_CONFIG_FILE.read_text()).get("token")
         if tok:
@@ -491,7 +644,8 @@ def load_or_create_web_token() -> str:
         os.chmod(WEB_CONFIG_FILE, 0o600)
     except OSError:
         pass
-    print(f"[web] Generated a new web UI token (saved in {WEB_CONFIG_FILE}): {tok}")
+    print(f"[web] Generated a new web UI token (saved in {WEB_CONFIG_FILE}); "
+          "show it with `main.py --web-token`")
     return tok
 
 
@@ -543,41 +697,79 @@ def _try(fn, *args):
         print(f"[main] safety action {getattr(fn, '__name__', fn)} failed: {exc!r}")
 
 
+@contextmanager
+def _no_shutdown():
+    """Critical section: a second stop signal inside it does not raise; the
+    Shutdown is raised when the (outermost) section ends — also if the body
+    raised, in which case Shutdown replaces that exception."""
+    global _defer_depth, _shutdown_pending
+    _defer_depth += 1
+    try:
+        yield
+    finally:
+        _defer_depth -= 1
+        if _defer_depth == 0 and _shutdown_pending:
+            _shutdown_pending = False
+            raise Shutdown("second stop signal (deferred until the machine was made safe)")
+
+
 def _secure_cup():
     """A card on the cup is never dropped mid-arc:
       cup still at the pick pose → release there, the card stays on the stack;
       anywhere else             → carry it to the drop pose (pump still on),
-                                  then release it onto the (stopped) belt."""
-    if _card_at == "cup":
-        a = servos.arm_angle()
-        if a is not None and abs(a - servos.ARM_PICK) <= 2.0:
-            try:
-                vacuum.release()
-            finally:
-                _set_card_at(None)
-            print("[main] card released back onto the hopper stack")
-        else:
+                                  then release it onto the (stopped) belt.
+    The carry runs inside _no_shutdown() (a second signal waits until the card
+    is down) and is retried SECURE_CARRY_TRIES times on an error (e.g. a
+    transient PCA9685 I2C error). If the arm still cannot get there the pump
+    is left ON — card held — and CupNotSecured is raised."""
+    if _card_at != "cup":
+        vacuum.pump_off()
+        return
+    a = servos.arm_angle()
+    if a is not None and abs(a - servos.ARM_PICK) <= 2.0:
+        try:
+            vacuum.release()
+        finally:
+            _set_card_at(None)
+        print("[main] card released back onto the hopper stack")
+        return
+    with _no_shutdown():
+        last = None
+        for attempt in range(1, SECURE_CARRY_TRIES + 1):
             try:
                 servos.move_arm_smooth(servos.ARM_DROP)
                 time.sleep(DROP_SETTLE_S)
-            finally:
-                try:
-                    vacuum.release()
-                finally:
-                    _set_card_at("belt")
-            print("[main] card carried to the drop pose and released onto the belt")
-    vacuum.pump_off()
+                last = None
+                break
+            except Exception as exc:
+                last = exc
+                print(f"[main] carrying the card to the drop pose failed "
+                      f"(attempt {attempt}/{SECURE_CARRY_TRIES}): {exc!r}")
+        if last is not None:
+            raise CupNotSecured(f"card held on the cup at {servos.arm_angle()}° — the arm could not "
+                                "reach the drop pose; pump left ON so the card is not dropped") from last
+        try:
+            vacuum.release()
+        finally:
+            _set_card_at("belt")
+    print("[main] card carried to the drop pose and released onto the belt")
 
 
 def _make_safe(hold_cradle: bool = True):
     """Card off the cup safely, pump off, belt stopped, arm parked; the cradle in
     hold (hold_cradle) or only brought back from an unknown / tipped pose.
-    Each step is independent. Never moves the carriage."""
-    _try(_secure_cup)
-    _try(vacuum.pump_off)
-    _try(conveyor.stop)
-    _try(servos.arm_park)
-    _try(shuttle.hold if hold_cradle else shuttle.make_safe)
+    Each step is independent. Never moves the carriage, and never commands a
+    servo whose position is unknown (audit M7: no blind jumps). The pump stays
+    ON only while a card is still held on the cup (CupNotSecured). A second
+    stop signal during all this is deferred to the end."""
+    with _no_shutdown():
+        _try(_secure_cup)
+        if _card_at != "cup":
+            _try(vacuum.pump_off)
+        _try(conveyor.stop)
+        if servos.arm_angle() is not None:
+            _try(servos.arm_park)
+        _try(shuttle.hold_if_known if hold_cradle else shuttle.make_safe)
 
 
 def _mock_cradle_receives_card():
@@ -593,47 +785,64 @@ def _weigh(what: str = "weighing the card") -> float:
         raise LoadCellFault(f"load cell failed {what}: {exc} — check the HX711 wiring") from exc
 
 
-def _prepare_cradle(first: bool = False):
+def _prepare_cradle(first: bool = False, anchored: bool = False):
     """Empty cradle in HOLD → check it is empty → tare → LEVEL for the next card.
 
-    Runs at the end of every cycle (shuttle.route() just proved the cradle empty
-    against the previous tare), so a card can never be tared away. first=True:
-    the caller has already verified the cradle empty (start-up check).
+    Runs at the end of every cycle: shuttle.route() just proved the cradle
+    emptied by weight drop (back to ≤ WEIGHT_EMPTY_MAX, and not below
+    -NEGATIVE_FAULT_G) against the previous tare, so a card can never be tared
+    away. That tare is stored as the new empty reference ONLY if the previous
+    tare was anchored (loadcell persistence rule). first=True: start-up — the
+    caller already checked the cradle; anchored says whether that check was
+    against the stored reference.
     """
     shuttle.hold()
     time.sleep(TARE_SETTLE_S)
-    if not first:
+    if first:
+        persist = False
+    else:
+        anchored = loadcell.tare_anchored()
+        persist = anchored
         w = _weigh("checking the cradle is empty")
         if not loadcell.is_empty(w):
             raise Jam(f"cradle not empty before tare ({w:.2f} g) — remove the card")
     try:
-        loadcell.tare(verified_empty=True)
+        loadcell.tare(anchored=anchored, persist=persist)
     except LoadCellError as exc:
         raise LoadCellFault(f"load cell tare failed: {exc}") from exc
     shuttle.level()
 
 
 def _startup_cradle_check(confirmed: bool):
-    """Audit M1: before the first tare, compare the raw load with the stored
-    empty-cradle offset. confirmed: the operator has checked the cradle is empty
-    (then just tare, which also refreshes the stored offset)."""
+    """Audit M1: before the first tare, ALWAYS compare the raw load with the
+    stored empty-cradle reference — also after the operator confirmed the
+    machine clear (a confirmation is not a measurement).
+      above the reference by > STARTUP_EMPTY_MAX_G → NeedsConfirm (card on it)
+      below it by more                             → LoadCellFault
+      no reference stored: unconfirmed → NeedsConfirm; confirmed → tare, but
+      that zero is NOT anchored (nothing is persisted until --calibrate)."""
     shuttle.hold()
     time.sleep(TARE_SETTLE_S)
-    if not confirmed:
-        try:
-            w = loadcell.grams_vs_empty_reference()
-        except LoadCellError as exc:
-            raise LoadCellFault(f"load cell failed at start-up: {exc}") from exc
-        if w is None:
-            raise NeedsConfirm("no stored empty-cradle reference (first start or new "
-                               "calibration) — check the cradle is EMPTY, then confirm")
-        if w > loadcell.STARTUP_EMPTY_MAX_G:
-            raise NeedsConfirm(f"card on cradle — remove it ({w:.2f} g above the empty-cradle "
-                               "reference), then confirm")
-        if w < -loadcell.STARTUP_EMPTY_MAX_G:
-            print(f"[main] warning: cradle reads {w:.2f} g BELOW the stored empty reference "
-                  "(zero drift?) — taring anyway")
-    _prepare_cradle(first=True)
+    try:
+        w = loadcell.grams_vs_empty_reference()
+    except LoadCellError as exc:
+        raise LoadCellFault(f"load cell failed at start-up: {exc}") from exc
+    if w is None:
+        if not confirmed:
+            raise NeedsConfirm("no stored empty-cradle reference (first start or old calibration) "
+                               "— run `main.py --calibrate`, or check the cradle is EMPTY and confirm")
+        print("[main] WARNING: no stored empty-cradle reference — taring on the operator's word; "
+              "run `main.py --calibrate` so start-up can check the cradle by weight")
+        _prepare_cradle(first=True, anchored=False)
+        return
+    if w > loadcell.STARTUP_EMPTY_MAX_G:
+        raise NeedsConfirm(f"card on cradle — remove it ({w:.2f} g above the empty-cradle "
+                           "reference), then confirm")
+    if w < -loadcell.STARTUP_EMPTY_MAX_G:
+        raise LoadCellFault(f"cradle reads {w:.2f} g BELOW the stored empty-cradle reference — "
+                            "load cell fault or zero drift; check it, then re-run "
+                            "`main.py --calibrate`")
+    _prepare_cradle(first=True, anchored=True)
 
 
 def _ensure_cradle_ready():
@@ -794,9 +1003,16 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> int:
     the belt end, see CardNotOnCradle).
     """
     # Precondition: cradle empty, tared, level at home; belt clear; arm parked.
-    reference = card_detect.capture_reference()          # empty station, before the drop
+    try:
+        reference = card_detect.capture_reference()      # empty station, before the drop
+    except camera.CameraTimeout as exc:
+        raise CameraFault(f"{exc} — no card was picked") from exc
 
-    if not elevator.raise_to_pick(abort=_stop_wanted):
+    try:
+        raised = elevator.raise_to_pick(abort=_stop_wanted)
+    except elevator.ElevatorError as exc:
+        raise ElevatorFault(str(exc)) from exc
+    if not raised:
         if _stop_wanted():
             raise StopRequested("stop requested")
         raise HopperEmpty("hopper empty (or elevator stuck) — refill and restart")
@@ -818,6 +1034,10 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> int:
         # 3. Belt until the card is centred under the lens
         res = card_detect.centre_card(reference, conveyor.run, conveyor.brake, conveyor.stop)
         _status["last_offset_mm"] = None if res.offset_mm is None else round(res.offset_mm, 2)
+        if res.reason == "camera":
+            raise CameraFault("camera stopped delivering frames while centring — belt braked. The "
+                              "card is on the belt between the arm and the scanner; check the "
+                              "camera cable, remove the card, then confirm")
         if res.jam:
             if res.reason == "timeout" and not res.seen:
                 raise Jam(f"card never seen at the scanner (timeout after {res.elapsed_s:.2f} s) — "
@@ -829,7 +1049,11 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> int:
             print(f"[main] card stopped {res.offset_mm:+.1f} mm off centre — capturing anyway")
 
         # 4. Capture + identify (failure → reject, normal flow)
-        jpeg = camera.capture_card_jpeg(shift_px=card_detect.crop_shift_px(res.offset_mm or 0.0))
+        try:
+            jpeg = camera.capture_card_jpeg(shift_px=card_detect.crop_shift_px(res.offset_mm or 0.0))
+        except camera.CameraTimeout as exc:
+            raise CameraFault(f"{exc} — the card is under the scanner; remove it, then "
+                              "confirm") from exc
         card_id, confidence, card = _identify(jpeg)
 
         # 5. Off the belt end onto the LEVEL cradle; verified fully on before tipping
@@ -878,22 +1102,41 @@ def _route_pending(p: PendingCard) -> int:
 
 def _wait_for_bin_space(p: PendingCard) -> bool:
     """Paused: card held on the cradle in HOLD until bin p.bin_num is emptied.
-    Returns False if the sorter is stopping."""
-    _status["paused_bin"] = p.bin_num
-    _status["state"] = "paused"
-    _status["message"] = f"bin {p.bin_num} full — empty it"
-    print(f"[main] PAUSED: bin {p.bin_num} full — empty it, then reset it in the web UI or with "
-          f"`main.py --empty-bin {p.bin_num}`. Card held on the cradle.")
-    while not _stop_wanted():
-        if not _bins.is_full(p.bin_num):
+    Nothing moves while waiting (audit M3). Honours stop (returns False) and
+    the operator's Pause: if Pause was pressed (before or during the wait),
+    emptying the bin is not enough — routing waits for an explicit Resume.
+    After the bin is emptied (and no pause) it waits RESUME_DELAY_S for the
+    operator's hands to leave the tray, re-checks stop / pause / the bin, and
+    only then returns True (the caller routes the card)."""
+    shown = None
+    while True:
+        if _stop_wanted():
+            return False
+        full = _bins.is_full(p.bin_num)
+        paused = _control["pause"]
+        if not full and not paused:
             print(f"[main] bin {p.bin_num} emptied — resuming in {RESUME_DELAY_S:.0f} s")
             time.sleep(RESUME_DELAY_S)
             if _stop_wanted():
                 return False
+            if _control["pause"] or _bins.is_full(p.bin_num):
+                continue
             _set_state("running")
             return True
+        if paused:
+            msg = (f"paused by operator — card held on the cradle for bin {p.bin_num} "
+                   + ("(bin still full — empty it, then press Resume)" if full
+                      else "(bin emptied) — press Resume to route it"))
+        else:
+            msg = f"bin {p.bin_num} full — empty it"
+        if msg != shown:
+            _set_state("paused", msg)
+            _status["paused_bin"] = p.bin_num
+            if not paused:
+                print(f"[main] reset bin {p.bin_num} in the web UI or with `main.py --empty-bin "
+                      f"{p.bin_num}` once it is empty. Card held on the cradle.")
+            shown = msg
         time.sleep(BIN_POLL_S)
-    return False
 
 
 def _wait_while_paused() -> bool:
@@ -932,16 +1175,23 @@ def run_sorter(dry_run: bool = False, engine=None, max_cycles: int | None = None
     A full bin pauses (card held) and resumes once the bin is emptied. Operator
     pause / stop / rules reload are honoured between cards.
     """
+    with _machine_active():
+        return _run_sorter(dry_run, engine, max_cycles)
+
+
+def _run_sorter(dry_run, engine, max_cycles) -> str:
     global _engine
     engine = engine or RulesEngine(RULES_FILE)
     _engine = engine
     _publish_bins()
     _set_state("running")
+    _resume_event.clear()           # running: any earlier Resume click has been acted on
     print(f"[main] Ready — {'DRY RUN (all cards → reject bin)' if dry_run else 'SORTING'}. Ctrl+C to stop.")
 
     pending = None
     cycles = 0
     while not _stop_wanted() and (pending is not None or max_cycles is None or cycles < max_cycles):
+        _resume_event.clear()       # still running at a card boundary: a click was a no-op
         try:
             if _control["reload_rules"]:
                 _reload_rules(engine)
@@ -985,39 +1235,60 @@ def run_sorter(dry_run: bool = False, engine=None, max_cycles: int | None = None
 # ── Start-up / shutdown ───────────────────────────────────────────────────────
 def init_hardware(assume_rest: bool = False):
     """Pump off first, then belt, PCA9685 (arm), shuttle (shares the PCA9685),
-    load cell, camera, elevator. assume_rest: the last stop was clean, so the
-    arm is parked and the shuttle at home + level — start-up moves ramp from
-    there instead of jumping."""
+    load cell, camera, elevator. Nothing MOVES here (audit M7):
+      assume_rest=True  (last stop clean, rest pose recorded): the arm's park
+                        angle and the shuttle's home + level are re-asserted
+                        with one write each (limp servos may have sagged a
+                        little), later moves ramp from there.
+      assume_rest=False: ch0 / ch1 / ch2 get no command at all; the pose is
+                        unknown until prepare_machine() — which only runs
+                        after the operator's confirmation — brings it to rest."""
     global _hw_initialised
     _hw_initialised = True
     vacuum.init()
     conveyor.init()
     servos.init(assume_parked=assume_rest)
-    servos.arm_park()          # unknown pose: first move is direct — cup must be empty here
-    shuttle.init(assume_rest=assume_rest)    # homes: hold → home → level
+    shuttle.init(assume_rest=assume_rest)    # never homes
     loadcell.init()            # no tare: _startup_cradle_check() looks for a card first
     camera.init()
     elevator.init()
 
 
+def _pose_at_rest() -> bool:
+    return servos.arm_angle() == servos.ARM_PARK and shuttle.at_rest()
+
+
 def prepare_machine(confirmed: bool = False):
-    """Before sorting: belt stopped, arm parked, elevator homed, cradle checked
-    for a left-over card (against the stored empty reference), tared, level."""
-    conveyor.stop()
-    servos.arm_park()
-    print("[main] Homing the hopper elevator...")
-    if not elevator.home(abort=_stop_wanted):
-        if _stop_wanted():
-            raise StopRequested("stop requested")
-        raise Jam("hopper elevator did not reach its home switch")
-    target, _tilt, _ = shuttle.state()
-    if target != "home":
-        if not confirmed:
-            raise NeedsConfirm(f"shuttle not at home ({target!r}) — check the cradle is empty, "
-                               "then confirm")
-        shuttle.home()
-    print("[main] Checking the cradle is EMPTY, then taring")
-    _startup_cradle_check(confirmed)
+    """Before sorting: state "starting"; belt stopped, pump off; arm and
+    shuttle at rest — if their pose is not known to be the rest pose, that
+    needs the operator's confirmation first (NeedsConfirm), then they go
+    there directly (audit M7); elevator homed; cradle checked for a left-over
+    card against the stored empty reference (always, audit M1), tared, level."""
+    with _machine_active():
+        _set_state("starting", "checking the machine")
+        conveyor.stop()
+        vacuum.pump_off()          # confirmed: any card held on the cup has been removed
+        if not _pose_at_rest():
+            target, tilt, _ = shuttle.state()
+            if not confirmed:
+                raise NeedsConfirm(f"arm / shuttle pose not known to be at rest (arm "
+                                   f"{servos.arm_angle()!r}, shuttle {target!r} / {tilt!r}) — check "
+                                   "the arm, belt and cradle are clear, then confirm; they will "
+                                   "then move straight to their rest pose")
+            servos.arm_park()
+            if not shuttle.at_rest():
+                shuttle.home()
+        print("[main] Homing the hopper elevator...")
+        try:
+            homed = elevator.home(abort=_stop_wanted)
+        except elevator.ElevatorError as exc:
+            raise ElevatorFault(str(exc)) from exc
+        if not homed:
+            if _stop_wanted():
+                raise StopRequested("stop requested")
+            raise Jam("hopper elevator did not reach its home switch")
+        print("[main] Checking the cradle is EMPTY, then taring")
+        _startup_cradle_check(confirmed)
 
 
 def _assess_clean() -> tuple[bool, str]:
@@ -1028,6 +1299,10 @@ def _assess_clean() -> tuple[bool, str]:
         return False, f"a card was left {where}"
     if _status.get("state") in ("jam", "error"):
         return False, f"stopped on {_status['state']}: {_status.get('message', '')}"
+    if vacuum.pump_is_on():
+        return False, "vacuum pump still on"
+    if servos.arm_angle() != servos.ARM_PARK:
+        return False, f"arm not parked ({servos.arm_angle()!r})"
     if shuttle.jammed():
         return False, f"shuttle jammed: {shuttle.jammed()}"
     target, tilt, _ = shuttle.state()
@@ -1046,7 +1321,9 @@ def teardown():
     """Bring the machine to rest ONCE (called from main()'s finally): secure a
     card on the cup, pump off, belt stopped, arm parked, tilt back from an
     unknown / tipped pose (never moves the carriage, never homes), record
-    whether the stop was clean, then release every driver (servos limp)."""
+    whether the stop was clean, then release every driver: servos LIMP in
+    place (see "Teardown pose" in the module docstring), pins freed, and
+    after the process exits the unit's ExecStopPost drives every output safe."""
     global _tearing_down
     if _tearing_down:
         return
@@ -1071,10 +1348,11 @@ def teardown():
 
 
 def _on_signal(sig=None, frame=None):
-    """SIGINT / SIGTERM. Only sets flags (first signal: finish the current card,
-    then stop) or raises Shutdown (second signal: stop now). Teardown is done
-    once by main()'s finally, never here."""
-    global _running, _signals
+    """SIGINT / SIGTERM / SIGHUP. Only sets flags (first signal: finish the
+    current card, then stop) or raises Shutdown (second signal: stop now —
+    deferred while a card on the cup is being carried, see _no_shutdown()).
+    Teardown is done once by main()'s finally, never here."""
+    global _running, _signals, _shutdown_pending
     _signals += 1
     _running = False
     if _tearing_down or _signals > 2:
@@ -1084,6 +1362,10 @@ def _on_signal(sig=None, frame=None):
         print("\n[main] stop requested — finishing the current card safely "
               "(send the signal again to stop immediately)")
         return
+    if _defer_depth > 0:
+        _shutdown_pending = True
+        print("\n[main] stopping as soon as the card on the cup is put down safely")
+        return
     raise Shutdown("second stop signal")
 
 
@@ -1092,12 +1374,19 @@ shutdown = _on_signal    # old name
 
 def calibrate_loadcell(mass_g: float | None = None):
     """Scale factor from a KNOWN reference mass (default: a US nickel, 5.000 g).
-    Also stores the empty-cradle reference used by the start-up card check."""
+    Also stores the empty-cradle reference used by the start-up card check —
+    one of only two places allowed to (see hardware/loadcell.py)."""
     mass_g = float(mass_g or CALIBRATION_MASS_G)
+    if not _pose_at_rest():
+        input("Arm / shuttle pose unknown. Check the arm, belt and cradle are clear (they will "
+              "move straight to their rest pose), then press Enter...")
+        servos.arm_park()
+        if not shuttle.at_rest():
+            shuttle.home()
     shuttle.hold()
     time.sleep(TARE_SETTLE_S)
     input("Make sure the cradle is EMPTY (it is in hold), then press Enter to tare...")
-    loadcell.tare(verified_empty=True)
+    loadcell.tare(calibration=True)
     input(f"Place the {mass_g:.3f} g reference mass (default: a US 5-cent nickel) flat in the "
           "middle of the cradle, then press Enter...")
     time.sleep(WEIGH_SETTLE_S)
@@ -1107,16 +1396,20 @@ def calibrate_loadcell(mass_g: float | None = None):
     print(f"[main] Check: reference reads {w:.3f} g (should be {mass_g:.3f} g)")
     input("Remove the reference mass from the cradle, then press Enter...")
     time.sleep(TARE_SETTLE_S)
-    w = loadcell.read_grams()
+    w = loadcell.read_grams_unchecked()
     print(f"[main] Empty cradle reads {w:.3f} g ({loadcell.classify(w)})")
     if loadcell.is_empty(w):
-        loadcell.tare(verified_empty=True)
+        loadcell.tare(calibration=True)
+    else:
+        print("[main] WARNING: the cradle did not return to its empty reading — re-run the "
+              "calibration")
     shuttle.level()
 
 
 def _wait_interruptible(seconds: float):
     end = time.monotonic() + seconds
     while _running and time.monotonic() < end:
+        _beat()
         time.sleep(min(0.5, max(0.0, end - time.monotonic())))
 
 
@@ -1135,12 +1428,16 @@ def _load_cards_with_retry():
 
 def _await_operator(needs_confirm: bool) -> bool:
     """Wait for the operator: needs_confirm → 'Machine clear' (web / CLI);
-    otherwise Resume or 'Machine clear'. False if shutting down."""
-    _control["resume"] = False
+    otherwise Resume or 'Machine clear'. False if shutting down. A Resume
+    click that arrived while the machine was still halting is honoured (the
+    event is consumed here, never cleared on entry)."""
     while _running:
+        _beat()
         if read_machine_state().get("confirmed"):
+            _resume_event.clear()
             return True
-        if not needs_confirm and _control["resume"]:
+        if not needs_confirm and _resume_event.is_set():
+            _resume_event.clear()
             return True
         time.sleep(OPERATOR_POLL_S)
     return False
@@ -1161,6 +1458,7 @@ def _operate(dry_run: bool):
         confirmed = bool(ms.get("confirmed"))
         _control["stop"] = _control["pause"] = False
         _status["stop_requested"] = _status["pause_requested"] = False
+        _set_state("starting", "checking the machine")   # before anything moves (audit M2)
         try:
             if confirmed:
                 shuttle.clear_jam()
@@ -1192,6 +1490,109 @@ def _operate(dry_run: bool):
             return
 
 
+# ── Single instance + CLI commands that must respect the running sorter ──────
+_instance_lock_fh = None
+
+
+def acquire_instance_lock() -> bool:
+    """Hold an flock on INSTANCE_LOCK_FILE for the life of this process (one
+    sorter at a time; the CLI uses it to find a running sorter)."""
+    global _instance_lock_fh
+    if fcntl is None:
+        return True
+    INSTANCE_LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    fh = open(INSTANCE_LOCK_FILE, "a+")
+    try:
+        fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        fh.close()
+        return False
+    fh.seek(0)
+    fh.truncate()
+    fh.write(f"{os.getpid()}\n")
+    fh.flush()
+    _instance_lock_fh = fh
+    return True
+
+
+def sorter_running() -> bool:
+    """Is a sorter process (main loop / web-only / calibrate) holding the lock?"""
+    if fcntl is None or not INSTANCE_LOCK_FILE.exists():
+        return False
+    with open(INSTANCE_LOCK_FILE, "a+") as fh:
+        try:
+            fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            return True
+        fcntl.flock(fh, fcntl.LOCK_UN)
+    return False
+
+
+def _web_post(path: str) -> tuple[int, dict]:
+    """POST to the running sorter's own web API (which applies the state
+    gating). Raises OSError if it cannot be reached."""
+    import urllib.error
+    import urllib.request
+    req = urllib.request.Request(f"http://127.0.0.1:{WEB_PORT}{path}", data=b"", method="POST",
+                                 headers={"X-Auth-Token": load_or_create_web_token()})
+    try:
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            body = resp.read()
+            return resp.status, (json.loads(body) if body else {})
+    except urllib.error.HTTPError as exc:
+        body = exc.read()
+        try:
+            data = json.loads(body) if body else {}
+        except ValueError:
+            data = {"error": body.decode(errors="replace")}
+        return exc.code, data
+
+
+def _via_running_sorter(paths: list[str]) -> int:
+    for path in paths:
+        try:
+            code, body = _web_post(path)
+        except OSError as exc:
+            print(f"[main] a sorter process is running but its web UI on port {WEB_PORT} is not "
+                  f"reachable ({exc}) — use the web UI, or stop the service first")
+            return 1
+        if code != 200:
+            print(f"[main] refused by the running sorter ({code}): {body.get('error', body)}")
+            return 1
+    return 0
+
+
+def cli_empty_bins(bins: list[int], all_bins: bool) -> int:
+    """--empty-bin / --empty-all. With a sorter running, the reset goes through
+    its web API so can_empty_bin() applies (never while starting / running);
+    otherwise nothing can move and the counts are reset directly."""
+    for n in bins:
+        if n not in _bins.limits:
+            print(f"[bins] unknown bin {n}; valid: {sorted(_bins.limits)}")
+            return 2
+    if sorter_running():
+        paths = (["/api/bins/empty-all"] if all_bins else []) + [f"/api/bins/{n}/empty" for n in bins]
+        rc = _via_running_sorter(paths)
+        if rc:
+            return rc
+    else:
+        if all_bins:
+            empty_all_bins()
+        for n in bins:
+            empty_bin(n)
+    print(json.dumps(_bins.snapshot(), indent=2))
+    return 0
+
+
+def cli_confirm_clear() -> int:
+    """--confirm-clear: through the running sorter's web API if there is one
+    (can_confirm_clear() applies), else straight into the state file."""
+    if sorter_running():
+        return _via_running_sorter(["/api/confirm-clear"])
+    confirm_clear("cli")
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description="Riftbound Card Sorter")
     parser.add_argument("--calibrate",  action="store_true", help="Calibrate the cradle load cell")
@@ -1209,25 +1610,19 @@ def main():
     args = parser.parse_args()
 
     if args.empty_all or args.empty_bin:
-        if args.empty_all:
-            empty_all_bins()
-        for n in args.empty_bin or []:
-            try:
-                empty_bin(n)
-            except ValueError as exc:
-                print(f"[bins] {exc}")
-                sys.exit(2)
-        print(json.dumps(_bins.snapshot(), indent=2))
-        sys.exit(0)
+        sys.exit(cli_empty_bins(args.empty_bin or [], args.empty_all))
     if args.confirm_clear:
-        confirm_clear("cli")
-        sys.exit(0)
+        sys.exit(cli_confirm_clear())
     if args.web_token:
         print(load_or_create_web_token())
         sys.exit(0)
 
-    signal.signal(signal.SIGINT,  _on_signal)
-    signal.signal(signal.SIGTERM, _on_signal)
+    if not args.build_db and not acquire_instance_lock():
+        print(f"[main] ERROR: another sorter process is running ({INSTANCE_LOCK_FILE} is locked)")
+        sys.exit(1)
+
+    for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+        signal.signal(sig, _on_signal)
 
     try:
         _main(args)
@@ -1238,8 +1633,27 @@ def main():
             teardown()
 
 
+def _ensure_hash_db(cards, dry_run: bool) -> bool:
+    """Audit M10: refuse to sort while the hash DB misses more than
+    identify.MAX_MISSING_FRACTION of the card list (retrying the missing
+    downloads every CARD_DATA_RETRY_S); a dry run only warns. False if shut
+    down while waiting."""
+    while _running:
+        report = build_hash_db(cards, force=False, progress=_beat)
+        _status["hash_db"] = {k: report[k] for k in ("total", "hashed", "missing_fraction")}
+        _status["hash_db"]["missing"] = len(report["missing"])
+        if report["ok"] or dry_run:
+            return True
+        _set_state("error", f"hash DB incomplete: {len(report['missing'])} of {report['total']} "
+                            "cards missing — run `main.py --build-db` (retrying every "
+                            f"{CARD_DATA_RETRY_S:.0f} s)")
+        _wait_interruptible(CARD_DATA_RETRY_S)
+    return False
+
+
 def _main(args):
     global _today_midnight
+    _beat()
     if MOCK_HARDWARE:
         print("=" * 60)
         print("  DEVELOPMENT MODE (no hardware)")
@@ -1255,7 +1669,9 @@ def _main(args):
             print(f"[main] ERROR: {exc}")
             sys.exit(1)
         inventory.init()
-        build_hash_db(cards, force=True)
+        report = build_hash_db(cards, force=True)
+        if not report["ok"]:
+            sys.exit(1)
         return
 
     # Hardware first: the pump relay and belt get driven to OFF immediately.
@@ -1296,13 +1712,17 @@ def _main(args):
     cards = _load_cards_with_retry()
     if cards is None:
         return
-    build_hash_db(cards, force=False)
 
     if args.web_only:
+        build_hash_db(cards, force=False, progress=_beat)
         _set_state("idle", "web-only mode")
         print("[main] Web-only mode. Ctrl+C to exit.")
         while _running:
+            _beat()
             time.sleep(0.5)
+        return
+
+    if not _ensure_hash_db(cards, args.dry_run):
         return
 
     _operate(args.dry_run)
