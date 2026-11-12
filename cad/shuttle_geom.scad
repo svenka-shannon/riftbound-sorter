@@ -18,8 +18,8 @@
 //
 //  - The cradle sits on the free end of a TAL221 beam whose other end is
 //    screwed to the TILT FRAME (TF). The TF hangs in the carriage cheeks by
-//    two Ø4 pins at F (front). ch1 (MG996R) turns an 8 mm shaft along Y (axis D;
-//    called "D-shaft" throughout, but it is an 8 mm REX = round ∩ 7 mm hex shaft);
+//    two Ø4 pins at F (front). ch1 (MG996R) turns an 8 mm REX shaft along Y
+//    (axis D; round Ø8 ∩ 7 mm hex, goBILDA 2106-4008-4320 cut to 417 mm);
 //    a crank on that shaft + a short link lift/lower the TF.
 //  - RECEIVE (level, home Y=0 only): bed 0.7 below the belt; the belt pushes
 //    the card on until its tail leaves the roller.
@@ -92,14 +92,14 @@ function sg_dl_lower()  = 48;            // extra rotation about the skid (bed 5
 function sg_tf_y()      = [36, 39];      // TF side plates |y|
 function sg_cheek_y()   = [40.5, 45.5];  // carriage cheeks |y|
 
-// ---------- ch1 tilt drive (crank on D-shaft + link) ----------
-function sg_D()         = [105, 44];     // D-shaft axis (X, Z)
+// ---------- ch1 tilt drive (crank on the REX shaft + link) ----------
+function sg_D()         = [105, 44];     // tilt (REX) shaft axis D (X, Z)
 function sg_crank_r()   = 32;
 function sg_link_l()    = 25;
 function sg_A()         = [144, 70];     // link pin on the TF (level frame)
 function sg_crank_y()   = [13.5, 18];    // crank slab (y)
 function sg_link_y()    = [8, 12.5];     // link slab (y); TF slot 7.5..13 leaves 1.4 to the cell-screw counterbore
-// ch1 servo + coupler at the −Y end (machine Y). The "D-shaft" is an 8 mm REX shaft
+// ch1 servo + coupler at the −Y end (machine Y). The tilt shaft is an 8 mm REX shaft
 // (Ø8 round ∩ 7 mm hex: goBILDA 2106-4008-4320, 432 mm, cut to 417), coupled to
 // the MG996R by ONE bought part: goBILDA 4001-0025-4008 clamping servo-to-shaft
 // coupler (25T spline → 8 mm REX bore, Ø13.8 × 17, clamp boss to r 11.9, M4
@@ -109,7 +109,7 @@ function sg_link_y()    = [8, 12.5];     // link slab (y); TF slot 7.5..13 leave
 function sg_c1_face_y() = -185;          // MG996R case face (spline side), body toward −Y
 function sg_c1_cpl()    = [0.8, 17.0, 6.9, 11.87, 9.0];  // coupler: start (from face), length, body r, boss r, shaft end (from coupler start)
 function sg_c1_cpl_y()  = [sg_c1_face_y() + sg_c1_cpl()[0], sg_c1_face_y() + sg_c1_cpl()[0] + sg_c1_cpl()[1]];
-function sg_dshaft_y()  = [sg_c1_cpl_y()[0] + sg_c1_cpl()[4], sg_c1_cpl_y()[0] + sg_c1_cpl()[4] + 417];   // −175.2..241.8
+function sg_rex_shaft_y() = [sg_c1_cpl_y()[0] + sg_c1_cpl()[4], sg_c1_cpl_y()[0] + sg_c1_cpl()[4] + 417];   // −175.2..241.8
 
 // ---------- carriage / rods ----------
 function sg_rod()       = [106, 24];     // smooth rod (LM8UU ×2)

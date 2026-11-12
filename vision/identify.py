@@ -46,6 +46,18 @@ Ambiguity margin:
 Overrides: config/identify.json  {"min_conf": 0.80, "min_margin_bits": 10,
                                   "fallback": true, "fallback_min_phash_conf": 0.70,
                                   "max_missing_fraction": 0.01}
+  Every key is optional. The WHOLE file is validated before anything is
+  applied (load_config(), called by main.py at start-up, like machine.json):
+    min_conf                 JSON number in [0.5, 1.0]
+    min_margin_bits          whole JSON number in [0, 256] (0 = check off)
+    fallback                 JSON boolean (true / false, never "false")
+    fallback_min_phash_conf  JSON number in [0.5, 1.0], ≤ min_conf if both set
+    max_missing_fraction     JSON number in [0.0, 1.0]
+  Keys starting with "_" are comments. Unknown keys (typos), wrong types,
+  NaN / Infinity, out-of-range values and invalid JSON are errors: load_config()
+  raises IdentifyConfigError listing EVERY bad key, and main.py exits with
+  status 78 (EX_CONFIG), which systemd does not restart. Nothing ever falls
+  back to the defaults silently.
 
 Fallback hash methods (audit M10):
   pHash decides. An AMBIGUOUS pHash result (confident, but the runner-up is
@@ -70,6 +82,8 @@ while false-positive rate stays below your target.
 
 import io
 import json
+import math
+import os
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -77,7 +91,8 @@ from PIL import Image
 import imagehash
 
 HASH_DB_FILE = Path(__file__).parent.parent / "data" / "hash_db.json"
-CONFIG_FILE  = Path(__file__).parent.parent / "config" / "identify.json"
+CONFIG_FILE  = Path(os.environ.get("RIFTBOUND_IDENTIFY_CONFIG",
+                                   Path(__file__).parent.parent / "config" / "identify.json"))
 HASH_SIZE    = 16      # pHash/ahash/dhash size (16×16 = 256-bit hash)
 MIN_CONF     = 0.80    # below this confidence → reject (unknown card)
                        # See tuning guide above; 0.80 ≈ distance ≤ 51
@@ -88,30 +103,98 @@ MAX_MISSING_FRACTION = 0.01   # > this share of the card list unhashed → refus
 DOWNLOAD_ATTEMPTS = 2
 
 
-def load_config() -> None:
-    """Apply config/identify.json overrides (see module docstring)."""
-    global MIN_CONF, MIN_MARGIN_BITS, FALLBACK, FALLBACK_MIN_PHASH_CONF, MAX_MISSING_FRACTION
+EX_CONFIG = 78          # sysexits.h: configuration error (same as machine.json)
+
+
+class IdentifyConfigError(ValueError):
+    """config/identify.json is invalid; .problems lists every bad key."""
+
+    def __init__(self, path, problems):
+        self.path = Path(path)
+        self.problems = list(problems)
+        lines = "\n".join(f"  - {p}" for p in self.problems)
+        super().__init__(f"invalid identification config {self.path} — refusing to start:\n{lines}\n"
+                         "Fix these keys (see vision/identify.py and docs/ASSEMBLY.md §16.8), "
+                         "or delete the file to use the code defaults.")
+
+
+# key → (module global, kind, min, max); kind: "float", "int" or "bool"
+CONFIG_SCHEMA = {
+    "min_conf":                ("MIN_CONF", "float", 0.5, 1.0),
+    "min_margin_bits":         ("MIN_MARGIN_BITS", "int", 0, HASH_SIZE * HASH_SIZE),
+    "fallback":                ("FALLBACK", "bool", None, None),
+    "fallback_min_phash_conf": ("FALLBACK_MIN_PHASH_CONF", "float", 0.5, 1.0),
+    "max_missing_fraction":    ("MAX_MISSING_FRACTION", "float", 0.0, 1.0),
+}
+
+
+def validate_config(data) -> tuple[dict, list[str]]:
+    """(normalised {key: value}, problems). Pure: applies nothing."""
+    if not isinstance(data, dict):
+        return {}, [f"top level must be a JSON object, got {type(data).__name__}"]
+    clean, problems = {}, []
+    for key, v in data.items():
+        if str(key).startswith("_"):
+            continue
+        spec = CONFIG_SCHEMA.get(key)
+        if spec is None:
+            problems.append(f"{key}: unknown key (valid: {', '.join(CONFIG_SCHEMA)})")
+            continue
+        _, kind, lo, hi = spec
+        if kind == "bool":
+            if not isinstance(v, bool):
+                problems.append(f"{key}: must be true or false (a JSON boolean, not {json.dumps(v)})")
+            else:
+                clean[key] = v
+            continue
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            problems.append(f"{key}: must be a number, got {json.dumps(v)}")
+            continue
+        if not math.isfinite(v):
+            problems.append(f"{key}: must be a finite number, got {v}")
+            continue
+        if kind == "int":
+            if float(v) != int(v):
+                problems.append(f"{key}: must be a whole number, got {v}")
+                continue
+            v = int(v)
+        else:
+            v = float(v)
+        if not lo <= v <= hi:
+            problems.append(f"{key}: {v} is outside [{lo}, {hi}]")
+            continue
+        clean[key] = v
+    if ("fallback_min_phash_conf" in clean and "min_conf" in clean
+            and clean["fallback_min_phash_conf"] > clean["min_conf"]):
+        problems.append(f"fallback_min_phash_conf ({clean['fallback_min_phash_conf']}) must not exceed "
+                        f"min_conf ({clean['min_conf']}): the fallback could never run")
+    return clean, problems
+
+
+def _reject_constant(token):
+    raise ValueError(f"{token} is not a valid JSON number")
+
+
+def load_config() -> dict:
+    """Validate config/identify.json and apply its overrides (see the module
+    docstring). All or nothing: raises IdentifyConfigError listing every bad
+    key and applies NOTHING if any key is bad. Returns the applied overrides.
+    main.py calls this at start-up and exits with status 78 on the error."""
     if not CONFIG_FILE.exists():
-        return
+        return {}
     try:
-        cfg = json.loads(CONFIG_FILE.read_text())
-        if "min_conf" in cfg:
-            MIN_CONF = float(cfg["min_conf"])
-        if "min_margin_bits" in cfg:
-            MIN_MARGIN_BITS = int(cfg["min_margin_bits"])
-        if "fallback" in cfg:
-            if not isinstance(cfg["fallback"], bool):
-                raise ValueError("fallback must be true or false")
-            FALLBACK = cfg["fallback"]
-        if "fallback_min_phash_conf" in cfg:
-            FALLBACK_MIN_PHASH_CONF = float(cfg["fallback_min_phash_conf"])
-        if "max_missing_fraction" in cfg:
-            MAX_MISSING_FRACTION = float(cfg["max_missing_fraction"])
-    except Exception as exc:
-        print(f"[identify] Warning: could not read {CONFIG_FILE}: {exc}")
-
-
-load_config()
+        # NaN / Infinity are not JSON; Python's parser accepts them unless told not to
+        data = json.loads(CONFIG_FILE.read_text(), parse_constant=_reject_constant)
+    except (OSError, ValueError) as exc:
+        raise IdentifyConfigError(CONFIG_FILE, [f"not valid JSON: {exc}"]) from exc
+    clean, problems = validate_config(data)
+    if problems:
+        raise IdentifyConfigError(CONFIG_FILE, problems)
+    for key, v in clean.items():
+        globals()[CONFIG_SCHEMA[key][0]] = v
+    if clean:
+        print(f"[identify] {CONFIG_FILE.name}: {clean}")
+    return clean
 
 _hash_db: dict[str, str] = {}          # riftbound_id → hex phash string
 _hash_db_ahash: dict[str, str] = {}    # riftbound_id → hex ahash string

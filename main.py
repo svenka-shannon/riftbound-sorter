@@ -107,23 +107,27 @@ if __name__ == "__main__":
 
 MOCK_HARDWARE = os.environ.get("MOCK_HARDWARE", "0") == "1"
 
-# Validate config/machine.json BEFORE any hardware module applies it (audit M6):
-# a bad file stops the program with a list of the bad keys, it never falls back.
+# Validate config/machine.json BEFORE any hardware module applies it (audit M6),
+# and config/identify.json the same way: a bad file stops the program with a
+# list of the bad keys (exit 78, not restarted by systemd), it never falls back.
 try:
     from hardware import machine_config     # (the package import applies the config too)
     machine_config.load()
+    import vision.identify as identify_mod
+    identify_mod.load_config()
 except Exception as _exc:
-    _mc = sys.modules.get("hardware.machine_config")
-    if __name__ == "__main__" and _mc is not None and isinstance(_exc, _mc.MachineConfigError):
+    _cfg_errors = tuple(c for c in (
+        getattr(sys.modules.get("hardware.machine_config"), "MachineConfigError", None),
+        getattr(sys.modules.get("vision.identify"), "IdentifyConfigError", None)) if c is not None)
+    if __name__ == "__main__" and _cfg_errors and isinstance(_exc, _cfg_errors):
         print(f"[config] ERROR: {_exc}", file=sys.stderr)
-        sys.exit(_mc.EX_CONFIG)
+        sys.exit(78)                         # EX_CONFIG (machine_config / identify)
     raise
 
 from hardware import servos, vacuum, loadcell, camera, conveyor, elevator, shuttle, card_detect
 from hardware.shuttle import ShuttleError
 from hardware.loadcell import LoadCellError
 from vision.identify import build_hash_db, identify
-import vision.identify as identify_mod
 from api import riftcodex, inventory
 from sorter.rules_engine import RulesEngine
 

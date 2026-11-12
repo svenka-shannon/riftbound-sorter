@@ -14,8 +14,9 @@ Routes:
   /api/sessions      → JSON last 5 sort sessions
 
 Mutating endpoints (POST) need the shared-secret token (config/web.json,
-generated on first run and printed; `python main.py --web-token` shows it) in
-an `X-Auth-Token` header or a `token` form field:
+mode 600, generated on first use). It is never printed to the log / journal:
+first run only prints a hint, and `python main.py --web-token` shows it. Send
+it in an `X-Auth-Token` header or a `token` form field:
   POST /api/bins/<n>/empty   → reset bin n's count after emptying it
                                (the bin the machine is paused on, or any bin
                                in an idle state — never starting / running)

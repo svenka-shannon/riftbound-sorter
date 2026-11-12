@@ -8,7 +8,7 @@
 // Vacuum / wiring parts: pump (R385 solid), pump_bracket (base + cap + sleeve + head pad +
 // vent-valve clip), valve (12 V NC vent valve), tee (barbed tee), tube (hose runs only),
 // harness, ribbon, cell_lead (load-cell trailing loop at the home pose).
-// NOTE: several part files define the same helper names (mg996r, xz, d_bore); `use`
+// NOTE: several part files define the same helper names (mg996r, xz, …); `use`
 // resolves those to the LAST file, so only call unique module names here.
 use <../assembly.scad>
 use <../baseplate_tile.scad>
@@ -98,8 +98,8 @@ module arm_bolts() for (b = [[-5, -134], [5, -134], [-5, -126], [5, -126]])
 // ── cradle shuttle at home / level ──
 sh_y = sg_target_y("home");
 module sh_printed() { rbar_neg(); rbar_pos(); end_post_neg(); end_post_pos(); }
-module sh_hw() difference() { shuttle_fixed(); sh_printed(); }      // rod, D-shaft, ch1 + ch2 servos
-// servos: ch2 hangs at X 70..90, ch1 sits at Y < -168; rod and D-shaft are at X > 95, Y >= -168
+module sh_hw() difference() { shuttle_fixed(); sh_printed(); }      // rod, REX tilt shaft, ch1 + ch2 servos
+// servos: ch2 hangs at X 70..90, ch1 sits at Y < -168; rod and REX shaft are at X > 95, Y >= -168
 module sh_servo_zone() union() {
     translate([-1000, -1000, -1000]) cube([1095, 2000, 2000]);
     translate([-1000, -1000, -1000]) cube([2000, 832, 2000]);

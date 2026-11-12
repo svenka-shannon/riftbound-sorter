@@ -4,10 +4,11 @@ T8 lead screw (8 mm lead) that raises the hopper floor (cad/hopper.scad), so
 the top card always sits at the suction-cup pick height.
 
 Wiring (BCM numbering; header pins in brackets):
-  ULN2003 IN1 → GPIO 16 [36]     ULN2003 +  → 5 V (regulator #1 rail)
+  ULN2003 IN1 → GPIO 16 [36]     ULN2003 +  → 5 V motor rail (Reg #3, D36V28F5)
   ULN2003 IN2 → GPIO 19 [35]     ULN2003 −  → common GND
   ULN2003 IN3 → GPIO 20 [38]     motor plug → ULN2003 white JST (keyed)
   ULN2003 IN4 → GPIO 21 [40]
+  (Reg #3 also feeds the L9110S belt driver; see docs/ASSEMBLY.md §14.1.)
   Top-of-stack switch  (feeler-flag microswitch)  C → GND [34], NC → GPIO 12 [32]
   Bottom/home switch   (carriage lug microswitch) C → GND [30], NC → GPIO 13 [33]
 Switches use the Pi's internal pull-ups.

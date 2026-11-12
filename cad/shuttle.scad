@@ -215,9 +215,9 @@ module tilt_frame() {
 }
 
 // =====================================================================
-// CARRIAGE — sled (rod + D-shaft) and two cheeks with the F hooks
+// CARRIAGE — sled (rod + REX tilt shaft) and two cheeks with the F hooks
 // =====================================================================
-// Three prints: the SLED (rod + D-shaft + ch1 crank pocket + ch2 drive-pin arm,
+// Three prints: the SLED (rod + REX shaft + ch1 crank pocket + ch2 drive-pin arm,
 // |y| ≤ 40.5) and two bolt-on CHEEKS (|y| 40.5..45.5, printed flat on the outer
 // face). Each cheek's root laps the whole sled side (X 91..118, sled profile) and
 // is held by 3 × M3 countersunk screws into heat-set inserts in the sled, located
@@ -259,7 +259,7 @@ module sled() {
         // rod: Ø8.4 through, LM8UU Ø15.1 × 24.1 pockets at both ends
         cyl_y(rod, 8.4, -sled_hw - 1, sled_hw + 1);
         for (s = [-1, 1]) cyl_y(rod, 15.1, s > 0 ? sled_hw - 24.1 : -sled_hw - 1, s > 0 ? sled_hw + 1 : -sled_hw + 24.1, 48);
-        // D-shaft: Ø8.3 bushing bores at both ends (8 long), Ø10 relief in between
+        // REX tilt shaft: Ø8.3 bushing bores at both ends (8 long, on the round lands), Ø10 relief in between
         cyl_y(D, 8.3, -sled_hw - 1, sled_hw + 1);
         cyl_y(D, 10, -sled_hw + 8, sled_hw - 8);
         // crank swing pocket (sector about D, −62°..40°) over the crank slab + 0.8
@@ -289,7 +289,7 @@ module cheek(s) {          // s = +1: +y cheek, −1: −y cheek (assembly posit
         // F hook + lower-mode channel, 3.8 deep in the inner face
         for (i = [0 : len(f_path()) - 2]) hull() for (p = [f_path()[i], f_path()[i + 1]])
             cyl_y(p, 4.5, s > 0 ? chy[0] - 1 : -44.3, s > 0 ? 44.3 : -chy[0] + 1, 24);
-        // rod and D-shaft clearance (the root closes the LM8UU pocket: Ø10 < Ø15)
+        // rod and REX-shaft clearance (the root closes the LM8UU pocket: Ø10 < Ø15)
         cyl_y(rod, 10, y0 - 1, y1 + 1, 40);
         cyl_y(D, 9.5, y0 - 1, y1 + 1, 40);
         // M3 countersunk screws (head flush with the outer face), dowels
@@ -308,20 +308,21 @@ module cheek(s) {          // s = +1: +y cheek, −1: −y cheek (assembly posit
 module carriage() { sled(); for (s = [-1, 1]) translate([0, -s * 0.01, 0]) cheek(s); }
 
 // =====================================================================
-// ch1 tilt crank (on the D-shaft) and link
+// ch1 tilt crank (on the REX shaft) and link
 // =====================================================================
 // The crank is captured in the sled's swing pocket and SLIDES along the fixed
 // shaft with the carriage, so it is keyed by its bore only (no set screw).
-// The "D-shaft" is an 8 mm REX shaft (Ø8 round ∩ 7 mm across-flats hex, goBILDA):
+// The tilt shaft (axis D) is an 8 mm REX shaft (Ø8 round ∩ 7 mm across-flats hex,
+// goBILDA 2106-4008-4320, cut to 417 mm):
 // the round lands run in the 688ZZ and the sled bushings, the hex drives the crank
 // and the bought ch1 coupler. Crank bore = REX + 0.15 (Ø8.15 ∩ 7.15 hex).
 module rex_2d(d = 8, af = 7) intersection() { circle(d = d, $fn = 48); circle(r = af / 2 / cos(30), $fn = 6); }
-module d_bore(h) linear_extrude(h) rex_2d(8.15, 7.15);   // flats parallel to the crank arm
+module rex_bore(h) linear_extrude(h) rex_2d(8.15, 7.15);   // flats parallel to the crank arm
 module tilt_crank() {      // modelled pointing +X from D, in the crank slab
     cy = sg_crank_y();
     translate([D[0], cy[1], D[1]]) rotate([90, 0, 0]) difference() {
         hull() { cylinder(d = 16, h = cy[1] - cy[0]); translate([sg_crank_r(), 0, 0]) cylinder(d = 9, h = cy[1] - cy[0]); }
-        translate([0, 0, -1]) d_bore(cy[1] - cy[0] + 2);
+        translate([0, 0, -1]) rex_bore(cy[1] - cy[0] + 2);
         translate([sg_crank_r(), 0, -1]) cylinder(d = 3.2, h = 10, $fn = 20);
     }
 }
@@ -332,6 +333,20 @@ module tilt_link() {       // modelled from the origin along +X, in the link sla
         translate([0, 0, -1]) cylinder(d = 3.2, h = 10, $fn = 20);
         translate([sg_link_l(), 0, -1]) cylinder(d = 3.1, h = 10, $fn = 20);   // on the Ø3 pin-A dowel
     }
+}
+// Crank ↔ link pivot: M3 × 16 SHCS + M3 nylock (DIN 985, 5.5 AF × 4), modelled in the
+// crank frame (crank pointing +X from D, like tilt_crank()). Head (Ø5.5 × 3) on the
+// crank's +y face, nylock on the link's −y face: grip = crank 4.5 + 1.0 gap + link 4.5
+// = 10, nut 4, 2 mm of thread past the nut. The nut is a round Ø6.4 envelope (across
+// corners) so the check holds at any nut rotation. Assembled on the bench before the
+// crank goes into the sled pocket (§13.2); `shuttle_check.py` sweeps it through every
+// pose (≥ 0.5 to carriage, TF and cell) and checks its length and bench tool access.
+pivot_hw = [5.5, 3.0, 6.4, 4.0, 16];   // head Ø, head h, nut Ø (corners), nut h, screw length
+module tilt_pivot_hw() color("DimGray") {
+    cy = sg_crank_y(); ly = sg_link_y(); T = [D[0] + sg_crank_r(), D[1]];
+    cyl_y(T, pivot_hw[0], cy[1], cy[1] + pivot_hw[1], 24);              // SHCS head
+    cyl_y(T, 3.0, cy[1] - pivot_hw[4], cy[1], 16);                      // shank, y 2..18
+    cyl_y(T, pivot_hw[2], ly[0] - pivot_hw[3], ly[0], 24);              // nylock, y 4..8
 }
 
 // =====================================================================
@@ -476,6 +491,7 @@ ep_neg_holes = [[110, -225], [140, -195], [140, -165]];
 ep_pos_holes = [[110, 225], [110, 255], [140, 255]];
 function sh_end_post_holes() = concat(ep_neg_holes, ep_pos_holes);
 function sh_pin_a_y() = pinA_y;
+function sh_tilt_pivot_hw() = pivot_hw;   // ch1 crank-link M3 × 16 + nylock: head Ø, head h, nut Ø, nut h, length
 // Rod: 400 mm, Y −160..240 (through the −Y post, 8 mm into the +Y post). Each post
 // holds it with a SIDE grub screw: M3 × 5.7 heat-set insert pressed into the post's
 // +X face (X 116 → 110.3) on the rod's centre height, M3 × 6 flat-point set screw
@@ -611,7 +627,8 @@ module c2_horn() color("WhiteSmoke") translate([sg_c2_pivot()[0], sg_c2_pivot()[
     cylinder(d = 10, h = sg_c2_face_z() - sg_c2_z()[1] - 0.4, $fn = 32);
 }
 module rod8(p, y0, y1) color("LightSteelBlue") cyl_y(p, 8, y0, y1, 24);
-module dshaft(y0 = sg_dshaft_y()[0], y1 = sg_dshaft_y()[1]) color("LightSteelBlue")
+// ch1 tilt shaft: 8 mm REX (goBILDA 2106-4008-4320) cut to 417 mm, Y −175.2..241.8
+module rex_shaft(y0 = sg_rex_shaft_y()[0], y1 = sg_rex_shaft_y()[1]) color("LightSteelBlue")
     translate([D[0], y0, D[1]]) rotate([-90, 0, 0]) linear_extrude(y1 - y0) rex_2d();
 module card_on_bed(front_x = 154) color("Ivory", 0.9)
     translate([front_x - 88, -31.5, bz + 0.02]) cube([88, 63, 0.33]);
@@ -631,7 +648,7 @@ module tf_pose(st) {
 }
 module tilt_drive_posed(st) {
     phi = sg_crank_phi(st); T = sg_crank_tip(st); Ap = sg_pose(A, st);
-    translate([D[0], 0, D[1]]) rotate([0, -phi, 0]) translate([-D[0], 0, -D[1]]) tilt_crank();
+    translate([D[0], 0, D[1]]) rotate([0, -phi, 0]) translate([-D[0], 0, -D[1]]) { tilt_crank(); tilt_pivot_hw(); }
     translate([T[0], 0, T[1]]) rotate([0, -atan2(Ap[1] - T[1], Ap[0] - T[0]), 0]) tilt_link();
 }
 module c2_posed(yc) {
@@ -660,7 +677,7 @@ module shuttle_fixed() {
     color("Peru") { rbar_neg(); rbar_pos(); }
     color("SandyBrown") { end_post_neg(); end_post_pos(); }
     rod8(rod, sh_rod_y()[0], sh_rod_y()[1]);
-    dshaft();
+    rex_shaft();
     // ch1: servo (case face Y −185, long side up), bought coupler (boss at HOLD), ear screws
     c1_servo();
     c1_coupler(sg_crank_phi("hold"));
@@ -732,7 +749,8 @@ if (part == "end_post_pos") end_post_pos();
 //  2  M3 × 12 SHCS (TF crossbar → cell tapped end)
 //  2  M3 × 10 SHCS + 2 M3 × 5.7 heat-set inserts (cell free end → cradle boss)
 //  6  M3 × 10 countersunk (ISO 10642) + 6 M3 × 5.7 heat-set inserts (cheeks → sled)
-//  1  M3 × 16 SHCS + nylock (ch1 crank–link pivot)
+//  1  M3 × 16 SHCS + M3 nylock (ch1 crank–link pivot, made up on the bench; tilt_pivot_hw(),
+//       swept through every pose and checked for length / tool access by shuttle_check.py)
 //  2  shoulder screw, 4 mm shoulder, M3 × 4 thread, head ≤ Ø8 × 4: shoulder
 //       5 mm (ch2 crank tip) and 6 mm (ch2 drive pin), e.g. ISO 7379-style
 //       4 mm / M3 shoulder screws (MISUMI MSB4, McMaster 4 mm-shoulder M3)

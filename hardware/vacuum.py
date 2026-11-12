@@ -25,8 +25,10 @@ HARDWARE REQUIREMENTS (docs/ASSEMBLY.md §14.2):
     cmdline.txt — after the process exits or deinit()'s GPIO.cleanup()
     releases the line. The pull-up makes such a released pin read HIGH = OFF.
   * A flyback diode across EACH coil: the 12 V pump motor and the 12 V vent
-    solenoid (e.g. 1N4007 / 1N5819, cathode to +12 V, anode to the switched
-    side), mounted at the device. The relay modules' own diodes only protect
+    solenoid (1N5819 or 1N4007), mounted at the device. The relay switches
+    the + side (COM = 12 V, NO → device +; device − → GND), so each diode
+    goes cathode (stripe) to the device's + terminal and anode to its −
+    (GND) (docs/ASSEMBLY.md §14.1, §14.6). The relay modules' own diodes only protect
     their relay coils, not the loads the contacts switch; without these the
     inductive kick arcs the relay contacts and couples spikes into the Pi.
 

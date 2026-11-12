@@ -8,15 +8,18 @@
   collide  — trimesh/FCL collision + clearance sweep: carriage, tilt frame,
              cradle, load cell, card, F pins, pin A and both drive linkages
              (incl. every ch2 screw, insert and pin: horn screws, the two
-             shoulder-screw pivots, the servo ear screws) through every
+             shoulder-screw pivots, the servo ear screws; the ch1 crank↔link
+             M3 × 16 SHCS + nylock) through every
              target (4 columns + reject + home) × every tilt state (incl.
              intermediate angles) and the whole Y travel in HOLD, against the
              tray, lower ramp, reject bin, rails, riser, motor mounts, card
              guides, rollers, electronics tray, R-bar, end posts and servos.
              Design rules: cradle↔TF > 0.5 (weighing gap), TF body↔carriage
              ≥ 0.6, ch2 crank↔link and link↔carriage ≥ 0.8 (no hardware between
-             them), everything of ch2 ≥ 3 mm above the tiles.
-  assembly — insertion / access paths: pin A dowel path, ch2 pivot screws from
+             them), ch1 pivot screw / nylock ↔ carriage, TF and cell ≥ 0.5,
+             everything of ch2 ≥ 3 mm above the tiles.
+  assembly — insertion / access paths: ch1 crank↔link pivot (screw length past
+             the nylock, key + nut driver on the bench), pin A dowel path, ch2 pivot screws from
              above, riser front-tie screws from the front, end-post holes on the
              30 mm baseplate grid (probe).
   slide    — 2-D rigid-card simulation (penalty contacts, Coulomb friction):
@@ -140,6 +143,7 @@ SCENE_OBJS = {
     "card": "card_on_bed();",
     "tilt_crank": "tilt_crank();",
     "tilt_link": "tilt_link();",
+    "tilt_pivot": "tilt_pivot_hw();",           # crank frame: M3 × 16 SHCS + nylock (crank ↔ link)
     "c2_crank": "c2_crank();",
     "c2_link": "c2_link();",
     "c2_horn_screws": "c2_horn_screws();",     # crank frame
@@ -149,7 +153,7 @@ SCENE_OBJS = {
     "rbar": "rbar_neg(); rbar_pos();",
     "end_posts": "end_post_neg(); end_post_pos();",
     "rod": "rod8(sg_rod(), sh_rod_y()[0], sh_rod_y()[1]);",
-    "dshaft": "dshaft();",                                 # 8 mm REX shaft, Y −175.2..241.8
+    "rex_shaft": "rex_shaft();",                           # 8 mm REX shaft, Y −175.2..241.8
     "servo_ch1": "c1_servo();",
     "ch1_coupler": "c1_coupler(swept = true);",            # goBILDA 4001-0025-4008, boss swept over its range
     "c1_ear_screws": "c1_ear_screws();",
@@ -207,12 +211,13 @@ def load_all():
 # ---------------------------------------------------------------- collide
 TF_GROUP = ["cradle", "tf", "cell", "card", "fpins", "pin_a"]
 C2_HW = ["c2_horn_screws", "c2_tip_pin", "c2_drive_pin"]
-MOVING = ["carriage", "tilt_crank", "tilt_link", *TF_GROUP]
-FIXED = ["rbar", "end_posts", "rod", "dshaft", "servo_ch1", "ch1_coupler", "c1_ear_screws", "servo_ch2", "c2_horn", "c2_ear_screws", "lower_ramp", "reject_bin", "riser",
+MOVING = ["carriage", "tilt_crank", "tilt_link", "tilt_pivot", *TF_GROUP]
+FIXED = ["rbar", "end_posts", "rod", "rex_shaft", "servo_ch1", "ch1_coupler", "c1_ear_screws", "servo_ch2", "c2_horn", "c2_ear_screws", "lower_ramp", "reject_bin", "riser",
          "tray", "rails", "motor_mounts", "rollers", "card_guides", "etray"]
 # JOINED: parts fastened/journalled together (bearings, pins, bolted) — not checked.
 JOINED = {frozenset(p) for p in [
-    ("carriage", "rod"), ("carriage", "dshaft"), ("tilt_crank", "dshaft"), ("tilt_crank", "tilt_link"),
+    ("carriage", "rod"), ("carriage", "rex_shaft"), ("tilt_crank", "rex_shaft"), ("tilt_crank", "tilt_link"),
+    ("tilt_pivot", "tilt_crank"), ("tilt_pivot", "tilt_link"),      # the M3 × 16 + nylock through both
     ("tilt_link", "tf"), ("tf", "cell"), ("cradle", "cell"), ("card", "cradle"),
     ("fpins", "tf"), ("pin_a", "tf"), ("pin_a", "tilt_link"),
     # ch2: crank↔link and link↔carriage are NOT joined (1 mm apart in Z, checked);
@@ -223,11 +228,11 @@ JOINED = {frozenset(p) for p in [
     ("c2_tip_pin", "c2_crank"), ("c2_tip_pin", "c2_link"),
     ("c2_drive_pin", "carriage"), ("c2_drive_pin", "c2_link"),
     ("c2_ear_screws", "servo_ch2"), ("c2_ear_screws", "riser"), ("c2_ear_screws", "end_posts"),
-    ("dshaft", "end_posts"),
+    ("rex_shaft", "end_posts"),
     ("rod", "end_posts"), ("rbar", "end_posts"),
     # ch1: the coupler sits on the spline and clamps the shaft; the shaft must NOT reach
     # the spline (checked); the ear screws thread into the cage inserts
-    ("ch1_coupler", "servo_ch1"), ("ch1_coupler", "dshaft"),
+    ("ch1_coupler", "servo_ch1"), ("ch1_coupler", "rex_shaft"),
     ("c1_ear_screws", "servo_ch1"), ("c1_ear_screws", "end_posts"),
     ("rails", "riser"), ("motor_mounts", "riser"),
     ("motor_mounts", "rails"), ("card_guides", "rails"), ("rollers", "rails"), ("tray", "lower_ramp"),
@@ -237,19 +242,22 @@ JOINED = {frozenset(p) for p in [
 #   servo ears seated under their shelves / against the ch1 cage.
 CONTACT = {frozenset(p) for p in [("fpins", "carriage"), ("tf", "rbar"), ("servo_ch2", "riser"),
                                    ("servo_ch2", "end_posts"), ("servo_ch1", "end_posts")]}
-OWN = ["carriage", "tilt_crank", "tilt_link", "cradle", "tf", "cell", "card", "c2_crank", "c2_link", *C2_HW, "c2_horn", "c2_ear_screws",
-       "servo_ch2", "servo_ch1", "ch1_coupler", "c1_ear_screws", "rbar", "end_posts", "rod", "dshaft", "lower_ramp", "reject_bin", "riser"]
+OWN = ["carriage", "tilt_crank", "tilt_link", "tilt_pivot", "cradle", "tf", "cell", "card", "c2_crank", "c2_link", *C2_HW, "c2_horn", "c2_ear_screws",
+       "servo_ch2", "servo_ch1", "ch1_coupler", "c1_ear_screws", "rbar", "end_posts", "rod", "rex_shaft", "lower_ramp", "reject_bin", "riser"]
 # design-rule minimum clearances (moving pairs): name pair → (min mm, why)
 RULES = {("cradle", "tf"): (0.5, "weighing gap: cradle must never touch the tilt frame"),
          ("tf", "carriage"): (0.6, "TF body ↔ carriage"),
          ("c2_crank", "c2_link"): (0.8, "ch2 crank over link (horn screws flush)"),
          ("c2_link", "carriage"): (0.8, "ch2 link under the drive-pin arm"),
-         ("c2_horn_screws", "c2_link"): (0.8, "horn screw heads over the link at column 0")}
+         ("c2_horn_screws", "c2_link"): (0.8, "horn screw heads over the link at column 0"),
+         ("tilt_pivot", "carriage"): (0.5, "ch1 crank-link M3 × 16 head / nylock ↔ sled + cheeks"),
+         ("tilt_pivot", "tf"): (0.5, "ch1 crank-link M3 × 16 head / nylock ↔ tilt frame"),
+         ("tilt_pivot", "cell"): (0.5, "ch1 crank-link nylock ↔ load cell (weighing path)")}
 # fixed ↔ fixed design rules (static check): the bought ch1 coupler (boss swept over its
 # whole range) must clear the end post, and the shaft end must stay off the servo spline
 STATIC_RULES = {("ch1_coupler", "end_posts"): (1.0, "ch1 coupler (swept) ↔ end post / cage / ch2 gusset"),
-                ("dshaft", "servo_ch1"): (1.0, "shaft end ↔ ch1 spline (shaft bottoms in the coupler, not on the servo)")}
-STATIC_OWN = ["rbar", "end_posts", "rod", "dshaft", "servo_ch1", "ch1_coupler", "c1_ear_screws", "servo_ch2", "c2_horn",
+                ("rex_shaft", "servo_ch1"): (1.0, "shaft end ↔ ch1 spline (shaft bottoms in the coupler, not on the servo)")}
+STATIC_OWN = ["rbar", "end_posts", "rod", "rex_shaft", "servo_ch1", "ch1_coupler", "c1_ear_screws", "servo_ch2", "c2_horn",
               "c2_ear_screws", "lower_ramp", "reject_bin", "riser"]
 TILE_LIP = 3.0     # everything of the ch2 linkage stays ≥ 3 mm above the tiles (seam lips)
 BASE = np.array([[-285.0, -270.0, 4.0], [285.0, 270.0, 1e9]])   # baseplate top / extents
@@ -328,6 +336,7 @@ def run_collide(meshes, verbose=False):
         out = {
             "carriage": meshes["carriage"].copy().apply_transform(T_y),
             "tilt_crank": meshes["tilt_crank"].copy().apply_transform(T_crank),
+            "tilt_pivot": meshes["tilt_pivot"].copy().apply_transform(T_crank),
             "tilt_link": meshes["tilt_link"].copy().apply_transform(T_link),
             "c2_crank": meshes["c2_crank"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(psi)),
             "c2_horn_screws": meshes["c2_horn_screws"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(psi)),
@@ -394,6 +403,10 @@ def run_collide(meshes, verbose=False):
                        ("tilt_link", "carriage"), ("c2_crank", "carriage"), ("c2_link", "carriage"),
                        ("fpins", "carriage"), ("pin_a", "carriage"), ("pin_a", "cradle"), ("pin_a", "cell"),
                        ("pin_a", "tilt_crank"), ("fpins", "tilt_crank"),
+                       # ch1 crank-link pivot hardware (M3 × 16 SHCS + nylock) against everything that moves
+                       ("tilt_pivot", "carriage"), ("tilt_pivot", "tf"), ("tilt_pivot", "cell"),
+                       ("tilt_pivot", "cradle"), ("tilt_pivot", "card"), ("tilt_pivot", "pin_a"),
+                       ("tilt_pivot", "fpins"),
                        # ch2: links and every screw / pin against everything else that moves
                        ("c2_crank", "c2_link"), ("c2_horn_screws", "c2_link"), ("c2_horn_screws", "carriage"),
                        ("c2_tip_pin", "carriage"), ("c2_tip_pin", "c2_drive_pin"), ("c2_drive_pin", "c2_crank"),
@@ -484,6 +497,7 @@ def place_moving(meshes, yc, mode="F", a=0.0, psi=None):
     psi = c2_psi(yc) if psi is None else psi
     out = {"carriage": meshes["carriage"].copy().apply_transform(T_y),
            "tilt_crank": meshes["tilt_crank"].copy().apply_transform(T_y @ ry(-phi, D)),
+           "tilt_pivot": meshes["tilt_pivot"].copy().apply_transform(T_y @ ry(-phi, D)),
            "tilt_link": meshes["tilt_link"].copy().apply_transform(T_y @ trans(tip[0], 0, tip[1]) @ ry(-lang, (0, 0))),
            "c2_crank": meshes["c2_crank"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(psi)),
            "c2_horn_screws": meshes["c2_horn_screws"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(psi))}
@@ -529,7 +543,7 @@ def run_assembly(meshes):
     """Install order, step by step: every insertion is swept along its path against what is
     already installed, every screw gets a tool path (hex key) from its head outward."""
     V = echo_vals({"tie": "riser_tie_screws()", "fy": "riser_front_y()", "holes": "sh_end_post_holes()",
-                   "pina": "sh_pin_a_y()", "c1e": "sh_c1_ear_holes()", "c1y": "sg_c1_face_y()",
+                   "pina": "sh_pin_a_y()", "pivot": "sh_tilt_pivot_hw()", "crank_y": "sg_crank_y()", "link_y": "sg_link_y()", "c1e": "sh_c1_ear_holes()", "c1y": "sg_c1_face_y()",
                    "grub": "sh_rod_grubs()", "rear": "sg_c2_ear_y()", "face": "sg_c2_face_z()",
                    "riser_ear": "riser_ear_screws()", "hold": 'sg_crank_phi("hold")',
                    "clamp_m": 'sh_c1_clamp(sg_crank_phi("hold") - 30)', "clamp_0": 'sh_c1_clamp(sg_crank_phi("hold"))',
@@ -593,10 +607,27 @@ def run_assembly(meshes):
                     f"ch1 ear M3 × 10 SHCS + washer, along +Y from behind the servo (X {x}, Z {z}): 2.5 mm hex driver to Y −300")
     # ---- 2. bench: module (posts, rod, carriage, shaft, R-bar)
     print(" 2. bench: rod, carriage, shaft (REX, from +Y into the coupler), R-bar; coupler clamp; rod grubs")
+    # ch1 crank ↔ link pivot (§13.2, bench, before pin A and the shaft): M3 × 16 SHCS + nylock.
+    # Length: grip (crank + gap + link) + nylock + ≥ 1 mm of thread past the nylon ring.
+    hd, hh, nd, nh, ln = V["pivot"]; cy, ly = V["crank_y"], V["link_y"]
+    grip = cy[1] - ly[0]; past = ln - grip - nh
+    good = past >= 1.0
+    ok &= good
+    print(f"  {'ok  ' if good else 'FAIL'} crank-link pivot M3 × {ln:.0f} + nylock: grip {grip:.1f} (crank + gap + link) + nut {nh:.1f}, "
+          f"{past:.1f} mm of thread past the nut (need ≥ 1)")
+    # tools on the bench (crank + link joined at their HOLD angle, nothing else fitted yet):
+    # 2.5 mm hex key along +Y from the head, Ø10 nut driver (5.5 mm) along −Y from the nylock
+    fin = place_moving(meshes, 0.0, "F", TH_H)
+    phi_h = math.radians(crank_phi("F", TH_H)); tp = D + CR * np.array([math.cos(phi_h), math.sin(phi_h)])
+    bench = {n: fin[n] for n in ("tilt_crank", "tilt_link")}
+    ok &= clear(cyl_between([tp[0], cy[1] + hh + 0.2, tp[1]], [tp[0], cy[1] + hh + 80, tp[1]], 1.25), bench,
+                f"crank-link pivot: 2.5 mm hex key along +Y on the M3 × {ln:.0f} head (bench)")
+    ok &= clear(cyl_between([tp[0], ly[0] - 0.2, tp[1]], [tp[0], ly[0] - 80, tp[1]], 5.0), bench,
+                "crank-link pivot: Ø10 nut driver (5.5 mm) along −Y on the nylock (bench)")
     shaft_against = {"end_posts": meshes["end_posts"], "servo_ch1": meshes["servo_ch1"],
                      **{k: v for k, v in place_moving(meshes, 0.0, "F", TH_H).items() if k in ("carriage",)}}
     ok &= sweep("shaft slid along −Y from +440 mm (through post +Y, sled bushings, post −Y 688ZZ) into the coupler",
-                {"dshaft": meshes["dshaft"]}, shaft_against, [trans(y=d) for d in np.arange(440, -0.01, -4.0)])
+                {"rex_shaft": meshes["rex_shaft"]}, shaft_against, [trans(y=d) for d in np.arange(440, -0.01, -4.0)])
     for k, key, off in (("clamp_m", "−30°", -30), ("clamp_0", "0°", 0), ("clamp_p", "+30°", 30)):
         p0, u = (np.array(v, float) for v in V[k])
         pa = p0 + 7.05 * u         # head top (screw 14 long centred on the axis point)
@@ -623,7 +654,7 @@ def run_assembly(meshes):
     # ---- 4. module set down 10 mm in front of its place, then slid +Y 10 mm (front ear into the riser pocket)
     print(f" 4. module (step 1–3, carriage parked at Y {Y_PARK:.0f}, TF level) set down at Y −10 and slid +Y into place;"
           " ch2 rear-ear screws 1 turn loose (servo hangs 0.5 low)")
-    module = {n: meshes[n] for n in ["end_posts", "rbar", "rod", "dshaft", "servo_ch1", "ch1_coupler", "c1_ear_screws"]}
+    module = {n: meshes[n] for n in ["end_posts", "rbar", "rod", "rex_shaft", "servo_ch1", "ch1_coupler", "c1_ear_screws"]}
     module.update({n: m for n, m in place_moving(meshes, Y_PARK, "F", 0.0).items() if n not in ("c2_crank", "c2_horn_screws")})
     module.update({n: m.copy().apply_transform(trans(z=-0.5)) for n, m in {**c2, "c2_ear_screws_rear": meshes["c2_ear_screws_rear"]}.items()})
     steps = [trans(y=-10, z=dz) for dz in np.arange(80, 0, -2.0)] + [trans(y=-d) for d in np.arange(10, -0.01, -0.5)]
@@ -668,7 +699,7 @@ def run_assembly(meshes):
           f"(the Ø2.9→Ø2 seat shoulder at Y {y0}); knock-out from −Y through the Ø2")
     ok &= first is not None and first <= y0 + 0.01
     print(" 7. lower ramp + reject bin lowered onto the baseplate; the carriage (TF level) is parked clear of each")
-    base = {n: meshes[n] for n in ["end_posts", "rbar", "rod", "dshaft", "riser", "tray"]}
+    base = {n: meshes[n] for n in ["end_posts", "rbar", "rod", "rex_shaft", "riser", "tray"]}
     for part, yc in (("ramp_neg", TARGETS["3"]), ("ramp_pos", TARGETS["0"]), ("reject_bin", TARGETS["0"])):
         ok &= sweep(f"{part} lowered 120 mm (carriage at Y {yc:.0f})", {part: meshes[part]}, {**base, **place_moving(meshes, yc, "F", 0.0)},
                     [trans(z=d) for d in np.arange(120, -0.01, -3.0)], allow={(part, "tray")})

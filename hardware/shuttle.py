@@ -2,9 +2,9 @@
 Cradle-shuttle sorter at the belt exit (cad/shuttle.scad, cad/shuttle_geom.scad).
 
 Two MG996R servos on the shared PCA9685 (I2C 0x40, 50 Hz):
-  ch1 (CH_TILT)    turns an 8 mm REX shaft (the "D-shaft") along Y through a
-                   goBILDA clamping coupler; a crank + link on the
-                   carriage tips the tilt frame that carries the load cell and
+  ch1 (CH_TILT)    turns an 8 mm REX tilt shaft (goBILDA 2106-4008-4320, cut to
+                   417 mm) along Y through a goBILDA clamping coupler; a
+                   crank + link on the carriage tips the tilt frame that carries the load cell and
                    the cradle. Poses:
                      level  - home only: bed 0.7 mm under the belt, card rides on
                      hold   - 10° nose-down about the front pin: card tail lifted
@@ -18,7 +18,7 @@ Two MG996R servos on the shared PCA9685 (I2C 0x40, 50 Hz):
                    "lower" and "level" are the SAME ch1 direction: the R-bar has
                    notches only at home, so home gives level, every column lower.
   ch2 (CH_SHUTTLE) in-line slider-crank (139 mm crank, 162 mm link) moving the
-                   carriage along Y on an 8 mm rod + the D-shaft:
+                   carriage along Y on an 8 mm rod + the REX tilt shaft:
                      home (Y 0, belt), columns 0..3 (Y -102, -35, 35, 102),
                      reject (Y 176, beside the tray).
 

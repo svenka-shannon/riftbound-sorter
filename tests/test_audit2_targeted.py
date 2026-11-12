@@ -275,3 +275,84 @@ def test_camera_stall_brakes_the_belt(monkeypatch):
     t.join(2.0)
     assert not on, "belt keeps running while capture_lores_luma() blocks"
     assert out["r"].reason == "camera" and out["r"].jam
+
+
+# ── config/identify.json: validated like machine.json (exit 78, every bad key) ─
+_IDM_KEYS = ("MIN_CONF", "MIN_MARGIN_BITS", "FALLBACK", "FALLBACK_MIN_PHASH_CONF", "MAX_MISSING_FRACTION")
+
+
+@pytest.fixture
+def idm_cfg(monkeypatch, tmp_path):
+    from vision import identify as m
+    for k in _IDM_KEYS:
+        monkeypatch.setattr(m, k, getattr(m, k))
+    cfg = tmp_path / "identify.json"
+    monkeypatch.setattr(m, "CONFIG_FILE", cfg)
+    return m, cfg
+
+
+def test_identify_config_applies_every_key_normalised(idm_cfg):
+    m, cfg = idm_cfg
+    cfg.write_text(json.dumps({"_comment": "x", "min_conf": 0.9, "min_margin_bits": 12.0, "fallback": False,
+                               "fallback_min_phash_conf": 0.75, "max_missing_fraction": 0}))
+    applied = m.load_config()
+    assert applied == {"min_conf": 0.9, "min_margin_bits": 12, "fallback": False,
+                       "fallback_min_phash_conf": 0.75, "max_missing_fraction": 0.0}
+    assert m.MIN_CONF == 0.9 and m.MIN_MARGIN_BITS == 12 and isinstance(m.MIN_MARGIN_BITS, int)
+    assert m.FALLBACK is False and m.FALLBACK_MIN_PHASH_CONF == 0.75
+    assert m.MAX_MISSING_FRACTION == 0.0 and isinstance(m.MAX_MISSING_FRACTION, float)
+
+
+def test_identify_config_missing_file_keeps_defaults(idm_cfg):
+    m, _ = idm_cfg
+    before = {k: getattr(m, k) for k in _IDM_KEYS}
+    assert m.load_config() == {}
+    assert {k: getattr(m, k) for k in _IDM_KEYS} == before
+
+
+def test_identify_config_lists_every_bad_key_and_applies_nothing(idm_cfg):
+    m, cfg = idm_cfg
+    before = {k: getattr(m, k) for k in _IDM_KEYS}
+    cfg.write_text(json.dumps({"min_conf": "0.9", "min_margin_bits": 3.5, "fallback": "false",
+                               "fallback_min_phash_conf": 1.5, "max_missing_fraction": -0.1,
+                               "min_cof": 0.8}))
+    with pytest.raises(m.IdentifyConfigError) as ei:
+        m.load_config()
+    probs = ei.value.problems
+    assert len(probs) == 6, probs
+    for key in ("min_conf", "min_margin_bits", "fallback", "fallback_min_phash_conf",
+                "max_missing_fraction", "min_cof"):
+        assert any(p.startswith(f"{key}:") for p in probs), (key, probs)
+    assert "refusing to start" in str(ei.value)
+    assert {k: getattr(m, k) for k in _IDM_KEYS} == before        # all or nothing
+
+
+@pytest.mark.parametrize("text, expect", [
+    ("{oops", "not valid JSON"),
+    ('{"min_conf": NaN}', "not valid JSON"),
+    ('[0.8]', "top level must be a JSON object"),
+    ('{"min_conf": true}', "min_conf: must be a number"),
+    ('{"min_margin_bits": 257}', "min_margin_bits: 257 is outside [0, 256]"),
+    ('{"min_conf": 0.4}', "min_conf: 0.4 is outside [0.5, 1.0]"),
+    ('{"min_conf": 0.75, "fallback_min_phash_conf": 0.8}', "must not exceed min_conf"),
+])
+def test_identify_config_rejects(idm_cfg, text, expect):
+    m, cfg = idm_cfg
+    cfg.write_text(text)
+    with pytest.raises(m.IdentifyConfigError) as ei:
+        m.load_config()
+    assert any(expect in p for p in ei.value.problems), ei.value.problems
+
+
+def test_bad_identify_config_lists_every_bad_key_and_exits_78(tmp_path):
+    cfg = tmp_path / "identify.json"
+    cfg.write_text(json.dumps({"min_conf": 2, "fallback": "no", "min_margin_bit": 10}))
+    env = dict(os.environ, RIFTBOUND_IDENTIFY_CONFIG=str(cfg), MOCK_HARDWARE="1")
+    env.pop("RIFTBOUND_MACHINE_CONFIG", None)
+    p = subprocess.run([sys.executable, str(ROOT / "main.py"), "--web-token"], env=env,
+                       capture_output=True, text=True, cwd=tmp_path)
+    assert p.returncode == 78, p.stdout + p.stderr
+    assert "identify.json" in p.stderr and "refusing to start" in p.stderr
+    for key in ("min_conf:", "fallback:", "min_margin_bit:"):
+        assert key in p.stderr, p.stderr
+    assert "Traceback" not in p.stderr
