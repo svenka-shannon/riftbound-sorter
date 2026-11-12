@@ -32,7 +32,15 @@ roller_dia  = 22;
 roller_w    = 88;    // 90mm rail gap − 2 × 1.0mm running clearance
 shaft_bore  = 8.2;   // clearance for 8mm steel rod (ream with 8mm bit)
 
-// Round-belt grooves: U-groove, R1.6 bottom, straight walls to the OD
+// Round-belt grooves: R1.6 round bottom + 45° flanks to the OD (teardrop on
+// both sides). The old U-groove (R1.6 + flanks parallel to the OD) put a flat
+// ceiling over the cord when printed axis-vertical: the region flatter than
+// 45° spanned r 9.47 → 11.0 = 1.53 mm, the last layer stepping out ≈ 1.2 mm in
+// one go, right where the cord has only 0.15 mm side clearance — droop would
+// pinch the belt. With 45° flanks nothing overhangs past 45°. The tensioned
+// cord (r 1.45) seats in the R1.6 bottom, which centres it; at its equator
+// (r 10.45) the groove is ±2.11, i.e. ≤ 0.66 mm free side play, and the
+// mouth at the OD is 5.3 wide (lands 11.7 between strands).
 belt_cs      = 3.0;                 // O-ring cross-section (free)
 belt_y       = [-25.5, -8.5, 8.5, 25.5];   // strand centres, machine Y (17mm pitch)
 groove_r     = 1.6;                 // bottom radius (free cord r 1.5 + 0.1)
@@ -76,6 +84,15 @@ module d_bore(h)
             cube([2 * shaft_bore, shaft_bore, h + 2]);
     }
 
+// Groove profile in the (r, z) half-plane: R1.6 circle + 45° tangent flanks
+module groove_2d() {
+    t  = groove_r / sqrt(2);                 // 45° tangent point offset (1.13)
+    r0 = groove_c - t;                       // 9.47
+    r1 = roller_dia / 2 + 1;                 // past the OD
+    translate([groove_c, 0]) circle(r = groove_r, $fn = 32);
+    polygon([[r0, -t], [r1, -t - (r1 - r0)], [r1, t + (r1 - r0)], [r0, t]]);
+}
+
 module roller() {
     difference() {
         cylinder(d = roller_dia, h = roller_w, $fn = 96);
@@ -86,10 +103,7 @@ module roller() {
         // Round-belt grooves (U profile: R1.6 circle + straight walls)
         for (y = belt_y)
             translate([0, 0, y + roller_w / 2])
-                rotate_extrude($fn = 96) {
-                    translate([groove_c, 0]) circle(r = groove_r, $fn = 32);
-                    translate([groove_c, -groove_r]) square([roller_dia, 2 * groove_r]);
-                }
+                rotate_extrude($fn = 96) groove_2d();
 
         // Grub-screw insert hole (radial, through the flat side) + screw hole
         translate([0, roller_dia / 2 + 0.1, grub_z]) rotate([90, 0, 0]) {
@@ -126,7 +140,7 @@ roller();
 
 // =============================================
 // PRINT ORIENTATION: axis vertical (on end); spacer flat
-// SUPPORTS: none (groove tops are ≤0.5mm curved overhangs; Ø4 radial hole bridges)
+// SUPPORTS: none (groove flanks are 45°, see the groove note; Ø4 radial hole bridges)
 // POST-PROCESS: ream bore with an 8mm drill bit (keep the flat),
 //   heat-set one M3 insert into the radial hole, flush with the surface.
 // ROD: full-length flat, ~0.5mm deep / 4mm wide (or buy 8mm D-shaft) —

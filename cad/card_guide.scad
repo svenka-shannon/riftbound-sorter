@@ -17,9 +17,9 @@
 // CROSS-SECTION (back guide, +Y side; front guide is the mirror image)
 //
 //      z 99 ─ rail top ─────────── ┌──────────┬─┐ ← groove fill sits on the
-//                      45° funnel  /          │ │   rail groove floor (z 96.5)
-//                                 /           │ └─┐  rail wall
-//      z 93.8   R3 rounded top  (             │   │  |Y| 45..48
+//                      45° funnel  /          │ │   rail groove floor (z 96.5);
+//                                 /           │ └─┐  rail fin |Y| 46.8..48 (1.2)
+//      z 93.8   R3 rounded top  (             │   │  rail wall |Y| 45..48
 //      z 92.6  vertical contact │             │   │
 //              face, |Y| 33.2   │             │   │
 //      z 90.4  ─ guide bottom ─ └─────────────┘   │
@@ -44,10 +44,11 @@
 //
 // RETENTION: the groove fill rests on the rail groove floor and the guide
 //   body bears against the rail inner face (its centre of mass is inboard of
-//   the ledge, so it leans into the rail on its own). The hood sits on top of
-//   both guides over the scan zone, and a clip at each end of the hood snaps
-//   over the rail wall: inner leg in a pocket in the guide top, outer jaw on
-//   the rail's outer face. No screws, no holes in the rails.
+//   the ledge, so it leans into the rail on its own). The hood stands on the
+//   rails' 1.2 mm top fins just outboard of the guides (0.4 mm above them),
+//   and a clip at each end of the hood snaps over the rail wall: bridge on
+//   the guide top + fin top, inner leg in a pocket in the guide top, outer jaw
+//   on the rail's outer face (fin + full wall). No screws, no holes in the rails.
 // =============================================
 
 use <machine_frame.scad>
@@ -66,7 +67,9 @@ drop_x     = frame_drop_x();         // card centre at release
 belt_x1    = frame_belt_x1();        // 85   belt / rail end
 rail_h     = 35;                     // conveyor_rail.scad rail_h
 rail_wall  = 3;                      // conveyor_rail.scad wall
-groove     = 2.5;                    // conveyor_rail.scad groove_depth (square)
+groove     = 2.5;                    // conveyor_rail.scad groove_depth (groove height)
+groove_y   = 1.8;                    // conveyor_rail.scad groove_y (depth into the wall;
+                                     //   leaves a 1.2 mm fin at |Y| 46.8..48)
 rail_top   = deck_z + rail_h;        // 99
 groove_fl  = rail_top - groove;      // 96.5 groove floor = guide seat
 
@@ -84,7 +87,7 @@ fil_r      = 3;                      // round between face and funnel
 fun_a      = 45;                     // funnel slope from horizontal
 fit        = 0.1;                    // clearance to rail faces
 g_out      = rail_in - fit;          // 44.9 bears on the rail inner face
-fill_out   = rail_in + groove - fit; // 47.4 groove fill outer face (rail fin at 47.5)
+fill_out   = rail_in + groove_y - fit; // 46.7 groove fill outer face (rail fin at 46.8)
 
 fil_td     = fil_r / tan((90 + fun_a) / 2);   // 1.24 tangent length
 z_corner   = v_top + fil_td;                  // 93.84 virtual corner
@@ -203,7 +206,8 @@ module prof_clip() {
         [clip_jaw_y[0], clip_jaw_z0 + 1.2],
         [clip_jaw_y[0] + 0.8, clip_jaw_z0],
         [clip_jaw_y[1], clip_jaw_z0],
-        [clip_jaw_y[1], top],
+        [clip_jaw_y[1], top - 0.8],          // 0.8 chamfer on the outer top edge
+        [clip_jaw_y[1] - 0.8, top],          //   (the one a hand runs along)
         [clip_leg_y[0], top],
     ]);
 }
@@ -236,14 +240,10 @@ if (part == "guide_back")  translate([-g_x0, 0, rail_top]) rotate([180, 0, 0]) g
 if (part == "guide_front") translate([-g_x0, 0, rail_top]) rotate([180, 0, 0]) guide_front();
 if (part == "clip") clip_print();
 
-// Clip in print orientation (profile on the bed), with the outer top edge of
-// the jaw (the one a hand runs along) broken by a 0.8 mm chamfer
-module clip_print()
-    difference() {
-        linear_extrude(clip_l) prof_clip();
-        translate([clip_jaw_y[1], rail_top + clip_t, clip_l / 2]) rotate([0, 0, 45])
-            cube([0.8 * sqrt(2), 0.8 * sqrt(2), clip_l + 2], center = true);
-    }
+// Clip in print orientation (profile on the bed). The 0.8 mm chamfer on the
+// jaw's outer top edge is part of the 2D profile (a rotated-cube cutter left
+// zero-area slivers → non-manifold STL).
+module clip_print() linear_extrude(clip_l) prof_clip();
 
 // =============================================
 // INSTALL: drop each guide into its rail's top groove from above (groove

@@ -39,7 +39,8 @@
 //   coupler 5->8 D19L25 107.6 .. 132.6
 //   cap (motor plate)   129.6 .. 134.6, 28BYJ-48 body on top -> 153.6
 //   guide rods 8 x 150  0.6 .. 150.6 (stick 16 mm out of the cap)
-//   cavity walls        to pick_z + 3.5 = 90.4
+//   cavity walls        to pick_z + 3.5 = 90.4; from pick_z - 1 = 85.9 up the
+//                       cavity steps out (lift relief: +X 1.0, other walls 0.5)
 //
 // TOP-OF-STACK SENSING (why a flag, not the bare switch lever):
 //   A microswitch lever resting on the card would be dragged up with the card
@@ -85,8 +86,22 @@ base_t   = 3;
 pick_z   = frame_card_z() - frame_base_top();   // 86.9
 lip      = 3.5;                 // walls rise this far above pick_z (guides the top cards)
 wall_top = pick_z + lip;        // 90.4
-corner_r = 2.5;                 // vertical corner relief
-top_ch   = 1.5;                 // 45° chamfer on the cavity rim
+corner_r = 1.2;                 // vertical corner relief (centred on the cavity corner;
+                                //   leaves 1.8 mm of the 3 mm wall, cards have r ≈ 3 corners)
+// LIFT RELIEF (audit 2026-11-11). The arm's arc is 2° off vertical at pick, so
+// a lifted card drifts +X: 0.18 mm while the slider is still compressed (card
+// underside Z 90.57 machine), 0.42 at Z 92.9, 0.63 at the rim (Z 94.4). With
+// the card's ±1.5 mm X play against the +X wall that scraped its short edge.
+// Above relief_z the cavity steps out (+X by relief_px, the other three walls by
+// relief_p): a card sitting against any wall then clears it by ≥ 0.3 mm over
+// the whole lift (cad/pick_arm_check.py, card-offset cases ±1.5 X / ±1.5 Y).
+// relief_z is 1 mm below the top card's top face, so the top card's underside
+// (0.33 below) starts 0.67 mm above the step edge. Only the top ~3 cards are
+// in the relief zone; the stack below is still guided by the 91 x 66 walls.
+relief_z  = pick_z - 1.0;       // 85.9 local = machine Z 89.9
+relief_px = 1.0;                // +X (belt-side) wall: drift side
+relief_p  = 0.5;                // -X, +Y, -Y walls
+top_ch   = 0.8;                 // 45° chamfer on the (relieved) cavity rim; rim land ≥ 1.2
 edge_ch  = 0.6;                 // chamfer on slot edges that cards slide past
 
 // Slots (all open to the top, so no card edge can catch while rising)
@@ -267,13 +282,17 @@ module hopper_body() {
             tower_shell();
             at_flag() flag_cheeks();
         }
-        // cavity, corner reliefs, rim chamfer
+        // cavity, corner reliefs, lift relief, rim chamfer
         translate([-hx, -hy, base_t]) cube([cav_x, cav_y, wall_top]);
         for (sx = [-1, 1], sy = [-1, 1])
             translate([sx * hx, sy * hy, base_t]) cylinder(r = corner_r, h = wall_top, $fn = 32);
+        translate([-hx - relief_p, -hy - relief_p, relief_z])
+            cube([cav_x + relief_p + relief_px, cav_y + 2 * relief_p, wall_top]);
         hull() {
-            translate([-hx, -hy, wall_top - top_ch]) cube([cav_x, cav_y, 0.01]);
-            translate([-hx - top_ch, -hy - top_ch, wall_top]) cube([cav_x + 2 * top_ch, cav_y + 2 * top_ch, 0.01]);
+            translate([-hx - relief_p, -hy - relief_p, wall_top - top_ch])
+                cube([cav_x + relief_p + relief_px, cav_y + 2 * relief_p, 0.01]);
+            translate([-hx - relief_p - top_ch, -hy - relief_p - top_ch, wall_top])
+                cube([cav_x + relief_p + relief_px + 2 * top_ch, cav_y + 2 * relief_p + 2 * top_ch, 0.01]);
         }
         // carriage shelf passage through the +Y wall (open to the top)
         translate([-slot_w / 2, hy - 0.1, base_t]) cube([slot_w, wall + 0.2, cap_z0]);

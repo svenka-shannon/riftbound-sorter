@@ -39,10 +39,14 @@ rail_h      = 35;
 wall        = 3.0;
 card_h      = 88;     // Riftbound card length (along X)
 
-// Card guide groove (legacy, top of the inner face; the card actually rides
-// at Z≈31 and is guided by the slide bed lips — see slide_bed.scad)
-groove_depth = 2.5;
-groove_w     = 1.5;
+// Card-guide seat groove (top of the inner face). card_guide.scad hangs its
+// groove fill in it (fill rests on the groove floor, local Z 32.5 = machine
+// 96.5). The groove is 2.5 tall but only 1.8 deep into the 3 mm wall, so the
+// fin left along the rail top is 1.2 mm thick (was 0.5 × 2.5 with a 2.5 deep
+// groove: one perimeter, and the hood seat + clip jaws bear on it).
+groove_depth = 2.5;          // vertical (Z) height of the groove
+groove_y     = 1.8;          // horizontal depth into the wall → fin wall - groove_y = 1.2
+assert(wall - groove_y >= 1.2 - 1e-6, "rail-top fin thinner than 1.2 mm");
 
 // Roller shafts
 shaft_y      = 15;    // rod axis height above the rail base
@@ -71,8 +75,8 @@ mm_pad_d        = 9.0;
 mm_insert_d     = 4.1;
 mm_insert_depth = wall + boss_h - 1.0;   // 9.0mm blind, from pad face
 
-// Baseplate fastening — L-feet on the OUTER face, M3 through the foot, the
-// 4mm baseplate tile and the backing board, nut underneath. The tile M3 grid
+// Riser-deck fastening — L-feet on the OUTER face, M3 through the foot into
+// the riser (see FEET at the bottom for lengths). The tile M3 grid
 // (baseplate_tile.scad, 30mm pitch) has a row at |Y| = 75 (and at 45, which
 // is exactly the rail inner face, so unusable); feet reach out to it.
 foot_t       = 4.0;          // foot plate thickness (Z)
@@ -101,6 +105,7 @@ function rail_shaft_x(far)      = far ? shaft_x2 : shaft_x1;
 function rail_mm_screw_offsets() = [[-mm_screw_dx, mm_screw_dz],
                                     [ mm_screw_dx, mm_screw_dz]];
 function rail_foot_hole_y()     = foot_hole_y;
+function rail_groove()          = [groove_y, groove_depth];   // [depth into wall, height]
 
 echo(str("RAIL: 608 pocket Ø", pocket_d, " × ", pocket_depth, ", boss Ø", boss_d,
          ", shoulder hole Ø", shoulder_d, "; insert hole edge r = ",
@@ -185,7 +190,7 @@ module rail_half(add_shaft_far = false, add_shaft_near = undef, motor_mount = fa
 
         // Card guide groove (inner face, top)
         translate([-0.1, -0.1, rail_h - groove_depth])
-            cube([rail_len + 0.2, groove_depth + 0.1, groove_depth + 0.1]);
+            cube([rail_len + 0.2, groove_y + 0.1, groove_depth + 0.1]);
 
         if (near)          shaft_station_cut(shaft_x1, motor_mount);
         if (add_shaft_far) shaft_station_cut(shaft_x2, motor_mount);
@@ -212,6 +217,14 @@ if (part == "front2") mirror([0, 1, 0]) rail_half(add_shaft_far = true,  motor_m
 //   only, until it seats on the shoulder (flush with the boss face).
 // HEAT-SET INSERTS (front rail only): 4× M3, pressed in from the pad face
 //   with a soldering iron at ~220°C, flush with the pad face.
-// FEET: 8 total (4 per rail line) → M3 × (4 + 4 + t_board + nut ≈ 3)
-//   e.g. M3 × 25 for a 12mm board, washer + nut under the board.
+// FEET: 8 total (4 per rail line). The rails stand on the riser deck
+//   (riser.scad), not on the baseplate, so a foot screw either goes through
+//   the whole riser or into a deck insert:
+//   - through-feet front X −80, back X −120 / −80 / +10: clamp = foot 4 +
+//     riser 60 + tile 4 + 6 mm backing board = 74 → M3 × 80 (or 85 mm M3
+//     threaded rod), washer + nut under the board (6 mm left for 0.5 washer
+//     + 2.4 nut + thread).
+//   - insert feet front X −50, back X +40: M3 × 10 into the deck's M3 × 5.7
+//     heat-set insert. Front X −20 / +10 also carry the camera bracket foot
+//     (6 mm): M3 × 16 there (the insert has a 14 mm relief below).
 // =============================================

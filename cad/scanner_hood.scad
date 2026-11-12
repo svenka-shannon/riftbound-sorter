@@ -1,9 +1,11 @@
 // =============================================
 // Riftbound Card Sorter — Scanner Hood (+ asm_scan_station)
 // =============================================
-// Light-tight box over the scan zone. Straddles both conveyor rails, rests
-// on the rail tops + the card guides' groove fills (z 99), skirts overlap
-// the rails' outer faces by 5 mm. The camera (camera_bracket.scad) hangs
+// Light-tight box over the scan zone. Straddles both conveyor rails and rests
+// ONLY on the rails' 1.2 mm top fins (z 99; contact |Y| 47.1..48 × 108 mm per
+// side ≈ 190 mm² — the hood keeps 0.4 mm off the card guides and their
+// groove fills, which stop at |Y| 46.7), skirts overlap the rails' outer
+// faces by 5 mm. The camera (camera_bracket.scad) hangs
 // above it with the lens through the roof port, so no room light reaches
 // the card except through the two low card slots.
 //

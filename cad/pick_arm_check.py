@@ -18,6 +18,12 @@ Usage:
   cad/pick_arm_check.py                 # pick→drop, servo step 10° + ends + fine lift
   cad/pick_arm_check.py --step 5 --full # also sweep the full servo range 0..180
   cad/pick_arm_check.py --verbose       # per-pose table
+
+Card-offset cases (always run): the card has ±1.5 mm play in X and Y in the
+91 × 66 hopper cavity, so the held card is also swept shifted +X/−X/+Y/−Y by
+--card-play (default 1.5) relative to the cup, finely around the lift off the
+stack. It must clear the hopper by ≥ --card-clear (default 0.3 mm) at every
+pose and touch nothing else (the feeler flag is a designed light touch).
 """
 import argparse
 import json
@@ -98,6 +104,8 @@ def main() -> None:
     ap.add_argument("--verbose", action="store_true", help="print the per-pose table")
     ap.add_argument("--top", type=int, default=14, help="how many closest pairs to list (default 14)")
     ap.add_argument("--workdir", type=Path, default=None, help="keep STLs here (default: temp dir)")
+    ap.add_argument("--card-play", type=float, default=1.5, help="card X/Y play in the hopper cavity (default 1.5)")
+    ap.add_argument("--card-clear", type=float, default=0.3, help="min card-to-hopper clearance (default 0.3)")
     args = ap.parse_args()
 
     work = args.workdir or Path(tempfile.mkdtemp(prefix="pick_arm_check_"))
@@ -277,6 +285,38 @@ def main() -> None:
         _, hits_full = sweep(sorted(set(list(np.arange(0, 181, args.step)) + [180.0])), "FULL SERVO RANGE 0..180")
         hits = hits + hits_full
 
+    # ---- held card offset in the hopper (±play in X and Y) ----
+    # The card is picked wherever it lies in the cavity, so relative to the cup
+    # it can sit ±play off-centre. The lift is 2° off vertical (+X drift), so the
+    # +X case is the critical one. Fine steps over the lift off the stack, plus
+    # the whole working arc, vs every static obstacle.
+    lift = sorted(set(list(np.arange(s_hi, s_hi - 20, -0.25)) + angles))
+    play = args.card_play
+    print(f"\nHELD CARD OFFSET in the hopper (play ±{play}), {len(lift)} poses, need ≥ {args.card_clear} mm to the hopper:")
+    off_fail = []
+    for dx, dy in [(0.0, 0.0), (play, 0.0), (-play, 0.0), (0.0, play), (0.0, -play)]:
+        Toff = trimesh.transformations.translation_matrix([dx, dy, 0.0])
+        best = {}
+        for s in lift:
+            th, c, T, _ = poses(s)
+            Tc = T["card"] @ Toff
+            for o in static_obst + fixed_arm:
+                if excluded("card", o, c, th) or o == "flag":
+                    continue
+                d = mgr[o].min_distance_single(meshes["card"], transform=Tc)
+                if o not in best or d < best[o][0]:
+                    best[o] = (d, s)
+        hd, hs = best["hopper"]
+        others = sorted(((d, o, s) for o, (d, s) in best.items() if o != "hopper"))[:2]
+        ok = hd >= args.card_clear - 1e-6 and all(d > 0 for d, _, _ in others)
+        lab = f"X{dx:+.1f} Y{dy:+.1f}"
+        print(f"  {'OK ' if ok else 'BAD'} card {lab}: hopper min {hd:5.2f} @ servo {hs:6.2f}; next closest "
+              + ", ".join(f"{o} {d:.2f} @ {s:.2f}" for d, o, s in others))
+        if not ok:
+            off_fail.append(lab)
+    if off_fail:
+        print("  CARD-OFFSET FAILURES:", off_fail)
+
     # flag (intended contact) report
     print("\nheld card vs hopper feeler flag (intended light touch near pick):")
     for s in np.linspace(s_hi - 6, s_hi, 7):
@@ -284,7 +324,7 @@ def main() -> None:
         d = mgr["flag"].min_distance_single(meshes["card"], transform=T["card"])
         lip = pz + R * np.sin(np.radians(th)) - h + c
         print(f"  servo {s:6.2f}  card top Z {lip:7.2f}  card-flag {d:6.2f}")
-    sys.exit(1 if hits else 0)
+    sys.exit(1 if hits or off_fail else 0)
 
 
 if __name__ == "__main__":

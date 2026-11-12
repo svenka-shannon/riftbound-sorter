@@ -328,8 +328,12 @@ module tower() {   // MACHINE coords
             ycyl(2.3, anc_y[0] - 1, anc_y[1] + 1, 24);
             translate([0, anc_y[1] + eps, 0]) rotate([90, 0, 0]) cylinder(d1 = 13, d2 = 4.6, h = 5, $fn = 48);
         }
-        // zip-tie slots (tube + servo cable down the back of the column)
-        for (z = [40, 75]) translate([px - 8, col_y[0] + 2.5, z]) cube([16, 2.2, 4]);
+        // zip-tie channels (tube + servo cable down the back of the column):
+        // 4 × 2.2 tunnels 2.5 mm behind the back face, open through BOTH ±X
+        // side faces, so a tie threads in one side and out the other around
+        // the 2.5 mm back strip. Z 55 / 80: above the gussets (they end at
+        // Z 50), so the tunnel ends are not blocked.
+        for (z = [55, 80]) translate([px - col_hx - 1, col_y[0] + 2.5, z]) cube([2 * col_hx + 2, 2.2, 4]);
         translate([px - 7, anc_y[0] + 2.5, pz - 9]) cube([14, 2.2, 4]);
     }
 }
@@ -547,8 +551,9 @@ if (part == "ref_card")   translate([px + R, 0, pz]) held_card(0);
 //   1× SMC ZPT16BS-B5 bellows pad (Ø16 silicone, M5 female)
 //   1× Festo CN-M5-PK-3 barb (M5 male, 4 mm OD tube) — or any M5 × 4 mm barb
 //   ~400 mm 4 mm OD vacuum tube (soft PU PUN-H-4×0.75 or silicone 2×4)
-//   Tower: 4× M3×16 + nuts/washers through the baseplate; head→tower 4× M3×12
-//      into 4 heat-set inserts in the column top.
+//   Tower: 4× M3×20 + washer + nut through foot (6) + tile (4) + 6 mm backing
+//      board = 16 mm clamp (+0.5 washer + 2.4 nut + ≥1 thread → M3×20);
+//      head→tower 4× M3×12 into 4 heat-set inserts in the column top.
 // ASSEMBLY ORDER
 //   1. Inserts. Press B/C dowels into the plate (from the front, flush at the back).
 //   2. Servo into the head from behind, tabs on the plate's back face, 4 screws.

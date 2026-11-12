@@ -8,7 +8,7 @@
 //     (never touches in normal running; catches a sagging/pressed belt)
 //   - lands between the channels are 1.0mm below the card plane, so a
 //     bowed card can dip at most 1.0mm — flat zone for the scanner
-//     (camera axis X = -40, hood X -77.5..-2.5).
+//     (camera axis X = frame_cam_x() = 5, hood X -49..59).
 // Belt sag without the bed is already < 0.25mm (see conveyor_roller.scad);
 // the bed is cheap insurance against O-ring stress relaxation and cards
 // being pressed down by the suction arm.
@@ -20,13 +20,14 @@
 // Captured, no screws: rails ±0.5mm in Y, rollers ±2mm in X, belts above.
 //
 // Frame: x = 0 at machine X = -127 (13mm past the near roller axis),
-// y = 0 on the belt axis, z = 0 on the baseplate top (machine Z = 4).
-// Place: translate([-127, 0, base_top]) slide_bed();
+// y = 0 on the belt axis, z = 0 on the riser deck = rail base (machine Z 64).
+// Place: translate([slide_bed_x0(), 0, frame_deck_z()]) slide_bed();
 // Material: PLA/PETG, 0.2mm, 3 walls, 20% infill
 // =============================================
 
 use <conveyor_rail.scad>
 use <conveyor_roller.scad>
+use <machine_frame.scad>
 
 roller_c      = 200;                      // roller centre distance
 end_clr       = 13;                       // bed end → roller axis
@@ -55,7 +56,7 @@ function slide_bed_x0()     = -127;                     // machine X of local x 
 function slide_bed_card_z() = card_z;
 
 echo(str("SLIDE BED: ", bed_len, " × ", 2 * bed_hw, " × ", land_z,
-         " mm; card plane z=", card_z, " (machine ", card_z + 4, "); land z=", land_z,
+         " mm; card plane z=", card_z, " (machine ", card_z + frame_deck_z(), "); land z=", land_z,
          "; channel floor z=", chan_floor_z, "; belt bottom z=", belt_bot_z,
          "; return-span top z=", return_top_z, "; rib bottom z=", rib_z0));
 assert(rib_z0 - return_top_z >= 3, "ribs too close to the return span");
@@ -63,8 +64,10 @@ assert(rib_z0 - return_top_z >= 3, "ribs too close to the return span");
 module slide_bed() {
     difference() {
         union() {
-            // Top plate
-            translate([0, -bed_hw, plate_z0]) cube([bed_len, 2 * bed_hw, land_z - plate_z0]);
+            // Top plate. 1 mm narrower than the skirts' outer faces so its
+            // corners sit inside the skirts (no collinear outline vertices →
+            // the exported mesh is cleanly watertight); lands still reach |Y| 43.5
+            translate([0, -(bed_hw - 1), plate_z0]) cube([bed_len, 2 * (bed_hw - 1), land_z - plate_z0]);
             // Side skirts (outside all belts, inside the rails)
             for (s = [-1, 1])
                 translate([0, s > 0 ? bed_hw - skirt_t : -bed_hw, 0])
