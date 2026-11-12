@@ -110,8 +110,10 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> bool:
                 print("[main] No card detected — hopper empty?")
             return False
 
-        if result == "double":
-            print(f"[main] Double pick ({weight_g:.1f}g) — releasing extra")
+        if result in ("double", "unknown"):
+            # "unknown" = weight outside every band (e.g. bent/partial pick): never
+            # treat it as a good single card.
+            print(f"[main] {result} pick ({weight_g:.1f}g) — releasing")
             # B-21 fix: do NOT pulse the pump (that re-applies suction and holds the
             # cards). Cut suction, let pressure equalize, and gravity drops both cards
             # back into the hopper before the arm lifts.
@@ -159,6 +161,7 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> bool:
         _stats["unknowns"] += 1
         conveyor.run()
         time.sleep(SORT_TRAVEL_S)
+        conveyor.stop()   # don't leave the belt running into the next pick
         return True
 
     card = riftcodex.get_card(card_id)
@@ -175,6 +178,7 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> bool:
         servos.route_card(bin_num)
     conveyor.run()
     time.sleep(SORT_TRAVEL_S)
+    conveyor.stop()   # don't leave the belt running into the next pick
 
     # 7. Log to inventory
     inventory.record_scan(card_id, card_name, bin_num, confidence)

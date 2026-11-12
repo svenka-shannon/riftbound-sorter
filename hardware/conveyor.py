@@ -73,14 +73,21 @@ def stop():
 
 
 def brake():
-    """Active brake (hold position)."""
+    """Active brake: short the motor terminals briefly, then coast.
+
+    L9110S truth table: IA=H, IB=H -> brake; IA=L, IB=L -> coast;
+    IA=L, IB=H -> REVERSE. The old code held FWD at 0% duty (= LOW) with REV
+    HIGH, which drove both motors in reverse at full power for 50 ms.
+    """
     if _MOCK:
         return
-    _pwm_a.ChangeDutyCycle(0)
-    _pwm_b.ChangeDutyCycle(0)
-    GPIO.output(MOTOR_A_REV, GPIO.HIGH)
+    _pwm_a.ChangeDutyCycle(100)      # FWD input HIGH
+    _pwm_b.ChangeDutyCycle(100)
+    GPIO.output(MOTOR_A_REV, GPIO.HIGH)  # REV input HIGH -> both HIGH = brake
     GPIO.output(MOTOR_B_REV, GPIO.HIGH)
     time.sleep(0.05)
+    _pwm_a.ChangeDutyCycle(0)        # release to coast (both LOW)
+    _pwm_b.ChangeDutyCycle(0)
     GPIO.output(MOTOR_A_REV, GPIO.LOW)
     GPIO.output(MOTOR_B_REV, GPIO.LOW)
 
