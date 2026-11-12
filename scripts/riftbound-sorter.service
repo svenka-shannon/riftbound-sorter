@@ -16,7 +16,8 @@ ExecStart=/opt/riftbound-sorter/venv/bin/python main.py
 ExecStopPost=+/usr/bin/python3 /opt/riftbound-sorter/scripts/safe_outputs.py
 Restart=on-failure
 RestartSec=10
-# 78 = EX_CONFIG: config/machine.json is invalid — restarting will not help
+# 78 = EX_CONFIG: config/machine.json, identify.json, shuttle_calibration.json,
+# servo_calibration.json or bin_limits.json is invalid — restarting will not help
 RestartPreventExitStatus=78
 
 # systemd watchdog: main.py sends WATCHDOG=1 (sd_notify) from its main loop at

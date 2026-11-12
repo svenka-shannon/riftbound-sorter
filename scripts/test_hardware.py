@@ -18,6 +18,20 @@ Usage:
         # has RPi.GPIO / picamera2 / adafruit libraries; a uv script env does not
 
 Run each test with NO card in the machine unless the prompt asks for one.
+
+Sorter interlock (audit 3 M2): the tool takes the sorter's instance lock
+(data/sorter.lock — refuses to run while the sorter service or another tool
+runs: `sudo systemctl stop riftbound-sorter` first) and, BEFORE anything
+moves, records the machine as NOT clean in data/machine_state.json
+("tool ran: ..."). It never records it clean again — the tool may stop
+anywhere (crash, Ctrl-C, power cut) with the carriage at a column, the
+cradle tipped or a card in the machine — so the next sorter start always
+asks for "Machine clear" (web UI or `main.py --confirm-clear`). MOCK runs use
+the mock files (machine_state.mock.json, sorter.mock.lock).
+
+Calibration files: an invalid config/servo_calibration.json or
+config/shuttle_calibration.json stops the tool (exit 78) with the list of bad
+keys, exactly like the sorter — nothing moves.
 """
 
 import argparse
@@ -40,6 +54,21 @@ DETECT_WATCH_S = 10.0
 # Populated by init_hardware() — the env var must be set before import.
 servos = vacuum = loadcell = camera = conveyor = elevator = shuttle = card_detect = None
 _MOCK = True
+_lock = None                 # instance lock handle, held for the life of the tool
+EX_CONFIG = 78
+
+
+def claim_machine(mock: bool) -> None:
+    """Instance lock + "not clean" marker before anything moves (audit 3 M2).
+    Exits 1 if the sorter (or another tool) is running."""
+    global _lock
+    from hardware import instance
+    try:
+        _lock = instance.claim_for_tool("scripts/test_hardware.py", mock)
+    except instance.LockBusy as exc:
+        sys.exit(f"[test] ERROR: {exc}")
+    print(f"[test] machine recorded as NOT clean ({instance.state_file(mock)}): the next sorter "
+          "start asks for 'Machine clear'")
 
 
 def init_hardware(mock: bool) -> None:
@@ -47,11 +76,17 @@ def init_hardware(mock: bool) -> None:
     _MOCK = mock
     os.environ["MOCK_HARDWARE"] = "1" if mock else "0"
     sys.path.insert(0, str(ROOT))
-    from hardware import (servos as _s, vacuum as _v, loadcell as _l, camera as _c,
-                          conveyor as _cv, elevator as _e, shuttle as _sh, card_detect as _cd)
+    try:
+        from hardware import (servos as _s, vacuum as _v, loadcell as _l, camera as _c,
+                              conveyor as _cv, elevator as _e, shuttle as _sh, card_detect as _cd)
+    except Exception as exc:
+        if type(exc).__name__ == "MachineConfigError":
+            sys.exit(f"[test] ERROR: {exc}")          # exits 1 (sys.exit(str)); message lists the keys
+        raise
     servos, vacuum, loadcell, camera, conveyor, elevator, shuttle, card_detect = \
         _s, _v, _l, _c, _cv, _e, _sh, _cd
     print(f"[test] {'MOCK mode — no real hardware moves' if mock else 'REAL hardware'}")
+    claim_machine(mock)
 
     # Same order as main.init_hardware(): pump off first, PCA9685 before the shuttle.
     # Like the sorter, nothing on ch0-ch2 moves until the operator says the
@@ -63,6 +98,15 @@ def init_hardware(mock: bool) -> None:
                      ("elevator", elevator.init)):
         try:
             fn()
+        except (servos.ServoConfigError, shuttle.ShuttleConfigError) as exc:
+            # same contract as the sorter: a bad calibration file never reaches a servo
+            print(f"[test] ERROR: {exc}", file=sys.stderr)
+            for safe in (vacuum.pump_off, conveyor.stop):
+                try:
+                    safe()
+                except Exception:
+                    pass
+            sys.exit(EX_CONFIG)
         except Exception as exc:
             errors.append(f"{name}: {exc!r}")
     if not mock:

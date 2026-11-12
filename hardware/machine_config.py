@@ -7,6 +7,7 @@ defaults. See config/machine.example.json for the full list.
    "camera":      {"CARD_ROTATE": 90, "LENS_POSITION": 10.0, "AF_MODE": "manual", ...},
    "sort":        {"EXIT_TRAVEL_MM": 144.0, "EXIT_TIME_MARGIN": 1.25, ...},
    "elevator":    {"TOP_SWITCH_NC": true, "BOTTOM_SWITCH_NC": true, "RAISE_CAP_MM": 3.0, ...},
+                  (TOP_SWITCH_NC must be true: NO wiring of the top switch is refused)
    "servos":      {"ARM_ACTUATION_RANGE": 180}}
 
 Validation (audit M6): the WHOLE file is checked against SCHEMA the first
@@ -58,8 +59,8 @@ def _i(lo, hi, nullable=False):
     return {"kind": "int", "min": lo, "max": hi, "nullable": nullable}
 
 
-def _e(*values):
-    return {"kind": "enum", "values": values, "nullable": False}
+def _e(*values, why=None):
+    return {"kind": "enum", "values": values, "nullable": False, "why": why}
 
 
 _B = {"kind": "bool", "nullable": False}
@@ -107,9 +108,17 @@ SCHEMA = {
         "TARE_SETTLE_S": _f(0.0, 5.0),
         "RESUME_DELAY_S": _f(0.0, 30.0),
         "CALIBRATION_MASS_G": _f(0.5, 500.0),
+        "CUP_HOLD_MAX_S": _f(10.0, 3600.0),
     },
     "elevator": {
-        "TOP_SWITCH_NC": _B,
+        # Audit 3: normally-open wiring of the TOP switch is not supported. A broken
+        # NO wire reads "never pressed", and the first raise after homing (which
+        # must be allowed the full travel: the stack height is unknown) would push
+        # the stack into the arm. With NC a broken wire reads pressed: no rise.
+        "TOP_SWITCH_NC": _e(True, why="normally-open wiring of the top-of-stack switch is not "
+                                      "supported — a broken NO wire reads 'never pressed' and "
+                                      "the first raise after homing would push the stack into "
+                                      "the arm. Wire it normally-closed (C → GND, NC → GPIO 12)"),
         "BOTTOM_SWITCH_NC": _B,
         "RAISE_CAP_MM": _f(0.5, 10.0),
         "UP_DIRECTION": _e(1, -1),
@@ -143,7 +152,13 @@ def _check_value(where: str, spec: dict, v):
     if kind == "enum":
         ok = any(v == x and type(v) is type(x) for x in spec["values"])
         if not ok:
-            return f"{where}: must be one of {list(spec['values'])}, got {json.dumps(v)}", None
+            if len(spec["values"]) == 1:
+                msg = f"{where}: must be {json.dumps(spec['values'][0])}, got {json.dumps(v)}"
+            else:
+                msg = f"{where}: must be one of {list(spec['values'])}, got {json.dumps(v)}"
+            if spec.get("why"):
+                msg += f" — {spec['why']}"
+            return msg, None
         return None, v
     if kind == "gains":
         if (not isinstance(v, list) or len(v) != 2 or not all(_is_number(x) for x in v)

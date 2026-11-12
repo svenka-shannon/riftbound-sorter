@@ -15,8 +15,16 @@ import pytest
 @pytest.fixture(autouse=True)
 def _isolated_files(monkeypatch, tmp_path):
     import main
-    from hardware import elevator, loadcell, shuttle
+    from hardware import elevator, instance, loadcell, servos, shuttle
     from api import riftcodex
+    # hardware tools' lock / marker (hardware/instance.py) → tmp
+    monkeypatch.setattr(instance, "DATA_DIR", tmp_path)
+    # servo_calibration.json → tmp; the arm angles it sets are restored after the test
+    monkeypatch.setattr(servos, "_CALIBRATION_FILE", tmp_path / "servo_calibration.json")
+    for name in ("ARM_PICK", "ARM_DROP", "ARM_PARK", "PICKUP_ARM_UP", "PICKUP_ARM_DOWN"):
+        monkeypatch.setattr(servos, name, getattr(servos, name))
+    monkeypatch.setattr(servos, "_arm_released", False)
+    monkeypatch.setattr(shuttle, "_released", False)
     # shuttle_calibration.json → tmp; every dict _load_calibration() mutates is a per-test copy
     monkeypatch.setattr(shuttle, "_CALIBRATION_FILE", tmp_path / "shuttle_calibration.json")
     for name in ("TILT_ANGLES", "SHUTTLE_ANGLES", "TIMING", "SHUTTLE_ACTUATION_RANGE", "SHUTTLE_INVERT"):
@@ -39,6 +47,8 @@ def _isolated_files(monkeypatch, tmp_path):
     monkeypatch.setattr(main, "_signals", 0)
     monkeypatch.setattr(main, "_running", True)
     monkeypatch.setattr(main, "_card_at", None)
+    monkeypatch.setattr(main, "_cup_hold_since", None)
+    monkeypatch.setattr(main, "_shutdown_raises", True)
     monkeypatch.setattr(main, "_control", {"pause": False, "stop": False, "resume": False,
                                            "reload_rules": False})
     monkeypatch.setattr(main, "INSTANCE_LOCK_FILE", tmp_path / "sorter.lock")

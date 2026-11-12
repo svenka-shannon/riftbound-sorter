@@ -68,44 +68,164 @@ _machine_config.apply(_sys.modules[__name__], "servos", ("ARM_ACTUATION_RANGE",)
 _pca = None
 _servos = {}
 _arm_angle = None   # last commanded ch0 angle (None until the first move)
+_arm_released = False   # ch0 switched off (limp) since the last write; _arm_angle still tracked
+
+
+# ── Calibration file (config/servo_calibration.json) ─────────────────────
+# Validated strictly (audit 3 M1), like config/machine.json: every problem is
+# reported at once and NOTHING is applied unless the whole file is good
+# (ServoConfigError → main.py exits 78, systemd does not restart).
+#   sections   "pickup_arm" (keys ARM_PICK, ARM_DROP, ARM_PARK; legacy ARM_DOWN /
+#              ARM_UP, see below); legacy "gate" / "bin_select" (ignored: those
+#              servos are now the shuttle's); keys "_…" are comments.
+#   values     finite JSON numbers in [0, ARM_ACTUATION_RANGE], each within
+#              SANITY_WINDOW_DEG of its nominal pose — or of the MIRRORED pose
+#              (180° − nominal: a servo that turns the other way swaps PICK and
+#              DROP, the arc is symmetric about PARK 90°). PICK and DROP must lie
+#              on opposite sides of PARK. So a typo (ARM_DROP 400, a string, NaN,
+#              120 for 12) can never swing the arm into the hopper.
+#   legacy     ARM_DOWN → ARM_PICK, ARM_UP → ARM_PARK, only when the new key is
+#              absent (with a warning; checked like the key it stands in for).
+#              Superseded legacy keys are ignored.
+SANITY_WINDOW_DEG = 25.0
+NOMINAL_ARM = {"ARM_PICK": float(ARM_PICK), "ARM_DROP": float(ARM_DROP), "ARM_PARK": float(ARM_PARK)}
+_ARM_KEYS = ("ARM_PICK", "ARM_DROP", "ARM_PARK")
+_LEGACY_ARM = {"ARM_DOWN": "ARM_PICK", "ARM_UP": "ARM_PARK"}
+_LEGACY_SECTIONS = ("gate", "bin_select")
+
+
+class ServoConfigError(ValueError):
+    """config/servo_calibration.json is unusable; .problems lists every bad key."""
+
+    def __init__(self, message, problems=()):
+        super().__init__(message)
+        self.problems = list(problems)
+
+
+def _is_number(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+
+def sanity_windows(key: str, actuation_range: int | None = None) -> list[tuple[float, float]]:
+    """Allowed (lo, hi) windows for ARM_PICK / ARM_DROP / ARM_PARK: around the
+    nominal pose and around its mirror (180° − nominal), clipped to the range."""
+    rng = float(actuation_range if actuation_range is not None else ARM_ACTUATION_RANGE)
+    out = []
+    for c in sorted({NOMINAL_ARM[key], 180.0 - NOMINAL_ARM[key]}):
+        out.append((max(0.0, c - SANITY_WINDOW_DEG), min(rng, c + SANITY_WINDOW_DEG)))
+    return out
+
+
+def sanity_window(key: str, value: float, actuation_range: int | None = None) -> tuple[float, float]:
+    """The window that contains `value` (else the one nearest to it)."""
+    wins = sanity_windows(key, actuation_range)
+    for lo, hi in wins:
+        if lo <= value <= hi:
+            return lo, hi
+    return min(wins, key=lambda w: min(abs(value - w[0]), abs(value - w[1])))
+
+
+def validate_calibration(cal, actuation_range: int | None = None) -> tuple[dict, list[str], list[str]]:
+    """Check a parsed servo_calibration.json. Returns (values, problems, notes):
+    values = {ARM_PICK, ARM_DROP, ARM_PARK} (nominal where the file has none;
+    only meaningful without problems), notes = warnings (legacy keys). Pure."""
+    rng = actuation_range if actuation_range is not None else ARM_ACTUATION_RANGE
+    problems, notes = [], []
+    values = dict(NOMINAL_ARM)
+    if not isinstance(cal, dict):
+        return values, [f"must be a JSON object, got {type(cal).__name__}"], notes
+    for sec in cal:
+        if str(sec).startswith("_") or sec == "pickup_arm":
+            continue
+        if sec in _LEGACY_SECTIONS:
+            notes.append(f'old "{sec}" section ignored (those servos are now the shuttle\'s: '
+                         "config/shuttle_calibration.json)")
+            continue
+        problems.append(f"{sec}: unknown section (valid: pickup_arm)")
+    arm = cal.get("pickup_arm", {})
+    if not isinstance(arm, dict):
+        return values, problems + [f"pickup_arm: must be a JSON object of KEY: value, got {json.dumps(arm)}"], notes
+    arm = {k: v for k, v in arm.items() if not str(k).startswith("_")}
+    for k in arm:
+        if k not in _ARM_KEYS and k not in _LEGACY_ARM:
+            problems.append(f"pickup_arm.{k}: unknown key (valid: {', '.join(_ARM_KEYS)})")
+    source = {}
+    for key in _ARM_KEYS:
+        if key in arm:
+            source[key] = key
+        else:
+            legacy = next((lk for lk, nk in _LEGACY_ARM.items() if nk == key and lk in arm), None)
+            if legacy:
+                source[key] = legacy
+                notes.append(f"using legacy {legacy} as {key} — re-calibrate ch0 "
+                             "(ARM_PICK/ARM_DROP/ARM_PARK)")
+    good = set()
+    for key, src in source.items():
+        v = arm[src]
+        where = f"pickup_arm.{src}" + (f" (legacy, used as {key})" if src != key else "")
+        if not _is_number(v):
+            problems.append(f"{where}: must be a number (degrees), got {json.dumps(v)}")
+            continue
+        if not math.isfinite(v):
+            problems.append(f"{where}: must be a finite number, got {v}")
+            continue
+        v = float(v)
+        if not 0.0 <= v <= rng:
+            problems.append(f"{where}: {v:g}° is outside the servo range [0, {rng}] (ARM_ACTUATION_RANGE)")
+            continue
+        wins = sanity_windows(key, rng)
+        if not any(lo <= v <= hi for lo, hi in wins):
+            allowed = " or ".join(f"{lo:g}–{hi:g}°" for lo, hi in wins)
+            problems.append(f"{where}: {v:g}° is more than {SANITY_WINDOW_DEG:g}° from the nominal "
+                            f"{NOMINAL_ARM[key]:g}° (or its mirror {180 - NOMINAL_ARM[key]:g}°; "
+                            f"allowed {allowed}) — a typo? Re-calibrate with "
+                            "scripts/calibrate_servos.py")
+            continue
+        values[key] = v
+        good.add(key)
+    if {"ARM_PICK", "ARM_DROP", "ARM_PARK"} <= good | (set(_ARM_KEYS) - set(source)):
+        pk, dr, pa = values["ARM_PICK"], values["ARM_DROP"], values["ARM_PARK"]
+        if not (pk - pa) * (dr - pa) < 0:
+            problems.append(f"pickup_arm: ARM_PICK ({pk:g}°) and ARM_DROP ({dr:g}°) must lie on "
+                            f"opposite sides of ARM_PARK ({pa:g}°) — swap BOTH for a servo that "
+                            "turns the other way")
+    return values, problems, notes
+
+
+def _reject_constant(token):
+    raise ValueError(f"{token} is not a valid JSON number")
+
+
+def read_calibration_file(path=None):
+    """Parsed calibration file (None if absent); NaN / Infinity rejected.
+    Raises ServoConfigError if unreadable."""
+    path = Path(path) if path is not None else _CALIBRATION_FILE
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(), parse_constant=_reject_constant)
+    except Exception as exc:
+        raise ServoConfigError(f"could not read {path} ({exc}) — fix or move it, then restart",
+                               [f"not valid JSON: {exc}"]) from exc
 
 
 def _load_calibration() -> None:
-    """Override module-level angle constants from servo_calibration.json if present.
-
-    Pickup arm keys (section "pickup_arm"): ARM_PICK, ARM_DROP, ARM_PARK.
-    Legacy keys from older calibrations are still honoured when the new key is
-    absent: ARM_DOWN → ARM_PICK, ARM_UP → ARM_PARK. (An old ARM_DOWN was taken
-    with the previous swing arm and is wrong for the parallelogram arm —
-    re-calibrate with the new labels.)
-    """
+    """Apply config/servo_calibration.json (validate_calibration first: any
+    problem raises ServoConfigError listing every bad key and NOTHING is
+    applied). Keys absent from the file get their nominal value."""
     global ARM_PICK, ARM_DROP, ARM_PARK, PICKUP_ARM_UP, PICKUP_ARM_DOWN
 
-    if not _CALIBRATION_FILE.exists():
-        return
-
-    try:
-        with open(_CALIBRATION_FILE) as f:
-            cal = json.load(f)
-    except Exception as exc:
-        print(f"[servos] Warning: could not read calibration file: {exc}")
-        return
-
-    arm = cal.get("pickup_arm", {})
-    if "ARM_PICK" in arm:
-        ARM_PICK = arm["ARM_PICK"]
-    elif "ARM_DOWN" in arm:
-        ARM_PICK = arm["ARM_DOWN"]
-        print("[servos] Warning: using legacy ARM_DOWN as ARM_PICK — re-calibrate ch0 (ARM_PICK/ARM_DROP/ARM_PARK)")
-    if "ARM_DROP" in arm:
-        ARM_DROP = arm["ARM_DROP"]
-    if "ARM_PARK" in arm:
-        ARM_PARK = arm["ARM_PARK"]
-    elif "ARM_UP" in arm:
-        ARM_PARK = arm["ARM_UP"]
+    cal = read_calibration_file()
+    values, problems, notes = validate_calibration({} if cal is None else cal)
+    if problems:
+        lines = "\n".join(f"  - {p}" for p in problems)
+        raise ServoConfigError(f"invalid {_CALIBRATION_FILE} — refusing to start:\n{lines}\n"
+                               "Fix these keys (or delete them to use the nominal values) and "
+                               "re-check with scripts/calibrate_servos.py --verify", problems)
+    for n in notes:
+        print(f"[servos] Warning: {n}")
+    ARM_PICK, ARM_DROP, ARM_PARK = values["ARM_PICK"], values["ARM_DROP"], values["ARM_PARK"]
     PICKUP_ARM_UP, PICKUP_ARM_DOWN = ARM_PARK, ARM_PICK
-    # (old "gate"/"bin_select" sections are ignored: those servos are now the
-    #  shuttle's, calibrated in config/shuttle_calibration.json)
 
 
 def init(assume_parked: bool = False):
@@ -119,12 +239,15 @@ def init(assume_parked: bool = False):
     feedback, so a slow first move cannot be guaranteed.
     assume_parked=False: NOTHING is written to ch0 (audit M7); the first
     move_arm_smooth() — main.py only makes it after the operator confirmed
-    the machine clear — goes straight to its target."""
-    global _pca, _servos, _arm_angle
+    the machine clear — goes straight to its target.
+    Raises ServoConfigError (before touching anything) if
+    config/servo_calibration.json is unreadable or fails validation."""
+    global _pca, _servos, _arm_angle, _arm_released
 
     # Apply calibration overrides before any hardware move
     _load_calibration()
     _arm_angle = float(ARM_PARK) if assume_parked else None
+    _arm_released = False
 
     if _MOCK:
         print("[servos] MOCK mode — no hardware")
@@ -142,10 +265,35 @@ def init(assume_parked: bool = False):
 
 
 def _arm_write(angle: float) -> None:
-    global _arm_angle
+    global _arm_angle, _arm_released
     if not _MOCK:
         _servos[CH_PICKUP_ARM].angle = angle
     _arm_angle = angle
+    _arm_released = False
+
+
+def release_arm() -> None:
+    """Switch ch0 fully OFF (no pulses): the arm goes limp where it is, and
+    stops drawing holding current. The commanded angle stays tracked, so
+    assert_park() can re-assert the park pose with one write later."""
+    global _arm_released
+    if not _MOCK and _pca is not None:
+        _pca.channels[CH_PICKUP_ARM].duty_cycle = 0       # < 0x10 → FULL_OFF bit
+    _arm_released = True
+
+
+def arm_released() -> bool:
+    """ch0 is switched off (limp) since the last command."""
+    return _arm_released
+
+
+def assert_park() -> None:
+    """Re-assert ARM_PARK with ONE write (the limp arm may have sagged a
+    little and snaps back by that much) — only if the arm is known to be
+    parked (same rest-pose logic as init(assume_parked=True))."""
+    if _arm_angle is None or float(_arm_angle) != float(ARM_PARK):
+        raise RuntimeError(f"arm not known to be parked ({_arm_angle!r}) — not re-asserting")
+    _arm_write(float(ARM_PARK))
 
 
 def move_arm_smooth(target: float, duration_s: float | None = None, settle_s: float = 0.15) -> None:

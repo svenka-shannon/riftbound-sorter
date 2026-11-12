@@ -49,8 +49,25 @@ Safety: every move is a ramped move of the owning module (servos.move_arm_smooth
 shuttle hold/level/tip/to_column). The carriage only moves with the cradle in
 HOLD, and always finishes towards +ψ like shuttle.to_column() (backlash).
 Jogging is limited to ±25° around the value stored at the start of the
-session; if you need more, save at the edge and re-run the tool (or re-seat
-the horn — one MG996R spline tooth is 14.4°).
+session AND to the modules' sanity window (±25° around the nominal pose —
+for the arm, or its mirror 180° − nominal); the sorter refuses a file with a
+pose outside that window. If you need more, the horn / coupler is on the
+wrong spline tooth: re-seat it (one MG996R spline tooth is 14.4°).
+
+Saving: a pose is only written if the WHOLE file still passes the module's
+validation (hardware/servos.py / hardware/shuttle.py validate_calibration:
+types, ranges, sanity window, pose order such as lower < level, hold < upper,
+carriage reject < 3 < 2 < home < 1 < 0, arm PICK / DROP either side of PARK);
+otherwise the tool says why and keeps the old value. An invalid file at start
+stops the tool (exit 78) with the list of bad keys — fix or delete them.
+
+Sorter interlock (audit 3 M2): the tool takes the sorter's instance lock
+(data/sorter.lock; refuses while the sorter service or another tool runs —
+`sudo systemctl stop riftbound-sorter` first) and records the machine NOT
+clean in data/machine_state.json before anything moves ("tool ran: ...").
+It never records it clean again, even after a normal quit with everything
+parked: the next sorter start always asks for "Machine clear". MOCK runs use
+the mock files (machine_state.mock.json, sorter.mock.lock).
 """
 
 import argparse
@@ -81,6 +98,8 @@ _arm_ready = False
 _shuttle_ready = False
 _elevator_ready = False
 _pump_on = False
+_lock = None                    # instance lock handle, held for the life of the tool
+EX_CONFIG = 78
 
 
 class Quit(Exception):
@@ -98,10 +117,50 @@ def load_modules(mock: bool) -> None:
     sys.path.insert(0, str(ROOT))
     from hardware import servos as _s, shuttle as _sh, vacuum as _v, elevator as _e
     servos, shuttle, vacuum, elevator = _s, _sh, _v, _e
-    # Module defaults (calibration files are only applied by init())
-    NOMINAL["arm"] = {k: float(getattr(servos, k)) for k in ("ARM_PICK", "ARM_DROP", "ARM_PARK")}
-    NOMINAL["tilt"] = dict(shuttle.TILT_ANGLES)
-    NOMINAL["shuttle"] = dict(shuttle.SHUTTLE_ANGLES)
+    # Module nominal poses (the centre of their sanity windows)
+    NOMINAL["arm"] = dict(servos.NOMINAL_ARM)
+    NOMINAL["tilt"] = dict(shuttle.NOMINAL_TILT_ANGLES)
+    NOMINAL["shuttle"] = dict(shuttle.NOMINAL_SHUTTLE_ANGLES)
+
+
+def claim_machine() -> None:
+    """Instance lock + "not clean" marker before anything moves (audit 3 M2).
+    Exits 1 if the sorter (or another tool) is running."""
+    global _lock
+    from hardware import instance
+    try:
+        _lock = instance.claim_for_tool("scripts/calibrate_servos.py", _MOCK)
+    except instance.LockBusy as exc:
+        sys.exit(f"[calibrate] ERROR: {exc}")
+    print(f"[calibrate] machine recorded as NOT clean ({instance.state_file(_MOCK)}): the next "
+          "sorter start asks for 'Machine clear'")
+
+
+def check_files() -> None:
+    """Both calibration files must pass the modules' validation before anything
+    moves (the same check the sorter makes). Exit 78 listing every bad key."""
+    bad = []
+    try:
+        cal = servos.read_calibration_file()
+        if cal is not None:
+            _, problems, _ = servos.validate_calibration(cal)
+            bad += [f"{servos._CALIBRATION_FILE}: {p}" for p in problems]
+    except servos.ServoConfigError as exc:
+        bad.append(str(exc))
+    try:
+        cal = shuttle.read_calibration_file()
+        if cal is not None:
+            _, problems = shuttle.validate_calibration(cal)
+            bad += [f"{shuttle._CALIBRATION_FILE}: {p}" for p in problems]
+    except shuttle.ShuttleConfigError as exc:
+        bad.append(str(exc))
+    if bad:
+        print("[calibrate] ERROR: invalid calibration file(s) — nothing moved:", file=sys.stderr)
+        for b in bad:
+            print(f"  - {b}", file=sys.stderr)
+        print("  Fix or delete those keys (deleted keys use the nominal values), then re-run.",
+              file=sys.stderr)
+        sys.exit(EX_CONFIG)
 
 
 def ask(prompt: str) -> str:
@@ -175,53 +234,87 @@ def read_json(path: Path) -> dict:
     if not path.exists():
         return {}
     try:
-        return json.loads(path.read_text())
+        data = json.loads(path.read_text())
     except Exception as exc:
         sys.exit(f"[calibrate] {path} is not valid JSON ({exc}) — fix or move it, then re-run")
+    if not isinstance(data, dict):
+        sys.exit(f"[calibrate] {path} must be a JSON object — fix or move it, then re-run")
+    return data
 
 
 def write_json(path: Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(data, indent=2) + "\n")
+    with open(tmp, "w") as fh:
+        fh.write(json.dumps(data, indent=2) + "\n")
+        fh.flush()
+        os.fsync(fh.fileno())
     os.replace(tmp, path)
 
 
-def save_arm(key: str, angle: float) -> None:
+def _refuse(what: str, problems) -> bool:
+    print(f"  NOT saved — {what} would make the calibration file invalid:")
+    for p in problems:
+        print(f"    - {p}")
+    return False
+
+
+def save_arm(key: str, angle: float) -> bool:
+    """Write pickup_arm.<key> if the resulting file passes servos.validate_calibration().
+    Returns False (file untouched) otherwise."""
     path = servos._CALIBRATION_FILE
     data = read_json(path)
-    arm = data.setdefault("pickup_arm", {})
+    arm = data.get("pickup_arm")
+    if not isinstance(arm, dict):
+        arm = data["pickup_arm"] = {}
     arm[key] = round(angle, 2)
     legacy = {"ARM_PICK": "ARM_DOWN", "ARM_PARK": "ARM_UP"}.get(key)
     if legacy:
         arm.pop(legacy, None)       # superseded by the new key
+    _, problems, _ = servos.validate_calibration(data)
+    if problems:
+        return _refuse(f"pickup_arm.{key} = {arm[key]}", problems)
     write_json(path, data)
     setattr(servos, key, angle)
     servos.PICKUP_ARM_UP, servos.PICKUP_ARM_DOWN = servos.ARM_PARK, servos.ARM_PICK
     print(f"  saved pickup_arm.{key} = {arm[key]} → {path}")
+    return True
 
 
-def save_invert(ch: int, value: bool) -> None:
+def save_invert(ch: int, value: bool) -> bool:
     """Write {"invert": {"<ch>": value}} into shuttle_calibration.json (rest of
-    the file kept) and apply it to the loaded module."""
+    the file kept) and apply it to the loaded module — if the file stays valid."""
     path = shuttle._CALIBRATION_FILE
     data = read_json(path)
     inv = data.get("invert")
     if not isinstance(inv, dict):
         inv = data["invert"] = {}
     inv[str(ch)] = bool(value)
+    _, problems = shuttle.validate_calibration(data)
+    if problems:
+        return _refuse(f"invert.{ch} = {'true' if value else 'false'}", problems)
     write_json(path, data)
     shuttle.SHUTTLE_INVERT[ch] = bool(value)
     print(f"  saved invert.{ch} = {'true' if value else 'false'} → {path}")
+    return True
 
 
-def save_shuttle(section: str, key, angle: float) -> None:
+def save_shuttle(section: str, key, angle: float) -> bool:
+    """Write <section>.<key> if the resulting file passes shuttle.validate_calibration()
+    (range, sanity window, pose order). Returns False (file untouched) otherwise."""
     path = shuttle._CALIBRATION_FILE
     data = read_json(path)
-    data.setdefault(section, {})[str(key)] = round(angle, 2)
+    sec = data.get(section)
+    if not isinstance(sec, dict):
+        sec = data[section] = {}
+    sec[str(key)] = round(angle, 2)
+    _, problems = shuttle.validate_calibration(data)
+    if problems:
+        return _refuse(f"{section}.{key} = {round(angle, 2)}", problems)
     write_json(path, data)
     (shuttle.TILT_ANGLES if section == "tilt" else shuttle.SHUTTLE_ANGLES)[key] = angle
     print(f"  saved {section}.{key} = {round(angle, 2)} → {path}")
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -288,7 +381,8 @@ def jog(title: str, *, start: float, stored: float, nominal: float, lo: float, h
             continue
         c = cmd.lower()
         if c == "s":
-            save(cur)
+            if save(cur) is False:
+                continue                     # refused (reason printed): jog on, or 'n' / 'r'
             return cur
         if c == "n":
             if abs(cur - stored) > 1e-9:
@@ -308,8 +402,16 @@ def jog(title: str, *, start: float, stored: float, nominal: float, lo: float, h
             print(extra_help)
 
 
-def window(stored: float, top: float):
-    return max(0.0, stored - WINDOW_DEG), min(float(top), stored + WINDOW_DEG)
+def window(stored: float, top: float, sanity=None):
+    """Jog window: ±WINDOW_DEG around the stored value, inside [0, top] and
+    inside the module's sanity window `sanity` = (lo, hi) (the sorter refuses
+    a file outside it)."""
+    lo, hi = max(0.0, stored - WINDOW_DEG), min(float(top), stored + WINDOW_DEG)
+    if sanity is not None:
+        lo, hi = max(lo, sanity[0]), min(hi, sanity[1])
+    if lo > hi:                      # stored value itself outside the sanity window
+        lo = hi = min(max(stored, sanity[0]), sanity[1])
+    return lo, hi
 
 
 # ---------------------------------------------------------------------------
@@ -378,7 +480,7 @@ def section_arm() -> None:
     for key, advice in ARM_STEPS:
         print("\n  " + "\n  ".join(advice))
         stored = float(getattr(servos, key))
-        lo, hi = window(stored, top)
+        lo, hi = window(stored, top, servos.sanity_window(key, stored))
         start = stored
         if key != "ARM_PARK":
             toward = 1.0 if stored > servos.ARM_PARK else -1.0
@@ -434,8 +536,9 @@ TILT_STEPS = (
     ("level", "home", [
         "LEVEL — receive pose, home only.",
         "  Jog until the skids sit firmly on the home ledges and the bed is ~0.7 mm under the",
-        "  belt (a card slides on without catching). Keep ~1.5° of preload past first contact,",
-        "  but back off 0.5° if the servo hums/stalls against the ledges.",
+        "  belt (a card slides on without catching). Then go ~0.5° past first contact (no more:",
+        "  past the ledges the servo stalls for as long as the cradle waits level) — back off",
+        "  if the servo hums.",
     ]),
     ("upper", "column", [
         "UPPER — 35° about the front pin: card slides off the lip into the UPPER slot.",
@@ -467,7 +570,8 @@ def section_tilt() -> None:
         elif where == "column" and target in (None, "home"):
             carriage_to(col_state["col"])
         stored = float(shuttle.TILT_ANGLES[pose])
-        lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_TILT])
+        lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_TILT],
+                        shuttle.sanity_window("tilt", pose))
 
         def move(a, p=pose):
             shuttle.TILT_ANGLES[p] = a
@@ -521,7 +625,8 @@ def section_columns() -> None:
     for key, advice in COLUMN_STEPS:
         print(f"\n  {advice}")
         stored = float(shuttle.SHUTTLE_ANGLES[key])
-        lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_SHUTTLE])
+        lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_SHUTTLE],
+                        shuttle.sanity_window("shuttle", key))
         lo, hi = max(lo, CARRIAGE_LIMITS[0]), min(hi, CARRIAGE_LIMITS[1])
 
         def move(a, k=key):
@@ -605,7 +710,8 @@ def direction_check(ch: int) -> bool:
         if ans in ("y", "yes"):
             print(f"  ch{ch} direction OK (invert.{ch} stays {'true' if inv else 'false'}).")
             return True
-        save_invert(ch, not inv)
+        if not save_invert(ch, not inv):
+            return False
         print(f"  ch{ch} now writes {'actuation_range − angle' if not inv else 'the angle as is'};"
               " every stored angle keeps its meaning.")
         if ask("  Run the check again to confirm? [Y/n] ").lower() in ("n", "no"):
@@ -716,6 +822,8 @@ def main() -> None:
     print(f"[calibrate] {mode}")
     if _MOCK:
         print("[calibrate] Saved values ARE written to config/ — use --no-mock on the Pi.")
+    check_files()             # invalid calibration → exit 78, nothing moved
+    claim_machine()           # instance lock + "not clean" marker, before anything moves
     init_base()
     try:
         if args.verify:

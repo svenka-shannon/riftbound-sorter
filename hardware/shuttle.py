@@ -24,7 +24,10 @@ Two MG996R servos on the shared PCA9685 (I2C 0x40, 50 Hz):
 
 Bins: 0-3 lower floor (column = bin), 4-7 upper floor (column = bin - 4),
 9 reject. All angles live in TILT_ANGLES / SHUTTLE_ANGLES and can be overridden
-from config/shuttle_calibration.json (same idea as servos.py). They are always
+from config/shuttle_calibration.json (same idea as servos.py), which is
+validated strictly (validate_calibration(): known keys, finite numbers inside
+the servo range AND a ±25° sanity window around the nominal pose, pose order;
+any problem → ShuttleConfigError, nothing applied, main.py exits 78). They are always
 GEOMETRIC angles (crank φ + 90° / crank ψ); a servo that turns the wrong way
 is handled by the per-channel "invert" option (SHUTTLE_INVERT) at the PWM write.
 
@@ -116,8 +119,9 @@ if not _MOCK:
 #   φ: level 3.6, hold 7.0, upper 22.2, lower -48.5  (shuttle_check.py geom)
 #   level is set 0.5° past the geometric value (93.6) so the skids sit on the
 #   home ledges (hard stop), which fixes the bed height for the incoming card.
-#   Keep the preload small: past the hard stop the MG996R stalls against the
-#   ledge for as long as the cradle waits level (heat, current, gear wear).
+#   Keep the preload at ~0.5°: past the hard stop the MG996R stalls against the
+#   ledge for as long as the cradle waits level (heat, current, gear wear), so
+#   main.py also switches ch1/ch2 off while the machine idles at rest.
 TILT_ANGLES = {
     "level": 93.1,
     "hold":  97.0,
@@ -164,6 +168,7 @@ _pos = {CH_TILT: None, CH_SHUTTLE: None}   # last commanded angle per channel
 _tilt_state = None                         # None = unknown (never set, or mid-ramp)
 _target = None                             # 0..3, "reject", "home"
 _jammed = None                             # None, or why the carriage is locked
+_released = False                          # ch1/ch2 switched off since the last write (limp)
 
 
 class ShuttleError(RuntimeError):
@@ -171,7 +176,12 @@ class ShuttleError(RuntimeError):
 
 
 class ShuttleConfigError(ShuttleError):
-    """config/shuttle_calibration.json is unusable; init() refuses to attach."""
+    """config/shuttle_calibration.json is unusable; init() refuses to attach.
+    .problems lists every bad key (empty for an unreadable file)."""
+
+    def __init__(self, message, problems=()):
+        super().__init__(message)
+        self.problems = list(problems)
 
 
 def jammed():
@@ -191,61 +201,214 @@ def clear_jam() -> None:
     _jammed = None
 
 
-def _validate_invert(cal) -> dict:
-    """The "invert" section → {ch: bool} for every channel (absent = False).
-    Raises ShuttleConfigError listing EVERY bad entry: a wrong direction drives
-    a crank into its end stop, so a doubtful value is never guessed."""
-    inv = dict(_INVERT_DEFAULT)
-    if "invert" not in cal:
-        return inv
-    sec = cal["invert"]
-    if not isinstance(sec, dict):
-        raise ShuttleConfigError(f"{_CALIBRATION_FILE}: \"invert\" must be an object like "
-                                 f'{{"1": false, "2": false}}, got {sec!r} — refusing to start')
-    problems = []
-    for k, v in sec.items():
+# --- calibration file (config/shuttle_calibration.json) -------------------------
+# Validated as strictly as config/machine.json (audit 3 M1): every problem is
+# collected and reported at once, and NOTHING is applied unless the whole file
+# is good (ShuttleConfigError → main.py exits 78, systemd does not restart).
+#   sections        tilt, shuttle, timing, actuation_range, invert (keys "_…" = comments)
+#   actuation_range {"1"|"2": 180 | 270}
+#   tilt / shuttle  finite JSON numbers in [0, actuation_range] AND inside the
+#                   sanity window: within SANITY_WINDOW_DEG of the nominal pose
+#                   below (the same ±25° the calibrate tool lets you jog). A
+#                   typo (1122 for 112.2, a sign slip) can never command a
+#                   wildly wrong pose. Angles are geometric (see "invert"), so
+#                   the window holds for a 270° servo too: the crank / coupler is
+#                   fitted at a commanded pose, and one spline tooth (14.4°) is
+#                   always within ±7.2° of nominal.
+#                   Order (geometry): tilt lower < level, hold < upper;
+#                   carriage reject < 3 < 2 < home < 1 < 0.
+#   timing          finite numbers inside TIMING_LIMITS (all ≥ 0)
+#   invert          JSON booleans, channels "1" / "2"
+SANITY_WINDOW_DEG = 25.0
+VALID_ACTUATION_RANGES = (180, 270)
+TIMING_LIMITS = {
+    "tilt_s_per_deg": (0.0, 0.2),
+    "tilt_min_s": (0.0, 10.0),
+    "shuttle_s_per_deg": (0.0, 0.2),
+    "shuttle_min_s": (0.0, 10.0),
+    "update_hz": (1.0, 200.0),
+    "settle_s": (0.0, 10.0),
+    "dump_dwell_s": (0.0, 10.0),
+    "weigh_settle_s": (0.0, 10.0),
+}
+CAL_SECTIONS = ("tilt", "shuttle", "timing", "actuation_range", "invert")
+# Module defaults = the nominal poses the sanity window is centred on.
+NOMINAL_TILT_ANGLES = dict(TILT_ANGLES)
+NOMINAL_SHUTTLE_ANGLES = dict(SHUTTLE_ANGLES)
+NOMINAL_TIMING = dict(TIMING)
+NOMINAL_ACTUATION_RANGE = dict(SHUTTLE_ACTUATION_RANGE)
+_TILT_ORDER = (("lower", "level"), ("lower", "hold"), ("level", "upper"), ("hold", "upper"))
+_SHUTTLE_ORDER = ("reject", 3, 2, "home", 1, 0)          # increasing crank angle ψ
+
+
+def _shuttle_key(k):
+    """JSON key of the "shuttle" section → SHUTTLE_ANGLES key (None if unknown)."""
+    if k in ("home", "reject"):
+        return k
+    if k in ("0", "1", "2", "3"):
+        return int(k)
+    return None
+
+
+def sanity_window(section: str, key, actuation_range: int | None = None) -> tuple[float, float]:
+    """(lo, hi) allowed for tilt.<key> / shuttle.<key>: nominal ± SANITY_WINDOW_DEG,
+    clipped to [0, actuation_range]."""
+    nominal = (NOMINAL_TILT_ANGLES if section == "tilt" else NOMINAL_SHUTTLE_ANGLES)[key]
+    ch = CH_TILT if section == "tilt" else CH_SHUTTLE
+    rng = actuation_range if actuation_range is not None else SHUTTLE_ACTUATION_RANGE[ch]
+    return max(0.0, nominal - SANITY_WINDOW_DEG), min(float(rng), nominal + SANITY_WINDOW_DEG)
+
+
+def _is_number(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+
+def validate_calibration(cal) -> tuple[dict, list[str]]:
+    """Check a parsed shuttle_calibration.json. Returns (effective, problems):
+    effective = {"tilt", "shuttle", "timing", "actuation_range", "invert"}, each
+    the nominal defaults overridden by the file (only meaningful if problems is
+    empty). Pure: changes nothing."""
+    problems: list[str] = []
+    eff = {"tilt": dict(NOMINAL_TILT_ANGLES), "shuttle": dict(NOMINAL_SHUTTLE_ANGLES),
+           "timing": dict(NOMINAL_TIMING), "actuation_range": dict(NOMINAL_ACTUATION_RANGE),
+           "invert": dict(_INVERT_DEFAULT)}
+    if not isinstance(cal, dict):
+        return eff, [f"must be a JSON object, got {type(cal).__name__}"]
+    for sec in cal:
+        if not str(sec).startswith("_") and sec not in CAL_SECTIONS:
+            problems.append(f"{sec}: unknown section (valid: {', '.join(CAL_SECTIONS)})")
+
+    def body(name):
+        b = cal.get(name, {})
+        if name == "invert" and not isinstance(b, dict):
+            problems.append(f'"invert" must be an object like {{"1": false, "2": false}}, got {b!r}')
+            return {}
+        if not isinstance(b, dict):
+            problems.append(f"{name}: must be a JSON object of KEY: value, got {json.dumps(b)}")
+            return {}
+        return {k: v for k, v in b.items() if not str(k).startswith("_")}
+
+    # actuation_range first: the angle limits depend on it
+    for k, v in body("actuation_range").items():
+        if k not in ("1", "2"):
+            problems.append(f"actuation_range.{k}: unknown channel (only \"1\" tilt and \"2\" shuttle)")
+        elif not (_is_number(v) and math.isfinite(v) and float(v).is_integer()
+                  and int(v) in VALID_ACTUATION_RANGES):
+            problems.append(f"actuation_range.{k}: must be 180 (MG996R) or 270 (DS3218MG-270), "
+                            f"got {json.dumps(v)}")
+        else:
+            eff["actuation_range"][int(k)] = int(v)
+
+    for k, v in body("invert").items():
         if k not in ("1", "2"):
             problems.append(f"invert.{k}: unknown channel (only \"1\" tilt and \"2\" shuttle)")
         elif not isinstance(v, bool):
             problems.append(f"invert.{k}: must be true or false (a JSON boolean), got {v!r}")
         else:
-            inv[int(k)] = v
-    if problems:
-        lines = "\n".join(f"  - {p}" for p in problems)
-        raise ShuttleConfigError(f"invalid {_CALIBRATION_FILE} — refusing to start:\n{lines}")
-    return inv
+            eff["invert"][int(k)] = v
+
+    bad_angle = set()
+    for sec, ch in (("tilt", CH_TILT), ("shuttle", CH_SHUTTLE)):
+        rng = eff["actuation_range"][ch]
+        for k, v in body(sec).items():
+            key = k if sec == "tilt" and k in NOMINAL_TILT_ANGLES else (
+                _shuttle_key(k) if sec == "shuttle" else None)
+            where = f"{sec}.{k}"
+            if key is None:
+                valid = (NOMINAL_TILT_ANGLES if sec == "tilt" else ("home", "reject", "0", "1", "2", "3"))
+                problems.append(f"{where}: unknown key (valid: {', '.join(map(str, valid))})")
+                continue
+            bad_angle.add((sec, key))
+            if not _is_number(v):
+                problems.append(f"{where}: must be a number (degrees), got {json.dumps(v)}")
+                continue
+            if not math.isfinite(v):
+                problems.append(f"{where}: must be a finite number, got {v}")
+                continue
+            v = float(v)
+            if not 0.0 <= v <= rng:
+                problems.append(f"{where}: {v:g}° is outside the servo range [0, {rng}] (ch{ch})")
+                continue
+            lo, hi = sanity_window(sec, key, rng)
+            nominal = (NOMINAL_TILT_ANGLES if sec == "tilt" else NOMINAL_SHUTTLE_ANGLES)[key]
+            if not lo <= v <= hi:
+                problems.append(f"{where}: {v:g}° is more than {SANITY_WINDOW_DEG:g}° from the nominal "
+                                f"{nominal:g}° (allowed {lo:g}–{hi:g}°) — a typo? Re-calibrate with "
+                                "scripts/calibrate_servos.py (re-seat the horn / coupler if the "
+                                "pose really is that far off)")
+                continue
+            bad_angle.discard((sec, key))
+            eff[sec][key] = v
+
+    for k, v in body("timing").items():
+        where = f"timing.{k}"
+        if k not in TIMING_LIMITS:
+            problems.append(f"{where}: unknown key (valid: {', '.join(TIMING_LIMITS)})")
+            continue
+        lo, hi = TIMING_LIMITS[k]
+        if not _is_number(v) or not math.isfinite(v):
+            problems.append(f"{where}: must be a finite number, got {json.dumps(v)}")
+        elif not lo <= v <= hi:
+            problems.append(f"{where}: {v:g} is outside [{lo:g}, {hi:g}]")
+        else:
+            eff["timing"][k] = float(v)
+
+    # Geometric order (only between values that passed their own checks)
+    t = eff["tilt"]
+    for a, b in _TILT_ORDER:
+        if ("tilt", a) not in bad_angle and ("tilt", b) not in bad_angle and not t[a] < t[b]:
+            problems.append(f"tilt.{a} ({t[a]:g}°) must be below tilt.{b} ({t[b]:g}°) — "
+                            "lower < level, hold < upper")
+    c = eff["shuttle"]
+    for a, b in zip(_SHUTTLE_ORDER, _SHUTTLE_ORDER[1:]):
+        if ("shuttle", a) not in bad_angle and ("shuttle", b) not in bad_angle and not c[a] < c[b]:
+            problems.append(f"shuttle.{a} ({c[a]:g}°) must be below shuttle.{b} ({c[b]:g}°) — the "
+                            "carriage order is reject < 3 < 2 < home < 1 < 0 (crank angle ψ)")
+    return eff, problems
+
+
+def _reject_constant(token):
+    raise ValueError(f"{token} is not a valid JSON number")
+
+
+def read_calibration_file(path=None) -> dict | None:
+    """Parsed calibration file (None if absent). NaN / Infinity are rejected
+    like config/machine.json. Raises ShuttleConfigError if unreadable."""
+    path = Path(path) if path is not None else _CALIBRATION_FILE
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(), parse_constant=_reject_constant)
+    except Exception as exc:
+        raise ShuttleConfigError(f"could not read {path} ({exc}) — fix or move it, then restart") from exc
 
 
 def _load_calibration() -> None:
-    """Apply config/shuttle_calibration.json. The file is checked BEFORE
-    anything is applied: unreadable JSON or a bad "invert" section raises
-    ShuttleConfigError and nothing changes (no silent fall-back to defaults —
-    a forgotten invert would drive a crank the wrong way)."""
-    if not _CALIBRATION_FILE.exists():
-        SHUTTLE_INVERT.update(_INVERT_DEFAULT)
+    """Apply config/shuttle_calibration.json. The WHOLE file is validated
+    first (validate_calibration): any problem raises ShuttleConfigError
+    listing every bad key, and nothing changes (no silent fall-back to
+    defaults — a dropped invert or a typo would drive a crank the wrong way
+    or to a wild pose). Keys absent from the file get their nominal value."""
+    cal = read_calibration_file()
+    eff, problems = validate_calibration({} if cal is None else cal)
+    if problems:
+        if not isinstance(cal, dict):
+            raise ShuttleConfigError(f"{_CALIBRATION_FILE} must be a JSON object — refusing to start",
+                                     problems)
+        lines = "\n".join(f"  - {p}" for p in problems)
+        raise ShuttleConfigError(f"invalid {_CALIBRATION_FILE} — refusing to start:\n{lines}\n"
+                                 "Fix these keys (or delete them to use the nominal values) and "
+                                 "re-check with scripts/calibrate_servos.py --verify", problems)
+    TILT_ANGLES.clear()
+    TILT_ANGLES.update(eff["tilt"])
+    SHUTTLE_ANGLES.clear()
+    SHUTTLE_ANGLES.update(eff["shuttle"])
+    TIMING.clear()
+    TIMING.update(eff["timing"])
+    SHUTTLE_ACTUATION_RANGE.update(eff["actuation_range"])
+    SHUTTLE_INVERT.update(eff["invert"])
+    if cal is None:
         return
-    try:
-        cal = json.loads(_CALIBRATION_FILE.read_text())
-    except Exception as exc:
-        raise ShuttleConfigError(f"could not read {_CALIBRATION_FILE} ({exc}) — "
-                                 "fix or move it, then restart") from exc
-    if not isinstance(cal, dict):
-        raise ShuttleConfigError(f"{_CALIBRATION_FILE} must be a JSON object — refusing to start")
-    invert = _validate_invert(cal)
-    for k, v in cal.get("tilt", {}).items():
-        if k in TILT_ANGLES:
-            TILT_ANGLES[k] = float(v)
-    for k, v in cal.get("shuttle", {}).items():
-        key = int(k) if str(k).isdigit() else k
-        if key in SHUTTLE_ANGLES:
-            SHUTTLE_ANGLES[key] = float(v)
-    for k, v in cal.get("timing", {}).items():
-        if k in TIMING:
-            TIMING[k] = float(v)
-    for k, v in cal.get("actuation_range", {}).items():
-        if str(k).isdigit() and int(k) in SHUTTLE_ACTUATION_RANGE:
-            SHUTTLE_ACTUATION_RANGE[int(k)] = int(v)
-    SHUTTLE_INVERT.update(invert)
     inverted = [f"ch{ch}" for ch, on in sorted(SHUTTLE_INVERT.items()) if on]
     print(f"[shuttle] Loaded calibration from {_CALIBRATION_FILE}"
           + (f" (inverted: {', '.join(inverted)})" if inverted else ""))
@@ -265,7 +428,8 @@ def init(pca=None, assume_rest: bool = False):
     share its instance; otherwise this module opens its own on 0x40.
     Never homes (audit M7) — call home() explicitly once it is safe.
     Raises ShuttleConfigError (before touching anything) if
-    config/shuttle_calibration.json is unreadable or its "invert" is invalid.
+    config/shuttle_calibration.json is unreadable or fails validation
+    (validate_calibration: types, ranges, sanity window, order, invert).
 
     assume_rest=True: the previous run stopped cleanly with the shuttle at
     home + level (main.py's machine state file), and deinit() left it there
@@ -274,9 +438,9 @@ def init(pca=None, assume_rest: bool = False):
     assume_rest=False: pose unknown; NOTHING is commanded (no pulses on ch1 /
     ch2). home() later goes tilt straight to HOLD, then carriage straight to
     HOME — two full-speed jumps, in that order so nothing drags."""
-    global _pca, _own_pca, _tilt_state, _target, _jammed
+    global _pca, _own_pca, _tilt_state, _target, _jammed, _released
     _load_calibration()
-    _tilt_state, _target, _jammed = None, None, None
+    _tilt_state, _target, _jammed, _released = None, None, None, False
     _pos[CH_TILT] = _pos[CH_SHUTTLE] = None
     if _MOCK:
         print("[shuttle] MOCK mode — no hardware")
@@ -294,10 +458,25 @@ def init(pca=None, assume_rest: bool = False):
                                                min_pulse=500, max_pulse=2500)
         print("[shuttle] ch1 tilt + ch2 shuttle attached")
     if assume_rest:
-        _write(CH_SHUTTLE, SHUTTLE_ANGLES["home"])
-        _write(CH_TILT, TILT_ANGLES["level"])
-        _sleep(0.3)
         _target, _tilt_state = "home", "level"
+        assert_rest()
+
+
+def assert_rest() -> None:
+    """Re-assert the rest pose (home + level) with ONE write per channel —
+    after a clean stop (init(assume_rest=True)) or after release_channels()
+    while idle at rest: the limp servos may have sagged a little and snap
+    back by that much, never more. Only when the pose is known to be at rest."""
+    if not at_rest():
+        raise ShuttleError(f"rest pose not known ({_target!r}, {_tilt_state!r}) — not re-asserting")
+    _write(CH_SHUTTLE, SHUTTLE_ANGLES["home"])
+    _write(CH_TILT, TILT_ANGLES["level"])
+    _sleep(0.3)
+
+
+def released() -> bool:
+    """ch1/ch2 switched off (limp) since the last command."""
+    return _released
 
 
 def pose_known() -> bool:
@@ -329,8 +508,10 @@ def pulse_us(ch, angle) -> float:
 
 def _write(ch, angle):
     """Command the geometric `angle`; _pos keeps it, the PWM gets pwm_angle()."""
+    global _released
     angle = _clamp(ch, angle)
     _pos[ch] = angle
+    _released = False
     if not _MOCK:
         _servos[ch].angle = pwm_angle(ch, angle)
 
@@ -521,7 +702,10 @@ def _pca_usable() -> bool:
 
 
 def release_channels() -> None:
-    """Switch ch1 and ch2 fully OFF (no pulses): the servos go limp where they are."""
+    """Switch ch1 and ch2 fully OFF (no pulses): the servos go limp where they
+    are. The commanded pose stays tracked (assert_rest() re-asserts a rest pose)."""
+    global _released
+    _released = True
     if _MOCK or not _pca_usable():
         return
     for ch in (CH_TILT, CH_SHUTTLE):

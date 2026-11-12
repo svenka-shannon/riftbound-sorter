@@ -13,6 +13,12 @@ kept in order; the file is only rewritten if it changes (a copy of the
 original is kept as cmdline.txt.riftbound.bak the first time). Prints
 "unchanged" or "updated <path>"; a reboot applies it.
 
+Durability: cmdline.txt lives on the FAT boot partition, where a power cut
+after a rename that is not yet on disk can leave an empty or missing file
+(an unbootable Pi). The new text (and the backup) are written to a temp file
+that is fsynced, renamed over the original, and then the directory is
+fsynced too, so either the old or the new file is on disk, complete.
+
 Parameter name: the pinctrl-bcm2835 driver declares
 `module_param(persist_gpio_outputs, bool, 0444)` (drivers/pinctrl/bcm/
 pinctrl-bcm2835.c, Raspberry Pi kernel), so on the command line it is
@@ -20,6 +26,7 @@ pinctrl-bcm2835.c, Raspberry Pi kernel), so on the command line it is
 """
 
 import argparse
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -46,18 +53,45 @@ def updated(text: str, param: str) -> str:
     return " ".join(tokens) + "\n"
 
 
+def fsync_dir(directory: Path) -> None:
+    """fsync a directory so a rename in it is on disk (best effort: some
+    filesystems / platforms refuse to open a directory for fsync)."""
+    try:
+        fd = os.open(directory, os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(fd)
+    except OSError:
+        pass
+    finally:
+        os.close(fd)
+
+
+def write_durably(path: Path, data: bytes) -> None:
+    """Write `data` to a temp file next to `path`, fsync it, rename it over
+    `path`, fsync the directory."""
+    tmp = path.with_name(path.name + ".tmp")
+    with open(tmp, "wb") as fh:
+        fh.write(data)
+        fh.flush()
+        os.fsync(fh.fileno())
+    os.replace(tmp, path)
+    fsync_dir(path.parent)
+
+
 def ensure_param(path: Path, param: str) -> bool:
     """True if the file was changed."""
-    text = path.read_text()
+    raw = path.read_bytes()
+    text = raw.decode()
     new = updated(text, param)
     if new.split() == text.split():
         return False
     backup = path.with_name(path.name + ".riftbound.bak")
     if not backup.exists():
-        shutil.copy2(path, backup)
-    tmp = path.with_name(path.name + ".tmp")
-    tmp.write_text(new)
-    tmp.replace(path)
+        write_durably(backup, raw)
+        shutil.copystat(path, backup)
+    write_durably(path, new.encode())
     return True
 
 

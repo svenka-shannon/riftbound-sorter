@@ -13,10 +13,9 @@ Wiring (BCM numbering; header pins in brackets):
   Bottom/home switch   (carriage lug microswitch) C → GND [30], NC → GPIO 13 [33]
 Switches use the Pi's internal pull-ups.
 
-Normally-CLOSED wiring (audit M8, the default: TOP_SWITCH_NC / BOTTOM_SWITCH_NC
-= true in config/machine.json "elevator"): released = contact closed to GND =
-LOW, pressed = contact open = HIGH. A broken wire / unplugged switch then
-reads PRESSED, which is the safe reading:
+Normally-CLOSED wiring (audit M8): released = contact closed to GND = LOW,
+pressed = contact open = HIGH. A broken wire / unplugged switch then reads
+PRESSED, which is the safe reading:
   top switch    "top card at pick height" → the floor stops rising (it never
                 drives the stack into the arm). The arm then picks too low and
                 the cycle stops ("card never seen").
@@ -24,12 +23,23 @@ reads PRESSED, which is the safe reading:
                 must read RELEASED, so a broken wire (still "pressed") makes
                 home() fail ("bottom switch did not release") instead of
                 zeroing at the wrong height.
-With normally-OPEN wiring (set the *_NC keys false) a broken wire reads
-"never pressed": home() times out (safe), but the top switch would let the
-floor rise to the soft limit, pushing the stack into the arm — which is why
-every raise after the first one following home() is capped at RAISE_CAP_MM
-(a few cards) whatever the wiring: if the switch has not tripped by then the
-machine stops with "top switch not detected — check wiring" (ElevatorError).
+The TOP switch MUST be wired NC (audit 3): config/machine.json refuses
+"TOP_SWITCH_NC": false. The first raise after home() has to be allowed the
+full travel (the stack height is unknown after homing), and with NO wiring a
+broken wire reads "never pressed", so that raise would push the whole stack
+into the arm. Should the module constant be false anyway (tests, a patched
+build), EVERY raise — the first one included — is capped at RAISE_CAP_MM.
+The BOTTOM switch may be NO (BOTTOM_SWITCH_NC false): a broken NO wire only
+makes home() time out.
+Every raise after the first one following home() is capped at RAISE_CAP_MM
+(a few cards): the switch must trip within it. No trip:
+  * the floor ended within RAISE_CAP_MM of the soft top limit → the hopper is
+    EMPTY (the last card went at a trip height a few mm below CAD): False;
+  * anywhere lower (mid-stack) → ElevatorError "top switch not detected —
+    check wiring": the machine stops.
+Remaining risk: a mechanically stuck switch (contact never opens although the
+wire is intact) on the FIRST raise after homing is not detectable without a
+second sensor — the floor then rises to the soft top limit.
 
 Boot / crash safety: GPIO 16–21 default to inputs with pull-DOWN, so all four
 ULN2003 inputs read LOW = every coil off. After a crash / kill the pins would
@@ -69,7 +79,7 @@ if not _MOCK:
 STEPPER_PINS = (16, 19, 20, 21)   # ULN2003 IN1..IN4
 TOP_SWITCH_PIN = 12               # feeler flag at pick height
 BOTTOM_SWITCH_PIN = 13            # home switch, carriage at the bottom
-TOP_SWITCH_NC = True              # normally-closed contact to GND: pressed = HIGH (see above)
+TOP_SWITCH_NC = True              # normally-closed contact to GND: pressed = HIGH (MUST be NC)
 BOTTOM_SWITCH_NC = True
 
 # ── Mechanics (keep in sync with cad/hopper.scad) ───────────────────────────
@@ -126,7 +136,7 @@ class ElevatorError(RuntimeError):
 _phase = 0          # index into _SEQ
 _pos_steps = None   # half-steps above the home position (None = not homed)
 _initialized = False
-_raised_since_home = False   # the first raise after home() is uncapped
+_raised_since_home = False   # the first raise after home() is uncapped (NC wiring only)
 
 # Mock state: plate height and a simulated card stack
 _mock_plate_mm = 40.0
@@ -321,9 +331,13 @@ def raise_to_pick(timeout_s: float | None = None, abort=None) -> bool:
     or when abort() returns True (shutdown requested; check that first).
     timeout_s: None = distance-based, raise_timeout_s(remaining travel), so a
     nearly empty hopper right after homing still reaches pick height.
-    Every raise after the first one since home() may travel at most
-    RAISE_CAP_MM: if the switch has not tripped by then (and the soft top
-    limit was not reached) it raises ElevatorError("top switch not detected").
+    Cap: the first raise after home() may use the full remaining travel ONLY
+    with NC top-switch wiring (a broken NC wire reads pressed: no rise at all);
+    every later raise — and every raise with NO wiring — travels at most
+    RAISE_CAP_MM. A capped raise without a trip:
+      ends within RAISE_CAP_MM of the soft top limit → hopper empty, False
+      ends lower (mid-stack)                         → ElevatorError
+                                                       ("top switch not detected")
     """
     global _raised_since_home
     if _top_pressed():
@@ -335,7 +349,8 @@ def raise_to_pick(timeout_s: float | None = None, abort=None) -> bool:
     remaining = int(MAX_POS_MM * STEPS_PER_MM) - _pos_steps
     if remaining <= 0:
         return False
-    capped = _raised_since_home
+    # Full travel only on the first raise since home() AND with NC wiring
+    capped = _raised_since_home or not TOP_SWITCH_NC
     cap_steps = int(RAISE_CAP_MM * STEPS_PER_MM)
     if capped and cap_steps < remaining:
         steps = cap_steps
@@ -351,6 +366,15 @@ def raise_to_pick(timeout_s: float | None = None, abort=None) -> bool:
             _move(+1, TRIP_EXTRA_STEPS, RAISE_STEP_S)
         return True
     if reason == "done" and capped:
+        left = int(MAX_POS_MM * STEPS_PER_MM) - _pos_steps
+        if left <= cap_steps:
+            # Within one cap of the soft top limit: the plate is (nearly) at the
+            # notch, so no card is left — the real trip height is just lower than
+            # CAD. Hopper empty, not a wiring fault (audit 3 minor 2).
+            print(f"[elevator] raise_to_pick: no trip within {RAISE_CAP_MM:g} mm, "
+                  f"{left / STEPS_PER_MM:.1f} mm below the top limit at {position_mm():.1f} mm "
+                  "— hopper empty")
+            return False
         raise ElevatorError(f"top switch not detected — check wiring (GPIO {TOP_SWITCH_PIN}): "
                             f"the floor rose {RAISE_CAP_MM:g} mm (≈{RAISE_CAP_MM / CARD_THICKNESS_MM:.0f} "
                             "cards) without the top-of-stack switch tripping")

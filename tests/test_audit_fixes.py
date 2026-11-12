@@ -209,7 +209,13 @@ def test_first_signal_during_elevator_raise_stops_cleanly(rig, monkeypatch):
 
 def test_signal_during_teardown_is_ignored(rig):
     main._tearing_down = True
-    main._on_signal(); main._on_signal(); main._on_signal()   # never raises
+    main._defer_depth = 0
+    for n in (1, 2, 3):
+        main._on_signal()                                   # never raises (pytest would fail)
+        assert main._signals == n and main._running is False
+    assert main._shutdown_pending is False                  # nothing deferred to raise later
+    with main._no_shutdown():                               # … so leaving a critical section
+        pass                                                #     raises nothing either
 
 
 def test_second_signal_on_arm_mid_arc_carries_card_to_belt(rig, monkeypatch):
@@ -410,9 +416,20 @@ def test_elevator_release_after_deinit_does_not_raise(monkeypatch):
     monkeypatch.setattr(elevator, "GPIO", G, raising=False)
     G.reset()
     elevator.init()
+    assert all(G.mode[p] == G.OUT and G.level[p] == 0 for p in elevator.STEPPER_PINS)
     elevator.deinit()
-    elevator._release()                                     # pins cleaned up: no RuntimeError
-    elevator.deinit()                                       # idempotent
+    pins = list(elevator.STEPPER_PINS)
+    # deinit drove every coil LOW, then freed the pins (stepper + both switches)
+    assert [e for e in G.log if e[0] == "out"][-4:] == [("out", p, 0) for p in pins]
+    assert all(p not in G.mode for p in pins + [elevator.TOP_SWITCH_PIN, elevator.BOTTOM_SWITCH_PIN])
+    assert elevator._initialized is False
+    n = len(G.log)
+    elevator._release()                                     # pins cleaned up: no RuntimeError …
+    assert G.log[n:] == []                                  # … and nothing written to freed pins
+    with pytest.raises(RuntimeError):                       # (the real module WOULD raise on them)
+        G.output(pins[0], 0)
+    elevator.deinit()                                       # idempotent: no second cleanup
+    assert G.log[n:] == [] and elevator._initialized is False
 
 
 # ── M1: card left on the cradle at restart ───────────────────────────────────

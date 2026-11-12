@@ -81,7 +81,8 @@ def test_stop_during_binfull_then_confirm_does_not_tare_card_away(monkeypatch, t
             polls["stop"] = c.post("/api/stop", headers=AUTH).status_code
         return orig_full(b)
     monkeypatch.setattr(main._bins, "is_full", is_full)
-    assert main.run_sorter(engine=TS.Eng(), max_cycles=1) == "stopped"
+    # card held on the cradle → needs_confirm (audit 3 minor 3)
+    assert main.run_sorter(engine=TS.Eng(), max_cycles=1) == "needs_confirm"
     assert polls["stop"] == 200                    # Stop is allowed while paused
     assert loadcell.read_grams() == pytest.approx(loadcell.MOCK_CARD_G)
     clean, reason = main._assess_clean()

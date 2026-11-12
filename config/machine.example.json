@@ -1,5 +1,5 @@
 {
-  "_comment": "Per-machine calibration. Copy to config/machine.json and edit; every key is optional (code defaults shown). Validated at start-up (hardware/machine_config.py SCHEMA): wrong types, out-of-range or non-finite values, string booleans, unknown sections and unknown keys (typos) all REFUSE to start with a list of the bad keys. Keys starting with '_' are comments.",
+  "_comment": "Per-machine calibration. Copy to config/machine.json and edit; every key is optional (code defaults shown). Validated at start-up (hardware/machine_config.py SCHEMA): wrong types, out-of-range or non-finite values, string booleans, unknown sections and unknown keys (typos) all REFUSE to start with a list of the bad keys. elevator.TOP_SWITCH_NC must be true (normally-open top-switch wiring is refused). Keys starting with '_' are comments.",
   "card_detect": {
     "TRAVEL_SIGN": 1,
     "CENTRE_OFFSET_MM": 0.0,
@@ -41,7 +41,8 @@
     "WEIGH_SETTLE_S": 0.2,
     "TARE_SETTLE_S": 0.3,
     "RESUME_DELAY_S": 2.0,
-    "CALIBRATION_MASS_G": 5.0
+    "CALIBRATION_MASS_G": 5.0,
+    "CUP_HOLD_MAX_S": 600.0
   },
   "elevator": {
     "TOP_SWITCH_NC": true,

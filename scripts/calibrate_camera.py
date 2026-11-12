@@ -33,6 +33,15 @@ Commands:
     c            re-capture the card frame
     s            save to config/camera_crop.json and quit
     q            quit without saving
+
+Sorter interlock (audit 3 M2): nothing moves here, but the camera cannot be
+shared with a running sorter, and step 2 puts a card on the belt under the
+lens — a card the next sorter start would never look for (its first empty-
+station reference would include it). So the tool takes the sorter's instance
+lock (data/sorter.lock; refuses while the sorter service or another tool runs
+— `sudo systemctl stop riftbound-sorter` first) and records the machine NOT
+clean in data/machine_state.json ("tool ran: ..."). The next sorter start
+asks for "Machine clear": remove the card from the belt first.
 """
 
 import argparse
@@ -56,6 +65,7 @@ MIN_BOX_PX = 20
 
 camera = None
 _MOCK = True
+_lock = None             # instance lock handle, held for the life of the tool
 
 
 class Quit(Exception):
@@ -131,7 +141,7 @@ def write_previews(frame: Image.Image, box, auto) -> None:
 
 
 def main() -> None:
-    global camera, _MOCK
+    global camera, _MOCK, _lock
     parser = argparse.ArgumentParser(description="Calibrate the scanner-station card crop")
     parser.add_argument("--no-mock", action="store_true",
                         help="use the real Pi camera (default: MOCK_HARDWARE=1, blank frames)")
@@ -140,7 +150,14 @@ def main() -> None:
     os.environ["MOCK_HARDWARE"] = "1" if _MOCK else "0"
     sys.path.insert(0, str(ROOT))
     from hardware import camera as _camera
+    from hardware import instance
     camera = _camera
+    try:
+        _lock = instance.claim_for_tool("scripts/calibrate_camera.py", _MOCK)
+    except instance.LockBusy as exc:
+        sys.exit(f"[calibrate_camera] ERROR: {exc}")
+    print(f"[calibrate_camera] machine recorded as NOT clean ({instance.state_file(_MOCK)}): "
+          "remove the card from the belt afterwards; the next sorter start asks for 'Machine clear'")
 
     print(f"=== Camera crop calibration ({'MOCK — blank frames' if _MOCK else 'REAL camera'}) ===")
     camera.init()                       # loads config/camera_crop.json, starts the camera

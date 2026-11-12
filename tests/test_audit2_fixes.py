@@ -237,7 +237,9 @@ def test_bin_full_wait_stop_returns_without_moving(rig, monkeypatch):
             main.request_stop()
         return orig(b)
     monkeypatch.setattr(main._bins, "is_full", is_full)
-    assert main.run_sorter(engine=TS.Eng(), max_cycles=1) == "stopped"
+    # card still held on the cradle → needs_confirm, not "stopped — resume" (audit 3 minor 3)
+    assert main.run_sorter(engine=TS.Eng(), max_cycles=1) == "needs_confirm"
+    assert main._status["state"] == "needs_confirm" and "card held on the cradle" in main._status["message"]
     assert shuttle.state()[:2] == ("home", "hold") and main._bins.count(2) == 0
 
 
@@ -424,7 +426,7 @@ def test_schema_accepts_and_normalises():
     cfg, problems = machine_config.validate({
         "_comment": "x", "card_detect": {"_note": 1, "BELT_SPEED_MM_S": 120, "TRAVEL_SIGN": -1},
         "camera": {"LOCK_AE_AWB": False, "EXPOSURE_TIME_US": None, "COLOUR_GAINS": [1.5, 2]},
-        "elevator": {"TOP_SWITCH_NC": False}})
+        "elevator": {"TOP_SWITCH_NC": True, "BOTTOM_SWITCH_NC": False}})
     assert problems == []
     assert cfg["card_detect"] == {"BELT_SPEED_MM_S": 120.0, "TRAVEL_SIGN": -1}
     assert cfg["camera"]["LOCK_AE_AWB"] is False and cfg["camera"]["COLOUR_GAINS"] == [1.5, 2.0]
@@ -497,17 +499,40 @@ def test_teardown_pose_unclean_unless_arm_parked(rig):
 
 # ══ M8: elevator top / bottom switch faults ══════════════════════════════════
 def test_raise_after_first_is_capped_and_stops_on_missing_switch(monkeypatch):
-    monkeypatch.setattr(elevator, "TOP_SWITCH_NC", False)       # NO wiring: broken wire = never pressed
     elevator.init()
     elevator.mock_set_cards(150)
     assert elevator.home()
-    assert elevator.raise_to_pick() is True                       # first raise: uncapped
+    assert elevator.raise_to_pick() is True                       # first raise (NC): full travel
     start = elevator.position_mm()
-    elevator._mock_wire_broken["top"] = True
+    monkeypatch.setattr(elevator, "_top_pressed", lambda: False)   # switch stops tripping mid-stack
     elevator.mock_set_cards(149)
     with pytest.raises(elevator.ElevatorError, match="top switch not detected"):
         elevator.raise_to_pick()
     assert elevator.position_mm() - start <= elevator.RAISE_CAP_MM + 0.01
+
+
+def test_no_wiring_caps_even_the_first_raise(monkeypatch):
+    """Audit 3 minor 1: with NO wiring (config refuses it; module constant forced
+    here) a broken wire reads 'never pressed' — the first raise is capped too."""
+    monkeypatch.setattr(elevator, "TOP_SWITCH_NC", False)
+    elevator._mock_wire_broken["top"] = True
+    elevator.init()
+    elevator.mock_set_cards(150)
+    assert elevator.home()
+    start = elevator.position_mm()
+    with pytest.raises(elevator.ElevatorError, match="top switch not detected"):
+        elevator.raise_to_pick()
+    assert elevator.position_mm() - start <= elevator.RAISE_CAP_MM + 0.01
+    stack_top = elevator._mock_plate_mm + 150 * elevator.CARD_THICKNESS_MM
+    assert stack_top < elevator.PICK_Z_MM                        # never pushed into the arm
+
+
+def test_config_refuses_no_top_switch_wiring():
+    _, problems = machine_config.validate({"elevator": {"TOP_SWITCH_NC": False}})
+    assert len(problems) == 1 and "elevator.TOP_SWITCH_NC: must be true" in problems[0]
+    assert "normally-open" in problems[0]
+    _, problems = machine_config.validate({"elevator": {"BOTTOM_SWITCH_NC": False}})
+    assert problems == []                                         # NO bottom switch: home() times out (safe)
 
 
 def test_nc_top_switch_broken_wire_reads_pressed():
