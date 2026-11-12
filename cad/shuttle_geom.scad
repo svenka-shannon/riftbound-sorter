@@ -111,11 +111,25 @@ function sg_rbar_y()    = [-150, 232];
 function sg_rbar_notch_y() = [29, 45];   // |Y| band notched at home (skids pass)
 
 // ---------- ch2 shuttle drive (in-line slider-crank, XY plane, under the deck) ----------
-function sg_c2_pivot()  = [80, -131];    // servo output axis (X, Y), servo hangs above
+// Pivot Y −124: the crank tip boss (r 6) at column 0 (ψ 180°) reaches Y −269,
+// inside the baseplate (±270). The servo's front ear then sits 6 mm inside the
+// riser footprint; riser_b has a pocket for it (its ceiling is the ear shelf).
+function sg_c2_pivot()  = [80, -124];    // servo output axis (X, Y), servo hangs above
 function sg_c2_r()      = 139;
 function sg_c2_l()      = 162;
-function sg_c2_pin_dy() = -6;            // drive pin Y relative to carriage centre
+function sg_c2_pin_dy() = 1;             // drive pin Y relative to carriage centre
 function sg_c2_z()      = [9.5, 13.5];   // crank slab Z
+function sg_c2_tip_r()  = 6;             // crank tip boss radius
+// MG996R hanging upside down above the crank, with the 25T round horn between:
+//   crank Z 9.5..13.5 | horn disc Ø25 × 1.4 (13.5..14.9) | horn hub up to the
+//   spline | case face Z 20.8 (horn stack 1.4 + 5.9) | case to Z 57.4
+//   ears (2.5 thick) 8.1..10.6 above the case face → Z 28.9..31.4
+//   ear shelves above them from Z 31.5; M2.5 pilots from Z 27.3
+function sg_c2_face_z() = sg_c2_z()[1] + 1.4 + 5.9;          // 20.8
+function sg_c2_shelf_z()= sg_c2_face_z() + 10.7;             // 31.5
+function sg_c2_ear_y()  = [sg_c2_pivot()[1] + 14.2, sg_c2_pivot()[1] - 34.5];  // ear hole Ys (front, rear)
+function sg_c2_body_y() = [sg_c2_pivot()[1] + 10.2, sg_c2_pivot()[1] - 30.5];  // case Y extent
+function sg_c2_ear_end_y() = [sg_c2_pivot()[1] + 17.2, sg_c2_pivot()[1] - 37.5];
 function sg_c2_link_z() = [5, 9];        // link slab Z
 
 // ---------- 2D kinematics (XZ), rotation = front-down by a (= rotate([0,a,0])) ----------

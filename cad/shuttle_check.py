@@ -136,7 +136,8 @@ SCENE_OBJS = {
     "rod": "rod8(sg_rod(), sg_rod_y()[0], sg_rod_y()[1]);",
     "dshaft": "dshaft(sg_rod_y()[0] - 8, sg_rod_y()[1]);",
     "servo_ch1": "translate([sg_D()[0], -168, sg_D()[1]]) rotate([-90, 0, 0]) rotate(90) mg996r();",
-    "servo_ch2": "translate([sg_c2_pivot()[0], sg_c2_pivot()[1], 13.5]) rotate([180, 0, 0]) rotate(90) mg996r();",
+    "servo_ch2": "c2_servo();",
+    "c2_horn": "c2_horn();",
     "lower_ramp": "ramp_neg(); ramp_pos();",
     "reject_bin": "reject_bin();",
     "riser": "riser_a(); riser_b();",
@@ -175,20 +176,25 @@ def load_all():
 # ---------------------------------------------------------------- collide
 TF_GROUP = ["cradle", "tf", "cell", "card"]
 MOVING = ["carriage", "tilt_crank", "tilt_link", *TF_GROUP]
-FIXED = ["rbar", "end_posts", "rod", "dshaft", "servo_ch1", "servo_ch2", "lower_ramp", "reject_bin", "riser",
+FIXED = ["rbar", "end_posts", "rod", "dshaft", "servo_ch1", "servo_ch2", "c2_horn", "lower_ramp", "reject_bin", "riser",
          "tray", "rails", "motor_mounts", "rollers", "card_guides", "etray"]
 # JOINED: parts fastened/journalled together (bearings, pins, bolted) — not checked.
 JOINED = {frozenset(p) for p in [
     ("carriage", "rod"), ("carriage", "dshaft"), ("tilt_crank", "dshaft"), ("tilt_crank", "tilt_link"),
     ("tilt_link", "tf"), ("tf", "cell"), ("cradle", "cell"), ("card", "cradle"),
-    ("c2_crank", "c2_link"), ("c2_link", "carriage"), ("c2_crank", "servo_ch2"), ("dshaft", "end_posts"),
+    ("c2_crank", "c2_link"), ("c2_link", "carriage"), ("c2_crank", "c2_horn"), ("c2_horn", "servo_ch2"),
+    ("dshaft", "end_posts"),
     ("rod", "end_posts"), ("rbar", "end_posts"), ("dshaft", "servo_ch1"), ("servo_ch1", "end_posts"),
-    ("servo_ch2", "end_posts"), ("servo_ch2", "riser"), ("rails", "riser"), ("motor_mounts", "riser"),
+    ("rails", "riser"), ("motor_mounts", "riser"),
     ("motor_mounts", "rails"), ("card_guides", "rails"), ("rollers", "rails"), ("tray", "lower_ramp"),
     ("reject_bin", "tray"), ("lower_ramp", "reject_bin")]}
 # CONTACT: may touch (≤ 1 mm³ numerical overlap) but must not interpenetrate:
 #   tf–carriage = F pins seated in the cheek hooks; tf–rbar = skid on the R-bar.
-CONTACT = {frozenset(p) for p in [("tf", "carriage"), ("tf", "rbar")]}
+CONTACT = {frozenset(p) for p in [("tf", "carriage"), ("tf", "rbar"), ("servo_ch2", "riser"),
+                                   ("servo_ch2", "end_posts")]}   # ch2 ears seated under their shelves
+OWN = ["carriage", "tilt_crank", "tilt_link", "cradle", "tf", "cell", "card", "c2_crank", "c2_link", "c2_horn",
+       "servo_ch2", "servo_ch1", "rbar", "end_posts", "rod", "dshaft", "lower_ramp", "reject_bin", "riser"]
+BASE = np.array([[-285.0, -270.0, 4.0], [285.0, 270.0, 1e9]])   # baseplate top / extents
 ALLOWED = JOINED | CONTACT
 
 
@@ -247,8 +253,12 @@ def run_collide(meshes, verbose=False):
 
     worst = {}
     fails = []
+    env = {n: fixed[n].bounds.copy() for n in OWN if n in fixed}
     for tgt, yc, mode, a, label in cases:
         mv = moving_set(yc, mode, a)
+        for n, m in mv.items():
+            b = m.bounds
+            env[n] = b.copy() if n not in env else np.array([np.minimum(env[n][0], b[0]), np.maximum(env[n][1], b[1])])
         names = list(mv)
         # moving vs fixed
         for n in names:
@@ -299,6 +309,16 @@ def run_collide(meshes, verbose=False):
         if d < 15:
             tag = "OVERLAP" if d < 0 else ("contact (by design)" if d == 0 else "")
             print(f"{n:12s} {fn:14s} {d:17.2f}   {tgt}/{label} {a}°  {tag}")
+    print("\nBASEPLATE ENVELOPE (every pose; baseplate X ±285, Y ±270, top Z 4):")
+    for n in OWN:
+        if n not in env:
+            continue
+        lo, hi = env[n]
+        inside = np.all(lo[:2] >= BASE[0][:2] - 1e-6) and np.all(hi[:2] <= BASE[1][:2] + 1e-6) and lo[2] >= BASE[0][2] - 1e-6
+        print(f"  {n:12s} X {lo[0]:7.1f}..{hi[0]:6.1f}  Y {lo[1]:7.1f}..{hi[1]:6.1f}  Z {lo[2]:5.1f}..{hi[2]:6.1f}  "
+              f"{'ok' if inside else 'OUTSIDE BASEPLATE'}")
+        if not inside:
+            fails.append((n, "baseplate", "envelope", 0, "", 0, 0))
     if fails:
         print(f"\n{len(fails)} FAILURES (overlap where none is allowed):")
         seen = set()

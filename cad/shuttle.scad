@@ -162,6 +162,9 @@ module carriage() {
             xz_sym(chy[0], chy[1]) cheek_2d();                              // cheeks
             translate([76, sg_c2_pin_dy() - 6, 10]) cube([91 - 76 + 1, 12, 6]);  // ch2 drive-pin arm
         }
+        // rear-bottom notch: the ch2 horn (Ø25, Z 13.5..20.4, X ≤ 92.5) passes under the
+        // sled at column 0; kept solid around the drive-pin arm (y −8..10)
+        for (yy = [[-hw - 1, -8], [10, hw + 1]]) translate([90, yy[0], 12]) cube([4.6, yy[1] - yy[0], 10]);
         // front-top chamfer: the TF plates swing past it in LOWER
         xz(-hw - 1, hw + 1) polygon([[107.5, 54.1], [118.1, 54.1], [118.1, 41.5]]);
         // rod: Ø8.4 through, LM8UU Ø15.1 × 24.1 pockets at both ends
@@ -286,7 +289,8 @@ module end_post_neg() {
             translate([90, -190, 4]) cube([30, 190 + y0 + 10, 4]);          // floor plate
             translate([90, -185.6, 4]) cube([30, 6.9, 62]);                 // ch1 cage (ear plane)
             translate([90, -175, 4]) cube([4, 25, 54]);                     // ch2 wall
-            translate([68, -168.6, 24.2]) cube([26, 6.5, 3.4]);             // ch2 rear ear shelf
+            translate([68, sg_c2_ear_end_y()[1] - 0.5, sg_c2_shelf_z()])
+                cube([26, 7.0, 3.4]);                                       // ch2 rear ear shelf (0.5 off the case)
             translate([90, -175, 4]) cube([6, 25, 4]);
         }
         cyl_y(rod, 8.05, y0 - 1, y0 + 11);                                   // rod end (M3 clamp screw from top)
@@ -296,7 +300,8 @@ module end_post_neg() {
         translate([95.15, -186, 13.3]) cube([19.7, 8, 41.1]);                // ch1 servo body opening
         for (z = [9.5, 58.5]) translate([105, -190, z]) rotate([-90, 0, 0]) cylinder(d = 2.6, h = 15, $fn = 16);
         for (x = [100, 110]) translate([x, -170, 0]) cylinder(d = 3.4, h = 20, $fn = 16);   // to baseplate (X 110 grid)
-        for (x = [75, 85]) translate([x, -165.5, 20]) cylinder(d = 2.2, h = 10, $fn = 16);  // ear screws
+        for (x = [75, 85]) translate([x, sg_c2_ear_y()[1], sg_c2_shelf_z() - 4.2])
+            cylinder(d = 2.2, h = 10, $fn = 16);                              // ear screws (M2.5 self-tap)
         translate([sg_rbar_x()[0] - 0.1, y0 + 6, sg_rbar_z0() - 0.1]) cube([sg_rbar_x()[1] - sg_rbar_x()[0] + 0.2, 5, 30]); // R-bar end seat
     }
 }
@@ -327,6 +332,14 @@ module mg996r() color("DimGray") {    // origin = output spline axis at the top 
     translate([-10.2, -9.85, -36.6]) cube([40.7, 19.7, 36.6]);
     translate([-17.2, -9.85, -10.6]) cube([54.7, 19.7, 2.5]);   // ears
     cylinder(d = 6, h = 4);
+}
+// ch2 servo hanging upside down, case face at sg_c2_face_z(), body toward −Y
+module c2_servo() translate([sg_c2_pivot()[0], sg_c2_pivot()[1], sg_c2_face_z()]) rotate([180, 0, 0]) rotate(90) mg996r();
+// MG996R 25T round horn (Ø25 × 1.4 disc + Ø10 spline hub) between crank and case;
+// the crank bolts to the disc (4 × M2 on Ø14) and the horn screw goes through the crank hub
+module c2_horn() color("WhiteSmoke") translate([sg_c2_pivot()[0], sg_c2_pivot()[1], sg_c2_z()[1]]) {
+    cylinder(d = 25, h = 1.4, $fn = 48);
+    cylinder(d = 10, h = sg_c2_face_z() - sg_c2_z()[1] - 0.4, $fn = 32);
 }
 module rod8(p, y0, y1) color("LightSteelBlue") cyl_y(p, 8, y0, y1, 24);
 module dshaft(y0, y1) color("LightSteelBlue") translate([D[0], y0, D[1]]) rotate([-90, 0, 0]) d_bore(y1 - y0);
@@ -377,8 +390,8 @@ module shuttle_fixed() {
     dshaft(sg_rod_y()[0] - 8, sg_rod_y()[1]);
     // ch1 servo: spline on the D-shaft axis at Y −168, body toward −Y
     translate([D[0], -168, D[1]]) rotate([-90, 0, 0]) rotate(90) mg996r();
-    // ch2 servo: hanging, spline down at Z 13.5
-    translate([sg_c2_pivot()[0], sg_c2_pivot()[1], 13.5]) rotate([180, 0, 0]) rotate(90) mg996r();
+    c2_servo();
+    c2_horn();
 }
 
 // ==== PUBLIC: everything at the belt end, machine coordinates ====
@@ -429,7 +442,8 @@ if (part == "end_post_pos") end_post_pos();
 //  4  M3 × 16 SHCS + nylock as pivots (crank–link, link–pin A, c2 crank–link,
 //       c2 link–carriage drive pin)
 //  1  M3 × 4 set screw (tilt crank onto the D flat)
-//  4  M2.5 × 10 self-tapping (MG996R ears, ch1) + 4 (ch2, into the shelves)
+//  4  M2.5 × 10 self-tapping (MG996R ears, ch1) + 4 (ch2, up into the shelves)
+//  1  MG996R Ø25 round 25T horn (in the servo bag) between the ch2 crank and the servo
 //  2  M3 × 16 + 2 M3 × 5.7 inserts (R-bar lap splice), 2 M3 × 10 (rod clamps)
 //  4  M3 × 25 + nuts/washers (end posts → baseplate)
 // =============================================

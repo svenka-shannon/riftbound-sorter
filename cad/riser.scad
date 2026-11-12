@@ -15,7 +15,7 @@
 // the electronics tray (Y 80).
 //
 // TUNNEL: the ch2 shuttle crank (shuttle.scad, Ø278 half-disc about X 80,
-// Y −131, at Z 5..13.5) and its 162 mm link sweep under the deck. Below Z 18
+// Y −124, at Z 5..13.5) and its 162 mm link sweep under the deck. Below Z 18
 // the riser is open over that swept area (+8 mm) and along the front strip
 // X ≥ 72 (carriage drive-pin arm); a 3 mm roof at Z 18 closes the box there.
 // riser_b is therefore a 46 mm deep box beam standing on its back-left corner
@@ -34,7 +34,8 @@
 //   Riser → baseplate: 5 anchors (M3 × 80 or threaded rod, head down a Ø6.8
 //     well from the deck top, nut + washer under the board) — fit the riser
 //     BEFORE the conveyor, the slide bed covers two of the wells.
-//   ch2 servo front ear shelf is part of riser_b (2× M2.5/M3 self-tap).
+//   ch2 servo front ear: pocket in riser_b's front face (X 69..85, Y −113..−105.8,
+//     Z 18..31.5); the ear screws up into the pocket ceiling (2× M2.5 self-tap).
 // PRINT: upside down (deck on the bed), PLA/PETG 0.24 mm, 3 walls, 15 % gyroid
 //   (ribs carry the load). No supports (the tunnel floor bridges 31 mm cells).
 // =============================================
@@ -110,11 +111,7 @@ module riser_piece(x0, x1) {
                 tunnel_2d(x0, x1);
                 translate([x0, Y0]) square([x1 - x0, Y1 - Y0]);
             }
-            // ch2 servo front ear shelf (riser_b, front face)
-            if (x1 > 80) {
-                translate([68, -120.6, 24.2]) cube([17, 7.6 + eps, 3.4]);
-                translate([68, -114, 24.2]) cube([17, 1.01, 10]);
-            }
+            // (ch2 servo front ear: pocket cut below; its ceiling is the ear shelf)
         }
         // through-bolt holes (rail foot → riser → baseplate)
         for (p = feet_through) if (p[0] > x0 && p[0] < x1)
@@ -132,8 +129,13 @@ module riser_piece(x0, x1) {
             cylinder(d = 3.6, h = 100, $fn = 20);
             translate([0, 0, 10]) cylinder(d = 6.8, h = 100, $fn = 24);
         }
-        // ch2 shelf ear-screw pilots
-        if (x1 > 80) for (x = [75, 85 - 0.5]) translate([min(x, 83), -116.8, 20]) cylinder(d = 2.2, h = 10, $fn = 16);
+        // ch2 servo front-ear pocket in riser_b's front face (ear Z 28.9..31.4,
+        // pocket Z 18..31.5; the pocket ceiling at Z 31.5 is the ear shelf) +
+        // M2.5 pilots up into the shelf
+        if (x1 > 80) {
+            translate([69, Y0 - 1, tun_z - 1]) cube([x1 - 69 + 1, sg_c2_ear_end_y()[0] + 1 - Y0 + 1, sg_c2_shelf_z() - tun_z + 1]);
+            for (x = [75, 83.5]) translate([x, sg_c2_ear_y()[0], sg_c2_shelf_z() - 4.2]) cylinder(d = 2.2, h = 10, $fn = 16);
+        }
         // cable pass for the motor/servo wiring along the deck underside
         translate([x0 - 1, 60, 30]) rotate([0, 90, 0]) cylinder(d = 12, h = x1 - x0 + 2);
     }
