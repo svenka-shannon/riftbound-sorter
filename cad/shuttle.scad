@@ -25,24 +25,27 @@
 //                     (μ ≈ 0.35-0.45) jams the upper-floor transfer.
 //   tilt_frame    1×  PETG, 0.2, 4 walls, 40 %, upright (crossbar down), NO
 //                     supports: crossbar, plate bottoms and the skid-nub tangents
-//                     are one flat plane at Z 63.8 (bed ≈ 1480 mm²); the plate
+//                     are one flat plane at Z 63.8 (bed ≈ 1420 mm²); the plate
 //                     tails rest on the nubs, window tops are 12 mm bridges, the
+//                     link slot (open below, 5.5 wide) has a flat bridged ceiling
+//                     then a 45° one, the block over it ties the crossbar halves, the
 //                     rear window edge and the plate step are 45°, the bores are
 //                     small horizontal holes. Ream the F-pin holes Ø3.9 and press
 //                     Ø4 × 8 dowels from inside; ream the pin-A bore Ø2.95.
 //   sled          1×  PETG, 0.2, 4 walls, 40 %, on its +y face (bed ≈ 720 mm²):
 //                     LM8UU pockets, shaft bushings and insert holes print as vertical
-//                     holes, the ch2 arm has a 45° flank, the crank swing pocket
-//                     closes with a 45° roof (no flat overhang); the only flat
-//                     overhangs are the round LM8UU pocket ends (bridged) and the
-//                     3.6 mm notch roof. Ream the shaft bushings Ø8.3 and the
+//                     holes, the ch2 arm has a 45° flank, the crank pocket closes
+//                     with 45° roofs (only ≤ 0.5 mm ledges at their edges and tips);
+//                     the only other flat overhangs are the round LM8UU pocket ends
+//                     (bridged) and the 3.6 mm notch roof. Ream the shaft bushings Ø8.3 and the
 //                     drive-pin journal Ø4.0+. 6 × M3 × 5.7 inserts (cheeks).
 //   cheek_neg / cheek_pos  1× each, PETG, 0.2, 4 walls, 40 %, flat on the outer
 //                     face (bed ≈ 3560 mm², no overhangs; countersinks on the bed
 //                     side are 45° cones). Bolt to the sled with 3 × M3 × 10
 //                     countersunk + 2 × Ø3 × 8 dowels each.
 //   tilt_crank / tilt_link  1× each, PETG 100 %, flat; the crank bore is REX
-//                     (Ø8.15 ∩ 7.15 hex) for the goBILDA REX shaft
+//                     (Ø8.15 ∩ 7.15 hex) for the goBILDA REX shaft. Crank arm: straight
+//                     lower edge 2.5 under the axis (keeps it off the +Y LM8UU).
 //   c2_crank      1×  PETG, 0.2, 5 walls, 50 %, flat (155 mm), countersinks down
 //   c2_link       1×  PETG, flat (173 mm); press the 2 × M3 × 4 inserts flush
 //                     from the top
@@ -173,6 +176,21 @@ module cradle() {
 // X 112.5 the bottom must stay ≥ 0.6 above what swings into the R-bar in LOWER
 // (about the skid): 66.0 at X 107.5, 66.6 at X 110 (needs 65.9 / 66.0).
 tf_bot = sg_S0()[1] - sg_skid_r();     // 63.8
+// The link turns about pin A relative to the TF from −106° (LEVEL) to −32° (LOWER),
+// −55° in UPPER (0° = +X, TF frame; shuttle_check.py prints the range). Its slot is
+// that sector ± 6° about A, widened by the link half-width 3.5 + 0.6 running clearance.
+lk_rng = [-112, -26];
+lk_c = 0.6;
+// Printed crossbar-down, so the slot's ceiling must be flat (a 5.5 mm bridge across the
+// slot) or ≥ 45°: flat at the top of the link end's clearance (Z 74.1) from behind A to X 152, then
+// 45° down to the front face, above the shallow −26° edge of the swept sector.
+module link_slot_2d() {
+    r = sg_link_w() / 2 + lk_c; top = A[1] + r;
+    offset(r = r) polygon(concat([A], [for (a = [lk_rng[0] : 2 : lk_rng[1]]) A + 30 * [cos(a), sin(a)]]));
+    polygon([[A[0] - r - 0.5, top], [152, top], [182, top - 30], [A[0] - r - 0.5, top - 30]]);
+}
+tf_bridge_y = [sg_link_y()[0] - 1.5, sg_link_y()[1] + 1.5];   // 6.5..14
+tf_bridge_z = 79.5;
 module tf_plate_2d()
     polygon([[103, 68], [104.5, 66], [107.5, 66], [110, 66.6], [110 + 66.6 - tf_bot, tf_bot], [160, tf_bot],
              [163, 68], [163, 93], [160, 96], [154, 96], [150, 93], [118, 80], [106, 76.5], [103, 74]]);
@@ -189,6 +207,10 @@ module tilt_frame() {
             translate([140, -tfy[1], tf_bot]) cube([18, 2 * tfy[1], 73.9 - tf_bot]);
             // cell fixed-end pad (tapped end of the TAL221)
             translate([cxc + 16.5, -6, 73.9 - eps]) cube([7, 12, czt - 6 - 73.9 + eps]);
+            // bridge over the link slot: the slot cuts the crossbar right through in its
+            // y band, so this block (y 6.5..14, Z 73.9..79.5) ties the two halves together
+            // above the link (0.6 over its end at A, 0.5 beside the cell, 1.9 under the cradle)
+            translate([140, tf_bridge_y[0], 73.9 - eps]) cube([158 - 140, tf_bridge_y[1] - tf_bridge_y[0], tf_bridge_z - 73.9 + eps]);
         }
         // F pin holes Ø3.9 (press Ø4 dowel)
         for (s = [-1, 1]) cyl_y(F, 3.9, -41, 41, 24);
@@ -198,8 +220,9 @@ module tilt_frame() {
             cylinder(d = 3.4, h = 30, $fn = 20);
             cylinder(d = 6.2, h = 68 - 60, $fn = 24);
         }
-        // link slot (open below): 1.4 wall to the cell-screw counterbores
-        translate([138, ly[0] - 0.5, 63]) cube([12.5, ly[1] - ly[0] + 1, 13]);
+        // link slot (open below, y 7.5..13: 1.4 wall to the cell-screw counterbores):
+        // the link's whole swing about A relative to the TF + 0.6 (link_slot_2d)
+        xz(ly[0] - 0.5, ly[1] + 0.5) link_slot_2d();
         // pin A = Ø3 × 20 dowel at Y pinA_y, pushed in from the +Y plate through the
         // Ø3.3 entry bore until it bottoms at Y 1.5; firm fit in the Ø2.9 bore on both
         // sides of the link (ream Ø2.95). Ø2 knock-out from the −Y plate.
@@ -243,7 +266,43 @@ module c2_arm_2d() hull() {
     translate([sg_c2_pivot()[0], sg_c2_pin_dy()]) circle(r = 6, $fn = 48);
     translate([86, sg_c2_pin_dy() - 6]) square([92 - 86, 21.5 - sg_c2_pin_dy() + 6]);
 }
-module swing_sector_2d() polygon(concat([D], [for (a = [-62 : 6 : 45]) D + 41 * [cos(a), sin(a)]]));
+// ch1 crank pocket (XZ, machine coordinates), cut through the crank slab ± pk_c:
+//  - the crank (tilt_crank_2d) swept about D over φ pk_rng, + pk_c running clearance.
+//    φ runs −48.5 (LOWER) .. 22.2 (UPPER); below LOWER the cradle meets the lower
+//    ramp within ≈ 1°, so 1.5° margin there; 30° on top is free air.
+//  - the insertion channel: the Ø16 hub (+ pk_c) slides in along −X from the sled's
+//    front face with the crank pointing +X (φ 0), §13.2.
+// The +Y LM8UU pocket (|y| ≥ 16.4) overlaps the slab only near the rod: the crank's
+// lower arm edge (crank_low) keeps ≥ 1.3 of wall between the two pockets at φ −50.
+pk_rng = [-50, 30];
+pk_c = 0.7;
+module crank_pocket_2d() offset(r = pk_c, $fn = 24) translate(D) union() {
+    hull() { circle(d = 16); translate([25, 0]) circle(d = 16); }   // hub + insertion channel
+    for (a = [pk_rng[0] : 2 : pk_rng[1]]) rotate(a) tilt_crank_arm_2d();
+}
+// crank pocket (crank_pocket_2d) over the crank slab ± pk_c (y 12.8..18.7). The link
+// (y 8..12.5) only ever moves at X ≥ 122.7, outside the sled, so toward −y the pocket
+// closes with a 45° roof (printed on the +y face this roof is the only overhang). The
+// pocket outline is a union of convex pieces (hub + channel; per swept angle the arm
+// and the tip boss); under each piece a 45° frustum (the piece inset by k at depth k),
+// started 0.3 inside the slab so it meets the slab bottom 0.35 inside the outline
+// (a 0.35 ledge, less than one extrusion width).
+module pocket_roof(k) {
+    y0 = sg_crank_y()[0] - pk_c;
+    hull() { xz(y0 + 0.3, y0 + 0.3 + eps) offset(delta = -0.05) children(); xz(y0 - k, y0 - k + eps) offset(delta = -k - 0.35) children(); }
+}
+module sled_crank_pocket() {
+    cy = sg_crank_y();
+    xz(cy[0] - pk_c, cy[1] + pk_c) crank_pocket_2d();
+    pocket_roof(8 + pk_c - 0.6) translate(D) offset(r = pk_c, $fn = 24) hull() { circle(d = 16); translate([25, 0]) circle(d = 16); }
+    for (a = [pk_rng[0] : 2 : pk_rng[1]]) {
+        pocket_roof(4.5 + pk_c - 0.6) translate(D) rotate(a) translate([sg_crank_r(), 0]) offset(r = pk_c, $fn = 24) circle(d = 9);
+        pocket_roof(3.6) translate(D) rotate(a) offset(r = pk_c, $fn = 24) tilt_crank_arm_hull_2d();
+    }
+}
+// LM8UU pockets Ø15.1 × 24.1 at both ends (the cheek roots close the mouths)
+module sled_lm8uu_pockets() for (s = [-1, 1])
+    cyl_y(rod, 15.1, s > 0 ? sled_hw - 24.1 : -sled_hw - 1, s > 0 ? sled_hw + 1 : -sled_hw + 24.1, 48);
 module sled() {
     cy = sg_crank_y(); ly = sg_link_y(); az = sg_c2_arm_z();
     difference() {
@@ -258,20 +317,11 @@ module sled() {
         xz(-sled_hw - 1, sled_hw + 1) polygon([[107.5, 54.1], [118.1, 54.1], [118.1, 41.5]]);
         // rod: Ø8.4 through, LM8UU Ø15.1 × 24.1 pockets at both ends
         cyl_y(rod, 8.4, -sled_hw - 1, sled_hw + 1);
-        for (s = [-1, 1]) cyl_y(rod, 15.1, s > 0 ? sled_hw - 24.1 : -sled_hw - 1, s > 0 ? sled_hw + 1 : -sled_hw + 24.1, 48);
+        sled_lm8uu_pockets();
         // REX tilt shaft: Ø8.3 bushing bores at both ends (8 long, on the round lands), Ø10 relief in between
         cyl_y(D, 8.3, -sled_hw - 1, sled_hw + 1);
         cyl_y(D, 10, -sled_hw + 8, sled_hw - 8);
-        // crank swing pocket (sector about D, −62°..40°) over the crank slab + 0.8
-        // (y 12.7..18.8). The link (y 8..12.5) only ever moves at X ≥ 122.7, outside
-        // the sled, so below y 12.7 the pocket just closes with a 45° taper (each
-        // 1 mm lower in y the sector shrinks by 1 mm): printed on the +y face this is
-        // a self-supporting 45° roof instead of a 10 mm one-sided flat overhang.
-        xz(cy[0] - 0.8, cy[1] + 0.8) swing_sector_2d();
-        hull() {
-            xz(cy[0] - 0.8 - eps, cy[0] - 0.8 + eps) swing_sector_2d();
-            xz(cy[0] - 0.8 - 12, cy[0] - 0.8 - 12 + eps) offset(delta = -12) swing_sector_2d();
-        }
+        sled_crank_pocket();
         // ch2 drive pin: Ø4.1 journal for the 4 mm shoulder (ream Ø4.0 + slip)
         translate([sg_c2_pivot()[0], sg_c2_pin_dy(), az[0] - 1]) cylinder(d = 4.1, h = az[1] - az[0] + 2, $fn = 24);
         // cheek fixings: inserts + dowel holes in both side faces
@@ -318,10 +368,24 @@ module carriage() { sled(); for (s = [-1, 1]) translate([0, -s * 0.01, 0]) cheek
 // and the bought ch1 coupler. Crank bore = REX + 0.15 (Ø8.15 ∩ 7.15 hex).
 module rex_2d(d = 8, af = 7) intersection() { circle(d = d, $fn = 48); circle(r = af / 2 / cos(30), $fn = 6); }
 module rex_bore(h) linear_extrude(h) rex_2d(8.15, 7.15);   // flats parallel to the crank arm
+// Crank outline (crank frame: D at the origin, pointing +X): Ø16 hub, Ø9 tip boss, and
+// an arm whose LOWER edge is a straight line crank_low below the axis (the upper edge is
+// the hub-to-tip tangent). In LOWER (φ −48.5) the rod and the +Y LM8UU are on the lower
+// side, 12.5 off the arm axis: the lower edge then clears the LM8UU by 2.5 (a full
+// hub-to-tip hull reached into it).
+crank_low = 2.5;
+// arm + tip boss; its hub end (Ø14) lies well inside the Ø16 hub, so the swept pocket
+// has no coincident arcs
+module tilt_crank_arm_hull_2d() hull() {
+    intersection() { circle(d = 14); translate([-10, -crank_low]) square([20, 20]); }
+    translate([sg_crank_r(), 0]) intersection() { circle(d = 9); translate([-6, -crank_low]) square([12, 12]); }
+}
+module tilt_crank_arm_2d() { translate([sg_crank_r(), 0]) circle(d = 9); tilt_crank_arm_hull_2d(); }
+module tilt_crank_2d() { circle(d = 16); tilt_crank_arm_2d(); }
 module tilt_crank() {      // modelled pointing +X from D, in the crank slab
     cy = sg_crank_y();
     translate([D[0], cy[1], D[1]]) rotate([90, 0, 0]) difference() {
-        hull() { cylinder(d = 16, h = cy[1] - cy[0]); translate([sg_crank_r(), 0, 0]) cylinder(d = 9, h = cy[1] - cy[0]); }
+        linear_extrude(cy[1] - cy[0]) tilt_crank_2d();
         translate([0, 0, -1]) rex_bore(cy[1] - cy[0] + 2);
         translate([sg_crank_r(), 0, -1]) cylinder(d = 3.2, h = 10, $fn = 20);
     }
@@ -329,7 +393,7 @@ module tilt_crank() {      // modelled pointing +X from D, in the crank slab
 module tilt_link() {       // modelled from the origin along +X, in the link slab
     ly = sg_link_y();
     translate([0, ly[1], 0]) rotate([90, 0, 0]) difference() {
-        hull() { cylinder(d = 7, h = ly[1] - ly[0]); translate([sg_link_l(), 0, 0]) cylinder(d = 7, h = ly[1] - ly[0]); }
+        hull() { cylinder(d = sg_link_w(), h = ly[1] - ly[0]); translate([sg_link_l(), 0, 0]) cylinder(d = sg_link_w(), h = ly[1] - ly[0]); }
         translate([0, 0, -1]) cylinder(d = 3.2, h = 10, $fn = 20);
         translate([sg_link_l(), 0, -1]) cylinder(d = 3.1, h = 10, $fn = 20);   // on the Ø3 pin-A dowel
     }
@@ -580,6 +644,35 @@ module load_cell() color("Silver") translate([cxc - 23.5, -6, czt - 6]) differen
     cube([47, 12, 6]);
     for (x = [3.5, 43.5]) for (y = [3, 9]) translate([x, y, -1]) cylinder(d = 3, h = 8, $fn = 12);
 }
+// ---- bought hardware, modelled so shuttle_check.py can test every part against every other ----
+// LM8UU (Ø8 / Ø15 × 24), carriage frame: one per sled pocket, 0.05 off the pocket floor
+module sh_lm8uu() color("Silver") for (s = [-1, 1]) {
+    y0 = s > 0 ? sled_hw - 24.05 : -sled_hw + 0.05;
+    difference() { cyl_y(rod, 15, y0, y0 + 24, 48); cyl_y(rod, 8, y0 - 1, y0 + 25, 24); }
+}
+// 688ZZ (Ø8 / Ø16 × 5), fixed: one per end post, seated on its pocket shoulder
+module sh_688zz() color("Silver") for (y0 = [sg_rod_y()[0] + 5, sg_rod_y()[1]])
+    difference() { cyl_y(D, 16, y0, y0 + 5, 48); cyl_y(D, 8, y0 - 1, y0 + 6, 48); }
+// cheek → sled: M3 × 10 countersunk (ISO 10642: Ø6.7 × 1.85 head, 90°) from each outer
+// face, and the Ø3 × 8 dowels bottomed in the sled's Ø2.9 holes (6 deep), carriage frame
+module sh_cheek_screws() color("DarkGray") for (s = [-1, 1], p = cheek_screws) {
+    yo = s > 0 ? chy[1] : -chy[1];
+    translate([p[0], yo, p[1]]) rotate([s > 0 ? -90 : 90, 0, 0]) translate([0, 0, -1.85])
+        cylinder(d1 = 3.0, d2 = 6.7, h = 1.85, $fn = 24);
+    cyl_y(p, 3.0, s > 0 ? chy[1] - 10 : -chy[1], s > 0 ? chy[1] : -chy[1] + 10, 16);
+}
+module sh_cheek_dowels() color("LightSteelBlue") for (s = [-1, 1], p = cheek_dowels)
+    cyl_y(p, 3.0, s > 0 ? sled_hw - 6 : -sled_hw - 2, s > 0 ? sled_hw + 2 : -sled_hw + 6, 16);
+// load-cell screws, TF frame: 2 × M3 × 12 SHCS up through the TF crossbar into the cell's
+// tapped end (head in the Ø6.2 counterbore, top at Z 68), 2 × M3 × 10 SHCS up through the
+// cell's free end into the cradle's inserts (head under the cell)
+module sh_cell_screws() color("DarkGray") for (y = [-3, 3]) {
+    translate([cxc + 20, y, 65]) { cylinder(d = 5.5, h = 3, $fn = 24); cylinder(d = 3, h = 3 + 12, $fn = 16); }
+    translate([cxc - 20, y, czt - 9]) { cylinder(d = 5.5, h = 3, $fn = 24); cylinder(d = 3, h = 3 + 10, $fn = 16); }
+}
+// rod set screws, fixed: M3 × 6 flat point in each end post's +X-face insert, tip on the rod
+module sh_rod_grub_screws() color("DarkGray") for (g = sh_rod_grubs())
+    translate([rod[0] + 4, g[1], g[2]]) rotate([0, 90, 0]) cylinder(d = 3, h = 6, $fn = 16);
 module mg996r() color("DimGray") {    // origin = output spline axis at the top face, body below (−Z)
     translate([-10.2, -9.85, -36.6]) cube([40.7, 19.7, 36.6]);
     translate([-17.2, -9.85, -10.6]) cube([54.7, 19.7, 2.5]);   // ears
@@ -664,10 +757,11 @@ module f_pins() for (s = [-1, 1]) color("LightSteelBlue") cyl_y(F, 4, s > 0 ? tf
 module pin_a() color("LightSteelBlue") cyl_y(A, 3, pinA_y[0], pinA_y[1], 16);
 module shuttle_moving(yc, st, show_card = true) translate([0, yc, 0]) {
     color("SteelBlue") carriage();
+    sh_lm8uu(); sh_cheek_screws(); sh_cheek_dowels();
     color("Tomato") tilt_drive_posed(st);
     tf_pose(st) {
         color("MediumSeaGreen") tilt_frame();
-        load_cell();
+        load_cell(); sh_cell_screws();
         color("Khaki") cradle();
         if (show_card) card_on_bed();
         f_pins(); pin_a();
@@ -678,6 +772,7 @@ module shuttle_fixed() {
     color("SandyBrown") { end_post_neg(); end_post_pos(); }
     rod8(rod, sh_rod_y()[0], sh_rod_y()[1]);
     rex_shaft();
+    sh_688zz(); sh_rod_grub_screws();
     // ch1: servo (case face Y −185, long side up), bought coupler (boss at HOLD), ear screws
     c1_servo();
     c1_coupler(sg_crank_phi("hold"));
@@ -781,7 +876,10 @@ if (part == "end_post_pos") end_post_pos();
 //     +Y through the cage opening; ears on the cage's −Y face; 4 × M3 × 10 + washers
 //     along +Y from behind the servo (2.5 mm hex driver).
 //  2. Bench, module: 688ZZ in both posts; rod through post −Y, carriage (LM8UU),
-//     post +Y; tilt crank in the sled pocket; slide the REX shaft in from the +Y end
+//     post +Y; tilt crank in the sled pocket (§13.2, on the bench before the TF and
+//     cheeks: crank + link joined, crank pointing +X, slid hub-first along −X through
+//     the pocket's front channel until the bore is on the shaft axis, then turned to
+//     HOLD; the hex is turned to match the shaft); slide the REX shaft in from the +Y end
 //     through post +Y, sled, crank, sled, post −Y into the coupler (8 mm deep).
 //     Power ch1 to HOLD (97°), set the cradle 10° nose-down, tighten the coupler's
 //     M4 clamp from ABOVE (3 mm key; the boss sits ±30° of horizontal-+X at HOLD

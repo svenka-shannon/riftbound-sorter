@@ -96,6 +96,7 @@ function sg_cheek_y()   = [40.5, 45.5];  // carriage cheeks |y|
 function sg_D()         = [105, 44];     // tilt (REX) shaft axis D (X, Z)
 function sg_crank_r()   = 32;
 function sg_link_l()    = 25;
+function sg_link_w()    = 7;             // link width (Ø7 ends)
 function sg_A()         = [144, 70];     // link pin on the TF (level frame)
 function sg_crank_y()   = [13.5, 18];    // crank slab (y)
 function sg_link_y()    = [8, 12.5];     // link slab (y); TF slot 7.5..13 leaves 1.4 to the cell-screw counterbore
