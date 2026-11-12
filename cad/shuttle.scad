@@ -23,26 +23,40 @@
 //                     kick with 0.1 mm skived-PTFE tape (wrap 2 mm over the lip),
 //                     this is REQUIRED: shuttle_check.py slide shows bare PLA
 //                     (μ ≈ 0.35-0.45) jams the upper-floor transfer.
-//   tilt_frame    1×  PETG, 0.2, 4 walls, 40 %, upright (crossbar down), tree
-//                     supports under the plate bottom edges + skid nubs; ream
-//                     the F-pin holes Ø3.9 and press Ø4 × 8 dowels from inside;
-//                     ream the pin-A bore Ø2.95 (see tilt_frame()).
+//   tilt_frame    1×  PETG, 0.2, 4 walls, 40 %, upright (crossbar down), NO
+//                     supports: crossbar, plate bottoms and the skid-nub tangents
+//                     are one flat plane at Z 63.8 (bed ≈ 1480 mm²); the plate
+//                     tails rest on the nubs, window tops are 12 mm bridges, the
+//                     rear window edge and the plate step are 45°, the bores are
+//                     small horizontal holes. Ream the F-pin holes Ø3.9 and press
+//                     Ø4 × 8 dowels from inside; ream the pin-A bore Ø2.95.
 //   sled          1×  PETG, 0.2, 4 walls, 40 %, on its +y face (bed ≈ 720 mm²):
-//                     LM8UU pockets, D bushings and insert holes print as vertical
-//                     holes, the ch2 arm has a 45° flank. Ream D bushings Ø8.3 and
-//                     the drive-pin journal Ø4.0+. 6 × M3 × 5.7 inserts (cheeks).
+//                     LM8UU pockets, shaft bushings and insert holes print as vertical
+//                     holes, the ch2 arm has a 45° flank, the crank swing pocket
+//                     closes with a 45° roof (no flat overhang); the only flat
+//                     overhangs are the round LM8UU pocket ends (bridged) and the
+//                     3.6 mm notch roof. Ream the shaft bushings Ø8.3 and the
+//                     drive-pin journal Ø4.0+. 6 × M3 × 5.7 inserts (cheeks).
 //   cheek_neg / cheek_pos  1× each, PETG, 0.2, 4 walls, 40 %, flat on the outer
 //                     face (bed ≈ 3560 mm², no overhangs; countersinks on the bed
 //                     side are 45° cones). Bolt to the sled with 3 × M3 × 10
 //                     countersunk + 2 × Ø3 × 8 dowels each.
-//   tilt_crank / tilt_link  1× each, PETG 100 %, flat
+//   tilt_crank / tilt_link  1× each, PETG 100 %, flat; the crank bore is REX
+//                     (Ø8.15 ∩ 7.15 hex) for the goBILDA REX shaft
 //   c2_crank      1×  PETG, 0.2, 5 walls, 50 %, flat (155 mm), countersinks down
 //   c2_link       1×  PETG, flat (173 mm); press the 2 × M3 × 4 inserts flush
 //                     from the top
 //   rbar_neg / rbar_pos  1× each, PLA, on the −X face, 4 walls; sand the top
-//   end_post_neg / end_post_pos  1× each, PETG/PLA, 4 walls, 40 %, upright, no
-//                     supports (ear shelf: 45° gusset web; 5 mm tip and a 7 mm
-//                     side ledge print as short overhangs)
+//   end_post_neg  1×  PETG, 0.2, 4 walls, 40 %, upright (floor plate down, bed
+//                     ≈ 3500 mm²), 78 × 79 × 81. The export includes a separate
+//                     break-away support ladder (0.8 walls, 4 cells) under the ch2
+//                     rear-ear ledge (X 70.5..89.5, Y −161.5..−155.5, up to 0.2 below
+//                     the ledge): that ledge sits over the servo ear and the crank
+//                     sweeps everything below Z 21 at X < 90, so no printable gusset
+//                     can reach it; snap the ladder out with pliers. Everything else
+//                     is support-free: the cage opening top is a 20 mm bridge, the
+//                     gusset is 45°, the holes are small horizontal bores.
+//   end_post_pos  1×  PETG/PLA, 4 walls, 40 %, upright, no supports
 // HARDWARE: see the BOM block at the end of this file.
 // =============================================
 
@@ -51,7 +65,7 @@ use <lower_ramp.scad>
 use <reject_bin.scad>
 
 /* [Export] */
-part = "assembly";   // assembly | cradle | tilt_frame | carriage (preview) | sled | cheek_neg | cheek_pos | tilt_crank | tilt_link | c2_crank | c2_link | rbar_neg | rbar_pos | end_post_neg | end_post_pos
+part = "assembly";   // assembly | cradle | tilt_frame | carriage_preview (NOT a print) | sled | cheek_neg | cheek_pos | tilt_crank | tilt_link | c2_crank | c2_link | rbar_neg | rbar_pos | end_post_neg | end_post_pos
 show_col   = 1;        // assembly preview: 0..3, "reject", "home"
 show_state = "hold";   // level | hold | upper | lower
 
@@ -152,8 +166,15 @@ module cradle() {
 // =====================================================================
 // TILT FRAME — two side plates + front crossbar (cell fixed end, link pin A)
 // =====================================================================
+// The plate bottom is FLAT at Z 63.8 from X 112.8 to 160 (the skid nub's bottom
+// tangent, the crossbar bottom): printed upright (crossbar down) the part stands on
+// that plane (≈ 1480 mm²) and needs no supports; the 45° step at X 110..112.8 and
+// the 53° rear edge are self-supporting, the nub carries the plate tail. Behind
+// X 112.5 the bottom must stay ≥ 0.6 above what swings into the R-bar in LOWER
+// (about the skid): 66.0 at X 107.5, 66.6 at X 110 (needs 65.9 / 66.0).
+tf_bot = sg_S0()[1] - sg_skid_r();     // 63.8
 module tf_plate_2d()
-    polygon([[103, 68], [104.5, 66], [107.5, 66], [112, 68.5], [140, 64], [160, 64],
+    polygon([[103, 68], [104.5, 66], [107.5, 66], [110, 66.6], [110 + 66.6 - tf_bot, tf_bot], [160, tf_bot],
              [163, 68], [163, 93], [160, 96], [154, 96], [150, 93], [118, 80], [106, 76.5], [103, 74]]);
 module tilt_frame() {
     ly = sg_link_y();
@@ -165,7 +186,7 @@ module tilt_frame() {
             // F pin bosses (outer side, to |y| 39.8: 0.7 to the cheek inner face)
             for (s = [-1, 1]) cyl_y(F, 10, s > 0 ? tfy[1] - eps : -39.8, s > 0 ? 39.8 : -tfy[1] + eps, 40);
             // crossbar
-            translate([140, -tfy[1], 64]) cube([18, 2 * tfy[1], 73.9 - 64]);
+            translate([140, -tfy[1], tf_bot]) cube([18, 2 * tfy[1], 73.9 - tf_bot]);
             // cell fixed-end pad (tapped end of the TAL221)
             translate([cxc + 16.5, -6, 73.9 - eps]) cube([7, 12, czt - 6 - 73.9 + eps]);
         }
@@ -189,7 +210,7 @@ module tilt_frame() {
         translate([155, -3, 72]) cube([4, 6, 3]);
         // lightening windows in the plates
         for (s = [-1, 1]) xz(s > 0 ? tfy[0] - 1 : -tfy[1] - 1, s > 0 ? tfy[1] + 1 : -tfy[0] + 1)
-            polygon([[118, 71], [136, 67.5], [136, 76], [124, 76]]);
+            polygon([[118, 71], [136, 67.5], [136, 76], [123, 76]]);   // 45° upper rear edge (support-free)
     }
 }
 
@@ -222,6 +243,7 @@ module c2_arm_2d() hull() {
     translate([sg_c2_pivot()[0], sg_c2_pin_dy()]) circle(r = 6, $fn = 48);
     translate([86, sg_c2_pin_dy() - 6]) square([92 - 86, 21.5 - sg_c2_pin_dy() + 6]);
 }
+module swing_sector_2d() polygon(concat([D], [for (a = [-62 : 6 : 45]) D + 41 * [cos(a), sin(a)]]));
 module sled() {
     cy = sg_crank_y(); ly = sg_link_y(); az = sg_c2_arm_z();
     difference() {
@@ -240,9 +262,16 @@ module sled() {
         // D-shaft: Ø8.3 bushing bores at both ends (8 long), Ø10 relief in between
         cyl_y(D, 8.3, -sled_hw - 1, sled_hw + 1);
         cyl_y(D, 10, -sled_hw + 8, sled_hw - 8);
-        // crank + link swing pocket (sector about D, −62°..45°)
-        translate([0, ly[0] - 0.8, 0]) xz(0, cy[1] - ly[0] + 1.6)
-            polygon(concat([D], [for (a = [-62 : 6 : 45]) D + 41 * [cos(a), sin(a)]]));
+        // crank swing pocket (sector about D, −62°..40°) over the crank slab + 0.8
+        // (y 12.7..18.8). The link (y 8..12.5) only ever moves at X ≥ 122.7, outside
+        // the sled, so below y 12.7 the pocket just closes with a 45° taper (each
+        // 1 mm lower in y the sector shrinks by 1 mm): printed on the +y face this is
+        // a self-supporting 45° roof instead of a 10 mm one-sided flat overhang.
+        xz(cy[0] - 0.8, cy[1] + 0.8) swing_sector_2d();
+        hull() {
+            xz(cy[0] - 0.8 - eps, cy[0] - 0.8 + eps) swing_sector_2d();
+            xz(cy[0] - 0.8 - 12, cy[0] - 0.8 - 12 + eps) offset(delta = -12) swing_sector_2d();
+        }
         // ch2 drive pin: Ø4.1 journal for the 4 mm shoulder (ream Ø4.0 + slip)
         translate([sg_c2_pivot()[0], sg_c2_pin_dy(), az[0] - 1]) cylinder(d = 4.1, h = az[1] - az[0] + 2, $fn = 24);
         // cheek fixings: inserts + dowel holes in both side faces
@@ -282,8 +311,12 @@ module carriage() { sled(); for (s = [-1, 1]) translate([0, -s * 0.01, 0]) cheek
 // ch1 tilt crank (on the D-shaft) and link
 // =====================================================================
 // The crank is captured in the sled's swing pocket and SLIDES along the fixed
-// D-shaft with the carriage, so it is keyed by the D-bore only (no set screw).
-module d_bore(h) difference() { cylinder(d = 8.15, h = h, $fn = 40); translate([3.55, -5, -1]) cube([5, 10, h + 2]); }
+// shaft with the carriage, so it is keyed by its bore only (no set screw).
+// The "D-shaft" is an 8 mm REX shaft (Ø8 round ∩ 7 mm across-flats hex, goBILDA):
+// the round lands run in the 688ZZ and the sled bushings, the hex drives the crank
+// and the bought ch1 coupler. Crank bore = REX + 0.15 (Ø8.15 ∩ 7.15 hex).
+module rex_2d(d = 8, af = 7) intersection() { circle(d = d, $fn = 48); circle(r = af / 2 / cos(30), $fn = 6); }
+module d_bore(h) linear_extrude(h) rex_2d(8.15, 7.15);   // flats parallel to the crank arm
 module tilt_crank() {      // modelled pointing +X from D, in the crank slab
     cy = sg_crank_y();
     translate([D[0], cy[1], D[1]]) rotate([90, 0, 0]) difference() {
@@ -311,6 +344,19 @@ module tilt_link() {       // modelled from the origin along +X, in the link sla
 // (Ø4.0 through, flush). Nothing protrudes below the link (Z 9).
 // Horn: 4 × M2 × 6 countersunk self-tappers up into the horn disc + the centre
 // M3 × 12 countersunk into the spline (4.9 mm engagement), all flush with the crank bottom.
+//
+// !! ch2 DIRECTION — CHECK BEFORE THE CRANK GOES ON !!
+// The firmware (hardware/shuttle.py SHUTTLE_ANGLES) assumes servo angle = crank angle
+// ψ, with ψ 0 = crank pointing +Y (reject), 90 = −X, 180 = −Y (column 0): increasing
+// angle must turn the crank COUNTER-CLOCKWISE SEEN FROM ABOVE (= clockwise looking at
+// the spline of the upside-down servo). MG996R clones differ. On the bench, with only
+// the bare horn on, command 2°, 90°, 178° (calibrate_servos.py) and watch the horn; if
+// it turns the other way, do NOT fit the crank: the servo must be reversed in the
+// firmware first (hardware/shuttle.py has no per-channel invert today — angle → 180 − ψ
+// must be added there) or swapped. A reversed servo drives the crank into the end post.
+assert(abs(sg_c2_psi(sg_target_y("reject"))) < 3 && abs(sg_c2_psi(sg_target_y(0)) - 180) < 3
+       && sg_c2_tip(sg_target_y(1))[0] < sg_c2_pivot()[0],
+       "ch2 convention changed: psi 0 must point +Y (reject), 180 −Y (column 0), the crank must swing through −X");
 c2_horn_holes = [for (a = [45 : 90 : 315]) 7 * [cos(a), sin(a)]];
 module c2_crank() {        // modelled pointing +Y from the pivot (psi = 0)
     z = sg_c2_z(); r = sg_c2_r();
@@ -360,12 +406,16 @@ module c2_horn_screws() color("DarkGray") translate([0, 0, sg_c2_z()[0] + 0.2]) 
 module c2_tip_pin() translate([0, sg_c2_r(), 0]) c2_shoulder_screw(sg_c2_z()[1], sg_c2_sh_l()[0]);
 // drive-pin pivot, carriage frame
 module c2_drive_pin() translate([sg_c2_pivot()[0], sg_c2_pin_dy(), 0]) c2_shoulder_screw(sg_c2_arm_z()[1], sg_c2_sh_l()[1]);
-// ch2 servo ear screws: M2.5 × 10 self-tappers, pan head Ø4.5 × 1.8 under the ears,
-// up into the riser pocket ceiling (front ear) and the end-post shelf (rear ear)
-module c2_ear_screws() color("DarkGray")
-    for (y = sg_c2_ear_y()) for (x = [75, 85]) translate([x, y, sg_c2_face_z() + 8.1 - 1.8]) {
+// ch2 servo ear screws: M2.5 × 10 button-head hex socket (ISO 7380, head Ø4.7 × 1.5,
+// modelled Ø4.5 × 1.8), self-threading up into Ø2.1 pilots: front ear into the solid
+// block / lug of riser_b, rear ear into the end-post shelf. Driven from BELOW with a
+// 1.5 mm L-key, short arm up (rear: on the bench; front: through the riser tunnel,
+// crank parked at ψ ≈ 100°) — see the install order at the end of this file.
+module c2_ear_screws_at(y) color("DarkGray")
+    for (x = [75, 85]) translate([x, y, sg_c2_face_z() + 8.1 - 1.8]) {
         cylinder(d = 4.5, h = 1.8, $fn = 16); cylinder(d = 2.5, h = 10, $fn = 12);
     }
+module c2_ear_screws() for (y = sg_c2_ear_y()) c2_ear_screws_at(y);
 
 
 // =====================================================================
@@ -418,46 +468,73 @@ module rbar_pos() difference() {          // Y −16..232, upper half only over 
 }
 
 // End posts → baseplate: M3 SHCS down through the floor plate on the 30 mm
-// baseplate grid (X 110/140; Y −165/−195 and 225/255), washer + nut under the
-// board: plate 4 + tile 4 + 6 mm board + washer + nut → M3 × 20.
-ep_neg_holes = [[110, -165], [110, -195], [140, -165]];
+// baseplate grid, washer + nut under the board: plate 4 + tile 4 + 6 mm board +
+// washer + nut → M3 × 20. −Y post: (110, −225) behind the ch1 servo, (140, −195),
+// (140, −165); +Y post: (110, 225), (110, 255), (140, 255).
+ep_neg_holes = [[110, -225], [140, -195], [140, -165]];
 ep_pos_holes = [[110, 225], [110, 255], [140, 255]];
 function sh_end_post_holes() = concat(ep_neg_holes, ep_pos_holes);
 function sh_pin_a_y() = pinA_y;
-// −Y end block: rod / D-shaft (688ZZ) / R-bar post + ch1 servo cage + ch2 rear ear shelf.
+// Rod: 400 mm, Y −160..240 (through the −Y post, 8 mm into the +Y post). Each post
+// holds it with a SIDE grub screw: M3 × 5.7 heat-set insert pressed into the post's
+// +X face (X 116 → 110.3) on the rod's centre height, M3 × 6 flat-point set screw
+// through it onto the rod (tip on the rod at X 110, end flush with the face),
+// driven along −X with a 1.5 mm hex key from the open +X side.
+function sh_rod_y() = [sg_rod_y()[0], sg_rod_y()[1] + 8];
+function sh_rod_grubs() = [[116, sg_rod_y()[0] + 5, rod[1]], [116, sg_rod_y()[1] + 5, rod[1]]];   // insert mouth (X, Y, Z)
+module rod_grub_hole(y) translate([116 + 1, y, rod[1]]) rotate([0, -90, 0]) {
+    cylinder(d = 4.0, h = 1 + 5.7, $fn = 24);              // M3 × 5.7 insert from the +X face
+    cylinder(d = 3.2, h = 1 + 116 - rod[0], $fn = 16);     // set-screw clearance into the rod bore
+}
+// −Y end block: rod / shaft (688ZZ) / R-bar post + ch1 servo cage + ch2 rear ear shelf.
 // Everything at X < 90 stays above Z 21 (ch2 crank + tip screw sweep below Z 23
 // only along |X − 80| ≤ 10); everything at Y > −150 stays at X < 91 (carriage
 // at column 0 reaches Y −147.5).
-module end_post_neg() {
+// ch1 (see c1_servo): cage Y −193.1..−185.1 with the servo's ears on its −Y face;
+// the bought coupler sits in the open bay Y −184.2..−167.2 between the cage and the
+// post (7.2 mm to the post's outer face, 1.2 to the ch2 gusset), its clamp screw
+// reached from ABOVE (nothing over the bay). The bay is closed at the sides by the
+// ch2 wall (X 91..94, to Z 58) and a low rib (X 116..120, to Z 30, under the
+// coupler's swept boss which never comes below Z 32).
+// print_aid = true adds a free-standing break-away support ladder under the ch2
+// rear-ear ledge (see the header); the assembly and the checks use print_aid = false.
+module end_post_neg(print_aid = false) {
     y0 = sg_rod_y()[0];       // −160: post Y −160..−150
+    yc = [c1_yf - 8.1, c1_yf - 0.1];                                        // cage Y −193.1..−185.1
     sz = sg_c2_shelf_z(); sy = [sg_c2_ear_end_y()[1] - 4.5, sg_c2_body_y()[1] - 0.5];   // shelf Y −166..−155
     difference() {
         union() {
             translate([93, y0, 4]) cube([23, 10, sg_SJ()[1] - 4]);          // post
-            translate([90, -201, 4]) cube([30, 201 + y0 + 10, 4]);          // floor plate
-            translate([119.9, -172, 4]) cube([26.1, 14, 4]);                // tongue to the X 140 hole
-            translate([90, -185.6, 4]) cube([30, 6.9, 62]);                 // ch1 cage (ear plane)
-            translate([91, -175, 4]) cube([3, 25, 54]);                     // ch2 wall (1.75 off the crank)
+            translate([90, -229, 4]) cube([30, 229 + y0 + 10, 4]);          // floor plate Y −229..−150
+            translate([119.9, -201, 4]) cube([26.1, 43, 4]);                // tongue to the X 140 holes
+            translate([90, yc[0], 4]) cube([30, yc[1] - yc[0], 81]);        // ch1 cage, to Z 85
+            translate([91, yc[0], 4]) cube([3, y0 + 10 - yc[0], 54]);       // ch2 wall (1.75 off the crank), cage → post
+            translate([116 - eps, yc[1] - eps, 4]) cube([4 + eps, y0 - yc[1], 26]);   // +X rib, cage → post (Z ≤ 30)
             translate([68, sy[0], sz]) cube([26, sy[1] - sy[0], 3.4]);     // ch2 rear ear shelf (0.5 off the case)
             // gusset web beside the ear (Y −166..−162): 45° underside from the wall
             // (prints without support; ≥ 2.1 above the crank body, which is the only
             // thing sweeping under it: the tip screw never reaches Y −166..−162),
             // tapering top back to the wall at Z 58
             xz(sy[0], sg_c2_ear_end_y()[1] - 0.5) polygon([[94, 16], [94, 58], [69, sz + 3], [69, sz + 0.5], [94 - (sz + 0.5 - 16), sz + 0.5]]);
-            translate([90, -175, 4]) cube([6, 25, 4]);
         }
-        cyl_y(rod, 8.05, y0 - 1, y0 + 11);                                   // rod end (M3 clamp screw from top)
-        translate([rod[0], y0 + 5, rod[1]]) cylinder(d = 2.6, h = 40, $fn = 16);
-        cyl_y(D, 10, y0 - 1, y0 + 11);                                       // D-shaft through
+        cyl_y(rod, 8.05, y0 - 1, y0 + 11);                                   // rod end
+        rod_grub_hole(y0 + 5);
+        cyl_y(D, 10, y0 - 1, y0 + 11);                                       // shaft through
         cyl_y(D, 16.05, y0 + 5, y0 + 11, 48);                                // 688ZZ pocket (inner side)
-        translate([95.15, -186, 13.3]) cube([19.7, 8, 41.1]);                // ch1 servo body opening
-        translate([94.5, -179.1, 6]) cube([21, 3.5, 3]);                     // ch1 lower ear tip (Z 6.5) clears the plate
-        for (x = [100, 110], z = [9.5, 58.5]) translate([x, -190, z]) rotate([-90, 0, 0])
-            cylinder(d = 2.1, h = 15, $fn = 16);                              // ch1 ear screws, 4 × M2.5 self-tap
+        // ch1: opening for the case nose (19.7 × 40.7 + 0.3 all round) and 4 inserts
+        // pressed into the cage's −Y (ear) face, Ø3.2 relief beyond (blind, 0.5 from the face)
+        translate([D[0] - 10.15, yc[0] - 1, D[1] - 10.5]) cube([20.3, yc[1] - yc[0] + 2, 41.3]);
+        for (p = c1_ear_holes) { cyl_y(p, 4.0, yc[0] - 1, yc[0] + 6, 24); cyl_y(p, 3.2, yc[0] + 5.9, yc[1] - 0.5, 16); }
         for (p = ep_neg_holes) translate([p[0], p[1], 0]) cylinder(d = 3.4, h = 20, $fn = 16);
         for (x = [75, 85]) translate([x, sg_c2_ear_y()[1], sz - 4.2])
-            cylinder(d = 2.1, h = 10, $fn = 16);                              // ch2 ear screws (M2.5 self-tap)
+            cylinder(d = 2.1, h = 10, $fn = 16);                              // ch2 ear screws (M2.5)
         translate([sg_rbar_x()[0] - 0.1, y0 + 6, sg_rbar_z0() - 0.1]) cube([sg_rbar_x()[1] - sg_rbar_x()[0] + 0.2, 5, 30]); // R-bar end seat
+    }
+    // break-away ladder under the rear-ear ledge (print only): 0.8 walls, 0.2 gap
+    // under the ledge (one 0.2 layer), stands on the bed beside the post
+    if (print_aid) translate([0, 0, 4]) linear_extrude(sz - 0.2 - 4) difference() {
+        translate([70.5, sy[0] + 4.5]) square([19, 6]);                    // X 70.5..89.5, Y −161.5..−155.5 (0.5 off the floor plate)
+        for (i = [0 : 3]) translate([71.3 + 4.55 * i, sy[0] + 5.3]) square([3.75, 4.4]);
     }
 }
 module end_post_pos() {
@@ -470,7 +547,7 @@ module end_post_pos() {
             translate([121.9, 249, 4]) cube([24.1, 12, 4]);                  // tongue to the X 140 hole
         }
         cyl_y(rod, 8.05, y1 - 1, y1 + 11);
-        translate([rod[0], y1 + 5, rod[1]]) cylinder(d = 2.6, h = 40, $fn = 16);
+        rod_grub_hole(y1 + 5);
         cyl_y(D, 10, y1 - 1, y1 + 11);
         cyl_y(D, 16.05, y1 - 1, y1 + 5, 48);                                 // 688ZZ pocket (inner side)
         translate([sg_rbar_x()[0] - 0.1, y1 - 1, sg_rbar_z0() - 0.1]) cube([sg_rbar_x()[1] - sg_rbar_x()[0] + 0.2, 5, 30]);
@@ -491,6 +568,39 @@ module mg996r() color("DimGray") {    // origin = output spline axis at the top 
     translate([-17.2, -9.85, -10.6]) cube([54.7, 19.7, 2.5]);   // ears
     cylinder(d = 6, h = 4);
 }
+// ---- ch1 tilt servo + coupler (−Y end; numbers in shuttle_geom.scad) ----
+// MG996R spline on the shaft axis, case face at Yf = −185, body toward −Y, mounted
+// LONG SIDE UP (rotated 180° about its own output axis: body Z 33.8..74.5, ears
+// Z 26.8..81.5, ear holes at X 100/110, Z 29.5/78.5), so nothing is near the floor
+// plate. Its ears sit on the −Y face of the cage (Y −193.1..−185.1) and are held by
+// 4 × M3 × 10 SHCS + washers driven along +Y from BEHIND the servo into M3 × 5.7
+// heat-set inserts in the cage. The case nose (Yf−8.1..Yf) sits in the cage opening.
+c1_yf = sg_c1_face_y();
+c1_ear_holes = [for (x = [100, 110], z = [29.5, 78.5]) [x, z]];
+c1_rng = [-80, 55];        // coupler boss direction range (shaft φ −48.5..22.2 ± 30° hex indexing)
+module c1_servo() translate([D[0], c1_yf, D[1]]) rotate([0, 180, 0]) rotate([-90, 0, 0]) rotate(90) mg996r();
+// goBILDA 4001-0025-4008 clamping servo-to-shaft coupler (25T → 8 mm REX), simplified
+// from the goBILDA STEP: Ø13.8 × 17 body + clamp boss (to 9.7 from the axis, ±6.9,
+// last 8.5 mm) that carries the M4 clamp screw tangentially (6.2 off the axis).
+// a = boss direction in the XZ plane (same sense as the crank angle φ).
+// swept = true: envelope over every boss direction in c1_rng (for collision checks).
+module c1_boss_2d(a) rotate(a) translate([0, -6.9]) square([9.66, 13.8]);
+module c1_coupler(a = 0, swept = false) color("Silver") {
+    c = sg_c1_cpl(); y0 = sg_c1_cpl_y()[0];
+    cyl_y(D, 2 * c[2], y0, y0 + c[1], 40);
+    translate([D[0], y0 + c[1], D[1]]) rotate([90, 0, 0]) linear_extrude(8.5)
+        if (swept) for (b = [c1_rng[0] : 5 : c1_rng[1] - 5]) hull() { c1_boss_2d(b); c1_boss_2d(b + 5); }
+        else c1_boss_2d(a);
+}
+// clamp-screw axis for boss direction a: point on the axis (X, Y, Z) and unit direction
+// toward the head (head side = +90° from the boss direction)
+function sh_c1_clamp(a) = [[D[0] + 6.16 * cos(a), sg_c1_cpl_y()[0] + 13, D[1] + 6.16 * sin(a)], [-sin(a), 0, cos(a)]];
+// ch1 ear screws: M3 × 10 SHCS (head Ø5.5 × 3) + M3 washer (Ø7 × 0.5) on the ear's −Y face
+module c1_ear_screws() color("DarkGray") for (p = c1_ear_holes) {
+    ye = c1_yf - 10.6;                                     // ear −Y face
+    cyl_y(p, 7, ye - 0.5, ye, 20); cyl_y(p, 5.5, ye - 3.5, ye - 0.5, 20); cyl_y(p, 3, ye - 0.5, ye - 0.5 + 10, 12);
+}
+function sh_c1_ear_holes() = c1_ear_holes;
 // ch2 servo hanging upside down, case face at sg_c2_face_z(), body toward −Y
 module c2_servo() translate([sg_c2_pivot()[0], sg_c2_pivot()[1], sg_c2_face_z()]) rotate([180, 0, 0]) rotate(90) mg996r();
 // MG996R 25T round horn (Ø25 × 1.4 disc + Ø10 spline hub) between crank and case;
@@ -500,7 +610,8 @@ module c2_horn() color("WhiteSmoke") translate([sg_c2_pivot()[0], sg_c2_pivot()[
     cylinder(d = 10, h = sg_c2_face_z() - sg_c2_z()[1] - 0.4, $fn = 32);
 }
 module rod8(p, y0, y1) color("LightSteelBlue") cyl_y(p, 8, y0, y1, 24);
-module dshaft(y0, y1) color("LightSteelBlue") translate([D[0], y0, D[1]]) rotate([-90, 0, 0]) d_bore(y1 - y0);
+module dshaft(y0 = sg_dshaft_y()[0], y1 = sg_dshaft_y()[1]) color("LightSteelBlue")
+    translate([D[0], y0, D[1]]) rotate([-90, 0, 0]) linear_extrude(y1 - y0) rex_2d();
 module card_on_bed(front_x = 154) color("Ivory", 0.9)
     translate([front_x - 88, -31.5, bz + 0.02]) cube([88, 63, 0.33]);
 
@@ -547,10 +658,12 @@ module shuttle_moving(yc, st, show_card = true) translate([0, yc, 0]) {
 module shuttle_fixed() {
     color("Peru") { rbar_neg(); rbar_pos(); }
     color("SandyBrown") { end_post_neg(); end_post_pos(); }
-    rod8(rod, sg_rod_y()[0], sg_rod_y()[1]);
-    dshaft(sg_rod_y()[0] - 8, sg_rod_y()[1]);
-    // ch1 servo: spline on the D-shaft axis at Y −168, body toward −Y
-    translate([D[0], -168, D[1]]) rotate([-90, 0, 0]) rotate(90) mg996r();
+    rod8(rod, sh_rod_y()[0], sh_rod_y()[1]);
+    dshaft();
+    // ch1: servo (case face Y −185, long side up), bought coupler (boss at HOLD), ear screws
+    c1_servo();
+    c1_coupler(sg_crank_phi("hold"));
+    c1_ear_screws();
     c2_servo();
     c2_horn();
     c2_ear_screws();
@@ -577,7 +690,9 @@ function shuttle_tray_x0() = sg_tray_x0();   // tray open back face → translat
 if (part == "assembly")     asm_sorter_end(show_col, show_state);
 if (part == "cradle")       cradle();
 if (part == "tilt_frame")   tilt_frame();
-if (part == "carriage")     carriage();                 // preview only (3 prints)
+// "carriage" is NOT a print: the carriage is 3 prints (sled, cheek_neg, cheek_pos).
+assert(part != "carriage", "part=\"carriage\" is the assembled preview, not a print: export sled, cheek_neg and cheek_pos (or carriage_preview to look at it)");
+if (part == "carriage_preview") carriage();
 if (part == "sled")         sled();
 if (part == "cheek_neg")    cheek(-1);
 if (part == "cheek_pos")    cheek(1);
@@ -587,7 +702,7 @@ if (part == "c2_crank")     c2_crank();
 if (part == "c2_link")      c2_link();
 if (part == "rbar_neg")     rbar_neg();
 if (part == "rbar_pos")     rbar_pos();
-if (part == "end_post_neg") end_post_neg();
+if (part == "end_post_neg") end_post_neg(print_aid = true);   // incl. the break-away ledge support
 if (part == "end_post_pos") end_post_pos();
 
 // =============================================
@@ -595,11 +710,19 @@ if (part == "end_post_pos") end_post_pos();
 //  1  TAL221 mini load cell, 47 × 12 × 6, 4× M3 (±20 / ±3), cable end tapped
 //       (owner's 50 g unit; SparkFun 100 g SEN-14727 is a drop-in)
 //  1  8 mm smooth (h6, hardened) rod × 400 mm, e.g. Thomson 8MMSMAE L400MM
+//       (Y −160..240: through the −Y post, 8 mm into the +Y post)
 //  2  LM8UU (8 × 15 × 24), e.g. Adafruit 1181
-//  1  8 mm D-shaft × 400 mm (≈7.5 mm across the flat), e.g. Ondrives GSM8000-400
-//       or MISUMI D-cut rotary shaft; check d_bore() flat vs your shaft
-//  2  688ZZ (8 × 16 × 5), one per end post (D-shaft)
-//  1  D-shaft → MG996R 25T spline coupler: metal round horn + 8 mm D-hub
+//  1  8 mm REX shaft (Ø8 round ∩ 7 mm hex), goBILDA 2106-4008-4320 (432 mm,
+//       stainless, E-clip not used), CUT TO 417 mm (Y −175.2..241.8; a hacksaw /
+//       cut-off disc, deburr, chamfer 0.5):
+//       https://www.gobilda.com/8mm-rex-shaft-with-e-clip-stainless-steel-432mm-length/
+//  2  688ZZ (8 × 16 × 5), one per end post (shaft; the REX round lands run in them)
+//  1  ch1 coupler: goBILDA 4001-0025-4008 "4001 Series Clamping Servo to Shaft
+//       Coupler (25 Tooth Spline to 8mm REX Bore)", aluminium, Ø13.8 × 17, clamp
+//       boss to r 11.9, M4 clamp screw included:
+//       https://www.gobilda.com/4001-series-clamping-servo-to-shaft-coupler-25-tooth-spline-to-8mm-rex-bore/
+//       + 1 M3 × 6 SHCS (coupler → MG996R spline, driven down the REX bore on the bench)
+//       (replaces the earlier "25T disc horn + 8 mm flange coupling": no horn on ch1)
 //  2  MG996R (ch1 tilt, ch2 shuttle; the two scrapped gate servos)
 //  2  Ø4 × 8 mm steel dowel pins (F pins)
 //  1  Ø3 × 20 mm steel dowel pin (tilt link pin A)
@@ -615,9 +738,51 @@ if (part == "end_post_pos") end_post_pos();
 //  2  M3 × 4 short heat-set inserts (≤ Ø4.6 OD), pressed flush into the ch2 link top
 //  4  M2 × 6 countersunk self-tapping (c2 crank → horn disc, flush from below)
 //  1  M3 × 12 countersunk (c2 crank hub → servo spline, ≈ 4.9 mm engagement)
-//  (the tilt crank needs NO set screw: it slides along the D-shaft, keyed by its D-bore)
-//  4  M2.5 × 10 self-tapping (MG996R ears, ch1) + 4 (ch2, up into the shelves)
+//  (the tilt crank needs NO set screw: it slides along the shaft, keyed by its REX bore)
+//  4  M3 × 10 SHCS + 4 M3 washers + 4 M3 × 5.7 heat-set inserts (ch1 MG996R ears →
+//       −Y cage, driven along +Y from behind the servo; ear grommets removed)
+//  4  M2.5 × 10 button-head hex socket (ISO 7380), self-threading into Ø2.1 pilots
+//       (ch2 ears: 2 into the end-post shelf, 2 into riser_b's ear block / lug)
 //  1  MG996R Ø25 round 25T horn (in the servo bag) between the ch2 crank and the servo
-//  2  M3 × 10 SHCS + 2 M3 × 5.7 inserts (R-bar lap splice), 2 M3 × 10 (rod clamps)
+//  2  M3 × 10 SHCS + 2 M3 × 5.7 inserts (R-bar lap splice)
+//  2  M3 × 6 flat-point set screws + 2 M3 × 5.7 heat-set inserts (rod grub screws,
+//       one in each end post's +X face)
 //  6  M3 × 20 SHCS + washers + nuts (end posts → baseplate, 3 per post)
+// =============================================
+//
+// INSTALL ORDER (every insertion and driving path is checked by
+// `cad/shuttle_check.py assembly`, step numbers as printed there):
+//  0. Riser (riser.scad) bolted down, BEFORE the conveyor.
+//  1. Bench, −Y end post: press the 4 cage inserts (−Y face) and the rod-grub
+//     insert. Power ch1 to HOLD = 97° and press the goBILDA coupler onto the spline
+//     at the tooth that puts two flats of its hex bore parallel to the crank arm at
+//     HOLD, i.e. 7° up from horizontal toward +X (the tilt crank's REX bore has its
+//     flats parallel to the arm); 25T × hex gives ≤ 0.6° error. M3 × 6 down its bore.
+//     Turn the clamp boss UP (servo off, by hand) and push servo + coupler nose-first along
+//     +Y through the cage opening; ears on the cage's −Y face; 4 × M3 × 10 + washers
+//     along +Y from behind the servo (2.5 mm hex driver).
+//  2. Bench, module: 688ZZ in both posts; rod through post −Y, carriage (LM8UU),
+//     post +Y; tilt crank in the sled pocket; slide the REX shaft in from the +Y end
+//     through post +Y, sled, crank, sled, post −Y into the coupler (8 mm deep).
+//     Power ch1 to HOLD (97°), set the cradle 10° nose-down, tighten the coupler's
+//     M4 clamp from ABOVE (3 mm key; the boss sits ±30° of horizontal-+X at HOLD
+//     depending on the hex indexing, the screw head up). Residual ≤ 0.6° (25T ×
+//     hex): trim in calibration. Rod set screws along −X from the +X side (1.5 mm
+//     key). R-bar into its seats.
+//  3. Bench, ch2: check the servo DIRECTION (see the ch2 section) first; horn →
+//     crank (4 × M2), set ψ = 75.5° at home, hub screw M3 × 12. Then command / turn
+//     the crank to ψ ≈ 100° (pointing −X, clear of the riser) and lift the servo
+//     straight up under the −Y shelf; 2 rear-ear screws from below (1.5 mm L-key,
+//     short arm up), left ONE TURN LOOSE.
+//  4. Park the carriage at column 3 (Y ≈ 102: its drive-pin arm beyond the riser),
+//     TF level. Set the whole module down 10 mm toward −Y of its place, then slide
+//     it +Y: the ch2 front ear slides under riser_b's ear block (1 mm lead-in).
+//  5. Tighten the rear-ear screws (servo up 0.5 onto both ceilings); front-ear
+//     screws from below through the tunnel (1.5 mm L-key, ≥ 195° free swing).
+//     End-post anchors 6 × M3 × 20 (the one at (110, 225) is under the rod: ball-end
+//     key at 45° from +X).
+//  6. ch2 link + the two shoulder-screw pivots (as before: crank tip at column 0,
+//     drive pin at reject).
+//  7. ramp_neg with the carriage at column 3, ramp_pos and the reject bin with the
+//     carriage at column 0 (each lowered from above).
 // =============================================

@@ -148,9 +148,11 @@ SCENE_OBJS = {
     # fixed
     "rbar": "rbar_neg(); rbar_pos();",
     "end_posts": "end_post_neg(); end_post_pos();",
-    "rod": "rod8(sg_rod(), sg_rod_y()[0], sg_rod_y()[1]);",
-    "dshaft": "dshaft(sg_rod_y()[0] - 8, sg_rod_y()[1]);",
-    "servo_ch1": "translate([sg_D()[0], -168, sg_D()[1]]) rotate([-90, 0, 0]) rotate(90) mg996r();",
+    "rod": "rod8(sg_rod(), sh_rod_y()[0], sh_rod_y()[1]);",
+    "dshaft": "dshaft();",                                 # 8 mm REX shaft, Y −175.2..241.8
+    "servo_ch1": "c1_servo();",
+    "ch1_coupler": "c1_coupler(swept = true);",            # goBILDA 4001-0025-4008, boss swept over its range
+    "c1_ear_screws": "c1_ear_screws();",
     "servo_ch2": "c2_servo();",
     "c2_horn": "c2_horn();",
     "c2_ear_screws": "c2_ear_screws();",
@@ -168,19 +170,32 @@ USES = ["shuttle_geom", "shuttle", "lower_ramp", "reject_bin", "riser", "sorting
         "motor_mount", "conveyor_roller", "card_guide", "electronics_tray"]
 
 
+# extra objects for the assembly-order mode (exported on demand)
+ASM_OBJS = {
+    "c1_coupler_up": "c1_coupler(90);",                    # boss up: how it passes the cage opening
+    "end_post_neg": "end_post_neg();",
+    "c2_ear_screws_rear": "c2_ear_screws_at(sg_c2_ear_y()[1]);",
+    "c2_ear_screws_front": "c2_ear_screws_at(sg_c2_ear_y()[0]);",
+    "ramp_neg": "ramp_neg();", "ramp_pos": "ramp_pos();",
+    # coupler (not swept) at HOLD for each of the three hex indexings (−30 / 0 / +30°)
+    **{f"c1_coupler_hold{k:+d}": f'c1_coupler(sg_crank_phi("hold") + {k});' for k in (-30, 0, 30)},
+}
+
+
 def export(name):
     stl = WORK / f"{name}.stl"
     scad = WORK / f"{name}.scad"
     src = "".join(f"use <{CAD}/{u}.scad>\n" for u in USES)
     src += "module cyl_y(p, d, y0, y1, fn = 40) translate([p[0], y0, p[1]]) rotate([-90, 0, 0]) cylinder(d = d, h = y1 - y0, $fn = fn);\n"
-    src += SCENE_OBJS[name] + "\n"
+    src += {**SCENE_OBJS, **ASM_OBJS}[name] + "\n"
     # cache key: wrapper source + modification times of every CAD file it can reach
     src += "// " + " ".join(f"{p.name}:{p.stat().st_mtime_ns}" for p in sorted(CAD.glob("*.scad"))) + "\n"
     if (not stl.exists()) or (not scad.exists()) or scad.read_text() != src:
         scad.write_text(src)
         r = subprocess.run([OPENSCAD, "--backend=manifold", "--export-format", "binstl", "-o", str(stl), str(scad)],
                            capture_output=True, text=True)
-        if "NoError" not in r.stderr and not stl.exists():
+        if r.returncode != 0 or not stl.exists():
+            stl.unlink(missing_ok=True); scad.unlink(missing_ok=True)
             sys.exit(f"openscad failed for {name}:\n{r.stderr}")
     return trimesh.load(stl, force="mesh")
 
@@ -193,7 +208,7 @@ def load_all():
 TF_GROUP = ["cradle", "tf", "cell", "card", "fpins", "pin_a"]
 C2_HW = ["c2_horn_screws", "c2_tip_pin", "c2_drive_pin"]
 MOVING = ["carriage", "tilt_crank", "tilt_link", *TF_GROUP]
-FIXED = ["rbar", "end_posts", "rod", "dshaft", "servo_ch1", "servo_ch2", "c2_horn", "c2_ear_screws", "lower_ramp", "reject_bin", "riser",
+FIXED = ["rbar", "end_posts", "rod", "dshaft", "servo_ch1", "ch1_coupler", "c1_ear_screws", "servo_ch2", "c2_horn", "c2_ear_screws", "lower_ramp", "reject_bin", "riser",
          "tray", "rails", "motor_mounts", "rollers", "card_guides", "etray"]
 # JOINED: parts fastened/journalled together (bearings, pins, bolted) — not checked.
 JOINED = {frozenset(p) for p in [
@@ -209,7 +224,11 @@ JOINED = {frozenset(p) for p in [
     ("c2_drive_pin", "carriage"), ("c2_drive_pin", "c2_link"),
     ("c2_ear_screws", "servo_ch2"), ("c2_ear_screws", "riser"), ("c2_ear_screws", "end_posts"),
     ("dshaft", "end_posts"),
-    ("rod", "end_posts"), ("rbar", "end_posts"), ("dshaft", "servo_ch1"),
+    ("rod", "end_posts"), ("rbar", "end_posts"),
+    # ch1: the coupler sits on the spline and clamps the shaft; the shaft must NOT reach
+    # the spline (checked); the ear screws thread into the cage inserts
+    ("ch1_coupler", "servo_ch1"), ("ch1_coupler", "dshaft"),
+    ("c1_ear_screws", "servo_ch1"), ("c1_ear_screws", "end_posts"),
     ("rails", "riser"), ("motor_mounts", "riser"),
     ("motor_mounts", "rails"), ("card_guides", "rails"), ("rollers", "rails"), ("tray", "lower_ramp"),
     ("reject_bin", "tray"), ("lower_ramp", "reject_bin")]}
@@ -219,13 +238,19 @@ JOINED = {frozenset(p) for p in [
 CONTACT = {frozenset(p) for p in [("fpins", "carriage"), ("tf", "rbar"), ("servo_ch2", "riser"),
                                    ("servo_ch2", "end_posts"), ("servo_ch1", "end_posts")]}
 OWN = ["carriage", "tilt_crank", "tilt_link", "cradle", "tf", "cell", "card", "c2_crank", "c2_link", *C2_HW, "c2_horn", "c2_ear_screws",
-       "servo_ch2", "servo_ch1", "rbar", "end_posts", "rod", "dshaft", "lower_ramp", "reject_bin", "riser"]
+       "servo_ch2", "servo_ch1", "ch1_coupler", "c1_ear_screws", "rbar", "end_posts", "rod", "dshaft", "lower_ramp", "reject_bin", "riser"]
 # design-rule minimum clearances (moving pairs): name pair → (min mm, why)
 RULES = {("cradle", "tf"): (0.5, "weighing gap: cradle must never touch the tilt frame"),
          ("tf", "carriage"): (0.6, "TF body ↔ carriage"),
          ("c2_crank", "c2_link"): (0.8, "ch2 crank over link (horn screws flush)"),
          ("c2_link", "carriage"): (0.8, "ch2 link under the drive-pin arm"),
          ("c2_horn_screws", "c2_link"): (0.8, "horn screw heads over the link at column 0")}
+# fixed ↔ fixed design rules (static check): the bought ch1 coupler (boss swept over its
+# whole range) must clear the end post, and the shaft end must stay off the servo spline
+STATIC_RULES = {("ch1_coupler", "end_posts"): (1.0, "ch1 coupler (swept) ↔ end post / cage / ch2 gusset"),
+                ("dshaft", "servo_ch1"): (1.0, "shaft end ↔ ch1 spline (shaft bottoms in the coupler, not on the servo)")}
+STATIC_OWN = ["rbar", "end_posts", "rod", "dshaft", "servo_ch1", "ch1_coupler", "c1_ear_screws", "servo_ch2", "c2_horn",
+              "c2_ear_screws", "lower_ramp", "reject_bin", "riser"]
 TILE_LIP = 3.0     # everything of the ch2 linkage stays ≥ 3 mm above the tiles (seam lips)
 BASE = np.array([[-285.0, -270.0, 4.0], [285.0, 270.0, 1e9]])   # baseplate top / extents
 ALLOWED = JOINED | CONTACT
@@ -239,8 +264,50 @@ def overlap_volume(a, b):
     return v
 
 
+def run_static(meshes):
+    """Fixed ↔ fixed: every pair involving a shuttle-owned fixed part, once."""
+    import fcl  # noqa: F401
+    ok = True
+    print("\nSTATIC (fixed ↔ fixed, shuttle-owned parts; clearances < 3 mm and every overlap):")
+    seen = set()
+    for a in STATIC_OWN:
+        for b in FIXED:
+            pair = frozenset((a, b))
+            if a == b or pair in seen:
+                continue
+            seen.add(pair)
+            ma, mb = meshes[a], meshes[b]
+            ruled = (a, b) in STATIC_RULES or (b, a) in STATIC_RULES
+            if not ruled and (np.any(ma.bounds[0] > mb.bounds[1] + 5) or np.any(mb.bounds[0] > ma.bounds[1] + 5)):
+                continue
+            mgr = trimesh.collision.CollisionManager(); mgr.add_object(b, mb)
+            d = mgr.min_distance_single(ma)
+            vol = 0.0
+            if d <= 1e-6:
+                vol = overlap_volume(ma, mb)
+                vol = 1e-3 if math.isnan(vol) else vol
+            rule = STATIC_RULES.get((a, b)) or STATIC_RULES.get((b, a))
+            if pair in JOINED:
+                tag = "joined"
+            elif pair in CONTACT:
+                tag = "contact (by design)" if vol < 1.0 else "OVERLAP"
+            else:
+                tag = "OVERLAP" if vol > 1e-6 else ""
+            if rule and (d < rule[0] or vol > 0):
+                tag = f"RULE ≥ {rule[0]} FAIL ({rule[1]})"
+            elif rule:
+                tag = f"rule ≥ {rule[0]} ok ({rule[1]})"
+            if tag.startswith(("OVERLAP", "RULE")):
+                ok = False
+            if (d < 3 and tag != "joined") or tag.startswith(("OVERLAP", "RULE", "rule")):
+                print(f"  {a:14s} {b:14s} {(-vol if vol else d):8.2f}  {tag}")
+    print("  " + ("No unintended static overlaps." if ok else "STATIC FAILURES above."))
+    return ok
+
+
 def run_collide(meshes, verbose=False):
     import fcl  # noqa: F401  (trimesh uses it)
+    run_static_ok = run_static(meshes)
     fixed = {n: meshes[n] for n in FIXED}
     mgr_fixed = trimesh.collision.CollisionManager()
     for n, m in fixed.items():
@@ -385,7 +452,7 @@ def run_collide(meshes, verbose=False):
             print("   ", f)
     else:
         print("\nNo unintended overlaps.")
-    return not fails
+    return (not fails) and run_static_ok
 
 
 # ---------------------------------------------------------------- assembly / access
@@ -406,15 +473,76 @@ def cyl_between(p0, p1, r):
     return c.apply_transform(T)
 
 
-def run_assembly(meshes):
-    """Insertion / access paths that the collision sweep cannot see."""
-    V = echo_vals({"tie": "riser_tie_screws()", "fy": "riser_front_y()", "holes": "sh_end_post_holes()",
-                   "pina": "sh_pin_a_y()"}, ["riser", "shuttle"])
-    ok = True
-    print("\nASSEMBLY / ACCESS PATHS")
+def place_moving(meshes, yc, mode="F", a=0.0, psi=None):
+    """Carriage + TF group + tilt drive at carriage Y yc and tilt pose (mode, a); ch2 crank,
+    horn screws at crank angle psi (default: the angle that goes with yc)."""
+    T_y = trans(y=yc)
+    phi = crank_phi(mode, a)
+    tip = D + CR * np.array([math.cos(math.radians(phi)), math.sin(math.radians(phi))])
+    Ap = pose_pt(A, mode, a)
+    lang = math.degrees(math.atan2(Ap[1] - tip[1], Ap[0] - tip[0]))
+    psi = c2_psi(yc) if psi is None else psi
+    out = {"carriage": meshes["carriage"].copy().apply_transform(T_y),
+           "tilt_crank": meshes["tilt_crank"].copy().apply_transform(T_y @ ry(-phi, D)),
+           "tilt_link": meshes["tilt_link"].copy().apply_transform(T_y @ trans(tip[0], 0, tip[1]) @ ry(-lang, (0, 0))),
+           "c2_crank": meshes["c2_crank"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(psi)),
+           "c2_horn_screws": meshes["c2_horn_screws"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(psi))}
+    for n in TF_GROUP:
+        out[n] = meshes[n].copy().apply_transform(T_y @ tf_matrix(mode, a))
+    return out
 
-    def clear(tool, against, label):
-        hits = []
+
+def hits(group, against, allow=()):
+    """Overlap volumes (mm³) of every group part with every `against` part; pairs in `allow`
+    may touch (≤ 1 mm³)."""
+    import fcl  # noqa: F401
+    res = []
+    for n, m in group.items():
+        for k, f in against.items():
+            if np.any(m.bounds[0] > f.bounds[1]) or np.any(f.bounds[0] > m.bounds[1]):
+                continue
+            mgr = trimesh.collision.CollisionManager(); mgr.add_object(k, f)
+            if not mgr.in_collision_single(m):
+                continue
+            v = overlap_volume(m, f)
+            v = 1e-3 if math.isnan(v) else v
+            if v > 0.05 and not ((n, k) in allow and v < 1.0):
+                res.append(f"{n}↔{k} {v:.2f} mm³")
+    return res
+
+
+def sweep(label, group, against, steps, allow=()):
+    """Move `group` (dict of meshes in their FINAL pose) through the list of 4×4 offsets
+    `steps` (last one = identity) and report the first collision."""
+    for i, T in enumerate(steps):
+        g = {n: m.copy().apply_transform(T) for n, m in group.items()}
+        h = hits(g, against, allow if i == len(steps) - 1 else ())
+        if h:
+            off = np.round(T[:3, 3], 1)
+            print(f"  FAIL {label}: at offset {off.tolist()}: " + ", ".join(h))
+            return False
+    print(f"  ok   {label} ({len(steps)} steps)")
+    return True
+
+
+def run_assembly(meshes):
+    """Install order, step by step: every insertion is swept along its path against what is
+    already installed, every screw gets a tool path (hex key) from its head outward."""
+    V = echo_vals({"tie": "riser_tie_screws()", "fy": "riser_front_y()", "holes": "sh_end_post_holes()",
+                   "pina": "sh_pin_a_y()", "c1e": "sh_c1_ear_holes()", "c1y": "sg_c1_face_y()",
+                   "grub": "sh_rod_grubs()", "rear": "sg_c2_ear_y()", "face": "sg_c2_face_z()",
+                   "riser_ear": "riser_ear_screws()", "hold": 'sg_crank_phi("hold")',
+                   "clamp_m": 'sh_c1_clamp(sg_crank_phi("hold") - 30)', "clamp_0": 'sh_c1_clamp(sg_crank_phi("hold"))',
+                   "clamp_p": 'sh_c1_clamp(sg_crank_phi("hold") + 30)'},
+                  ["riser", "shuttle", "shuttle_geom"])
+    for n in ASM_OBJS:
+        meshes.setdefault(n, export(n))
+    ok = True
+    fixed = {n: meshes[n] for n in FIXED}
+    conveyor = {n: meshes[n] for n in ["riser", "tray", "rails", "motor_mounts", "rollers", "card_guides", "etray"]}
+
+    def clear(tool, against, label, quiet=False):
+        hits_ = []
         for n, m in against.items():
             if np.any(tool.bounds[0] > m.bounds[1]) or np.any(m.bounds[0] > tool.bounds[1]):
                 continue
@@ -423,33 +551,105 @@ def run_assembly(meshes):
                 mgr = trimesh.collision.CollisionManager(); mgr.add_object(n, m)
                 v = 0.0 if mgr.min_distance_single(tool) > 1e-6 else float("inf")
             if not (v < 0.05):
-                hits.append(f"{n} {v:.2f} mm³")
-        print(f"  {'ok  ' if not hits else 'FAIL'} {label}" + ("" if not hits else "  blocked by: " + ", ".join(hits)))
-        return not hits
+                hits_.append(f"{n} {v:.2f} mm³")
+        if not quiet:
+            print(f"  {'ok  ' if not hits_ else 'FAIL'} {label}" + ("" if not hits_ else "  blocked by: " + ", ".join(hits_)))
+        return not hits_
 
-    # 1. pin A: Ø3 dowel pushed in along −Y from outside the +Y plate to its seat
-    #    (TF hung on the sled, cheeks not yet fitted); tool Ø2.8 from the seat out
-    y0 = V["pina"][0]
-    tool = cyl_between([A[0], y0 + 0.3, A[1]], [A[0], 80.0, A[1]], 1.4)
-    ok &= clear(tool, {"tf": meshes["tf"], "cell": meshes["cell"], "cradle": meshes["cradle"],
-                       "tilt_link": meshes["tilt_link"]},
-                f"pin A dowel path (X {A[0]:.0f}, Z {A[1]:.0f}) from Y 80 to its seat at Y {y0} (before the +Y cheek)")
-    ray = meshes["tf"].ray.intersects_location([[A[0] + 1.2, 80.0, A[1]]], [[0, -1.0, 0]], multiple_hits=True)[0]
-    first = max(ray[:, 1]) if len(ray) else None
-    print(f"       ray along −Y 1.2 off the pin-A axis: first TF surface at Y {first if first is not None else float('nan'):.2f} "
-          f"(the Ø2.9→Ø2 seat shoulder at Y {y0}); knock-out from −Y through the Ø2")
-    ok &= first is not None and first <= y0 + 0.01
-    # the cheek closes the path once fitted (the dowel is a firm fit; cheek off to service)
-    # 2. ch2 pivot screws from above: crank-tip screw at column 0 (tip at Y −263, outside the
-    #    riser), drive-pin screw at the reject position (Y 177, outside the riser); hex-key
-    #    shank Ø9 (head Ø8) straight up from the head to Z 250
+    def key_swing(x, y, zb, against, label, need=60):
+        """L-key, short arm (14) up into the socket, long arm (45) swinging horizontally at
+        its bottom: largest contiguous free arc (15° steps) must be ≥ need."""
+        ok_ = clear(cyl_between([x, y, zb - 0.1], [x, y, zb - 14], 1.25), against, label + ": 1.5 mm L-key short arm (14) up")
+        free = [clear(cyl_between([x, y, zb - 14], [x + 45 * math.cos(math.radians(t)), y + 45 * math.sin(math.radians(t)), zb - 14], 1.25),
+                      against, "", quiet=True) for t in range(0, 360, 15)]
+        best = run_ = 0
+        for f in free + free:                     # wrap around
+            run_ = run_ + 1 if f else 0
+            best = max(best, min(run_, 24))
+        arc = (best - 1) * 15 if best else 0
+        print(f"  {'ok  ' if arc >= need else 'FAIL'}    … long arm (45) free swing at Z {zb - 14:.1f}: {arc}° contiguous (need ≥ {need}°)")
+        return ok_ and arc >= need
+
+    print("\nASSEMBLY ORDER / INSERTION AND DRIVING PATHS (tool = hex key / driver envelope)")
+    PSI_PARK = 100.0          # ch2 crank parked pointing −X/−Y, outside the riser footprint
+    Y_PARK = 102.0            # carriage parked at column 3: its drive-pin arm is beyond the riser (Y > 80)
+
+    # ---- 0. riser (bolted down before the conveyor, riser.scad) -- riser front tie
+    print(" 0. riser_a + riser_b on the baseplate")
+    for x, z in V["tie"]:
+        ok &= clear(cyl_between([x, V["fy"] - 0.2, z], [x, -300, z], 3.5), fixed,
+                    f"riser front-tie M3 × 10 countersunk from the front (X {x}, Z {z}), Ø7 driver")
+
+    # ---- 1. bench: ch1 servo + coupler into the −Y end post's cage
+    print(" 1. bench: ch1 MG996R + goBILDA 4001 coupler (screwed to the spline, boss UP) into the −Y cage from −Y")
+    grp = {"servo_ch1": meshes["servo_ch1"], "coupler": meshes["c1_coupler_up"]}
+    ok &= sweep("ch1 servo + coupler slid along +Y through the cage opening (60 mm)", grp,
+                {"end_post_neg": meshes["end_post_neg"]},
+                [trans(y=-d) for d in np.arange(60, -0.01, -1.0)], allow={("servo_ch1", "end_post_neg")})
+    yf = V["c1y"]; ye = yf - 10.6
+    for x, z in V["c1e"]:
+        ok &= clear(cyl_between([x, ye - 3.6, z], [x, -300, z], 2.0),
+                    {**fixed, "end_post_neg": meshes["end_post_neg"]},
+                    f"ch1 ear M3 × 10 SHCS + washer, along +Y from behind the servo (X {x}, Z {z}): 2.5 mm hex driver to Y −300")
+    # ---- 2. bench: module (posts, rod, carriage, shaft, R-bar)
+    print(" 2. bench: rod, carriage, shaft (REX, from +Y into the coupler), R-bar; coupler clamp; rod grubs")
+    shaft_against = {"end_posts": meshes["end_posts"], "servo_ch1": meshes["servo_ch1"],
+                     **{k: v for k, v in place_moving(meshes, 0.0, "F", TH_H).items() if k in ("carriage",)}}
+    ok &= sweep("shaft slid along −Y from +440 mm (through post +Y, sled bushings, post −Y 688ZZ) into the coupler",
+                {"dshaft": meshes["dshaft"]}, shaft_against, [trans(y=d) for d in np.arange(440, -0.01, -4.0)])
+    for k, key, off in (("clamp_m", "−30°", -30), ("clamp_0", "0°", 0), ("clamp_p", "+30°", 30)):
+        p0, u = (np.array(v, float) for v in V[k])
+        pa = p0 + 7.05 * u         # head top (screw 14 long centred on the axis point)
+        against = {**{n: m for n, m in fixed.items() if n != "ch1_coupler"}, "coupler": meshes[f"c1_coupler_hold{off:+d}"]}
+        ok &= clear(cyl_between(pa, pa + 120 * u, 1.75), against,
+                    f"coupler M4 clamp screw at HOLD, hex-index offset {key} (boss {V['hold'] + off:.0f}°): 3 mm key from the head out 120 mm")
+    for x, y, z in V["grub"]:
+        for yc in (TARGETS["0"], TARGETS["reject"]):
+            others = {**fixed, "carriage": meshes["carriage"].copy().apply_transform(trans(y=yc))}
+            ok &= clear(cyl_between([x + 0.2, y, z], [x + 150, y, z], 1.5), others,
+                        f"rod M3 × 6 set screw along −X into the insert (Y {y}, Z {z}), 1.5 mm key, carriage at Y {yc:.0f}")
+    # ---- 3. bench: ch2 servo (horn + crank + hub screw fitted, crank at ψ_park) hung under the shelf
+    print(f" 3. bench: ch2 MG996R with horn, crank, hub screw; crank parked at ψ {PSI_PARK:.0f}°; lifted under the −Y shelf")
+    c2 = {"servo_ch2": meshes["servo_ch2"], "c2_horn": meshes["c2_horn"],
+          "c2_crank": meshes["c2_crank"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(PSI_PARK)),
+          "c2_horn_screws": meshes["c2_horn_screws"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(PSI_PARK))}
+    ok &= sweep("ch2 servo + crank lifted straight up 40 mm, rear ear under the end-post shelf", c2,
+                {"end_posts": meshes["end_posts"]}, [trans(z=-d) for d in np.arange(40, -0.01, -1.0)],
+                allow={("servo_ch2", "end_posts")})
+    face = V["face"]; zb = face + 8.1 - 1.8          # screw head bottom
+    for x in (75, 85):
+        ok &= key_swing(x, V["rear"][1], zb, {"end_posts": meshes["end_posts"], **c2},
+                        f"ch2 REAR ear M2.5 button head from below (X {x}, Y {V['rear'][1]})")
+    # ---- 4. module set down 10 mm in front of its place, then slid +Y 10 mm (front ear into the riser pocket)
+    print(f" 4. module (step 1–3, carriage parked at Y {Y_PARK:.0f}, TF level) set down at Y −10 and slid +Y into place;"
+          " ch2 rear-ear screws 1 turn loose (servo hangs 0.5 low)")
+    module = {n: meshes[n] for n in ["end_posts", "rbar", "rod", "dshaft", "servo_ch1", "ch1_coupler", "c1_ear_screws"]}
+    module.update({n: m for n, m in place_moving(meshes, Y_PARK, "F", 0.0).items() if n not in ("c2_crank", "c2_horn_screws")})
+    module.update({n: m.copy().apply_transform(trans(z=-0.5)) for n, m in {**c2, "c2_ear_screws_rear": meshes["c2_ear_screws_rear"]}.items()})
+    steps = [trans(y=-10, z=dz) for dz in np.arange(80, 0, -2.0)] + [trans(y=-d) for d in np.arange(10, -0.01, -0.5)]
+    ok &= sweep("module lowered 80 mm at Y −10, then slid +10 mm along +Y", module, conveyor, steps)
+    # ---- 5. front ear screws from below, through the tunnel
+    print(" 5. ch2 FRONT ear: tighten the rear screws (servo up 0.5), drive the front screws up through the tunnel")
+    inst = {**{n: meshes[n] for n in ["riser", "end_posts", "servo_ch2", "c2_horn", "rbar", "rod"]},
+            "c2_crank": c2["c2_crank"], "c2_horn_screws": c2["c2_horn_screws"]}
+    for x, y, zc in V["riser_ear"]:
+        ok &= key_swing(x, y, zb, inst, f"ch2 FRONT ear M2.5 button head from below through the tunnel (X {x}, Y {y})")
+    for x, y in V["holes"]:
+        bt = G["sg_base_top"]
+        others = {**fixed, **{k: v for k, v in place_moving(meshes, Y_PARK).items()}}
+        if not clear(cyl_between([x, y, bt + 7.2], [x, y, 200], 1.5), others, "", quiet=True):
+            d = np.array([1, 0, 1]) / math.sqrt(2)      # rod/shaft overhead: ball-end key tilted toward +X
+            ok &= clear(cyl_between([x, y, bt + 7.2], np.array([x, y, bt + 7.2]) + 120 * d, 1.5), others,
+                        f"end-post anchor M3 × 20 at ({x}, {y}): rod overhead, 2.5 mm BALL-END key at 45° from +X")
+        else:
+            print(f"  ok   end-post anchor M3 × 20 at ({x}, {y}): 2.5 mm key straight down")
+    # ---- 6. ch2 link, pivots (existing order), then ramp + reject bin
+    print(" 6. ch2 link + pivot screws (crank-tip screw at column 0, drive-pin screw at reject)")
     sh = G["sg_c2_sh"]
-    fixed = {n: meshes[n] for n in FIXED}
     tip = np.array([C2P[0] - C2R * math.sin(math.radians(c2_psi(TARGETS["0"]))),
                     C2P[1] + C2R * math.cos(math.radians(c2_psi(TARGETS["0"])))])
     z_tip = G["sg_c2_z"][1] + sh[2]
-    yc0 = TARGETS["0"]
-    others = {**fixed, "carriage@col0": meshes["carriage"].copy().apply_transform(trans(y=yc0))}
+    others = {**fixed, "carriage@col0": meshes["carriage"].copy().apply_transform(trans(y=TARGETS["0"]))}
     ok &= clear(cyl_between([tip[0], tip[1], z_tip + 0.2], [tip[0], tip[1], 250], 4.5), others,
                 f"ch2 crank-tip shoulder screw from above at column 0 (X {tip[0]:.0f}, Y {tip[1]:.0f}, head top Z {z_tip:.0f})")
     yr = TARGETS["reject"]; pin = [C2P[0], yr + C2DY]
@@ -457,12 +657,22 @@ def run_assembly(meshes):
     others = {**fixed, "carriage@reject": meshes["carriage"].copy().apply_transform(trans(y=yr))}
     ok &= clear(cyl_between([pin[0], pin[1], z_pin + 0.2], [pin[0], pin[1], 250], 4.5), others,
                 f"ch2 drive-pin shoulder screw from above at reject (X {pin[0]:.0f}, Y {pin[1]:.0f}, head top Z {z_pin:.0f})")
-    # 3. riser front tie: countersunk M3 driven along +Y from the front (Ø7 driver)
-    for x, z in V["tie"]:
-        ok &= clear(cyl_between([x, V["fy"] - 0.2, z], [x, -300, z], 3.5), fixed,
-                    f"riser front-tie screw from the front (X {x}, Z {z})")
-    # 4. end-post holes on the baseplate grid (probe): grid membership, hole open through
-    #    the floor plate, plate material all round, SHCS head (Ø5.5 × 3) clear above
+    # pin A: Ø3 dowel pushed in along −Y from outside the +Y TF plate (bench, before the +Y cheek)
+    y0 = V["pina"][0]
+    tool = cyl_between([A[0], y0 + 0.3, A[1]], [A[0], 80.0, A[1]], 1.4)
+    ok &= clear(tool, {"tf": meshes["tf"], "cell": meshes["cell"], "cradle": meshes["cradle"], "tilt_link": meshes["tilt_link"]},
+                f"pin A dowel path (X {A[0]:.0f}, Z {A[1]:.0f}) from Y 80 to its seat at Y {y0} (bench, before the +Y cheek)")
+    ray = meshes["tf"].ray.intersects_location([[A[0] + 1.2, 80.0, A[1]]], [[0, -1.0, 0]], multiple_hits=True)[0]
+    first = max(ray[:, 1]) if len(ray) else None
+    print(f"       ray along −Y 1.2 off the pin-A axis: first TF surface at Y {first if first is not None else float('nan'):.2f} "
+          f"(the Ø2.9→Ø2 seat shoulder at Y {y0}); knock-out from −Y through the Ø2")
+    ok &= first is not None and first <= y0 + 0.01
+    print(" 7. lower ramp + reject bin lowered onto the baseplate; the carriage (TF level) is parked clear of each")
+    base = {n: meshes[n] for n in ["end_posts", "rbar", "rod", "dshaft", "riser", "tray"]}
+    for part, yc in (("ramp_neg", TARGETS["3"]), ("ramp_pos", TARGETS["0"]), ("reject_bin", TARGETS["0"])):
+        ok &= sweep(f"{part} lowered 120 mm (carriage at Y {yc:.0f})", {part: meshes[part]}, {**base, **place_moving(meshes, yc, "F", 0.0)},
+                    [trans(z=d) for d in np.arange(120, -0.01, -3.0)], allow={(part, "tray")})
+    # end-post holes on the baseplate grid (probe): grid membership, hole open, plate all round, head clear
     gx = sorted({-285 + 190 * c + 15 + 30 * k for c in range(3) for k in range(6)})
     gy = sorted({-270 + 180 * r + 15 + 30 * k for r in range(3) for k in range(6)})
     ep = meshes["end_posts"]; bt = G["sg_base_top"]
@@ -478,7 +688,15 @@ def run_assembly(meshes):
         ok &= good
         print(f"  {'ok  ' if good else 'FAIL'} end-post hole ({x}, {y}): on grid {on}, open through the plate {open_}, "
               f"plate all round {rim}, head clear (0.5) {head_ok}")
-    print("  " + ("All access paths clear." if ok else "ACCESS FAILURES above."))
+    # ch2 direction (geometry convention the firmware relies on)
+    t0 = np.array([C2P[0] - C2R * math.sin(math.radians(c2_psi(TARGETS["reject"]))), C2P[1] + C2R * math.cos(math.radians(c2_psi(TARGETS["reject"])))])
+    t1 = np.array([C2P[0] - C2R * math.sin(math.radians(90)), C2P[1]])
+    assert abs(c2_psi(TARGETS["reject"])) < 3 and abs(c2_psi(TARGETS["0"]) - 180) < 3 and t1[0] < C2P[0] and t0[1] > C2P[1], \
+        "ch2 convention broken: ψ 0 must point +Y (reject), 90 −X, 180 −Y (column 0)"
+    print("  note ch2 DIRECTION: increasing servo angle must swing the crank +Y → −X → −Y, i.e. COUNTER-CLOCKWISE seen\n"
+          "       from ABOVE (clockwise looking at the spline of the upside-down servo). Check it on the bench at 2°, 90°,\n"
+          "       178° BEFORE the horn/crank go on; a reversed servo drives the crank into the end post (shuttle.scad).")
+    print("  " + ("Install order and every driving path clear." if ok else "ASSEMBLY FAILURES above."))
     return ok
 
 
