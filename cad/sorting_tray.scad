@@ -112,12 +112,13 @@ boss_cy     = 3.1;     // screw axis, Y offset from the front-wall inner face
                        // (keeps the upper floor's Ø6 countersink 0.1mm off the wall)
 
 // ── Baseplate screw holes (lower floor only), section-local [x, y] ──
-// assembly.scad places the tray at world X = 183 − y, Y = −137 + x_global.
-// baseplate_tile grid: world X ∈ {110, 140, 170}, world Y ≡ 15 (mod 30).
-//   → local y ∈ {73, 43, 13};  global x ∈ {2, 32, 62, … 272}
+// Tray back (open) face at world X 178 (cradle-shuttle sorter, shuttle_geom.scad
+// sg_tray_x0): assembly places it at world X = 276 − y, Y = −137 + x_global.
+// baseplate_tile grid: world X ∈ {200, 230, 260}, world Y ≡ 15 (mod 30).
+//   → local y ∈ {76, 46, 16};  global x ∈ {2, 32, 62, … 272}
 // Chosen holes sit in the slot floors, clear of walls/dividers/bosses:
-base_holes_A = [[32, 13], [32, 73], [92, 13], [92, 73]];   // global x 32, 92
-base_holes_B = [[45, 13], [45, 73], [105, 13], [105, 73]]; // global x 182, 242
+base_holes_A = [[32, 16], [32, 76], [92, 16], [92, 76]];   // global x 32, 92
+base_holes_B = [[45, 16], [45, 76], [105, 16], [105, 76]]; // global x 182, 242
 
 // ── Lead-in chamfers cut into the top inner edges ───────────
 chamfer_wall = 1.5;    // outer walls (2.5mm) → 1.0mm flat land remains
@@ -318,7 +319,7 @@ tray_floor_section(start_slot=0, is_first=true, is_last=false);
 //   Stacking screw axes (section-local, same on all 4 sections + shelf):
 //     x = 6, 64, 73, 131   y = 5.6
 //   Baseplate screw axes (lower floor):
-//     A: x = 32, 92   B: x = 45, 105   y = 13, 73
+//     A: x = 32, 92   B: x = 45, 105   y = 16, 76  (tray back face at world X 178)
 //
 // SLOT ASSIGNMENTS (lower → upper, left → right):
 //   Floor 0 slot 0: Champions     Floor 1 slot 4: Legendary
