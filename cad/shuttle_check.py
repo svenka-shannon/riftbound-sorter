@@ -1,16 +1,24 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["numpy", "trimesh", "manifold3d", "python-fcl", "scipy", "pymunk"]
+# dependencies = ["numpy", "trimesh", "manifold3d", "python-fcl", "scipy", "pymunk", "rtree"]
 # ///
 """Validate the cradle-shuttle sorter (cad/shuttle*.scad, lower_ramp, reject_bin, riser).
 
   collide  — trimesh/FCL collision + clearance sweep: carriage, tilt frame,
-             cradle, load cell, card and both drive linkages through every
+             cradle, load cell, card, F pins, pin A and both drive linkages
+             (incl. every ch2 screw, insert and pin: horn screws, the two
+             shoulder-screw pivots, the servo ear screws) through every
              target (4 columns + reject + home) × every tilt state (incl.
              intermediate angles) and the whole Y travel in HOLD, against the
              tray, lower ramp, reject bin, rails, riser, motor mounts, card
              guides, rollers, electronics tray, R-bar, end posts and servos.
+             Design rules: cradle↔TF > 0.5 (weighing gap), TF body↔carriage
+             ≥ 0.6, ch2 crank↔link and link↔carriage ≥ 0.8 (no hardware between
+             them), everything of ch2 ≥ 3 mm above the tiles.
+  assembly — insertion / access paths: pin A dowel path, ch2 pivot screws from
+             above, riser front-tie screws from the front, end-post holes on the
+             30 mm baseplate grid (probe).
   slide    — 2-D rigid-card simulation (penalty contacts, Coulomb friction):
              the cradle tips from HOLD to UPPER/LOWER over the firmware ramp
              time and the card slides off; reports where it comes to rest.
@@ -20,6 +28,7 @@ never drifts from the CAD.
 
     cad/shuttle_check.py collide
     cad/shuttle_check.py slide
+    cad/shuttle_check.py assembly
     cad/shuttle_check.py all          (default)
 """
 import argparse
@@ -47,7 +56,8 @@ def read_geom():
              "sg_D()", "sg_A()", "sg_crank_r()", "sg_link_l()", "sg_c2_pivot()", "sg_c2_r()",
              "sg_c2_l()", "sg_c2_pin_dy()", "sg_col_y()", "sg_reject_y()", "sg_tray_x0()",
              "sg_lip()", "sg_bed_z()", "sg_bed_x0()", "sg_bend_x()", "sg_kick_a()", "sg_kick_l()",
-             "sg_ramp_profile()", "sg_card_z()", "sg_bed_t()"]
+             "sg_ramp_profile()", "sg_card_z()", "sg_bed_t()", "sg_c2_link_z()", "sg_c2_z()",
+             "sg_c2_arm_z()", "sg_c2_sh()", "sg_c2_roof_z()", "sg_base_top()"]
     src = f"use <{CAD}/shuttle_geom.scad>\n" + "".join(
         f'echo(str("SG|{n}|", {n}));\n' for n in names) + "cube(1);\n"
     f = WORK / "geom_echo.scad"
@@ -123,13 +133,18 @@ SCENE_OBJS = {
     # moving, exported un-posed (level frame, carriage at Y 0)
     "carriage": "carriage();",
     "cradle": "cradle();",
-    "tf": "tilt_frame(); for (s=[-1,1]) cyl_y(sg_F(), 4, s>0?36:-44, s>0?44:-36, 16);",
+    "tf": "tilt_frame();",
+    "fpins": "f_pins();",
+    "pin_a": "pin_a();",
     "cell": "load_cell();",
     "card": "card_on_bed();",
     "tilt_crank": "tilt_crank();",
     "tilt_link": "tilt_link();",
     "c2_crank": "c2_crank();",
     "c2_link": "c2_link();",
+    "c2_horn_screws": "c2_horn_screws();",     # crank frame
+    "c2_tip_pin": "c2_tip_pin();",             # crank frame (axisymmetric; turns with the link)
+    "c2_drive_pin": "c2_drive_pin();",         # carriage frame
     # fixed
     "rbar": "rbar_neg(); rbar_pos();",
     "end_posts": "end_post_neg(); end_post_pos();",
@@ -138,6 +153,7 @@ SCENE_OBJS = {
     "servo_ch1": "translate([sg_D()[0], -168, sg_D()[1]]) rotate([-90, 0, 0]) rotate(90) mg996r();",
     "servo_ch2": "c2_servo();",
     "c2_horn": "c2_horn();",
+    "c2_ear_screws": "c2_ear_screws();",
     "lower_ramp": "ramp_neg(); ramp_pos();",
     "reject_bin": "reject_bin();",
     "riser": "riser_a(); riser_b();",
@@ -174,26 +190,43 @@ def load_all():
 
 
 # ---------------------------------------------------------------- collide
-TF_GROUP = ["cradle", "tf", "cell", "card"]
+TF_GROUP = ["cradle", "tf", "cell", "card", "fpins", "pin_a"]
+C2_HW = ["c2_horn_screws", "c2_tip_pin", "c2_drive_pin"]
 MOVING = ["carriage", "tilt_crank", "tilt_link", *TF_GROUP]
-FIXED = ["rbar", "end_posts", "rod", "dshaft", "servo_ch1", "servo_ch2", "c2_horn", "lower_ramp", "reject_bin", "riser",
+FIXED = ["rbar", "end_posts", "rod", "dshaft", "servo_ch1", "servo_ch2", "c2_horn", "c2_ear_screws", "lower_ramp", "reject_bin", "riser",
          "tray", "rails", "motor_mounts", "rollers", "card_guides", "etray"]
 # JOINED: parts fastened/journalled together (bearings, pins, bolted) — not checked.
 JOINED = {frozenset(p) for p in [
     ("carriage", "rod"), ("carriage", "dshaft"), ("tilt_crank", "dshaft"), ("tilt_crank", "tilt_link"),
     ("tilt_link", "tf"), ("tf", "cell"), ("cradle", "cell"), ("card", "cradle"),
-    ("c2_crank", "c2_link"), ("c2_link", "carriage"), ("c2_crank", "c2_horn"), ("c2_horn", "servo_ch2"),
+    ("fpins", "tf"), ("pin_a", "tf"), ("pin_a", "tilt_link"),
+    # ch2: crank↔link and link↔carriage are NOT joined (1 mm apart in Z, checked);
+    # only the hardware that actually connects them is
+    ("c2_crank", "c2_horn"), ("c2_horn", "servo_ch2"),
+    ("c2_horn_screws", "c2_crank"), ("c2_horn_screws", "c2_horn"),
+    ("c2_horn_screws", "servo_ch2"),      # centre screw threads into the output spline
+    ("c2_tip_pin", "c2_crank"), ("c2_tip_pin", "c2_link"),
+    ("c2_drive_pin", "carriage"), ("c2_drive_pin", "c2_link"),
+    ("c2_ear_screws", "servo_ch2"), ("c2_ear_screws", "riser"), ("c2_ear_screws", "end_posts"),
     ("dshaft", "end_posts"),
-    ("rod", "end_posts"), ("rbar", "end_posts"), ("dshaft", "servo_ch1"), ("servo_ch1", "end_posts"),
+    ("rod", "end_posts"), ("rbar", "end_posts"), ("dshaft", "servo_ch1"),
     ("rails", "riser"), ("motor_mounts", "riser"),
     ("motor_mounts", "rails"), ("card_guides", "rails"), ("rollers", "rails"), ("tray", "lower_ramp"),
     ("reject_bin", "tray"), ("lower_ramp", "reject_bin")]}
 # CONTACT: may touch (≤ 1 mm³ numerical overlap) but must not interpenetrate:
-#   tf–carriage = F pins seated in the cheek hooks; tf–rbar = skid on the R-bar.
-CONTACT = {frozenset(p) for p in [("tf", "carriage"), ("tf", "rbar"), ("servo_ch2", "riser"),
-                                   ("servo_ch2", "end_posts")]}   # ch2 ears seated under their shelves
-OWN = ["carriage", "tilt_crank", "tilt_link", "cradle", "tf", "cell", "card", "c2_crank", "c2_link", "c2_horn",
+#   fpins–carriage = F pins seated in the cheek hooks; tf–rbar = skid on the R-bar;
+#   servo ears seated under their shelves / against the ch1 cage.
+CONTACT = {frozenset(p) for p in [("fpins", "carriage"), ("tf", "rbar"), ("servo_ch2", "riser"),
+                                   ("servo_ch2", "end_posts"), ("servo_ch1", "end_posts")]}
+OWN = ["carriage", "tilt_crank", "tilt_link", "cradle", "tf", "cell", "card", "c2_crank", "c2_link", *C2_HW, "c2_horn", "c2_ear_screws",
        "servo_ch2", "servo_ch1", "rbar", "end_posts", "rod", "dshaft", "lower_ramp", "reject_bin", "riser"]
+# design-rule minimum clearances (moving pairs): name pair → (min mm, why)
+RULES = {("cradle", "tf"): (0.5, "weighing gap: cradle must never touch the tilt frame"),
+         ("tf", "carriage"): (0.6, "TF body ↔ carriage"),
+         ("c2_crank", "c2_link"): (0.8, "ch2 crank over link (horn screws flush)"),
+         ("c2_link", "carriage"): (0.8, "ch2 link under the drive-pin arm"),
+         ("c2_horn_screws", "c2_link"): (0.8, "horn screw heads over the link at column 0")}
+TILE_LIP = 3.0     # everything of the ch2 linkage stays ≥ 3 mm above the tiles (seam lips)
 BASE = np.array([[-285.0, -270.0, 4.0], [285.0, 270.0, 1e9]])   # baseplate top / extents
 ALLOWED = JOINED | CONTACT
 
@@ -230,6 +263,9 @@ def run_collide(meshes, verbose=False):
             "tilt_crank": meshes["tilt_crank"].copy().apply_transform(T_crank),
             "tilt_link": meshes["tilt_link"].copy().apply_transform(T_link),
             "c2_crank": meshes["c2_crank"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(psi)),
+            "c2_horn_screws": meshes["c2_horn_screws"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(psi)),
+            "c2_tip_pin": meshes["c2_tip_pin"].copy().apply_transform(trans(C2P[0], C2P[1]) @ rz(psi)),
+            "c2_drive_pin": meshes["c2_drive_pin"].copy().apply_transform(T_y),
             "c2_link": meshes["c2_link"].copy().apply_transform(
                 trans(c2tip[0], c2tip[1]) @ rz(math.degrees(math.atan2(pin[1] - c2tip[1], pin[0] - c2tip[0])) - 90)),
         }
@@ -288,7 +324,13 @@ def run_collide(meshes, verbose=False):
         for n1, n2 in [("cradle", "tf"), ("cradle", "carriage"), ("cradle", "tilt_crank"), ("cradle", "tilt_link"),
                        ("cell", "carriage"), ("cell", "tilt_link"), ("cell", "tilt_crank"), ("tf", "tilt_crank"),
                        ("tf", "carriage"), ("card", "carriage"), ("card", "tf"),
-                       ("tilt_link", "carriage"), ("c2_crank", "carriage"), ("c2_link", "carriage")]:
+                       ("tilt_link", "carriage"), ("c2_crank", "carriage"), ("c2_link", "carriage"),
+                       ("fpins", "carriage"), ("pin_a", "carriage"), ("pin_a", "cradle"), ("pin_a", "cell"),
+                       ("pin_a", "tilt_crank"), ("fpins", "tilt_crank"),
+                       # ch2: links and every screw / pin against everything else that moves
+                       ("c2_crank", "c2_link"), ("c2_horn_screws", "c2_link"), ("c2_horn_screws", "carriage"),
+                       ("c2_tip_pin", "carriage"), ("c2_tip_pin", "c2_drive_pin"), ("c2_drive_pin", "c2_crank"),
+                       ("c2_drive_pin", "c2_horn_screws")]:
             pair = frozenset((n1, n2))
             if pair in JOINED:
                 continue
@@ -309,6 +351,13 @@ def run_collide(meshes, verbose=False):
         if d < 15:
             tag = "OVERLAP" if d < 0 else ("contact (by design)" if d == 0 else "")
             print(f"{n:12s} {fn:14s} {d:17.2f}   {tgt}/{label} {a}°  {tag}")
+    print("\nDESIGN RULES (min clearance over every pose):")
+    for (n1, n2), (lim, why) in RULES.items():
+        d = worst.get((n1, n2), worst.get((n2, n1), (float("nan"),)))[0]
+        ok = d > lim if (n1, n2) == ("cradle", "tf") else d >= lim
+        print(f"  {n1:14s} {n2:14s} {d:6.2f}  {'>' if (n1, n2) == ('cradle', 'tf') else '≥'} {lim}  {'ok' if ok else 'FAIL'}   {why}")
+        if not ok:
+            fails.append((n1, n2, "rule", 0, why, 0, round(d, 3)))
     print("\nBASEPLATE ENVELOPE (every pose; baseplate X ±285, Y ±270, top Z 4):")
     for n in OWN:
         if n not in env:
@@ -319,6 +368,12 @@ def run_collide(meshes, verbose=False):
               f"{'ok' if inside else 'OUTSIDE BASEPLATE'}")
         if not inside:
             fails.append((n, "baseplate", "envelope", 0, "", 0, 0))
+    lows = {n: env[n][0][2] - BASE[0][2] for n in ["c2_link", "c2_crank", *C2_HW] if n in env}
+    lo_n = min(lows, key=lows.get)
+    print(f"\nch2 linkage lowest point: {lo_n} {lows[lo_n]:.1f} mm above the tiles (rule ≥ {TILE_LIP}: "
+          f"{'ok' if lows[lo_n] >= TILE_LIP else 'FAIL'})")
+    if lows[lo_n] < TILE_LIP:
+        fails.append((lo_n, "tiles", "lip", 0, "", 0, round(lows[lo_n], 2)))
     if fails:
         print(f"\n{len(fails)} FAILURES (overlap where none is allowed):")
         seen = set()
@@ -331,6 +386,100 @@ def run_collide(meshes, verbose=False):
     else:
         print("\nNo unintended overlaps.")
     return not fails
+
+
+# ---------------------------------------------------------------- assembly / access
+def echo_vals(exprs, uses):
+    src = "".join(f"use <{CAD}/{u}.scad>\n" for u in uses) + "".join(
+        f'echo(str("AV|{k}|", {e}));\n' for k, e in exprs.items()) + "cube(1);\n"
+    f = WORK / "asm_echo.scad"; f.write_text(src)
+    out = subprocess.run([OPENSCAD, "-o", str(WORK / "asm_echo.stl"), str(f)], capture_output=True, text=True).stderr
+    return {m.group(1): json.loads(m.group(2)) for m in re.finditer(r'ECHO: "AV\|(\w+)\|(.*)"', out)}
+
+
+def cyl_between(p0, p1, r):
+    p0, p1 = np.asarray(p0, float), np.asarray(p1, float)
+    v = p1 - p0; h = np.linalg.norm(v)
+    c = trimesh.creation.cylinder(radius=r, height=h, sections=24)
+    z = np.array([0, 0, 1.0]); a = v / h
+    T = trimesh.geometry.align_vectors(z, a); T[:3, 3] = (p0 + p1) / 2
+    return c.apply_transform(T)
+
+
+def run_assembly(meshes):
+    """Insertion / access paths that the collision sweep cannot see."""
+    V = echo_vals({"tie": "riser_tie_screws()", "fy": "riser_front_y()", "holes": "sh_end_post_holes()",
+                   "pina": "sh_pin_a_y()"}, ["riser", "shuttle"])
+    ok = True
+    print("\nASSEMBLY / ACCESS PATHS")
+
+    def clear(tool, against, label):
+        hits = []
+        for n, m in against.items():
+            if np.any(tool.bounds[0] > m.bounds[1]) or np.any(m.bounds[0] > tool.bounds[1]):
+                continue
+            v = overlap_volume(tool, m)
+            if math.isnan(v):                      # boolean failed: fall back to FCL distance
+                mgr = trimesh.collision.CollisionManager(); mgr.add_object(n, m)
+                v = 0.0 if mgr.min_distance_single(tool) > 1e-6 else float("inf")
+            if not (v < 0.05):
+                hits.append(f"{n} {v:.2f} mm³")
+        print(f"  {'ok  ' if not hits else 'FAIL'} {label}" + ("" if not hits else "  blocked by: " + ", ".join(hits)))
+        return not hits
+
+    # 1. pin A: Ø3 dowel pushed in along −Y from outside the +Y plate to its seat
+    #    (TF hung on the sled, cheeks not yet fitted); tool Ø2.8 from the seat out
+    y0 = V["pina"][0]
+    tool = cyl_between([A[0], y0 + 0.3, A[1]], [A[0], 80.0, A[1]], 1.4)
+    ok &= clear(tool, {"tf": meshes["tf"], "cell": meshes["cell"], "cradle": meshes["cradle"],
+                       "tilt_link": meshes["tilt_link"]},
+                f"pin A dowel path (X {A[0]:.0f}, Z {A[1]:.0f}) from Y 80 to its seat at Y {y0} (before the +Y cheek)")
+    ray = meshes["tf"].ray.intersects_location([[A[0] + 1.2, 80.0, A[1]]], [[0, -1.0, 0]], multiple_hits=True)[0]
+    first = max(ray[:, 1]) if len(ray) else None
+    print(f"       ray along −Y 1.2 off the pin-A axis: first TF surface at Y {first if first is not None else float('nan'):.2f} "
+          f"(the Ø2.9→Ø2 seat shoulder at Y {y0}); knock-out from −Y through the Ø2")
+    ok &= first is not None and first <= y0 + 0.01
+    # the cheek closes the path once fitted (the dowel is a firm fit; cheek off to service)
+    # 2. ch2 pivot screws from above: crank-tip screw at column 0 (tip at Y −263, outside the
+    #    riser), drive-pin screw at the reject position (Y 177, outside the riser); hex-key
+    #    shank Ø9 (head Ø8) straight up from the head to Z 250
+    sh = G["sg_c2_sh"]
+    fixed = {n: meshes[n] for n in FIXED}
+    tip = np.array([C2P[0] - C2R * math.sin(math.radians(c2_psi(TARGETS["0"]))),
+                    C2P[1] + C2R * math.cos(math.radians(c2_psi(TARGETS["0"])))])
+    z_tip = G["sg_c2_z"][1] + sh[2]
+    yc0 = TARGETS["0"]
+    others = {**fixed, "carriage@col0": meshes["carriage"].copy().apply_transform(trans(y=yc0))}
+    ok &= clear(cyl_between([tip[0], tip[1], z_tip + 0.2], [tip[0], tip[1], 250], 4.5), others,
+                f"ch2 crank-tip shoulder screw from above at column 0 (X {tip[0]:.0f}, Y {tip[1]:.0f}, head top Z {z_tip:.0f})")
+    yr = TARGETS["reject"]; pin = [C2P[0], yr + C2DY]
+    z_pin = G["sg_c2_arm_z"][1] + sh[2]
+    others = {**fixed, "carriage@reject": meshes["carriage"].copy().apply_transform(trans(y=yr))}
+    ok &= clear(cyl_between([pin[0], pin[1], z_pin + 0.2], [pin[0], pin[1], 250], 4.5), others,
+                f"ch2 drive-pin shoulder screw from above at reject (X {pin[0]:.0f}, Y {pin[1]:.0f}, head top Z {z_pin:.0f})")
+    # 3. riser front tie: countersunk M3 driven along +Y from the front (Ø7 driver)
+    for x, z in V["tie"]:
+        ok &= clear(cyl_between([x, V["fy"] - 0.2, z], [x, -300, z], 3.5), fixed,
+                    f"riser front-tie screw from the front (X {x}, Z {z})")
+    # 4. end-post holes on the baseplate grid (probe): grid membership, hole open through
+    #    the floor plate, plate material all round, SHCS head (Ø5.5 × 3) clear above
+    gx = sorted({-285 + 190 * c + 15 + 30 * k for c in range(3) for k in range(6)})
+    gy = sorted({-270 + 180 * r + 15 + 30 * k for r in range(3) for k in range(6)})
+    ep = meshes["end_posts"]; bt = G["sg_base_top"]
+    for x, y in V["holes"]:
+        on = x in gx and y in gy
+        hit = ep.ray.intersects_location([[x, y, bt + 30]], [[0, 0, -1.0]], multiple_hits=True)[0]
+        open_ = not any(bt - 0.01 <= h[2] <= bt + 4.01 for h in hit)
+        rim = ep.contains([[x + 3.0 * math.cos(t), y + 3.0 * math.sin(t), bt + 2] for t in np.linspace(0, 2 * math.pi, 8, endpoint=False)]).all()
+        head = cyl_between([x, y, bt + 4.05], [x, y, bt + 4 + 3.0], 2.75 + 0.5)
+        head_ok = all(not (overlap_volume(head, m) > 0.05) for n, m in fixed.items()
+                      if not (np.any(head.bounds[0] > m.bounds[1]) or np.any(m.bounds[0] > head.bounds[1])))
+        good = on and open_ and rim and head_ok
+        ok &= good
+        print(f"  {'ok  ' if good else 'FAIL'} end-post hole ({x}, {y}): on grid {on}, open through the plate {open_}, "
+              f"plate all round {rim}, head clear (0.5) {head_ok}")
+    print("  " + ("All access paths clear." if ok else "ACCESS FAILURES above."))
+    return ok
 
 
 # ---------------------------------------------------------------- slide
@@ -458,14 +607,17 @@ def slide_suite():
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("what", nargs="?", default="all", choices=["all", "collide", "slide", "geom"])
+    ap.add_argument("what", nargs="?", default="all", choices=["all", "collide", "slide", "assembly", "geom"])
     args = ap.parse_args()
     ok = True
     if args.what == "geom":
         print(json.dumps(G, indent=1))
         return
+    meshes = load_all() if args.what in ("all", "collide", "assembly") else None
     if args.what in ("all", "collide"):
-        ok &= run_collide(load_all())
+        ok &= run_collide(meshes)
+    if args.what in ("all", "assembly"):
+        ok &= run_assembly(meshes)
     if args.what in ("all", "slide"):
         s_ok, _ = slide_suite()
         ok &= s_ok

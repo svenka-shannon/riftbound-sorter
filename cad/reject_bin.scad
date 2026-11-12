@@ -7,8 +7,9 @@
 // ramp (shuttle_geom.scad) slides it into the box. Box inner 66 × 94 mm,
 // floor Z 6.5, walls to Z 60, open top for emptying.
 //
-// PRINT: 1 piece, 113 × 72 × 60 mm, upright, PLA 0.2 mm, 3 walls, 15 %.
-//   The lane surface prints as a 40°→8° slope (layer steps face downhill).
+// PRINT: 1 piece, 115 × 75 × 56 mm (X 159.4..274, Y 138.4..213.6, Z 4..60),
+//   upright as modelled, PLA 0.2 mm, 3 walls, 15 %; ≈ 8100 mm² on the bed, no
+//   overhangs. The lane surface prints as a 40°→8° slope (layer steps face downhill).
 // FASTEN: 4× M3 countersunk through the box floor into the baseplate grid
 //   (X 200, 230; Y 165, 195), nut under the board.
 // =============================================
@@ -21,7 +22,7 @@ part = "assembly";   // assembly | reject_bin
 $fn = 32;
 eps = 0.01;
 yc   = sg_reject_y();          // 176
-xt   = sg_tray_x0();           // 175 — lane exit = box rear inner face
+xt   = sg_tray_x0();           // 178 — lane exit = box rear inner face
 prof = sg_ramp_profile();
 x0   = sg_ramp_x0() - 1;
 wall = 2;
@@ -34,7 +35,7 @@ top_z  = 60;
 module xz(y0, y1) translate([0, y1, 0]) rotate([90, 0, 0]) linear_extrude(y1 - y0) children();
 module lane_2d()
     polygon(concat([[x0, sg_base_top()], [x0, prof[0][1] - 1.0 * tan(sg_kick_lower_a())]],
-                   prof, [[xt, prof[len(prof) - 1][1]], [xt, sg_base_top()]]));
+                   prof, [[xt, sg_base_top()]]));          // prof ends at (xt, exit Z)
 
 module reject_bin() {
     difference() {

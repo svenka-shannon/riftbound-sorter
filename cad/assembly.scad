@@ -179,7 +179,7 @@ module asm_sorter(col = "home", tilt = "level", card = false) asm_sorter_end(col
 //     servo axis from behind (Y −152). The free spoke anchor → A' pin moves
 //     with the arm and is checked by cad/pick_arm_check.py.
 //   front harness Ø7: N20 ×2, ch1/ch2 servo, arm servo; clipped to the riser's
-//     front face at Z 45 (above the ch2 crank, Z 5..13.5), round the −X end in
+//     front face at Z 45 (above the ch2 linkage, Z 9..23), round the −X end in
 //     front of the arm column, down to Z 12 at X −277 (outside the hopper),
 //     along the −X edge to Y 135, then in through the tray's −X wall cable
 //     slots (X −150, Y 100..170, Z 40.5..46.5). The riser has no front→back

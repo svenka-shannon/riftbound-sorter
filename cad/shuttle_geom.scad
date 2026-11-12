@@ -96,16 +96,16 @@ function sg_D()         = [105, 44];     // D-shaft axis (X, Z)
 function sg_crank_r()   = 32;
 function sg_link_l()    = 25;
 function sg_A()         = [144, 70];     // link pin on the TF (level frame)
-function sg_crank_y()   = [12.5, 17];    // crank slab (y)
-function sg_link_y()    = [7, 11.5];     // link slab (y)
+function sg_crank_y()   = [13.5, 18];    // crank slab (y)
+function sg_link_y()    = [8, 12.5];     // link slab (y); TF slot 7.5..13 leaves 1.4 to the cell-screw counterbore
 
 // ---------- carriage / rods ----------
 function sg_rod()       = [106, 24];     // smooth rod (LM8UU ×2)
 function sg_rod_y()     = [-160, 232];   // 400 mm rod, ends in the end posts
-function sg_carr_hw()   = 45.5;          // sled half-width (y) = cheek outer face → flat print face
+function sg_carr_hw()   = 45.5;          // carriage half-width (y) = cheek outer faces; the sled is ±40.5
 
 // ---------- fixed R-bar (lower-mode fulcrum) ----------
-function sg_rbar_x()    = [97, 104];
+function sg_rbar_x()    = [95, 104];    // 9 wide: 1.4 walls round the splice counterbores
 function sg_rbar_z0()   = 56;
 function sg_rbar_y()    = [-150, 232];
 function sg_rbar_notch_y() = [29, 45];   // |Y| band notched at home (skids pass)
@@ -118,19 +118,32 @@ function sg_c2_pivot()  = [80, -124];    // servo output axis (X, Y), servo hang
 function sg_c2_r()      = 139;
 function sg_c2_l()      = 162;
 function sg_c2_pin_dy() = 1;             // drive pin Y relative to carriage centre
-function sg_c2_z()      = [9.5, 13.5];   // crank slab Z
 function sg_c2_tip_r()  = 6;             // crank tip boss radius
+// Z stack, bottom to top. NOTHING hangs below the link: both link pivots are
+// 4 mm-shoulder screws dropped in from ABOVE, their M3 × 4 thread in an M3 × 4
+// heat-set insert pressed into the link top; the link hangs on the screw heads.
+//   tiles Z 4 | 5 air (tile-seam lips) | link 9..14 | 1 | crank 15..19 and
+//   carriage drive-pin arm 15..20 | tip-screw head 19..23, drive-pin head 20..24
+//   | 2 | riser tunnel roof from Z 26.
+//   The horn screws (4 × M2 on Ø14 + the centre M3) are countersunk flush in the
+//   crank bottom, so the link may pass 1 mm under the crank hub at column 0.
 // MG996R hanging upside down above the crank, with the 25T round horn between:
-//   crank Z 9.5..13.5 | horn disc Ø25 × 1.4 (13.5..14.9) | horn hub up to the
-//   spline | case face Z 20.8 (horn stack 1.4 + 5.9) | case to Z 57.4
-//   ears (2.5 thick) 8.1..10.6 above the case face → Z 28.9..31.4
-//   ear shelves above them from Z 31.5; M2.5 pilots from Z 27.3
-function sg_c2_face_z() = sg_c2_z()[1] + 1.4 + 5.9;          // 20.8
-function sg_c2_shelf_z()= sg_c2_face_z() + 10.7;             // 31.5
+//   crank top 19 | horn disc Ø25 × 1.4 | horn hub up to the spline | case face
+//   Z 26.3 (horn stack 1.4 + 5.9) | case to Z 62.9; ears (2.5 thick) 8.1..10.6
+//   above the case face → Z 34.4..36.9; ear shelves above them from Z 37.0.
+// The crank angles (hardware/shuttle.py SHUTTLE_ANGLES) depend only on the XY
+// values above, so raising the stack does not change them.
+function sg_c2_link_z() = [9, 14];       // link slab Z
+function sg_c2_z()      = [15, 19];      // crank slab Z
+function sg_c2_arm_z()  = [15, 20];      // carriage drive-pin arm Z
+function sg_c2_sh()     = [4, 8, 4];     // shoulder screw envelope: shoulder Ø, head Ø, head height
+function sg_c2_sh_l()   = [5, 6];        // shoulder length: crank tip (crank 4 + 1), drive pin (arm 5 + 1)
+function sg_c2_roof_z() = 26;            // riser tunnel roof underside
+function sg_c2_face_z() = sg_c2_z()[1] + 1.4 + 5.9;          // 26.3
+function sg_c2_shelf_z()= sg_c2_face_z() + 10.7;             // 37.0
 function sg_c2_ear_y()  = [sg_c2_pivot()[1] + 14.2, sg_c2_pivot()[1] - 34.5];  // ear hole Ys (front, rear)
 function sg_c2_body_y() = [sg_c2_pivot()[1] + 10.2, sg_c2_pivot()[1] - 30.5];  // case Y extent
 function sg_c2_ear_end_y() = [sg_c2_pivot()[1] + 17.2, sg_c2_pivot()[1] - 37.5];
-function sg_c2_link_z() = [5, 9];        // link slab Z
 
 // ---------- 2D kinematics (XZ), rotation = front-down by a (= rotate([0,a,0])) ----------
 function sg_rot(p, c, a) = [c[0] + (p[0]-c[0])*cos(a) + (p[1]-c[1])*sin(a),
