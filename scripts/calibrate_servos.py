@@ -138,7 +138,8 @@ def shutdown() -> None:
     if _arm_ready:
         steps.append(("arm park", servos.arm_park))
     if _shuttle_ready:
-        steps.append(("shuttle home", shuttle.deinit))   # hold → home → level; before servos.deinit
+        steps.append(("shuttle home", shuttle.home))     # hold → home → level
+        steps.append(("shuttle off", shuttle.deinit))    # deinit no longer homes; before servos.deinit
     if _elevator_ready:
         steps.append(("elevator", elevator.deinit))
     steps += [("servos", servos.deinit), ("vacuum", vacuum.deinit)]

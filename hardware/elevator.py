@@ -74,6 +74,10 @@ HOME_MARGIN_MM = 10.0             # home() gives up after TRAVEL_MM + this
 PLATE_Z_ZERO_MM = PLATE_Z_HOME_MM + HOME_BACKOFF_MM  # plate top at position 0 (after homing)
 MAX_POS_MM = PLATE_Z_MAX_MM - PLATE_Z_ZERO_MM        # soft top limit, measured from position 0
 TRIP_EXTRA_STEPS = 0              # extra half-steps after the top switch trips (calibration)
+# raise_to_pick() timeout = remaining travel at the raise rate × this + margin
+# (a nearly empty hopper right after homing needs ~70 s; a full one < 1 s).
+RAISE_TIMEOUT_FACTOR = 1.2
+RAISE_TIMEOUT_MARGIN_S = 3.0
 
 # Half-step sequence (IN1..IN4)
 _SEQ = (
@@ -105,11 +109,16 @@ def _write_phase(idx: int) -> None:
 
 
 def _release() -> None:
-    """De-energize all four coils (the gearbox holds the load)."""
-    if _MOCK:
+    """De-energize all four coils (the gearbox holds the load). Safe to call
+    after deinit(): it never raises (a RuntimeError from writing a pin that
+    was already cleaned up must not replace the exception that ended a move)."""
+    if _MOCK or not _initialized:
         return
     for pin in STEPPER_PINS:
-        GPIO.output(pin, GPIO.LOW)
+        try:
+            GPIO.output(pin, GPIO.LOW)
+        except Exception as exc:
+            print(f"[elevator] release GPIO {pin} failed: {exc!r}")
 
 
 def _top_pressed() -> bool:
@@ -139,18 +148,24 @@ def _check_period(period_s: float) -> float:
 
 
 def _move(direction: int, max_steps: int, cruise_s: float, stop_when=None,
-          deadline: float | None = None) -> tuple[int, str]:
+          deadline: float | None = None, abort=None) -> tuple[int, str]:
     """
     Step up (+1) or down (-1) at most max_steps half-steps.
     stop_when: callable returning True when the move should end (checked once
-    per step, debounced). Returns (steps_taken, reason) with reason one of
-    "done", "switch", "timeout".
+    per step, debounced). abort: callable returning True to give up (checked
+    once per step). Returns (steps_taken, reason) with reason one of
+    "done", "switch", "timeout", "aborted".
+
+    Pacing: every step waits a full period after the PREVIOUS step's actual
+    time (not an absolute grid), so a scheduler hiccup only makes that one
+    step late and is never followed by a catch-up burst of near-zero dwells
+    (which the 28BYJ-48 would miss).
     """
     global _phase, _pos_steps, _mock_plate_mm
     cruise_s = _check_period(cruise_s)
     hits = 0
     taken = 0
-    next_t = time.perf_counter()
+    last_t = None
     reason = "done"
     try:
         while taken < max_steps:
@@ -159,26 +174,27 @@ def _move(direction: int, max_steps: int, cruise_s: float, stop_when=None,
                 if hits >= DEBOUNCE_READS:
                     reason = "switch"
                     break
+            if abort is not None and abort():
+                reason = "aborted"
+                break
             if deadline is not None and time.perf_counter() > deadline:
                 reason = "timeout"
                 break
+            if not _MOCK and last_t is not None:
+                # linear ramp from RAMP_START_S down to the cruise period
+                if taken < RAMP_STEPS:
+                    period = RAMP_START_S + (cruise_s - RAMP_START_S) * taken / RAMP_STEPS
+                else:
+                    period = cruise_s
+                _wait_until(last_t + _check_period(period))
             _phase = (_phase + direction * UP_DIRECTION) % len(_SEQ)
             _write_phase(_phase)
+            last_t = time.perf_counter()
             taken += 1
             if _pos_steps is not None:
                 _pos_steps += direction
             if _MOCK:
                 _mock_plate_mm += direction / STEPS_PER_MM
-                continue   # no real-time pacing in mock mode
-            # linear ramp from RAMP_START_S down to the cruise period
-            if taken < RAMP_STEPS:
-                period = RAMP_START_S + (cruise_s - RAMP_START_S) * taken / RAMP_STEPS
-            else:
-                period = cruise_s
-            next_t += period
-            _wait_until(next_t)
-            if time.perf_counter() - next_t > period:
-                next_t = time.perf_counter()   # fell behind (scheduler hiccup): don't burst
     finally:
         _release()
     return taken, reason
@@ -202,17 +218,18 @@ def init():
           f"bottom switch GPIO {BOTTOM_SWITCH_PIN}")
 
 
-def home(timeout_s: float = 90.0) -> bool:
+def home(timeout_s: float = 90.0, abort=None) -> bool:
     """
     Lower the floor until the bottom (home) switch closes, then back off
     HOME_BACKOFF_MM and zero the position. Use before loading cards.
-    Returns False if the switch was not reached (stuck, broken wire, timeout).
+    Returns False if the switch was not reached (stuck, broken wire, timeout,
+    or abort() returned True).
     """
     global _pos_steps
     deadline = time.perf_counter() + timeout_s
     if not _bottom_pressed():
         max_steps = int((TRAVEL_MM + HOME_MARGIN_MM) * STEPS_PER_MM)
-        _, reason = _move(-1, max_steps, LOWER_STEP_S, _bottom_pressed, deadline)
+        _, reason = _move(-1, max_steps, LOWER_STEP_S, _bottom_pressed, deadline, abort)
         if reason != "switch":
             print(f"[elevator] home failed ({reason}) — bottom switch never closed")
             _pos_steps = None
@@ -224,29 +241,43 @@ def home(timeout_s: float = 90.0) -> bool:
     return True
 
 
-def raise_to_pick(timeout_s: float = 30.0) -> bool:
+def raise_timeout_s(remaining_steps: int) -> float:
+    """Time allowed to raise `remaining_steps` half-steps: the travel at the
+    raise rate (plus the start ramp) × RAISE_TIMEOUT_FACTOR + a fixed margin."""
+    ramp_extra = RAMP_STEPS * max(0.0, RAMP_START_S - RAISE_STEP_S) / 2
+    nominal = max(0, remaining_steps) * _check_period(RAISE_STEP_S) + ramp_extra
+    return nominal * RAISE_TIMEOUT_FACTOR + RAISE_TIMEOUT_MARGIN_S
+
+
+def raise_to_pick(timeout_s: float | None = None, abort=None) -> bool:
     """
     Step the floor up until the top-of-stack switch closes (top card at
     pick height). Returns True when the card is in position.
-    Returns False on timeout or at the soft top limit — the hopper is empty
-    (the plate passes under the feeler flag through its notch) or jammed.
+    Returns False on timeout, at the soft top limit — the hopper is empty
+    (the plate passes under the feeler flag through its notch) or jammed —
+    or when abort() returns True (shutdown requested; check that first).
+    timeout_s: None = distance-based, raise_timeout_s(remaining travel), so a
+    nearly empty hopper right after homing still reaches pick height.
     """
     if _top_pressed():
         return True
     if _pos_steps is None:
         print("[elevator] not homed — call home() first")
         return False
-    deadline = time.perf_counter() + timeout_s
     remaining = int(MAX_POS_MM * STEPS_PER_MM) - _pos_steps
     if remaining <= 0:
         return False
-    _, reason = _move(+1, remaining, RAISE_STEP_S, _top_pressed, deadline)
+    if timeout_s is None:
+        timeout_s = raise_timeout_s(remaining)
+    deadline = time.perf_counter() + timeout_s
+    _, reason = _move(+1, remaining, RAISE_STEP_S, _top_pressed, deadline, abort)
     if reason == "switch":
         if TRIP_EXTRA_STEPS:
             _move(+1, TRIP_EXTRA_STEPS, RAISE_STEP_S)
         return True
-    print(f"[elevator] raise_to_pick: {'timeout' if reason == 'timeout' else 'top limit'} "
-          f"at {position_mm():.1f} mm — hopper empty or stuck")
+    why = {"timeout": f"timeout ({timeout_s:.0f} s)", "aborted": "aborted"}.get(reason, "top limit")
+    print(f"[elevator] raise_to_pick: {why} at {position_mm():.1f} mm"
+          + ("" if reason == "aborted" else " — hopper empty or stuck"))
     return False
 
 
@@ -278,11 +309,15 @@ def cards_remaining_estimate() -> int:
 
 
 def deinit():
-    """De-energize the coils and free the pins (the gearbox holds the floor)."""
+    """De-energize the coils and free the pins (the gearbox holds the floor).
+    Idempotent. Marks the module uninitialised BEFORE freeing the pins, so a
+    move that is still unwinding only skips its final _release()."""
     global _initialized
     if _MOCK:
         _initialized = False
         return
+    if not _initialized:
+        return
     _release()
-    GPIO.cleanup(list(STEPPER_PINS) + [TOP_SWITCH_PIN, BOTTOM_SWITCH_PIN])
     _initialized = False
+    GPIO.cleanup(list(STEPPER_PINS) + [TOP_SWITCH_PIN, BOTTOM_SWITCH_PIN])

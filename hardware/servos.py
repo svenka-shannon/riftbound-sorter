@@ -1,15 +1,18 @@
 """
 Servo control via PCA9685 (I2C address 0x40, 50Hz PWM).
-Channels (the only servos this code drives):
+Channels:
   0 - Pickup arm    single-servo parallelogram arm (cad/suction_arm.scad):
                     ARM_PICK = cup on the top card in the hopper,
                     ARM_DROP = card 3 mm above the belt at X -95,
                     ARM_PARK = crank straight up (servo 90°)
-  1 - Deflect gate  — floor select: left=lower floor (bins 0-3),
-                      right=upper floor (bins 4-7), center=reject (bin 9)
-  2 - Bin select    — column select: same 4 angles on both floors + reject
+  1, 2 - cradle tilt + shuttle carriage: hardware/shuttle.py (shares this PCA9685)
   3-15 - unused
-Sort-gate levers (cad/sort_gate_lever.scad): 2 — one each on ch1 and ch2.
+
+Shutdown (deinit / release_pca): every channel is set fully OFF (no pulses,
+servos limp) BEFORE Adafruit's PCA9685.deinit(), which only writes MODE1 = 0 —
+that leaves the oscillator running and the last pulses going, and turns
+register auto-increment off (so later 4-byte channel writes would be garbage).
+The chip is then put to sleep (MODE1 SLEEP bit). Call shuttle.deinit() first.
 
 Requires: adafruit-circuitpython-pca9685, adafruit-circuitpython-motor
 """
@@ -99,12 +102,19 @@ def _load_calibration() -> None:
     #  shuttle's, calibrated in config/shuttle_calibration.json)
 
 
-def init():
-    """Initialize PCA9685 and attach servo objects."""
-    global _pca, _servos
+def init(assume_parked: bool = False):
+    """Initialize PCA9685 and attach servo objects.
+
+    assume_parked: the last stop was clean (main.py's machine state file), so
+    the arm rests at ARM_PARK (the calibrated value). The first move then ramps
+    from there instead of jumping. If the arm is really somewhere else, its
+    first PWM command still makes it jump at full speed — hobby servos have no
+    position feedback, so a slow first move cannot be guaranteed."""
+    global _pca, _servos, _arm_angle
 
     # Apply calibration overrides before any hardware move
     _load_calibration()
+    _arm_angle = float(ARM_PARK) if assume_parked else None
 
     if _MOCK:
         print("[servos] MOCK mode — no hardware")
@@ -116,6 +126,8 @@ def init():
         rng = ARM_ACTUATION_RANGE if ch == CH_PICKUP_ARM else 180
         _servos[ch] = adafruit_servo.Servo(_pca.channels[ch], actuation_range=rng,
                                            min_pulse=500, max_pulse=2500)
+    if _arm_angle is not None:
+        _servos[CH_PICKUP_ARM].angle = _arm_angle   # hold the assumed rest pose (no motion if there)
     print("[servos] PCA9685 initialized on I2C 0x40")
 
 
@@ -201,8 +213,36 @@ def reset_all():
     arm_park()
 
 
+PCA_SLEEP = 0x10       # MODE1 SLEEP bit: oscillator off, all outputs off
+
+
+def release_pca(pca) -> None:
+    """All 16 channels fully OFF, then deinit, then sleep. Each step is tried
+    even if an earlier one failed (I2C error)."""
+    errors = []
+    for ch in range(16):
+        try:
+            pca.channels[ch].duty_cycle = 0       # < 0x10 → LEDn_OFF full-off bit
+        except Exception as exc:
+            errors.append(f"ch{ch}: {exc!r}")
+    try:
+        pca.deinit()                              # MODE1 = 0 (auto-increment off)
+    except Exception as exc:
+        errors.append(f"deinit: {exc!r}")
+    try:
+        pca.mode1_reg = PCA_SLEEP                 # 1-byte write, unaffected by auto-increment
+    except Exception as exc:
+        errors.append(f"sleep: {exc!r}")
+    if errors:
+        print(f"[servos] PCA9685 release problems: {'; '.join(errors)}")
+
+
 def deinit():
-    """Release PCA9685."""
+    """Switch every channel off and release the PCA9685 (call shuttle.deinit()
+    first). Idempotent: a second call does nothing."""
+    global _pca
     if _MOCK or not _pca:
         return
-    _pca.deinit()
+    pca, _pca = _pca, None
+    _servos.clear()
+    release_pca(pca)

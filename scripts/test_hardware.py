@@ -68,6 +68,8 @@ def init_hardware(mock: bool) -> None:
         for e in errors:
             print(f"  • {e}")
         print("[test] Tests that use it will fail.\n")
+    if not mock:
+        print(f"[test] camera read-back: {camera.SENSOR_INFO}")
 
 
 # ---------------------------------------------------------------------------
@@ -128,7 +130,7 @@ def _run(test_name: str, body) -> None:
         print(f"  ERROR: {exc!r}")
         passed = False
     finally:
-        for fn in (vacuum.pump_off, conveyor.stop):
+        for fn in (vacuum.pump_off, vacuum.vent_close, conveyor.stop):
             try:
                 fn()
             except Exception:
@@ -170,6 +172,23 @@ def test_vacuum_pump() -> None:
     _run("Vacuum pump 2s cycle", body)
 
 
+def test_vent_valve() -> None:
+    section(f"Test 2b — Vent valve (GPIO {vacuum.VENT_PIN}): pump on, then release()")
+    print("  Hold the cup on a card (or your finger) while the pump runs. release() switches")
+    print(f"  the pump off and opens the NC vent valve for {vacuum.VENT_S:.1f} s: you should hear")
+    print("  the valve click and the suction should vanish at once (not slowly leak away).")
+    wait_for_enter()
+
+    def body():
+        vacuum.pump_on()
+        print("  pump ON (vent closed)")
+        time.sleep(VACUUM_ON_DURATION)
+        vacuum.release()
+        print(f"  pump OFF, vent open {vacuum.VENT_S:.1f} s, vent closed again "
+              f"(vent now {'OPEN' if vacuum.vent_is_open() else 'closed'})")
+    _run("Vent valve release", body)
+
+
 def test_pick_and_place() -> None:
     section("Test 3 — Pick and place one card onto the belt")
     print("  Put ONE card on the hopper stack at pick height. The arm picks it, carries it")
@@ -182,8 +201,9 @@ def test_pick_and_place() -> None:
         time.sleep(0.3)
         servos.arm_to_drop()
         time.sleep(0.1)
-        vacuum.pump_off()
-        time.sleep(0.3)
+        vacuum.release()                       # pump off + vent pulse
+        lift = 10.0 if servos.ARM_PARK >= servos.ARM_DROP else -10.0
+        servos.move_arm_smooth(servos.ARM_DROP + lift, duration_s=0.6)   # slow first lift
         servos.arm_park()
     _run("Pick and place onto belt", body)
 
@@ -196,6 +216,7 @@ def test_shuttle() -> None:
     def body():
         for col in (0, 1, 2, 3, "reject"):
             print(f"  → column {col}")
+            shuttle.hold()                     # the carriage only moves in HOLD
             shuttle.to_column(col)
             shuttle.tip_lower()
             time.sleep(0.3)
@@ -210,7 +231,7 @@ def test_shuttle() -> None:
 
 
 def test_load_cell() -> None:
-    section("Test 5 — Cradle load cell: tare empty in HOLD, then readings")
+    section("Test 5 — Cradle load cell: tare empty in HOLD, then readings (median of 7)")
     wait_for_enter("  Cradle EMPTY? Press Enter to tare...")
 
     def body():
@@ -318,6 +339,7 @@ def test_elevator() -> None:
 TESTS = [
     ("Pick arm (ch0) park / pick / drop", test_pick_arm),
     ("Vacuum pump 2 s", test_vacuum_pump),
+    ("Vent valve release (pump off + vent pulse)", test_vent_valve),
     ("Pick and place one card onto the belt", test_pick_and_place),
     ("Shuttle columns + tips (ch1/ch2)", test_shuttle),
     ("Cradle load cell", test_load_cell),
@@ -363,8 +385,11 @@ def main() -> None:
                 print(f"  Unknown option: {choice!r}")
     finally:
         flush_results()
-        for fn in (vacuum.pump_off, conveyor.stop, servos.arm_park, conveyor.deinit,
-                   shuttle.deinit, elevator.deinit, servos.deinit, vacuum.deinit, camera.deinit):
+        # shuttle.deinit() no longer homes (it leaves the shuttle where it is,
+        # de-energized), so home it explicitly while the PCA9685 is still up.
+        for fn in (vacuum.pump_off, conveyor.stop, servos.arm_park, shuttle.home, conveyor.deinit,
+                   shuttle.deinit, elevator.deinit, servos.deinit, vacuum.deinit,
+                   loadcell.deinit, camera.deinit):
             try:
                 fn()
             except Exception:

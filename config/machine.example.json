@@ -1,0 +1,34 @@
+{
+  "_comment": "Per-machine calibration. Copy to config/machine.json and edit; every key is optional (code defaults shown). See hardware/machine_config.py.",
+  "card_detect": {
+    "TRAVEL_SIGN": 1,
+    "CENTRE_OFFSET_MM": 0.0,
+    "BELT_SPEED_MM_S": 150.0,
+    "BRAKE_COAST_MM": 1.5,
+    "STOP_LATENCY_S": 0.040,
+    "CENTER_TOL_MM": 2.5,
+    "MAX_CAPTURE_OFFSET_MM": 6.0,
+    "PIXEL_DIFF": 30,
+    "COL_FRAC": 0.3,
+    "VIEW_HALF_MM": 48.0
+  },
+  "camera": {
+    "LENS_POSITION": 10.0,
+    "AF_MODE": "manual",
+    "LOCK_AE_AWB": true,
+    "EXPOSURE_TIME_US": null,
+    "ANALOGUE_GAIN": null,
+    "COLOUR_GAINS": null,
+    "CARD_ROTATE": 90
+  },
+  "sort": {
+    "EXIT_TRAVEL_MM": 144.0,
+    "EXIT_TIME_MARGIN": 1.25,
+    "EXIT_MIN_S": 0.6,
+    "EXIT_MAX_S": 3.0,
+    "EXIT_EXTRA_S": 0.4,
+    "ARM_LIFT_DEG": 10.0,
+    "ARM_LIFT_S": 0.6,
+    "CALIBRATION_MASS_G": 5.0
+  }
+}

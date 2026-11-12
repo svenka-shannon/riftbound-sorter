@@ -11,23 +11,39 @@ Routes:
   /api/stats         → JSON stats (for live updates)
   /api/status        → JSON sorter status (state, message, cpm, hopper, bin counts)
   /api/bins          → JSON bin counts + capacity limits
-  POST /api/bins/<n>/empty   → reset bin n's count after emptying it
-  POST /api/bins/empty-all   → reset every bin count
   /api/sessions      → JSON last 5 sort sessions
+
+Mutating endpoints (POST) need the shared-secret token (config/web.json,
+generated on first run and printed; `python main.py --web-token` shows it) in
+an `X-Auth-Token` header or a `token` form field:
+  POST /api/bins/<n>/empty   → reset bin n's count after emptying it
+                               (only the bin the machine is paused on, or any
+                               bin while the machine is paused / stopped)
+  POST /api/bins/empty-all   → reset every bin count (paused / stopped only)
+  POST /api/pause            → pause at the next card boundary
+  POST /api/resume           → resume (after pause / stop / refilled hopper)
+  POST /api/stop             → stop sorting at the next card boundary
+  POST /api/confirm-clear    → operator checked the machine after an unclean stop / jam
+  POST /rules                → validate, save and hot-reload the rules
 """
 
 from flask import Flask, render_template_string, jsonify, request, send_file, Response
+from functools import wraps
 from pathlib import Path
 import csv
 import io
 import json
+import os
 import sqlite3
+import tempfile
 import time
 
 from api import inventory
 from sorter.rules_engine import RulesEngine
 
-RULES_FILE = Path("config/rules.json")
+RULES_FILE = Path(__file__).resolve().parent.parent / "config" / "rules.json"
+VALID_BINS = set(range(8)) | {9}
+MATCH_VALUE_TYPES = (str, int, float, bool)
 DB_PATH = Path(__file__).parent.parent / "data/inventory.db"
 
 
@@ -132,8 +148,89 @@ def get_session_history(n: int = 5) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# Rules validation
+# ---------------------------------------------------------------------------
+
+def validate_rules(cfg) -> list[str]:
+    """Problems with a rules config (empty list = valid). Checked before saving,
+    so the running engine never loads something it would misread."""
+    errors = []
+    if not isinstance(cfg, dict):
+        return ["top level must be a JSON object"]
+    reject = cfg.get("_reject_bin", 9)
+    if not isinstance(reject, int) or isinstance(reject, bool) or reject != 9:
+        errors.append("_reject_bin must be 9 (the physical reject bin)")
+    bc = cfg.get("_bin_count", 8)
+    if not isinstance(bc, int) or isinstance(bc, bool) or not 1 <= bc <= 8:
+        errors.append("_bin_count must be an integer 1..8")
+    rules = cfg.get("rules")
+    if not isinstance(rules, list):
+        return errors + ['"rules" must be a list']
+    for i, rule in enumerate(rules):
+        where = f"rule {i + 1}"
+        if not isinstance(rule, dict):
+            errors.append(f"{where}: must be an object")
+            continue
+        if "name" in rule and not isinstance(rule["name"], str):
+            errors.append(f"{where}: name must be a string")
+        b = rule.get("bin")
+        if not isinstance(b, int) or isinstance(b, bool) or b not in VALID_BINS:
+            errors.append(f"{where}: bin must be 0-7 or 9 (got {b!r})")
+        match = rule.get("match", {})
+        if not isinstance(match, dict):
+            errors.append(f"{where}: match must be an object")
+            continue
+        for field, expected in match.items():
+            if field == "default":
+                if not isinstance(expected, bool):
+                    errors.append(f"{where}: match.default must be true/false")
+                continue
+            vals = expected if isinstance(expected, list) else [expected]
+            if isinstance(expected, list) and not expected:
+                errors.append(f"{where}: match.{field} is an empty list")
+            if not all(isinstance(v, MATCH_VALUE_TYPES) for v in vals):
+                errors.append(f"{where}: match.{field} values must be strings / numbers / booleans")
+    return errors
+
+
+def _write_atomic(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    with os.fdopen(fd, "w") as fh:
+        fh.write(text)
+    os.replace(tmp, path)
+
+
+# ---------------------------------------------------------------------------
 # HTML templates
 # ---------------------------------------------------------------------------
+
+NAV_AND_TOKEN_JS = """
+    function esc(v) {
+      return String(v == null ? '' : v).replace(/[&<>"']/g, function(c) {
+        return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c];
+      });
+    }
+    function getToken(ask) {
+      let t = localStorage.getItem('rbToken');
+      if ((!t || ask) ) {
+        t = prompt('Web UI token (shown by `python main.py --web-token`):') || '';
+        if (t) localStorage.setItem('rbToken', t);
+      }
+      return t || '';
+    }
+    async function post(url) {
+      let r = await fetch(url, {method: 'POST', headers: {'X-Auth-Token': getToken(false)}});
+      if (r.status === 401) {
+        r = await fetch(url, {method: 'POST', headers: {'X-Auth-Token': getToken(true)}});
+      }
+      if (!r.ok) {
+        const d = await r.json().catch(function() { return {}; });
+        alert(d.error || ('Request failed: ' + r.status));
+      }
+      return r;
+    }
+"""
 
 DASHBOARD_HTML = """<!DOCTYPE html>
 <html>
@@ -177,6 +274,14 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   <div class="banner" id="hopper-banner">&#x26a0;&#xfe0f; Hopper empty — please refill</div>
   <div class="banner" id="state-banner"></div>
 
+  <div style="margin: 12px 0; display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+    <span>State: <b id="state">–</b></span>
+    <button class="empty-btn" onclick="control('pause')">Pause</button>
+    <button class="empty-btn" onclick="control('resume')">Resume</button>
+    <button class="empty-btn" onclick="control('stop')">Stop</button>
+    <button class="empty-btn" style="background:#da3633" onclick="confirmClear()">Machine clear</button>
+  </div>
+
   <div class="cards" id="stats-cards">
     <div class="card"><div class="num" id="total">–</div><div class="lbl">Cards Sorted</div></div>
     <div class="card"><div class="num" id="unique">–</div><div class="lbl">Unique Cards</div></div>
@@ -216,7 +321,20 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   </table>
 
   <script>
+    {{ common_js|safe }}
     let currentCpm = 0;
+
+    async function control(what) {
+      if (what === 'stop' && !confirm('Stop sorting after the current card?')) return;
+      await post('/api/' + what);
+      pollStatus();
+    }
+
+    async function confirmClear() {
+      if (!confirm('Arm, belt and cradle checked and clear (any card removed)? The sorter restarts.')) return;
+      await post('/api/confirm-clear');
+      pollStatus();
+    }
 
     async function refresh() {
       const r = await fetch('/api/stats');
@@ -227,7 +345,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       document.getElementById('today').textContent = d.total_today != null ? d.total_today : '–';
       const tb = document.querySelector('#bin-table tbody');
       tb.innerHTML = Object.entries(d.by_bin).map(([b, n]) =>
-        '<tr><td><span class="badge">Bin ' + b + '</span></td><td>' + n + '</td></tr>'
+        '<tr><td><span class="badge">Bin ' + esc(b) + '</span></td><td>' + esc(n) + '</td></tr>'
       ).join('');
     }
 
@@ -238,7 +356,9 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         const banner = document.getElementById('hopper-banner');
         banner.style.display = d.hopper_empty ? 'block' : 'none';
         const sb = document.getElementById('state-banner');
-        const alertStates = ['jam', 'paused', 'error'];
+        document.getElementById('state').textContent = d.state +
+          (d.pause_requested ? ' (pause requested)' : '') + (d.stop_requested ? ' (stop requested)' : '');
+        const alertStates = ['jam', 'paused', 'error', 'needs_confirm'];
         if (alertStates.indexOf(d.state) !== -1 && d.message) {
           sb.textContent = '\u26a0\ufe0f ' + d.state.toUpperCase() + ': ' + d.message;
           sb.style.display = 'block';
@@ -257,23 +377,24 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         const n = counts[b] || 0, lim = limits[b];
         const full = n >= lim;
         const label = b === '9' ? 'Bin 9 (reject)' : 'Bin ' + b;
-        return '<tr><td><span class="badge">' + label + '</span>' +
+        const bn = parseInt(b, 10);
+        return '<tr><td><span class="badge">' + esc(label) + '</span>' +
           (String(pausedBin) === b ? ' <span class="full">waiting</span>' : '') + '</td>' +
-          '<td class="' + (full ? 'full' : '') + '">' + n + '</td><td>' + lim + '</td>' +
-          '<td><button class="empty-btn" onclick="emptyBin(' + b + ')">Emptied</button></td></tr>';
+          '<td class="' + (full ? 'full' : '') + '">' + esc(n) + '</td><td>' + esc(lim) + '</td>' +
+          '<td><button class="empty-btn" onclick="emptyBin(' + bn + ')">Emptied</button></td></tr>';
       });
       document.getElementById('capacity-tbody').innerHTML = rows.join('');
     }
 
     async function emptyBin(b) {
       if (!confirm('Bin ' + b + ' is physically empty? The sorter resumes if it was waiting on it.')) return;
-      await fetch('/api/bins/' + b + '/empty', {method: 'POST'});
+      await post('/api/bins/' + b + '/empty');
       pollStatus();
     }
 
     async function emptyAll() {
       if (!confirm('ALL bins are physically empty?')) return;
-      await fetch('/api/bins/empty-all', {method: 'POST'});
+      await post('/api/bins/empty-all');
       pollStatus();
     }
 
@@ -301,7 +422,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
           return;
         }
         tbody.innerHTML = sessions.map(s =>
-          '<tr><td>' + s.date + '</td><td>' + s.count + '</td><td>' + s.duration + '</td></tr>'
+          '<tr><td>' + esc(s.date) + '</td><td>' + esc(s.count) + '</td><td>' + esc(s.duration) + '</td></tr>'
         ).join('');
       } catch(e) {
         document.getElementById('session-tbody').innerHTML =
@@ -382,7 +503,7 @@ INVENTORY_HTML = """<!DOCTYPE html>
     <input type="text" id="search" placeholder="Search by card name…" oninput="applyFilters()">
     <select id="bin-filter" onchange="applyFilters()">
       <option value="">All bins</option>
-      {{ bin_options|safe }}
+      {% for b in bins %}<option value="{{ b }}">Bin {{ b }}</option>{% endfor %}
     </select>
     <span id="count-label"></span>
   </div>
@@ -391,21 +512,23 @@ INVENTORY_HTML = """<!DOCTYPE html>
     <tbody id="tbody"></tbody>
   </table>
   <script>
-    const CARDS = {{ cards_json|safe }};
+    {{ common_js|safe }}
+    const CARDS = {{ cards|tojson }};
 
     function applyFilters() {
       const q   = document.getElementById('search').value.toLowerCase();
       const bin = document.getElementById('bin-filter').value;
       const rows = CARDS.filter(function(c) {
-        if (q && c.name.toLowerCase().indexOf(q) === -1) return false;
+        if (q && String(c.name || '').toLowerCase().indexOf(q) === -1) return false;
         if (bin && String(c.bin) !== bin) return false;
         return true;
       });
       document.getElementById('tbody').innerHTML = rows.map(function(c) {
         var binCell = c.bin != null
-          ? '<span class="badge">Bin ' + c.bin + '</span>'
+          ? '<span class="badge">Bin ' + esc(c.bin) + '</span>'
           : '<span style="color:#8b949e">—</span>';
-        return '<tr><td>' + c.id + '</td><td>' + c.name + '</td><td>' + c.count + '</td><td>' + binCell + '</td></tr>';
+        return '<tr><td>' + esc(c.id) + '</td><td>' + esc(c.name) + '</td><td>' + esc(c.count) +
+               '</td><td>' + binCell + '</td></tr>';
       }).join('');
       document.getElementById('count-label').textContent =
         'Showing ' + rows.length + ' of ' + CARDS.length;
@@ -417,32 +540,82 @@ INVENTORY_HTML = """<!DOCTYPE html>
 </html>"""
 
 
+RULES_HTML = """<!DOCTYPE html>
+<html>
+<head>
+  <title>Rules — Riftbound</title>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: monospace; background: #0d1117; color: #e6edf3; padding: 20px; }
+    h1 { color: #58a6ff; }
+    nav a { color: #58a6ff; margin-right: 16px; text-decoration: none; }
+    textarea { width: 100%; background: #161b22; color: #e6edf3; border: 1px solid #30363d;
+               padding: 12px; font-family: monospace; font-size: 13px; }
+    input { background: #161b22; color: #e6edf3; border: 1px solid #30363d; padding: 6px; }
+    button { background: #1f6feb; color: white; border: none; padding: 8px 20px;
+             border-radius: 6px; cursor: pointer; margin-top: 8px; }
+    .ok { color: #3fb950; } .err { color: #f85149; }
+  </style>
+</head>
+<body>
+  <h1>&#x1f0cf; Rules Editor</h1>
+  <nav>
+    <a href="/">Dashboard</a>
+    <a href="/inventory">Inventory</a>
+    <a href="/rules">Rules</a>
+    <a href="/export">Export CSV</a>
+    <a href="/export/tcgplayer">Export TCGPlayer</a>
+  </nav>
+  {% if saved %}<p class="ok">Rules saved; the sorter reloads them before the next card.</p>{% endif %}
+  {% if errors %}<div class="err"><p>Not saved:</p><ul>
+    {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+  </ul></div>{% endif %}
+  <form method="POST" onsubmit="document.getElementById('tok').value = document.getElementById('tok').value || getToken(false)">
+    <textarea name="rules_json" rows="30">{{ current }}</textarea><br>
+    <label>Token <input type="password" name="token" id="tok"></label>
+    <button type="submit">Save Rules</button>
+  </form>
+  <script>
+    {{ common_js|safe }}
+    document.getElementById('tok').value = localStorage.getItem('rbToken') || '';
+  </script>
+</body>
+</html>"""
+
+
 # ---------------------------------------------------------------------------
 # Flask app factory
 # ---------------------------------------------------------------------------
 
-def create_app() -> Flask:
+def create_app(token: str | None = None) -> Flask:
+    """token: shared secret for the mutating endpoints (default: config/web.json,
+    generated on first use)."""
+    import main as sorter_main
     app = Flask(__name__)
+    app.config["AUTH_TOKEN"] = token or sorter_main.load_or_create_web_token()
+
+    def require_token(fn):
+        @wraps(fn)
+        def wrapper(*a, **k):
+            given = request.headers.get("X-Auth-Token") or request.form.get("token")
+            if not sorter_main.check_web_token(given, app.config["AUTH_TOKEN"]):
+                return jsonify({"error": "missing or wrong token (python main.py --web-token)"}), 401
+            return fn(*a, **k)
+        return wrapper
 
     @app.route("/")
     def dashboard():
-        return render_template_string(DASHBOARD_HTML)
+        return render_template_string(DASHBOARD_HTML, common_js=NAV_AND_TOKEN_JS)
 
     @app.route("/api/stats")
     def api_stats():
         stats = inventory.get_session_stats()
-        try:
-            import main as sorter_main
-            stats["cards_per_minute"] = sorter_main._status.get("cards_per_minute", 0.0)
-            stats["total_today"] = sorter_main._status.get("total_today", 0)
-        except Exception:
-            stats.setdefault("cards_per_minute", 0.0)
-            stats.setdefault("total_today", 0)
+        stats["cards_per_minute"] = sorter_main._status.get("cards_per_minute", 0.0)
+        stats["total_today"] = sorter_main._status.get("total_today", 0)
         return jsonify(stats)
 
     @app.route("/api/status")
     def api_status():
-        import main as sorter_main
         elapsed = time.time() - sorter_main._session_start
         bins = sorter_main._bins.snapshot()
         cpm = round(sorter_main._stats["total"] / elapsed * 60, 1) if elapsed > 0 else 0.0
@@ -454,27 +627,58 @@ def create_app() -> Flask:
             "stats": dict(sorter_main._stats),
             "bin_counts": bins["counts"],
             "bin_limits": bins["limits"],
+            "machine_state": sorter_main.read_machine_state(),
         })
 
     @app.route("/api/bins")
     def api_bins():
-        import main as sorter_main
         return jsonify(sorter_main._bins.snapshot())
 
     @app.route("/api/bins/<int:bin_num>/empty", methods=["POST"])
+    @require_token
     def api_bin_empty(bin_num):
-        import main as sorter_main
-        try:
-            sorter_main.empty_bin(bin_num)
-        except ValueError as exc:
-            return jsonify({"error": str(exc)}), 400
+        if bin_num not in sorter_main._bins.limits:
+            return jsonify({"error": f"unknown bin {bin_num}"}), 400
+        ok, why = sorter_main.can_empty_bin(bin_num)
+        if not ok:
+            return jsonify({"error": why}), 409
+        sorter_main.empty_bin(bin_num)
         return jsonify(sorter_main._bins.snapshot())
 
     @app.route("/api/bins/empty-all", methods=["POST"])
+    @require_token
     def api_bins_empty_all():
-        import main as sorter_main
+        ok, why = sorter_main.can_empty_bin(None)
+        if not ok:
+            return jsonify({"error": why}), 409
         sorter_main.empty_all_bins()
         return jsonify(sorter_main._bins.snapshot())
+
+    @app.route("/api/pause", methods=["POST"])
+    @require_token
+    def api_pause():
+        sorter_main.request_pause()
+        return jsonify({"ok": True, "state": sorter_main._status["state"]})
+
+    @app.route("/api/resume", methods=["POST"])
+    @require_token
+    def api_resume():
+        sorter_main.request_resume()
+        return jsonify({"ok": True, "state": sorter_main._status["state"]})
+
+    @app.route("/api/stop", methods=["POST"])
+    @require_token
+    def api_stop():
+        sorter_main.request_stop()
+        return jsonify({"ok": True, "state": sorter_main._status["state"]})
+
+    @app.route("/api/confirm-clear", methods=["POST"])
+    @require_token
+    def api_confirm_clear():
+        if sorter_main._status.get("state") not in sorter_main.IDLE_STATES:
+            return jsonify({"error": "machine is running — stop it first"}), 409
+        sorter_main.confirm_clear("web")
+        return jsonify({"ok": True})
 
     @app.route("/api/sessions")
     def api_sessions():
@@ -482,7 +686,6 @@ def create_app() -> Flask:
 
     @app.route("/api/throughput")
     def api_throughput():
-        import main as sorter_main
         now = time.time()
         scans = list(sorter_main._recent_scans)
         # 12 buckets of 5 s each covering the last 60 s
@@ -501,64 +704,34 @@ def create_app() -> Flask:
     @app.route("/inventory")
     def inv_page():
         rows = get_inventory_with_bins(limit=1000)
-        bins = get_distinct_bins()
-        cards_json = json.dumps([
-            {"id": r["card_id"], "name": r["card_name"],
-             "count": r["count"], "bin": r["primary_bin"]}
-            for r in rows
-        ])
-        bin_options = "".join(
-            f'<option value="{b}">Bin {b}</option>' for b in bins
-        )
-        return render_template_string(
-            INVENTORY_HTML,
-            cards_json=cards_json,
-            bin_options=bin_options,
-        )
+        cards = [{"id": r["card_id"], "name": r["card_name"],
+                  "count": r["count"], "bin": r["primary_bin"]} for r in rows]
+        bins = [int(b) for b in get_distinct_bins() if b is not None]
+        return render_template_string(INVENTORY_HTML, cards=cards, bins=bins,
+                                      common_js=NAV_AND_TOKEN_JS)
 
-    @app.route("/rules", methods=["GET", "POST"])
+    @app.route("/rules", methods=["GET"])
     def rules_page():
-        if request.method == "POST":
-            try:
-                new_rules = json.loads(request.form["rules_json"])
-                RULES_FILE.write_text(json.dumps(new_rules, indent=2))
-                msg = "<p style='color:#3fb950'>Rules saved.</p>"
-            except Exception as e:
-                msg = f"<p style='color:#f85149'>Error: {e}</p>"
-        else:
-            msg = ""
         current = RULES_FILE.read_text() if RULES_FILE.exists() else "{}"
-        return f"""<!DOCTYPE html>
-<html>
-<head>
-  <title>Rules — Riftbound</title>
-  <meta charset="utf-8">
-  <style>
-    body {{ font-family: monospace; background: #0d1117; color: #e6edf3; padding: 20px; }}
-    h1 {{ color: #58a6ff; }}
-    nav a {{ color: #58a6ff; margin-right: 16px; text-decoration: none; }}
-    textarea {{ width: 100%; background: #161b22; color: #e6edf3; border: 1px solid #30363d;
-                padding: 12px; font-family: monospace; font-size: 13px; }}
-    button {{ background: #1f6feb; color: white; border: none; padding: 8px 20px;
-              border-radius: 6px; cursor: pointer; margin-top: 8px; }}
-  </style>
-</head>
-<body>
-  <h1>&#x1f0cf; Rules Editor</h1>
-  <nav>
-    <a href="/">Dashboard</a>
-    <a href="/inventory">Inventory</a>
-    <a href="/rules">Rules</a>
-    <a href="/export">Export CSV</a>
-    <a href="/export/tcgplayer">Export TCGPlayer</a>
-  </nav>
-  {msg}
-  <form method="POST">
-    <textarea name="rules_json" rows="30">{current}</textarea><br>
-    <button type="submit">Save Rules</button>
-  </form>
-</body>
-</html>"""
+        return render_template_string(RULES_HTML, current=current, saved=False, errors=[],
+                                      common_js=NAV_AND_TOKEN_JS)
+
+    @app.route("/rules", methods=["POST"])
+    @require_token
+    def rules_save():
+        text = request.form.get("rules_json", "")
+        try:
+            new_rules = json.loads(text)
+            errors = validate_rules(new_rules)
+        except ValueError as e:
+            errors = [f"invalid JSON: {e}"]
+        if errors:
+            return render_template_string(RULES_HTML, current=text, saved=False, errors=errors,
+                                          common_js=NAV_AND_TOKEN_JS), 400
+        _write_atomic(RULES_FILE, json.dumps(new_rules, indent=2) + "\n")
+        sorter_main.request_rules_reload()
+        return render_template_string(RULES_HTML, current=RULES_FILE.read_text(), saved=True,
+                                      errors=[], common_js=NAV_AND_TOKEN_JS)
 
     @app.route("/export")
     def export():

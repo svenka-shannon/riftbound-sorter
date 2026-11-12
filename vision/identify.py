@@ -32,6 +32,19 @@ Recommended MIN_CONF settings:
   0.80  → normal  — good matches (distance ≤ 51); balanced precision/recall  ← recommended
   0.75  → loose   — includes borderline matches (distance ≤ 64); may produce false positives
 
+Ambiguity margin:
+  A match is only accepted if the runner-up is clearly worse: its hamming
+  distance must exceed the best one by at least MIN_MARGIN_BITS. Two cards
+  with similar art (or a near-duplicate entry) otherwise get confused and the
+  card is sorted into the wrong bin; with this check it goes to the reject
+  bin instead ("when in doubt, reject"). Note that DB entries with IDENTICAL
+  art (same hash, different riftbound_id) can never pass the margin and are
+  always rejected.
+  0 disables the check. Tune together with MIN_CONF from the same labelled
+  sample (true-match margins vs. the margins of confusable pairs).
+
+Overrides: config/identify.json  {"min_conf": 0.80, "min_margin_bits": 10}
+
 Fallback hash methods:
   If phash confidence < MIN_CONF, ahash and dhash are tried automatically.
   ahash (average hash) — fast, robust to brightness changes.
@@ -52,9 +65,29 @@ from PIL import Image
 import imagehash
 
 HASH_DB_FILE = Path(__file__).parent.parent / "data" / "hash_db.json"
+CONFIG_FILE  = Path(__file__).parent.parent / "config" / "identify.json"
 HASH_SIZE    = 16      # pHash/ahash/dhash size (16×16 = 256-bit hash)
 MIN_CONF     = 0.80    # below this confidence → reject (unknown card)
                        # See tuning guide above; 0.80 ≈ distance ≤ 51
+MIN_MARGIN_BITS = 10   # runner-up must be ≥ this many bits further away, else reject
+
+
+def load_config() -> None:
+    """Apply config/identify.json overrides (min_conf, min_margin_bits)."""
+    global MIN_CONF, MIN_MARGIN_BITS
+    if not CONFIG_FILE.exists():
+        return
+    try:
+        cfg = json.loads(CONFIG_FILE.read_text())
+        if "min_conf" in cfg:
+            MIN_CONF = float(cfg["min_conf"])
+        if "min_margin_bits" in cfg:
+            MIN_MARGIN_BITS = int(cfg["min_margin_bits"])
+    except Exception as exc:
+        print(f"[identify] Warning: could not read {CONFIG_FILE}: {exc}")
+
+
+load_config()
 
 _hash_db: dict[str, str] = {}          # riftbound_id → hex phash string
 _hash_db_ahash: dict[str, str] = {}    # riftbound_id → hex ahash string
@@ -134,9 +167,9 @@ def _best_matches(query_hash, db: dict[str, str], top_n: int = 3) -> list[dict]:
     results = []
     for card_id, hash_str in db.items():
         stored = imagehash.hex_to_hash(hash_str)
-        dist = query_hash - stored
+        dist = int(query_hash - stored)
         results.append({"card_id": card_id, "distance": dist,
-                         "confidence": 1.0 - dist / max_dist})
+                         "confidence": float(1.0 - dist / max_dist)})
     results.sort(key=lambda x: x["distance"])
     return results[:top_n]
 
@@ -159,46 +192,50 @@ def identify_with_details(jpeg_bytes: bytes) -> dict:
       }
 
     Identification strategy:
-      1. Try phash; if confidence ≥ MIN_CONF, return result.
-      2. If phash fails threshold, try ahash and dhash.
-      3. Return the method with the highest confidence across all three.
+      1. Try phash; accept if confidence ≥ MIN_CONF AND the runner-up is at
+         least MIN_MARGIN_BITS further away.
+      2. Otherwise also try ahash and dhash.
+      3. Return the most confident accepted method; if none is accepted,
+         card_id is None (reject) — "ambiguous" tells a margin failure apart.
     """
     if not _hash_db:
         raise RuntimeError("Hash DB not loaded. Call build_hash_db() first.")
 
     img = Image.open(io.BytesIO(jpeg_bytes)).convert("RGB")
 
-    candidates: list[dict] = []  # each: {method, top_match, top3}
+    candidates: list[dict] = []  # each: {method, top_match, top3, margin, ok}
+
+    def _add(method, top):
+        if not top:
+            return
+        margin = int(top[1]["distance"] - top[0]["distance"]) if len(top) > 1 else HASH_SIZE * HASH_SIZE
+        ok = bool(top[0]["confidence"] >= MIN_CONF and margin >= MIN_MARGIN_BITS)
+        candidates.append({"method": method, "top_match": top[0], "top3": top,
+                           "margin": margin, "ok": ok})
 
     # --- phash ---
-    ph = imagehash.phash(img, hash_size=HASH_SIZE)
-    ph_top = _best_matches(ph, _hash_db)
-    if ph_top:
-        candidates.append({"method": "phash", "top_match": ph_top[0], "top3": ph_top})
+    _add("phash", _best_matches(imagehash.phash(img, hash_size=HASH_SIZE), _hash_db))
 
-    # --- fallback: ahash and dhash if phash confidence is below threshold ---
-    if not candidates or candidates[0]["top_match"]["confidence"] < MIN_CONF:
+    # --- fallback: ahash and dhash if phash is below threshold or ambiguous ---
+    if not candidates or not candidates[0]["ok"]:
         if _hash_db_ahash:
-            ah = imagehash.average_hash(img, hash_size=HASH_SIZE)
-            ah_top = _best_matches(ah, _hash_db_ahash)
-            if ah_top:
-                candidates.append({"method": "ahash", "top_match": ah_top[0], "top3": ah_top})
-
+            _add("ahash", _best_matches(imagehash.average_hash(img, hash_size=HASH_SIZE), _hash_db_ahash))
         if _hash_db_dhash:
-            dh = imagehash.dhash(img, hash_size=HASH_SIZE)
-            dh_top = _best_matches(dh, _hash_db_dhash)
-            if dh_top:
-                candidates.append({"method": "dhash", "top_match": dh_top[0], "top3": dh_top})
+            _add("dhash", _best_matches(imagehash.dhash(img, hash_size=HASH_SIZE), _hash_db_dhash))
 
     if not candidates:
         return {"card_id": None, "card_name": None, "confidence": 0.0,
-                "hamming_distance": HASH_SIZE * HASH_SIZE, "method": "phash", "top3": []}
+                "hamming_distance": HASH_SIZE * HASH_SIZE, "method": "phash", "top3": [],
+                "margin": 0, "ambiguous": False}
 
-    # Pick the candidate with the highest confidence
-    best = max(candidates, key=lambda c: c["top_match"]["confidence"])
+    # Best accepted candidate (confident AND unambiguous); else report the most
+    # confident one, rejected.
+    accepted = [c for c in candidates if c["ok"]]
+    best = max(accepted or candidates, key=lambda c: c["top_match"]["confidence"])
     top  = best["top_match"]
     conf = top["confidence"]
-    cid  = top["card_id"] if conf >= MIN_CONF else None
+    cid  = top["card_id"] if best["ok"] else None
+    ambiguous = bool(conf >= MIN_CONF and best["margin"] < MIN_MARGIN_BITS)
 
     return {
         "card_id":          cid,
@@ -207,6 +244,8 @@ def identify_with_details(jpeg_bytes: bytes) -> dict:
         "hamming_distance": top["distance"],
         "method":           best["method"],
         "top3":             best["top3"],
+        "margin":           best["margin"],
+        "ambiguous":        ambiguous,
     }
 
 

@@ -35,9 +35,22 @@ it as a jam). The belt is stopped on ANY exception.
 
 Accuracy (assumptions): position error per frame ≈ lores pixel (0.4 mm) +
 edge blur; the stopping error is dominated by speed × frame interval / 2
-(150 mm/s, 60 fps → ±1.25 mm) plus brake coast variation (~±1 mm). The
+(150 mm/s, 50 fps → ±1.5 mm) plus brake coast variation (~±1 mm). The
 stationary re-measure + nudge pulls a short stop back inside CENTER_TOL_MM;
 an overshoot of up to MAX_CAPTURE_OFFSET_MM is absorbed by the crop shift.
+
+Timing (camera at DETECT_FPS = 50 in the full-FOV 2304×1296 binned mode):
+STOP_LATENCY_S is the age of the newest frame when the brake takes effect —
+the frame is exposed mid-period, read out (one frame time) and handed to
+Python through the request queue, then measured (~5 ms on a Zero 2W) — so
+about 1.5 frame periods + processing ≈ 40 ms, not the 25 ms assumed at 60 fps.
+Calibrate it: run test_hardware.py test 9 at the nominal belt speed and adjust
+STOP_LATENCY_S until the mean stationary offset is ~0.
+
+mm per pixel come from camera.FOV_X_MM, which camera.init() derives from the
+sensor crop actually in use (so a cropped sensor mode cannot silently scale
+every distance by 2/3). The usable window is the smaller of the hood interior
+(VIEW_HALF_MM) and half the imaged field.
 
 MOCK mode: frames are synthesised from MOCK_SCENE (a card moving at
 MOCK_SCENE.speed_mm_s while the belt runs) on a simulated clock.
@@ -76,7 +89,7 @@ LEN_TOL_MM = 10.0           # both edges seen: length must be 88 ± this
 
 # ── Belt / stopping ──────────────────────────────────────────────────────────
 BELT_SPEED_MM_S = 150.0     # nominal belt speed at conveyor.DEFAULT_SPEED (calibrate)
-STOP_LATENCY_S = 0.025      # frame exposure → brake taking effect
+STOP_LATENCY_S = 0.040      # frame exposure → brake taking effect (≈1.5 frames @ 50 fps + processing)
 BRAKE_COAST_MM = 1.5        # travel after conveyor.brake()
 CENTER_TOL_MM = 2.5         # stationary offset accepted without a nudge
 MAX_NUDGES = 2
@@ -89,14 +102,28 @@ MAX_CAPTURE_OFFSET_MM = 6.0  # |final offset| above this → result.ok is False
 # Give up before the card can reach the belt end: drop centre X −95 → centre at
 # X +30 is 125 mm (leading edge X 74 < belt end 85) at the nominal speed.
 SEEK_MAX_TRAVEL_MM = 125.0
-SEEK_TIMEOUT_S = SEEK_MAX_TRAVEL_MM / BELT_SPEED_MM_S
 # Once the card is seen, a slower-than-nominal belt may take longer; LOST_FRAMES and
 # OVERRUN_MM guard that phase, plus a hard cap of this many × SEEK_TIMEOUT_S.
 SEEK_HARD_LIMIT_FACTOR = 3.0
 
+# Per-machine calibration: config/machine.json "card_detect" section (code values above
+# are the defaults).
+import sys as _sys
+from hardware import machine_config as _machine_config
+_machine_config.apply(_sys.modules[__name__], "card_detect", (
+    "TRAVEL_SIGN", "CENTRE_OFFSET_MM", "BELT_SPEED_MM_S", "BRAKE_COAST_MM", "STOP_LATENCY_S",
+    "CENTER_TOL_MM", "MAX_CAPTURE_OFFSET_MM", "PIXEL_DIFF", "COL_FRAC", "VIEW_HALF_MM",
+    "SEEK_MAX_TRAVEL_MM", "SEEK_HARD_LIMIT_FACTOR"))
+SEEK_TIMEOUT_S = SEEK_MAX_TRAVEL_MM / BELT_SPEED_MM_S
+
 
 def _mm_per_px(width: int) -> float:
     return camera.FOV_X_MM / width
+
+
+def _view_half_mm() -> float:
+    """Half-width of the usable window: hood interior, or the imaged field if narrower."""
+    return min(VIEW_HALF_MM, camera.FOV_X_MM / 2 - 1.0)
 
 
 def col_to_mm(col: float, width: int) -> float:
@@ -128,6 +155,7 @@ class CentreResult:
     frames: int = 0
     elapsed_s: float = 0.0
     nudges: int = 0
+    seen: bool = True                  # False: the card never appeared on the belt
 
     @property
     def jam(self) -> bool:
@@ -150,7 +178,8 @@ def measure(luma: np.ndarray, reference: np.ndarray) -> Detection:
     diff = np.abs(luma[r0:r1].astype(np.int16) - reference[r0:r1].astype(np.int16)) > PIXEL_DIFF
     cols = diff.mean(axis=0) >= COL_FRAC
     pos = col_to_mm(np.arange(w), w)
-    cols &= np.abs(pos) <= VIEW_HALF_MM
+    view_half = _view_half_mm()
+    cols &= np.abs(pos) <= view_half
 
     mmpp = _mm_per_px(w)
     runs = _runs(cols)
@@ -169,8 +198,8 @@ def measure(luma: np.ndarray, reference: np.ndarray) -> Detection:
     a = col_to_mm(s - 0.5, w)      # outer boundaries of the end pixels
     b = col_to_mm(e - 0.5, w)
     trail, lead = min(a, b), max(a, b)
-    lead_ok = lead < VIEW_HALF_MM - EDGE_MARGIN_MM
-    trail_ok = trail > -VIEW_HALF_MM + EDGE_MARGIN_MM
+    lead_ok = lead < view_half - EDGE_MARGIN_MM
+    trail_ok = trail > -view_half + EDGE_MARGIN_MM
     det = Detection(True,
                     lead_mm=lead if lead_ok else None,
                     trail_mm=trail if trail_ok else None)
@@ -355,7 +384,7 @@ def centre_card(reference: np.ndarray, run, brake, stop, source=None,
             waited = source.now() - t0
             if (not seen and waited > timeout_s) or waited > SEEK_HARD_LIMIT_FACTOR * timeout_s:
                 _brake()
-                return CentreResult(False, "timeout", None, speed_seen, frames, waited)
+                return CentreResult(False, "timeout", None, speed_seen, frames, waited, seen=seen)
             luma = source.grab()
             t = source.now()
             frames += 1

@@ -264,20 +264,24 @@ def test_bin_counts_persist_and_cli_reset(rig, monkeypatch, capsys):
 def test_bin_limits_configurable(tmp_path):
     (tmp_path / "limits.json").write_text('{"4": 10, "9": 20}')
     b = main.BinCounts(tmp_path / "c.json", tmp_path / "limits.json", main.DEFAULT_BIN_LIMITS)
-    assert b.limits[4] == 10 and b.limits[9] == 20 and b.limits[0] == 50
+    assert b.limits[4] == 10 and b.limits[9] == 20 and b.limits[0] == main.DEFAULT_BIN_LIMITS[0] == 40
 
 
 def test_web_reset_bin(rig):
+    """Bin resets over the web need the token and a paused / stopped machine
+    (audit M7); with both, behaviour is unchanged."""
     from web.app import create_app
-    client = create_app().test_client()
+    client = create_app(token="t0k").test_client()
+    auth = {"X-Auth-Token": "t0k"}
     main._bins.increment(3)
     st = client.get("/api/status").get_json()
     assert st["bin_counts"]["3"] == 1 and st["bin_limits"]["9"] == 35
-    r = client.post("/api/bins/3/empty")
+    main._set_state("stopped")
+    r = client.post("/api/bins/3/empty", headers=auth)
     assert r.status_code == 200 and r.get_json()["counts"]["3"] == 0
-    assert client.post("/api/bins/8/empty").status_code == 400
+    assert client.post("/api/bins/8/empty", headers=auth).status_code == 400
     main._bins.increment(5)
-    assert client.post("/api/bins/empty-all").get_json()["counts"]["5"] == 0
+    assert client.post("/api/bins/empty-all", headers=auth).get_json()["counts"]["5"] == 0
 
 
 # ── card detection ───────────────────────────────────────────────────────────
