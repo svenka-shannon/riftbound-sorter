@@ -1,9 +1,12 @@
 """
 Servo control via PCA9685 (I2C address 0x40, 50Hz PWM).
-Channels:
+Channels (the only servos this code drives):
   0 - Pickup arm    (down=pickup, up=rest)
-  1 - Deflect gate  (left=bin_A, right=bin_B)
-  2 - Bin select    (rotates to target bin position)
+  1 - Deflect gate  — floor select: left=lower floor (bins 0-3),
+                      right=upper floor (bins 4-7), center=reject (bin 9)
+  2 - Bin select    — column select: same 4 angles on both floors + reject
+  3-15 - unused
+Sort-gate levers (cad/sort_gate_lever.scad): 2 — one each on ch1 and ch2.
 
 Requires: adafruit-circuitpython-pca9685, adafruit-circuitpython-motor
 """
@@ -16,6 +19,13 @@ from pathlib import Path
 _MOCK = os.environ.get("MOCK_HARDWARE", "0") == "1"
 
 _CALIBRATION_FILE = Path(__file__).parent.parent / "config" / "servo_calibration.json"
+
+# PCA9685 channel map (keep in sync with scripts/calibrate_servos.py,
+# scripts/test_hardware.py and cad/sort_gate_lever.scad header)
+CH_PICKUP_ARM   = 0
+CH_DEFLECT_GATE = 1
+CH_BIN_SELECT   = 2
+SERVO_CHANNELS  = (CH_PICKUP_ARM, CH_DEFLECT_GATE, CH_BIN_SELECT)
 
 if not _MOCK:
     import board
@@ -31,9 +41,10 @@ GATE_LEFT  = 30          # route to bin group A (bins 0-3)
 GATE_RIGHT = 150         # route to bin group B (bins 4-7)
 GATE_CENTER = 90         # card passes straight (scanner feed)
 
-# Bin select positions for 8 bins in 2 rows of 4
-# Row A (gate left): bins 0,1,2,3  →  angles 20,50,80,110
-# Row B (gate right): bins 4,5,6,7 →  angles 20,50,80,110 (second servo)
+# Bin select (ch2) positions for 8 bins: 2 floors × 4 columns.
+# Lower floor (gate left):  bins 0,1,2,3 → angles 20,55,90,125
+# Upper floor (gate right): bins 4,5,6,7 → same 4 angles, SAME ch2 servo
+# (the deflect gate on ch1 picks the floor; ch2 only picks the column)
 BIN_SELECT_ANGLES = {
     0: 20, 1: 55, 2: 90, 3: 125,   # bins 0-3 (row A)
     4: 20, 5: 55, 6: 90, 7: 125,   # bins 4-7 (row B, same angles)
@@ -102,9 +113,8 @@ def init():
     i2c = busio.I2C(board.SCL, board.SDA)
     _pca = PCA9685(i2c, address=0x40)
     _pca.frequency = 50
-    _servos[0] = adafruit_servo.Servo(_pca.channels[0], min_pulse=500, max_pulse=2500)
-    _servos[1] = adafruit_servo.Servo(_pca.channels[1], min_pulse=500, max_pulse=2500)
-    _servos[2] = adafruit_servo.Servo(_pca.channels[2], min_pulse=500, max_pulse=2500)
+    for ch in SERVO_CHANNELS:
+        _servos[ch] = adafruit_servo.Servo(_pca.channels[ch], min_pulse=500, max_pulse=2500)
     print("[servos] PCA9685 initialized on I2C 0x40")
 
 
@@ -112,7 +122,7 @@ def pickup_arm_down(settle_s=0.4):
     """Lower suction arm to card surface."""
     if _MOCK:
         time.sleep(settle_s); return
-    _servos[0].angle = PICKUP_ARM_DOWN
+    _servos[CH_PICKUP_ARM].angle = PICKUP_ARM_DOWN
     time.sleep(settle_s)
 
 
@@ -120,7 +130,7 @@ def pickup_arm_up(settle_s=0.4):
     """Raise suction arm to resting position."""
     if _MOCK:
         time.sleep(settle_s); return
-    _servos[0].angle = PICKUP_ARM_UP
+    _servos[CH_PICKUP_ARM].angle = PICKUP_ARM_UP
     time.sleep(settle_s)
 
 
@@ -139,14 +149,14 @@ def route_card(bin_number: int, settle_s=0.3):
 
     # Gate direction
     if bin_number <= 3:
-        _servos[1].angle = GATE_LEFT
+        _servos[CH_DEFLECT_GATE].angle = GATE_LEFT
     elif bin_number == 9:
-        _servos[1].angle = GATE_CENTER  # reject chute
+        _servos[CH_DEFLECT_GATE].angle = GATE_CENTER  # reject chute
     else:
-        _servos[1].angle = GATE_RIGHT
+        _servos[CH_DEFLECT_GATE].angle = GATE_RIGHT
 
     # Bin select position
-    _servos[2].angle = BIN_SELECT_ANGLES[bin_number]
+    _servos[CH_BIN_SELECT].angle = BIN_SELECT_ANGLES[bin_number]
     time.sleep(settle_s)
 
 
@@ -154,9 +164,9 @@ def reset_all():
     """Return all servos to neutral/home positions."""
     if _MOCK:
         return
-    _servos[0].angle = PICKUP_ARM_UP
-    _servos[1].angle = GATE_CENTER
-    _servos[2].angle = 90
+    _servos[CH_PICKUP_ARM].angle = PICKUP_ARM_UP
+    _servos[CH_DEFLECT_GATE].angle = GATE_CENTER
+    _servos[CH_BIN_SELECT].angle = 90
     time.sleep(0.5)
 
 

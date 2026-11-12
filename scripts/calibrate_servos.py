@@ -28,7 +28,8 @@ CONFIG_DIR = REPO_ROOT / "config"
 CALIBRATION_FILE = CONFIG_DIR / "servo_calibration.json"
 
 # ---------------------------------------------------------------------------
-# Servo channel map
+# Servo channel map — must match hardware/servos.py CH_* constants:
+#   0 = pickup arm, 1 = deflect gate (floor select), 2 = bin select (column)
 # ---------------------------------------------------------------------------
 SERVO_NAMES = {0: "pickup_arm", 1: "gate", 2: "bin_select"}
 
@@ -62,7 +63,7 @@ def init_hardware(mock: bool) -> None:
         i2c = busio.I2C(board.SCL, board.SDA)
         _pca = PCA9685(i2c, address=0x40)
         _pca.frequency = 50
-        for ch in range(3):
+        for ch in SERVO_NAMES:
             _servos[ch] = adafruit_servo.Servo(
                 _pca.channels[ch], min_pulse=500, max_pulse=2500
             )

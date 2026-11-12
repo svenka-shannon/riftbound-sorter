@@ -24,21 +24,35 @@ from pathlib import Path
 RESULTS_FILE = Path("/tmp/hardware_test_results.txt")
 TEST_CAPTURE = Path("/tmp/test_capture.jpg")
 
-# Servo channel assignments
-CH_PICKUP_ARM = 0
-CH_DEFLECT_GATE = 1
-CH_BIN_SELECT = 2
+# Servo channels + angle presets come from hardware/servos.py (single source of
+# truth). Previously this script had its own presets (ARM_DOWN=150 vs the real
+# 10) which would have driven the pickup arm 140 degrees past its pickup pose.
+# Load servos.py by path so we don't import the whole hardware package
+# (camera/PIL etc.) just to read constants.
+import importlib.util as _ilu
+_spec = _ilu.spec_from_file_location(
+    "_servo_presets", Path(__file__).resolve().parent.parent / "hardware" / "servos.py")
+_sp = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_sp)
+if hasattr(_sp, "_load_calibration"):
+    try:
+        _sp._load_calibration()   # honour config/servo_calibration.json if present
+    except Exception as _e:
+        print(f"[test] servo calibration not loaded ({_e}); using defaults")
 
-# Servo angle presets (degrees, 0-180)
-ARM_UP = 30
-ARM_DOWN = 150
+CH_PICKUP_ARM = _sp.CH_PICKUP_ARM
+CH_DEFLECT_GATE = _sp.CH_DEFLECT_GATE
+CH_BIN_SELECT = _sp.CH_BIN_SELECT
 
-GATE_LEFT = 30
-GATE_CENTER = 90
-GATE_RIGHT = 150
+ARM_UP = _sp.PICKUP_ARM_UP
+ARM_DOWN = _sp.PICKUP_ARM_DOWN
 
-# 8 bin positions spread evenly across 0-180 degrees
-BIN_ANGLES = [round(i * (180 / 7)) for i in range(8)]  # 0, 26, 51, 77, 103, 128, 154, 180
+GATE_LEFT = _sp.GATE_LEFT
+GATE_CENTER = _sp.GATE_CENTER
+GATE_RIGHT = _sp.GATE_RIGHT
+
+# Bin-select (ch2) column positions actually used by the sorter, incl. reject
+BIN_ANGLES = sorted(set(_sp.BIN_SELECT_ANGLES.values()))
 
 VACUUM_ON_DURATION = 2.0   # seconds
 CONVEYOR_RUN_DURATION = 3.0  # seconds
@@ -89,7 +103,7 @@ def init_hardware(mock: bool) -> None:
         import RPi.GPIO as GPIO
 
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(17, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(17, GPIO.OUT, initial=GPIO.HIGH)  # active-LOW relay: HIGH = pump OFF
         _vacuum_pin = 17
         print("[test] Vacuum GPIO 17 ready")
     except Exception as exc:
@@ -169,7 +183,8 @@ def vacuum_set(on: bool) -> None:
         return
     import RPi.GPIO as GPIO
 
-    GPIO.output(_vacuum_pin, GPIO.HIGH if on else GPIO.LOW)
+    # B-24 fix: relay module is active-LOW (LOW = pump ON), same as hardware/vacuum.py
+    GPIO.output(_vacuum_pin, GPIO.LOW if on else GPIO.HIGH)
     print(f"  vacuum pump → {state}")
 
 
@@ -324,7 +339,7 @@ def test_servo_deflect_gate() -> None:
 
 
 def test_servo_bin_select() -> None:
-    section("Test 3 — Servo 2 (bin select): cycles through all 8 bin positions")
+    section("Test 3 — Servo 2 (bin select): cycles through every column position")
     print(f"  Will cycle through bin positions: {BIN_ANGLES}")
     wait_for_enter()
 
@@ -334,7 +349,7 @@ def test_servo_bin_select() -> None:
         time.sleep(0.5)
 
     passed = ask_pass_fail("Servo 2 (bin select)")
-    log_result("Servo 2 (bin select) all 8 positions", passed)
+    log_result("Servo 2 (bin select) all column positions", passed)
 
 
 def test_vacuum_pump() -> None:

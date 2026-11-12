@@ -85,9 +85,14 @@ def tare():
 def calibrate(known_weight_g: float):
     """
     Print scale factor for a known weight.
-    Place a card of known weight on the sensor, then call this.
+    Call tare() first with nothing on the scale, then place the known weight and call this.
+
+    B-22 fix: original code mixed get_raw_data_mean() (absolute ADC counts) with
+    get_data_mean() (tare-subtracted counts), producing tare_offset/weight instead of
+    the correct ADC-counts-per-gram ratio.  Correct formula uses only get_data_mean()
+    which already subtracts the tare offset set by the last tare() call.
     """
-    raw = _hx.get_raw_data_mean(20)
-    factor = (raw - _hx.get_data_mean(20)) / known_weight_g
+    net_counts = _hx.get_data_mean(20)   # tare-subtracted counts ∝ weight
+    factor = net_counts / known_weight_g
     print(f"[loadcell] Calibration: set SCALE_FACTOR = {factor:.2f} for {known_weight_g}g")
     return factor

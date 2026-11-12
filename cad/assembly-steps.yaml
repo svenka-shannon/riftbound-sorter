@@ -66,7 +66,7 @@ steps:
     explode: "+x"
     intro_explode: [140, 0, 170]
 
-  - caption: "Fit 3 sort-gate levers onto their servo horns, M3"
+  - caption: "Fit 2 sort-gate levers onto their servo horns (ch1 deflect, ch2 bin select), M3"
     part: asm_gate_levers()
     color: "#FFD43B"
     explode: "+z 80"

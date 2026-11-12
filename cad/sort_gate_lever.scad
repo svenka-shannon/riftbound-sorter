@@ -1,7 +1,13 @@
 // =============================================
 // Riftbound Card Sorter — Sort Gate Lever
 // =============================================
-// Print 2× (primary deflect gate + secondary bin select)
+// Print 2× — one per sort-gate servo driven by hardware/servos.py:
+//   PCA9685 ch1 — deflect gate: floor select
+//                 (GATE_LEFT → lower floor bins 0-3, GATE_RIGHT → upper
+//                  floor bins 4-7, GATE_CENTER → reject bin 9)
+//   PCA9685 ch2 — bin select: column 0-3 (BIN_SELECT_ANGLES), reject 160°
+// (ch0 is the suction pickup arm, not a gate; ch3-15 unused.)
+// The 2-floor × 4-column tray needs exactly these two: floor + column.
 // Servo horn drives the lever to route cards left/right
 // Material: PETG (flex-resistant), 0.2mm, 60% infill
 // =============================================

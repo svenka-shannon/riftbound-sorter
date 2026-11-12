@@ -31,7 +31,8 @@ hx711_hole_dx = 20;   // spacing X
 hx711_hole_dy = 15;   // spacing Y
 
 // Load cell beam recess (60mm × 12mm × 3mm pocket for TAL221 50g beam)
-lcell_x      = 140;
+// B-2 fix: moved from 140→120 so pocket (120+60=180mm) stays 5mm clear of outer_w=185
+lcell_x      = 120;
 lcell_y      = 60;
 lcell_len    = 60;
 lcell_w      = 12;

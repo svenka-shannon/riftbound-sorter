@@ -53,8 +53,8 @@ module lc_mount() {
 }
 // load cell bolts
 module lc_bolts() for (x = [-2, 42]) translate([x, 146, base_top + 49]) screw_head(5, 2.5);
-// gate lever pivot screws
-module lever_screws() for (x = [20, 45, 70]) translate([x, 38, base_top + 35 + 6]) screw_head(5.5, 2.5);
+// gate lever pivot screws (one per lever; positions shared with assembly.scad)
+module lever_screws() for (x = gate_lever_x()) translate([x, 38, base_top + 35 + 6]) screw_head(5.5, 2.5);
 // MDF backing board under the 3x3 tiles
 module mdf() translate([-295, -280, -12]) cube([590, 560, 12]);
 

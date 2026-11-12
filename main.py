@@ -90,55 +90,66 @@ def sort_one_card(engine: RulesEngine, dry_run: bool = False) -> bool:
     # 1. Lower arm + activate pump
     servos.pickup_arm_down()
     vacuum.pump_on()
-    time.sleep(0.25)
+    # B-23 fix: wrap everything after pump_on() in try/finally so an exception
+    # (camera error, network timeout, identify crash) can never leave the pump running.
+    try:
+        time.sleep(0.25)
 
-    # 2. Check load cell — verify single card
-    weight_g = loadcell.read_grams()
-    result   = loadcell.classify(weight_g)
+        # 2. Check load cell — verify single card
+        weight_g = loadcell.read_grams()
+        result   = loadcell.classify(weight_g)
 
-    if result == "empty":
-        vacuum.pump_off()
-        servos.pickup_arm_up()
-        _empty_counter += 1
-        if _empty_counter >= 3 and not _status["hopper_empty"]:
-            print(f"[main] HOPPER EMPTY — {_empty_counter} consecutive empty picks. Please refill.")
-            _status["hopper_empty"] = True
-        else:
-            print("[main] No card detected — hopper empty?")
-        return False
+        if result == "empty":
+            vacuum.pump_off()
+            servos.pickup_arm_up()
+            _empty_counter += 1
+            if _empty_counter >= 3 and not _status["hopper_empty"]:
+                print(f"[main] HOPPER EMPTY — {_empty_counter} consecutive empty picks. Please refill.")
+                _status["hopper_empty"] = True
+            else:
+                print("[main] No card detected — hopper empty?")
+            return False
 
-    if result == "double":
-        print(f"[main] Double pick ({weight_g:.1f}g) — releasing extra")
-        vacuum.pump_off()
-        time.sleep(0.1)
-        vacuum.pulse(0.2)   # brief burst to drop extra card
-        servos.pickup_arm_up()
-        # A double pick still means the hopper has cards
+        if result == "double":
+            print(f"[main] Double pick ({weight_g:.1f}g) — releasing extra")
+            # B-21 fix: do NOT pulse the pump (that re-applies suction and holds the
+            # cards). Cut suction, let pressure equalize, and gravity drops both cards
+            # back into the hopper before the arm lifts.
+            vacuum.pump_off()
+            time.sleep(0.15)
+            servos.pickup_arm_up()
+            # A double pick still means the hopper has cards
+            _empty_counter = 0
+            if _status["hopper_empty"]:
+                print("[main] Card detected — hopper refilled, resuming.")
+                _status["hopper_empty"] = False
+            _stats["double_picks"] += 1
+            return False
+
+        # Card confirmed present — reset hopper-empty state
         _empty_counter = 0
         if _status["hopper_empty"]:
             print("[main] Card detected — hopper refilled, resuming.")
             _status["hopper_empty"] = False
-        _stats["double_picks"] += 1
-        return False
 
-    # Card confirmed present — reset hopper-empty state
-    _empty_counter = 0
-    if _status["hopper_empty"]:
-        print("[main] Card detected — hopper refilled, resuming.")
-        _status["hopper_empty"] = False
+        # 3. Lift card + transport to scanner
+        servos.pickup_arm_up()
+        conveyor.transport_card(CONVEYOR_TRAVEL_S)
+        vacuum.pump_off()    # release card at scanner station
 
-    # 3. Lift card + transport to scanner
-    servos.pickup_arm_up()
-    conveyor.transport_card(CONVEYOR_TRAVEL_S)
-    vacuum.pump_off()    # release card at scanner station
+        # 3a. Pause conveyor so card is stationary during capture + identify
+        conveyor.stop()
+        time.sleep(0.3)
 
-    # 3a. Pause conveyor so card is stationary during capture + identify
-    conveyor.stop()
-    time.sleep(0.3)
+        # 4. Capture + identify (card is stationary — gate will be set before conveyor restarts)
+        jpeg = camera.capture_card_jpeg()
+        card_id, confidence = identify(jpeg)
 
-    # 4. Capture + identify (card is stationary — gate will be set before conveyor restarts)
-    jpeg = camera.capture_card_jpeg()
-    card_id, confidence = identify(jpeg)
+    finally:
+        # Safety net: on ANY exit from the pick/scan phase (normal, early return,
+        # or exception) the pump is off and the arm is up. Both calls are idempotent.
+        vacuum.pump_off()
+        servos.pickup_arm_up()
 
     if card_id is None:
         print(f"[main] Card not identified (confidence {confidence:.2f}) — rejecting")
@@ -195,7 +206,18 @@ def run_sorter(dry_run: bool = False):
     idle_count = 0
 
     while _running:
-        success = sort_one_card(engine, dry_run=dry_run)
+        # B-23: one bad card (camera timeout, API error, identify crash) must not
+        # kill the whole session. sort_one_card's finally already made hardware safe.
+        try:
+            success = sort_one_card(engine, dry_run=dry_run)
+        except Exception as exc:
+            print(f"[main] ERROR during sort cycle: {exc!r} — skipping card")
+            _stats["errors"] += 1
+            try:
+                conveyor.stop()
+            except Exception:
+                pass
+            success = False
         if not success:
             idle_count += 1
             if idle_count >= 10:
