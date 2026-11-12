@@ -492,10 +492,18 @@ Order (`suction_arm.scad` ASSEMBLY ORDER):
    venv/bin/python -c "from hardware import servos; servos.init(); servos.arm_park()"
    ```
 
-   Then:
-   - Fit the disc horn so its screw slots roughly line up.
-   - Bolt the crank on **pointing straight up** with **4 × M3 × 6**.
-   - One spline tooth is 14.4°; trim the rest in calibration.
+   Then fit the crank pointing **3° past vertical, toward the hopper (93°)**, not straight up. 93° is the crank angle at servo 90° in the CAD (`th_mid` in `cad/suction_arm.scad`): the middle of the pick (178°) to drop (8°) arc. A crank bolted vertical starts 3° off.
+   - **Why it always fits within 1.8°.** The disc horn goes on the 25T spline in 14.4° steps, and the crank bolts to the horn in any of its **4 slot positions** (90° apart). Tooth and slot together give a **3.6° lattice**, so one combination always puts the crank within **±1.8° of 93°**. With the nearest tooth alone it can be 7.2° off. Then about a third of builds need PICK above 180° or DROP below 0°, and a servo with a few % more gain than nominal falls outside the calibration windows.
+   - **Finding the combination.**
+     1. Fit the horn, bolt the crank on with **4 × M3 × 6** in the slot that points it most nearly up, and measure its angle (below).
+     2. If it is off by roughly a multiple of 14.4°, move the horn that many teeth (crank re-bolted in the slot that points it up).
+     3. What is left is 0°, 3.6° or 7.2°. To move the crank **3.6°**, pull the horn, turn it **6 teeth the other way** (86.4°), and bolt the crank on **one slot further** in the wanted direction: 90° − 86.4° = 3.6°. For **7.2°**, turn the horn 12 teeth the other way and use the slot two positions round.
+   - **Judging the angle** (target 93°; anything from 91.2° to 94.8° is right):
+     - **Angle gauge (recommended):** a digital angle gauge or a phone inclinometer app. Zero it on the baseplate, then hold it against the crank's long straight edge. Target **3.0° from vertical, top leaning toward the hopper**; 1.2–4.8° is fine.
+     - **Plumb line or square:** hang a thread with a nut on it in front of the spline centre (or stand a small square on the baseplate against it). The centre of the crank-tip bore (A', 60.3 mm out) should sit **3.2 mm toward the hopper** from that vertical; 1.3–5.0 mm is fine. One 3.6° step moves the tip 3.8 mm, so the right combination is obvious.
+     - **Paper gauge (optional, nothing to print in CAD):** print or draw at 1:1 a cross for the spline centre, a vertical line, and a line 3° from it with ticks at ±1.8° about 60 mm out. Tape it to the head's front face with its vertical line on the plumb line or square.
+   - A servo that turns the other way needs the same 93° fit (the arc is symmetric about servo 90°); swap ARM_PICK and ARM_DROP in calibration (§16.2).
+   - The trim (slider compression at PICK, card height at DROP, and the servo's own gain) is set in calibration (§16.2).
 4. **Links and hand.**
    - Put the sleeves on B and C, then link C (on C) and link B (on B).
    - Hand: press in the A' tube and the B'/C' dowels; fit the A' and C' sleeves.
@@ -511,7 +519,7 @@ Order (`suction_arm.scad` ASSEMBLY ORDER):
 
 **Check / measure** (with `calibrate_servos.py` menu 1, §16.2):
 - Servo axis at X −154.7, Z 151.8. Crank radius 60.3 mm.
-- **PARK 90°:** crank vertical, hand over X −155.
+- **PARK 90°:** crank at 93° (3° past vertical, toward the hopper), hand over X ≈ −158.
 - **PICK ≈ 175°:** cup lip 3 mm **below** the top card (Z 87.9). The spring slider takes up the overtravel (10 mm stroke). The cup comes down within 2° of vertical.
 - **DROP ≈ 5°:** card underside 3 mm above the belt (Z 93.9), card centre X −95, i.e. the card spans X −139..−51.
 - During the lift a centred card clears the hopper by 1.5 mm, and a card lying 1.5 mm off-centre against any wall by ≥ 0.49 mm (`cad/pick_arm_check.py`). Watch the first lifts.
@@ -599,7 +607,7 @@ The carriage is three prints: the **sled** (rod and shaft bores, the tilt-crank 
 
 1. **Inserts.** The 4 cage inserts (−Y face) and the rod set-screw insert (+X-face boss) are in (§3).
 2. **ch1 direction check (bare servo, before the coupler).** Plug the servo into ch1 and run `venv/bin/python scripts/calibrate_servos.py --no-mock`, menu **`d`** (it is also offered before menus 2 and 3 until the shuttle has been homed). The servo goes straight to 80° and then ramps slowly to 100°. Increasing angle must turn the spline **clockwise looking straight at the spline face**: on the machine that is the crank arm rising from +X (toward the tray) up toward +Z. Answer the prompt; if it turned the other way the tool flips `"invert": {"1": …}` in `config/shuttle_calibration.json` (§16.4) and offers to re-check. Never fit the coupler to a servo that has not passed.
-3. **Coupler indexing (at HOLD).** Power ch1 to **HOLD = 97°** (`calibrate_servos.py --no-mock`, menu 2, pose `hold`; ch2 may still be unplugged). Press the goBILDA coupler onto the spline at the tooth that puts **two flats of its hex bore 7° up from horizontal, rising toward +X** (φ_hold = 7°: the tilt crank's REX bore has its flats parallel to the crank arm, and at HOLD the arm points 7° above +X). One spline tooth is 14.4° and the hex repeats every 60°, so one tooth lands within **0.6°**. Drive the **M3 × 6 SHCS** down the REX bore into the spline.
+3. **Coupler indexing (at HOLD).** Power ch1 to **HOLD = 97°** (`calibrate_servos.py --no-mock`, menu 2, pose `hold`; ch2 may still be unplugged). Press the goBILDA coupler onto the spline at the tooth that puts **two flats of its hex bore 7° up from horizontal, rising toward +X** (φ_hold = 7°: the tilt crank's REX bore has its flats parallel to the crank arm, and at HOLD the arm points 7° above +X). One spline tooth is 14.4° and the hex repeats every 60°: together a 2.4° lattice, so one tooth lands within **1.2°**. Drive the **M3 × 6 SHCS** down the REX bore into the spline.
 4. **Into the cage.** Unplug ch1, turn the coupler's clamp boss **up** by hand, and push servo + coupler nose-first along **+Y** through the cage opening from the −Y side. The servo sits **long side up** (body Z 33.8..74.5); its ears lie on the cage's −Y face. Fit **4 × M3 × 10 SHCS + washers** along +Y from **behind** the servo into the cage inserts (2.5 mm hex driver), at X 100 / 110, Z 29.4 / 78.9 (the shared 49.5 × 10 MG996R pattern: measure your servo, §11). The case face is at Y −185; the coupler sits in the open bay Y −184.2..−167.2 between the cage and the post.
 
 ### 13.4 Module on the bench: rod, carriage, shaft, R-bar [step 2]
@@ -607,7 +615,7 @@ The carriage is three prints: the **sled** (rod and shaft bores, the tilt-crank 
 1. Press a 688ZZ into each end post's inner-side pocket (Ø16.05).
 2. **Rod:** through post −Y → carriage LM8UUs → 8 mm into post +Y. It sits Y −160..240 at X 106, Z 24.
 3. **REX shaft, from the +Y end:** slide it along −Y through post +Y's 688ZZ → sled bushing → **tilt-crank hex bore** → sled bushing → post −Y's 688ZZ → **8 mm into the coupler's REX bore** (shaft Y −175.2..241.8, X 105, Z 44). Wipe the shaft with a **dry PTFE lubricant** first (no oil or grease: it collects dust). When the shaft reaches the crank, turn the crank a little (by the cradle) to line its hex bore up with the shaft.
-4. **Clamp the coupler at HOLD.** Power ch1 to HOLD (97°) and set the cradle **10° nose-down**. Tighten the coupler's **M4 clamp screw from above** with a 3 mm key. Depending on which hex flat you indexed to, the clamp boss sits at 7°, −23° or 37° from horizontal-+X at HOLD; the screw head is up and reachable in all three (checked). The residual (≤ 0.6°) is trimmed in §16.4.
+4. **Clamp the coupler at HOLD.** Power ch1 to HOLD (97°) and set the cradle **10° nose-down**. Tighten the coupler's **M4 clamp screw from above** with a 3 mm key. Depending on which hex flat you indexed to, the clamp boss sits at 7°, −23° or 37° from horizontal-+X at HOLD; the screw head is up and reachable in all three (checked). The residual (≤ 1.2°) is trimmed in §16.4.
 5. **Rod set screws.** Drive an **M3 × 8 flat-point set screw** through the insert in the 2 mm boss on each post's **+X face** onto the rod (along −X, 1.5 mm key from the open +X side; at Y −155 and Y 237, Z 24). The tip bears on the rod; the screw end sits flush with the boss face (X 118).
 6. **R-bar.**
    - Join `rbar_neg` and `rbar_pos` at the 32 mm lap splice (Y −16..16) with **2 × M3 × 10** at Y ±10, down into the `rbar_neg` inserts. The heads sit 0.3 mm below the top; the skids land at Y ±1..4, clear of the counterbores.
@@ -619,12 +627,37 @@ The carriage is three prints: the **sled** (rod and shaft bores, the tilt-crank 
 
 The ch2 MG996R **hangs upside down** under the riser: output axis at X 80, Y −124, case face Z 26.3, spline down (`shuttle_geom.scad`). Under it, from the bottom up: link Z 9..14, crank Z 15..19 (and the carriage's drive-pin arm Z 15..20), shoulder-screw heads to Z 24, riser tunnel roof from Z 26. Nothing hangs below the link.
 
-1. **ch2 direction check — before the crank goes on.** With nothing (or only the bare round horn) on the spline, plug the servo into ch2 and run `calibrate_servos.py --no-mock`, menu **`d`** for ch2 (80° → 100°, slowly). The firmware assumes servo angle = crank angle ψ: ψ 0 = crank pointing +Y (reject end), 90 = −X, 180 = −Y (column 0). **Increasing angle must turn the crank counter-clockwise seen from above** (clockwise looking straight at the spline, from below the upside-down servo). If it turned the other way, **do not fit the crank**: the tool sets `"invert": {"2": true}` in `config/shuttle_calibration.json` (§16.4); re-run the check until it passes. A reversed servo without invert drives the crank into the end post. (MG996R clones differ.)
-2. **Horn onto the crank.** Lay the round 25T horn's disc on the crank's top face over the 4 holes (Ø2.0 on Ø14). Fit **4 × M2 × 6 countersunk self-tapping** from the crank's bottom (countersunk) face up into the horn disc, heads flush.
-3. **Set the angle.** Set ch2 to **home = 75.5°** (menu 3). The servo angle equals the crank angle ψ. Press the horn onto the spline with the crank at ψ = 75.5°.
-4. **Hub screw.** Drive **1 × M3 × 12 countersunk** up through the crank hub into the spline (≈ 4.9 mm engagement), head flush with the crank bottom. It replaces the horn screw from the servo bag. This can only be done on the bench: once the servo hangs under the riser, the countersunk face points at the baseplate.
-5. **Park the crank** at ψ ≈ 100° (command it, or turn it by hand with the servo unpowered): pointing −X, clear of where the riser will be.
-6. **Hang it under the −Y end post's shelf.** Lift the servo straight up under the shelf, rear ear against the shelf. Fit the **2 rear-ear M2.5 × 10 button heads from below** (X 75 / 85, Y −158.9) through the shelf into its two Ø6 bosses (≈ 5.6 mm of thread) with a **1.5 mm L-key, short arm up** into the socket, long arm swinging below. **Leave both one turn loose**: the servo hangs ≈ 0.5 mm low so the front ear can slide in at step 4.
+**How the case sits in the machine** (the reference for step 4). The case's long sides run along **Y**, symmetric about the spline (ear screws at X 75 / 85, spline at X 80). The spline is **10.2 mm from the case's +Y end** (the end toward the riser) and 30.5 mm from its −Y end (`sg_c2_body_y`). So with the servo standing **spline up** on the bench and its **spline end pointing away from you**: ψ 0 (+Y) points away from you, **ψ 90 (−X) points to your right, square to the long sides**, and ψ 180 (−Y) points toward you over the body.
+
+**Why the crank is set by eye, not by a spline tooth.** The horn goes onto the 25T spline in 14.4° steps, so a horn and crank screwed together first and then pressed on can be up to **±7.2°** off. At reject (ψ 0, a dead centre) that alone moves the carriage up to ≈ 3.3 mm, against a reject box only 3 mm wider than the card. The calibration tool can't trim past reject 2° or column 0 178° (column 0 sits at the other dead centre, so it moves only ≈ 0.3 mm). But the crank holds the horn disc only by **4 self-tappers cut into the plain plastic disc** (`c2_horn_holes` in `cad/shuttle.scad`: no matching holes or splines). So **the crank can sit at any angle on the disc**. Fit the horn to the spline first, hold the servo at **ψ 90**, line the crank up with the case, and only then drive the screws. Target: within **1°**, which is **2.4 mm at the tip journal** (139 mm out). ψ 90 is the middle of ch2's travel, so the servo's own gain error is split evenly between the reject and column-0 ends. It is also square to the case, which is easy to draw.
+
+You need paper, a sharp pencil, a rule, a set square and calipers.
+
+1. **ch2 direction check: before the crank goes on.** With nothing (or only the bare round horn) on the spline, plug the servo into ch2 and run `calibrate_servos.py --no-mock`, menu **`d`** for ch2 (80° → 100°, slowly). The firmware assumes servo angle = crank angle ψ: ψ 0 = crank pointing +Y (reject end), 90 = −X, 180 = −Y (column 0). **Increasing angle must turn the crank counter-clockwise seen from above** (clockwise looking straight at the spline, from below the upside-down servo; with the servo spline up on the bench, clockwise as you look down at it). If it turned the other way, **do not fit the crank**: the tool sets `"invert": {"2": true}` in `config/shuttle_calibration.json` (§16.4); re-run the check until it passes. A reversed servo without invert drives the crank into the end post. (MG996R clones differ.) With a DS3218MG-270 on ch2 (§19.1 item 1), set `"actuation_range": {"2": 270}` **before** this check. Everything below is then the same.
+2. **Paper gauge.**
+   - Measure your servo: **s** = spline centre to the case's spline-end face (calipers to the near and far sides of the spline, then average; ≈ 10.2 mm).
+   - Tape a sheet of paper flat to the bench, with ≥ 160 mm free to its right. Stand the servo on it spline up, spline end away from you, and trace round its base.
+   - Lift it off. Extend the outline's far edge (the spline-end face) ≥ 160 mm to the right with the rule. Draw a second line parallel to it, **s** toward you, over the whole length: the **ψ 90 line**. The spline centre and, at ψ 90, the crank's tip-journal centre both lie on it.
+   - Put the servo back in its outline and keep it there: a strip of double-sided tape under the base, or a hand on it.
+3. **Horn on, servo at ψ 90.**
+   - Press the bare round horn onto the spline. Any tooth will do.
+   - Unplug ch1, so the cradle on the bench module doesn't move. Run `calibrate_servos.py --no-mock`, menu **3**, and answer **N** to the direction-check offer (step 1 did it).
+   - It homes (ch2 straight to home, 75.5°). Press `n` at **home** and at **column 0** (178°). At **column 1** (87.3°), jog **`+2.7`** (or `+` steps) until the readout shows **90.0°**.
+   - Leave the tool at that prompt. **Do not save** (`s`).
+4. **Crank on, lined up.**
+   - Lay the crank on the horn disc, **countersunk face up** (its flat top face on the disc), pointing to your right along the ψ 90 line.
+   - Start the **M3 × 12 countersunk** hub screw through the crank hub into the spline, only until its head just seats in the countersink. It centres the crank on the spline (the disc has no centring feature). The crank must still turn on the disc by hand: back the screw off a touch if it doesn't.
+   - Turn the crank until, **looking straight down through the tip journal (Ø4.1)**, the ψ 90 line runs through the middle of the hole. A Ø4 drill bit dropped through the journal should touch the paper on the line. Aim for ≤ 1 mm: 2.4 mm is the 1° limit.
+   - Check the case is still in its outline.
+5. **Self-tappers, then the hub screw.**
+   - Hold the crank tip on the line. Drive the **4 × M2 × 6 countersunk self-tapping** screws down through the crank's 4 holes (Ø2.0 on Ø14) into the horn disc, heads flush. Drive them in diagonal pairs.
+   - The screws cut their own thread in the disc. Their tips come ≈ 0.8 mm through it, beside the horn hub and 5 mm short of the case. They are driven from the crank's free face, so the horn on the spline is no obstacle.
+   - Re-check through the journal after the first screw and again after all four.
+   - If a crank hole lands over one of the disc's own holes (some round horns have a ring of them), that screw won't bite. If the crank has moved more than 1 mm at the tip, the next try needs fresh plastic. In either case: take the screws out, pull the horn, press it back on **one tooth round** and repeat from step 4. Only the crank's position on the paper matters, not the horn's.
+   - Then **tighten the M3 × 12 hub screw** (≈ 4.9 mm into the spline), head flush with the crank bottom. It replaces the horn screw from the servo bag. This can only be done on the bench: once the servo hangs under the riser, the countersunk face points at the baseplate.
+   - Press `q` in the tool. It parks (ch2 swings back to 75.5°, so keep hands clear of the crank) and goes limp. The crank angle is re-checked on the machine in §13.6 step 6.
+6. **Park the crank** at ψ ≈ 100° (turn it by hand, servo unpowered): pointing −X, clear of where the riser will be.
+7. **Hang it under the −Y end post's shelf.** Lift the servo straight up under the shelf, rear ear against the shelf. Fit the **2 rear-ear M2.5 × 10 button heads from below** (X 75 / 85, Y −158.9) through the shelf into its two Ø6 bosses (≈ 5.6 mm of thread). Use a **1.5 mm L-key, short arm up** into the socket, long arm swinging below. **Leave both one turn loose**: the servo hangs ≈ 0.5 mm low so the front ear can slide in at §13.6 step 2.
 
 ### 13.6 Module into place, ch2 front ear, anchors [steps 4–5]
 
@@ -633,6 +666,12 @@ The ch2 MG996R **hangs upside down** under the riser: output axis at X 80, Y −
 3. **Rear ear.** Tighten the 2 rear-ear screws: the servo comes up 0.5 mm onto both ceilings.
 4. **Front ear.** Drive the **2 front-ear M2.5 × 10 button heads up from below, through the riser tunnel** (X 75 / 85, Y −109.4) into the Ø2.1 pilots in the ear block and lug: **1.5 mm L-key, short arm up** into the socket, long arm under the riser (≥ 195° of free swing, checked). Keep the crank parked at ψ ≈ 100°.
 5. **End-post anchors: 6 × M3 × 20** into the tee-nuts (plate 4 + tile 4 + board 6 = 14 clamp): post −Y at (110, −225), (140, −195), (140, −165); post +Y at (110, 225), (110, 255), (140, 255). Five go straight down with a 2.5 mm key. **The one at (110, 225) is under the rod: use a 2.5 mm ball-end key tilted 45° toward +X.**
+6. **ch2 square check (crank at ψ 90 on the machine).**
+   - The ear screws are M2.5 in the servo's Ø4.5+ tab holes, so the case can sit up to about **±2° twisted** about Z (±1 mm at each ear, 49.5 mm apart). That is as much as §13.5 step 4 took out, so check it now.
+   - With ch1 still unplugged, run menu **3** again: `n` at home and column 0, then jog column 1 to **90.0°** (as in §13.5 step 3). The link isn't fitted, so only the crank moves.
+   - The crank now points −X along the riser's front face (Y −113; at the tip that is riser A, and the face starts above the tunnel opening). Hold the calipers' jaws upright, one on that face and one on the **far (−Y) edge of the tip boss** (X ≈ −59). It should read **17 mm**: tip-journal centre at Y −124, boss Ø12. Each degree moves it 2.4 mm.
+   - If it is more than ~2.5 mm out: press `q`, turn the crank by hand to ψ ≈ 100° and loosen all 4 ear screws half a turn. Twist the case the way the tip has to go, tighten the rear ear and then the front ear (steps 3–4), and re-check.
+   - Press `q` when it is right. Don't save anything here: the columns are calibrated in §16.4.
 
 ### 13.7 ch2 link and pivots, lower ramp, reject bin [steps 6–7]
 
@@ -1076,14 +1115,18 @@ Jog keys at every pose:
 | `q` | quit (parks everything) |
 
 Notes:
-- **Jogging is clamped to exactly what the sorter accepts** (the same limits it checks the file against, §16.2, §16.4):
-  - arm (ch0): **±10°** round the nominal pose, or round its mirror (180° − nominal) for a servo that turns the other way: PICK 165–180 (or 0–15), DROP 0–15 (or 165–180), PARK 80–100;
-  - tilt (ch1) and carriage (ch2): **±8°** round the nominal pose (§14.3 table);
-  - tilt, also against the other tilt poses as they stand: lower < level < hold < upper, with **hold − level 2–8°**, **upper − hold ≥ 8°**, **level − lower ≥ 30°**;
-  - carriage, also against its neighbours: reject < 3 < 2 < home < 1 < 0, each stop **≥ 5°** from the next.
+- **Jogging is clamped to each pose's own sanity window**, the same per-pose limits the sorter checks the file against (§16.2, §16.4):
+  - arm (ch0): **PICK 155–180, DROP 0–25, PARK 80–100**, or the mirror (180° − angle) for a servo that turns the other way (PICK 0–25, DROP 155–180). The PICK and DROP windows open **toward PARK only**: a servo that turns more than commanded (MG996R gain varies by ±10 %) needs less command at both ends;
+  - tilt (ch1): **±8°** round the nominal pose; carriage (ch2): **±12°** (§14.3 table).
 
-  If the jog runs into a limit before the pose is right, the horn, crank or coupler is on the wrong spline tooth (one MG996R tooth is 14.4°): re-seat it.
-- **The tool never saves an invalid file.** Each save is checked against the same validation the sorter uses (§16.2, §16.4); a value that would make the file invalid is refused with the reason and the old value is kept. An invalid file at start stops the tool (exit 78) with the list of bad keys, before anything moves.
+  If the jog reaches a window edge before the pose is right, the arm horn or the ch1 coupler is on the wrong spline tooth, or the ch2 crank is off its ψ 90 line: re-fit it (§11 step 3, §13.3, §13.5 steps 2–5).
+- **The rules between poses are checked when you save (`s`)**, against the other poses as they stand:
+  - arm: PICK and DROP on opposite sides of PARK, and **symmetric about it within 10°**: |(PICK − PARK) − (PARK − DROP)| ≤ 10°;
+  - tilt: lower < level < hold < upper, with **hold − level 2–8°**, **upper − hold ≥ 8°**, **level − lower ≥ 30°**;
+  - carriage: reject < 3 < 2 < home < 1 < 0, each stop **≥ 5°** from the next, and **column 2 − column 3 ≥ 12°**.
+
+  A pose that is fine on its own but breaks one of these rules only because a pose **later in the same menu** still has its old value is **HELD**. The tool names the rule, and writes the held pose together with the first later save that makes the whole file valid. So a build whose every stop sits 7–8° off nominal (a crank half a tooth out) is calibrated in **one pass**. Anything still held at the end of the menu, or at `q`, is **not saved**, and the tool says so.
+- **The tool never writes an invalid file.** A value outside its own window is refused with the reason, and the old value is kept. An invalid file at start stops the tool (exit 78) with the list of bad keys, before anything moves.
 - **Interlock** (§15.2): the tool refuses to run while the sorter service runs, and records the machine as not clean before anything moves, so the next sorter start asks for **Machine clear**.
 - Saved values go to `config/servo_calibration.json` (arm, keys `ARM_PICK` / `ARM_DROP` / `ARM_PARK`) and `config/shuttle_calibration.json` (`tilt`, `shuttle`, and `invert` from the direction check).
 - Menus 2 and 3 offer the **direction check** (menu `d`) first, until the shuttle has been homed in that session. It is only for a **bare** servo on the bench (§13.3, §13.5); once the crank or shaft is fitted, skip it.
@@ -1144,11 +1187,13 @@ Menu **1**. Use a sacrificial card. PICK and DROP start 8° short (toward PARK);
 
 - **ARM_PICK (≈175):** cup on the card centre with the slider visibly compressed (~3 mm of the 10 mm stroke). The card seals when the pump is on.
 - **ARM_DROP (≈5):** card flat and ~3 mm above the belts. Its upstream edge should be **26 mm downstream of the rail inlet end** (card X −139..−51).
-- **ARM_PARK (90):** crank vertical.
+- **ARM_PARK (90):** top of the arc, the crank 3° past vertical toward the hopper (93°), as fitted in §11 step 3. Keep 90 (`n`) unless the cup isn't clear of both the hopper and the belt.
 
-**`config/servo_calibration.json`** (section `pickup_arm`, written by menu 1) is validated at start (exit 78 on any problem): only `ARM_PICK`, `ARM_DROP`, `ARM_PARK` (old `ARM_DOWN` / `ARM_UP` are still read, with a warning, if the new key is missing); every angle a finite number within the servo's range and within **±10°** of its nominal (175 / 5 / 90) **or of the mirrored pose** (180° − nominal, for a servo that turns the other way), i.e. PICK 165–180 or 0–15, DROP 0–15 or 165–180, PARK 80–100 (the crank sits on a 25T horn, so the nearest spline tooth is always within ±7.2°; the rest is trim); PICK and DROP on opposite sides of PARK; unknown sections and keys refused. A typo such as `ARM_DROP` 400, or 157 for 175, can never swing the arm into the hopper.
+**`config/servo_calibration.json`** (section `pickup_arm`, written by menu 1) is validated at start (exit 78 on any problem): only `ARM_PICK`, `ARM_DROP`, `ARM_PARK` (old `ARM_DOWN` / `ARM_UP` are still read, with a warning, if the new key is missing); every angle a finite number within the servo's range and inside its window round the nominal (175 / 5 / 90) **or round the mirrored pose** (180° − nominal, for a servo that turns the other way): **PICK 155–180** (or 0–25), **DROP 0–25** (or 155–180), **PARK 80–100**. PICK and DROP must lie on opposite sides of PARK, and **the two half-arcs must match within 10°**: |(PICK − PARK) − (PARK − DROP)| ≤ 10°. Unknown sections and keys are refused.
 
-**DS3218MG-270 fallback** (§19): set `"servos": {"ARM_ACTUATION_RANGE": 270}` in `config/machine.json` (default 180; only 180 or 270 are accepted), then re-calibrate all three arm angles: they are servo degrees within that range. Fit the crank at the commanded PARK (90°) so the angles stay near nominal: the ±10° window still applies.
+Why these limits: the crank is fitted within 1.8° of 93° (§11 step 3), and the rest is trim and the servo's gain. A crank fitted as documented puts PICK and DROP both 85° / (1 + gain) from PARK, so a servo that turns 10 % more than commanded needs PICK ≈ 167 and DROP ≈ 13. That is why the windows open 20° toward PARK and only 10° away from it (away from PARK the arm would go past the stack or the belt). The symmetry rule holds whatever the gain. A model of every fit (±1.8°), gain from −10 % to +10 %, and PICK / DROP trim passes every build the servo can reach (`tests/test_audit5_fixes.py`). A typo such as `ARM_DROP` 400 or 50 is outside its window, and 157 for 175 breaks the symmetry by 18°, so neither can swing the arm into the hopper.
+
+**DS3218MG-270 (recommended upgrade, §19.1 item 1):** set `"servos": {"ARM_ACTUATION_RANGE": 270}` in `config/machine.json` (default 180; only 180 or 270 are accepted), then re-calibrate all three arm angles: they are servo degrees within that range. Fit the crank at the commanded PARK (90°) as in §11 step 3 so the angles stay near nominal: the same windows and the symmetry rule still apply.
 
 **Check:** `test_hardware.py` test 4 (pick and place). The card lands flat inside the guide funnel, released ≤ 1.7 mm off-centre in Y.
 
@@ -1169,7 +1214,7 @@ The first raise after homing may travel the whole stack height (that is why the 
 1. **Menu 2, at home.**
    - **hold:** bed 10° nose-down, card tail clear of the rails, guides and clips.
    - **level:** skids firmly on the home ledges; bed 0.7 mm below the belt top. The default is **93.1°**; keep it only just past the point where the skids touch (§14.3).
-   - The goBILDA coupler was indexed at HOLD to within 0.6° (§13.3); this is where that residual is trimmed. If hold or level need more than a few degrees, the coupler is on the wrong tooth or the shaft slipped in the clamp: re-index it (§13.3–§13.4) rather than jogging.
+   - The goBILDA coupler was indexed at HOLD to within 1.2° (§13.3: 25T × hex = 2.4° steps); this is where that residual is trimmed. If hold or level need more than a few degrees, the coupler is on the wrong tooth or the shaft slipped in the clamp: re-index it (§13.3–§13.4) rather than jogging.
 2. **Menu 3, columns 0–3 and reject.**
    - Centre the cradle on each slot by eye, or drop a 65 mm card gauge into the slot and line the cradle up with it.
    - **Target: card centre within ±0.95 mm of the slot centre** (slot 65 for a 63 card; ≈ ±0.95 mm is the allowable carriage error from the CAD audit). The upper lead-in fins funnel ±2 mm.
@@ -1191,12 +1236,14 @@ The first raise after homing may travel the whole stack height (that is why the 
 ```
 
 - **`invert`**: per-channel direction. `true` makes the code write `actuation_range − angle`, so every stored angle keeps its geometric meaning. Set by the direction check (menu `d`), never guessed. Only `"1"` and `"2"` with JSON `true` / `false` are accepted.
-- **`actuation_range`** (DS3218MG-270 fallback, §19): `{"2": 270}` for ch2 (ch1 can take `"1"` the same way); only 180 or 270. Re-calibrate every angle of that channel afterwards, and fit the crank (ch2) or coupler (ch1) at the commanded pose so the angles stay near nominal: the ±8° window below still applies.
+- **`actuation_range`** (DS3218MG-270, the recommended upgrade for ch2, §19.1 item 1): `{"2": 270}` for ch2 (ch1 can take `"1"` the same way); only 180 or 270. Set it **before** the direction check and before the crank (ch2) or coupler (ch1) goes on, fit them at the commanded pose (ch2: ψ 90, §13.5 steps 2–5) so the angles stay near nominal, and re-calibrate every angle of that channel: the windows below (tilt ±8°, carriage ±12°) still apply.
 - **Validation** (`hardware/shuttle.py`, at every start; any problem refuses to start with every bad key listed, exit 78, and nothing is applied):
   - valid JSON; sections only `tilt`, `shuttle`, `timing`, `actuation_range`, `invert` (keys starting with `_` are comments); unknown keys refused;
-  - every angle a finite JSON number within `[0, actuation_range]` **and within ±8° of its nominal** (the values in the table in §14.3). ch1's coupler is indexed at HOLD to ≤ 0.6°, and ch2's crank horn is always within ±7.2° (half a 14.4° tooth) of nominal, so ±8° covers both, while a typo (1122 for 112.2, a sign slip, swapped digits such as 79 for hold 97) lands outside;
+  - every angle a finite JSON number within `[0, actuation_range]` **and within its window round the nominal** (the values in the table in §14.3): **tilt ±8°**, **carriage ±12°**.
+    - ch1: the coupler is indexed at HOLD to ≤ 1.2°, and gain moves the tilt poses only a few degrees, so ±8° covers it. A typo (1122 for 112.2, a sign slip, swapped digits such as 79 for hold 97) lands outside.
+    - ch2: the crank is set on the horn at ψ 90 to within about 1° (§13.5 steps 2–5, checked on the machine in §13.6 step 6). A servo that turns 10 % more or less than commanded then moves column 3 (45° from the ψ 90 fit) by up to ≈ 4.5°. Before 2.3.2 the crank went on by the nearest spline tooth (±7.2°): with gain that is up to 11.4°, which ±8° refused in about 7 % of builds at 8 % gain. ±12° passes even those. The swapped-digit carriage typos that now fit inside a window (54 for column 3's 45, 56.2 for column 2's 65.2, 78.3 for column 1's 87.3) break the gap rules below;
   - tilt order and gaps: `lower` < `level` < `hold` < `upper`, with **`hold` − `level` 2–8°** (nominal 3.9°), **`upper` − `hold` ≥ 8°** (nominal 15.2°) and **`level` − `lower` ≥ 30°** (nominal 51.6°), so two poses typed into each other's place (hold 93.2 with level 93.1) are refused too;
-  - carriage order: `reject` < 3 < 2 < `home` < 1 < 0, neighbouring stops **at least 5° apart**;
+  - carriage order: `reject` < 3 < 2 < `home` < 1 < 0, neighbouring stops **at least 5° apart**, and **column 2 − column 3 ≥ 12°** (nominal 20.2°, still ≥ 18° at +10 % gain);
   - every `timing` value a finite number ≥ 0 within its range.
 
 ### 16.5 Camera
@@ -1408,10 +1455,11 @@ Before powering off, always stop with `sudo systemctl stop riftbound-sorter` (or
 | "no stored empty-cradle reference" | never calibrated, or an old calibration file | `main.py --calibrate` (§16.1). |
 | Waits in `needs_confirm` | first start, the last stop was unclean, a hardware tool or `main.py --calibrate` ran since, or a stop while a card waited on the cradle | §15.4: check the machine, remove any card, then **Machine clear** or `--confirm-clear`. |
 | "card held on cup — remove it by hand before stopping the service" | the arm couldn't carry the card to the belt (3 tries); the pump holds it | Take the card off the cup by hand, then **Machine clear**. Don't stop the service first: that lets the card go. The arm stays where it stopped (never parked); after `CUP_HOLD_MAX_S` (600 s) the pump switches off by itself and the card drops from there. The message says where: back onto the stack (near PICK), onto the belt (towards DROP) or across the hopper rim / belt inlet (mid-arc or PARK, may be bent) (§14.8). If it already dropped, pick it up from there, check it isn't bent, then **Machine clear**. |
-| Won't start: `[config] ERROR: invalid … — refusing to start`, service not restarting (exit 78) | a bad key in one of the five checked files: `config/machine.json`, `identify.json`, `shuttle_calibration.json`, `servo_calibration.json`, `bin_limits.json` (typo, unknown key, string instead of number, out of range or outside the sanity window (arm ±10°, tilt / carriage ±8°), poses out of order or too close / too far apart, `TOP_SWITCH_NC` false, a bin limit over its cap) | Fix every key listed (§16.6, §16.8, §16.4, §16.2, §16.7), or delete the key / file for the defaults. Then start the service. |
+| Won't start: `[config] ERROR: invalid … — refusing to start`, service not restarting (exit 78) | a bad key in one of the five checked files: `config/machine.json`, `identify.json`, `shuttle_calibration.json`, `servo_calibration.json`, `bin_limits.json` (typo, unknown key, string instead of number, out of range or outside the sanity window (arm PICK 155–180 / DROP 0–25 / PARK 80–100 or mirrored, tilt ±8°, carriage ±12°), poses out of order or too close / too far apart, arm PICK / DROP not symmetric about PARK within 10°, `TOP_SWITCH_NC` false, a bin limit over its cap) | Fix every key listed (§16.6, §16.8, §16.4, §16.2, §16.7), or delete the key / file for the defaults. Then start the service. |
 | "another sorter process or a hardware tool is running" / a tool says "the sorter or another tool is running" | the service is running while you start `main.py` or a tool by hand (or a second copy) | `sudo systemctl stop riftbound-sorter` first, or let the tool finish. |
 | Service, `main.py` or a tool won't start: "cannot open …/data/sorter.lock … Fix: sudo chown -R <user>: …/data" or "…/data is not writable by this user", exit 78, the service not restarting | a root-owned `data/`, `data/sorter.lock` or `data/machine_state.json`, left by a tool or `main.py` run with `sudo` | `sudo chown -R <user>: data` (your user name, in the checkout), or re-run `bash scripts/setup.sh`; then start the service. Never run the tools or `main.py` with `sudo` (§15.2). |
-| `calibrate_servos.py` won't jog any further, or says "NOT saved — … would make the calibration file invalid" | the pose is at the edge of what the sorter accepts: arm ±10°, tilt / carriage ±8° round nominal, or the tilt gaps / carriage spacing against the other poses (§16, §16.4) | Check the other poses first (a wrong neighbour narrows the window), or re-seat the horn / crank / coupler one spline tooth (§16). |
+| `calibrate_servos.py` won't jog any further | the pose is at the edge of its own sanity window: arm PICK 155–180 / DROP 0–25 / PARK 80–100 (or mirrored), tilt ±8°, carriage ±12° (§16) | The arm horn or ch1 coupler is on the wrong spline tooth, or the ch2 crank is off its ψ 90 line: re-fit it (arm: the 93° fit, §11 step 3; ch1: §13.3; ch2: §13.5 steps 2–5 and the §13.6 step 6 check). |
+| `calibrate_servos.py` says "HELD, not written yet", or "NOT saved: … still held at the end of the menu" | the pose is fine on its own but breaks a rule between poses (arm symmetry, tilt order / gaps, carriage order / spacing, column 2 − column 3 ≥ 12°) against poses not yet set (§16) | Set the remaining poses of that menu: the held pose is written with the first save that makes the file valid. If it is still held at the end, re-run the menu and check the pose the rule names. |
 | `error`: "hash DB incomplete" | card image downloads failed | `main.py --build-db` with internet (§15.5); it retries by itself every 60 s. |
 | Web UI or CLI action refused (HTTP 409) | not allowed in the current state | The message says why; see the table in §15.3. |
 | ch2 crank swings toward the end post / wrong way | servo direction not checked or `invert` lost | Unplug ch2 at once. Remove the crank, re-run the direction check bare (menu `d`, §13.5). |
@@ -1439,7 +1487,18 @@ Before powering off, always stop with `sudo systemctl stop riftbound-sorter` (or
 
 None of these can be settled in CAD or in the mock tests. Check each one on the bench or on the built machine **before** relying on it (and before printing the big parts where it says so):
 
-1. **Servo travel (before printing the arm).** The arm needs **~170°** of servo travel (ARM_DROP 5° → ARM_PICK 175°) and ch2 needs **~176°** (reject 2° → column 0 178°). Many MG996Rs give only ~120° with standard pulses; the code uses 500–2500 µs. **Test:** bolt a horn on, command 5°, 90° and 175° with `calibrate_servos.py --no-mock`, and measure with a protractor. **Fallback: DS3218MG-270** (~$15): arm `"servos": {"ARM_ACTUATION_RANGE": 270}` in `config/machine.json` (§16.2); ch2 `"actuation_range": {"2": 270}` in `config/shuttle_calibration.json` (§16.4). Re-calibrate after either.
+1. **Servo travel (before printing the arm).**
+   - **Arm (ch0):** needs **170°** of crank travel (ARM_DROP 5° → ARM_PICK 175°), and the crank is fitted within 1.8° of its mid pose (§11 step 3). So the servo must turn **at least 87° each side of 90°** between 0° and 180° (≥ 174° in all). A servo that turns more than 3.5 % less than commanded can't reach both ends; one that turns up to 10 %+ more is fine, because the windows allow for it (§16.2).
+   - **Carriage (ch2):** needs **~176°** (reject 2° → column 0 178°), with both stops at dead centres right at the ends of a 180° servo's range. With the crank fitted at ψ 90 (§13.5), that is **≥ 88° each side of 90°**. The reject side is the one that matters: a few degrees short there costs millimetres, while column 0 costs < 0.3 mm.
+   - Many MG996Rs give only ~120° with standard pulses; the code uses 500–2500 µs.
+   - **Test:** bolt a horn on, command 0°, 90° and 180° with `calibrate_servos.py --no-mock` (or the `servos` module), and measure each side from 90° with a protractor.
+   - **Recommendation: a DS3218MG-270 on the arm (ch0) and the carriage (ch2).** About **$15.59 each, ≈ $31 for the two** (e.g. ANNIMOS DS3218MG "Control Angle 270°", [amazon.com/dp/B076CNKQX4](https://www.amazon.com/dp/B076CNKQX4); BOM "Recommended upgrade"). Its 270° travel means the 0–180° working span asks for only two thirds of what the servo can turn. That removes the main MG996R risk: a unit that physically can't turn the ≥ 174° (arm) or ~176° (ch2) these two channels need.
+     - **Fit:** same 25T spline and the same standard-size case (40 × 20 × 40.5 against the MG996R's 40.7 × 19.7 × 42.9). Measure its tab-hole pitch (item 13) and its spline-face-to-tab height against your MG996R before printing the arm head, the −Y end post and riser B.
+     - **Configure, before fitting anything:** arm `"servos": {"ARM_ACTUATION_RANGE": 270}` in `config/machine.json` (§16.2); ch2 `"actuation_range": {"2": 270}` in `config/shuttle_calibration.json` (§16.4).
+     - **Fit at the commanded pose:** the arm crank at PARK 90° (§11 step 3), the ch2 crank at ψ 90 (§13.5). Then calibrate every angle of that channel.
+     - **ch2 horn:** keep the MG996R's round plastic horn on ch2. The M2 self-tappers need its plain plastic disc; the DS3218's aluminium arm won't take them.
+     - **Still run the travel test on it.** The code maps 0° to 500 µs on either range, so the arm's DROP end and ch2's reject end still sit at the pulse limit. The servo's own scale must therefore be true to about 3.5 %: ≥ 87° (arm) / 88° (ch2) each side of commanded 90°, i.e. ≥ ≈ 261° over 500–2500 µs. Some DS3218s are reported to turn only ≈ 255°, and such a unit falls short in the same way.
+   - **The MG996R stays the baseline.** If yours passes the test, keep it: the bench test decides, servo by servo.
 2. **Servo direction (ch1, ch2).** Run the bare-servo direction check (menu `d`) before the coupler or the crank goes on (§13.3, §13.5). MG996R clones differ; a reversed ch2 without `invert` drives the crank into the end post.
 3. **Relay at 3.3 V logic.** The 5 V relay module is driven from 3.3 V GPIO; some boards never fully switch off. For the first few seconds after power-on IN sits at only ≈ 2.7 V (the SoC's ≈ 50 kΩ pull-down against the 10 kΩ pull-up), until the firmware applies the `config.txt` pull-up from `setup.sh` (`gpio=17,27=ip,pu`, ≈ 3.3 V; check `pinctrl get 17,27` shows `pu` after the reboot). Bench-test both channels at 3.3 V and at ≈ 2.7 V before wiring (§14.1 step 5). If one is marginal, 4.7 kΩ pull-ups instead of 10 kΩ give ≈ 3.0 V straight out of reset.
 4. **Camera:** check at start-up that the IMX708 really runs the 2304 × 1296 full-field mode (no "NOT the full field of view" warning), that `LensPosition` 10 gives a sharp card, and tune `STOP_LATENCY_S` (and `BRAKE_COAST_MM`) with test 10 (§16.5, §16.6).
@@ -1447,7 +1506,7 @@ None of these can be settled in CAD or in the mock tests. Check each one on the 
 6. **Belt speed.** `BELT_SPEED_MM_S` (default 150) is a guess for two N20s at 5 V: measure it (test 9, §16.6). It sets the seek timeout and the exit run.
 7. **Bin capacities depend on the card friction (μ).** The default limits (40 lower, 12 upper, 35 reject) come from the slide simulation at μ 0.35–0.45 (`cad/shuttle_check.py slide`). Real raw cards on PTFE tape may slide better or worse. Raise limits only after a run of commons into that bin shows every card landing flat at the new pile height (§16.7).
 8. **Vent valve and pump dimensions.** The valve clip and the pump-head cradle are built round reference envelopes (uxcell 12 V NC valve ≈ 15 × 14 × 34; R385 head ≈ 32 long), not vendor drawings. Measure yours: the valve must snap into the clip on its foam strip, the pump head must rest on its pad without lifting the can (§14.6). Check the tee's Ø3 barbs take the 4 × 2.5 PU tube.
-9. **ch1 coupler indexing.** The goBILDA coupler is indexed to the hex flats at HOLD (7° up from +X) to within 0.6° (§13.3). Confirm on the machine that HOLD and level land within a degree or two of 97° / 93.1° before trimming; a big error means a wrong tooth or a slipped clamp.
+9. **ch1 coupler indexing.** The goBILDA coupler is indexed to the hex flats at HOLD (7° up from +X) to within 1.2° (§13.3). Confirm on the machine that HOLD and level land within a degree or two of 97° / 93.1° before trimming; a big error means a wrong tooth or a slipped clamp.
 10. **Camera ribbon slack.** The route is ≈ 450 mm on the 500 mm SC1130: **≈ 50 mm of slack**. Test-fit it before tying anything down (§14.5). The fallback is a longer third-party 15-to-22-pin cable (1 m).
 11. **Load-cell loop at column 0.** The 350 mm loop needs ≈ 30 mm more slack at column 0, where its bend comes within 5 mm of the −Y end post (§14.7). Test-fit through every column.
 12. **Hopper lift clearance.** A card lying 1.5 mm off-centre (also in a cavity corner) clears the hopper by ≥ 0.49 mm during the lift (`cad/pick_arm_check.py`). Watch the first lifts.

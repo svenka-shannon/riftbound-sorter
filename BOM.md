@@ -25,6 +25,7 @@ Recounted for 2.3.0 from the tables below (each table's subtotal is the sum of i
 - If the "verify" items turn out to be missing, it rises to ~$681.
 - If the Arducam IMX708 from the earlier order fits the camera bracket, it drops by $25.
 - The **Optional cost-down** section below can take another ~$60 off without changing the design (~$585).
+- **Recommended upgrade, not in the totals:** 2 × DS3218MG-270 (270°) servos for the arm (ch0) and the carriage (ch2), **≈ $31**, which would take the still-to-buy total to ~$676. See Optional cost-down → Upgrade. The MG996R stays the baseline, and the bench travel test decides.
 - The owned 12 V 3 A adapter is counted under "have" but is **replaced** by a 12 V 5 A adapter (see Power budget). Keep the 3 A one for bench work.
 
 ### Still to buy (summary)
@@ -203,7 +204,7 @@ Not printed in v2: `sort_gate_lever.scad`, `output_bin.scad`. These files are wr
 | 1 | Raspberry Pi Camera Module 3, standard lens (IMX708, 66° × 41°) | [adafruit.com](https://www.adafruit.com/product/5657) | $25 | buy | Project notes show an Arducam IMX708 (B0G5YJMR8Q) on an earlier order. Use it only if its PCB is the official 25 × 23.862 mm board with 21 × 12.5 mm holes (camera_bracket.scad) |
 | 1 | Raspberry Pi camera cable Standard–Mini 500 mm, part SC1130 (22-pin 0.5 mm ↔ 15-pin 1 mm) | [digikey.com](https://www.digikey.com/en/products/detail/raspberry-pi/SC1130/21658263) | $3 | buy | Route is ≈ 0.45 m, see ASSEMBLY.md §14.5 |
 | 1 | PCA9685 16-ch 12-bit PWM board (I²C 0x40) | [amazon.com](https://www.amazon.com/s?k=PCA9685+16+channel+servo+driver) | $7 | **have** | The tray posts are on the Adafruit #815 pattern, 55.88 × 19.05 mm; the common blue clone copies it |
-| 3 | MG996R metal-gear servo: ch0 arm, ch1 cradle tilt, ch2 shuttle | [amazon.com](https://www.amazon.com/dp/B07MFK266B) | $19 | **have** | 4-pack ordered, so 1 spare. Must reach ~170° (arm) and ~176° (ch2): test first |
+| 3 | MG996R metal-gear servo: ch0 arm, ch1 cradle tilt, ch2 shuttle | [amazon.com](https://www.amazon.com/dp/B07MFK266B) | $19 | **have** | 4-pack ordered, so 1 spare. Must reach ~170° (arm) and ~176° (ch2): test first. **Recommended:** a DS3218MG-270 on ch0 and ch2 (Optional cost-down → Upgrade) |
 | 1 | HX711 amplifier + TAL221 50 g mini load cell (47 × 12 × 6, 4 × M3) | [amazon.com](https://www.amazon.com/dp/B09K7G3477) | $10 | **have** | the HX711 sits in a corner-stop pocket on foam tape |
 | 1 | **2-channel** 5 V relay module, opto-isolated, active-LOW inputs (Songle type, ≈ 50 × 38.5, holes ≈ 44.3 × 32.8) | [amazon.com](https://www.amazon.com/s?k=2+channel+5V+relay+module+optocoupler+low+level+trigger) | $7 | buy | ch1 pump (GPIO 17), ch2 vent valve (GPIO 27). Replaces the owned 1-channel module. Must stay off with IN at 3.3 V and at the ≈ 2.7 V it sees at boot: bench-test it (ASSEMBLY.md §14.1); a board with a JD-VCC jumper can be fixed if not |
 | 1 | 12 V R385 diaphragm pump (Gikfun), used as the vacuum source | [amazon.com](https://www.amazon.com/dp/B0744FWNFR) | $10 | **have** | 0.5–0.7 A at 12 V. Mounted in the printed pump bracket |
@@ -318,13 +319,12 @@ Subtotal: $193 (have $14, verify $0, buy $179)
 
 | Qty | Part | Example link | ~Price | Status | Notes |
 |---|---|---|---|---|---|
-| 1–2 | DS3218MG-270 servo (fallback if an MG996R will not reach 170° on the arm or 176° on ch2) | [amazon.com](https://www.amazon.com/s?k=DS3218MG+270+servo) | $15 | optional | per servo. Arm: `ARM_ACTUATION_RANGE = 270` in `hardware/servos.py`. ch2: `{"actuation_range": {"2": 270}}` in `config/shuttle_calibration.json`. Re-calibrate after either |
 | 1 | 8.0 mm drill bit (ream roller bores, sled D bushings to Ø8.3) | [amazon.com](https://www.amazon.com/s?k=8mm+drill+bit) | $4 | optional |  |
 | 1 | TPU 95A filament (pump sleeve + head pad, ~7 g) | [amazon.com](https://www.amazon.com/s?k=TPU+95A+filament) | $20 | optional | only if you have no neoprene strip |
 | 1 | Ø4.5 mm drill bit (tee-nut holes, ASSEMBLY.md §4) | [amazon.com](https://www.amazon.com/s?k=4.5mm+drill+bit) | $3 | optional | tool, if you don't have one |
 | 1 | 2.5 mm ball-end hex key (end-post anchor under the rod) + 1.5 mm L-key | [amazon.com](https://www.amazon.com/s?k=ball+end+hex+key+set+metric) | $8 | optional | tools, if you don't have them (a metric ball-end set covers both) |
 
-Optional / fallback (not in the totals): $50
+Optional / fallback (not in the totals): $35. The DS3218MG-270 servos, listed here as a fallback until 2.3.2, are now a **recommended upgrade** for ch0 and ch2: see Optional cost-down → Upgrade.
 
 ## Optional cost-down
 
@@ -340,6 +340,23 @@ These options cut the still-to-buy total **without changing the design**: the CA
 | 6. Plain 8 mm rods with a filed flat instead of the two 150 mm D-cut rods | **~$5** | You file a 4 mm wide, 0.5 mm deep flat full length by hand. Not for the shuttle tilt shaft: that is the goBILDA REX (hex) shaft, which the crank and coupler need |
 
 With options 1 and 2 the still-to-buy total is about **$585**. With 1–6 (and the Arducam fits), it is about **$531**.
+
+### Upgrade (adds cost, recommended): DS3218MG-270 on the arm (ch0) and the carriage (ch2)
+
+Not in the totals: add **≈ $31** to whichever total you end up with (e.g. $645 → ~$676).
+
+| Qty | Part | Example link | ~Price | Status | Notes |
+|---|---|---|---|---|---|
+| 2 | DS3218MG-270 metal-gear digital servo, 270° on 500–2500 µs, 25T spline, standard size 40 × 20 × 40.5 (e.g. ANNIMOS DS3218MG "Control Angle 270°") | [amazon.com](https://www.amazon.com/dp/B076CNKQX4) | $15.59 | recommended | one for the arm (ch0), one for the carriage (ch2); ≈ $31 for both. ch1 keeps its MG996R |
+
+Why: the arm needs **≥ 174°** of servo travel (≥ 87° each side of 90°), which some MG996Rs can't give. ch2 needs **~176°**, with its reject and column-0 stops at dead centres right at the ends of a 180° servo's range. A 270° servo covers that 0–180° span with two thirds of its travel, which removes the risk that the servo physically can't turn far enough. The MG996R stays the baseline: run the bench travel test (ASSEMBLY.md §19.1 item 1) and keep any MG996R that passes it.
+
+How to set it up (ASSEMBLY.md §16.2, §16.4, §19.1 item 1):
+- **Before fitting anything**, set the range. Arm: `"servos": {"ARM_ACTUATION_RANGE": 270}` in `config/machine.json`. ch2: `"actuation_range": {"2": 270}` in `config/shuttle_calibration.json`. Only 180 or 270 are accepted.
+- **Fit the horn and crank at the commanded pose:** arm crank at PARK 90° (§11 step 3); ch2 crank at ψ 90 (§13.5). Then calibrate every angle of that channel.
+- **ch2 horn:** use the MG996R's round plastic horn, not the DS3218's aluminium arm. The crank's M2 self-tappers need the plain plastic disc.
+- **Before printing the arm head, the −Y end post and riser B**, measure the DS3218's tab-hole pitch (49.5 × 10 in the CAD) and its spline-face-to-tab height against an MG996R.
+- **Still run the travel test on it.** The code maps 0° to 500 µs on either range, so the arm's DROP end and ch2's reject end sit at the pulse limit. The servo must turn ≥ 87° (arm) / 88° (ch2) each side of commanded 90°, which is ≥ ≈ 261° over 500–2500 µs. Some units are reported to give only ≈ 255°.
 
 ### 1. Drilling template instead of printed tiles
 

@@ -5,6 +5,46 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2.3.2] — 2026-11-12 — code round 5: calibration windows vs servo gain (branch `audit-fixes`)
+
+Fixes from the fifth (confirmation) audit. The 2.3.1 windows were too tight for real MG996R gain variance, and the documented arm crank fit added a 3° bias.
+
+### Changed: software and safety
+- **Arm crank fit (MJ-A):** fit the crank at servo 90° pointing **3° past vertical toward the hopper (93°**, the CAD `th_mid`), not straight up. Use the **25T spline × 4 horn slots (3.6° lattice)** so it is always within **1.8°**. Following the 2.3.1 docs (vertical, nearest tooth ±7.2°), only 87 % / 56 % / 35 % of builds passed at +5 / +8 / +10 % servo gain, and about 30 % needed PICK > 180 or DROP < 0 even at 0 %.
+- **Arm windows widened toward PARK only:** PICK **155–180** (mirror 0–25), DROP **0–25** (mirror 155–180), PARK 80–100. New **symmetry rule** |(PICK − PARK) − (PARK − DROP)| ≤ 10°; PICK 157 for 175 still fails (by 18°). With the new fit every build the servo can reach passes for gain −10 … +10 % (model in `tests/test_audit5_fixes.py`). A 180° servo must turn ≥ 87° each side of 90° (reachable down to about −3.5 % gain).
+- **Carriage (MJ-B):** ch2 window **±12°** (was ±8°, which failed 7 % of builds at 8 % gain). New gap rule **column 2 − column 3 ≥ 12°** (nominal 20.2°). The ≥ 5° neighbour rule and the order stay; col3 54, col2 56.2, col1 78.3, home 57.5 and reject 20 are still refused. Tilt (ch1) stays ±8°.
+- **ch1 coupler residual is ≤ 1.2°**, not 0.6° (25T × hex = 2.4° lattice).
+- **`calibrate_servos.py` jog (minor 3):** clamped to each pose's own window only. The rules between poses (order, gaps, arm side and symmetry) are checked at save. A pose that only waits for a later pose in the same menu is **held** and written with it, so a build 7–8° off everywhere calibrates in one pass. Anything still held at the end of the menu (or at `q`) is not saved, with a message.
+- **Bin counts file (minor 2):** written mode **0644** and, run as root, given to `data/`'s owner (as are new `.lock` files). An unreadable or corrupt `data/bin_counts.json` at start-up is refused with **exit 78** and the fix, instead of starting every bin at 0 (which would overfill bins). `instance.data_dir_problems()` covers `bin_counts.json` and its `.lock`. `--empty-bin` / `--empty-all` / `--confirm-clear` with an unwritable `data/` exit 78 with the message, never a traceback.
+- **`config_txt_line.py` (minor 4):** a missing `--file`, a directory, a non-UTF-8 file or an unwritable one gives a one-line error (exit 1, nothing changed), not a traceback.
+
+### Changed: build procedure
+- **ch2 crank set by eye, not by a spline tooth (§13.5).** Until now the crank was screwed to the round horn on the bench and the pair was then pressed onto the spline at home 75.5°. That leaves the crank up to **±7.2°** off (half a 14.4° tooth). At reject (ψ 0, a dead centre) that is up to ≈ 3.3 mm of carriage error against a reject box 3 mm wider than the card, and the tool can't trim past reject 2°. Column 0, at the other dead centre, moves only ≈ 0.3 mm.
+  - The crank holds the disc only by 4 M2 self-tappers cut into plain plastic (`c2_horn_holes`), so its angle on the disc is free.
+  - New order: direction check; the bare horn pressed onto the spline; ch2 held at **ψ 90** (menu 3, column 1 jogged to 90.0°, not saved).
+  - The crank is centred by starting the M3 × 12 hub screw and lined up with a **paper gauge**: a line traced square to the servo case's long sides, s ≈ 10.2 mm from its spline-end face. The tip journal (Ø4.1, 139 mm out) must sit over the line within 1 mm (0.4°; 2.4 mm = 1°).
+  - Only then are the 4 self-tappers driven, then the hub screw tightened.
+  - ψ 90 is mid-travel, so the servo's gain error splits between the two ends. A ψ 178 reference would put it all on the sensitive reject end: ≈ 4.6 mm there at −5 % gain, against ≈ 1.6 mm.
+- **ch2 square check on the machine (§13.6 step 6).** The M2.5 ear screws in the MG996R's Ø4.5+ tab holes let the case twist up to ≈ ±2°. With the module bolted down, command ψ 90 again and measure from the riser's front face (Y −113) to the far edge of the crank's tip boss: **17 mm**, 2.4 mm per degree. If it is out, re-seat the case in its tab holes.
+- **DS3218MG-270 recommended for ch0 and ch2** (was a fallback): ≈ $15.59 each, ≈ $31 for the two, not in the totals. Set `ARM_ACTUATION_RANGE` 270 and `"actuation_range": {"2": 270}` before fitting, then fit at the commanded pose. On ch2, keep the MG996R's round plastic horn. The MG996R stays the baseline and the bench travel test decides. The code maps 0° to 500 µs on either range, so the DS3218 also has to pass that test (≥ 87° / 88° each side of commanded 90°, ≈ 261° over 500–2500 µs).
+
+### Documentation
+- `docs/ASSEMBLY.md`:
+  - §11 step 3: 93° crank fit, tooth × slot lattice, the 6-teeth / one-slot 3.6° step, judging with an angle gauge, plumb line or paper gauge. §11 check: PARK at 93°.
+  - §13.3 step 3 and §13.4 step 4: coupler ≤ 1.2°.
+  - §16 jog notes: per-pose clamp, rules at save, held poses.
+  - §16.2: PARK advice, new arm windows, symmetry rule and why, DS3218 note.
+  - §16.4: residual 1.2°, carriage ±12° and why, column 2 − 3 gap.
+  - §18: config row, and the jog row split into "won't jog further" and "HELD / NOT saved".
+  - §13.5 rewritten (case orientation, why not a spline tooth, paper gauge, horn on first, ψ 90, self-tappers then hub screw); §13.6 step 6 square check.
+  - §16 jog note, §16.4 (`actuation_range` set before fitting; the ch2 window rationale now that the crank is within ~1°), §18 "won't jog" row: ch2 points at the ψ 90 fit, not a spline tooth.
+  - §16.2 / §16.4: DS3218MG-270 is the recommended upgrade, not a fallback.
+  - §19.1 item 1: ≥ 87° each side of 90°; ch2 ≥ 88° each side (reject is the sensitive end); the DS3218MG-270 recommendation (price, link, configuration, the ch2 horn, why it still needs the travel test). Item 9: 1.2°.
+- `BOM.md`: new **Upgrade** table under Optional cost-down (2 × DS3218MG-270, ≈ $31, not in the totals), a pointer from Totals and from the MG996R row. The row is gone from Optional / fallback, whose subtotal is now $35.
+- `README.md`: calibration windows and rules, held saves, 93° fit, ch2 crank by eye at ψ 90, the DS3218MG-270 recommendation, unreadable bin counts and exit 78.
+
+---
+
 ## [2.3.1] — 2026-11-12 — code round 4 (branch `audit-fixes`)
 
 Fixes from the fourth code audit (commit b028645). Docs: `BOM.md`, `docs/ASSEMBLY.md`, `README.md`, `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch` updated to match; every detail 2.3.0 left open for code round 4 is resolved.
