@@ -44,6 +44,7 @@ use <suction_arm.scad>
 use <sorting_tray.scad>
 use <shuttle_geom.scad>
 use <shuttle.scad>
+use <pump_bracket.scad>
 
 /* [Pose] */
 pose         = "running"; // [running, home, pick, drop, custom]
@@ -85,7 +86,7 @@ module asm_baseplate()
     for (col = [0:2]) for (row = [0:2])
         translate([col * 190 - 285, row * 180 - 270, 0]) baseplate_tile();
 
-// ── Step 2 — Electronics tray (185 × 125 × 45) on the baseplate, behind the riser
+// ── Step 2 — Electronics tray (185 × 150 × 45) on the baseplate, behind the riser
 module asm_electronics_tray()
     translate([-150, 80, base_top]) electronics_tray();
 
@@ -180,10 +181,9 @@ module asm_sorter(col = "home", tilt = "level", card = false) asm_sorter_end(col
 //   front harness Ø7: N20 ×2, ch1/ch2 servo, arm servo; clipped to the riser's
 //     front face at Z 45 (above the ch2 crank, Z 5..13.5), round the −X end in
 //     front of the arm column, down to Z 12 at X −277 (outside the hopper),
-//     along the −X edge to Y 215, behind the electronics tray to X 45 and in
-//     through its existing +X cable slot (Y 130..140, Z 40.5..46.5).
-//     The riser has no front→back pass, so this is the only route that stays
-//     clear of the crank sweep; a −X wall slot in the tray would save ≈ 0.4 m.
+//     along the −X edge to Y 135, then in through the tray's −X wall cable
+//     slots (X −150, Y 100..170, Z 40.5..46.5). The riser has no front→back
+//     pass, so this is the only route that stays clear of the crank sweep.
 //   arm servo Ø5: head-floor slot (Y ≈ −108) → under the head → down in front
 //     of the column (Y −117.5) onto the harness.
 //   hopper drop Ø5: 28BYJ-48 + 2 switches, down the tower back (Y 80).
@@ -191,25 +191,22 @@ module asm_sorter(col = "home", tilt = "level", card = false) asm_sorter_end(col
 //     −Y plate slot → up the plate, over the gusset and arm top → down behind
 //     the hood and back rail → into the tray from above at X 5, Y 88 (≈ 0.5 m).
 //   load-cell cable: trailing service loop from the carriage (moves, not modelled).
-pump_c = [-235, -205, 18];   // 12 V mini diaphragm pump stand-in (Ø27 × 60 along X)
-module asm_pump() color("DimGray") {
-    translate(pump_c - [30, 0, 0]) rotate([0, 90, 0]) cylinder(d = 27, h = 60, $fn = 40);
-    translate(pump_c + [-22, -18, -14]) cube([44, 36, 2.5]);   // bracket plate
-}
+// Pump: R385 in its isolated bracket (cad/pump_bracket.scad), nozzles at pump_nozzle_tip()
+module asm_pump() asm_pump_bracket();
 module cable(pts, d = 6) for (i = [0 : len(pts) - 2])
     hull() for (p = [pts[i], pts[i + 1]]) translate(p) sphere(d = d, $fn = 12);
 function _ax() = pick_arm_pivot()[0];
 function _az() = pick_arm_pivot()[1];
 module asm_vac_tube()   // vacuum tube (4 mm OD, PU)
-    color("SkyBlue") cable([pump_c + [30, 0, 0], [_ax() + 8, -205, 18], [_ax() + 8, -160, 18],
+    color("SkyBlue") cable([pump_nozzle_tip(), [_ax() + 8, -205, 28], [_ax() + 8, -205, 18], [_ax() + 8, -160, 18],
                             [_ax() + 8, -160, _az()], [_ax(), -160, _az()], [_ax(), -152.5, _az()]], 4);
 module asm_harness() {
     color("Black") {
         // main front harness (Ø7)
         cable([[66, -117.5, 52], [60, -117.5, 45], [-277, -117.5, 45], [-277, -117.5, 12],
-               [-277, 215, 12], [45, 215, 12], [45, 135, 20]], 7);
-        // fans out into the tray's three +X cable slots (10 × 6, Z 40.5..46.5)
-        for (y = [105, 135, 165]) cable([[45, 135, 20], [45, y, 43.5], [32, y, 43.5]], 5);
+               [-277, 135, 12], [-160, 135, 12]], 7);
+        // fans out into the tray's three −X wall cable slots (10 × 6, Z 40.5..46.5, X −150)
+        for (y = [105, 135, 165]) cable([[-160, 135, 12], [-160, y, 43.5], [-145, y, 43.5]], 5);
         // N20 drops onto the harness
         for (x = roller_x) cable([[x, -116, 66], [x, -117.5, 45]], 5);
         // arm servo cable: head floor slot → under the head → down in front of the column
