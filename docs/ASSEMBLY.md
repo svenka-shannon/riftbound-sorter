@@ -1,6 +1,6 @@
 # Riftbound Card Sorter: Build Guide (v2)
 
-This guide covers the v2 machine from the Nov 2026 redesign, including the audit fixes of 12 Nov 2026:
+This guide covers the v2 machine from the Nov 2026 redesign, including the audit fixes of 12 Nov 2026 and the third CAD / code round (release 2.2.0: goBILDA ch1 coupler, board tee-nuts, NC hopper switches, crash-safe outputs):
 - **Hopper:** a motor-raised floor, so the top card always sits at pick height.
 - **Pick arm:** one servo, a parallelogram linkage and a suction cup. It lifts the card straight up and puts it down flat on the belt. A vent valve breaks the vacuum so the card drops cleanly.
 - **Conveyor:** a 60 mm riser carries 4 round O-ring belts. The belt stops when the camera sees the card centred under the lens.
@@ -20,7 +20,7 @@ Parts and prices are in [`BOM.md`](../BOM.md). The wiring diagram is [`docs/wiri
 1. [Before you start](#1-before-you-start)
 2. [Print list and settings](#2-print-list-and-settings)
 3. [Heat-set inserts](#3-heat-set-inserts)
-4. [Step 1: baseplate and backing board](#4-step-1-baseplate-and-backing-board)
+4. [Step 1: baseplate, backing board and tee-nuts](#4-step-1-baseplate-backing-board-and-tee-nuts)
 5. [Step 2: electronics tray](#5-step-2-electronics-tray)
 6. [Step 3: conveyor riser](#6-step-3-conveyor-riser)
 7. [Step 4: rails and bearings](#7-step-4-rails-and-bearings)
@@ -48,15 +48,17 @@ Parts and prices are in [`BOM.md`](../BOM.md). The wiring diagram is [`docs/wiri
 |---|---|
 | Baseplate | 3 × 3 tiles of 190 × 180, X −285..285, Y −270..270, top Z 4 |
 | Electronics tray | X −150..35, Y 80..230 (185 × 150 × 45) |
-| Riser | X −165..85, Y −113..80, Z 4..64 (the deck is the rail base) |
+| Riser | X −165..85 (plus the ch2 front-ear lug to X 89), Y −113..80, Z 4..64 (the deck is the rail base) |
 | Conveyor | Belt X −165..85. Rollers at X −140 / +60, rod axis Z 79. Card face (belt top) Z 90.9. Slide bed X −127..47. Rail top Z 99. |
 | Scan station | Hood X −49..59. Lens axis X +5. Lens tip Z 190.9 (100 mm above the card). |
-| Hopper elevator | Cavity centre X −215, Y 0. Footprint X −263.5..−166.5. Rim Z 94.4. Motor top Z ≈ 158. |
+| Hopper elevator | Cavity centre X −215, Y 0. Footprint X −263.5..−166.5, Y −65.6..74. Rim Z 94.4. Cap top Z ≈ 135, motor top Z ≈ 154. |
 | Pick arm | Servo axis X −154.7, Z 151.8. Tower foot X −188..−112, Y −173..−122. Pick at X −215, drop (card centre) at X −95. |
-| Pump bracket | X −276..−234, Y −234..−186, Z 4..47. Pump axis Y −210, Z 28; nozzles to X ≈ −183. |
-| Shuttle | Cradle X 92..169. Carriage rod at X 106, Z 24. Carriage centre travels Y −102..176. |
+| Pump bracket | X −276..−200, Y −234..−186, Z 4..47 (saddle + cap X −264..−246, head cradle X −232..−200). Pump axis Y −210, Z 28; nozzles to X ≈ −183. |
+| Vent valve | Clip X −186..−144, Y −264..−246, Z 4..37.7. Barbed tee in the tube at X −165, Y −210, Z 28. |
+| Shuttle | Cradle X 92..169. Carriage rod at X 106, Z 24 (Y −160..240). Tilt shaft (8 mm REX) at X 105, Z 44 (Y −175.2..241.8). ch1 servo case face Y −185. Carriage centre travels Y −102..176 (columns −102 / −35 / 35 / 102, home 0, reject 176). |
 | Sorting tray | X 178..276, Y −137..137, open back face at X 178 |
-| Reject bin | Y 141..211 (beside the tray), X 178..276 |
+| Lower ramp | X 136..178, in front of the tray's lower floor |
+| Reject bin | X 159..274, Y 138..214 (beside the tray, at the shuttle's reject Y 176) |
 
 **One sort cycle** (`main.py`):
 1. The elevator raises the stack until the feeler flag trips.
@@ -71,14 +73,19 @@ Parts and prices are in [`BOM.md`](../BOM.md). The wiring diagram is [`docs/wiri
 
 **Tools:**
 - 60 W soldering iron with an M3 heat-set insert tip.
-- Hex keys 1.5–2.5 mm, plus a **long-arm 2.5 mm** key for the riser anchors (54 mm deep wells).
+- Hex keys 1.5–3 mm:
+  - a **long-arm 2.5 mm** key for the riser anchors (54 mm deep wells);
+  - a **1.5 mm L-key** for the ch2 ear screws (driven from below, short arm up) and the shuttle rod set screws;
+  - a **2.5 mm ball-end** key for the one end-post anchor under the rod (§13.6);
+  - a **3 mm** key for the ch1 coupler's M4 clamp screw;
+  - a 2.5 mm hex driver for the ch1 ear screws.
 - Small Phillips screwdriver (self-tapping screws).
 - Calipers.
-- Drill with Ø3.4 and Ø8.0 bits; Ø3.0 and Ø4.0 bits for reaming by hand (§2).
-- Hacksaw or Dremel for cutting the 4 mm rod and the 8 × 6 tube.
+- Drill with Ø3.4, **Ø4.5** (tee-nut holes, §4) and Ø8.0 bits; Ø3.0 and Ø4.0 bits for reaming by hand (§2).
+- Hacksaw or Dremel cut-off disc for the 4 mm rod, the 8 × 6 tube and the **REX shaft (cut to 417 mm)**.
 - Fine file.
 - Utility knife.
-- Small mallet (tile keys).
+- Small mallet or hammer (tile keys, tee-nuts).
 
 There is **no multimeter** in this build, which is why all three regulators are fixed-output modules. Never substitute an adjustable buck without a meter (BOM.md → Optional cost-down lists safe fixed-output alternatives).
 
@@ -88,23 +95,27 @@ There is **no multimeter** in this build, which is why all three regulators are 
 
 The full list is the **Printed parts** table in `BOM.md`: part, quantity, material, file/selector, orientation and supports. Summary:
 - **PLA:** baseplate tiles and keys, electronics tray, riser, rails, rollers, slide bed, camera bracket, hopper, sorting tray, cradle, R-bars, lower ramp, reject bin.
-- **PETG:** arm (all parts), card guides and clips, tilt frame, shuttle sled and cheeks, tilt crank and link, ch2 crank and link, end posts, pump bracket. Motor mounts can be PETG or PLA.
+- **PETG:** arm (all parts), card guides and clips, tilt frame, shuttle sled and cheeks, tilt crank and link, ch2 crank and link, end posts, pump bracket and vent-valve clip. Motor mounts can be PETG or PLA.
 - **Black:** scanner hood (PLA or PETG). Make the card guides black too if you can.
-- **TPU 95A:** the pump sleeve, if you can print TPU. Otherwise wrap the pump in a neoprene strip (§14.6).
+- **TPU 95A:** the pump sleeve and the pump-head pad, if you can print TPU. Otherwise wrap the pump can in a neoprene strip and cut the 30 × 40 head pad from the same strip (§14.6).
 
 | Setting | Value |
 |---|---|
 | Layer | 0.2 mm. Exceptions: cradle 0.12 mm (iron the top), lower ramp 0.16 mm, riser 0.24 mm. |
 | Walls | 3–4 (5 for arm crank, links and ch2 crank) |
 | Infill | 15–40 % per part (BOM table). Crank hub, tilt crank and tilt link 100 %. |
-| Supports | **None** for every part except the shuttle **tilt frame** (tree supports under the plate bottom edges and the skid nubs). |
+| Supports | **None, for every part.** The only support in the build is the break-away ladder that is part of the `end_post_neg` export (below). |
+| Bed adhesion | **Brim** on the cradle and the scanner hood (below). |
 | Bed | All parts fit 256 × 256 mm (Bambu P1S). |
 
 Notes:
 - **Export:** `openscad --backend=manifold -o part.stl -D 'part="cradle"' cad/shuttle.scad`. The `sorting_tray.scad` sections and the rollers are picked by editing the last lines of the file or with a wrapper `use <…>` file.
 - **Baseplate:** 9 × `part="tile"` and one plate of 24 keys, `part="keys"`.
 - **Cradle:** it prints bed-top up with every rib standing on one flat plane, but that plane is only ≈ 600 mm². **Use a brim.**
-- **Shuttle carriage:** it is three prints, the `sled` (on its +y face) and two `cheek_neg` / `cheek_pos` (flat on the outer face). `part="carriage"` is only a preview.
+- **Scanner hood: brim required.** It is 101 mm tall and grows outward from a 26 × 26 roof (only 451 mm² on the bed) to a 108 × 103 top. Use an 8–10 mm outer brim (or 4 Ø15 mouse ears at the roof corners), a clean PEI or textured plate (glue stick for PETG) and outer walls ≤ 60 mm/s; otherwise it lifts or is knocked off near the top (`scanner_hood.scad`).
+- **Tilt frame:** no supports. Printed upright (crossbar down), the crossbar, the plate bottoms and the skid-nub tangents are one flat plane at Z 63.8 (≈ 1480 mm² on the bed); the window tops are 12 mm bridges and the remaining edges are 45°.
+- **Shuttle carriage:** it is three prints, the `sled` (on its +y face, no supports: the crank pocket now closes with a 45° roof) and two `cheek_neg` / `cheek_pos` (flat on the outer face). **`part="carriage"` stops the export with an error**: export `sled`, `cheek_neg` and `cheek_pos`. (`part="carriage_preview"` shows the assembled carriage; it is not a print.)
+- **End post −Y (`end_post_neg`):** the export includes a separate **break-away support ladder** (0.8 mm walls, 4 cells) standing on the bed under the ch2 rear-ear ledge (X 70.5..89.5, Y −161.5..−155.5, 0.2 mm below the ledge). Nothing printable can reach that ledge from the part itself (the ch2 crank sweeps below it), so leave the ladder in the print and snap it out with pliers afterwards. Everything else on the part is support-free.
 - **Lower ramp:** prints **upright as modelled** (base on the bed). The 4 mm top bar is a 53 mm bridge: bridge fan 100 %.
 - **Arm XY scale test:** before the arm head and hand, print a 50 mm XY scale test. The two plates only need to carry the *same* pivot pattern (`suction_arm.scad`), so print both links in one job.
 - **Suggested print order** (long prints first): 9 tiles + keys; riser A/B; tray sections; hopper body; arm tower; everything else.
@@ -112,7 +123,9 @@ Notes:
 **Post-processing:**
 - **Rails:** none needed. The 608 pockets are Ø22.15 press fits; tune ±0.05 if they print tight or loose.
 - **Rollers:** ream the bore with an 8 mm drill bit, keeping the D-flat.
-- **Shuttle sled:** ream the D-shaft bushings to Ø8.3 and the ch2 drive-pin journal to Ø4.0+ (slip fit on the 4 mm shoulder).
+- **End post −Y:** snap out the support ladder; check the ch2 rear-ear ledge underside is clean.
+- **Shuttle sled:** ream the tilt-shaft bushings to Ø8.3 and the ch2 drive-pin journal to Ø4.0+ (slip fit on the 4 mm shoulder).
+- **Tilt crank:** its bore is the REX profile + 0.15 (Ø8.15 round ∩ 7.15 mm hex). Check it slides freely along the REX shaft with no rotational play.
 - **Tilt frame:** ream the F-pin holes to Ø3.9 and the pin-A bore to Ø2.95 (turn a Ø3.0 bit by hand, lightly: the Ø3 dowel must stay a firm fit).
 - **ch2 crank:** check the tip journal (Ø4.1) turns freely on the 4 mm shoulder.
 - **Lower ramp:** sand the lanes with 600 grit.
@@ -123,9 +136,7 @@ Notes:
 
 ## 3. Heat-set inserts
 
-<!-- PENDING CAD round 3: insert count may change (hopper carriage nut screws, guide-rod clamps, valve/tee mount) -->
-
-Fit **all 44 M3 inserts before any part is assembled**. Use M3 brass inserts for a Ø4.0–4.2 mm hole, 5.7 mm long (Ruthex / CNC Kitchen type). The ch2 link also takes **2 short M3 × 4 inserts** (OD ≤ 4.6 mm), listed at the end of the table.
+Fit **all 50 M3 inserts before any part is assembled**. Use M3 brass inserts for a Ø4.0–4.2 mm hole, 5.7 mm long (Ruthex / CNC Kitchen type). The ch2 link also takes **2 short M3 × 4 inserts** (OD ≤ 4.6 mm), listed at the end of the table. The baseplate's **tee-nuts** are not inserts; they go into the backing board (§4).
 
 Technique:
 - Iron temperature: 210–220 °C for PLA, 230–245 °C for PETG.
@@ -142,10 +153,10 @@ Every insert hole in the design:
 | Roller | 1 each = 2 | radial Ø4.0 × 6 at mid-length, on the flat side (`conveyor_roller.scad`) | M3 × 6 cup-point grub onto the rod flat |
 | Riser A | 1 | deck top at front foot X −50, Y −75 (Ø4.0 × 7, 14 mm relief below) | rail foot, M3 × 10 |
 | Riser B | 3 | deck top at front feet X −20, +10 (Y −75) and back foot X +40 (Y +75) | front: rail foot + camera bracket, M3 × 16. Back: rail foot, M3 × 10. |
-| Riser B | 2 | internal front wall behind the tie-tab recess, X −30.5, Z 37 and 56; Ø4.0 × 6.5, pressed in along +Y from the front face | front tie, M3 × 10 countersunk |
+| Riser B | 2 | internal front wall behind the tie-tab recess, X −30.5, Z 37 and 56; Ø4.0 × 5.7 (Y −109.8..−104.1, Ø3.2 relief beyond), pressed in along +Y from the front face | front tie, M3 × 10 countersunk |
 | Hopper body | 4 | tower walls under the cap, local (±44.5, 41) and (±44.5, 64.5), Ø4.0 × 6.1 | cap, M3 × 10 |
 | Hopper cap | 2 | motor-ear bosses on the underside, 35 mm apart | 28BYJ-48 ears, M3 × 8 |
-| Hopper carriage | 2 | top face, ±8 mm (PCD 16) beside the T8 bore | T8 nut flange, M3 × 10 |
+| Hopper carriage | 2 | **carriage bottom**, local (±8, 48.5), pressed in from below, flush with the bottom face | T8 nut flange, M3 × 14 (from the top pocket) |
 | Hopper carriage | 2 | shelf, local (±9, 26.5), through 7 mm | floor plate, M3 × 10 countersunk |
 | Arm head | 4 | back face of the ground plate, servo tab pattern 10 × 49.5 (Ø4.1 × 6.2) | MG996R tabs, M3 × 10 |
 | Arm tower | 4 | column top, (±5, Y −134/−126) relative to the servo axis | head, M3 × 12 |
@@ -153,17 +164,19 @@ Every insert hole in the design:
 | Shuttle cradle | 2 | boss underside, on the load-cell free end (Y ±3) | M3 × 10 through the cell |
 | Shuttle sled | 6 | 3 in each side face at (X, Z) (112.5, 39), (97, 50), (114.5, 16.5); Ø4.0 × 6.5 | cheeks, M3 × 10 countersunk |
 | R-bar −Y (`rbar_neg`) | 2 | lap splice at X 99.5, Y ±10, from the split face (Z 64.5) down; Ø4.0 × 8 | splice, M3 × 10 |
+| End post −Y, ch1 cage | 4 | the cage's **−Y face** (Y −193.1), at X 100 / 110, Z 29.5 / 78.5; Ø4.0 × 6.9, Ø3.2 relief beyond | ch1 MG996R ears, M3 × 10 SHCS + washer |
+| End post −Y and +Y | 1 each = 2 | the post's **+X face** (X 116), on the rod centre line (Z 24) at Y −155 and Y 237; Ø4.0 × 5.7, Ø3.2 on into the rod bore | rod set screw, M3 × 6 flat point |
 | Pump bracket base | 2 | saddle ears at Y −189.5 and −230.5 (pump axis ± 20.5) | cap, M3 × 10 |
-| **Total (M3 × 5.7)** | **44** | | |
+| **Total (M3 × 5.7)** | **50** | | |
 | ch2 link (short M3 × 4) | 2 | Ø4.0 through at both ends, pressed **flush from the top** | ch2 shoulder screws |
 
-Everything else is either a clearance hole (Ø3.2–3.6, with a nut) or a deliberate self-tapping pilot:
+Everything else is either a clearance hole (Ø3.2–3.6, into a tee-nut or a nut) or a deliberate self-tapping pilot:
 - Ø2.5: sorting-tray stacking (M3 × 12 countersunk).
-- Ø2.6: shuttle rod clamps (M3 × 10), arm guide-screw tails.
+- Ø2.6: arm guide-screw tails.
 - Ø2.9: cheek dowels in the sled (press fit); pin-A bore in the tilt frame.
 - Ø2.15: electronics-tray M2.5 posts and corner blocks.
 - Ø2.2: M2 hopper-switch holes (clearance, with nuts).
-- Ø2.1: M2.5 servo-ear pilots (ch1 cage, ch2 riser pocket and end-post shelf).
+- Ø2.1: ch2 servo-ear pilots for the M2.5 × 10 button heads (riser B's ear block and lug, the −Y end post's shelf). The ch1 ears no longer use pilots: they go into the 4 cage inserts above.
 - Ø2.0: ch2 crank → horn M2 countersunk.
 - Ø1.8: camera M2.
 - Ø1.7: Pololu M2 posts.
@@ -172,40 +185,45 @@ Everything else is either a clearance hole (Ø3.2–3.6, with a nut) or a delibe
 
 ---
 
-## 4. Step 1: baseplate and backing board
+## 4. Step 1: baseplate, backing board and tee-nuts
 
-<!-- PENDING CAD round 3: baseplate fastening may change to tee-nuts in the MDF board -->
+Parts: 9 tiles; 24 bow-tie keys; a 6 mm plywood/MDF board at least 570 × 540; **49 M3 four-prong tee-nuts** (zinc steel, barrel Ø4.5 × 5, flange Ø13 × 0.9, e.g. FastenRight FF01 M3); 8 rubber feet **at least 10 mm tall**. Optional tile clamps: 18 × M3 × 16 + 18 more tee-nuts.
 
-Parts: 9 tiles; 24 bow-tie keys; a 6 mm plywood/MDF board at least 570 × 540; 8 rubber feet. Optionally 18 × M3 × 16 with nuts and washers.
+**Why tee-nuts.** Every part bolts down through a tile into the board. With a tee-nut hammered into the board from below at every hole a part uses, every baseplate screw is driven **from above** and nothing ever has to be reached under the loaded board. This is done **once, before anything is assembled** (`baseplate_tile.scad` BOARD FASTENING). Threaded inserts for wood are not used: M3 ones are 8–10 mm long (longer than the board) and hold only by their thread in MDF, which strips; a tee-nut's flange bears on the board underside, so tightening the screw pulls it *into* the board.
 
-1. **Lay the tiles** on the board in a 3 × 3 grid, all the same way round, with no gaps: 570 × 540 mm, tile corners at X −285/−95/95/285 and Y −270/−90/90/270. Every tile edge has 2 dovetail half-pockets; on every seam two of them face each other and form one bow-tie pocket.
+1. **Lay the tiles** on the board in a 3 × 3 grid, all the same way round, with no gaps: 570 × 540 mm, tile corners at X −285/−95/95/285 and Y −270/−90/90/270. Every tile edge has 2 dovetail half-pockets; on every seam two of them face each other and form one bow-tie pocket. **Number the tiles** (pencil on the underside) so each goes back in the same place in step 6.
 2. **Keys.** Press a key into every seam pocket (24 in all; 12 interior seams × 2), from above, with a light mallet tap. A seated key sits 0.1 mm below the tile top, so parts bolted across a seam still sit flat. The keys lock the seams in X and Y and pull the tiles together; the board keeps them flush vertically.
-3. **The grid.** Each tile has Ø3.4 holes every 30 mm, starting 15 mm in from its edges. Because a tile is 190 wide, **the X grid restarts on each tile column**: X −270..−120, −80..70 and 110..260 (6 holes each, 30 apart). Y runs continuously: Y = −255 + 30 j, from −255 to 255.
-4. **Drill the board.** Tape the tiles down and use them as the template. Drill **Ø3.4 holes in the board** at every hole a later step uses (47 in all). Every part now bolts to real grid holes; nothing is drilled through a tile.
+3. **The grid.** Each tile has Ø3.4 holes every 30 mm, starting 15 mm in from its edges (6 × 6 per tile), each with a Ø5.2 × 1.5 counterbore on the underside for a tee-nut barrel. Because a tile is 190 wide, **the X grid restarts on each tile column**: X −270..−120, −80..70 and 110..260 (6 holes each, 30 apart). Y runs continuously: Y = −255 + 30 j, from −255 to 255.
+4. **Drill the board through the tiles.** Clamp or tape the keyed tiles to the board and use them as the template: drill **Ø3.4 straight down through the tile hole and the whole board** at every hole in the table below (49 in all). Only these holes; nothing else is drilled through a tile.
 
-| Step | Machine X | Machine Y |
+| Step | Machine X, Y | Holes |
 |---|---|---|
-| Electronics tray (§5) | (−120, 105), (−50, 105), (−120, 195), (10, 195) | |
-| Riser anchors (§6) | (−150, −105), (−150, 75), (−80, −15), (−20, 75), (−20, 45) | |
-| Rail through-feet (§7) | (−80, −75), (−120, 75), (−80, 75), (10, 75) | |
-| Hopper (§10) | −240, −180 | ±15 |
-| Arm tower (§11) | −180, −120 | −165, −135 |
-| Sorting tray (§12) | 200, 260 | −105, −45, 45, 105 |
-| Shuttle end post −Y (§13) | (110, −165), (110, −195), (140, −165) | |
-| Shuttle end post +Y (§13) | (110, 225), (110, 255), (140, 255) | |
-| Lower ramp (§13) | 140 | ±45, ±105 |
-| Reject bin (§13) | 200, 230 | 165, 195 |
-| Pump bracket (§14.6) | −270, −240 | −225, −195 |
+| Electronics tray (§5) | (−120, 105), (−50, 105), (−120, 195), (10, 195) | 4 |
+| Riser anchors (§6) | (−150, −105), (−150, 75), (−80, −15), (−20, 75), (−20, 45) | 5 |
+| Rail through-feet (§7) | (−80, −75), (−120, 75), (−80, 75), (10, 75) | 4 |
+| Hopper (§10) | X −240 / −180, Y ±15 | 4 |
+| Arm tower (§11) | X −180 / −120, Y −165 / −135 | 4 |
+| Sorting tray (§12) | X 200 / 260, Y −105 / −45 / 45 / 105 | 8 |
+| Shuttle end post −Y (§13) | (110, −225), (140, −195), (140, −165) | 3 |
+| Shuttle end post +Y (§13) | (110, 225), (110, 255), (140, 255) | 3 |
+| Lower ramp (§13) | X 140, Y ±45 / ±105 | 4 |
+| Reject bin (§13) | X 200 / 230, Y 165 / 195 | 4 |
+| Pump bracket (§14.6) | X −270 / −240, Y −225 / −195 | 4 |
+| Vent-valve clip (§14.6) | (−180, −255), (−150, −255) | 2 |
+| **Total** | | **49** |
 
-5. Optional: clamp each tile with 2 × M3 × 16 + washer + nut at free grid holes (tile 4 + board 6 = 10 clamp).
-6. Stick 8 rubber feet (≥ 10 mm tall) under the board, clear of the nut positions above. The nuts and screw tips stick out up to ~7 mm.
+5. **Tee-nuts.** Lift the tiles off and turn the board over. Open each of the 49 holes to **Ø4.5 from below**, about 5 mm deep (going all the way through is fine: the tile covers it). Tap an M3 tee-nut into each from below with a hammer, prongs into the board, until the flange is flush with the board underside. Its barrel stops ≈ 1 mm below the board top. Check each one: an M3 screw from the top side threads in by hand.
+6. **Tiles back on.** Turn the board back over, lay the tiles back in their numbered places (key pockets up) and re-seat the 24 keys.
+7. Optional: clamp each tile to the board with 2 × M3 × 16 at free grid holes (tile 4 + board 6 = 10 clamp). Drill and tee-nut those holes in steps 4–5 as well (18 more).
+8. Stick 8 rubber feet (**≥ 10 mm tall**) under the board, clear of the tee-nut flanges. Screw tips poke out up to ~7 mm below a flange.
 
 **Check:**
 - A straightedge across tile joints shows no step over 0.3 mm.
 - Every key is flush or just below the tile tops.
+- Every tee-nut is seated (flange flush) and takes a screw by hand.
 - The board doesn't rock.
 
-**Screw-length rule for every through-bolt in this guide:** clamp length + 4 mm (washer 0.5, nut 2.4, ≥ 1 mm of thread). Lengths below assume this 6 mm board.
+**Screw-length rule for every baseplate screw in this guide:** clamp length (part + tile 4 + board 6) + 4 mm. The tip then runs through all 5.9 mm of tee-nut thread and pokes out ≤ 7 mm below the flange. Lengths below assume this 6 mm board. **Without tee-nuts** the same screws take a washer + nut under the board instead (the parts' BOM footers still describe it that way), but then every later bolt means lifting the loaded machine.
 
 To save the 1.2 kg of tile filament, the board can be drilled from a printed template instead; see BOM.md → Optional cost-down, which also explains what that does to alignment.
 
@@ -214,14 +232,14 @@ To save the 1.2 kg of tile filament, the board can be drilled from a printed tem
 ## 5. Step 2: electronics tray
 
 Parts: electronics tray; Pi Zero 2 W, PCA9685, 2-channel relay, ULN2003, three regulators, HX711, L9110S; barrel jack; Wago connectors; 3 × 1000 µF. Screws:
-- 4 × M3 × 20 + washer + nut (tray → board).
+- 4 × M3 × 20 SHCS (tray → board tee-nuts).
 - 16 × M2.5 × 6–8 self-tapping (Pi 4, PCA9685 4, relay 4, ULN2003 4).
 - 6 × M2 × 5–6 self-tapping (Pololu regulators, 2 each).
 - Foam tape (HX711, L9110S).
 
 The tray has a mount for every board (`electronics_tray.scad`). Tray-local x = machine X + 150, y = machine Y − 80.
 
-1. **Place the tray** at X −150..35, Y 80..230: its front face touches the riser's back face at Y 80. Its 4 mounting holes are real grid holes: machine (−120, 105), (−50, 105), (−120, 195), (10, 195). Fasten with **4 × M3 × 20**, head inside the tray, washer + nut under the board (floor 2.5 + tile 4 + board 6 = 12.5 clamp).
+1. **Place the tray** at X −150..35, Y 80..230: its front face touches the riser's back face at Y 80. Its 4 mounting holes are real grid holes: machine (−120, 105), (−50, 105), (−120, 195), (10, 195). Fasten with **4 × M3 × 20** from above, head inside the tray, into the tee-nuts (floor 2.5 + tile 4 + board 6 = 12.5 clamp).
 2. **Barrel jack.** The Ø8.2 hole is in the tray's **+Y (back) wall**, tray-local x 92, 18 mm up. It takes a DC-022-type jack with an M8 × 0.75 thread. If your jack has an 11 mm thread, open the hole to Ø11.2.
 3. **Mount the boards.** Posts and blocks have blind pilots; board undersides sit 5 mm above the floor (Pololus 4 mm), clear of their solder tails.
 
@@ -255,24 +273,24 @@ The tray has a mount for every board (`electronics_tray.scad`). Tray-local x = m
 Parts: `riser_a` (X −165..−40, plus a 16 mm front tie tab) and `riser_b` (X −40..85). Screws:
 - 3 × M3 × 12 + nut: joint.
 - 2 × M3 × 10 countersunk: front tie (into the 2 riser_b inserts).
-- 5 × M3 × 20 + washer + nut: anchors.
+- 5 × M3 × 20: anchors (into the board tee-nuts).
 
 1. **Joint.** Bolt A to B through the joint walls at X −40 with 3 × M3 × 12 + nut at (Y, Z) (−30, 40), (30, 30), (65, 30). Reach the heads and nuts from the open bottom.
 2. **Front tie.** The joint's front is tunnel, so riser A's front skin carries on past the joint as a 16 × 3 tab (X −40..−24, Z 30..64) that sits flush in a recess in riser B's front face. Fit **2 × M3 × 10 countersunk** from the front into the riser B inserts at X −30.5, Z 37 and 56. The heads sit flush, clear of the harness at Z 45.
 3. Set the riser on the baseplate at X −165..85, Y −113..80, deck up. The **open tunnel** under riser B (open below Z 26, closed by a 3 mm roof) is for the ch2 crank and link. It must stay empty: nothing taped or cabled in it.
-4. **Anchors (do this now, before the conveyor; the slide bed later covers two wells):** fit 5 × M3 × 20 down the Ø6.8 wells from the deck top, at (−150, −105), (−150, 75), (−80, −15), (−20, 75), (−20, 45). The head sits on the 6 mm floor of the boss at Z 10. Washer + nut under the board (6 + tile 4 + board 6 = 16 clamp). Use the long-arm 2.5 mm hex key down the 54 mm well.
+4. **Anchors (do this now, before the conveyor; the slide bed later covers two wells):** fit 5 × M3 × 20 down the Ø6.8 wells from the deck top, at (−150, −105), (−150, 75), (−80, −15), (−20, 75), (−20, 45). The head sits on the 6 mm floor of the boss at Z 10; the screw goes into the tee-nut below (6 + tile 4 + board 6 = 16 clamp). Use the long-arm 2.5 mm hex key down the 54 mm well.
 
 **Check:**
 - The deck is flat. A straightedge along X shows no step at the X −40 joint.
 - Deck height above the baseplate top is 60.0 ± 0.3 mm (deck Z 64).
-- The ch2 servo's front-ear pocket in riser B's front face (X 69..86, Y −113..−105.8, Z 25..37) is clean; the servo goes in at §13.5.
+- The ch2 servo's front-ear pocket in riser B's front face (X 69..86, Y −113..−105.8, Z 25..37) is clean, with the **solid ear block** above it (X 69..85, Y −113..−105, Z 37..64) and its 1 mm 45° lead-in along the front-bottom edge. The two Ø2.1 pilots at X 75 and 85 go up into the block and the lug. The servo goes in at §13.6.
 
 ---
 
 ## 7. Step 4: rails and bearings
 
 Parts: 4 rail halves, 4 × 608ZZ. Screws:
-- 4 × M3 × 80 (or 85 mm threaded rod) + washer + nut: through-feet.
+- 4 × M3 × 80 SHCS into the board tee-nuts (or 85 mm M3 threaded rod screwed into the tee-nut, washer + nut on top): through-feet.
 - 2 × M3 × 10: insert feet X −50 front and X +40 back. The X −20 and +10 front feet wait for the camera bracket (§9).
 
 The motor mounts are **not** fitted in this step. They go on at the end of §8, because each mount's flange covers its rod collar's set screw (`assembly-steps.yaml` step 5).
@@ -284,13 +302,13 @@ The motor mounts are **not** fitted in this step. They go on at the end of §8, 
 
 | Rail | X | Y | Fastener |
 |---|---|---|---|
-| Front | −80 | −75 | through-bolt: M3 × 80 from the foot top through the riser (Ø3.6) to the board |
+| Front | −80 | −75 | through-bolt: M3 × 80 from the foot top through the riser (Ø3.6) into the tee-nut |
 | Front | −50 | −75 | M3 × 10 into the riser insert |
 | Front | −20, +10 | −75 | leave empty for now (camera bracket, §9) |
 | Back | −120, −80, +10 | +75 | through-bolts, M3 × 80 |
 | Back | +40 | +75 | M3 × 10 into the riser insert |
 
-   Clamp stack for the through-feet: foot 4 + riser 60 + tile 4 + board 6 = 74, so M3 × 80 leaves 6 mm for washer and nut. With threaded rod, use a washer + nut at both ends.
+   Clamp stack for the through-feet: foot 4 + riser 60 + tile 4 + board 6 = 74, so an M3 × 80 runs through the whole tee-nut and pokes ≈ 5 mm out below it. With 85 mm threaded rod, screw the rod into the tee-nut first, then a washer + nut on top of the foot.
 5. **Motor mounts, bench part** (fitted in §8). Slide each N20 into its mount's sleeve from the rear. Screw the gearbox face to the face plate with **2 × M1.6 × 4**, reaching through the Ø18 flange hole. Push a 3 → 8 coupling's 3 mm bore onto the N20 shaft, set screw on the D-flat, 6.5 mm engagement, and leave it loose.
 
 **Check:**
@@ -307,7 +325,7 @@ Parts:
 - Slide bed.
 - 4 × O-ring 135 × 3.
 - 2 rollers, each with 1 insert.
-- 2 × 8 mm D-shafts, 150 mm.
+- 2 × 8 mm D-cut rods, 150 mm.
 - 4 race spacers.
 - 4 collars Ø16 × 8: a race spacer + collar goes on **each side** of each rod (`assembly.scad` `asm_collars()`, `motor_mount.scad`).
 - The 2 prepared motor mounts.
@@ -375,8 +393,6 @@ Screws: 4 × M2 × 10 self-tapping (camera); 2 × M3 × 16 (bracket + rail feet 
 
 ## 10. Step 7: hopper elevator
 
-<!-- PENDING CAD round 3: hopper carriage nut screws and guide-rod clamp screws -->
-
 Parts:
 - Hopper body, cap, carriage, floor plate, feeler flag.
 - 2 × 8 × 150 rods, 2 × LM8UU.
@@ -386,10 +402,10 @@ Parts:
 - 2 × SS-5GL2-F switches.
 
 Screws:
-- 4 × M3 × 20 countersunk + nut + washer (base).
+- 4 × M3 × 20 countersunk (base → board tee-nuts).
 - 4 × M3 × 10 (cap).
 - 2 × M3 × 8 (motor ears).
-- 2 × M3 × 10 (T8 nut).
+- 2 × M3 × 14 SHCS (T8 nut flange → carriage-bottom inserts).
 - 2 × M3 × 10 countersunk (plate).
 - 1 × M3 × 20 + nylock (flag axle).
 - 4 × M2 × 12 + nut (switches).
@@ -398,17 +414,17 @@ The hopper is modelled in a local frame. Local origin = cavity centre (machine X
 
 **The cavity** is 91 × 66 (1.5 mm play round an 88 × 63 card), with r 1.2 vertical corner reliefs. From 1 mm below the top card's face (local Z 85.9, machine Z 89.9) up, the cavity **steps out**: 1.0 mm on the +X (belt-side) wall and 0.5 mm on the other three. This **lift relief** exists because the cup rises 2° off vertical and the card drifts +X as it is lifted; the step keeps a card that lies against any wall clear of it. The rim has a 0.8 mm × 45° chamfer.
 
-1. **Base.** Set the body on the baseplate with the cavity centre at X −215, Y 0, the tower toward +Y and the finger slot toward −Y (front). Fit **4 × M3 × 20 countersunk** from inside the cavity, flush with the floor, at machine X −240 / −180, Y ±15, with washer + nut under the board. Do this **before** the carriage and plate go in.
+1. **Base.** Set the body on the baseplate with the cavity centre at X −215, Y 0, the tower toward +Y and the finger slot toward −Y (front). Fit **4 × M3 × 20 countersunk** from inside the cavity, flush with the floor, at machine X −240 / −180, Y ±15, into the tee-nuts. Do this **before** the carriage and plate go in.
 2. **Bottom (home) switch.** It goes on the tower floor against the back wall, body X −3.6..16.2 local, roller up. Fit **2 × M2 × 12 + nut** through the back-wall holes (Ø2.2).
 3. **Rods.** Push the 8 × 150 rods into the Ø8.15 sockets (2.4 deep) at local X ±28, Y 48.5.
 4. **Carriage.**
    - Press the 2 LM8UU in from the top onto the 1.5 mm lip.
-   - Drop the T8 nut body into the Ø10.8 bore from the top and screw the flange down with **2 × M3 × 10** into the carriage inserts.
+   - **T8 nut, mounted flange-down.** Drop the brass nut into the Ø22.6 pocket in the carriage top **flange first, body pointing up**, flange holes on the X axis. The flange sits on the pocket floor; the body stands free in the pocket, its top flush with the carriage top. Fit **2 × M3 × 14 SHCS** down through the flange (3.5) and the 12 mm under the pocket floor into the 2 inserts in the carriage bottom (≈ 4.2 mm engagement; the tips stop 1.5 mm above the bottom face). The lift load goes flange → pocket floor; the screws only stop the nut turning. (Why: a Ø10.8 bore with inserts at PCD 16 beside it left 0.6 mm of wall; `hopper.scad`.)
    - Thread the lead screw through the nut.
    - Slide the carriage down the rods with its shelf through the +Y wall slot into the cavity.
 5. **Floor plate.** Lay it on the shelf: card face up, notch under the flag position (local X −30, −Y wall). Fit **2 × M3 × 10 countersunk** into the shelf inserts at local (±9, 26.5).
 6. **Coupler.** Fit the 5 → 8 coupler onto the top of the lead screw.
-7. **Cap.** Fit it over the rods (they stick 16 mm out of the cap) with the coupler inside the Ø23 hole. Fasten with **4 × M3 × 10** into the tower inserts.
+7. **Cap.** Fit it over the rods (they stick **19.5 mm** out of the cap) with the coupler inside the Ø23 hole. Fasten with **4 × M3 × 10** into the tower inserts.
 8. **Motor.** Mount the 28BYJ-48 **shaft down** on the cap, body offset 8 mm toward +Y. Fit **2 × M3 × 8** through the ears into the cap inserts. Push the shaft into the coupler's 5 mm bore and tighten both coupler set screws.
 9. **Feeler flag.**
    - Fit the flag between the two cheeks on the −Y wall at local X −30.
@@ -446,7 +462,7 @@ Screws:
 - 4 × M3 × 6 (horn).
 - 2 × M3 × 40 SHCS (guide screws).
 - 4 × M3 × 12 (head → tower).
-- 4 × M3 × 20 + washer + nut (tower → board: foot 6 + tile 4 + board 6 = 16 clamp).
+- 4 × M3 × 20 (tower → board tee-nuts: foot 6 + tile 4 + board 6 = 16 clamp).
 
 Pin lengths (`suction_arm.scad` echo). Cut them from 4 mm silver-steel and chamfer the ends:
 
@@ -490,7 +506,7 @@ Order (`suction_arm.scad` ASSEMBLY ORDER):
    - Fit the barb through the web into the pad (gasket).
    - Put the springs on the M3 × 40 guide screws (heads down), slide the cup sled on, and screw into the hand-beam inserts.
 6. **Tube.** Run it barb → loop → through the A' tube → free "spoke" (≈ 97 mm) → anchor bell on the servo axis → down the back of the column. Leave ~10 mm of slack in the hand loop.
-7. **Tower and head.** Fit the head onto the tower with **4 × M3 × 12** into the column-top inserts. Bolt the tower foot to the baseplate at X −180 / −120, Y −165 / −135 with **4 × M3 × 20** + washer + nut.
+7. **Tower and head.** Fit the head onto the tower with **4 × M3 × 12** into the column-top inserts. Bolt the tower foot to the baseplate at X −180 / −120, Y −165 / −135 with **4 × M3 × 20** into the tee-nuts.
 8. **Zip ties.** The column has two tie tunnels 2.5 mm behind its back face at **Z 55 and Z 80**, open through both side faces (above the foot gussets, which end at Z 50). Thread a 100 mm tie in one side and out the other round the tube and the servo lead.
 
 **Check / measure** (with `calibrate_servos.py` menu 1, §16.2):
@@ -506,13 +522,13 @@ Order (`suction_arm.scad` ASSEMBLY ORDER):
 ## 12. Step 9: sorting tray
 
 Parts: sections A, B (lower), C, D (upper), 2 shelf halves. Screws:
-- 8 × M3 × 20 countersunk + washer + nut (lower floor → board).
+- 8 × M3 × 20 countersunk (lower floor → board tee-nuts).
 - 8 × M3 × 12 countersunk (stacking).
 
 The tray spans **X 178..276, Y −137..137**. The **open back face of every slot is at X 178, facing the shuttle**, and nothing may block it. The label windows face +X.
 
 1. **Join A + B.** A's Ø3 pin goes into B's Ø3.2 hole; fronts flush. A is at Y −137..0, B at Y 0..137.
-2. **Fasten the lower floor (before the shelf).** Fit **8 × M3 × 20 countersunk** from inside the slots, down through the 2.5 floor + tile + board, with washer + nut. Holes are at machine X **200 / 260**, Y **−105, −45, 45, 105**.
+2. **Fasten the lower floor (before the shelf).** Fit **8 × M3 × 20 countersunk** from inside the slots, down through the 2.5 floor + tile into the tee-nuts. Holes are at machine X **200 / 260**, Y **−105, −45, 45, 105**.
 3. **Shelf.** Lay the 2 shelf halves on top, with the seam on the section seam.
 4. **Upper floor.** Set C + D (joined by their pin) on the shelf. Fit **8 × M3 × 12 countersunk** from inside the upper slots' front corners: through floor 2.5 + shelf 3, self-tapping about 6.5 mm into the Ø2.5 pilots. Stop as soon as the heads seat.
 
@@ -526,16 +542,15 @@ The tray spans **X 178..276, Y −137..137**. The **open back face of every slot
 
 ## 13. Step 10: cradle shuttle, load cell, lower ramp, reject bin
 
-<!-- PENDING CAD round 3: shuttle install order and fasteners (ch1 servo/coupler, ch2 ear block) -->
-
 Parts:
 - Cradle, tilt frame (TF), **sled + 2 cheeks** (the carriage), tilt crank, tilt link, ch2 crank, ch2 link, R-bar −Y / +Y, end posts −Y / +Y.
 - TAL221 load cell.
-- 8 × 400 rod, 8 mm D-shaft 400.
+- 8 × 400 smooth rod (h6).
+- **8 mm REX shaft** (round Ø8 ∩ 7 mm hex), goBILDA 2106-4008-4320 (432 mm, stainless), **cut to 417 mm**: hacksaw or cut-off disc, deburr, 0.5 mm chamfer on both ends. The E-clip is not used. (The CAD and code still call this the "D-shaft"; it is a REX shaft.)
 - 2 × LM8UU, 2 × 688ZZ.
 - Dowel pins: 2 × Ø4 × 8 (F pins), 1 × Ø3 × 20 (pin A), 4 × Ø3 × 8 (cheek ↔ sled).
 - 2 MG996R (ch1, ch2).
-- ch1 coupler: 25T disc horn + 8 mm flange coupling.
+- **ch1 coupler: goBILDA 4001-0025-4008** clamping servo-to-shaft coupler (25T spline → 8 mm REX bore, aluminium, Ø13.8 × 17, M4 clamp screw included). **There is no horn on ch1.** Remove the rubber ear grommets from the ch1 servo.
 - ch2: MG996R round 25T horn (from the servo bag), 2 shoulder screws (4 mm shoulder, M3 × 4 thread; one 5 mm and one 6 mm shoulder).
 - PTFE tape.
 - 2 lower-ramp halves, reject bin.
@@ -544,88 +559,88 @@ Screws (`shuttle.scad` BOM):
 - 2 × M3 × 12: TF crossbar → cell tapped end.
 - 2 × M3 × 10: cell free end → cradle inserts.
 - 6 × M3 × 10 countersunk: cheeks → sled inserts (3 per cheek).
-- 1 × M3 × 16 + nylock: tilt crank ↔ tilt link.
+- 1 × M3 × 16 + nylock: tilt crank ↔ tilt link (the only nylock in the shuttle).
 - 2 × M3 × 10: R-bar splice (Y ±10).
-- 2 × M3 × 10: rod clamps.
-- 4 × M2.5 × 10 self-tapping: ch1 ears.
-- 4 × M2.5 × 10 self-tapping: ch2 ears.
+- **2 × M3 × 6 flat-point set screws**: rod, one in each end post's +X-face insert.
+- **1 × M3 × 6 SHCS**: goBILDA coupler → ch1 spline (driven down the REX bore).
+- **4 × M3 × 10 SHCS + 4 washers**: ch1 ears → cage inserts (from behind the servo).
+- **4 × M2.5 × 10 button-head hex socket (ISO 7380)**, self-threading: ch2 ears (2 into the end-post shelf, 2 into riser B's ear block / lug).
 - 4 × M2 × 6 countersunk self-tapping: ch2 crank → horn disc.
 - 1 × M3 × 12 countersunk: ch2 crank hub → servo spline.
-- 4 × M3 × 8: ch1 horn ↔ flange coupling.
-- 6 × M3 × 20 + washer + nut: end posts (3 each).
-- 4 × M3 × 20 + washer + nut: ramp.
-- 4 × M3 × 20 countersunk + washer + nut: reject bin.
+- 6 × M3 × 20: end posts (3 each), into the tee-nuts.
+- 4 × M3 × 20: ramp, into the tee-nuts.
+- 4 × M3 × 20 countersunk: reject bin, into the tee-nuts.
 
-There is **no set screw** anywhere on the tilt crank: it slides along the D-shaft with the carriage and is keyed by its D-bore.
+There is **no set screw** on the tilt crank: it slides along the REX shaft with the carriage and is keyed by its hex bore.
 
-### 13.1 Tilt frame, load cell, cradle
+**Install order.** The order below is the one `cad/shuttle_check.py assembly` verifies: it sweeps every part along its insertion path against what is already installed and gives every screw a tool path. Its step numbers (0–7) are given in brackets; do not reorder them. Step 0 (riser bolted down before the conveyor) was done in §6. §13.1 and §13.2 are bench sub-assemblies that come first.
 
-<!-- PENDING CAD round 3: shuttle install order (ch1 servo position and coupler, ch2 ear block) -->
+### 13.1 Tilt frame, load cell, cradle (bench)
 
 **Order matters:** the F pins are pressed in from **inside** the tilt frame, and once the cradle is on, its edge is only 0.8 mm from the side plate on the F axis. So the F pins go in first, before the load cell and the cradle.
 
 1. **F pins (first).** Ream the TF's F-pin holes to Ø3.9 and the pin-A bore to Ø2.95 (§2). Press a **Ø4 × 8 dowel** into each side plate **from inside**, until its inner end is flush with the plate's inner face (|Y| 36). It then sticks 4 mm out past the plate's outside (to |Y| 44), where the cheek hooks will take it (§13.2).
-2. **PTFE tape (required).** Cover the cradle bed and the 18° kick with **0.1 mm skived PTFE tape**, wrapping 2 mm over the lip. No bubbles or wrinkles; trim the edges with a knife. Bare PLA (μ ≈ 0.35–0.45) jams the upper-floor transfer (`shuttle_check.py`).
+2. **PTFE tape (required).** Cover the cradle bed and the 18° kick with **0.1 mm skived PTFE tape**, wrapping 2 mm over the lip. No bubbles or wrinkles; trim the edges with a knife. Bare PLA (μ ≈ 0.35–0.45) jams the upper-floor transfer (`shuttle_check.py slide`).
 3. **Cell to TF.** Fit the TAL221's **tapped (cable) end** to the TF crossbar pad with **2 × M3 × 12** from below (counterbored holes). The cable goes toward the front notch in the crossbar.
 4. **Cell to cradle.** Fit the cradle boss to the cell's **free end** with **2 × M3 × 10** from below through the cell's holes into the cradle inserts.
 5. **Check:** the cradle touches nothing but the cell (0.8 mm to each TF plate). Press the cradle bed lightly and it must spring back. Cradle with tape is ≈ 19 g (target ≤ 35 g).
 
-### 13.2 Carriage (sled + cheeks) and tilt drive, on the bench
+### 13.2 Carriage (sled + cheeks) and tilt crank (bench)
 
-The carriage is three prints: the **sled** (rod and D-shaft bores, the ch1 crank pocket and the ch2 drive-pin arm, |y| ≤ 40.5) and two bolt-on **cheeks** (|y| 40.5..45.5) that carry the F-pin hooks. **Fit pin A before the cheeks:** the dowel goes in from outside the +Y TF plate, and the +Y cheek closes that path (`shuttle_check.py assembly`).
+The carriage is three prints: the **sled** (rod and shaft bores, the tilt-crank pocket and the ch2 drive-pin arm, |y| ≤ 40.5) and two bolt-on **cheeks** (|y| 40.5..45.5) that carry the F-pin hooks. **Fit pin A before the cheeks:** the dowel goes in from outside the +Y TF plate, and the +Y cheek closes that path (`shuttle_check.py assembly`, pin-A path).
 
 1. **Bearings and dowels.** Press an LM8UU into each end of the sled (Ø15.1 × 24.1 pockets; both bearings sit wholly in the sled). Press the 4 Ø3 × 8 dowels into the sled's side faces (Ø2.9, 2 per side).
-2. **Tilt crank and link.** Join the tilt link to the crank tip with **M3 × 16 + nylock**, snug so the joint pivots freely without play. Put the crank into the sled's swing pocket. It is captured there and will slide along the D-shaft.
+2. **Tilt crank and link.** Join the tilt link to the crank tip with **M3 × 16 + nylock**, snug so the joint pivots freely without play. Put the crank into the sled's swing pocket. It is captured there and will slide along the REX shaft.
 3. **Tilt frame and pin A.** Hold the TF (with cell and cradle) in its level position over the sled, the link's free end in the TF's link slot. Push the **Ø3 × 20 dowel (pin A)** in along −Y from outside the +Y TF plate, through the Ø3.3 entry bore and the link, until it bottoms at Y 1.5 on the Ø2.9 → Ø2 shoulder. It is a firm fit in the Ø2.9 bore on both sides of the link. (To remove it later: cheek off, knock it out from −Y through the Ø2 hole.)
 4. **Cheeks.** Offer each cheek onto its sled side so the F pin drops into the hook in the cheek's inner face and the 2 dowels enter the cheek's Ø3.1 holes. Fit **3 × M3 × 10 countersunk** per cheek into the sled inserts, heads flush with the outer face. The cheek root closes the LM8UU pocket mouth and retains the bearing.
 5. **Load-cell lead.** Zip-tie it in the slot on the −Y cheek (X 150..154, Z 70). The rest of the route is in §14.7.
 
-### 13.3 Rail system: end posts, rod, D-shaft, R-bar
+### 13.3 ch1 servo and coupler into the −Y end post (bench) [step 1]
 
-<!-- PENDING CAD round 3: rod clamp screws -->
+1. **Inserts.** The 4 cage inserts (−Y face) and the rod set-screw insert (+X face) are in (§3).
+2. **ch1 direction check (bare servo, before the coupler).** Plug the servo into ch1 and run `venv/bin/python scripts/calibrate_servos.py --no-mock`, menu **`d`** (it is also offered before menus 2 and 3 until the shuttle has been homed). The servo goes straight to 80° and then ramps slowly to 100°. Increasing angle must turn the spline **clockwise looking straight at the spline face**: on the machine that is the crank arm rising from +X (toward the tray) up toward +Z. Answer the prompt; if it turned the other way the tool flips `"invert": {"1": …}` in `config/shuttle_calibration.json` (§16.4) and offers to re-check. Never fit the coupler to a servo that has not passed.
+3. **Coupler indexing (at HOLD).** Power ch1 to **HOLD = 97°** (`calibrate_servos.py --no-mock`, menu 2, pose `hold`; ch2 may still be unplugged). Press the goBILDA coupler onto the spline at the tooth that puts **two flats of its hex bore 7° up from horizontal, rising toward +X** (φ_hold = 7°: the tilt crank's REX bore has its flats parallel to the crank arm, and at HOLD the arm points 7° above +X). One spline tooth is 14.4° and the hex repeats every 60°, so one tooth lands within **0.6°**. Drive the **M3 × 6 SHCS** down the REX bore into the spline.
+4. **Into the cage.** Unplug ch1, turn the coupler's clamp boss **up** by hand, and push servo + coupler nose-first along **+Y** through the cage opening from the −Y side. The servo sits **long side up** (body Z 33.8..74.5); its ears lie on the cage's −Y face. Fit **4 × M3 × 10 SHCS + washers** along +Y from **behind** the servo into the cage inserts (2.5 mm hex driver), at X 100 / 110, Z 29.5 / 78.5. The case face is at Y −185; the coupler sits in the open bay Y −184.2..−167.2 between the cage and the post.
+
+### 13.4 Module on the bench: rod, carriage, shaft, R-bar [step 2]
 
 1. Press a 688ZZ into each end post's inner-side pocket (Ø16.05).
-2. **Dry-assemble on the bench:**
-   - Rod through post −Y → carriage LM8UUs → post +Y. The rod sits Y −160..232 at X 106, Z 24.
-   - D-shaft through post −Y 688ZZ → sled bushing → tilt crank D-bore → sled bushing → post +Y 688ZZ. The D-shaft sits Y −168..232 at X 105, Z 44.
-   - Fit the 2 rod clamps (M3 × 10 down into the Ø2.6 pilot in each post).
-3. **R-bar.**
+2. **Rod:** through post −Y → carriage LM8UUs → 8 mm into post +Y. It sits Y −160..240 at X 106, Z 24.
+3. **REX shaft, from the +Y end:** slide it along −Y through post +Y's 688ZZ → sled bushing → **tilt-crank hex bore** → sled bushing → post −Y's 688ZZ → **8 mm into the coupler's REX bore** (shaft Y −175.2..241.8, X 105, Z 44). Turn the cradle a little to line the crank's hex up with the shaft.
+4. **Clamp the coupler at HOLD.** Power ch1 to HOLD (97°) and set the cradle **10° nose-down**. Tighten the coupler's **M4 clamp screw from above** with a 3 mm key. Depending on which hex flat you indexed to, the clamp boss sits at 7°, −23° or 37° from horizontal-+X at HOLD; the screw head is up and reachable in all three (checked). The residual (≤ 0.6°) is trimmed in §16.4.
+5. **Rod set screws.** Drive an **M3 × 6 flat-point set screw** through the insert in each post's **+X face** onto the rod (along −X, 1.5 mm key from the open +X side; at Y −155 and Y 237, Z 24). The tip bears on the rod; the screw end sits flush with the face. These replace the old top clamp screws.
+6. **R-bar.**
    - Join `rbar_neg` and `rbar_pos` at the 32 mm lap splice (Y −16..16) with **2 × M3 × 10** at Y ±10, down into the `rbar_neg` inserts. The heads sit 0.3 mm below the top; the skids land at Y ±1..4, clear of the counterbores.
    - Seat the ends in the end-post R-bar seats. The bar runs Y −150..232 at X 95..104.
    - The home notches at |Y| 29..45 must line up under the TF skids at home.
-4. **Mount the module.** Set the whole assembly in place (posts at Y −160..−150 and 232..242). The floor-plate holes are on the baseplate grid: post −Y at (110, −165), (110, −195), (140, −165); post +Y at (110, 225), (110, 255), (140, 255). Fit **6 × M3 × 20** + washer + nut (plate 4 + tile 4 + board 6 = 14 clamp).
 
-### 13.4 ch1 (tilt) servo
-
-<!-- PENDING CAD round 3: ch1 servo moves ≈ 15 mm −Y with a new coupler -->
-
-1. Seat the MG996R in the −Y end post's cage, spline on the D-shaft axis at Y −168, body toward −Y. Fit **4 × M2.5 × 10 self-tapping** into the cage pilots at X 100 / 110, Z 9.5 / 58.5.
-2. **Coupler.** Fit a 25T aluminium disc horn to the spline and bolt it to an 8 mm-bore rigid flange coupling on the D-shaft end (4 × M3 × 8). Check the coupling's hole circle matches the horn's M3 pattern before buying (BOM). If they don't match, drill the flange.
-3. Power ch1 to **HOLD = 97°** and fit the coupler so the cradle is **10° nose-down** about the F pins. Trim it in §16.4.
-
-### 13.5 ch2 (shuttle) servo, crank and link
-
-<!-- PENDING CAD round 3: ch2 ear ceiling block and its new install order -->
+### 13.5 ch2 servo, horn, crank, onto the module (bench) [step 3]
 
 The ch2 MG996R **hangs upside down** under the riser: output axis at X 80, Y −124, case face Z 26.3, spline down (`shuttle_geom.scad`). Under it, from the bottom up: link Z 9..14, crank Z 15..19 (and the carriage's drive-pin arm Z 15..20), shoulder-screw heads to Z 24, riser tunnel roof from Z 26. Nothing hangs below the link.
 
-**The crank's hub screw can only be fitted on the bench:** once the servo hangs under the riser, the crank's countersunk face points down at the baseplate. So do steps 1–3 before step 4.
+1. **ch2 direction check — before the crank goes on.** With nothing (or only the bare round horn) on the spline, plug the servo into ch2 and run `calibrate_servos.py --no-mock`, menu **`d`** for ch2 (80° → 100°, slowly). The firmware assumes servo angle = crank angle ψ: ψ 0 = crank pointing +Y (reject end), 90 = −X, 180 = −Y (column 0). **Increasing angle must turn the crank counter-clockwise seen from above** (clockwise looking straight at the spline, from below the upside-down servo). If it turned the other way, **do not fit the crank**: the tool sets `"invert": {"2": true}` in `config/shuttle_calibration.json` (§16.4); re-run the check until it passes. A reversed servo without invert drives the crank into the end post. (MG996R clones differ.)
+2. **Horn onto the crank.** Lay the round 25T horn's disc on the crank's top face over the 4 holes (Ø2.0 on Ø14). Fit **4 × M2 × 6 countersunk self-tapping** from the crank's bottom (countersunk) face up into the horn disc, heads flush.
+3. **Set the angle.** Set ch2 to **home = 75.5°** (menu 3). The servo angle equals the crank angle ψ. Press the horn onto the spline with the crank at ψ = 75.5°.
+4. **Hub screw.** Drive **1 × M3 × 12 countersunk** up through the crank hub into the spline (≈ 4.9 mm engagement), head flush with the crank bottom. It replaces the horn screw from the servo bag. This can only be done on the bench: once the servo hangs under the riser, the countersunk face points at the baseplate.
+5. **Park the crank** at ψ ≈ 100° (command it, or turn it by hand with the servo unpowered): pointing −X, clear of where the riser will be.
+6. **Hang it under the −Y end post's shelf.** Lift the servo straight up under the shelf, rear ear against the shelf. Fit the **2 rear-ear M2.5 × 10 button heads from below** (X 75 / 85, Y −158.5) with a **1.5 mm L-key, short arm up** into the socket, long arm swinging below. **Leave both one turn loose**: the servo hangs ≈ 0.5 mm low so the front ear can slide in at step 4.
 
-1. **Horn onto the crank (bench).** Lay the round 25T horn's disc on the crank's top face over the 4 holes (Ø2.0 on Ø14). Fit **4 × M2 × 6 countersunk self-tapping** from the crank's bottom (countersunk) face up into the horn disc, heads flush.
-2. **Set the angle (bench).** Plug the servo into ch2 and set it to **home = 75.5°** (`calibrate_servos.py --no-mock`, menu 3). The servo angle equals the crank angle ψ: 0° = crank pointing +Y (reject end), 90° = pointing −X. Press the horn onto the spline with the crank at ψ = 75.5°.
-3. **Hub screw (bench).** Drive **1 × M3 × 12 countersunk** up through the crank hub into the spline (≈ 4.9 mm engagement), head flush with the crank bottom. It replaces the horn screw from the servo bag.
-4. **Mount the servo.**
-   - **Front ear:** into the pocket in riser B's front face (X 69..86, Y −113..−105.8, Z 25..37). Fit **2 × M2.5 × 10** up into the pocket ceiling at X 75 and 85 (the X 85 one goes into a 4 mm lug on riser B's +X face).
-   - **Rear ear:** under the −Y end post's shelf, **2 × M2.5 × 10** up into the shelf.
-5. **ch2 link.** Its 2 short M3 × 4 inserts are pressed flush into its top (§3). The link lies under the crank and under the carriage's drive-pin arm.
-6. **Crank-tip pivot.** Command ch2 to **column 0 (178°)**: the crank tip is then at Y −263, outside the riser, and reachable from above. Drop the **5 mm-shoulder screw** in from above through the crank tip's Ø4.1 journal into the link's insert.
-7. **Drive-pin pivot.** Command ch2 to **reject (2°)** and slide the carriage by hand to the reject position (Y ≈ 177): the link's other insert then lines up under the carriage's drive-pin journal. Drop the **6 mm-shoulder screw** in from above.
-8. Command ch2 back to home (75.5°). The carriage must sit at Y 0 with the cradle centred on the belt.
+### 13.6 Module into place, ch2 front ear, anchors [steps 4–5]
 
-### 13.6 Lower ramp and reject bin
+1. **Park.** Slide the carriage by hand to **column 3 (Y ≈ 102)**, so its drive-pin arm is beyond the riser (Y > 80), and set the TF **level** (command ch1 to level, 93.1°, before you unplug it). The ch2 link is not fitted yet.
+2. **Set the module down 10 mm toward −Y of its place, then slide it +Y** by 10 mm: the ch2 servo's front ear slides in under riser B's ear block through the 1 mm lead-in. The end posts land on their floor-plate holes (posts at Y −160..−150 and 232..242).
+3. **Rear ear.** Tighten the 2 rear-ear screws: the servo comes up 0.5 mm onto both ceilings.
+4. **Front ear.** Drive the **2 front-ear M2.5 × 10 button heads up from below, through the riser tunnel** (X 75 / 85, Y −109.8) into the Ø2.1 pilots in the ear block and lug: **1.5 mm L-key, short arm up** into the socket, long arm under the riser (≥ 195° of free swing, checked). Keep the crank parked at ψ ≈ 100°.
+5. **End-post anchors: 6 × M3 × 20** into the tee-nuts (plate 4 + tile 4 + board 6 = 14 clamp): post −Y at (110, −225), (140, −195), (140, −165); post +Y at (110, 225), (110, 255), (140, 255). Five go straight down with a 2.5 mm key. **The one at (110, 225) is under the rod: use a 2.5 mm ball-end key tilted 45° toward +X.**
 
-1. **Lower ramp.** Set the two halves on the baseplate directly behind the tray's open back: lane exit at X 178, entry X 160.4, Z 34.7. Fit **4 × M3 × 20** + washer + nut through the rear floor tabs at X 140, Y ±45 and ±105. The dividers line up with the tray walls, and the 4 mm fins (X 174..178) rise to the top bar at Z 100..104.
-2. **Reject bin.** Set it at Y 141..211 beside the tray. Fit **4 × M3 × 20 countersunk** + washer + nut through the box floor at X 200 / 230, Y 165 / 195.
+### 13.7 ch2 link and pivots, lower ramp, reject bin [steps 6–7]
+
+1. **ch2 link.** Its 2 short M3 × 4 inserts are pressed flush into its top (§3). The link lies under the crank and under the carriage's drive-pin arm.
+2. **Crank-tip pivot.** Command ch2 to **column 0 (178°)**: the crank tip is then at X 80, Y −263, outside the riser and reachable from above. Drop the **5 mm-shoulder screw** in from above through the crank tip's Ø4.1 journal into the link's insert.
+3. **Drive-pin pivot.** Command ch2 to **reject (2°)** and slide the carriage by hand to the reject position (Y ≈ 177): the link's other insert then lines up under the carriage's drive-pin journal. Drop the **6 mm-shoulder screw** in from above.
+4. Command ch2 back to home (75.5°). The carriage must sit at Y 0 with the cradle centred on the belt.
+5. **Lower ramp.** With the carriage at **column 3** (TF level), lower `ramp_neg` straight down onto the baseplate behind the tray's open back; then move the carriage to **column 0** and lower `ramp_pos`. Lane exit at X 178, entry X 160.4, Z 34.7. Fit **4 × M3 × 20** through the rear floor tabs at X 140, Y ±45 and ±105, into the tee-nuts. The dividers line up with the tray walls, and the 4 mm fins (X 174..178) rise to the top bar at Z 100..104.
+6. **Reject bin.** With the carriage still at column 0, lower it into place at X 159..274, Y 138..214, beside the tray. Fit **4 × M3 × 20 countersunk** through the box floor at X 200 / 230, Y 165 / 195, into the tee-nuts.
 
 **Check / measure** (move the servos with `calibrate_servos.py`, never by hand on a powered servo):
 - **LEVEL at home:**
@@ -636,9 +651,10 @@ The ch2 MG996R **hangs upside down** under the riser: output axis at X 80, Y −
   - Bed 10° nose-down.
   - The card's tail is above the rails, guide clips and guide tops, so the carriage may move.
 - **Carriage travel:**
-  - The carriage runs freely Y −102..176. LM8UUs don't bind and the tilt crank slides along the D-shaft.
+  - The carriage runs freely Y −102..176. LM8UUs don't bind and the tilt crank slides along the REX shaft.
   - The ch2 crank tip stays inside the baseplate (reaches Y −269 at column 0).
 - **Lower pose:** the TF's skids land on the R-bar at every column, and the kick reaches the ramp entry (≈1 mm before it, 1.5 mm above).
+- **ch1 coupler:** no play between spline, coupler and shaft; the clamp screw is tight.
 - **Tight spots:** the carriage, cradle and ramp have **0.5–0.8 mm clearances** in places (§19). Cycle every pose slowly once and look for rubbing.
 
 ---
@@ -707,8 +723,8 @@ GND ── 10 kΩ ── GPIO 23, 24, 25, 26 (L9110S inputs), one resistor each
 | 3 (SCL1) | 5 | I²C | PCA9685 SCL | | |
 | 5 | 29 | in | HX711 DOUT (DT) | `loadcell.py` | |
 | 6 | 31 | out | HX711 SCK | `loadcell.py` | |
-| 12 | 32 | in, pull-up | top-of-stack switch (C → GND pin 34) <!-- PENDING code round 2 --> | `elevator.py` | contact (NO or NC) and active level: see the note below |
-| 13 | 33 | in, pull-up | home switch (C → GND pin 30) <!-- PENDING code round 2 --> | `elevator.py` | as above |
+| 12 | 32 | in, pull-up | top-of-stack switch: **C → GND (pin 34), NC → GPIO 12** | `elevator.py` | normally closed: released = LOW, pressed (or broken wire) = HIGH |
+| 13 | 33 | in, pull-up | home (bottom) switch: **C → GND (pin 30), NC → GPIO 13** | `elevator.py` | as above |
 | 16 | 36 | out | ULN2003 IN1 | `elevator.py` | SoC pull-down at boot; the ULN2003's internal input resistors keep a floating input off |
 | 19 | 35 | out | ULN2003 IN2 | `elevator.py` | |
 | 20 | 38 | out | ULN2003 IN3 | `elevator.py` | |
@@ -725,10 +741,14 @@ GND ── 10 kΩ ── GPIO 23, 24, 25, 26 (L9110S inputs), one resistor each
 | CSI | — | | Camera Module 3 via SC1130 | `camera.py` | connector faces +X |
 
 - **The L9110S is plain GPIO, not I²C.** Its VCC comes from Reg #3, not the Pi rail.
-- **Pins float after `cleanup()`.** The SoC's default pulls only apply from power-on until a program configures the pin. RPi.GPIO `cleanup()` (`conveyor.deinit()`, `vacuum.deinit()`, `elevator.deinit()`) returns them to inputs with **no pull**. The external resistors set the safe level:
-  - 10 kΩ pull-ups on GPIO 17 and 27: pump off, vent valve closed.
-  - 10 kΩ pull-downs on GPIO 23–26: belt coasts.
-- **Hopper switches** <!-- PENDING code round 2 -->: each SS-5GL2-F has three tabs, C (common), NO and NC. C goes to GND; which of NO or NC goes to the GPIO, and whether "pressed" reads LOW or HIGH, is set by `SWITCH_ACTIVE_LEVEL` and the switch notes in `hardware/elevator.py`. Wire them the way that file says. (This is being changed in the code; details to follow.)
+- **Released pins float; kept pins stay driven.** The SoC's default pulls only apply from power-on until a program configures the pin. RPi.GPIO `cleanup()` (`conveyor.deinit()`, `vacuum.deinit()`, `elevator.deinit()`) returns a pin to an input with **no pull**. And by default the Raspberry Pi kernel keeps a GPIO **output driven at its last level** when the process holding it dies (`pinctrl_bcm2835.persist_gpio_outputs=1`), so a pump left ON would stay ON. Three layers make every exit safe:
+  - `scripts/setup.sh` sets **`pinctrl_bcm2835.persist_gpio_outputs=0`** on the kernel command line (applies after a **reboot**): freed lines revert to inputs.
+  - The external resistors then set the level: **10 kΩ pull-ups on GPIO 17 and 27** (pump off, vent valve closed) and **10 kΩ pull-downs on GPIO 23–26** (belt stopped).
+  - The service's **`ExecStopPost`** runs `scripts/safe_outputs.py` as root after **any** exit (clean, crash, `kill -9`, watchdog): it drives GPIO 17 / 27 HIGH, GPIO 23–26 and 16–21 LOW (with `pinctrl`, or `raspi-gpio` on Bookworm), switches every PCA9685 channel fully off and puts the PCA9685 to sleep (§14.8).
+- **Hopper switches are wired normally-closed (NC).** Each SS-5GL2-F has three tabs: C (common), NO and NC. Wire **C → GND and NC → the GPIO** (top switch → GPIO 12, home switch → GPIO 13), with the Pi's internal pull-ups; leave NO unconnected. Released, the contact is closed to GND and reads LOW; pressed, it opens and reads HIGH. A broken wire or unplugged switch then reads **pressed**, which is the safe reading:
+  - top switch: "top card at pick height", so the floor stops rising and never drives the stack into the arm (the cycle then stops with "card never seen");
+  - home switch: `home()` stops lowering at once, and after the back-off the switch must read released, so a broken wire fails homing ("bottom (home) switch still pressed …") instead of zeroing at the wrong height.
+- **`TOP_SWITCH_NC` / `BOTTOM_SWITCH_NC`** (`config/machine.json`, section `elevator`, default `true`) tell the code how each switch is wired. Set one to `false` only if you wired that switch normally-open (C → GND, NO → GPIO). With NO wiring a broken wire reads "never pressed": homing times out (safe), but the top switch would let the floor rise to its soft limit. That is why **every raise after the first one since homing is capped at `RAISE_CAP_MM`** (3 mm, ≈ 9 cards) whatever the wiring: if the top switch has not tripped by then, the machine stops with "top switch not detected — check wiring". `test_hardware.py` test 11 prints which way each switch is configured.
 - HX711 pins: **DOUT (DT) = GPIO 5, SCK (CLK) = GPIO 6** (`hardware/loadcell.py`).
 - HX711 wiring to the cell: E+ red, E− black, A+ white, A− green (confirm with your cell).
 - 28BYJ-48: its keyed 5-pin plug goes into the ULN2003 board.
@@ -739,11 +759,12 @@ GND ── 10 kΩ ── GPIO 23, 24, 25, 26 (L9110S inputs), one resistor each
 | Ch | Servo | Owner | Nominal angles (calibration overrides) |
 |---|---|---|---|
 | 0 | Pick arm (MG996R) | `hardware/servos.py` → `config/servo_calibration.json` | ARM_PICK 175, ARM_DROP 5, ARM_PARK 90 |
-| 1 | Cradle tilt (MG996R, D-shaft) | `hardware/shuttle.py` → `config/shuttle_calibration.json` | level 93.1, hold 97.0, upper 112.2, lower 41.5 |
+| 1 | Cradle tilt (MG996R → goBILDA coupler → 8 mm REX shaft) | `hardware/shuttle.py` → `config/shuttle_calibration.json` | level 93.1, hold 97.0, upper 112.2, lower 41.5 |
 | 2 | Shuttle carriage (MG996R, slider-crank) | `hardware/shuttle.py` → `config/shuttle_calibration.json` | reject 2.0, col 3 45.0, col 2 65.2, home 75.5, col 1 87.3, col 0 178.0 |
 | 3–15 | unused | | |
 
-- **Level is 93.1°**, 0.5° past the geometric 92.6° so the skids sit firmly on the home ledges. Keep that preload small: past the hard stop the servo stalls against the ledge while the cradle waits level.
+- All ch1 / ch2 angles are **geometric** (ch1 = 90° + crank angle φ, ch2 = crank angle ψ). A servo that turns the wrong way is handled by `"invert"` in `config/shuttle_calibration.json` (the direction check, §13.3 / §13.5), never by editing angles.
+- **Level is 93.1°**, 0.5° past the geometric 93.6° (toward the ledges: level and lower are the same ch1 direction) so the skids sit firmly on the home ledges. Keep that preload small: past the hard stop the servo stalls against the ledge while the cradle waits level.
 - PCA9685 power: VCC = 3.3 V from the Pi (logic and I²C pull-ups), V+ = Reg #2 servo rail (5 V 5 A), with 1000 µF across V+/GND at the board.
 - Servo leads: brown/black = GND, red = V+, orange = signal (the `PWM` row). Use 100 cm extensions from the tray to each servo.
 
@@ -767,6 +788,8 @@ There is no front-to-back pass through the riser. The ch2 crank and link sweep t
 Other runs:
 - **Hopper motor and switches:** run down the back of the tower (Y 80) and join the harness at the −X edge (≈ 0.2 m to the harness).
 - **LED leads:** from the hood's Ø4 holes (X +45) over the back rail into the tray.
+- **Pump and vent-valve 12 V leads:** from the valve's coil end (Y −264) and the pump's rear terminals to X −280, along the front-left edge, joining the harness drop at X −277 (§14.6).
+- **Load-cell lead:** §14.7.
 - **Keep clear of:**
   - the ch2 crank and link sweep (Z ≤ 24 under and in front of riser B);
   - the arm sweep above the hopper and belt inlet;
@@ -778,82 +801,84 @@ Other runs:
 2. Bring it down behind the hood and the back rail (Y 62), over the riser deck's back edge (Y 80, Z 84).
 3. Drop it into the tray at X ≈ 5, Y ≈ 88 and fold it gently into the Pi's CSI connector, which **faces +X** at machine X ≈ 22, Y ≈ 100.
 
-- The CAD route to the tray entry is ≈ 405 mm; the run to the connector adds ≈ 30–45 mm, so **expect ≈ 0.45 m on the 500 mm cable**.
+- The CAD route to the tray entry is 405 mm; the run inside the tray to the connector adds ≈ 46 mm, so **expect ≈ 450 mm on the 500 mm cable: only ≈ 50 mm of slack**. Mount the Pi with its CSI end toward +X (facing −X would need ≈ 480 mm) and add no detours.
 - **Test-fit the ribbon before you tie anything down** (§19).
 - Ribbons are fragile: no sharp creases, no pulling at the connectors.
 
 ### 14.6 Pump bracket, vacuum tube and vent valve
 
-<!-- PENDING CAD round 3: vent valve + tee mount on the pump bracket -->
+**Pump bracket** (`pump_bracket.scad`): base (saddle + head cradle), cap, sleeve, head pad, and a separate vent-valve clip. Screws: 4 × M3 × 20 (base → board tee-nuts); 2 × M3 × 10 (cap → base inserts); 2 × M3 × 20 (valve clip → board tee-nuts).
 
-**Pump bracket** (`pump_bracket.scad`). Screws: 4 × M3 × 20 + washer + nut (base → board); 2 × M3 × 10 (cap → base inserts).
+**Base before pump.** The X −240 bolts are only 1.2 mm outside the pump can's outline, so a hex key can't reach them with the pump in place. Bolt the base down first, then fit the pump. (To remove the base later, take the cap and pump off first.)
 
-1. **Isolation.** Slide the printed TPU sleeve onto the pump's motor can. No TPU? Wrap the can in a **1.5 mm neoprene or EPDM strip, 18 mm wide**, instead. The clamp closes a 1.0 mm gap onto it, so the squeeze is set by the geometry, not by screw torque.
-2. **Base.** Bolt the base to the grid holes (−270, −225), (−270, −195), (−240, −225), (−240, −195) with **4 × M3 × 20** + washer + nut (base 5 + tile 4 + board 6 = 15 clamp).
-3. **Pump.** Lay the pump in the saddle: axis along X (Y −210, Z 28), can X −268..−230, head toward +X, nozzles reaching X ≈ −183. Fit the cap and **2 × M3 × 10** into the base inserts.
-4. Fit the 1N5819 (or 1N4007) flyback diode across the pump terminals: cathode (stripe) to pump +, anode to pump −. Twist the pump leads and keep them away from the I²C wires.
+1. **Base.** Bolt the base to the grid holes (−270, −225), (−270, −195), (−240, −225), (−240, −195) with **4 × M3 × 20** into the tee-nuts (base 5 + tile 4 + board 6 = 15 clamp).
+2. **Isolation.** Slide the printed TPU sleeve onto the pump's motor can. No TPU? Wrap the can in a **1.5 mm neoprene or EPDM strip, 18 mm wide**, instead. The clamp closes a 1.0 mm gap onto it, so the squeeze is set by the geometry, not by screw torque.
+3. **Head pad.** Lay the 30 × 40 × 1.5 TPU pad (`part="pad"`, or cut from the same neoprene strip) in the head-cradle pocket (floor Z 7.5) at X −232..−200. The pump head (≈ 32 long, ≈ 60 g) rests on it instead of hanging 50 mm off the clamp; the two cheeks 1 mm off the head sides stop it rocking in Y. R385 heads vary: if the head doesn't touch the pad, shim the pad; it must not lift the can off the saddle.
+4. **Pump.** Lay the pump in the saddle: axis along X (Y −210, Z 28), can X −268..−230, head toward +X on the pad, nozzles reaching X ≈ −183. Fit the cap and **2 × M3 × 10** into the base inserts.
+5. Fit a **1N5819 (or 1N4007) flyback diode across the pump terminals**, at the pump: cathode (stripe) to pump +, anode to pump −. Twist the pump leads and keep them away from the I²C wires.
 
-**Vacuum tube** (`assembly.scad` `asm_vac_tube()`), about 0.45 m in total:
+**Vent valve** (`hardware/vacuum.py`): a **12 V normally-closed** 2-way mini air solenoid valve (the CAD reference is a uxcell 12 V 0.2 A unit, 0–350 mmHg, Ø3 mm barbs, ≈ 15 × 14 × 34 incl. the axial barb, 11 cm leads out of the coil end). Energised = open to air. **Measure yours:** the CAD envelope is a reference, not a vendor drawing.
+
+6. **Valve clip.** Bolt the clip to grid holes **(−180, −255), (−150, −255)** with **2 × M3 × 20** into the tee-nuts (plate 5 + tile 4 + board 6 = 15). It sits at X −186..−144, Y −264..−246, clear of the arm tower foot, the arm sweep, the hopper and the pump base.
+7. Put a 14 × 16 strip of 1 mm foam tape on the clip floor (Z 19.5). Snap the valve down between the two lipped walls: lying along Y, **axial (line) barb toward +Y**, side barb **up** (that one is the vent, open to air), coil leads toward −Y. Its axis is then at Z 28, the vacuum-line height.
+8. Wire the coil to relay **NO2** and GND, with a **1N5819 (or 1N4007) across the coil**, at the valve: cathode (stripe) to the + lead. Run the 12 V leads of the valve and the pump to X −280 along the front-left edge and join the harness drop at X −277 (§14.4).
+
+**Vacuum tube** (`assembly.scad` `asm_vac_tube()`), about 0.45 m of 4 mm OD PU in total:
 1. A short silicone sleeve and a reducing barb take the pump's **inlet** (suction side) nozzle down to the 4 mm tube.
-2. The tube runs from the nozzle (X ≈ −183, Y −210, Z 28) along Y −205, then up the back of the arm column (X −147, Y −160) through the tie tunnels at Z 55 and 80.
-3. It goes into the anchor bell on the servo axis (Y −152.5), then out as the free spoke to the A' tube, then through the loop to the cup barb (§11).
+2. **Tee.** 18 mm past the nozzle, cut the tube and fit a **1/8" (3.2 mm) barbed plastic tee** (≈ 22 × 11, Ø3 barbs) at X −165, Y −210, Z 28, run along X, branch pointing −Y. PU 4 × 2.5 is a tight push onto a Ø3 barb: warm the tube end. From the branch, a **20 mm piece of 2 × 4 mm silicone tube** goes to the valve's axial barb.
+3. The main tube runs on from the tee along Y −205, then up the back of the arm column (X −147, Y −160) through the tie tunnels at Z 55 and 80.
+4. It goes into the anchor bell on the servo axis (Y −152.5), then out as the free spoke to the A' tube, then through the loop to the cup barb (§11).
 
-**Vent valve** (`hardware/vacuum.py`): a **12 V normally-closed** mini solenoid valve, teed into the vacuum line between the pump and the cup. Energised = open to air.
-1. Cut the tube a few cm after the pump nozzle and fit the 4 mm barbed tee. A short tube from the tee's branch goes to one valve port; the other valve port stays open to the air.
-2. Mini valves seal best one way round: put **atmosphere on the IN (P) port** and the vacuum line on the OUT port. If the cup leaks down with the pump running and the valve shut, swap the ports.
-3. Fix the valve on the baseplate next to the pump bracket with foam tape and a zip tie, clear of the arm sweep (everything here is Y ≤ −186, Z ≤ 47).
-4. Wire it to relay NO2 / GND, with a 1N5819 across its coil like the pump.
-5. `release()` switches the pump off, opens the valve for `VENT_S` = 0.4 s, then closes it. `pump_on()` always closes the valve first. To run without a valve, set `VENT_PIN = None` in `hardware/vacuum.py`; the code then just waits 0.3 s for the cup to leak down.
+- Mini valves seal best one way round. If the cup leaks down with the pump running and the valve shut, swap the valve's two ports (atmosphere on the IN / P port, vacuum line on OUT).
+- `release()` switches the pump off, opens the valve for `VENT_S` = 0.4 s, then closes it. `pump_on()` always closes the valve first. To run without a valve, set `VENT_PIN = None` in `hardware/vacuum.py`; the code then just waits 0.3 s for the cup to leak down.
 
 **Check:** `test_hardware.py --no-mock`, test 3 (vent valve). Hold the cup on a card while the pump runs: at release you hear the valve click and the suction vanishes at once, not slowly.
 
-### 14.7 Load-cell lead (trailing loop, not modelled in CAD)
+### 14.7 Load-cell lead (trailing loop)
 
-The cradle moves 278 mm in Y and tilts, and `assembly.scad` only says "trailing service loop (not modelled)". Suggested routing, **to be test-fitted**:
+The cradle moves 278 mm in Y and tilts. `assembly.scad` `asm_cell_lead(yc)` models the route (drawn for one carriage position; the loop changes shape as the carriage moves). **Test-fit it** before you tie anything down.
 
 1. Splice about 1 m of 4-core flexible silicone wire (26–28 AWG) to the TAL221 leads at the cradle. Solder and heat-shrink the joint.
-2. The lead leaves the TF crossbar notch, is zip-tied at the −Y cheek's slot, then runs down the cheek's outer face to the cheek bottom (Z 13).
-3. From there it forms a **flat rolling loop on the baseplate under the carriage**, at about X 125–130. The moving end is under the carriage; the fixed end is taped to the baseplate at about Y 0.
-4. The fixed lead then runs along the baseplate in +Y to Y ≈ 215 (past the ch2 link's sweep, which reaches Y 182), then −X along Y ≈ 215 to the tray's +X wall at X 35. Run it along the outside of that wall to the slot at Y 160–170 and in to the HX711 (machine X −88..−53, Y 162..184).
+2. The lead leaves the TF crossbar notch, is zip-tied at the −Y cheek's slot (§13.2), then runs down the −Y cheek's outer face (X ≈ 135) and onto the baseplate at X ≈ 128.
+3. **Rolling loop:** a flat loop on the baseplate under the carriage. The moving run goes from the carriage toward −Y along X ≈ 128, bends, and the fixed run comes back toward +Y along X ≈ 122. That is ≈ 350 mm of loop. The bend sits at Y ≈ (yc − 177) / 2 for carriage Y = yc, never less than 6 mm behind the moving end.
+4. **Fixed end at Y 205, on the +Y side.** From Y 205 the lead is fixed to the baseplate (tape or adhesive tie mounts). It runs −X along **Y 205** (clear of the ch2 link, which reaches Y 182) to the tray's +X wall (X ≈ 38), up that wall at Y 165, and in through the cable slot (Y 160–170, Z 40.5–46.5) to the HX711 (machine X −88..−53, Y 162..184).
+5. **Column 0 needs more slack.** The 350 mm loop works for carriage Y ≥ −70 (columns 1–3, home, reject). At column 0 (Y −102) the loop needs ≈ 30 mm more slack and its bend comes to Y ≈ −155, 5 mm from the −Y end post. Add that slack and check it at column 0.
 
 Keep it out of:
-- the rod, LM8UU, D-shaft and tilt crank (X 98..118, Z 20..54);
+- the rod, LM8UU, REX shaft and tilt crank (X 98..118, Z 20..54);
 - the R-bar top;
 - the ch2 link (X ≈ 75..90, Z 9..14, swept up to Y 182);
 - the lower-ramp tabs (X 136..160 at Y ±45, ±105);
 - the +Y end post's tongue (X 104..122 from Y 219);
 - the card path.
 
-**Check:** run the shuttle through every column and reject (`test_hardware.py` test 5). The lead must never tighten, rub, or pass under the ch2 link.
+**Check:** run the shuttle through every column and reject (`test_hardware.py` test 5). The lead must never tighten, rub, or pass under the ch2 link, and the cradle must read the same empty weight at every column (test 6).
 
 ### 14.8 Safe state
 
-<!-- PENDING code round 2: teardown behaviour, systemd watchdog, safe-outputs ExecStopPost and the kernel cmdline parameter are being changed; this section will be updated with the final details. -->
-
-What the hardware guarantees on its own (this does not depend on the software):
+What the hardware and the service guarantee on their own:
 
 | Event | Pump / vent valve | Servos | Belt / elevator |
 |---|---|---|---|
 | 12 V pulled | pump **off** (relay NO opens); valve **closed** (normally closed) | limp. **The arm falls and drops any card.** Always stop the sorter before unplugging. | stop; the 28BYJ-48 gearbox holds the hopper floor |
-| No program driving the pins (boot, after exit, after a crash) | **off / closed**: the 10 kΩ pull-ups on GPIO 17 and 27 hold both relay inputs HIGH | the PCA9685 keeps whatever it was last told until it is reset or powered off | the 10 kΩ pull-downs on GPIO 23–26 keep the L9110S coasting; the ULN2003 stays off |
+| Boot, before the sorter starts | **off / closed**: the 10 kΩ pull-ups on GPIO 17 and 27 hold both relay inputs HIGH | PCA9685 not yet driven: limp | the 10 kΩ pull-downs on GPIO 23–26 keep the L9110S off; the ULN2003 stays off |
+| The sorter exits for **any** reason (clean stop, crash, `kill -9`, watchdog) | `ExecStopPost` → `safe_outputs.py` drives GPIO 17 / 27 HIGH: **off / closed**. After the reboot that applies `persist_gpio_outputs=0`, the freed pins also fall back to the pull-ups on their own. | `safe_outputs.py` switches every PCA9685 channel fully off and puts it to sleep: **limp** | GPIO 23–26 and 16–21 driven LOW: belt stopped, stepper coils off |
+| Main loop hangs | systemd watchdog (`WatchdogSec=60`): no ping for 60 s → SIGABRT, then `ExecStopPost` as above, then a restart that comes up in `needs_confirm` | | |
 
 What the software does on a stop, in outline (details in §15.4 and in `main.py`):
-- A **stop request** (web UI Stop, or the first SIGTERM / Ctrl-C) finishes the card in progress first; a **second** signal stops at once.
-- A card on the cup is never dropped mid-arc: it is released back onto the stack if the cup is still at the pick pose, otherwise carried to the drop pose and released onto the belt.
-- The pump is switched off and the line vented, the belt stopped, the arm parked.
-- **Shutdown leaves the shuttle carriage where it is**; it never homes on the way out. The servos are then de-energised (limp).
-- Every stop is recorded in `data/machine_state.json` as **clean** (no card in the machine, shuttle at home + level, cradle empty) or **unclean** (with the reason). After an unclean stop the sorter won't start until you confirm the machine is clear (§15.4).
-- `kill -9` skips all of this: the outputs keep their last level. Run `sudo systemctl stop riftbound-sorter` or reboot.
+- A **stop request** (web UI Stop, or the first SIGTERM / SIGINT / SIGHUP) finishes the card in progress first; a **second** signal stops at once.
+- A card on the cup is never dropped mid-arc: it is released back onto the stack if the cup is still at the pick pose, otherwise carried to the drop pose and released onto the belt. A second signal during that carry waits until the card is down; if the arm can't get there (3 tries), the **pump stays on** and the card stays held.
+- The pump is switched off and the line vented, the belt stopped, the arm parked, a tipped cradle brought back to HOLD.
+- **Teardown leaves the shuttle carriage where it is**; it never homes on the way out. Then every servo channel is switched off and the PCA9685 sleeps: **the servos are limp where they stand** and may sag a little.
+- Every stop is recorded in `data/machine_state.json` as **clean** (no card in the machine, pump off, arm parked, shuttle at home + level, cradle empty) or **unclean** (with the reason). After a clean stop the next start re-asserts the rest pose with **one write per servo** (a small snap back by whatever the limp servos sagged, never a sweep). After an unclean stop **nothing on ch0–ch2 is commanded** until you confirm the machine is clear (§15.4).
 
-**Safe-state test** (pump hose off): boot the machine and watch the relay. Neither channel may click or light. After boot, `pinctrl get 17` and `pinctrl get 27` read `hi`, and `pinctrl get 23-26` read `lo`. Repeat after the sorter has run and exited.
+**Safe-state test** (pump hose off): boot the machine and watch the relay. Neither channel may click or light. After boot, `pinctrl get 17` and `pinctrl get 27` read `hi`, and `pinctrl get 23-26` read `lo`. Repeat after `sudo systemctl stop riftbound-sorter`, and once after `sudo systemctl kill -s KILL riftbound-sorter` (with the pump running): the pump must stop within a second, by `ExecStopPost`.
 
 ---
 
 ## 15. Software setup and operation
 
 ### 15.1 Install
-
-<!-- PENDING code round 2: dependency lock file, systemd watchdog, ExecStopPost safe outputs, kernel cmdline parameter -->
 
 1. **Flash the SD card.** Use Raspberry Pi OS Lite 64-bit with Raspberry Pi Imager: **Bookworm or trixie** (the current release) both work. Enable SSH, set the user and Wi-Fi, and set the hostname to `riftbound-sorter`. The camera is auto-detected (`camera_auto_detect=1`); there is no `raspi-config` camera step.
 2. **Clone and run setup:**
@@ -863,39 +888,47 @@ What the software does on a stop, in outline (details in §15.4 and in `main.py`
    bash scripts/setup.sh
    ```
 
-   `scripts/setup.sh` does all of this:
+   `scripts/setup.sh` is safe to re-run (every step is idempotent) and stops with the failing line if anything goes wrong. It does all of this:
    - Enables I²C, runs `apt-get update` and `upgrade`.
    - Installs the apt packages: `python3-pip python3-venv python3-picamera2 python3-libcamera python3-numpy python3-scipy python3-pywt python3-pil i2c-tools git libopenjp2-7 libtiff6 avahi-daemon`.
+   - Makes sure **`pinctrl`** is installed (package `raspi-utils-core`, normally preinstalled; `raspi-gpio` is the Bookworm fallback). `safe_outputs.py` needs one of them.
+   - Adds the **kernel parameter `pinctrl_bcm2835.persist_gpio_outputs=0`** to `cmdline.txt` (`scripts/cmdline_param.py`: `/boot/firmware/cmdline.txt`, or `/boot/cmdline.txt` on older images; keeps a `cmdline.txt.riftbound.bak` copy the first time). It stops the kernel keeping a GPIO output driven after the process dies (§14.2). **It takes effect after a reboot.**
    - Installs **`python3-rpi-lgpio`**, the drop-in that provides `import RPi.GPIO` on current Raspberry Pi OS (it replaces `python3-rpi.gpio`). If the archive doesn't have it, it falls back to `python3-rpi.gpio`.
    - Creates `venv/` **with `--system-site-packages`**, so the venv can import the apt-only camera, GPIO and numpy modules. An existing venv made without that flag is deleted and re-created.
-   - `pip install -r requirements.txt`: `adafruit-blinka`, `adafruit-circuitpython-pca9685`, `adafruit-circuitpython-motor`, `Pillow`, `imagehash`, `numpy`, `flask`, `requests` (on the Pi, Pillow and numpy are already satisfied by apt).
-   - Checks that the venv can import `picamera2`, `libcamera`, `RPi.GPIO`, `numpy`, `PIL`, `imagehash`, `flask` and `board`, and runs `i2cdetect`.
-   - Creates `cache/` and `data/`, sets the hostname, installs and enables the systemd service for this checkout and user.
-   - Creates the web UI token and prints it (§15.3).
+   - Installs the Python packages from the **lock file**: `pip install --no-deps --require-hashes -r requirements.lock`. Every package is pinned to an exact version and sha256 hash, the same for Python 3.11 (Bookworm) and 3.13 (trixie). `--no-deps` means pip never replaces the apt numpy / Pillow / scipy / PyWavelets. `adafruit-blinka` is held below 10 (Blinka 10 needs libgpiod bindings that nothing installs). `requirements.txt` only lists the top-level ranges.
+   - Checks that the venv imports `picamera2`, `libcamera`, `RPi.GPIO`, `numpy`, `PIL`, `imagehash`, `flask`, `board`, `busio`, `adafruit_pca9685` and `adafruit_motor.servo`, and validates `config/machine.json` if there is one (§16.6).
+   - Runs `i2cdetect`, creates `cache/` and `data/`, sets the hostname.
+   - Installs and enables the **systemd service** for this checkout and user (`scripts/riftbound-sorter.service`, below).
+   - Runs `safe_outputs.py` once, so every output is safe right away.
+   - Prints the **web UI token** at the very end (§15.3).
 
    Notes:
-   - **HX711:** the gandalf15/HX711 library is **vendored** as `hardware/vendor/hx711.py` (BSD-3 licence alongside). There is nothing to install. **Do not** pip-install a package called `hx711`: the PyPI package of that name is a different library with an incompatible API.
+   - **HX711:** the gandalf15/HX711 library is **vendored** as `hardware/vendor/hx711.py` (BSD-3 licence alongside, one marked local fix). There is nothing to install. **Do not** pip-install a package called `hx711`: the PyPI package of that name is a different library with an incompatible API.
    - **trixie:** `libtiff5` and `libatlas-base-dev` no longer exist there; setup.sh uses `libtiff6` and the apt builds of numpy, scipy and Pillow, which also keeps them ABI-matched with picamera2.
-   - **Bookworm:** the same commands work; `python3-rpi-lgpio` is in the Bookworm archive too.
-3. **Check the venv:**
+3. **Reboot** (`sudo reboot`) to apply the kernel parameter. The service starts by itself after the reboot and waits in `needs_confirm` (§15.4). Check `cat /proc/cmdline` contains `pinctrl_bcm2835.persist_gpio_outputs=0`.
+4. **Check the venv:**
 
    ```bash
-   venv/bin/python -c "import picamera2, board; from hardware.vendor import hx711"
+   venv/bin/python -c "import picamera2, board, busio, adafruit_pca9685; from hardware.vendor import hx711"
    ```
 
    If `picamera2` fails, the venv was made without system packages. Re-run `bash scripts/setup.sh`; it re-creates the venv.
-4. **Check the hardware is seen:**
+5. **Check the hardware is seen:**
    - `sudo i2cdetect -y 1` shows `40` (PCA9685).
    - `rpicam-hello --list-cameras` (or `libcamera-hello`) shows `imx708`.
-5. **Card database:** `venv/bin/python main.py --build-db` (needs internet). If the Riftcodex API is down later, the sorter uses the cached card list; with neither, it stays up, shows the reason in the web UI and retries every 60 s.
-6. **Watchdog:**
-   - Add `dtparam=watchdog=on` to `/boot/firmware/config.txt`.
-   - Set `RuntimeWatchdogSec=15` in `/etc/systemd/system.conf`.
-   - Reboot and check that `/dev/watchdog` exists.
+6. **Card database:** stop the service (`sudo systemctl stop riftbound-sorter`), then `venv/bin/python main.py --build-db` (needs internet). It exits with an error if too many cards could not be hashed (§15.5). If the Riftcodex API is down later, the sorter uses the cached card list; with neither, it stays up, shows the reason in the web UI and retries every 60 s.
+
+**The systemd service** (`scripts/riftbound-sorter.service`, installed by setup.sh):
+- `ExecStart` runs `venv/bin/python main.py` as your user, with the groups `gpio i2c video`.
+- **`ExecStopPost=+/usr/bin/python3 …/scripts/safe_outputs.py`** runs as root after **every** exit (clean, crash, kill, watchdog). It uses only the standard library, so it works even if the venv or the config is broken (§14.8). `sudo python3 scripts/safe_outputs.py --dry-run` prints what it would do.
+- **Watchdog:** `WatchdogSec=60`, `NotifyAccess=main`. The main loop pings systemd (`WATCHDOG=1`) at most once a second while it is healthy, including inside long waits and elevator moves. If the pings stop for 60 s, systemd aborts the process, `ExecStopPost` makes the outputs safe, and the restart comes up needing **Machine clear**.
+- `Restart=on-failure` (10 s), but **`RestartPreventExitStatus=78`**: a bad `config/machine.json` or `config/shuttle_calibration.json` exits with status 78 and is *not* restarted (§16.6).
+- `TimeoutStopSec=60`: the first SIGTERM finishes the current card; that fits well inside 60 s.
+- Optional extra: the **hardware** watchdog covers a hung OS (not just a hung sorter): add `dtparam=watchdog=on` to `/boot/firmware/config.txt`, set `RuntimeWatchdogSec=15` in `/etc/systemd/system.conf`, reboot and check that `/dev/watchdog` exists.
 
 ### 15.2 Hardware tests
 
-`venv/bin/python scripts/test_hardware.py --no-mock` gives a menu (A runs them all, Q quits):
+Stop the service first (`sudo systemctl stop riftbound-sorter`). `venv/bin/python scripts/test_hardware.py --no-mock` gives a menu (A runs them all, Q quits). Before anything moves it asks you to confirm the arm, belt and cradle are clear, because the arm then parks and the shuttle homes with direct (full-speed) moves.
 
 | Menu | What it runs |
 |---|---|
@@ -904,68 +937,94 @@ What the software does on a stop, in outline (details in §15.4 and in `main.py`
 | 3 | vent valve release (pump on, then pump off + vent pulse) |
 | 4 | pick and place one card onto the belt |
 | 5 | shuttle: every column, both floors, reject |
-| 6 | cradle load cell |
+| 6 | cradle load cell (a diagnostic tare: never stored as the empty reference) |
 | 7 | camera full frame + card crop |
 | 8 | card detection, live offset (belt off) |
 | 9 | conveyor run (3 s) + brake |
 | 10 | belt centring (drop zone → lens) |
-| 11 | hopper elevator: home, then raise to pick |
+| 11 | hopper elevator: home, then raise to pick (also prints whether each switch is configured NC or NO) |
 
-The banner printed by each test still uses the older numbering ("Test 2b", "Test 3" … "Test 10"); this guide always means the **menu** number. Off the Pi, `uv run scripts/test_hardware.py` runs the same menu in MOCK mode.
+The banners now match the menu numbers ("Test 1" … "Test 11"). Off the Pi, `uv run scripts/test_hardware.py` runs the same menu in MOCK mode.
 
 Always run hardware scripts with the **Pi venv python** (`venv/bin/python …`); a uv script environment has no GPIO, camera or PCA libraries. Off the Pi, `MOCK_HARDWARE=1 python main.py --dry-run` exercises the whole cycle, and `python -m pytest tests/` runs the mock test suite in `tests/`.
 
 **First motion checks (before calibration):**
-- **Elevator direction.** Put the plate mid-travel with no cards, run test 11 and watch the first second. If "home" moves the floor **up**, press Ctrl-C at once and set `UP_DIRECTION = -1` in `hardware/elevator.py`.
+- **Elevator direction.** Put the plate mid-travel with no cards, run test 11 and watch the first second. If "home" moves the floor **up**, press Ctrl-C at once and set `"UP_DIRECTION": -1` in the `elevator` section of `config/machine.json` (§16.6).
 - **Belt direction.** Run test 9. Both rollers must move the card toward +X. Swap a motor's two leads if one runs backward.
+- **Servo directions.** ch1 and ch2 were checked bare in §13.3 / §13.5. If you swap a servo later, re-run `calibrate_servos.py` menu `d` with the new servo bare.
 
-### 15.3 Web UI and token
+### 15.3 Web UI, token and states
 
 The web UI runs at `http://riftbound-sorter.local:5000` (or `http://<pi-ip>:5000`; set `RIFTBOUND_WEB_PORT` to change the port).
 
-- **Token.** Every action that changes something needs the web UI token. It is generated on first use and stored in **`config/web.json`** (mode 600, not in git). Show it with:
+- **Token.** Every action that changes something needs the web UI token. It is generated on first use and stored in **`config/web.json`** (mode 600, not in git). It is never written to the journal. Show it with:
 
   ```bash
   venv/bin/python main.py --web-token
   ```
 
-  `setup.sh` prints it too. The browser asks for it the first time you press a protected button and remembers it. API clients send it as an `X-Auth-Token` header (or a `token` form field).
+  `setup.sh` prints it at the end. The browser asks for it the first time you press a protected button and remembers it. API clients send it as an `X-Auth-Token` header (or a `token` form field).
 - **Read-only pages** (dashboard, inventory, exports, `/api/status`, `/api/bins`) need no token.
-- **Dashboard controls** (token needed):
 
-| Button | API | What it does |
-|---|---|---|
-| Pause | `POST /api/pause` | finishes the card in progress, then waits (state `paused`) |
-| Resume | `POST /api/resume` | continues after a pause, a Stop or a refilled hopper |
-| Stop | `POST /api/stop` | stops sorting at the next card boundary. The process and the web UI stay up; Resume starts again |
-| Machine clear | `POST /api/confirm-clear` | you confirm the arm, belt and cradle are clear (any card removed) after an unclean stop or a jam. Same as `main.py --confirm-clear`. Refused while the machine is running |
-| Empty (per bin) / Empty all | `POST /api/bins/<n>/empty`, `POST /api/bins/empty-all` | resets the count after you emptied the bin |
-| Save (rules page) | `POST /rules` | validates, saves and hot-reloads `config/rules.json` |
+**Machine states** (shown on the dashboard):
 
-- **Bins can only be emptied while the machine is paused or stopped** (that includes jam, hopper empty, error and waiting for confirmation). The one exception is the bin the machine is paused on because it is full: you may empty that one, and the sorter resumes 2 s after the reset. "Empty all" needs the machine paused or stopped. The web UI refuses anything else, because the shuttle may be moving. `main.py --empty-bin N` / `--empty-all` don't check the machine state, so only use them with the machine paused or stopped.
+| State | Meaning |
+|---|---|
+| `starting` | start-up checks running: belt stop, arm / shuttle to rest, elevator homing, cradle check. **The machine may move.** |
+| `running` | sorting |
+| `paused` | operator Pause, or a bin is full (card held on the cradle); nothing moves |
+| `stopped` | operator Stop; the process and web UI stay up |
+| `hopper_empty` | refill and press Resume |
+| `needs_confirm` | first start, unclean stop, or a card found on the cradle: check the machine, then **Machine clear** |
+| `jam`, `error` | something stopped the machine (camera fault, elevator switch fault, load-cell fault, hash DB incomplete, …); the message says what |
+| `idle` | `--web-only` mode |
+
+**Dashboard controls** (token needed). Every one is checked against the state; a refused request gets HTTP 409 with the reason.
+
+| Button | API | Allowed when | What it does |
+|---|---|---|---|
+| Pause | `POST /api/pause` | `running`, `starting`, `paused` | finishes the card in progress, then waits (state `paused`) |
+| Resume | `POST /api/resume` | `paused`, `stopped`, `hopper_empty`; or to cancel a pending Pause / Stop while `running` / `starting` | continues. Refused in `needs_confirm`, `jam`, `error`: use Machine clear |
+| Stop | `POST /api/stop` | `running`, `starting`, `paused` | stops sorting at the next card boundary. The process and the web UI stay up; Resume starts again |
+| Machine clear | `POST /api/confirm-clear` | `needs_confirm`, `jam`, `error`, `stopped`, and only once no run is in progress | you confirm the arm, belt and cradle are clear (any card removed). **Never while `paused` or `starting`**: a card may be held on the cradle mid-run. Same as `main.py --confirm-clear` |
+| Empty (per bin) | `POST /api/bins/<n>/empty` | the bin the machine is paused on because it is full; or any bin in an idle state (`paused`, `stopped`, `jam`, `hopper_empty`, `error`, `idle`, `needs_confirm`) | resets the count after you emptied the bin. Never while `starting` or `running` (the shuttle may move) |
+| Empty all | `POST /api/bins/empty-all` | idle states only | resets every count |
+| Save (rules page) | `POST /rules` | any state | validates, saves and hot-reloads `config/rules.json` (applied between cards) |
+
+- **Bin full:** the machine pauses with the card held on the cradle. Empty the bin and press its **Empty** button; the sorter resumes 2 s later (`RESUME_DELAY_S`, so your hands are out of the tray). **If you pressed Pause before or during that wait, emptying the bin is not enough:** the card is routed only after an explicit **Resume**. Nothing moves while it waits.
+- **One sorter at a time.** A running sorter (main loop, `--web-only` or `--calibrate`) holds a lock on `data/sorter.lock`. A second `main.py` exits at once with "another sorter process is running". (`--build-db` doesn't take the lock, but stop the service before rebuilding anyway.)
+- **The CLI goes through the web API.** With a sorter running, `main.py --empty-bin N`, `--empty-all` and `--confirm-clear` send the request to that sorter's own web API (`127.0.0.1`, with the token), so exactly the same state rules apply. If its web UI can't be reached they refuse ("use the web UI, or stop the service first"). With no sorter running nothing can move, and they write the counts / state file directly.
 
 ### 15.4 Starting and stopping
 
-<!-- PENDING code round 2: teardown behaviour -->
-
 **Starting** (`sudo systemctl start riftbound-sorter`, or `venv/bin/python main.py`):
-1. The web UI comes up first, so problems are visible there.
-2. **First start, or any start after an unclean stop:** the sorter waits in state `needs_confirm` with the reason (for example "no record of a previous clean shutdown (first start?)" or "a card was left on the cradle"). Check the arm, belt and cradle, remove any card, then confirm with **Machine clear** in the web UI or:
+1. **Config.** `config/machine.json` is validated first, then `config/shuttle_calibration.json` when the shuttle is attached. Any bad key stops the program with a list of every problem and **exit status 78**; systemd does not restart it (§16.6).
+2. **Hardware init moves nothing.** Pump and belt are driven off at once. After a **clean** stop the arm's park angle and the shuttle's home + level are re-asserted with one write each: a small snap back by whatever the limp servos sagged, never a sweep; later moves ramp from there. After an **unclean** stop (or the first start) nothing on PCA9685 ch0–ch2 is commanded at all.
+3. The **web UI** comes up, so problems are visible there. Then the card list is loaded (cache fallback) and the **hash DB is checked for completeness**: the sorter refuses to sort while more than `max_missing_fraction` (1 %) of the card list has no hash, because a missing card would be matched to its nearest look-alike. It shows `error` "hash DB incomplete: N of M cards missing — run `main.py --build-db`" and retries the missing downloads every 60 s. A `--dry-run` only warns.
+4. The state becomes **`starting`** before anything moves.
+5. **First start, or any start after an unclean stop:** the sorter waits in **`needs_confirm`** with the reason (for example "no record of a previous clean shutdown (first start?)", "a card was left on the cradle", "arm / shuttle pose not known to be at rest"). Check the arm, belt and cradle, remove any card, then confirm with **Machine clear** in the web UI or:
 
    ```bash
    venv/bin/python main.py --confirm-clear
    ```
 
-3. Start-up then stops the belt, parks the arm, homes the hopper elevator, brings the shuttle home and checks the cradle.
-4. **The sorter refuses to start with a card on the cradle.** Before it tares, it compares the cradle's raw reading with the stored empty-cradle reference (§16.1). More than 0.8 g above it stops start-up with "card on cradle — remove it", and asks for confirmation again. It never tares a card away.
-5. After a clean stop, the servos start from their recorded rest pose, so the first moves are ramped. After an unclean stop their position is unknown, so the first commands are **full-speed jumps** (hobby servos have no position feedback). Keep hands clear.
+   Only then do the arm and shuttle move to their rest pose, as **direct full-speed jumps** (hobby servos have no position feedback). Keep hands clear.
+6. Start-up then stops the belt, switches the pump off, homes the hopper elevator and **checks the cradle by weight** (next point).
+7. **The cradle check runs at every start, confirmed or not** (a confirmation is not a measurement). Before it tares, it compares the cradle's raw reading with the stored empty-cradle reference (§16.1):
+   - more than **0.8 g above** it: "card on cradle — remove it", back to `needs_confirm`. It never tares a card away.
+   - more than 0.8 g **below** it: load-cell fault ("load cell fault or zero drift"): check the cell and lead, then re-run `main.py --calibrate`.
+   - **no stored reference** (never calibrated, or an old calibration file): unconfirmed → `needs_confirm` ("run `main.py --calibrate`, or check the cradle is EMPTY and confirm"); confirmed → it tares on your word, prints a warning, and nothing is stored as a reference until you run `--calibrate`.
 
 **Stopping:**
 - **Web UI Stop or Pause:** finishes the current card; the process stays up.
-- **`sudo systemctl stop riftbound-sorter` or Ctrl-C:** the **first** signal finishes the card in progress, then shuts down. A **second** signal stops immediately (a card on the cup is put back on the stack or onto the belt, never dropped mid-arc).
-- **Shutdown leaves the shuttle where it is**, with ch1 and ch2 limp; it never homes on the way out. The arm is parked first, then every servo goes limp.
-- A card still on the cradle (for example during a bin-full pause) stays there; the stop is recorded as unclean and the next start asks you to remove it.
+- **`sudo systemctl stop riftbound-sorter`, Ctrl-C or SIGHUP:** the **first** signal finishes the card in progress, then shuts down. A **second** signal stops immediately; a card on the cup is put back on the stack or carried to the belt, never dropped mid-arc (a second signal *during* that carry waits until the card is down).
+- **Teardown:** pump off and vented, belt stopped, arm parked, a tipped cradle brought back to HOLD. **The shuttle carriage stays where it is**; it never homes on the way out. Then every servo goes **limp** (channels off, PCA9685 asleep) and the service's `ExecStopPost` drives all outputs safe (§14.8).
+- **Clean or not.** The stop is recorded as clean only with no card in the machine, the pump off, the arm parked and the shuttle at home + level with an empty cradle. A card still on the cradle (for example during a bin-full pause) stays there; the stop is recorded as unclean and the next start asks you to remove it.
 - Before unplugging the 12 V, always stop the service first.
+
+### 15.5 Card database
+
+`main.py --build-db` downloads the Riftcodex card list and images and builds the perceptual-hash DB (`data/hash_db.json`). It reports every card it could not hash and **exits with an error** if more than `max_missing_fraction` of the list is missing; run it again (the missing downloads are retried). Identification settings are in `config/identify.json` (§16.8).
 
 ---
 
@@ -974,7 +1033,7 @@ The web UI runs at `http://riftbound-sorter.local:5000` (or `http://<pi-ip>:5000
 Use **bulk commons** for every step. Jogging is done with `scripts/calibrate_servos.py`, which drives the servos through the same modules the sorter uses (ramped moves, HOLD interlock):
 
 ```bash
-venv/bin/python scripts/calibrate_servos.py --no-mock             # menu: 1 arm, 2 tilt, 3 carriage, v verify, p print, q quit
+venv/bin/python scripts/calibrate_servos.py --no-mock             # menu: 1 arm, 2 tilt, 3 carriage, d direction check (ch1/ch2), v verify, p print, q quit
 venv/bin/python scripts/calibrate_servos.py --no-mock --verify    # cycle saved poses slowly (--dwell S, --step)
 ```
 
@@ -993,7 +1052,8 @@ Jog keys at every pose:
 
 Notes:
 - Jogging is limited to ±25° round the stored value. One MG996R spline tooth is 14.4°; re-seat the horn if you need more.
-- Saved values go to `config/servo_calibration.json` (arm, keys `ARM_PICK` / `ARM_DROP` / `ARM_PARK`) and `config/shuttle_calibration.json` (tilt, carriage).
+- Saved values go to `config/servo_calibration.json` (arm, keys `ARM_PICK` / `ARM_DROP` / `ARM_PARK`) and `config/shuttle_calibration.json` (`tilt`, `shuttle`, and `invert` from the direction check).
+- Menus 2 and 3 offer the **direction check** (menu `d`) first, until the shuttle has been homed in that session. It is only for a **bare** servo on the bench (§13.3, §13.5); once the crank or shaft is fitted, skip it.
 - Without `--no-mock` nothing moves, but values **are** still written.
 
 **Where each setting lives:**
@@ -1001,22 +1061,39 @@ Notes:
 | What | File |
 |---|---|
 | Arm angles | `config/servo_calibration.json` (calibrate_servos.py menu 1) |
-| Tilt and carriage angles, ch2 actuation range, shuttle timing | `config/shuttle_calibration.json` (menus 2 and 3; edit `actuation_range` by hand) |
+| Tilt and carriage angles | `config/shuttle_calibration.json` `tilt`, `shuttle` (menus 2 and 3) |
+| ch1 / ch2 direction | `config/shuttle_calibration.json` `"invert": {"1": false, "2": false}` (menu `d` writes it) |
+| ch1 / ch2 actuation range (DS3218MG-270) | `config/shuttle_calibration.json` `"actuation_range": {"2": 270}` (by hand) |
 | Load-cell scale factor and empty-cradle reference | `config/loadcell_calibration.json` (`main.py --calibrate`) |
 | Camera crop | `config/camera_crop.json` (`calibrate_camera.py`) |
-| Belt centring, camera focus / exposure / rotation, exit run, arm lift, calibration mass | **`config/machine.json`** (§16.6) |
+| Belt centring, camera, exit run, arm lift, calibration mass, **hopper switches and elevator**, **arm actuation range** | **`config/machine.json`** (§16.6) |
 | Bin limits | `config/bin_limits.json` (§16.7) |
+| Identification thresholds | `config/identify.json` (§16.8) |
 | Web UI token | `config/web.json` |
-| Arm actuation range, elevator direction and trip offset | code constants: `hardware/servos.py` `ARM_ACTUATION_RANGE`; `hardware/elevator.py` `UP_DIRECTION`, `TRIP_EXTRA_STEPS` |
+
+`shuttle_calibration.json` must be valid JSON, and `invert` may only hold `"1"` / `"2"` with JSON `true` / `false`: otherwise the sorter refuses to start (exit 78), because a dropped invert would drive a crank into its end stop.
 
 ### 16.1 Load cell
 
-1. Run `venv/bin/python main.py --calibrate`. The cradle goes to HOLD (the calibrated ch1 angle if there is one, otherwise the nominal, which is close enough).
-2. Press Enter with the cradle **empty** to tare. This also stores the empty-cradle reference.
+1. Stop the service, then run `venv/bin/python main.py --calibrate`. If the arm / shuttle pose isn't known to be at rest, it first asks you to check the machine is clear and moves them there directly. The cradle goes to HOLD.
+2. Press Enter with the cradle **empty** to tare. This stores the empty-cradle reference.
 3. Put the reference mass flat in the middle of the cradle and press Enter. The default reference is a **US 5-cent nickel, 5.000 g**. For another known mass use `--mass G`, e.g. `main.py --calibrate --mass 10.0`. The scale factor is saved to `config/loadcell_calibration.json` and the script prints what the reference now reads.
-4. Remove the reference and press Enter. The empty cradle is read again and, if it reads empty, tared once more.
+4. Remove the reference and press Enter. The empty cradle is read again; if it reads empty it is tared once more, otherwise you are told to re-run the calibration.
 
-**Empty-cradle reference.** `--calibrate` stores the empty cradle's absolute raw HX711 reading (`"empty_offset"`) with the scale factor, and every later verified-empty tare refreshes it. At start-up the sorter compares the cradle to this reference **before** it tares, so a card left on the cradle is caught (§15.4). Run the calibration with the cradle truly empty and the PTFE tape fitted. Re-run it if you re-tape the cradle or re-route the load-cell lead.
+**The empty-cradle reference and when it may change** (`hardware/loadcell.py`). `--calibrate` stores the empty cradle's absolute raw HX711 reading (`"empty_offset"`) and a drift baseline (`"calibrated_empty_offset"`). At **every** start-up the sorter compares the cradle with this reference **before** it tares, so a card left on the cradle is caught (§15.4). Only two things may overwrite the reference:
+1. `main.py --calibrate`;
+2. the tare the sorter takes right after a card has **provably left** the cradle (its weight dropped back to empty), and only if the zero that card was weighed against was itself anchored (from 1, from 2, or from the start-up check against the stored reference), and only if the new value is within **0.8 g** of the calibration baseline, so small residues can never ratchet it.
+
+Nothing else stores it: not **Machine clear**, not a plain tare, not `test_hardware.py`. A tare taken "on the operator's word" (confirmed start with no stored reference) is never anchored, so nothing after it is stored until you run `--calibrate`.
+
+**Re-run `--calibrate`** (cradle truly empty, PTFE tape fitted) when:
+- you re-tape the cradle, re-route or re-tie the load-cell lead, or change anything on the cradle / TF;
+- you change the HOLD angle (§16.4);
+- start-up reports "cradle reads … BELOW the stored empty-cradle reference" (after checking the cell and lead);
+- start-up reports "no stored empty-cradle reference";
+- start-up keeps finding "card on cradle" with the cradle really empty (zero drift beyond 0.8 g).
+
+Load-cell faults: a raw reading of −1 (HX711 unpowered or DOUT stuck high), a reading at the 24-bit rails, or one more than 100 g from the zero is a failed read and is re-read; after 6 failures in one measurement the machine stops ("load cell failed"). A weight more than 0.5 g **below** the tare is a fault, never "empty".
 
 **Check** (test 6; each reading is the median of 7):
 
@@ -1036,7 +1113,7 @@ Menu **1**. Use a sacrificial card. PICK and DROP start 8° short (toward PARK);
 - **ARM_DROP (≈5):** card flat and ~3 mm above the belts. Its upstream edge should be **26 mm downstream of the rail inlet end** (card X −139..−51).
 - **ARM_PARK (90):** crank vertical.
 
-**DS3218MG-270 fallback** (§19.1): set `ARM_ACTUATION_RANGE = 270` in `hardware/servos.py` (default 180), then re-calibrate all three arm angles: they are servo degrees within that range.
+**DS3218MG-270 fallback** (§19): set `"servos": {"ARM_ACTUATION_RANGE": 270}` in `config/machine.json` (default 180; only 180 or 270 are accepted), then re-calibrate all three arm angles: they are servo degrees within that range.
 
 **Check:** `test_hardware.py` test 4 (pick and place). The card lands flat inside the guide funnel, released ≤ 1.7 mm off-centre in Y.
 
@@ -1046,17 +1123,18 @@ Run test 11 (home, then raise to pick) with a stack of commons.
 
 1. **Measure from the hopper rim down to the top card: target 3.5 ± 0.3 mm.** That puts the card at Z 90.9, level with the belt top.
 2. **Coarse adjustment:** slide the top switch in its slots. Higher trip = less depth.
-3. **Fine adjustment:** `TRIP_EXTRA_STEPS` in `hardware/elevator.py`. About 510 half-steps per mm (`STEPS_PER_MM` 509.5); positive values raise the card further after the trip.
+3. **Fine adjustment:** `"TRIP_EXTRA_STEPS"` in the `elevator` section of `config/machine.json` (whole number 0–2000, default 0). About 510 half-steps per mm (`STEPS_PER_MM` 509.5); positive values raise the card further after the trip. Restart the sorter after an edit.
 4. Repeat with 10 cards removed and check it stays within ±0.3 mm.
 5. Re-check ARM_PICK after any change.
 
-The raise timeout scales with the distance still to travel, so even a nearly empty hopper straight after homing (≈ 70 s of travel) reaches pick height.
+The first raise after homing may travel the whole stack height; its timeout scales with the distance still to travel, so even a nearly empty hopper (≈ 70 s of travel) reaches pick height. **Every later raise is capped at `RAISE_CAP_MM`** (3 mm ≈ 9 cards, `config/machine.json`): if the top switch hasn't tripped within that, the machine stops with "top switch not detected — check wiring" (§14.2).
 
 ### 16.4 Shuttle: tilt and columns
 
 1. **Menu 2, at home.**
    - **hold:** bed 10° nose-down, card tail clear of the rails, guides and clips.
    - **level:** skids firmly on the home ledges; bed 0.7 mm below the belt top. The default is **93.1°**; keep it only just past the point where the skids touch (§14.3).
+   - The goBILDA coupler was indexed at HOLD to within 0.6° (§13.3); this is where that residual is trimmed. If hold or level need more than a few degrees, the coupler is on the wrong tooth or the shaft slipped in the clamp: re-index it (§13.3–§13.4) rather than jogging.
 2. **Menu 3, columns 0–3 and reject.**
    - Centre the cradle on each slot by eye, or drop a 65 mm card gauge into the slot and line the cradle up with it.
    - **Target: card centre within ±1 mm of the slot centre** (slot 65 for a 63 card). The upper lead-in fins funnel ±2 mm.
@@ -1067,7 +1145,17 @@ The raise timeout scales with the distance still to travel, so even a nearly emp
    - **lower:** the skids land on the R-bar, the kick reaches −40° and the card runs down the ramp into the lower slot.
 4. **Verify:** run `--verify`, then `test_hardware.py` test 5. With a card, check both floors of all 4 columns and the reject bin.
 
-**DS3218MG-270 fallback for ch2** (§19.1): add `"actuation_range": {"2": 270}` to `config/shuttle_calibration.json` (ch1 can take `"1"` the same way), then re-calibrate every ch2 angle with menu 3.
+**`config/shuttle_calibration.json`** (written by menus 2, 3 and `d`; edit `actuation_range` by hand):
+
+```json
+{"tilt": {"hold": 97.0, "level": 93.1, "upper": 112.2, "lower": 41.5},
+ "shuttle": {"home": 75.5, "0": 178.0, "1": 87.3, "2": 65.2, "3": 45.0, "reject": 2.0},
+ "invert": {"1": false, "2": false},
+ "actuation_range": {"2": 270}}
+```
+
+- **`invert`**: per-channel direction. `true` makes the code write `actuation_range − angle`, so every stored angle keeps its geometric meaning. Set by the direction check (menu `d`), never guessed. Only `"1"` and `"2"` with JSON `true` / `false` are accepted; anything else, or unreadable JSON, refuses to start (exit 78).
+- **`actuation_range`** (DS3218MG-270 fallback, §19): `{"2": 270}` for ch2 (ch1 can take `"1"` the same way). Re-calibrate every angle of that channel afterwards.
 
 ### 16.5 Camera
 
@@ -1100,7 +1188,7 @@ Saving calls `camera.set_crop(..., save=True)`, which writes `config/camera_crop
 
 ### 16.6 Machine tunables: `config/machine.json`
 
-Belt centring, camera and sort timing are **per-machine settings in `config/machine.json`**, not code. Copy the example and edit it:
+Belt centring, camera, sort timing, the hopper elevator and the arm's actuation range are **per-machine settings in `config/machine.json`**, not code. Copy the example and edit it:
 
 ```bash
 cp config/machine.example.json config/machine.json
@@ -1108,43 +1196,80 @@ cp config/machine.example.json config/machine.json
 
 Every key is optional; a missing key keeps the code default shown below. The file is read when the sorter starts, so restart it after an edit. `config/machine.json` is not in git. (`RIFTBOUND_MACHINE_CONFIG` points the code at another file.)
 
+**Validation** (`hardware/machine_config.py`). The **whole file** is checked the first time anything reads it, and the sorter **refuses to start** on any problem, listing **every** bad key, with **exit status 78** (`EX_CONFIG`). systemd does not restart on 78 (`RestartPreventExitStatus=78`), so the journal shows the list once: fix the keys, then `sudo systemctl start riftbound-sorter`. The rules:
+- valid JSON; the top level and every section are JSON objects;
+- **unknown sections and unknown keys (typos) are errors**; keys starting with `_` are comments and ignored;
+- booleans are JSON `true` / `false`, never the string `"false"`; numbers are JSON numbers, never strings, `NaN` or `Infinity`; whole-number keys must be integral;
+- every value inside its range or list below; `null` only where the table says so;
+- `EXIT_MIN_S` ≤ `EXIT_MAX_S`.
+
+There is no silent fall-back to the defaults. Delete the file to use them. `setup.sh` validates an existing file too, and so does `venv/bin/python -c "from hardware import machine_config; machine_config.load()"`.
+
 **`card_detect` section** (belt centring, `hardware/card_detect.py`):
 
-| Key | Default | How to measure |
-|---|---|---|
-| `TRAVEL_SIGN` | 1 | Test 8 (live offset, belt off). Slide a card by hand in the travel direction (+X). The offset must **increase**; if it decreases, set −1. |
-| `CENTRE_OFFSET_MM` | 0.0 | Place a card physically centred under the lens: hood inner end walls at X −45 / +55, so the card edges are 6.0 mm from each end wall. Read the offset in test 8 and **add** that reading to `CENTRE_OFFSET_MM`, so a centred card reads 0. |
-| `BELT_SPEED_MM_S` | 150.0 | Mark a card's edge position, run test 9 (3 s), measure the distance moved and divide by 3. It also sets the seek timeout (`SEEK_MAX_TRAVEL_MM` 125 ÷ speed). |
-| `STOP_LATENCY_S` | 0.040 | Age of the newest frame when the brake takes effect (≈ 1.5 frames at 50 fps + processing). Run test 10 (centring) at the nominal speed several times and adjust it until the mean stationary offset is ≈ 0. |
-| `BRAKE_COAST_MM` | 1.5 | Test 10 5×. If the final offset is consistently +d mm (overshoot), add d. If it is consistently short, the nudges correct it; reduce slightly. |
-| `CENTER_TOL_MM` | 2.5 | Stationary offset accepted without a nudge. |
-| `MAX_CAPTURE_OFFSET_MM` | 6.0 | Above this the centring result is not ok (treated as a jam). |
-| `PIXEL_DIFF`, `COL_FRAC` | 30, 0.3 | Detection thresholds: luma difference that counts as card; fraction of a column that must differ. Change only if detection is unreliable. |
-| `VIEW_HALF_MM` | 48.0 | Visible half-window along X (hood interior ±50, less 2). |
-| `SEEK_MAX_TRAVEL_MM`, `SEEK_HARD_LIMIT_FACTOR` | 125, 3.0 | Seek limits (also accepted). |
+| Key | Default | Allowed | How to measure / meaning |
+|---|---|---|---|
+| `TRAVEL_SIGN` | 1 | 1 or −1 | Test 8 (live offset, belt off). Slide a card by hand in the travel direction (+X). The offset must **increase**; if it decreases, set −1. |
+| `CENTRE_OFFSET_MM` | 0.0 | −20..20 | Place a card physically centred under the lens: hood inner end walls at X −45 / +55, so the card edges are 6.0 mm from each end wall. Read the offset in test 8 and **add** that reading to `CENTRE_OFFSET_MM`, so a centred card reads 0. |
+| `BELT_SPEED_MM_S` | 150.0 | 30..600 | Mark a card's edge position, run test 9 (3 s), measure the distance moved and divide by 3. It also sets the seek timeout (`SEEK_MAX_TRAVEL_MM` 125 ÷ speed). |
+| `STOP_LATENCY_S` | 0.040 | 0..0.5 | Age of the newest frame when the brake takes effect (≈ 1.5 frames at 50 fps + processing). Run test 10 (centring) at the nominal speed several times and adjust it until the mean stationary offset is ≈ 0. |
+| `BRAKE_COAST_MM` | 1.5 | 0..20 | Test 10 5×. If the final offset is consistently +d mm (overshoot), add d. If it is consistently short, the nudges correct it; reduce slightly. |
+| `CENTER_TOL_MM` | 2.5 | 0.1..20 | Stationary offset accepted without a nudge. |
+| `MAX_CAPTURE_OFFSET_MM` | 6.0 | 0.5..30 | Above this the centring result is not ok (treated as a jam). |
+| `PIXEL_DIFF` | 30 | whole 1..254 | Luma difference that counts as card. Change only if detection is unreliable. |
+| `COL_FRAC` | 0.3 | 0.01..1 | Fraction of a column that must differ. |
+| `VIEW_HALF_MM` | 48.0 | 10..64 | Visible half-window along X (hood interior ±50, less 2). |
+| `SEEK_MAX_TRAVEL_MM` | 125.0 | 20..170 | Seek limit. |
+| `SEEK_HARD_LIMIT_FACTOR` | 3.0 | 1..10 | Hard seek limit as a multiple of the above. |
+| `FRAME_TIMEOUT_S` | 0.5 | 0.05..5 | Camera stall watchdog: if one low-res grab blocks longer than this, a helper thread brakes the belt and the cycle stops with a camera fault. |
 
 **`camera` section** (`hardware/camera.py`):
 
-| Key | Default | Meaning |
-|---|---|---|
-| `LENS_POSITION` | 10.0 | dioptres = 1 / distance in m (100 mm → 10.0) |
-| `AF_MODE` | `"manual"` | `"manual"` (fixed `LensPosition`) or `"continuous"` |
-| `LOCK_AE_AWB` | true | freeze exposure and white balance after warm-up |
-| `EXPOSURE_TIME_US`, `ANALOGUE_GAIN`, `COLOUR_GAINS` | null | fixed values instead of the converged ones (`COLOUR_GAINS` = [red, blue]) |
-| `CARD_ROTATE` | 90 | 270 if cards are loaded the other way round (§16.5) |
-| `STABILIZE_DELAY_S`, `WARMUP_S`, `SWAP_RB` | 0.15, 1.0, true | also accepted |
+| Key | Default | Allowed | Meaning |
+|---|---|---|---|
+| `LENS_POSITION` | 10.0 | 0..32 | dioptres = 1 / distance in m (100 mm → 10.0) |
+| `AF_MODE` | `"manual"` | `"manual"`, `"continuous"` | fixed `LensPosition`, or continuous autofocus |
+| `LOCK_AE_AWB` | true | true / false | freeze exposure and white balance after warm-up |
+| `EXPOSURE_TIME_US` | null | null or whole 10..100000 | fixed exposure instead of the converged one |
+| `ANALOGUE_GAIN` | null | null or 1..16 | fixed gain |
+| `COLOUR_GAINS` | null | null or [red, blue], each 0.1..8 | fixed white balance |
+| `CARD_ROTATE` | 90 | 0, 90, 180, 270 | 270 if cards are loaded the other way round (§16.5) |
+| `STABILIZE_DELAY_S` | 0.15 | 0..2 | belt stopped → wait before the capture |
+| `WARMUP_S` | 1.0 | 0..10 | AE/AWB warm-up on the empty station |
+| `SWAP_RB` | true | true / false | BGR → RGB |
+| `LORES_TIMEOUT_S` | 0.2 | 0.05..5 | a low-res frame not delivered within this → camera fault (belt braked). The main capture times out after 1.0 s. |
 
 **`sort` section** (`main.py`):
 
-| Key | Default | Meaning |
-|---|---|---|
-| `EXIT_TRAVEL_MM` | 144.0 | belt travel from "centred" to "fully on the cradle" (trailing edge X −39 past the belt end X 85, + 20) |
-| `EXIT_TIME_MARGIN` | 1.25 | × the computed run time. The run uses the belt speed **measured** during centring, never more than `BELT_SPEED_MM_S` |
-| `EXIT_MIN_S`, `EXIT_MAX_S` | 0.6, 3.0 | clamp on the exit run |
-| `EXIT_EXTRA_S` | 0.4 | one extra belt burst if the card is only partly on the cradle |
-| `ARM_LIFT_DEG`, `ARM_LIFT_S` | 10.0, 0.6 | the slow first lift after release |
-| `CALIBRATION_MASS_G` | 5.0 | default reference mass for `--calibrate` |
-| `SEAL_S`, `DROP_SETTLE_S`, `WEIGH_SETTLE_S`, `TARE_SETTLE_S`, `RESUME_DELAY_S` | 0.3, 0.1, 0.2, 0.3, 2.0 | also accepted |
+| Key | Default | Allowed | Meaning |
+|---|---|---|---|
+| `EXIT_TRAVEL_MM` | 144.0 | 50..400 | belt travel from "centred" to "fully on the cradle" (trailing edge X −39 past the belt end X 85, + 20) |
+| `EXIT_TIME_MARGIN` | 1.25 | 1..3 | × the computed run time. The run uses the belt speed **measured** during centring, never more than `BELT_SPEED_MM_S` |
+| `EXIT_MIN_S`, `EXIT_MAX_S` | 0.6, 3.0 | 0.05..5, 0.1..10; MIN ≤ MAX | clamp on the exit run |
+| `EXIT_EXTRA_S` | 0.4 | 0..3 | one extra belt burst if the card is only partly on the cradle |
+| `SEAL_S` | 0.3 | 0..3 | cup on the card → pump seal time before the lift |
+| `DROP_SETTLE_S` | 0.1 | 0..3 | settle at the drop pose before release |
+| `ARM_LIFT_DEG`, `ARM_LIFT_S` | 10.0, 0.6 | 0..45, 0.05..5 | the slow first lift after release |
+| `WEIGH_SETTLE_S`, `TARE_SETTLE_S` | 0.2, 0.3 | 0..5 each | settle before weighing / taring |
+| `RESUME_DELAY_S` | 2.0 | 0..30 | bin reset → hands out of the tray before the shuttle moves |
+| `CALIBRATION_MASS_G` | 5.0 | 0.5..500 | default reference mass for `--calibrate` |
+
+**`elevator` section** (`hardware/elevator.py`):
+
+| Key | Default | Allowed | Meaning |
+|---|---|---|---|
+| `TOP_SWITCH_NC` | true | true / false | top-of-stack switch wired C → GND, **NC** → GPIO 12 (§14.2). `false` only if wired to NO |
+| `BOTTOM_SWITCH_NC` | true | true / false | home switch wired C → GND, **NC** → GPIO 13 |
+| `RAISE_CAP_MM` | 3.0 | 0.5..10 | max travel of every raise after the first one since homing; the top switch must trip within it |
+| `UP_DIRECTION` | 1 | 1 or −1 | −1 if "raise" moves the floor down (§15.2) |
+| `TRIP_EXTRA_STEPS` | 0 | whole 0..2000 | extra half-steps after the top switch trips (§16.3; ≈ 510 per mm) |
+| `HOME_BACKOFF_MM` | 0.5 | 0.1..5 | back-off above the home switch; the switch must read released afterwards |
+
+**`servos` section** (`hardware/servos.py`):
+
+| Key | Default | Allowed | Meaning |
+|---|---|---|---|
+| `ARM_ACTUATION_RANGE` | 180 | 180 or 270 | 270 for a DS3218MG-270 on the arm (§16.2); re-calibrate the arm afterwards |
 
 **Exit run check:** with commons, the card must land fully on the cradle (tail off the roller, nose against the kick) 10 times out of 10. If it doesn't, raise `EXIT_TRAVEL_MM` a few mm. A short run is caught by the weight check ("card not fully on the cradle"), and the cradle is then **not** tipped.
 
@@ -1167,6 +1292,25 @@ The sorter counts cards per bin and pauses when a bin reaches its limit (`main.p
 ```
 
 Raise in small steps (a few cards at a time), and only after a run of bulk commons into that bin shows every card landing flat with the pile at the new height. The upper floor is the one to be careful with: cards that can't slide fully into the slot hang on the cradle lip.
+
+### 16.8 Identification: `config/identify.json`
+
+Optional; every key overrides a default in `vision/identify.py`. Leave it out until you have a labelled sample of real scans to tune with.
+
+```json
+{"min_conf": 0.80, "min_margin_bits": 10, "fallback": true,
+ "fallback_min_phash_conf": 0.70, "max_missing_fraction": 0.01}
+```
+
+| Key | Default | Meaning |
+|---|---|---|
+| `min_conf` | 0.80 | pHash confidence below this → not identified (reject). 0.80 ≈ Hamming distance ≤ 51 of 256 bits |
+| `min_margin_bits` | 10 | the runner-up must be at least this many bits further away, else the match is **ambiguous** → reject. 0 turns the check off |
+| `fallback` | true | JSON boolean. When pHash is merely below `min_conf` (and unambiguous), ahash and dhash may confirm it; the card is accepted only if all three agree on the same card. An ambiguous pHash is never overridden |
+| `fallback_min_phash_conf` | 0.70 | pHash must reach at least this for the fallback to be tried |
+| `max_missing_fraction` | 0.01 | share of the card list that may lack a hash before sorting is refused (§15.4) |
+
+Unlike `machine.json`, a bad `identify.json` is **not** fatal: the sorter prints a warning ("could not read config/identify.json") and the bad key, and possibly others, keep their defaults. Check the journal after editing it.
 
 ---
 
@@ -1194,84 +1338,122 @@ Before powering off, always stop with `sudo systemctl stop riftbound-sorter` (or
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Pump runs or vent clicks at boot or after the program exits | 10 kΩ pull-up on GPIO 17 / 27 missing | Fit it (§14.2). Run the safe-state test (§14.8). |
+| Pump runs or vent clicks at boot or after the program exits | 10 kΩ pull-up on GPIO 17 / 27 missing; kernel parameter not applied (no reboot since setup); `ExecStopPost` failing | Fit it (§14.2). `cat /proc/cmdline` must contain `pinctrl_bcm2835.persist_gpio_outputs=0`. `journalctl -u riftbound-sorter` for `[safe_outputs]` errors. Run the safe-state test (§14.8). |
 | Arm lifts nothing | Cup not reaching the card; leak; pump on the wrong port; vent valve leaking | Jog ARM_PICK deeper (slider must compress). Pinch-test the tube. Use the pump **inlet**. Swap the valve's ports (§14.6). |
 | Card won't release at the drop | Vent valve not opening (wiring, relay IN2, GPIO 27); valve fitted the wrong way round | Test 3. Check relay channel 2 clicks. `VENT_S` in `hardware/vacuum.py`. |
 | Card dropped off-centre, rides on a guide | ARM_DROP X is off; card released > 1.7 mm off in Y | Re-calibrate ARM_DROP. Check the hopper card isn't sitting against one wall. |
 | "Hopper empty" with cards loaded | Flag not reaching the card; top switch set too high | §16.3. Check the flag drops freely and the plate notch is under the flag. |
+| "top switch not detected — check wiring" | top switch wire broken with NO wiring, or the switch never trips within `RAISE_CAP_MM` | Check the switch wiring (C → GND, NC → GPIO 12) and `TOP_SWITCH_NC`. Test 11. |
+| "bottom (home) switch still pressed … above it" / homing fails | home-switch wire broken (reads pressed with NC wiring); switch stuck | Check C → GND, NC → GPIO 13 and `BOTTOM_SWITCH_NC`. |
+| Arm picks too low / "card never seen" right after a refill, floor doesn't rise | top-switch wire broken with NC wiring (reads pressed = "at pick height") | Check the top-switch wiring. |
 | Elevator stalls or misses steps | Binding on the rods or lead screw; steps too fast | Check the carriage slides by hand. Don't go below `MIN_STEP_S`. |
+| "home" moves the floor up | stepper direction | `"UP_DIRECTION": -1` in `config/machine.json` (§15.2). |
 | Jam: card not seen at the scanner | Belt slipping; `TRAVEL_SIGN` wrong; reference frame taken with a card present | §16.6. Check the coupling set screws on the rod flats. |
 | Card stops off-centre | `BELT_SPEED_MM_S` / `STOP_LATENCY_S` / `BRAKE_COAST_MM` | §16.6, test 10. |
 | Camera warns "NOT the full field of view" | the sensor mode wasn't applied | Update picamera2 (`sudo apt upgrade`), re-run setup.sh. The centring margin is lost until it is fixed. |
+| `error`: "camera stopped delivering frames" / "camera grab blocked" | ribbon loose or damaged; camera stalled | Belt was braked. Remove the card, reseat the SC1130 at both ends, **Machine clear**. |
 | Misidentification | Glare; crop off; focus; DB stale | Keep the LED strips in their bands. Redo §16.5. Check `LENS_POSITION`. `main.py --build-db`. |
 | Image upside-down or mirrored | `CARD_ROTATE`; bracket FPC edge not facing −Y | §16.5. Re-mount the camera. |
 | "No card on the cradle" / "card not fully on the cradle" | exit run too short; card caught at the belt end | §16.6 (`EXIT_TRAVEL_MM`). Check the cradle is LEVEL and 0.7 mm under the belt. Lift the card off by hand, then **Machine clear**. |
 | "card on cradle — remove it" at start-up | a card was left on the cradle, or the empty reference is stale | Remove the card and confirm. If the cradle really is empty, re-run `main.py --calibrate`. |
+| "cradle reads … BELOW the stored empty-cradle reference" | load-cell fault, lead tugging, zero drift | Check the cell, lead and loop (§14.7), then `main.py --calibrate`. |
+| "no stored empty-cradle reference" | never calibrated, or an old calibration file | `main.py --calibrate` (§16.1). |
 | Waits in `needs_confirm` | first start, or the last stop was unclean | §15.4: check the machine, then **Machine clear** or `--confirm-clear`. |
+| Won't start: `[config] ERROR: invalid machine config … refusing to start`, service not restarting (exit 78) | a bad key in `config/machine.json` or `config/shuttle_calibration.json` (typo, string instead of number, out of range) | Fix every key listed (§16.6, §16.4), or delete `machine.json` for the defaults. Then start the service. |
+| "another sorter process is running" | the service is running while you start `main.py` by hand (or a second copy) | `sudo systemctl stop riftbound-sorter` first. |
+| `error`: "hash DB incomplete" | card image downloads failed | `main.py --build-db` with internet (§15.5); it retries by itself every 60 s. |
+| Web UI or CLI action refused (HTTP 409) | not allowed in the current state | The message says why; see the table in §15.3. |
+| ch2 crank swings toward the end post / wrong way | servo direction not checked or `invert` lost | Unplug ch2 at once. Remove the crank, re-run the direction check bare (menu `d`, §13.5). |
 | Weight "unknown" / drifting | Load-cell lead tugging the cradle; cradle touching the TF | Re-route the trailing loop (§14.7). Check the cradle touches only the cell. Re-tare. |
 | "load cell failed" | HX711 wiring or power; repeated failed reads | Check DOUT = GPIO 5, SCK = GPIO 6, VCC on 3.3 V. |
 | Card hangs on the cradle lip | PTFE tape missing or worn; tilt pose short; bin pile too high | Re-tape. Re-calibrate upper/lower. Lower that bin's limit (§16.7). |
 | Card hits a tray wall | Column off by > 1 mm | Re-calibrate that column (§16.4). |
-| Shuttle stalls or jerks | LM8UU misaligned; tilt crank binding in the sled pocket; ch2 pivot screw too tight | Re-align the end posts. Check the crank slides freely along the D-shaft. The shoulder screws should spin the link freely. |
+| Shuttle stalls or jerks | LM8UU misaligned; tilt crank binding in the sled pocket; ch2 pivot screw too tight; rod set screws loose | Re-align the end posts. Check the crank slides freely along the REX shaft. The shoulder screws should spin the link freely. Tighten the rod set screws (§13.4). |
+| Cradle angle drifts or HOLD / level need large corrections | ch1 coupler clamp loose or on the wrong tooth | Re-tighten the M4 clamp at HOLD; re-index (§13.3–§13.4). |
 | Cradle servo hums or gets hot at home | level angle too far past the ledges | Back `level` off toward the touch point (§16.4). |
 | PCA9685 not found (`i2cdetect`) | SDA/SCL swapped; VCC missing | §14.2. |
 | `vcgencmd get_throttled` ≠ 0x0 | Logic rail overloaded; bad wiring; 3 A adapter in use | Check that only the Pi, LEDs and relay are on Reg #1 (L9110S and ULN2003 on Reg #3). Use the 12 V 5 A adapter. Check the 22 AWG runs. |
 | Belt twitches at boot or after exit | L9110S inputs floating | Fit the 10 kΩ pull-downs on GPIO 23–26 (§14.2). |
 | PCA9685 flaky / I²C errors | PCA9685 VCC on 5 V; missing V+ capacitor | VCC to Pi 3.3 V. Fit 1000 µF at V+. |
 | Web UI says "missing or wrong token" | token not entered or changed | `venv/bin/python main.py --web-token`; clear the browser's saved token and re-enter it. |
-| "machine is running: pause or stop it before emptying" | a bin reset while sorting | Pause or Stop first (§15.3). |
+| "machine is running / starting: pause or stop it before emptying …" | a bin reset while sorting or starting | Pause or Stop first (§15.3). |
+| "Machine clear" refused while paused | by design: a card may be held on the cradle | Stop first, then Machine clear (§15.3). |
 | Web UI unreachable | Service down | `journalctl -u riftbound-sorter -n 50`; `sudo systemctl restart riftbound-sorter`. |
 
 ---
 
 ## 19. Known risks / test first
 
-1. **MG996R rotation range (test before printing the arm).**
-   - The arm needs **~170°** of servo travel (ARM_DROP 5° → ARM_PICK 175°). The ch2 shuttle needs **~176°** (reject 2° → column 0 178°).
-   - Many MG996Rs give only ~120° with standard pulses; the code uses 500–2500 µs.
-   - **Test:** bolt a horn on, command 5°, 90° and 175° with `calibrate_servos.py --no-mock`, and measure with a protractor.
-   - **Fallback: DS3218MG-270** (~$15). Arm: `ARM_ACTUATION_RANGE = 270` in `hardware/servos.py` (§16.2). ch2: `"actuation_range": {"2": 270}` in `config/shuttle_calibration.json` (§16.4). Re-calibrate after either.
-2. **PTFE tape on the cradle is required.** Without it the upper-floor transfer jams. Check it every few hundred cards.
-3. **Bin capacities are small**, and the default limits (40 lower, 12 upper, 35 reject) are deliberately conservative (§16.7). The machine pauses with the card held on the cradle until the bin is emptied and reset. Raise the limits only after testing. A taller riser would buy upper-floor capacity, but that is a design change.
-4. **Column accuracy is ±2 mm** (servo slider-crank plus backlash) against ±1 mm of slot clearance. Calibrate each column (§16.4) and re-check after any knock.
-5. **Tight clearances to check on the printed parts:**
+### 19.1 Test first on the real machine
+
+None of these can be settled in CAD or in the mock tests. Check each one on the bench or on the built machine **before** relying on it (and before printing the big parts where it says so):
+
+1. **Servo travel (before printing the arm).** The arm needs **~170°** of servo travel (ARM_DROP 5° → ARM_PICK 175°) and ch2 needs **~176°** (reject 2° → column 0 178°). Many MG996Rs give only ~120° with standard pulses; the code uses 500–2500 µs. **Test:** bolt a horn on, command 5°, 90° and 175° with `calibrate_servos.py --no-mock`, and measure with a protractor. **Fallback: DS3218MG-270** (~$15): arm `"servos": {"ARM_ACTUATION_RANGE": 270}` in `config/machine.json` (§16.2); ch2 `"actuation_range": {"2": 270}` in `config/shuttle_calibration.json` (§16.4). Re-calibrate after either.
+2. **Servo direction (ch1, ch2).** Run the bare-servo direction check (menu `d`) before the coupler or the crank goes on (§13.3, §13.5). MG996R clones differ; a reversed ch2 without `invert` drives the crank into the end post.
+3. **Relay at 3.3 V logic.** The 5 V relay module is driven from 3.3 V GPIO; some boards never fully switch off. Bench-test both channels before wiring (§14.1).
+4. **Camera:** check at start-up that the IMX708 really runs the 2304 × 1296 full-field mode (no "NOT the full field of view" warning), that `LensPosition` 10 gives a sharp card, and tune `STOP_LATENCY_S` (and `BRAKE_COAST_MM`) with test 10 (§16.5, §16.6).
+5. **HX711 timing under rpi-lgpio.** The vendored HX711 library bit-bangs SCK through `RPi.GPIO`, which on current Raspberry Pi OS is the `python3-rpi-lgpio` shim. Its per-call overhead and timing on a Pi Zero 2 W are untested here: with test 6, check that repeated empty and one-card readings are stable (0 ± 0.3 g; 1.3–2.3 g) and that no "load cell failed" / retry messages appear.
+6. **Belt speed.** `BELT_SPEED_MM_S` (default 150) is a guess for two N20s at 5 V: measure it (test 9, §16.6). It sets the seek timeout and the exit run.
+7. **Bin capacities depend on the card friction (μ).** The default limits (40 lower, 12 upper, 35 reject) come from the slide simulation at μ 0.35–0.45 (`cad/shuttle_check.py slide`). Real raw cards on PTFE tape may slide better or worse. Raise limits only after a run of commons into that bin shows every card landing flat at the new pile height (§16.7).
+8. **Vent valve and pump dimensions.** The valve clip and the pump-head cradle are built round reference envelopes (uxcell 12 V NC valve ≈ 15 × 14 × 34; R385 head ≈ 32 long), not vendor drawings. Measure yours: the valve must snap into the clip on its foam strip, the pump head must rest on its pad without lifting the can (§14.6). Check the tee's Ø3 barbs take the 4 × 2.5 PU tube.
+9. **ch1 coupler indexing.** The goBILDA coupler is indexed to the hex flats at HOLD (7° up from +X) to within 0.6° (§13.3). Confirm on the machine that HOLD and level land within a degree or two of 97° / 93.1° before trimming; a big error means a wrong tooth or a slipped clamp.
+10. **Camera ribbon slack.** The route is ≈ 450 mm on the 500 mm SC1130: **≈ 50 mm of slack**. Test-fit it before tying anything down (§14.5). The fallback is a longer third-party 15-to-22-pin cable (1 m).
+11. **Load-cell loop at column 0.** The 350 mm loop needs ≈ 30 mm more slack at column 0, where its bend comes within 5 mm of the −Y end post (§14.7). Test-fit through every column.
+12. **Hopper lift clearance.** A card lying 1.5 mm off-centre (also in a cavity corner) clears the hopper by ≥ 0.49 mm during the lift (`cad/pick_arm_check.py`). Watch the first lifts.
+
+### 19.2 Other known risks
+
+1. **PTFE tape on the cradle is required.** Without it the upper-floor transfer jams. Check it every few hundred cards.
+2. **Bin capacities are small** (above). The machine pauses with the card held on the cradle until the bin is emptied and reset. A taller riser would buy upper-floor capacity, but that is a design change.
+3. **Column accuracy is ±2 mm** (servo slider-crank plus backlash) against ±1 mm of slot clearance. Calibrate each column (§16.4) and re-check after any knock.
+4. **Tight clearances to check on the printed parts:**
    - shuttle cradle / tilt frame / carriage / ramp: 0.5–0.8 mm;
    - card to the hopper during the lift: 1.5 mm centred, ≥ 0.49 mm for a card lying 1.5 mm off-centre (lift relief, §10);
    - a card held 1.5 mm off-centre in Y passes the scan station's guides by 0.46 mm at the drop;
    - ch2 crank tip at column 0 reaches Y −269 against a 270 mm baseplate edge;
    - hood clips and guide funnel within a few mm of the arm drop.
-6. **Vacuum release** depends on the vent valve (§14.6). A valve fitted the wrong way round can leak during a pick or fail to vent. Run test 3 and the pick-and-place test with commons. Without a valve (`VENT_PIN = None`) the code just waits 0.3 s, and the R385's check valves may hold the card on the cup.
-7. **Camera ribbon length** is ≈ 0.45 m on a 500 mm cable. Test-fit first. The fallback is a longer 15-to-22-pin cable (third-party, 1 m).
-8. **Load-cell lead routing** isn't in the CAD (§14.7). A snagged lead mis-weighs cards or gets torn.
-9. **Servos are limp whenever the sorter isn't running** (and on power loss). The arm is parked before it goes limp, but with the 12 V pulled it falls and drops any card. Always stop the service before unplugging.
-10. **First moves after an unclean stop are full-speed jumps** (§15.4). Keep hands out of the machine when you start it after a crash or power loss.
-11. **12 V supply.** The arm-move peak with the pump on is ≈ 3.2 A, over the owned 3 A adapter. **Use the 12 V 5 A adapter** (64 % at peak). The 3 A one is for bench tests with the servos unplugged.
-12. **O-ring belts** run at 7.4 % stretch. NBR relaxes over time; if a card slips, replace the belts.
-13. **Card position under the camera.** The Y margin is only 4.2 mm worst case. Cards must stay in the 66.4 mm guide channel.
-14. **Glare.** The LED strips must stay below 21 mm above the card or foils will show a hotspot. No GPIO switches them: they are on whenever the logic rail is.
-15. **Hopper-empty detection** depends on the plate notch passing under the flag. Check it in §10 with an empty plate.
-16. **Shoulder screws.** The ch2 pivots need 4 mm-shoulder screws with an M3 × 4 thread (5 and 6 mm shoulders). Order them early; they are not in common assortments.
-17. **Relay at 3.3 V logic.** The 5 V relay module is driven from 3.3 V GPIO. Some boards never fully switch off at 3.3 V; bench-test it before wiring (§14.1).
+5. **Vacuum release** depends on the vent valve (§14.6). A valve fitted the wrong way round can leak during a pick or fail to vent. Run test 3 and the pick-and-place test with commons. Without a valve (`VENT_PIN = None`) the code just waits 0.3 s, and the R385's check valves may hold the card on the cup.
+6. **Servos are limp whenever the sorter isn't running** (and on power loss). The arm is parked before it goes limp, but with the 12 V pulled it falls and drops any card. Always stop the service before unplugging.
+7. **First moves after an unclean stop are full-speed jumps**, and only after **Machine clear** (§15.4). Keep hands out of the machine when you confirm after a crash or power loss. After a clean stop the servos snap back by whatever they sagged while limp.
+8. **12 V supply.** The arm-move peak with the pump on is ≈ 3.2 A, over the owned 3 A adapter. **Use the 12 V 5 A adapter** (64 % at peak). The 3 A one is for bench tests with the servos unplugged.
+9. **O-ring belts** run at 7.4 % stretch. NBR relaxes over time; if a card slips, replace the belts.
+10. **Card position under the camera.** The Y margin is only 4.2 mm worst case. Cards must stay in the 66.4 mm guide channel.
+11. **Glare.** The LED strips must stay below 21 mm above the card or foils will show a hotspot. No GPIO switches them: they are on whenever the logic rail is.
+12. **Hopper-empty detection** depends on the plate notch passing under the flag. Check it in §10 with an empty plate.
+13. **Shoulder screws.** The ch2 pivots need 4 mm-shoulder screws with an M3 × 4 thread (5 and 6 mm shoulders). Order them early; they are not in common assortments.
+14. **Kernel parameter needs a reboot.** Until the first reboot after `setup.sh`, only `ExecStopPost` (not the kernel) releases the outputs after a crash. Reboot once after setup (§15.1).
 
 ---
 
 ## 20. Where the code and the CAD disagree
 
-Re-checked against the repo on 12 Nov 2026. Every row of the earlier list that is not repeated below has been fixed in the code or the CAD. What is left is reported here, not fixed (this guide works round each).
+Re-checked against the repo on 12 Nov 2026 (after commits f274d7f, 0be14a0, 2e5a3a0 and 4261e75). **Every row of the 2.1.0 list has been fixed** in the code or the CAD and is closed:
+
+| # (2.1.0) | Closed by |
+|---|---|
+| 1 `sorting_tray.scad` header (v1 routing, slot names) | header rewritten: bins 0–7, reject bin 9 in `reject_bin.scad` |
+| 2 `assembly.scad` header (tray Y 80..205) | now Y 80..230 |
+| 3 `baseplate_tile.scad` header (X grid) | now lists the per-tile X grid |
+| 4 `riser.scad` header (back X +40 through-bolt) | now an insert foot |
+| 5 `assembly-steps.yaml` captions, `render_v2/parts.scad` boards | captions give the current fasteners; boards at the current tray positions |
+| 6 `test_hardware.py` banners, `card_detect.py` "test 9" | banners "Test 1" … "Test 11" = menu; `card_detect.py` says test 10 |
+| 7 `vacuum.py` "§3d" | now points to §14.2 |
+| 8 `conveyor.py` "pigpio" | now RPi.GPIO software PWM |
+| 9 `web/app.py` hostname | now `riftbound-sorter.local` |
+| 10 CLI bin resets ignore the machine state | the CLI goes through the running sorter's web API (§15.3) |
+| 11 arm range / elevator settings as code constants | now in `config/machine.json` (`servos`, `elevator`) |
+| 12 `shuttle.scad` ch1 coupler not modelled | goBILDA 4001-0025-4008 modelled and in the BOM |
+| 13 `camera_bracket.scad` ribbon ≈ 420 mm | now ≈ 450 mm, ≈ 50 mm slack |
+| 14 load-cell loop, vent valve + tee not modelled | `asm_cell_lead()`, `asm_vent_valve()`, valve clip |
+
+What is left, reported here, not fixed (this guide works round each):
 
 | # | Where | Disagreement | Workaround in this guide |
 |---|---|---|---|
-| 1 | `sorting_tray.scad` header | Still describes the v1 routing, a "reject = small tray at end of lower floor", and slot names that differ from `config/rules.json` (bin 4 Legendary/Epic, 5 Rare, 6 Common/Basic, 7 Default). | Bins follow `rules.json`; the reject bin is `reject_bin.scad`. |
-| 2 | `assembly.scad` header | Gives the electronics tray as X −150..35, Y 80..205; the tray is now 185 × 150, Y 80..230 (the module itself is right). | §1, §5 |
-| 3 | `baseplate_tile.scad` header | Says machine X ≡ 15 (mod 30) from −270 to 270. The X grid restarts on each tile column (−270..−120, −80..70, 110..260); only Y is continuous. `electronics_tray.scad` and `shuttle_check.py` use the correct grid. | §4 |
-| 4 | `riser.scad` header | Lists back X +40 as a through-bolt foot; the code (`feet_insert`) and `conveyor_rail.scad` make it an insert foot (M3 × 10). | §7 follows the code. |
-| 5 <!-- PENDING CAD round 3: captions being corrected --> | `assembly-steps.yaml` captions, `cad/render_v2/parts.scad` | Video captions still say tiles "screw to backing board, M3 x 8", boards "on M2.5 standoffs" and riser "M3 x 80 through"; `parts.scad` draws the boards at their old tray positions. | Follow this guide, not the video captions. |
-| 6 | `scripts/test_hardware.py` | The menu is now 1–11 (vent valve inserted as 3), but the test banners still say "Test 2b", "Test 3" … "Test 10". `hardware/card_detect.py` refers to the centring test as "test 9" (menu 10). | This guide uses menu numbers (§15.2). |
-| 7 | `hardware/vacuum.py` docstring | Points to "docs/ASSEMBLY.md §3d, audit B-14" for the pull-ups; they are in §14.2. | — |
-| 8 | `hardware/conveyor.py` docstring | Says pigpio PWM; it uses RPi.GPIO software PWM. | — |
-| 9 | `web/app.py` docstring | Gives `http://raspberrypi.local:5000`; the hostname is `riftbound-sorter`. | §15.3 |
-| 10 | `main.py` CLI vs web UI | The web UI only resets bins while paused or stopped; `--empty-bin` / `--empty-all` don't check the machine state. | Only use them paused or stopped (§15.3). |
-| 11 | Config locations | Most tunables moved to `config/machine.json`, but `ARM_ACTUATION_RANGE` (servos.py) and the elevator's `UP_DIRECTION` / `TRIP_EXTRA_STEPS` are still code constants, while ch2's range lives in `shuttle_calibration.json`. | §16 "Where each setting lives" |
-| 12 | `shuttle.scad` BOM, ch1 coupler | Lists "metal round horn + 8 mm D-hub"; the coupler isn't modelled. This guide uses a 25T disc horn + 8 mm rigid flange coupling (4 × M3 × 8). | §13.4: check the hole circles match. |
-| 13 | `camera_bracket.scad` | Estimates the ribbon at ≈ 420 mm; the `assembly.scad` route to the tray entry is ≈ 405 mm plus ≈ 30–45 mm to the Pi connector. | Test-fit (§14.5). |
-| 14 | `assembly.scad` | The load-cell trailing loop and the vent valve + tee are not modelled. | §14.6, §14.7 |
+| 1 | `hardware/elevator.py` docstring | Says "ULN2003 + → 5 V (regulator #1 rail)". The ULN2003 / 28BYJ-48 is on **Reg #3**, the motor rail (BOM power budget, wiring diagram, KiCad sheet). | §14.1: Reg #3. |
+| 2 | `hardware/vacuum.py` docstring | Flyback diode "cathode to +12 V, anode to the switched side". In this build the relay switches the **+** side (COM = 12 V, NO → device +), so the device − is GND: the diode goes **cathode to the device's + (switched) terminal, anode to its − (GND)**. | §14.1, §14.6 |
+| 3 | `cad/*.scad` fastening notes (`riser`, `electronics_tray`, `conveyor_rail`, `suction_arm`, `shuttle`, `lower_ramp`, `reject_bin`, `pump_bracket`) | Still say "washer + nut under the board". `baseplate_tile.scad` recommends board tee-nuts and calls washer + nut the fallback. Screw lengths are the same either way. | §4: tee-nuts; every screw from above. |
+| 4 | `cad/shuttle.scad`, `shuttle_geom.scad`, `hardware/shuttle.py` | Still call the tilt shaft the "D-shaft" (each says once that it is an 8 mm REX shaft). | This guide says REX shaft. |
+| 5 | `web/app.py` docstring | Says the token is "generated on first run and printed"; it is no longer printed (only `main.py --web-token` shows it). | §15.3 |
+| 6 | `vision/identify.py` | `config/identify.json` is not schema-checked like `machine.json`: a bad value only prints a warning and the defaults stay. | §16.8 |
+| 7 | `scripts/setup.sh` "next steps" | Lists calibration before the reboot that applies the kernel parameter. Either order works; reboot before the first unattended run. | §15.1 step 3 |

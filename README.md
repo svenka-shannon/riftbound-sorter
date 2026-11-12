@@ -6,7 +6,7 @@ A DIY sorting machine for Riftbound (League of Legends TCG) cards. It identifies
 
 The machine handles **raw, unsleeved, valuable cards**. Every card is lifted by suction from the top of the stack, laid flat on the belt, and dropped short distances by gravity. Nothing rubs, pinches or friction-feeds a card. When in doubt the machine rejects the card or stops.
 
-Machine footprint: 570 × 540 mm baseplate (3 × 3 printed tiles, keyed together, on a backing board). Every printed part fits a 256 × 256 mm bed (Bambu P1S).
+Machine footprint: 570 × 540 mm baseplate (3 × 3 printed tiles, keyed together, on a 6 mm backing board with M3 tee-nuts, so every part bolts down from above). Every printed part fits a 256 × 256 mm bed (Bambu P1S).
 
 - **Build guide:** [`docs/ASSEMBLY.md`](docs/ASSEMBLY.md)
 - **Parts, costs, power budget and cost-down options:** [`BOM.md`](BOM.md)
@@ -23,7 +23,7 @@ Machine footprint: 570 × 540 mm baseplate (3 × 3 printed tiles, keyed together
   floor)      parallelogram)  belts)     at X +5)          at rest)         or reject)     lower floor)
 ```
 
-1. **Hopper elevator.** A 28BYJ-48 stepper turns a T8 lead screw and raises the hopper floor until a light feeler flag on the top card trips a microswitch. The top card is then at pick height, level with the belt. When the floor plate reaches the top without tripping the flag, the hopper is empty.
+1. **Hopper elevator.** A 28BYJ-48 stepper turns a T8 lead screw and raises the hopper floor until a light feeler flag on the top card trips a microswitch. The top card is then at pick height, level with the belt. When the floor plate reaches the top without tripping the flag, the hopper is empty. Both microswitches are wired **normally closed**, so a broken wire reads as "pressed" (the safe direction), and every raise after the first is capped at 3 mm.
 2. **Pick arm (PCA9685 ch0).** One MG996R drives a crank with two phased followers (a triple parallelogram). The suction cup always points straight down. It comes down onto the card, lifts it vertically, carries it over a ~170° arc and lowers it flat onto the belt, 3 mm above it at X −95. A spring slider under the cup takes up height errors.
    - Vacuum comes from a 12 V diaphragm pump on relay channel 1 (GPIO 17).
    - To release the card, the pump goes off and a **12 V normally-closed vent valve**, teed into the vacuum line, opens for 0.4 s (relay channel 2, GPIO 27). The arm then lifts slowly so a card still stuck to the cup peels off onto the belt.
@@ -33,13 +33,13 @@ Machine footprint: 570 × 540 mm baseplate (3 × 3 printed tiles, keyed together
    - Side guides keep it square.
 4. **Scan station.** A light-tight hood holds two LED strips (no ring, so foils show no hotspot). A Pi Camera Module 3 looks down from 100 mm, fixed-focused at the card, in its full-field 2304 × 1296 mode at 50 fps. The belt runs until the camera's low-res stream sees the card **centred under the lens**, then brakes, and the frame is captured. The image is flipped 180° for the bracket and identified against a local hash DB.
 5. **Cradle shuttle.** The belt carries the card onto a cradle mounted on a 50 g TAL221 load cell.
-   - **ch1** tips the cradle 10° nose-down (HOLD). The card is weighed **at rest, alone**: empty, single, double pick or unknown.
+   - **ch1** turns an 8 mm goBILDA REX shaft through a clamping servo coupler and tips the cradle 10° nose-down (HOLD). The card is weighed **at rest, alone**: empty, single, double pick or unknown.
    - **ch2** slides the carriage to one of 4 columns or the reject position.
    - ch1 then tips the card forward into the **upper** slot, or swings the cradle down onto a fixed ramp into the **lower** slot (or the reject bin).
    - The cradle is checked empty and re-tared for the next card.
 6. **Bin capacity.** The software counts cards per bin. The default limits are conservative: lower floor 40, upper floor 12, reject 35 (raise them in `config/bin_limits.json` once tested). When a bin is full it **pauses with the card held on the cradle** until you empty the bin and reset it.
 
-Unidentified cards, double or unknown weights all go to the reject bin. Jams, lost cards and an empty hopper stop the machine safely: pump off, belt stopped, arm parked, cradle in HOLD.
+Unidentified or ambiguous cards, double or unknown weights all go to the reject bin. Jams, lost cards, a camera stall, a switch fault and an empty hopper stop the machine safely: pump off, belt stopped, arm parked, cradle in HOLD. After any exit, even a crash, the systemd unit drives every output to its safe level.
 
 ---
 
@@ -49,14 +49,14 @@ Unidentified cards, double or unknown weights all go to the reject bin. Jams, lo
 |---|---|---|
 | Brain | Raspberry Pi Zero 2 W | — |
 | Camera | Pi Camera Module 3 (standard), 500 mm SC1130 ribbon | CSI |
-| Servos | 3 × MG996R on a PCA9685: ch0 pick arm, ch1 cradle tilt, ch2 shuttle carriage | I²C 0x40 (GPIO 2/3) |
+| Servos | 3 × MG996R on a PCA9685: ch0 pick arm, ch1 cradle tilt (goBILDA coupler → REX shaft), ch2 shuttle carriage | I²C 0x40 (GPIO 2/3) |
 | Load cell | TAL221 50 g + HX711, under the cradle | GPIO 5 (DOUT), 6 (SCK) |
 | Vacuum | 12 V R385 diaphragm pump + 12 V normally-closed vent valve, via a **2-channel** active-LOW relay (10 kΩ pull-ups = off when floating) | GPIO 17 (pump), GPIO 27 (vent) |
 | Belt | 2 × N20 6 V 200 rpm via L9110S, both rollers driven | **plain GPIO** 23/24 (A), 25/26 (B), not I²C |
-| Hopper | 28BYJ-48 + ULN2003, T8×8 lead screw; feeler-flag switch + home switch | GPIO 16/19/20/21; switches GPIO 12 (top), 13 (home) |
+| Hopper | 28BYJ-48 + ULN2003, T8×8 lead screw; feeler-flag switch + home switch, both **NC** (C → GND, NC → GPIO) | GPIO 16/19/20/21; switches GPIO 12 (top), 13 (home) |
 | Power | **12 V 5 A** adapter → three fixed 5 V Pololu bucks: D24V22F5 logic (Pi, LEDs, relay), D24V50F5 servos (PCA9685 V+), D36V28F5 motors (L9110S, ULN2003) | PCA9685 VCC = Pi 3.3 V |
 
-Total ≈ $796, of which ≈ $609 is still to buy; the optional cost-downs in [`BOM.md`](BOM.md) bring that to ≈ $549 without changing the design (≈ $495 with all of them). About 4 kg of filament.
+Total ≈ $825, of which ≈ $638 is still to buy (plus goBILDA shipping); the optional cost-downs in [`BOM.md`](BOM.md) bring that to ≈ $578 without changing the design (≈ $524 with all of them). About 4 kg of filament.
 
 ---
 
@@ -64,7 +64,7 @@ Total ≈ $796, of which ≈ $609 is still to buy; the optional cost-downs in [`
 
 ### 1. Build the machine
 
-Follow [`docs/ASSEMBLY.md`](docs/ASSEMBLY.md): print list, heat-set inserts, 11 mechanical steps, wiring, calibration. Read its **Known risks / test first** section before printing.
+Follow [`docs/ASSEMBLY.md`](docs/ASSEMBLY.md): print list, 50 heat-set inserts, board tee-nuts, 11 mechanical steps (the shuttle in the install order `cad/shuttle_check.py assembly` verifies), wiring, calibration. Read its **Known risks / test first** section before printing: servo travel (arm 170°, ch2 176°), relay at 3.3 V, camera mode and focus, HX711 timing, belt speed, bin capacities, valve / pump fit, coupler indexing and the ribbon's ≈ 50 mm of slack all need checking on the real machine.
 
 ### 2. Set up the Pi
 
@@ -76,7 +76,7 @@ cd riftbound-sorter
 bash scripts/setup.sh
 ```
 
-This enables I²C and installs the system packages from apt: `python3-picamera2`, `python3-libcamera`, numpy/scipy/Pillow, `libtiff6`, `i2c-tools`, and **`python3-rpi-lgpio`** (the `RPi.GPIO` drop-in for current Raspberry Pi OS). It creates `venv/` **with `--system-site-packages`** so the venv sees those modules, installs `requirements.txt`, sets the hostname to `riftbound-sorter`, installs the systemd service and prints the web UI token. The gandalf15 HX711 library is **vendored** in `hardware/vendor/`: don't pip-install a package called `hx711` (that PyPI name is a different library). Check with `venv/bin/python -c "import picamera2, board"` (ASSEMBLY.md §15).
+This enables I²C and installs the system packages from apt: `python3-picamera2`, `python3-libcamera`, numpy/scipy/Pillow, `libtiff6`, `i2c-tools`, `pinctrl` and **`python3-rpi-lgpio`** (the `RPi.GPIO` drop-in for current Raspberry Pi OS). It creates `venv/` **with `--system-site-packages`** so the venv sees those modules, and installs the exact, hash-pinned packages from **`requirements.lock`** (`pip --no-deps --require-hashes`; Blinka held below 10). It adds the kernel parameter `pinctrl_bcm2835.persist_gpio_outputs=0`, installs the systemd service (watchdog 60 s, `ExecStopPost` = `scripts/safe_outputs.py`), sets the hostname to `riftbound-sorter` and prints the web UI token at the end. **Reboot once afterwards** to apply the kernel parameter. The gandalf15 HX711 library is **vendored** in `hardware/vendor/`: don't pip-install a package called `hx711` (that PyPI name is a different library). Check with `venv/bin/python -c "import picamera2, board, busio, adafruit_pca9685"` (ASSEMBLY.md §15).
 
 **Always run hardware scripts with the Pi venv's Python** (`venv/bin/python …`). A plain `python` or a `uv run` script environment has no GPIO, camera or PCA9685 libraries.
 
@@ -95,17 +95,18 @@ Follow ASSEMBLY.md §16 for the full order (load cell → arm → elevator trip 
 ```bash
 venv/bin/python scripts/test_hardware.py --no-mock       # menu of 11 subsystem tests
 venv/bin/python main.py --calibrate                      # load cell: 5.000 g US nickel (or --mass G)
-venv/bin/python scripts/calibrate_servos.py --no-mock    # 1 arm, 2 cradle tilt, 3 shuttle columns
+venv/bin/python scripts/calibrate_servos.py --no-mock    # d direction check (bare ch1/ch2 servos), 1 arm, 2 cradle tilt, 3 shuttle columns
 venv/bin/python scripts/calibrate_camera.py --no-mock    # empty station, then a centred card → crop
-cp config/machine.example.json config/machine.json       # belt centring, focus, exit run, … (§16.6)
+cp config/machine.example.json config/machine.json       # belt centring, focus, exit run, hopper switches, … (§16.6)
 ```
 
 Calibration files are written to `config/`:
-- `servo_calibration.json`, `shuttle_calibration.json` (servo angles; ch2 actuation range)
+- `servo_calibration.json`, `shuttle_calibration.json` (servo angles; ch1/ch2 `invert` from the direction check; actuation range)
 - `loadcell_calibration.json` (scale factor + empty-cradle reference)
 - `camera_crop.json`
-- `machine.json` (per-machine tunables, every key optional)
+- `machine.json` (per-machine tunables, every key optional; **validated at start-up**: any bad key refuses to start with exit status 78, which systemd does not restart)
 - `bin_limits.json` (optional, to raise bin limits)
+- `identify.json` (optional: `min_conf`, `min_margin_bits`, `fallback`, `fallback_min_phash_conf`, `max_missing_fraction`)
 
 ### 5. Run (bulk commons first)
 
@@ -118,9 +119,12 @@ venv/bin/python main.py --web-token          # show the web UI token
 ```
 
 - The web UI runs at `http://riftbound-sorter.local:5000` (`RIFTBOUND_WEB_PORT` changes the port).
-- **First start, or any start after an unclean stop:** the sorter waits until you confirm the machine is clear (web UI **Machine clear** or `--confirm-clear`).
-- **It refuses to start with a card on the cradle:** it compares the cradle with the stored empty-cradle reference before taring.
-- <!-- PENDING code round 2: teardown --> **Stopping:** the first stop signal (`systemctl stop`, Ctrl-C) finishes the current card; a second one stops immediately. Shutdown leaves the shuttle where it is, with its servos limp. Stop the service before unplugging.
+- **One sorter at a time** (`data/sorter.lock`). With the service running, `--empty-bin`, `--empty-all` and `--confirm-clear` go through its web API and obey the same state rules as the web UI; stop the service before running `main.py` by hand.
+- **Starting:** state `starting` before anything moves. After the first start or any unclean stop, nothing on the servos moves until you confirm the machine is clear (web UI **Machine clear** or `--confirm-clear`); then the arm and shuttle jump straight to their rest pose. After a clean stop the limp servos snap back by whatever they sagged.
+- **It refuses to start with a card on the cradle:** at every start it compares the cradle with the stored empty-cradle reference before taring (re-run `--calibrate` after re-taping the cradle or re-routing its lead).
+- **It refuses to sort with an incomplete hash DB** (more than 1 % of cards missing): run `--build-db`.
+- **Pause / Resume:** a bin-full pause resumes by itself 2 s after the bin is reset, unless you pressed Pause: then it waits for Resume. **Machine clear** is refused while paused or starting.
+- **Stopping:** the first stop signal (`systemctl stop`, Ctrl-C) finishes the current card; a second one stops immediately (a card being carried on the cup is still put down first). Teardown parks the arm, leaves the shuttle where it is and makes every servo limp; `ExecStopPost` then drives all outputs safe. Stop the service before unplugging.
 
 ### Development (any machine)
 
@@ -148,14 +152,14 @@ Pi Zero 2 W
 ├── GPIO 27 ───────── relay IN2 (active LOW, 10 kΩ pull-up to 3.3 V) ── 12 V NC vent valve
 ├── GPIO 23/24/25/26  L9110S (plain GPIO) ── N20 A + N20 B (belt rollers)
 ├── GPIO 16/19/20/21  ULN2003 ── 28BYJ-48 (hopper lead screw)
-├── GPIO 12 / 13 ──── top-of-stack switch / home switch (C to GND, internal pull-ups; NO/NC per elevator.py)
+├── GPIO 12 / 13 ──── top-of-stack switch / home switch (C → GND, NC → GPIO, internal pull-ups)
 └── CSI (faces +X) ── 500 mm SC1130 ── Camera Module 3
 
 12 V 5 A ─┬─ Pololu D24V22F5 → 5 V logic: Pi, LEDs, relay
           ├─ Pololu D24V50F5 → 5 V servo: PCA9685 V+ only (+ 1000 µF)
           ├─ Pololu D36V28F5 → 5 V motor: L9110S (N20s), ULN2003 (28BYJ-48)
-          ├─ relay COM1 → NO1 → pump (flyback diode across it)
-          └─ relay COM2 → NO2 → vent valve (flyback diode across it)
+          ├─ relay COM1 → NO1 → pump (1N5819 flyback diode across it)
+          └─ relay COM2 → NO2 → vent valve (1N5819 flyback diode across its coil)
 PCA9685 VCC = Pi 3.3 V · 10 kΩ pull-ups GPIO 17, 27 · 10 kΩ pull-downs GPIO 23–26
 ```
 
@@ -194,7 +198,7 @@ Flask on port 5000 (`RIFTBOUND_WEB_PORT`). Anything that changes state needs the
 
 | Page | Path | Description |
 |---|---|---|
-| Dashboard | `/` | Live state, sort rate, bin counts and limits, hopper-empty / jam / bin-full banners; **Pause**, **Resume**, **Stop** and **Machine clear** buttons |
+| Dashboard | `/` | Live state (`starting`, `running`, `paused`, `stopped`, `hopper_empty`, `needs_confirm`, `jam`, `error`), sort rate, bin counts and limits, banners; **Pause**, **Resume**, **Stop** and **Machine clear** buttons |
 | Inventory | `/inventory` | Sorted-card log with search and bin filter |
 | Rules editor | `/rules` | Edit and save `rules.json` (token) |
 | Export | `/export`, `/export/tcgplayer` | Inventory CSV, TCGPlayer import CSV |
@@ -203,7 +207,8 @@ Flask on port 5000 (`RIFTBOUND_WEB_PORT`). Anything that changes state needs the
 
 - **Pause** finishes the card in progress and waits; **Resume** continues. **Stop** stops sorting at the next card boundary but keeps the process and the web UI up.
 - **Machine clear** confirms the arm, belt and cradle are clear after an unclean stop or a jam.
-- **Bins can only be emptied while the machine is paused or stopped**, or the one bin it is paused on because it is full.
+- Every control is checked against the machine state; a refused request gets HTTP 409 with the reason (ASSEMBLY.md §15.3).
+- **Bins can only be emptied in an idle state** (paused, stopped, jam, error, hopper empty, waiting for confirmation), or the one bin it is paused on because it is full; never while starting or running.
 
 ---
 
@@ -219,9 +224,11 @@ riftbound-sorter/
 ├── api/                    # Riftcodex client (with offline cache), SQLite inventory
 ├── sorter/rules_engine.py  # JSON rules → bin
 ├── web/app.py              # Flask UI + JSON API
-├── scripts/                # setup.sh, test_hardware.py, calibrate_servos.py, calibrate_camera.py, systemd unit
+├── scripts/                # setup.sh, test_hardware.py, calibrate_servos.py, calibrate_camera.py, systemd unit,
+│                           #   safe_outputs.py (ExecStopPost), cmdline_param.py (kernel parameter)
 ├── tests/                  # mock-hardware tests
 ├── config/                 # rules.json, machine.example.json, calibration JSON files (machine.json, web.json are local)
+├── requirements.lock       # exact, hash-pinned pip packages (setup.sh installs only these)
 ├── cad/                    # OpenSCAD parts, assembly.scad, assembly-steps.yaml, collision checks
 ├── docs/                   # ASSEMBLY.md, wiring_diagram.svg, assembly videos
 └── riftbound_sorter.kicad_sch
@@ -235,8 +242,9 @@ riftbound-sorter/
 - [x] v2 sort cycle: elevator → suction pick → vent release → camera-centred scan → weigh on the cradle → shuttle route
 - [x] Bin capacity tracking with pause and resume
 - [x] Web UI pause / resume / stop / machine-clear with a token; start-up refuses a card on the cradle or an unconfirmed unclean stop
-- [x] Mock-hardware tests for the cycle, its safety paths and the audit fixes
-- [x] CAD for every v2 part, with collision, kinematics and assembly-access checks (`cad/pick_arm_check.py`, `cad/shuttle_check.py`)
+- [x] Mock-hardware tests for the cycle, its safety paths and the audit fixes (Python 3.11 and 3.13)
+- [x] Crash-safe outputs (kernel parameter + `ExecStopPost`), systemd watchdog, validated `machine.json`, single instance, NC hopper switches
+- [x] CAD for every v2 part, with collision, kinematics and assembly-order checks (`cad/pick_arm_check.py`, `cad/shuttle_check.py assembly`); every part prints without supports (one break-away ladder on the −Y end post)
 - [x] Calibration tools for arm, tilt, columns, camera crop and load cell; per-machine tunables in `config/machine.json`
 - [ ] Physical build and calibration (see ASSEMBLY.md §19 for what to test first)
 - [ ] Camera crop live preview in the web UI

@@ -5,9 +5,51 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2.2.0] — 2026-11-12 — third CAD / code round (branch `audit-fixes`)
+
+Fixes for the second independent code and CAD re-audits (commits f274d7f CAD round 3, 0be14a0 code round 2, 2e5a3a0 shuttle round 3, 4261e75 servo invert + direction check). Docs: `BOM.md`, `docs/ASSEMBLY.md`, `README.md`, `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch` updated to match; every section that 2.1.0 left marked as pending is resolved.
+
+### Changed: shuttle
+- **ch1 drive:** the 8 mm D-shaft, disc horn and flange coupling (which could not actually couple to the servo) are replaced by a **goBILDA 8 mm REX shaft** (2106-4008-4320, cut to 417 mm) and a **goBILDA 4001-0025-4008 clamping servo-to-shaft coupler** (25T → REX). The coupler is indexed at HOLD (hex flats 7° up from +X, ≤ 0.6° residual) and clamped with its M4 screw from above. The ch1 servo moved 17 mm −Y (case face Y −185), mounted long side up; its ears are held by 4 × M3 × 10 + washers driven from behind into 4 inserts in the −Y end post's cage. The tilt crank has a REX bore.
+- **ch2 front ear:** a solid block over the riser B ear pocket with a 1 mm lead-in; ear screws are M2.5 × 10 button heads driven from below with a 1.5 mm L-key.
+- **Install order** rewritten and verified step by step by `cad/shuttle_check.py assembly` (steps 0–7): ch1 + coupler on the bench, module on the bench, ch2 hung on the bench, module set down 10 mm short and slid +Y, front-ear screws through the tunnel, end-post anchors (one under the rod needs a ball-end key), ch2 link, ramp and reject bin.
+- **Rod** held by M3 × 6 flat-point set screws in inserts in each end post's +X face (the old top clamp screws were blind). Rod now Y −160..240.
+- −Y end-post holes moved to (110, −225), (140, −195), (140, −165).
+- **Tilt frame and sled print without supports**; `end_post_neg` exports with a break-away ladder under the ch2 rear-ear ledge; `part="carriage"` now stops with an error (print `sled` + `cheek_neg` + `cheek_pos`; `carriage_preview` to look).
+- **ch2 (and ch1) direction:** `config/shuttle_calibration.json` gains `"invert": {"1": false, "2": false}` (an inverted channel gets `actuation_range − angle`; stored angles stay geometric), and `scripts/calibrate_servos.py` gains a bare-servo **direction check** (menu `d`, offered before ch1 / ch2 calibration) that sets it. A bad `invert` or unreadable calibration file refuses to start (exit 78).
+
+### Changed: other CAD
+- **Board tee-nuts:** 49 M3 four-prong tee-nuts in the 6 mm board (drilled Ø3.4 through the tiles, opened to Ø4.5 from below, tapped in before assembly); every baseplate screw goes in from above; tiles have Ø5.2 × 1.5 underside counterbores; rubber feet ≥ 10 mm.
+- **Vent valve:** printed valve clip on grid holes (−180, −255), (−150, −255) for a 12 V NC mini valve (uxcell reference, 0.2 A); 1/8" barbed tee in the tube 18 mm past the pump; 20 mm 2 × 4 silicone branch. Modelled in `assembly.scad`.
+- **Pump bracket:** head cradle with a TPU / neoprene pad under the pump head; base bolted down before the pump.
+- **Hopper:** T8 nut mounted flange-down in a pocket, 2 × M3 × 14 into inserts pressed into the carriage bottom (the old inserts beside the bore left 0.6 mm of wall); rods 19.5 mm proud of the cap; cap top Z ≈ 135, motor top Z ≈ 154.
+- **Riser:** no slivers where the tunnel cuts ribs; tie insert depth 5.7.
+- **Load-cell lead** modelled (`asm_cell_lead`): rolling loop under the carriage, fixed from Y 205 on the +Y side; column 0 needs ≈ 30 mm more slack.
+- Scanner hood: brim required. Diagonal card-play cases in `pick_arm_check.py` (all ≥ 0.49 mm). Headers and video captions corrected.
+
+### Changed: software and safety
+- **Dependencies locked:** `requirements.lock` (exact versions + sha256, same for Python 3.11 and 3.13), installed with `pip --no-deps --require-hashes`; Blinka held below 10.
+- **Outputs safe after any exit:** kernel parameter `pinctrl_bcm2835.persist_gpio_outputs=0` (setup.sh, `scripts/cmdline_param.py`, needs a reboot) and `ExecStopPost=scripts/safe_outputs.py` (pins safe, PCA9685 off and asleep). setup.sh makes sure `pinctrl` is installed.
+- **systemd watchdog** `WatchdogSec=60` (main loop pings via sd_notify); `RestartPreventExitStatus=78`.
+- **`config/machine.json` validated** (`hardware/machine_config.py` SCHEMA): types, ranges, enums, unknown sections / keys, NaN / Infinity, `EXIT_MIN_S ≤ EXIT_MAX_S`; any problem refuses to start with exit 78. New keys: `elevator` (`TOP_SWITCH_NC`, `BOTTOM_SWITCH_NC`, `RAISE_CAP_MM`, `UP_DIRECTION`, `TRIP_EXTRA_STEPS`, `HOME_BACKOFF_MM`), `servos.ARM_ACTUATION_RANGE`, `card_detect.FRAME_TIMEOUT_S`, `camera.LORES_TIMEOUT_S`.
+- **Hopper switches wired normally closed** (C → GND, NC → GPIO 12 / 13): a broken wire reads "pressed". Every raise after the first since homing is capped at 3 mm.
+- **Safe restart rules:** state `starting` before anything moves; after an unclean stop nothing on ch0–ch2 is commanded until **Machine clear**; after a clean stop the limp servos get one write each (a small snap). Teardown parks the arm, brings a tipped cradle to HOLD and leaves every servo limp. A second stop signal during a cup carry waits until the card is down.
+- **Load cell:** the empty-cradle reference is only stored by `--calibrate` or by an anchored tare after a card provably left, within 0.8 g of the calibration baseline; the cradle is checked against it at every start, also after Machine clear; a reading below it is a fault. Raw −1 / rail / implausible readings are rejected (vendored HX711 timeout fix).
+- **Operator flow:** every web / CLI control gated by state (409 with the reason); Machine clear never while paused or starting; Pause during a bin-full wait needs an explicit Resume; single instance (`data/sorter.lock`); the CLI goes through the running sorter's web API; the token is never printed to the journal.
+- **Camera stall:** grabs time out and a watchdog thread brakes the belt (camera fault).
+- **Identification:** an ambiguous pHash is never overridden by ahash / dhash; sorting is refused while more than 1 % of the card list is missing from the hash DB; `config/identify.json` keys documented.
+- L9110S stop and brake are the same (all inputs LOW, reverse never driven). Test banners now match the menu numbers (1–11).
+
+### Documentation
+- `BOM.md`: goBILDA shaft and coupler (D-shaft, second horn, flange coupling removed), tee-nuts, insert top-up (50 inserts), M3 × 14, M3 × 10 + washers for the ch1 ears, M2.5 × 10 button heads for the ch2 ears, rod set screws, valve + 1/8" tee + silicone branch, pump head pad; fastener table recounted; printed-part table (supports, ladder, brim, carriage selector) and volumes re-measured; totals: still to buy ≈ $638, whole machine ≈ $825, cost-down ≈ $578 / ≈ $524.
+- `docs/ASSEMBLY.md`: tee-nut baseplate procedure; every baseplate screw from above; §13 rewritten in the verified install order; NC switch wiring and `*_SWITCH_NC`; vent valve, tee and pump-bracket steps; load-cell loop from the CAD; safe state, setup (lock file, `pinctrl`, kernel parameter + reboot, `ExecStopPost`, watchdog), every `machine.json` key with its range, `shuttle_calibration.json` and `identify.json`; states and operator controls; load-cell reference rule; troubleshooting; a "test first on the real machine" list; the code / CAD disagreement list re-verified (all 2.1.0 rows closed).
+- `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch`: NC hopper switches, flyback diodes on both coils, safe-output layers.
+
+---
+
 ## [2.1.0] — 2026-11-12 — second audit round (branch `audit-fixes`)
 
-Independent code/electrical and CAD audits of 2.0.0, and their fixes (commits ebffbf3, cdbe457, d08117b, 36f80ba, plus the build-order fix 8eae932). Docs: `BOM.md`, `docs/ASSEMBLY.md`, `README.md`, `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch` updated to match. Some details are still changing in a further code and CAD round; the affected doc sections are marked `PENDING` in the source.
+Independent code/electrical and CAD audits of 2.0.0, and their fixes (commits ebffbf3, cdbe457, d08117b, 36f80ba, plus the build-order fix 8eae932). Docs: `BOM.md`, `docs/ASSEMBLY.md`, `README.md`, `docs/wiring_diagram.svg`, `riftbound_sorter.kicad_sch` updated to match. Some details were still changing in a further code and CAD round; those doc sections were marked as pending and are resolved in 2.2.0.
 
 ### Added
 - **Vent valve.** A 12 V normally-closed mini solenoid valve, teed into the vacuum line, on relay channel 2 (GPIO 27, header pin 13, 10 kΩ pull-up to 3.3 V, flyback diode across the coil). `vacuum.release()` = pump off, vent open 0.4 s, vent closed; the arm then lifts the first ~10° slowly. The relay is now a **2-channel** 5 V active-LOW module. Docs include a bench check that the relay switches off at 3.3 V logic. New test 3 in `test_hardware.py`.

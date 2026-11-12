@@ -62,10 +62,10 @@ text{font-family:'DejaVu Sans Mono','Courier New',monospace}
 <text x="466" y="788" class="w" text-anchor="start">NO1</text>
 <rect x="20" y="790" width="250" height="106" rx="6" fill="#161b22" stroke="#f85149" stroke-width="2"/>
 <text x="30" y="810" class="h" text-anchor="start">12 V vent valve (NC)</text>
-<text x="30" y="828" class="p" text-anchor="start">mini solenoid, normally closed</text>
+<text x="30" y="828" class="p" text-anchor="start">mini solenoid, NC, ≈ 0.2 A</text>
 <text x="30" y="843" class="p" text-anchor="start">+ ← relay NO2,  − → GND</text>
 <text x="30" y="858" class="p" text-anchor="start">1N5819 across the coil (stripe +)</text>
-<text x="30" y="873" class="p" text-anchor="start">teed into the vacuum line;</text>
+<text x="30" y="873" class="p" text-anchor="start">1/8" tee in the vacuum line;</text>
 <text x="30" y="888" class="p" text-anchor="start">energised = open to air (0.4 s)</text>
 <path d="M340,776 L340,782 L145,782 L145,790" fill="none" stroke="#f85149" stroke-width="2.2"/>
 <text x="150" y="779" class="w" text-anchor="start">NO2</text>
@@ -104,10 +104,9 @@ text{font-family:'DejaVu Sans Mono','Courier New',monospace}
 <text x="710" y="457" class="p" text-anchor="start">GPIO 20 (38) → ULN2003 IN3</text>
 <text x="710" y="472" class="p" text-anchor="start">GPIO 21 (40) → ULN2003 IN4</text>
 <text x="710" y="487" class="p" text-anchor="start"></text>
-<text x="710" y="502" class="p" text-anchor="start">GPIO 12 (32) ← top-of-stack switch</text>
-<text x="710" y="517" class="p" text-anchor="start">GPIO 13 (33) ← home switch</text>
-<!-- PENDING code round 2: switch contact (NO/NC) and active level -->
-<text x="710" y="532" class="p" text-anchor="start">               (C → GND, internal pull-ups)</text>
+<text x="710" y="502" class="p" text-anchor="start">GPIO 12 (32) ← top switch NC   (C → GND)</text>
+<text x="710" y="517" class="p" text-anchor="start">GPIO 13 (33) ← home switch NC  (C → GND)</text>
+<text x="710" y="532" class="p" text-anchor="start">               internal pull-ups; pressed = HIGH</text>
 <text x="710" y="547" class="p" text-anchor="start"></text>
 <text x="710" y="562" class="p" text-anchor="start">CSI (22-pin mini) — faces +X</text>
 <text x="710" y="577" class="p" text-anchor="start"></text>
@@ -188,11 +187,12 @@ text{font-family:'DejaVu Sans Mono','Courier New',monospace}
 <path d="M610,530 L685,530 L685,870 L1120,870 L1120,410 L1160,410" fill="none" stroke="#e3b341" stroke-width="3"/>
 <text x="700" y="864" class="w" text-anchor="start">5 V motor</text>
 <path d="M1120,550 L1160,550" fill="none" stroke="#e3b341" stroke-width="3"/>
-<rect x="1160" y="646" width="360" height="76" rx="6" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
-<text x="1170" y="666" class="h" text-anchor="start">Hopper switches (Omron SS-5GL2-F)</text>
-<text x="1170" y="684" class="p" text-anchor="start">top-of-stack: C → GND, contact → GPIO 12</text>
-<text x="1170" y="699" class="p" text-anchor="start">home:         C → GND, contact → GPIO 13</text>
-<text x="1170" y="714" class="p" text-anchor="start">NO/NC + level: see elevator.py (pending)</text>
+<rect x="1160" y="646" width="360" height="92" rx="6" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
+<text x="1170" y="666" class="h" text-anchor="start">Hopper switches (Omron SS-5GL2-F), NC</text>
+<text x="1170" y="684" class="p" text-anchor="start">top-of-stack: C → GND, NC → GPIO 12</text>
+<text x="1170" y="699" class="p" text-anchor="start">home:         C → GND, NC → GPIO 13</text>
+<text x="1170" y="714" class="p" text-anchor="start">NO tab unused · broken wire = "pressed"</text>
+<text x="1170" y="729" class="p" text-anchor="start">machine.json TOP/BOTTOM_SWITCH_NC = true</text>
 <path d="M1040,690 L1160,690" fill="none" stroke="#58a6ff" stroke-width="2.2"/>
 <text x="1046" y="684" class="w" text-anchor="start">GPIO 12/13</text>
 <rect x="720" y="750" width="300" height="90" rx="6" fill="#161b22" stroke="#56d4dd" stroke-width="2"/>
@@ -223,5 +223,7 @@ text{font-family:'DejaVu Sans Mono','Courier New',monospace}
 <text x="1258" y="964" class="lg" text-anchor="start">camera CSI ribbon</text>
 <text x="700" y="1000" class="lg" text-anchor="start">GND: every module, regulator, servo and the pump return to one GND bus (not drawn).</text>
 <text x="700" y="1020" class="warn" text-anchor="start">Never tie regulator outputs together · never power V+ from the Pi · no micro-USB while Reg #1 is connected.</text>
-<text x="700" y="1040" class="lg" text-anchor="start">Safe levels when no program drives the pins: GPIO 17, 27 pulled HIGH (pump off, vent closed), GPIO 23–26 pulled LOW (belt coasts).</text>
+<text x="700" y="1040" class="lg" text-anchor="start">Safe levels when no program drives the pins: GPIO 17, 27 pulled HIGH (pump off, vent closed), GPIO 23–26 pulled LOW (belt off).</text>
+<text x="700" y="1060" class="lg" text-anchor="start">After ANY exit: ExecStopPost scripts/safe_outputs.py drives 17/27 HIGH, 23–26 and 16–21 LOW, PCA9685 asleep;</text>
+<text x="700" y="1078" class="lg" text-anchor="start">kernel cmdline pinctrl_bcm2835.persist_gpio_outputs=0 (setup.sh, after a reboot) releases freed pins to the pulls.</text>
 </svg>
