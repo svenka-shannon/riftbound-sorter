@@ -1679,6 +1679,13 @@ def _main(args):
     assume_rest = bool(ms.get("clean")) and ms.get("rest_pose") == "home_level"
     try:
         init_hardware(assume_rest=assume_rest)
+    except shuttle.ShuttleConfigError as exc:
+        # A bad shuttle_calibration.json (e.g. a mistyped "invert") must never fall
+        # back to defaults: a dropped invert drives the crank into its end post.
+        # Same contract as machine.json: clear message, exit 78, systemd won't restart.
+        print(f"[config] ERROR: {exc}", file=sys.stderr)
+        _make_safe()
+        sys.exit(machine_config.EX_CONFIG)
     except Exception as exc:
         if MOCK_HARDWARE:
             print(f"[main] Hardware init skipped in mock mode ({exc})")

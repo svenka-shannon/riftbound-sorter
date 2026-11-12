@@ -15,8 +15,12 @@ import pytest
 @pytest.fixture(autouse=True)
 def _isolated_files(monkeypatch, tmp_path):
     import main
-    from hardware import elevator, loadcell
+    from hardware import elevator, loadcell, shuttle
     from api import riftcodex
+    # shuttle_calibration.json → tmp; every dict _load_calibration() mutates is a per-test copy
+    monkeypatch.setattr(shuttle, "_CALIBRATION_FILE", tmp_path / "shuttle_calibration.json")
+    for name in ("TILT_ANGLES", "SHUTTLE_ANGLES", "TIMING", "SHUTTLE_ACTUATION_RANGE", "SHUTTLE_INVERT"):
+        monkeypatch.setattr(shuttle, name, dict(getattr(shuttle, name)))
     monkeypatch.setattr(loadcell, "_CALIBRATION_FILE", tmp_path / "loadcell_calibration.json")
     monkeypatch.setattr(loadcell, "_empty_offset", None)
     monkeypatch.setattr(loadcell, "_cal_empty_offset", None)

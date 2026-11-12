@@ -351,9 +351,10 @@ module tilt_link() {       // modelled from the origin along +X, in the link sla
 // angle must turn the crank COUNTER-CLOCKWISE SEEN FROM ABOVE (= clockwise looking at
 // the spline of the upside-down servo). MG996R clones differ. On the bench, with only
 // the bare horn on, command 2°, 90°, 178° (calibrate_servos.py) and watch the horn; if
-// it turns the other way, do NOT fit the crank: the servo must be reversed in the
-// firmware first (hardware/shuttle.py has no per-channel invert today — angle → 180 − ψ
-// must be added there) or swapped. A reversed servo drives the crank into the end post.
+// it turns the other way, do NOT fit the crank: set "invert": {"2": true} in
+// config/shuttle_calibration.json (hardware/shuttle.py then writes actuation_range − ψ;
+// calibrate_servos.py menu item d does this check and writes it). A reversed servo
+// without invert drives the crank into the end post.
 assert(abs(sg_c2_psi(sg_target_y("reject"))) < 3 && abs(sg_c2_psi(sg_target_y(0)) - 180) < 3
        && sg_c2_tip(sg_target_y(1))[0] < sg_c2_pivot()[0],
        "ch2 convention changed: psi 0 must point +Y (reject), 180 −Y (column 0), the crank must swing through −X");

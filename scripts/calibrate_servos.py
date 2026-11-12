@@ -14,8 +14,22 @@ limits, ramps and interlocks are the real ones:
          {"tilt": {"hold": .., "level": .., "upper": .., "lower": ..}}
   ch2  shuttle carriage  hardware/shuttle.py  → config/shuttle_calibration.json
          {"shuttle": {"home": .., "0": .., "1": .., "2": .., "3": .., "reject": ..}}
+  ch1/ch2 direction check (bare servos, bench) → config/shuttle_calibration.json
+         {"invert": {"1": false, "2": false}}
 Only the poses you save are written; everything else in the files (other
 sections, "timing", …) is kept. Unsaved poses keep the module defaults.
+
+Direction check (menu 'd', and offered before sections 2 / 3 until the shuttle
+has been homed): with the servo BARE — ch1: no REX shaft in the coupler (best
+before the coupler is indexed at HOLD); ch2: no crank, horn alone at most —
+the servo goes to 80° (straight there: its position is unknown at power-up)
+and then ramps slowly to 100°. Increasing angle must turn the spline CLOCKWISE
+looking straight at the spline face (cad/shuttle.scad "ch2 DIRECTION": ψ grows
+counter-clockwise seen from above; ch1: φ grows from +X up toward +Z). If it
+turned the other way, the tool flips that channel's "invert" in the file
+(hardware/shuttle.py then writes actuation_range − angle), so every stored
+angle keeps its geometric meaning. Fit the crank / shaft only after a check
+that passed.
 
 Usage:
     uv run scripts/calibrate_servos.py                  # MOCK (nothing moves), anywhere
@@ -55,7 +69,9 @@ WINDOW_DEG = 25.0               # jog window around the value stored at session 
 APPROACH_MARGIN_DEG = 8.0       # arm starts PICK/DROP this far short, towards PARK
 VERIFY_SLOWDOWN = 2.0           # --verify ramps this many times slower than normal
 DEFAULT_TILT_COLUMN = 1         # where upper/lower are calibrated (any column works)
-CARRIAGE_LIMITS = (2.0, 178.0)  # ch2: stay 2° inside the servo stops (reject / column 0 dead centres)
+CARRIAGE_LIMITS = (2.0, 178.0)  # ch2: geometric crank angle ψ limits (reject / column 0 dead centres).
+                                # These are ψ, not servo pulses: they hold for a 270° servo and for invert,
+                                # which shuttle.py applies only at the PWM write.
 
 # Populated by load_modules() — MOCK_HARDWARE must be set before import.
 servos = shuttle = vacuum = elevator = None
@@ -185,6 +201,20 @@ def save_arm(key: str, angle: float) -> None:
     print(f"  saved pickup_arm.{key} = {arm[key]} → {path}")
 
 
+def save_invert(ch: int, value: bool) -> None:
+    """Write {"invert": {"<ch>": value}} into shuttle_calibration.json (rest of
+    the file kept) and apply it to the loaded module."""
+    path = shuttle._CALIBRATION_FILE
+    data = read_json(path)
+    inv = data.get("invert")
+    if not isinstance(inv, dict):
+        inv = data["invert"] = {}
+    inv[str(ch)] = bool(value)
+    write_json(path, data)
+    shuttle.SHUTTLE_INVERT[ch] = bool(value)
+    print(f"  saved invert.{ch} = {'true' if value else 'false'} → {path}")
+
+
 def save_shuttle(section: str, key, angle: float) -> None:
     path = shuttle._CALIBRATION_FILE
     data = read_json(path)
@@ -221,13 +251,14 @@ def parse_jog(cmd: str):
 
 
 def jog(title: str, *, start: float, stored: float, nominal: float, lo: float, hi: float,
-        pulse_range: float, move, save, extra=None, extra_help: str = ""):
+        pulse_range: float, move, save, extra=None, extra_help: str = "", pulse_us=None):
     """Jog one pose. move(angle) does the module's ramped move to `angle`.
-    Returns the saved angle, or None if skipped. The servo is at `start` on entry."""
+    Returns the saved angle, or None if skipped. The servo is at `start` on entry.
+    pulse_us(angle): the real pulse width (shuttle channels: invert-aware)."""
     cur = start
 
     def readout():
-        us = 500 + 2000 * cur / pulse_range
+        us = pulse_us(cur) if pulse_us else 500 + 2000 * cur / pulse_range
         tag = "" if abs(cur - stored) < 1e-9 else "   * unsaved"
         print(f"  ▸ {title}: {cur:6.1f}°  ({us:4.0f} µs)   stored {stored:.1f}°  Δ {cur - stored:+.1f}°"
               f"   nominal {nominal:.1f}°   window {lo:.1f}–{hi:.1f}°{' [MOCK]' if _MOCK else ''}{tag}")
@@ -420,6 +451,7 @@ TILT_STEPS = (
 
 
 def section_tilt() -> None:
+    offer_direction_check(shuttle.CH_TILT)
     ensure_shuttle()
     print("\n=== Cradle tilt (ch1) — hold, level, upper, lower ===")
     print("  Cradle EMPTY unless the step asks for a card. HOLD and LEVEL are set at HOME;")
@@ -435,7 +467,7 @@ def section_tilt() -> None:
         elif where == "column" and target in (None, "home"):
             carriage_to(col_state["col"])
         stored = float(shuttle.TILT_ANGLES[pose])
-        lo, hi = window(stored, 180)
+        lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_TILT])
 
         def move(a, p=pose):
             shuttle.TILT_ANGLES[p] = a
@@ -458,7 +490,8 @@ def section_tilt() -> None:
 
         move(stored)
         got = jog(f"tilt {pose}", start=stored, stored=stored, nominal=NOMINAL["tilt"][pose],
-                  lo=lo, hi=hi, pulse_range=180, move=move,
+                  lo=lo, hi=hi, pulse_range=shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_TILT], move=move,
+                  pulse_us=lambda a: shuttle.pulse_us(shuttle.CH_TILT, a),
                   save=lambda a, p=pose: save_shuttle("tilt", p, a),
                   extra=extra, extra_help="  c N  move to column N (0-3, reject) and tip again" if where == "column" else "")
         if got is None:
@@ -478,6 +511,7 @@ COLUMN_STEPS = (
 
 
 def section_columns() -> None:
+    offer_direction_check(shuttle.CH_SHUTTLE)
     ensure_shuttle()
     print("\n=== Shuttle carriage (ch2) — home, columns 0-3, reject ===")
     print("  Centre the cradle on each tray slot by eye, or drop a 65 mm card gauge into the")
@@ -487,7 +521,7 @@ def section_columns() -> None:
     for key, advice in COLUMN_STEPS:
         print(f"\n  {advice}")
         stored = float(shuttle.SHUTTLE_ANGLES[key])
-        lo, hi = window(stored, 180)
+        lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_SHUTTLE])
         lo, hi = max(lo, CARRIAGE_LIMITS[0]), min(hi, CARRIAGE_LIMITS[1])
 
         def move(a, k=key):
@@ -496,12 +530,86 @@ def section_columns() -> None:
 
         move(stored)
         got = jog(f"carriage {key}", start=stored, stored=stored, nominal=NOMINAL["shuttle"][key],
-                  lo=lo, hi=hi, pulse_range=180, move=move,
+                  lo=lo, hi=hi, pulse_range=shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_SHUTTLE], move=move,
+                  pulse_us=lambda a: shuttle.pulse_us(shuttle.CH_SHUTTLE, a),
                   save=lambda a, k=key: save_shuttle("shuttle", k, a))
         if got is None:
             shuttle.SHUTTLE_ANGLES[key] = stored      # carriage moves on from here anyway
     shuttle.home()
     print("  cradle home + level")
+
+
+# ---------------------------------------------------------------------------
+# Direction check — bare ch1 / ch2 servo, before the crank / shaft goes on
+# ---------------------------------------------------------------------------
+
+DIRECTION_SWEEP = (80.0, 100.0)     # geometric degrees; mid-range on every servo
+DIRECTION_S_PER_DEG = 0.1           # 20° in 2 s: slow enough to see the sense
+DIRECTION_MIN_S = 2.0
+
+DIRECTION_INFO = {
+    1: ("ch1 cradle tilt",
+        "NO REX shaft in the coupler (bench, install step 1 — best BEFORE the coupler is\n"
+        "  indexed at HOLD; a bare spline or the loose coupler alone is fine to watch)",
+        "CLOCKWISE looking straight at the spline face (from the shaft side, +Y)",
+        "the crank angle φ grows from horizontal +X up toward +Z"),
+    2: ("ch2 shuttle carriage",
+        "NO crank fitted (bare spline, or the round horn alone)",
+        "CLOCKWISE looking straight at the spline (from below the upside-down servo)",
+        "= COUNTER-CLOCKWISE seen from above: ψ 0 (+Y, reject) → 90 (−X) → 180 (−Y, column 0)"),
+}
+
+
+def offer_direction_check(ch: int) -> None:
+    """Before calibrating ch1 / ch2: offer the bare-servo direction check
+    (not once the shuttle has been homed — then the mechanism is attached)."""
+    if _shuttle_ready:
+        return
+    name = DIRECTION_INFO[ch][0]
+    if ask(f"\n  Run the DIRECTION CHECK for {name} first (bare servo, nothing fitted)? [y/N] "
+           ).lower() in ("y", "yes"):
+        direction_check(ch)
+
+
+def direction_check(ch: int) -> bool:
+    """Sweep the bare servo 80° → 100° slowly and ask whether the spline turned
+    the documented way; if not, flip invert.<ch> in shuttle_calibration.json.
+    Returns True if the final answer was "right direction"."""
+    name, bare, expect, why = DIRECTION_INFO[ch]
+    lo, hi = DIRECTION_SWEEP
+    print(f"\n=== Direction check — {name} (ch{ch}) ===")
+    if _shuttle_ready:
+        print("  The shuttle has been homed this session, so the mechanism is attached: the direction")
+        print("  check is for a BARE servo on the bench. Re-run the tool before fitting anything.")
+        return False
+    while True:
+        shuttle.init()                      # (re)loads shuttle_calibration.json; moves nothing
+        inv = shuttle.SHUTTLE_INVERT[ch]
+        print(f"  Servo must be BARE: {bare}.")
+        print(f"  Current invert.{ch} = {'true' if inv else 'false'}. The servo goes STRAIGHT to {lo:g}°")
+        print(f"  (position unknown at power-up), then ramps slowly to {hi:g}° and back.")
+        print(f"  Expected for increasing angle: {expect},\n  {why}.")
+        if ask(f"  Nothing fitted to ch{ch}, hands clear — Enter to move, 'n' to skip: ").lower() in ("n", "no"):
+            return False
+        try:
+            shuttle._ramp(ch, lo, DIRECTION_S_PER_DEG, DIRECTION_MIN_S)    # unknown → one step
+            while True:
+                ask(f"  At {lo:g}°. Watch the spline — Enter to ramp to {hi:g}°... ")
+                shuttle._ramp(ch, hi, DIRECTION_S_PER_DEG, DIRECTION_MIN_S)
+                ans = ask(f"  Did it turn {expect}? [y/n, a = again] ").lower()
+                shuttle._ramp(ch, lo, DIRECTION_S_PER_DEG, DIRECTION_MIN_S)
+                if ans in ("y", "yes", "n", "no"):
+                    break
+        finally:
+            shuttle.deinit()                # ch1/ch2 fully off: limp, nothing tracked
+        if ans in ("y", "yes"):
+            print(f"  ch{ch} direction OK (invert.{ch} stays {'true' if inv else 'false'}).")
+            return True
+        save_invert(ch, not inv)
+        print(f"  ch{ch} now writes {'actuation_range − angle' if not inv else 'the angle as is'};"
+              " every stored angle keeps its meaning.")
+        if ask("  Run the check again to confirm? [Y/n] ").lower() in ("n", "no"):
+            return False
 
 
 # ---------------------------------------------------------------------------
@@ -514,7 +622,11 @@ def print_values() -> None:
     print(f"\n  ch0 arm      [{src(servos._CALIBRATION_FILE)}]")
     for k in ("ARM_PICK", "ARM_DROP", "ARM_PARK"):
         print(f"    {k:9s} {float(getattr(servos, k)):6.1f}°   nominal {NOMINAL['arm'][k]:6.1f}°")
-    print(f"  ch1 tilt     [{src(shuttle._CALIBRATION_FILE)}]")
+    rng, inv = shuttle.SHUTTLE_ACTUATION_RANGE, shuttle.SHUTTLE_INVERT
+    print(f"  ch1/ch2      [{src(shuttle._CALIBRATION_FILE)}]")
+    for ch in (shuttle.CH_TILT, shuttle.CH_SHUTTLE):
+        print(f"    ch{ch}: actuation_range {rng[ch]}°, invert {'true' if inv[ch] else 'false'}")
+    print("  ch1 tilt")
     for k, v in shuttle.TILT_ANGLES.items():
         print(f"    {k:9s} {v:6.1f}°   nominal {NOMINAL['tilt'][k]:6.1f}°")
     print("  ch2 carriage")
@@ -584,6 +696,7 @@ MENU = """
   1  Pickup arm (ch0)        ARM_PICK / ARM_DROP / ARM_PARK
   2  Cradle tilt (ch1)       hold / level / upper / lower
   3  Shuttle carriage (ch2)  home / columns 0-3 / reject
+  d  Direction check (ch1/ch2, bare servos on the bench) → invert
   v  Verify: cycle every saved pose slowly
   p  Print current values
   q  Quit (parks everything)"""
@@ -619,6 +732,12 @@ def main() -> None:
                 section_tilt()
             elif choice == "3":
                 section_columns()
+            elif choice == "d":
+                c = ask("  Channel 1 (tilt) or 2 (shuttle)? ")
+                if c in ("1", "2"):
+                    direction_check(int(c))
+                else:
+                    print("  1 or 2")
             elif choice == "v":
                 verify(args.dwell, args.step)
             elif choice == "p":

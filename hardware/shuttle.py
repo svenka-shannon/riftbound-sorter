@@ -2,7 +2,8 @@
 Cradle-shuttle sorter at the belt exit (cad/shuttle.scad, cad/shuttle_geom.scad).
 
 Two MG996R servos on the shared PCA9685 (I2C 0x40, 50 Hz):
-  ch1 (CH_TILT)    turns an 8 mm D-shaft along Y; a crank + link on the
+  ch1 (CH_TILT)    turns an 8 mm REX shaft (the "D-shaft") along Y through a
+                   goBILDA clamping coupler; a crank + link on the
                    carriage tips the tilt frame that carries the load cell and
                    the cradle. Poses:
                      level  - home only: bed 0.7 mm under the belt, card rides on
@@ -23,7 +24,9 @@ Two MG996R servos on the shared PCA9685 (I2C 0x40, 50 Hz):
 
 Bins: 0-3 lower floor (column = bin), 4-7 upper floor (column = bin - 4),
 9 reject. All angles live in TILT_ANGLES / SHUTTLE_ANGLES and can be overridden
-from config/shuttle_calibration.json (same idea as servos.py).
+from config/shuttle_calibration.json (same idea as servos.py). They are always
+GEOMETRIC angles (crank φ + 90° / crank ψ); a servo that turns the wrong way
+is handled by the per-channel "invert" option (SHUTTLE_INVERT) at the PWM write.
 
 Motion is ramped (cosine ease, ~50 Hz updates) so a card never gets jerked:
 tilts take 0.4-0.6 s, shuttle moves ~0.5-1.2 s. Interlocks:
@@ -77,6 +80,21 @@ CH_SHUTTLE = 2
 # range its angles must be re-calibrated (scripts/calibrate_servos.py).
 SHUTTLE_ACTUATION_RANGE = {CH_TILT: 180, CH_SHUTTLE: 180}
 
+# Per-channel direction invert, config/shuttle_calibration.json
+#   {"invert": {"1": false, "2": false}}   (JSON booleans only; channels "1"/"2" only)
+# An inverted channel gets (actuation_range − a) on the PWM write for every
+# commanded angle a, so every angle in this file / the calibration file keeps
+# its geometric meaning (φ + 90°, ψ) whichever way the servo turns. Everything
+# above the write (_pos, state(), ramps, interlocks, backlash approach) works in
+# those geometric angles. Expected direction for BOTH channels: increasing angle
+# turns the spline CLOCKWISE looking straight at the spline face (ch2: = counter-
+# clockwise seen from above, cad/shuttle.scad "ch2 DIRECTION"; ch1: φ grows from
+# +X up toward +Z, shuttle_geom.scad sg_crank_tip). If a bare servo turns the
+# other way, set its invert (scripts/calibrate_servos.py direction check) — never
+# fit the crank / shaft to a servo that has not been checked.
+_INVERT_DEFAULT = {CH_TILT: False, CH_SHUTTLE: False}
+SHUTTLE_INVERT = dict(_INVERT_DEFAULT)
+
 if not _MOCK:
     import board
     import busio
@@ -84,7 +102,17 @@ if not _MOCK:
     from adafruit_motor import servo as adafruit_servo
 
 # --- Nominal angles from cad/shuttle_geom.scad (calibrate on the machine) -----
-# ch1: servo angle = 90° + crank angle φ (horn horizontal toward +X at 90°).
+# ch1: servo angle = 90° + crank angle φ, φ = tilt-crank arm direction in the XZ
+#   plane (0 = horizontal toward +X, positive = up toward +Z; shuttle_geom.scad).
+#   There is NO horn on ch1: the MG996R spline drives the 8 mm REX shaft through
+#   a goBILDA 4001-0025-4008 clamping coupler (25T spline → REX bore), and the
+#   tilt crank is keyed on the shaft by its REX bore (two hex flats parallel to
+#   the crank arm). The angle ↔ φ relation is therefore set at ASSEMBLY, at HOLD:
+#   with ch1 powered to HOLD (97°) the coupler is pressed onto the spline at the
+#   tooth that puts two flats of its hex bore 7° up from horizontal toward +X
+#   (φ_hold = 7°), and its M4 clamp is tightened with the cradle 10° nose-down
+#   (cad/shuttle.scad header + INSTALL ORDER steps 1-2). 25T × hex indexing
+#   leaves ≤ 0.6° residual: trim it with scripts/calibrate_servos.py.
 #   φ: level 3.6, hold 7.0, upper 22.2, lower -48.5  (shuttle_check.py geom)
 #   level is set 0.5° past the geometric value (93.6) so the skids sit on the
 #   home ledges (hard stop), which fixes the bed height for the incoming card.
@@ -96,7 +124,8 @@ TILT_ANGLES = {
     "upper": 112.2,
     "lower": 41.5,
 }
-# ch2: servo angle = crank angle ψ (0° = crank pointing +Y = reject end).
+# ch2: servo angle = crank angle ψ (0° = crank pointing +Y = reject end, 90° = −X,
+#   180° = −Y = column 0; direction: see SHUTTLE_INVERT and cad/shuttle.scad).
 SHUTTLE_ANGLES = {
     "reject": 2.0,      # geometric 0° (dead centre); stay 2° inside the servo stop
     3: 45.0,
@@ -141,6 +170,10 @@ class ShuttleError(RuntimeError):
     """Raised for an illegal move or a card that did not leave the cradle."""
 
 
+class ShuttleConfigError(ShuttleError):
+    """config/shuttle_calibration.json is unusable; init() refuses to attach."""
+
+
 def jammed():
     """None, or the reason the carriage is locked (see clear_jam())."""
     return _jammed
@@ -158,14 +191,47 @@ def clear_jam() -> None:
     _jammed = None
 
 
+def _validate_invert(cal) -> dict:
+    """The "invert" section → {ch: bool} for every channel (absent = False).
+    Raises ShuttleConfigError listing EVERY bad entry: a wrong direction drives
+    a crank into its end stop, so a doubtful value is never guessed."""
+    inv = dict(_INVERT_DEFAULT)
+    if "invert" not in cal:
+        return inv
+    sec = cal["invert"]
+    if not isinstance(sec, dict):
+        raise ShuttleConfigError(f"{_CALIBRATION_FILE}: \"invert\" must be an object like "
+                                 f'{{"1": false, "2": false}}, got {sec!r} — refusing to start')
+    problems = []
+    for k, v in sec.items():
+        if k not in ("1", "2"):
+            problems.append(f"invert.{k}: unknown channel (only \"1\" tilt and \"2\" shuttle)")
+        elif not isinstance(v, bool):
+            problems.append(f"invert.{k}: must be true or false (a JSON boolean), got {v!r}")
+        else:
+            inv[int(k)] = v
+    if problems:
+        lines = "\n".join(f"  - {p}" for p in problems)
+        raise ShuttleConfigError(f"invalid {_CALIBRATION_FILE} — refusing to start:\n{lines}")
+    return inv
+
+
 def _load_calibration() -> None:
+    """Apply config/shuttle_calibration.json. The file is checked BEFORE
+    anything is applied: unreadable JSON or a bad "invert" section raises
+    ShuttleConfigError and nothing changes (no silent fall-back to defaults —
+    a forgotten invert would drive a crank the wrong way)."""
     if not _CALIBRATION_FILE.exists():
+        SHUTTLE_INVERT.update(_INVERT_DEFAULT)
         return
     try:
         cal = json.loads(_CALIBRATION_FILE.read_text())
     except Exception as exc:
-        print(f"[shuttle] Warning: could not read calibration file: {exc}")
-        return
+        raise ShuttleConfigError(f"could not read {_CALIBRATION_FILE} ({exc}) — "
+                                 "fix or move it, then restart") from exc
+    if not isinstance(cal, dict):
+        raise ShuttleConfigError(f"{_CALIBRATION_FILE} must be a JSON object — refusing to start")
+    invert = _validate_invert(cal)
     for k, v in cal.get("tilt", {}).items():
         if k in TILT_ANGLES:
             TILT_ANGLES[k] = float(v)
@@ -179,7 +245,10 @@ def _load_calibration() -> None:
     for k, v in cal.get("actuation_range", {}).items():
         if str(k).isdigit() and int(k) in SHUTTLE_ACTUATION_RANGE:
             SHUTTLE_ACTUATION_RANGE[int(k)] = int(v)
-    print(f"[shuttle] Loaded calibration from {_CALIBRATION_FILE}")
+    SHUTTLE_INVERT.update(invert)
+    inverted = [f"ch{ch}" for ch, on in sorted(SHUTTLE_INVERT.items()) if on]
+    print(f"[shuttle] Loaded calibration from {_CALIBRATION_FILE}"
+          + (f" (inverted: {', '.join(inverted)})" if inverted else ""))
 
 
 def _shared_pca():
@@ -195,6 +264,8 @@ def init(pca=None, assume_rest: bool = False):
     """Attach ch1/ch2. Pass a PCA9685 object, or call after servos.init() to
     share its instance; otherwise this module opens its own on 0x40.
     Never homes (audit M7) — call home() explicitly once it is safe.
+    Raises ShuttleConfigError (before touching anything) if
+    config/shuttle_calibration.json is unreadable or its "invert" is invalid.
 
     assume_rest=True: the previous run stopped cleanly with the shuttle at
     home + level (main.py's machine state file), and deinit() left it there
@@ -240,11 +311,28 @@ def at_rest() -> bool:
 
 
 # --- low-level ramped motion ---------------------------------------------------
+def _clamp(ch, angle) -> float:
+    return max(0.0, min(float(SHUTTLE_ACTUATION_RANGE[ch]), float(angle)))
+
+
+def pwm_angle(ch, angle) -> float:
+    """Angle actually written to the servo for the geometric angle `angle`
+    (clamped to 0..actuation_range): actuation_range − angle on an inverted channel."""
+    a = _clamp(ch, angle)
+    return float(SHUTTLE_ACTUATION_RANGE[ch]) - a if SHUTTLE_INVERT[ch] else a
+
+
+def pulse_us(ch, angle) -> float:
+    """Pulse width (µs, 500–2500) the servo gets for the geometric angle `angle`."""
+    return 500.0 + 2000.0 * pwm_angle(ch, angle) / float(SHUTTLE_ACTUATION_RANGE[ch])
+
+
 def _write(ch, angle):
-    angle = max(0.0, min(float(SHUTTLE_ACTUATION_RANGE[ch]), float(angle)))
+    """Command the geometric `angle`; _pos keeps it, the PWM gets pwm_angle()."""
+    angle = _clamp(ch, angle)
     _pos[ch] = angle
     if not _MOCK:
-        _servos[ch].angle = angle
+        _servos[ch].angle = pwm_angle(ch, angle)
 
 
 def _ramp(ch, target, s_per_deg, min_s):
