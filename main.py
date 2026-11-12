@@ -64,13 +64,19 @@ Stopping (audit B4):
     the next start always asks for "Machine clear" (hardware/instance.py).
   * An unclean halt shows "needs_confirm" (Resume refused with 409), e.g. a
     stop while a card waits on the cradle for a full bin.
-  * Idle at rest (paused at a card boundary, stopped, hopper empty): the
-    servos are switched off (no stall against the level ledges) and the rest
-    pose is re-asserted with one write per channel before anything moves.
+  * Idle at rest with no card in the machine (paused at a card boundary,
+    stopped, hopper empty): ONLY ch1 (tilt) is switched off — no stall against
+    the level ledges; ch0 (arm, parked) and ch2 (carriage, home) keep holding
+    while the operator works in the machine — and the rest pose is
+    re-asserted with one write per channel before anything moves.
   * A card the arm could not carry to the belt stays held on the cup (pump
     ON) while waiting for the operator — "card held on cup — remove it by
     hand before stopping the service" — for at most CUP_HOLD_MAX_S, then the
-    pump is switched off.
+    pump is switched off. The arm is never parked with a card on the cup: it
+    stays at the pose the failed carry left it in, so the card falls from
+    there (_held_card_landing: back onto the stack near PICK, flat onto the
+    belt towards DROP, across the hopper rim mid-arc). A service stop lets
+    go of it the same way, before the arm goes limp.
   * Config files with bad values (machine.json, identify.json,
     shuttle_calibration.json, servo_calibration.json, bin_limits.json) stop
     the program with every bad key listed, exit 78 (not restarted).
@@ -154,7 +160,7 @@ ROOT = Path(__file__).resolve().parent
 # ── Config ────────────────────────────────────────────────────────────────────
 RULES_FILE         = str(ROOT / "config" / "rules.json")
 BIN_COUNTS_FILE    = ROOT / "data" / "bin_counts.json"       # runtime counts
-BIN_LIMITS_FILE    = Path(os.environ.get("RIFTBOUND_BIN_LIMITS",       # optional {"0": 45, "4": 16}
+BIN_LIMITS_FILE    = Path(os.environ.get("RIFTBOUND_BIN_LIMITS",       # optional {"0": 45, "4": 14}
                                      ROOT / "config" / "bin_limits.json"))  # validated: exit 78
 WEB_CONFIG_FILE    = ROOT / "config" / "web.json"            # {"token": ...} (generated)
 # Clean-shutdown marker + single-instance lock, shared with the hardware tools
@@ -180,13 +186,17 @@ DEFAULT_BIN_LIMITS = {0: 40, 1: 40, 2: 40, 3: 40, 4: 12, 5: 12, 6: 12, 7: 12, RE
 # per card) beyond which the CAD / slide simulation gives no landing at all:
 #   lower 0-3: 18 mm = the highest pile cad/shuttle_check.py slide covers (the
 #              ramp releases the card ~20 mm above the slot floor)      → 54
-#   upper 4-7: 8 mm  = the highest pile the slide simulation covers (already
-#              SHORT; at 12.2 mm the pile reaches the cradle lip, Z 86.7) → 24
+#   upper 4-7: ~5 mm. The slide simulation lands a card IN up to a 4 mm pile
+#              and already calls an 8 mm pile SHORT (at 12.2 mm the pile
+#              reaches the cradle lip, Z 86.7), so the cap stays well short of
+#              SHORT: 15 × 0.33 mm ≈ 5 mm, one millimetre past the last pile
+#              simulated IN (audit 4 m7; 24 = 7.9 mm was already SHORT)    → 15
 #   reject 9 : 17.4 mm of pile under the lane lip (cad/reject_bin.scad)  → 52
-BIN_LIMIT_MAX = {0: 54, 1: 54, 2: 54, 3: 54, 4: 24, 5: 24, 6: 24, 7: 24, REJECT_BIN: 52}
+BIN_LIMIT_MAX = {0: 54, 1: 54, 2: 54, 3: 54, 4: 15, 5: 15, 6: 15, 7: 15, REJECT_BIN: 52}
 
 CARD_WEIGHT_G      = 1.75   # one raw Riftbound card (nominal; NOT used for calibration)
 CALIBRATION_MASS_G = 5.000  # load-cell calibration reference: a US nickel (5.000 g)
+CALIBRATE_TOOL_NAME = "main.py --calibrate"   # its "tool ran" marker (calibrate_loadcell)
 
 # Pick & place (step 2)
 SEAL_S         = 0.3    # pump on, cup on the card → vacuum seals before lifting
@@ -304,7 +314,44 @@ class CameraFault(StopMachine):
 
 class CupNotSecured(RuntimeError):
     """The arm could not carry the card on the cup to the drop pose; the pump
-    stays ON so the card is held instead of dropped mid-arc."""
+    stays ON so the card is held instead of dropped mid-arc, and the arm stays
+    where it is (never parked, see _make_safe / _held_card_landing)."""
+
+
+# Where a card held on the cup lands if the pump stops with the arm at servo
+# angle a (audit 4 m4). From cad/suction_arm.scad (PICK_ARM_JSON): crank
+# θ = 93.02° + (a − 90°), card centre X = −154.7 + 60.3·cos θ, card underside
+# Z = 85.5 + 60.3·sin θ (belt face / top card Z 90.9; card 88 mm along X). The
+# zones are measured from the CALIBRATED ARM_PICK / ARM_DROP, so they hold for a
+# mirrored servo too:
+#   ≤ 2° from PICK   _secure_cup never holds it: released onto the stack at once.
+#   ≤ 10° from PICK  "stack": card over the hopper cavity (X −258..−170), falls
+#                    ≤ 7 mm flat back onto the stack.
+#   ≤ 40° from DROP  "belt": card entirely over the belt (X −160..−51, the belt
+#                    starts at −165, hopper +X wall −166.5), falls flat onto it:
+#                    3 mm at DROP, ≤ 18 mm within 15°, ≤ 39 mm at 40°.
+#   anything else    "rim": card straddles the hopper +X rim / rail inlet
+#                    (e.g. PARK 90°: X −202..−114) 12–55 mm above it; it lands
+#                    tilted across the rim, may catch on the rail inlet or the
+#                    feeler flag, and can be bent.
+HELD_CARD_STACK_DEG = 10.0
+HELD_CARD_BELT_DEG = 40.0
+
+
+def _held_card_landing(angle=None) -> tuple[str, str]:
+    """(zone, text): where the card on the cup falls if the pump stops with the
+    arm at `angle` (default: the arm's last commanded angle). zone is "stack",
+    "belt", "rim" or "unknown"."""
+    a = servos.arm_angle() if angle is None else angle
+    if a is None:
+        return "unknown", "arm position unknown — it may fall anywhere along the arm's arc"
+    a = float(a)
+    if abs(a - servos.ARM_PICK) <= HELD_CARD_STACK_DEG:
+        return "stack", f"arm at {a:.1f}° (near PICK): it falls back flat onto the hopper stack"
+    if abs(a - servos.ARM_DROP) <= HELD_CARD_BELT_DEG:
+        return "belt", f"arm at {a:.1f}° (towards DROP): it falls flat onto the belt in the drop zone"
+    return "rim", (f"arm at {a:.1f}° (mid-arc): it falls across the hopper rim / belt inlet "
+                   "and may be bent — remove it by hand first")
 
 
 class Shutdown(BaseException):
@@ -335,7 +382,7 @@ class BinLimitsError(ValueError):
         self.problems = list(problems)
         lines = "\n".join(f"  - {p}" for p in self.problems)
         super().__init__(f"invalid bin limits {self.path} — refusing to start:\n{lines}\n"
-                         'Format: {"0": 45, "4": 16} — only the bins you change, whole numbers '
+                         'Format: {"0": 45, "4": 14} — only the bins you change, whole numbers '
                          f"from 1 to the cap (defaults {_fmt_limits(DEFAULT_BIN_LIMITS)}; caps "
                          f"{_fmt_limits(BIN_LIMIT_MAX)}; docs/ASSEMBLY.md §16.7)")
 
@@ -354,7 +401,7 @@ def validate_bin_limits(data, defaults: dict, caps: dict | None = None) -> tuple
     caps = BIN_LIMIT_MAX if caps is None else caps
     limits = dict(defaults)
     if not isinstance(data, dict):
-        return limits, [f"must be a JSON object like {{\"0\": 45, \"4\": 16}}, got {type(data).__name__}"]
+        return limits, [f"must be a JSON object like {{\"0\": 45, \"4\": 14}}, got {type(data).__name__}"]
     problems = []
     for k, v in data.items():
         if str(k).startswith("_"):
@@ -465,6 +512,8 @@ class BinCounts:
         try:
             with os.fdopen(fd, "wb") as fh:
                 fh.write(payload)
+                fh.flush()
+                os.fsync(fh.fileno())        # data on disk BEFORE the rename (audit 4 m6)
             os.replace(tmp, self.counts_file)
         except BaseException:
             try:
@@ -472,6 +521,9 @@ class BinCounts:
             except OSError:
                 pass
             raise
+        # …and the rename itself, like instance.write_state: a power cut right
+        # after a card was counted never loses that count or leaves a 0-byte file
+        instance.fsync_dir(self.counts_file.parent)
         self._hash = hashlib.sha256(payload).hexdigest()
 
     def _check(self, bin_num: int):
@@ -841,9 +893,12 @@ def _secure_cup():
         if last is not None:
             if _cup_hold_since is None:
                 _cup_hold_since = time.monotonic()
+            # The arm is NOT parked (_make_safe): it stays at its last commanded
+            # angle, powered, card on the cup.
             raise CupNotSecured(f"card held on the cup at {servos.arm_angle()}° — the arm could not "
-                                "reach the drop pose; pump left ON so the card is not dropped "
-                                f"(at most {CUP_HOLD_MAX_S:.0f} s). {CUP_HELD_MSG}") from last
+                                "reach the drop pose; arm left where it is and pump left ON so the "
+                                f"card is not dropped (at most {CUP_HOLD_MAX_S:.0f} s; then "
+                                f"{_held_card_landing()[1]}). {CUP_HELD_MSG}") from last
         try:
             vacuum.release()
         finally:
@@ -863,7 +918,13 @@ def _make_safe(hold_cradle: bool = True):
         if _card_at != "cup":
             _try(vacuum.pump_off)
         _try(conveyor.stop)
-        if servos.arm_angle() is not None:
+        # Audit 4 m4: a card still held on the cup (the carry failed, pump ON)
+        # NEVER goes to PARK — the arm stays exactly where the failed carry left
+        # it (powered, holding). Parking would put the card over the hopper's +X
+        # rim and the rail inlet (card centre X -158, underside Z 146), where it
+        # would fall ~55 mm and land across the rim when the pump stops. Where it
+        # lands from the pose it is kept at: _held_card_landing().
+        if servos.arm_angle() is not None and _card_at != "cup":
             _try(servos.arm_park)
         _try(shuttle.hold_if_known if hold_cradle else shuttle.make_safe)
 
@@ -1252,27 +1313,33 @@ def _wait_while_paused() -> bool:
 
 
 def _release_idle():
-    """Audit 3 minor 5: while the machine idles at rest (paused at a card
-    boundary, stopped, hopper empty) nothing moves until the operator acts, so
-    the servos are not held powered: LEVEL rests the skids on the home ledges
-    with 0.5° of preload, i.e. ch1 stalls against them for as long as it is
-    powered (heat, current, gear wear). ch0 (arm, parked) and ch1/ch2 are
-    switched OFF — limp, exactly the teardown pose — and their commanded
-    angles stay tracked; prepare_machine() / _reassert_rest_pose() re-assert
-    the rest pose with one write per channel (like a clean start) before
-    anything moves. Only at rest: a held card (bin-full pause, jam) keeps
-    its servos powered."""
-    if not _pose_at_rest():
+    """While the machine idles at rest (paused at a card boundary, stopped,
+    hopper empty) nothing moves until the operator acts. LEVEL rests the skids
+    on the home ledges with 0.5° of preload, i.e. ch1 stalls against them for
+    as long as it is powered (heat, current, gear wear) — so ch1, and ONLY
+    ch1, is switched OFF (audit 4 m3; audit 3 minor 5 released all three):
+    limp, the cradle just sits on the ledges. ch0 (arm at PARK) and ch2
+    (carriage at home) stay powered and HOLD their pose while the operator
+    works in the machine (refilling the hopper, emptying bins): a limp arm
+    would swing down under its own weight, a limp carriage could be pushed
+    off home. The tilt angle stays tracked; prepare_machine() /
+    _reassert_rest_pose() re-assert the rest pose (one write per channel,
+    like a clean start) before anything moves.
+    Only at rest AND with no card in the machine (_card_at is None): a held
+    card (bin-full pause, jam, card on the cup) keeps every servo powered."""
+    if _card_at is not None or not _pose_at_rest():
         return
-    _try(servos.release_arm)
-    _try(shuttle.release_channels)
+    _try(shuttle.release_tilt)
 
 
 def _reassert_rest_pose():
-    """Re-energise a released rest pose: ONE write per channel (servos.assert_park,
-    shuttle.assert_rest) — the limp servos snap back by whatever they sagged."""
+    """Re-energise a released rest pose: ONE write per channel (servos.assert_park
+    if the arm was released, shuttle.assert_rest) — a limp servo snaps back by
+    whatever it sagged; a channel that kept holding gets the angle it already
+    holds (no motion)."""
     if _pose_at_rest() and (servos.arm_released() or shuttle.released()):
-        servos.assert_park()
+        if servos.arm_released():
+            servos.assert_park()
         shuttle.assert_rest()
 
 
@@ -1481,6 +1548,7 @@ def teardown():
     _tearing_down = True
     print("\n[main] Shutting down...")
     _make_safe(hold_cradle=False)
+    held = _card_at == "cup"
     if _marker_armed:
         try:
             clean, reason = _assess_clean()
@@ -1489,6 +1557,14 @@ def teardown():
             print(f"[main] {'clean' if clean else 'UNCLEAN'} stop: {reason}")
         except Exception as exc:
             print(f"[main] could not record the machine state: {exc!r}")
+    if held:
+        # Audit 4 m4: the card still on the cup is let go HERE, with the arm
+        # powered at the pose _make_safe kept (never parked) — before
+        # servos.deinit() makes ch0 limp, so it falls from a known pose
+        # (_held_card_landing) instead of from an arm swinging down under its
+        # weight. The marker above already says "a card was left on the cup".
+        print(f"[main] releasing the card held on the cup: {_held_card_landing()[1]}")
+        _try(vacuum.release)
     _try(conveyor.deinit)
     _try(shuttle.deinit)        # ch1/ch2 off; before servos releases the shared PCA9685
     _try(elevator.deinit)
@@ -1526,7 +1602,22 @@ shutdown = _on_signal    # old name
 def calibrate_loadcell(mass_g: float | None = None):
     """Scale factor from a KNOWN reference mass (default: a US nickel, 5.000 g).
     Also stores the empty-cradle reference used by the start-up card check —
-    one of only two places allowed to (see hardware/loadcell.py)."""
+    one of only two places allowed to (see hardware/loadcell.py).
+
+    Marker (audit 4 m1): --calibrate is treated like a hardware tool. Before
+    anything moves it records the machine NOT clean ("tool ran: main.py
+    --calibrate ...", same record as hardware/instance.claim_for_tool; this
+    process already holds the instance lock) and never records it clean
+    again — teardown does not overwrite it (_marker_armed stays False). The
+    operator puts a foreign object on the cradle and the very emptiness
+    reference _assess_clean() would rely on is being redefined, so a clean
+    record could not be trusted: the next sorter start always asks for
+    "Machine clear"."""
+    global _marker_armed
+    _marker_armed = False
+    _write_machine_state(clean=False, confirmed=False,
+                         reason=instance.TOOL_REASON.format(tool=CALIBRATE_TOOL_NAME),
+                         tool=CALIBRATE_TOOL_NAME)
     mass_g = float(mass_g or CALIBRATION_MASS_G)
     if not _pose_at_rest():
         input("Arm / shuttle pose unknown. Check the arm, belt and cradle are clear (they will "
@@ -1611,9 +1702,11 @@ def _cup_hold_watch():
     state = _status.get("state")
     if state not in CONFIRM_STATES:
         state = "needs_confirm"
+    landing = _held_card_landing()[1]
     if left > 0:
         msg = (f"{CUP_HELD_MSG}. The arm could not carry it to the belt; the vacuum pump holds "
-               f"it for {left:.0f} s more, then switches off. Then confirm ('Machine clear')")
+               f"it for {left:.0f} s more, then switches off ({landing}). Then confirm "
+               "('Machine clear')")
         if not str(_status.get("message", "")).startswith(CUP_HELD_MSG):
             _set_state(state, msg)               # logs it once
         else:
@@ -1622,8 +1715,8 @@ def _cup_hold_watch():
     _try(vacuum.pump_off)
     _cup_hold_since = None
     _set_state(state, f"vacuum pump switched off after {CUP_HOLD_MAX_S:.0f} s holding a card on "
-                      "the cup (time limit) — the card may have dropped: check the arm, hopper "
-                      "and belt, remove the card, then confirm")
+                      f"the cup (time limit) — the card has dropped ({landing}): check the arm, "
+                      "hopper and belt, remove the card, then confirm")
 
 
 def _operate(dry_run: bool):
@@ -1694,6 +1787,30 @@ def acquire_instance_lock() -> bool:
         return False
     _instance_lock_fh = fh
     return True
+
+
+def _claim_instance_or_exit() -> None:
+    """Start-up: data/ usable by this user, then the instance lock. A lock file
+    (or data/) this user cannot open — left root-owned by a tool run with sudo
+    — is refused with the file and the chown fix named, exit 78: systemd's
+    RestartPreventExitStatus=78 keeps the service out of a crash/restart loop
+    (audit 4 m2). Lock held by another process → exit 1 (a restart may help)."""
+    problems = instance.data_dir_problems(INSTANCE_LOCK_FILE)
+    for prob in problems:
+        print(f"[main] ERROR: {prob}", file=sys.stderr)
+    try:
+        if problems:
+            raise instance.LockFileError("data/ is not usable by this user (see above)")
+        got = acquire_instance_lock()
+    except instance.LockFileError as exc:
+        print(f"[main] ERROR: {exc} — refusing to start (exit {instance.EX_CONFIG}; systemd "
+              "will not restart until it is fixed)", file=sys.stderr)
+        sys.exit(instance.EX_CONFIG)
+    if not got:
+        holder = instance.lock_holder(INSTANCE_LOCK_FILE)
+        print(f"[main] ERROR: another sorter process or a hardware tool is running "
+              f"({INSTANCE_LOCK_FILE} is locked{' by ' + holder if holder else ''})")
+        sys.exit(1)
 
 
 def sorter_running() -> bool:
@@ -1786,19 +1903,20 @@ def main():
     parser.add_argument("--web-token", action="store_true", help="Print the web UI token")
     args = parser.parse_args()
 
-    if args.empty_all or args.empty_bin:
-        sys.exit(cli_empty_bins(args.empty_bin or [], args.empty_all))
-    if args.confirm_clear:
-        sys.exit(cli_confirm_clear())
+    try:
+        if args.empty_all or args.empty_bin:
+            sys.exit(cli_empty_bins(args.empty_bin or [], args.empty_all))
+        if args.confirm_clear:
+            sys.exit(cli_confirm_clear())
+    except instance.LockFileError as exc:
+        print(f"[main] ERROR: {exc}", file=sys.stderr)
+        sys.exit(instance.EX_CONFIG)
     if args.web_token:
         print(load_or_create_web_token())
         sys.exit(0)
 
-    if not args.build_db and not acquire_instance_lock():
-        holder = instance.lock_holder(INSTANCE_LOCK_FILE)
-        print(f"[main] ERROR: another sorter process or a hardware tool is running "
-              f"({INSTANCE_LOCK_FILE} is locked{' by ' + holder if holder else ''})")
-        sys.exit(1)
+    if not args.build_db:
+        _claim_instance_or_exit()
 
     for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
         signal.signal(sig, _on_signal)

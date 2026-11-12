@@ -21,6 +21,12 @@ Writes are atomic (unique temp file + os.replace) and durable (the temp
 file and the directory are fsynced), so a power cut right after a write
 never leaves a stale "clean" record behind.
 
+File ownership (audit 4 m2): a lock / marker this user cannot open (left
+root-owned by a tool run with sudo) raises LockFileError naming the file and
+the fix (`sudo chown -R <user>: data/`); main.py refuses with exit 78, which
+the unit's RestartPreventExitStatus keeps from a restart loop. Run as root
+anyway, the files this module creates are given to the owner of data/.
+
 MOCK runs use their own files (machine_state.mock.json, sorter.mock.lock) so
 a mock run never touches the real machine's record.
 """
@@ -44,6 +50,76 @@ class LockBusy(RuntimeError):
     """Another sorter process or tool holds the instance lock."""
 
 
+class LockFileError(RuntimeError):
+    """The lock file (or data/) cannot be opened by this user — typically left
+    root-owned by a tool run with sudo (audit 4 m2). Restarting will not fix
+    it: main.py exits 78 (EX_CONFIG, in the unit's RestartPreventExitStatus)."""
+
+
+EX_CONFIG = 78
+
+
+def _owner_hint(path: Path) -> tuple[str, str]:
+    """Who owns `path` / the user to give it back to, for the error message."""
+    try:
+        import pwd
+        st = Path(path).stat()
+        owner = pwd.getpwuid(st.st_uid).pw_name
+        me = pwd.getpwuid(os.geteuid()).pw_name
+        return f" (owned by {owner}, this process runs as {me})", me
+    except Exception:
+        return "", os.environ.get("USER", "pi")
+
+
+def lock_file_error(path: Path, exc: BaseException) -> LockFileError:
+    """LockFileError naming the file and the fix (chown)."""
+    path = Path(path)
+    owned, me = _owner_hint(path if path.exists() else path.parent)
+    return LockFileError(
+        f"cannot open {path}{owned}: {exc}. It was probably created by a "
+        f"hardware tool run with sudo. Fix: sudo chown -R {me}: {path.parent} — and never run "
+        "the tools (test_hardware.py, calibrate_servos.py, calibrate_camera.py) or main.py "
+        "with sudo")
+
+
+def _match_parent_owner(path: Path) -> None:
+    """Run as root (a tool started with sudo despite the docs): give a file we
+    just created in data/ to the owner of its directory, so the service user
+    can still open it (audit 4 m2). No-op for a normal user."""
+    if not hasattr(os, "geteuid") or os.geteuid() != 0:
+        return
+    try:
+        st = Path(path).parent.stat()
+        if st.st_uid != 0:
+            os.chown(path, st.st_uid, st.st_gid)
+    except OSError:
+        pass
+
+
+def _mkdir(directory: Path) -> None:
+    """mkdir -p; a directory root creates is given to its parent's owner."""
+    directory = Path(directory)
+    if directory.exists():
+        return
+    directory.mkdir(parents=True, exist_ok=True)
+    _match_parent_owner(directory)
+
+
+def data_dir_problems(lock_path: Path) -> list[str]:
+    """Start-up check (audit 4 m2): what this process must be able to write in
+    data/ — the instance lock, and its directory (the clean-shutdown marker is
+    replaced atomically there). One line per problem, each naming the file and
+    the chown fix; empty if all is well (or the files do not exist yet)."""
+    lock_path = Path(lock_path)
+    problems = []
+    for path, mode in ((lock_path.parent, os.W_OK | os.X_OK), (lock_path, os.R_OK | os.W_OK)):
+        if path.exists() and not os.access(path, mode):
+            owned, me = _owner_hint(path)
+            problems.append(f"{path} is not writable by this user{owned} — left by a tool run "
+                            f"with sudo? Fix: sudo chown -R {me}: {lock_path.parent}")
+    return problems
+
+
 def state_file(mock: bool) -> Path:
     return DATA_DIR / ("machine_state.mock.json" if mock else "machine_state.json")
 
@@ -60,8 +136,16 @@ def acquire_lock(path: Path, owner: str):
     if fcntl is None:
         return True
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fh = open(path, "a+")
+    try:
+        _mkdir(path.parent)
+        created = not path.exists()
+        fh = open(path, "a+")
+    except OSError as exc:
+        # e.g. a root-owned lock left by `sudo scripts/test_hardware.py`: refuse
+        # cleanly (main.py exits 78) instead of crashing into a restart loop
+        raise lock_file_error(path, exc) from exc
+    if created:
+        _match_parent_owner(path)
     try:
         fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
@@ -75,11 +159,17 @@ def acquire_lock(path: Path, owner: str):
 
 
 def lock_held(path: Path) -> bool:
-    """Is some process holding the lock on `path`?"""
+    """Is some process holding the lock on `path`? (Opens it read-only: an
+    flock works on any descriptor, so a lock file this user cannot write
+    still answers. LockFileError if it cannot be opened at all.)"""
     path = Path(path)
     if fcntl is None or not path.exists():
         return False
-    with open(path, "a+") as fh:
+    try:
+        fh = open(path, "r")
+    except OSError as exc:
+        raise lock_file_error(path, exc) from exc
+    with fh:
         try:
             fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except OSError:
@@ -110,7 +200,8 @@ def read_state(path: Path) -> dict:
     return {"clean": False, "confirmed": False, "reason": "machine state file invalid"}
 
 
-def _fsync_dir(directory: Path) -> None:
+def fsync_dir(directory: Path) -> None:
+    """fsync a directory so a rename in it is durable (best effort)."""
     try:
         fd = os.open(directory, os.O_RDONLY)
     except OSError:
@@ -127,13 +218,14 @@ def write_state(path: Path, **fields) -> dict:
     """Atomically and durably replace the marker. Returns the record written."""
     path = Path(path)
     data = {"clean": False, "confirmed": False, "reason": "", "ts": time.time(), **fields}
-    path.parent.mkdir(parents=True, exist_ok=True)
+    _mkdir(path.parent)
     fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
     try:
         with os.fdopen(fd, "w") as fh:
             fh.write(json.dumps(data, indent=2))
             fh.flush()
             os.fsync(fh.fileno())
+        _match_parent_owner(tmp)
         os.replace(tmp, path)
     except BaseException:
         try:
@@ -141,7 +233,7 @@ def write_state(path: Path, **fields) -> dict:
         except OSError:
             pass
         raise
-    _fsync_dir(path.parent)
+    fsync_dir(path.parent)
     return data
 
 
@@ -163,6 +255,9 @@ def claim_for_tool(tool: str, mock: bool):
         raise LockBusy(f"the sorter or another tool is running ({lf} is locked"
                        + (f" by {holder}" if holder else "") + ") — stop it first "
                        "(sudo systemctl stop riftbound-sorter), then re-run")
-    write_state(state_file(mock), clean=False, confirmed=False,
-                reason=TOOL_REASON.format(tool=tool), tool=tool)
+    try:
+        write_state(state_file(mock), clean=False, confirmed=False,
+                    reason=TOOL_REASON.format(tool=tool), tool=tool)
+    except OSError as exc:
+        raise lock_file_error(state_file(mock), exc) from exc
     return fh

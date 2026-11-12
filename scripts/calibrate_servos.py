@@ -48,18 +48,25 @@ Jog commands (at every pose):
 Safety: every move is a ramped move of the owning module (servos.move_arm_smooth,
 shuttle hold/level/tip/to_column). The carriage only moves with the cradle in
 HOLD, and always finishes towards +ψ like shuttle.to_column() (backlash).
-Jogging is limited to ±25° around the value stored at the start of the
-session AND to the modules' sanity window (±25° around the nominal pose —
-for the arm, or its mirror 180° − nominal); the sorter refuses a file with a
-pose outside that window. If you need more, the horn / coupler is on the
-wrong spline tooth: re-seat it (one MG996R spline tooth is 14.4°).
+Jogging is clamped to exactly what the sorter accepts (audit 4 MJ1): the
+modules' sanity window — ±10° around the nominal arm pose (or its mirror
+180° − nominal), ±8° around the nominal tilt / carriage pose — AND, for the
+shuttle, the order / gap rules against the other poses as they stand
+(shuttle.allowed_range(): lower < level < hold < upper with 2–8° from level to
+hold, ≥ 8° from hold to upper, ≥ 30° from lower to level; carriage stops ≥ 5°
+apart). If you need more, the horn / coupler is on the wrong spline tooth:
+re-seat it (one MG996R spline tooth is 14.4°).
 
 Saving: a pose is only written if the WHOLE file still passes the module's
 validation (hardware/servos.py / hardware/shuttle.py validate_calibration:
 types, ranges, sanity window, pose order such as lower < level, hold < upper,
 carriage reject < 3 < 2 < home < 1 < 0, arm PICK / DROP either side of PARK);
 otherwise the tool says why and keeps the old value. An invalid file at start
-stops the tool (exit 78) with the list of bad keys — fix or delete them.
+stops the tool (exit 78) with the list of bad keys — fix or delete them. Every
+config error exits 78 (EX_CONFIG): config/machine.json, an unreadable
+calibration file, and an instance lock / data/ this user cannot open (left
+root-owned by a run with sudo — never run the tools with sudo; the message
+names the file and the chown fix).
 
 Sorter interlock (audit 3 M2): the tool takes the sorter's instance lock
 (data/sorter.lock; refuses while the sorter service or another tool runs —
@@ -82,7 +89,6 @@ ROOT = Path(__file__).resolve().parent.parent
 
 JOG_STEPS = (0.5, 2.0, 5.0)     # +, ++, +++
 JOG_MAX_DEG = 5.0               # largest single jog
-WINDOW_DEG = 25.0               # jog window around the value stored at session start
 APPROACH_MARGIN_DEG = 8.0       # arm starts PICK/DROP this far short, towards PARK
 VERIFY_SLOWDOWN = 2.0           # --verify ramps this many times slower than normal
 DEFAULT_TILT_COLUMN = 1         # where upper/lower are calibrated (any column works)
@@ -115,7 +121,16 @@ def load_modules(mock: bool) -> None:
     _MOCK = mock
     os.environ["MOCK_HARDWARE"] = "1" if mock else "0"
     sys.path.insert(0, str(ROOT))
-    from hardware import servos as _s, shuttle as _sh, vacuum as _v, elevator as _e
+    try:
+        from hardware import servos as _s, shuttle as _sh, vacuum as _v, elevator as _e
+    except Exception as exc:
+        # config/machine.json is applied at import (hardware/__init__ imports every
+        # module, so even hardware.machine_config cannot be imported first): exit 78
+        # like every config error
+        if type(exc).__name__ == "MachineConfigError":
+            print(f"[calibrate] ERROR: {exc}", file=sys.stderr)
+            sys.exit(EX_CONFIG)
+        raise
     servos, shuttle, vacuum, elevator = _s, _sh, _v, _e
     # Module nominal poses (the centre of their sanity windows)
     NOMINAL["arm"] = dict(servos.NOMINAL_ARM)
@@ -132,6 +147,9 @@ def claim_machine() -> None:
         _lock = instance.claim_for_tool("scripts/calibrate_servos.py", _MOCK)
     except instance.LockBusy as exc:
         sys.exit(f"[calibrate] ERROR: {exc}")
+    except instance.LockFileError as exc:          # root-owned lock / data/ (sudo run)
+        print(f"[calibrate] ERROR: {exc}", file=sys.stderr)
+        sys.exit(EX_CONFIG)
     print(f"[calibrate] machine recorded as NOT clean ({instance.state_file(_MOCK)}): the next "
           "sorter start asks for 'Machine clear'")
 
@@ -236,9 +254,13 @@ def read_json(path: Path) -> dict:
     try:
         data = json.loads(path.read_text())
     except Exception as exc:
-        sys.exit(f"[calibrate] {path} is not valid JSON ({exc}) — fix or move it, then re-run")
+        print(f"[calibrate] {path} is not valid JSON ({exc}) — fix or move it, then re-run",
+              file=sys.stderr)
+        sys.exit(EX_CONFIG)
     if not isinstance(data, dict):
-        sys.exit(f"[calibrate] {path} must be a JSON object — fix or move it, then re-run")
+        print(f"[calibrate] {path} must be a JSON object — fix or move it, then re-run",
+              file=sys.stderr)
+        sys.exit(EX_CONFIG)
     return data
 
 
@@ -403,14 +425,16 @@ def jog(title: str, *, start: float, stored: float, nominal: float, lo: float, h
 
 
 def window(stored: float, top: float, sanity=None):
-    """Jog window: ±WINDOW_DEG around the stored value, inside [0, top] and
-    inside the module's sanity window `sanity` = (lo, hi) (the sorter refuses
-    a file outside it)."""
-    lo, hi = max(0.0, stored - WINDOW_DEG), min(float(top), stored + WINDOW_DEG)
+    """Jog window: [0, top] clamped to `sanity` = (lo, hi), the range the
+    module accepts for this pose (servos.sanity_window / shuttle.allowed_range:
+    the same limits the sorter checks the file against, audit 4 MJ1). If that
+    leaves nothing (the other poses as they stand leave no room), the jog is
+    pinned to the stored value."""
+    lo, hi = 0.0, float(top)
     if sanity is not None:
         lo, hi = max(lo, sanity[0]), min(hi, sanity[1])
-    if lo > hi:                      # stored value itself outside the sanity window
-        lo = hi = min(max(stored, sanity[0]), sanity[1])
+    if lo > hi:
+        lo = hi = stored
     return lo, hi
 
 
@@ -571,7 +595,7 @@ def section_tilt() -> None:
             carriage_to(col_state["col"])
         stored = float(shuttle.TILT_ANGLES[pose])
         lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_TILT],
-                        shuttle.sanity_window("tilt", pose))
+                        shuttle.allowed_range("tilt", pose))
 
         def move(a, p=pose):
             shuttle.TILT_ANGLES[p] = a
@@ -626,7 +650,7 @@ def section_columns() -> None:
         print(f"\n  {advice}")
         stored = float(shuttle.SHUTTLE_ANGLES[key])
         lo, hi = window(stored, shuttle.SHUTTLE_ACTUATION_RANGE[shuttle.CH_SHUTTLE],
-                        shuttle.sanity_window("shuttle", key))
+                        shuttle.allowed_range("shuttle", key))
         lo, hi = max(lo, CARRIAGE_LIMITS[0]), min(hi, CARRIAGE_LIMITS[1])
 
         def move(a, k=key):

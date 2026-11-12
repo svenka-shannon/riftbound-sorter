@@ -79,15 +79,20 @@ _arm_released = False   # ch0 switched off (limp) since the last write; _arm_ang
 #              ARM_UP, see below); legacy "gate" / "bin_select" (ignored: those
 #              servos are now the shuttle's); keys "_…" are comments.
 #   values     finite JSON numbers in [0, ARM_ACTUATION_RANGE], each within
-#              SANITY_WINDOW_DEG of its nominal pose — or of the MIRRORED pose
-#              (180° − nominal: a servo that turns the other way swaps PICK and
-#              DROP, the arc is symmetric about PARK 90°). PICK and DROP must lie
-#              on opposite sides of PARK. So a typo (ARM_DROP 400, a string, NaN,
-#              120 for 12) can never swing the arm into the hopper.
+#              SANITY_WINDOW_DEG (±10°) of its nominal pose — or of the MIRRORED
+#              pose (180° − nominal: a servo that turns the other way swaps PICK
+#              and DROP, the arc is symmetric about PARK 90°). PICK and DROP must
+#              lie on opposite sides of PARK. So a typo (ARM_DROP 400, a string,
+#              NaN, 120 for 12, 157 for 175) can never swing the arm into the
+#              hopper. Why ±10° (audit 4 MJ1): the crank sits on a 25T disc horn,
+#              so the nearest spline tooth is within ±7.2° of nominal; the rest
+#              is trim (PICK slider compression, DROP height). The windows
+#              (PICK 165–180 / 0–15, DROP 0–15 / 165–180, PARK 80–100) are far
+#              apart, and calibrate_servos.py clamps its jog to the same limits.
 #   legacy     ARM_DOWN → ARM_PICK, ARM_UP → ARM_PARK, only when the new key is
 #              absent (with a warning; checked like the key it stands in for).
 #              Superseded legacy keys are ignored.
-SANITY_WINDOW_DEG = 25.0
+SANITY_WINDOW_DEG = 10.0
 NOMINAL_ARM = {"ARM_PICK": float(ARM_PICK), "ARM_DROP": float(ARM_DROP), "ARM_PARK": float(ARM_PARK)}
 _ARM_KEYS = ("ARM_PICK", "ARM_DROP", "ARM_PARK")
 _LEGACY_ARM = {"ARM_DOWN": "ARM_PICK", "ARM_UP": "ARM_PARK"}

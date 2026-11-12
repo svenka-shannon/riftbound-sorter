@@ -53,6 +53,16 @@ command -v pinctrl >/dev/null 2>&1 || command -v raspi-gpio >/dev/null 2>&1 \
 # Takes effect after the next reboot.
 sudo python3 "$SCRIPT_DIR/cmdline_param.py" pinctrl_bcm2835.persist_gpio_outputs=0
 
+# Relay inputs at boot (audit 4 m9): GPIO 17 (pump) / 27 (vent) reset to inputs
+# with the SoC's ~50 kOhm pull-DOWN against the board's 10 kOhm pull-up, so IN
+# sits at ~2.75 V until the sorter drives it. The firmware's config.txt `gpio`
+# directive switches their internal pull to UP (IN ~3.3 V = relay released) a
+# few seconds after power-on, before Linux. Idempotent (own [all] section,
+# added once); handles /boot/firmware/config.txt and /boot/config.txt.
+# Takes effect after the next reboot.
+sudo python3 "$SCRIPT_DIR/config_txt_line.py" "gpio=17,27=ip,pu" \
+    --comment "riftbound-sorter: pump / vent relay IN pulled up at boot (relay OFF)"
+
 # RPi.GPIO API: rpi-lgpio is the drop-in for current Raspberry Pi OS (works on
 # every Pi model incl. Pi 5, replaces python3-rpi.gpio). Fall back to the
 # classic RPi.GPIO package if the archive does not have it.
@@ -100,8 +110,12 @@ fi
 echo "I2C devices:"
 sudo i2cdetect -y 1 || echo "i2cdetect failed — is I2C enabled and the PCA9685 wired?"
 
-# Create data dirs
+# Create data dirs — data/, cache/ and config/ owned by the service user. A tool or main.py run with
+# sudo leaves root-owned files there (data/sorter.lock, machine_state.json),
+# which the service then refuses to start on (exit 78, audit 4 m2); re-running
+# setup gives them back. Never run the tools or main.py with sudo.
 mkdir -p cache data
+sudo chown -R "$RUN_USER": cache data config
 
 # Make all scripts executable (including dev runner scripts)
 chmod +x scripts/*.sh
@@ -129,7 +143,8 @@ echo ""
 echo "=== Setup complete ==="
 echo "Next steps (docs/ASSEMBLY.md §15.1, §16):"
 echo "  1. sudo reboot     # FIRST: applies pinctrl_bcm2835.persist_gpio_outputs=0 (cmdline.txt)"
-echo "     After the reboot: cat /proc/cmdline must contain pinctrl_bcm2835.persist_gpio_outputs=0."
+echo "     and gpio=17,27=ip,pu (config.txt). After the reboot: cat /proc/cmdline must contain"
+echo "     pinctrl_bcm2835.persist_gpio_outputs=0, and 'pinctrl get 17,27' must show pu."
 echo "     The service starts by itself and waits in needs_confirm."
 echo "  2. sudo systemctl stop riftbound-sorter    # free the hardware for the steps below"
 echo "  3. venv/bin/python main.py --build-db                          # card list + hash DB (needs internet)"

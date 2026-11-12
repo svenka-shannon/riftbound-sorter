@@ -24,7 +24,7 @@ def _isolated_files(monkeypatch, tmp_path):
     for name in ("ARM_PICK", "ARM_DROP", "ARM_PARK", "PICKUP_ARM_UP", "PICKUP_ARM_DOWN"):
         monkeypatch.setattr(servos, name, getattr(servos, name))
     monkeypatch.setattr(servos, "_arm_released", False)
-    monkeypatch.setattr(shuttle, "_released", False)
+    monkeypatch.setattr(shuttle, "_released", set())
     # shuttle_calibration.json → tmp; every dict _load_calibration() mutates is a per-test copy
     monkeypatch.setattr(shuttle, "_CALIBRATION_FILE", tmp_path / "shuttle_calibration.json")
     for name in ("TILT_ANGLES", "SHUTTLE_ANGLES", "TIMING", "SHUTTLE_ACTUATION_RANGE", "SHUTTLE_INVERT"):

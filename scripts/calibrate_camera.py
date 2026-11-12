@@ -42,6 +42,11 @@ lock (data/sorter.lock; refuses while the sorter service or another tool runs
 — `sudo systemctl stop riftbound-sorter` first) and records the machine NOT
 clean in data/machine_state.json ("tool ran: ..."). The next sorter start
 asks for "Machine clear": remove the card from the belt first.
+
+Config errors exit 78 (EX_CONFIG), like main.py and the other tools: an
+invalid config/machine.json, or an instance lock / data/ this user cannot open
+(left root-owned by a run with sudo — never run the tools with sudo; the
+message names the file and the chown fix).
 """
 
 import argparse
@@ -66,6 +71,7 @@ MIN_BOX_PX = 20
 camera = None
 _MOCK = True
 _lock = None             # instance lock handle, held for the life of the tool
+EX_CONFIG = 78           # every configuration error (sysexits.h), like main.py and the other tools
 
 
 class Quit(Exception):
@@ -149,13 +155,24 @@ def main() -> None:
     _MOCK = not args.no_mock
     os.environ["MOCK_HARDWARE"] = "1" if _MOCK else "0"
     sys.path.insert(0, str(ROOT))
-    from hardware import camera as _camera
+    try:
+        from hardware import camera as _camera
+    except Exception as exc:
+        # config/machine.json is applied at import (hardware/__init__ imports every
+        # module): exit 78 like every config error
+        if type(exc).__name__ == "MachineConfigError":
+            print(f"[calibrate_camera] ERROR: {exc}", file=sys.stderr)
+            sys.exit(EX_CONFIG)
+        raise
     from hardware import instance
     camera = _camera
     try:
         _lock = instance.claim_for_tool("scripts/calibrate_camera.py", _MOCK)
     except instance.LockBusy as exc:
         sys.exit(f"[calibrate_camera] ERROR: {exc}")
+    except instance.LockFileError as exc:          # root-owned lock / data/ (sudo run)
+        print(f"[calibrate_camera] ERROR: {exc}", file=sys.stderr)
+        sys.exit(EX_CONFIG)
     print(f"[calibrate_camera] machine recorded as NOT clean ({instance.state_file(_MOCK)}): "
           "remove the card from the belt afterwards; the next sorter start asks for 'Machine clear'")
 

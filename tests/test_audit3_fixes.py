@@ -52,12 +52,13 @@ SHUTTLE_BAD = {
     "tilt_neg": ({"tilt": {"lower": -40}}, "tilt.lower: -40° is outside the servo range"),
     "tilt_list": ({"tilt": [1, 2]}, "tilt: must be a JSON object"),
     "tilt_bool": ({"tilt": {"level": True}}, "tilt.level: must be a number"),
-    "tilt_out_of_window": ({"tilt": {"upper": 140}}, "tilt.upper: 140° is more than 25° from the nominal"),
-    "tilt_order": ({"tilt": {"hold": 113, "upper": 112.2}}, "tilt.hold (113°) must be below tilt.upper"),
+    "tilt_out_of_window": ({"tilt": {"upper": 140}}, "tilt.upper: 140° is more than 8° from the nominal"),
+    # audit 4 MJ1: the windows are ±8°, so an order slip is now tested inside them
+    "tilt_order": ({"tilt": {"level": 95, "hold": 94}}, "tilt.level (95°) must be below tilt.hold (94°)"),
     "tilt_unknown_key": ({"tilt": {"levle": 93}}, "tilt.levle: unknown key"),
     "shuttle_null": ({"shuttle": {"0": None}}, "shuttle.0: must be a number"),
     "shuttle_key_00": ({"shuttle": {"00": 175}}, "shuttle.00: unknown key"),
-    "shuttle_swapped": ({"shuttle": {"2": 80, "1": 70}}, "must be below"),
+    "shuttle_swapped": ({"shuttle": {"home": 80, "1": 79.5}}, "shuttle.home (80°) must be below shuttle.1"),
     "timing_neg": ({"timing": {"dump_dwell_s": -1}}, "timing.dump_dwell_s: -1 is outside"),
     "timing_str": ({"timing": {"settle_s": "0.2"}}, "timing.settle_s: must be a finite number"),
     "timing_unknown": ({"timing": {"dwell": 1}}, "timing.dwell: unknown key"),
@@ -121,11 +122,12 @@ def test_shuttle_calibration_valid_file_applied_and_absent_keys_reset():
 
 
 def test_shuttle_sanity_window_matches_calibrate_tool():
+    # audit 4 MJ1: ±8° (was ±25°); the tool's jog window IS the module's range now
     cs = _load_script("calibrate_servos")
-    assert shuttle.SANITY_WINDOW_DEG == cs.WINDOW_DEG == 25.0
+    assert shuttle.SANITY_WINDOW_DEG == 8.0 and not hasattr(cs, "WINDOW_DEG")
     lo, hi = shuttle.sanity_window("tilt", "upper")
-    assert (lo, hi) == (pytest.approx(87.2), pytest.approx(137.2))
-    assert shuttle.sanity_window("shuttle", 0) == (pytest.approx(153.0), 180.0)   # clipped to the range
+    assert (lo, hi) == (pytest.approx(104.2), pytest.approx(120.2))
+    assert shuttle.sanity_window("shuttle", 0) == (pytest.approx(170.0), 180.0)   # clipped to the range
 
 
 # ══ M1: servo_calibration.json validated strictly ════════════════════════════
@@ -134,7 +136,7 @@ SERVO_BAD = {
     "pick_nan": ('{"pickup_arm": {"ARM_PICK": NaN}}', "NaN is not a valid JSON number"),
     "drop_400": ({"pickup_arm": {"ARM_DROP": 400}}, "pickup_arm.ARM_DROP: 400° is outside the servo range"),
     "arm_list": ({"pickup_arm": []}, "pickup_arm: must be a JSON object"),
-    "drop_120": ({"pickup_arm": {"ARM_DROP": 120}}, "pickup_arm.ARM_DROP: 120° is more than 25°"),
+    "drop_120": ({"pickup_arm": {"ARM_DROP": 120}}, "pickup_arm.ARM_DROP: 120° is more than 10°"),
     "same_side": ({"pickup_arm": {"ARM_PICK": 175, "ARM_DROP": 170}}, "opposite sides of ARM_PARK"),
     "unknown_key": ({"pickup_arm": {"ARM_PIKC": 170}}, "pickup_arm.ARM_PIKC: unknown key"),
     "unknown_section": ({"pickup": {"ARM_PICK": 170}}, "pickup: unknown section"),
@@ -229,12 +231,11 @@ def test_calibrate_jog_refused_save_keeps_jogging(cs, monkeypatch):
 
 
 def test_calibrate_jog_window_inside_sanity_window(cs):
-    assert cs.window(112.2, 180, shuttle.sanity_window("tilt", "upper")) == (pytest.approx(87.2),
-                                                                           pytest.approx(137.2))
-    lo, hi = cs.window(130.0, 180, shuttle.sanity_window("tilt", "upper"))
-    assert lo == pytest.approx(105.0) and hi == pytest.approx(137.2)
-    assert cs.window(170.0, 180, servos.sanity_window("ARM_PICK", 170.0)) == (150.0, 180.0)
-    assert cs.window(10.0, 180, servos.sanity_window("ARM_PICK", 10.0)) == (0.0, 30.0)   # mirrored
+    # audit 4 MJ1: the jog window is exactly the module's accepted range
+    assert cs.window(112.2, 180, shuttle.sanity_window("tilt", "upper")) == (pytest.approx(104.2),
+                                                                           pytest.approx(120.2))
+    assert cs.window(170.0, 180, servos.sanity_window("ARM_PICK", 170.0)) == (165.0, 180.0)
+    assert cs.window(10.0, 180, servos.sanity_window("ARM_PICK", 10.0)) == (0.0, 15.0)   # mirrored
 
 
 def test_calibrate_tool_exits_78_on_invalid_file_before_claiming(cs, monkeypatch):
@@ -251,25 +252,25 @@ def test_calibrate_tool_exits_78_on_invalid_file_before_claiming(cs, monkeypatch
 def test_bin_limit_caps_cover_defaults():
     for b, d in main.DEFAULT_BIN_LIMITS.items():
         assert 1 <= d <= main.BIN_LIMIT_MAX[b]
-    assert main.BIN_LIMIT_MAX[0] == 54 and main.BIN_LIMIT_MAX[4] == 24 and main.BIN_LIMIT_MAX[9] == 52
+    assert main.BIN_LIMIT_MAX[0] == 54 and main.BIN_LIMIT_MAX[4] == 15 and main.BIN_LIMIT_MAX[9] == 52
 
 
 def test_bin_limits_valid_file(tmp_path):
     f = tmp_path / "limits.json"
-    _write(f, {"_c": "x", "0": 45, "4": 16, "9": 52.0})
+    _write(f, {"_c": "x", "0": 45, "4": 14, "9": 52.0})
     b = main.BinCounts(tmp_path / "c.json", f, main.DEFAULT_BIN_LIMITS)
-    assert b.limits[0] == 45 and b.limits[4] == 16 and b.limits[9] == 52 and b.limits[1] == 40
+    assert b.limits[0] == 45 and b.limits[4] == 14 and b.limits[9] == 52 and b.limits[1] == 40
 
 
 def test_bin_limits_every_problem_listed(tmp_path):
     f = tmp_path / "limits.json"
-    _write(f, {"0": "45", "1": 0, "2": 55, "4": 25, "9": 53, "8": 10, "5": 12.5, "6": True, "3": -4})
+    _write(f, {"0": "45", "1": 0, "2": 55, "4": 16, "9": 53, "8": 10, "5": 12.5, "6": True, "3": -4})
     with pytest.raises(main.BinLimitsError) as ei:
         main.BinCounts(tmp_path / "c.json", f, main.DEFAULT_BIN_LIMITS)
     assert len(ei.value.problems) == 9
     msg = str(ei.value)
     assert "2: 55 is outside 1..54 (lower floor: default 40, geometric maximum 54)" in msg
-    assert "4: 25 is outside 1..24 (upper floor" in msg and "9: 53 is outside 1..52 (reject" in msg
+    assert "4: 16 is outside 1..15 (upper floor" in msg and "9: 53 is outside 1..52 (reject" in msg
     assert "8: unknown bin" in msg
 
 
@@ -288,7 +289,7 @@ def test_bad_bin_limits_exit_78_before_anything(tmp_path):
     r = subprocess.run([sys.executable, str(ROOT / "main.py"), "--web-token"], cwd=tmp_path, env=env,
                        capture_output=True, text=True, timeout=120)
     assert r.returncode == 78, r.stderr
-    assert "invalid bin limits" in r.stderr and "4: 400 is outside 1..24" in r.stderr
+    assert "invalid bin limits" in r.stderr and "4: 400 is outside 1..15" in r.stderr
 
 
 # ══ M2: hardware tools take the lock and invalidate the clean marker ═════════
@@ -554,6 +555,13 @@ def test_sigkill_marker_sweep(monkeypatch, tmp_path):
 
 
 # ══ Minor 5: servos released while idle at rest, rest pose re-asserted ═══════
+# Audit 4 m3: ONLY ch1 (tilt, stalling on the level ledges) is released; ch0
+# (arm) and ch2 (carriage) keep holding while the operator works in the machine.
+def _released3():
+    return (servos.arm_released(), shuttle.released(shuttle.CH_TILT),
+            shuttle.released(shuttle.CH_SHUTTLE))
+
+
 def test_idle_release_and_reassert(monkeypatch, tmp_path):
     TS.setup_rig(monkeypatch, tmp_path)
     monkeypatch.setattr(main, "RulesEngine", lambda f: TS.Eng())
@@ -562,11 +570,11 @@ def test_idle_release_and_reassert(monkeypatch, tmp_path):
     seen = []
 
     def await_op(needs_confirm):
-        seen.append((main._status["state"], needs_confirm, servos.arm_released(), shuttle.released()))
+        seen.append((main._status["state"], needs_confirm) + _released3())
         return False
     monkeypatch.setattr(main, "_await_operator", await_op)
     main._operate(dry_run=False)
-    assert seen == [("hopper_empty", False, True, True)]
+    assert seen == [("hopper_empty", False, False, True, False)]
     assert main.read_machine_state()["clean"] is True
     # resume: the rest pose is re-asserted (one write per channel) before the elevator moves
     log = []
@@ -588,11 +596,11 @@ def test_operator_pause_releases_and_reasserts(monkeypatch, tmp_path):
     seen = []
 
     def sleep(_):
-        seen.append((servos.arm_released(), shuttle.released()))
+        seen.append(_released3())
         main._control["pause"] = False
     monkeypatch.setattr(time, "sleep", sleep)
     assert main._wait_while_paused() is True
-    assert seen == [(True, True)]
+    assert seen == [(False, True, False)]
     assert not servos.arm_released() and not shuttle.released() and shuttle.at_rest()
 
 

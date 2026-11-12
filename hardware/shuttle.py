@@ -26,8 +26,9 @@ Bins: 0-3 lower floor (column = bin), 4-7 upper floor (column = bin - 4),
 9 reject. All angles live in TILT_ANGLES / SHUTTLE_ANGLES and can be overridden
 from config/shuttle_calibration.json (same idea as servos.py), which is
 validated strictly (validate_calibration(): known keys, finite numbers inside
-the servo range AND a ±25° sanity window around the nominal pose, pose order;
-any problem → ShuttleConfigError, nothing applied, main.py exits 78). They are always
+the servo range AND a ±8° sanity window around the nominal pose, pose order
+and minimum / maximum gaps between poses; any problem → ShuttleConfigError,
+nothing applied, main.py exits 78). They are always
 GEOMETRIC angles (crank φ + 90° / crank ψ); a servo that turns the wrong way
 is handled by the per-channel "invert" option (SHUTTLE_INVERT) at the PWM write.
 
@@ -168,7 +169,7 @@ _pos = {CH_TILT: None, CH_SHUTTLE: None}   # last commanded angle per channel
 _tilt_state = None                         # None = unknown (never set, or mid-ramp)
 _target = None                             # 0..3, "reject", "home"
 _jammed = None                             # None, or why the carriage is locked
-_released = False                          # ch1/ch2 switched off since the last write (limp)
+_released = set()                          # channels switched off since their last write (limp)
 
 
 class ShuttleError(RuntimeError):
@@ -208,18 +209,41 @@ def clear_jam() -> None:
 #   sections        tilt, shuttle, timing, actuation_range, invert (keys "_…" = comments)
 #   actuation_range {"1"|"2": 180 | 270}
 #   tilt / shuttle  finite JSON numbers in [0, actuation_range] AND inside the
-#                   sanity window: within SANITY_WINDOW_DEG of the nominal pose
-#                   below (the same ±25° the calibrate tool lets you jog). A
-#                   typo (1122 for 112.2, a sign slip) can never command a
-#                   wildly wrong pose. Angles are geometric (see "invert"), so
-#                   the window holds for a 270° servo too: the crank / coupler is
-#                   fitted at a commanded pose, and one spline tooth (14.4°) is
-#                   always within ±7.2° of nominal.
-#                   Order (geometry): tilt lower < level, hold < upper;
-#                   carriage reject < 3 < 2 < home < 1 < 0.
+#                   sanity window: within SANITY_WINDOW_DEG (±8°) of the nominal
+#                   pose below — the calibrate tool's jog window is clamped to
+#                   the same limits (allowed_range()). Why ±8° (audit 4 MJ1):
+#                     ch1: the coupler is indexed at HOLD on the 25T spline, so
+#                          the residual is ≤ 0.6° (25T × hex indexing, see the
+#                          TILT_ANGLES note) — every tilt pose shares that offset;
+#                     ch2: the crank horn is fitted at a commanded pose; a 25T
+#                          spline tooth is 14.4°, so the nearest tooth is always
+#                          within ±7.2° of nominal.
+#                   ±8° covers both with margin, and is tight enough that a
+#                   swapped-digit typo of any nominal (79 / 107 for hold 97,
+#                   103 for level 93.1, 98 for upper 112.2, 78.3 for column 1
+#                   87.3, …) or a sign slip lands outside. Angles are geometric
+#                   (see "invert"), so the window holds for a 270° servo too.
+#                   Order + gaps (geometry; TILT_GAPS / SHUTTLE_MIN_GAP_DEG):
+#                     tilt  lower < level < hold < upper with
+#                           2° ≤ hold − level ≤ 8°   (nominal 3.9°: hold must lift
+#                                                    the tail, level must not be
+#                                                    a second hold)
+#                           upper − hold ≥ 8°        (nominal 15.2°)
+#                           level − lower ≥ 30°      (nominal 51.6°)
+#                     carriage reject < 3 < 2 < home < 1 < 0, neighbours ≥ 5°
+#                           apart (nominal gaps 43 / 20.2 / 10.3 / 11.8 / 90.7°)
+#                   A window alone cannot catch two poses typed into each
+#                   other's place (hold 93.2 with level 93.1): the gaps do.
 #   timing          finite numbers inside TIMING_LIMITS (all ≥ 0)
 #   invert          JSON booleans, channels "1" / "2"
-SANITY_WINDOW_DEG = 25.0
+SANITY_WINDOW_DEG = 8.0
+# (lower pose, upper pose, min gap °, max gap ° or None): TILT[b] − TILT[a] in [min, max]
+TILT_GAPS = (
+    ("lower", "level", 30.0, None),
+    ("level", "hold", 2.0, 8.0),
+    ("hold", "upper", 8.0, None),
+)
+SHUTTLE_MIN_GAP_DEG = 5.0
 VALID_ACTUATION_RANGES = (180, 270)
 TIMING_LIMITS = {
     "tilt_s_per_deg": (0.0, 0.2),
@@ -237,7 +261,7 @@ NOMINAL_TILT_ANGLES = dict(TILT_ANGLES)
 NOMINAL_SHUTTLE_ANGLES = dict(SHUTTLE_ANGLES)
 NOMINAL_TIMING = dict(TIMING)
 NOMINAL_ACTUATION_RANGE = dict(SHUTTLE_ACTUATION_RANGE)
-_TILT_ORDER = (("lower", "level"), ("lower", "hold"), ("level", "upper"), ("hold", "upper"))
+_TILT_ORDER = ("lower", "level", "hold", "upper")      # increasing servo angle
 _SHUTTLE_ORDER = ("reject", 3, 2, "home", 1, 0)          # increasing crank angle ψ
 
 
@@ -353,18 +377,62 @@ def validate_calibration(cal) -> tuple[dict, list[str]]:
         else:
             eff["timing"][k] = float(v)
 
-    # Geometric order (only between values that passed their own checks)
+    # Geometric order + gaps (only between values that passed their own checks)
     t = eff["tilt"]
-    for a, b in _TILT_ORDER:
-        if ("tilt", a) not in bad_angle and ("tilt", b) not in bad_angle and not t[a] < t[b]:
+    for a, b, gmin, gmax in TILT_GAPS:
+        if ("tilt", a) in bad_angle or ("tilt", b) in bad_angle:
+            continue
+        gap = t[b] - t[a]
+        if gap <= 0:
             problems.append(f"tilt.{a} ({t[a]:g}°) must be below tilt.{b} ({t[b]:g}°) — "
-                            "lower < level, hold < upper")
+                            "the order is lower < level < hold < upper")
+        elif gap < gmin or (gmax is not None and gap > gmax):
+            want = f"{gmin:g}–{gmax:g}°" if gmax is not None else f"at least {gmin:g}°"
+            problems.append(f"tilt.{b} − tilt.{a} = {gap:g}° must be {want} (nominal "
+                            f"{NOMINAL_TILT_ANGLES[b] - NOMINAL_TILT_ANGLES[a]:.1f}°) — two poses "
+                            "swapped or mistyped?")
     c = eff["shuttle"]
     for a, b in zip(_SHUTTLE_ORDER, _SHUTTLE_ORDER[1:]):
-        if ("shuttle", a) not in bad_angle and ("shuttle", b) not in bad_angle and not c[a] < c[b]:
+        if ("shuttle", a) in bad_angle or ("shuttle", b) in bad_angle:
+            continue
+        if not c[a] < c[b]:
             problems.append(f"shuttle.{a} ({c[a]:g}°) must be below shuttle.{b} ({c[b]:g}°) — the "
                             "carriage order is reject < 3 < 2 < home < 1 < 0 (crank angle ψ)")
+        elif c[b] - c[a] < SHUTTLE_MIN_GAP_DEG:
+            problems.append(f"shuttle.{b} − shuttle.{a} = {c[b] - c[a]:g}° must be at least "
+                            f"{SHUTTLE_MIN_GAP_DEG:g}° (neighbouring stops; nominal "
+                            f"{NOMINAL_SHUTTLE_ANGLES[b] - NOMINAL_SHUTTLE_ANGLES[a]:.1f}°)")
     return eff, problems
+
+
+def allowed_range(section: str, key, current: dict | None = None,
+                  actuation_range: int | None = None) -> tuple[float, float]:
+    """(lo, hi) a single pose may take with every OTHER pose of its section at
+    `current` (default: the live TILT_ANGLES / SHUTTLE_ANGLES): the sanity
+    window intersected with the order / gap rules of validate_calibration().
+    scripts/calibrate_servos.py clamps its jog window to this, so a jog can
+    never reach a value the save (and the sorter) would refuse. If the other
+    poses leave no room, lo > hi (the caller pins the jog to the stored value)."""
+    lo, hi = sanity_window(section, key, actuation_range)
+    if section == "tilt":
+        cur = TILT_ANGLES if current is None else current
+        for a, b, gmin, gmax in TILT_GAPS:
+            if b == key:          # key above a
+                lo = max(lo, cur[a] + gmin)
+                if gmax is not None:
+                    hi = min(hi, cur[a] + gmax)
+            elif a == key:        # key below b
+                hi = min(hi, cur[b] - gmin)
+                if gmax is not None:
+                    lo = max(lo, cur[b] - gmax)
+    else:
+        cur = SHUTTLE_ANGLES if current is None else current
+        i = _SHUTTLE_ORDER.index(key)
+        if i > 0:
+            lo = max(lo, cur[_SHUTTLE_ORDER[i - 1]] + SHUTTLE_MIN_GAP_DEG)
+        if i < len(_SHUTTLE_ORDER) - 1:
+            hi = min(hi, cur[_SHUTTLE_ORDER[i + 1]] - SHUTTLE_MIN_GAP_DEG)
+    return lo, hi
 
 
 def _reject_constant(token):
@@ -440,7 +508,7 @@ def init(pca=None, assume_rest: bool = False):
     HOME — two full-speed jumps, in that order so nothing drags."""
     global _pca, _own_pca, _tilt_state, _target, _jammed, _released
     _load_calibration()
-    _tilt_state, _target, _jammed, _released = None, None, None, False
+    _tilt_state, _target, _jammed, _released = None, None, None, set()
     _pos[CH_TILT] = _pos[CH_SHUTTLE] = None
     if _MOCK:
         print("[shuttle] MOCK mode — no hardware")
@@ -474,9 +542,10 @@ def assert_rest() -> None:
     _sleep(0.3)
 
 
-def released() -> bool:
-    """ch1/ch2 switched off (limp) since the last command."""
-    return _released
+def released(ch=None) -> bool:
+    """Channel `ch` (default: either of ch1 / ch2) switched off (limp) since its
+    last command."""
+    return bool(_released) if ch is None else ch in _released
 
 
 def pose_known() -> bool:
@@ -508,10 +577,9 @@ def pulse_us(ch, angle) -> float:
 
 def _write(ch, angle):
     """Command the geometric `angle`; _pos keeps it, the PWM gets pwm_angle()."""
-    global _released
     angle = _clamp(ch, angle)
     _pos[ch] = angle
-    _released = False
+    _released.discard(ch)
     if not _MOCK:
         _servos[ch].angle = pwm_angle(ch, angle)
 
@@ -701,15 +769,23 @@ def _pca_usable() -> bool:
     return _shared_pca() is _pca
 
 
-def release_channels() -> None:
-    """Switch ch1 and ch2 fully OFF (no pulses): the servos go limp where they
-    are. The commanded pose stays tracked (assert_rest() re-asserts a rest pose)."""
-    global _released
-    _released = True
+def release_channels(channels=(CH_TILT, CH_SHUTTLE)) -> None:
+    """Switch `channels` (default ch1 and ch2) fully OFF (no pulses): those
+    servos go limp where they are. The commanded pose stays tracked
+    (assert_rest() re-asserts a rest pose)."""
+    _released.update(channels)
     if _MOCK or not _pca_usable():
         return
-    for ch in (CH_TILT, CH_SHUTTLE):
+    for ch in channels:
         _pca.channels[ch].duty_cycle = 0          # < 0x10 → FULL_OFF bit
+
+
+def release_tilt() -> None:
+    """Idle at rest (main._release_idle, audit 4 m3): switch ONLY ch1 off. At
+    LEVEL the skids sit on the home ledges with ~0.5° of preload, i.e. ch1
+    stalls against them for as long as it is powered; limp, the cradle simply
+    rests on the ledges. ch2 keeps holding the carriage at home."""
+    release_channels((CH_TILT,))
 
 
 def deinit():

@@ -29,9 +29,12 @@ cradle tipped or a card in the machine — so the next sorter start always
 asks for "Machine clear" (web UI or `main.py --confirm-clear`). MOCK runs use
 the mock files (machine_state.mock.json, sorter.mock.lock).
 
-Calibration files: an invalid config/servo_calibration.json or
-config/shuttle_calibration.json stops the tool (exit 78) with the list of bad
-keys, exactly like the sorter — nothing moves.
+Config errors: an invalid config/machine.json, config/servo_calibration.json
+or config/shuttle_calibration.json stops the tool (exit 78, EX_CONFIG — the
+same status for every config error, in every tool and main.py) with the list
+of bad keys, exactly like the sorter — nothing moves. An instance lock / data/
+this user cannot open (left root-owned by a run with sudo — never run the tools
+with sudo) also exits 78, naming the file and the chown fix.
 """
 
 import argparse
@@ -67,6 +70,9 @@ def claim_machine(mock: bool) -> None:
         _lock = instance.claim_for_tool("scripts/test_hardware.py", mock)
     except instance.LockBusy as exc:
         sys.exit(f"[test] ERROR: {exc}")
+    except instance.LockFileError as exc:          # root-owned lock / data/ (sudo run)
+        print(f"[test] ERROR: {exc}", file=sys.stderr)
+        sys.exit(EX_CONFIG)
     print(f"[test] machine recorded as NOT clean ({instance.state_file(mock)}): the next sorter "
           "start asks for 'Machine clear'")
 
@@ -81,7 +87,9 @@ def init_hardware(mock: bool) -> None:
                               conveyor as _cv, elevator as _e, shuttle as _sh, card_detect as _cd)
     except Exception as exc:
         if type(exc).__name__ == "MachineConfigError":
-            sys.exit(f"[test] ERROR: {exc}")          # exits 1 (sys.exit(str)); message lists the keys
+            # every config error exits 78 (EX_CONFIG), like main.py; message lists the keys
+            print(f"[test] ERROR: {exc}", file=sys.stderr)
+            sys.exit(EX_CONFIG)
         raise
     servos, vacuum, loadcell, camera, conveyor, elevator, shuttle, card_detect = \
         _s, _v, _l, _c, _cv, _e, _sh, _cd
