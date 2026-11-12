@@ -31,14 +31,14 @@ steps:
     explode: "+z 90"
     intro_explode: [0, -40, 200]
 
-  - caption: "Rails on the riser deck, 608 bearings in; N20 motor mounts on the front rail, M3 x 10"
-    parts: ["asm_rails()", "asm_bearings()", "asm_motor_mounts()", "asm_motors()"]
+  - caption: "Rails on the riser deck, 608 bearings pressed into the bosses"
+    parts: ["asm_rails()", "asm_bearings()"]
     color: "#F5A65B"
     explode: [0, -120, 60]
     intro_explode: [0, -60, 230]
 
-  - caption: "Slide bed + 4 O-ring belts, rollers on 8 mm rods, collars"
-    parts: ["asm_slide_bed()", "asm_belts()", "asm_rollers()", "asm_rods()", "asm_collars()"]
+  - caption: "Slide bed + 4 O-ring belts, rollers on 8 mm rods, collars; then N20 motor mounts on the front rail (M3 x 10)"
+    parts: ["asm_slide_bed()", "asm_belts()", "asm_rollers()", "asm_rods()", "asm_collars()", "asm_motor_mounts()", "asm_motors()"]
     color: "#B8B8B8"
     explode: "+z 90"
     intro_explode: [0, 0, 260]
