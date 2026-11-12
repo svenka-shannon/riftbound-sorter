@@ -1,23 +1,40 @@
-# Riftbound Card Sorter — Python dependencies
-# Install: pip install -r requirements.txt
+# Riftbound Card Sorter — Python dependencies (pip, inside the project venv)
+#
+# The venv MUST be created with --system-site-packages (scripts/setup.sh does
+# this): these come from Raspberry Pi OS apt packages, NOT from pip, because
+# they are built against the system libcamera / numpy:
+#   python3-picamera2, python3-libcamera   camera (picamera2 is not pip-installable
+#                                           against the system libcamera)
+#   python3-rpi-lgpio                      provides `import RPi.GPIO` on Bookworm/trixie
+#                                           (any Pi, incl. Pi 5); conflicts with and
+#                                           replaces python3-rpi.gpio
+#   python3-numpy, python3-scipy, python3-pywt, python3-pil
+#                                           numpy-ABI-matched with picamera2/simplejpeg;
+#                                           pip sees them installed and leaves them alone
+# Load cell: gandalf15/HX711 is VENDORED in hardware/vendor/hx711.py (BSD-3).
+# Do NOT `pip install hx711` — that PyPI name is a different library (Marco Roose)
+# with an incompatible API.
+#
+# These are the top-level RANGES. scripts/setup.sh installs the exact, hash-
+# pinned tree from requirements.lock (see its header for how to regenerate):
+#   venv/bin/python -m pip install --no-deps --require-hashes -r requirements.lock
 
-# Hardware
-RPi.GPIO>=0.7.1
-# adafruit-blinka provides 'board' and 'busio' for CircuitPython libraries on Pi
-adafruit-blinka>=8.0.0
+# Hardware (PCA9685 servo driver over I2C)
+# adafruit-blinka provides 'board' and 'busio' for CircuitPython libraries on Pi.
+# < 10: Blinka 10.x needs gpiod>=2.2.2,<3 (libgpiod v2 bindings) which neither
+# apt nor this file installs, so `import board` would fail on a fresh Pi.
+# Blinka 9.x uses RPi.GPIO (apt python3-rpi-lgpio) for the Pi pins.
+adafruit-blinka>=9.2,<10
 adafruit-circuitpython-pca9685>=3.4.7
 adafruit-circuitpython-motor>=3.4.11
-hx711>=1.1.2.3
-picamera2>=0.3.19
 
-# Vision
-Pillow>=10.0.0
+# Vision (satisfied by the apt packages above on the Pi; pip installs them on a dev machine)
+Pillow>=9.4.0
 imagehash>=4.3.1
-# numpy is a direct dependency of calibrate_camera.py (and pulled in by picamera2)
 numpy>=1.24.0
 
 # Web UI
-flask>=3.0.0
+flask>=2.2.0
 
 # Utilities
-requests>=2.31.0
+requests>=2.28.0

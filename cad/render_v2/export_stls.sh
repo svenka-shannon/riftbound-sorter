@@ -3,7 +3,7 @@
 set -e
 cd "$(dirname "$0")"
 out="${1:-/tmp/rv2/stl}"; mkdir -p "$out"
-parts="lc_mount baseplate mdf etray pcb_green pcb_blue standoffs chips rails rollers rods orings hopper armpost arm arm_bolts cup hood loadcell lc_bolts sorttray levers lever_screws"
+parts="baseplate mdf etray pcb_green pcb_blue standoffs chips riser rails bearings motor_mounts motors slidebed rollers rods belts collars guides hood cam_bracket camera hopper hopper_steel hopper_motor hopper_switches cards arm_tower arm_head arm_servo arm arm_bolts sorttray sh_frame sh_steel sh_servos sh_carriage sh_cradle loadcell c2_drive ramp reject pump pump_bracket valve tee tube cell_lead harness ribbon"
 for p in $parts; do
   openscad --backend=manifold -D "part=\"$p\"" -o "$out/$p.stl" parts.scad >/dev/null 2>"$out/$p.log" &
 done

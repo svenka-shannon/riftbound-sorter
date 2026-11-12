@@ -1,0 +1,58 @@
+{
+  "_comment": "Per-machine calibration. Copy to config/machine.json and edit; every key is optional (code defaults shown). Validated at start-up (hardware/machine_config.py SCHEMA): wrong types, out-of-range or non-finite values, string booleans, unknown sections and unknown keys (typos) all REFUSE to start with a list of the bad keys. elevator.TOP_SWITCH_NC must be true (normally-open top-switch wiring is refused). Keys starting with '_' are comments.",
+  "card_detect": {
+    "TRAVEL_SIGN": 1,
+    "CENTRE_OFFSET_MM": 0.0,
+    "BELT_SPEED_MM_S": 150.0,
+    "BRAKE_COAST_MM": 1.5,
+    "STOP_LATENCY_S": 0.040,
+    "CENTER_TOL_MM": 2.5,
+    "MAX_CAPTURE_OFFSET_MM": 6.0,
+    "PIXEL_DIFF": 30,
+    "COL_FRAC": 0.3,
+    "VIEW_HALF_MM": 48.0,
+    "SEEK_MAX_TRAVEL_MM": 125.0,
+    "SEEK_HARD_LIMIT_FACTOR": 3.0,
+    "FRAME_TIMEOUT_S": 0.5
+  },
+  "camera": {
+    "LENS_POSITION": 10.0,
+    "AF_MODE": "manual",
+    "LOCK_AE_AWB": true,
+    "EXPOSURE_TIME_US": null,
+    "ANALOGUE_GAIN": null,
+    "COLOUR_GAINS": null,
+    "CARD_ROTATE": 90,
+    "STABILIZE_DELAY_S": 0.15,
+    "WARMUP_S": 1.0,
+    "SWAP_RB": true,
+    "LORES_TIMEOUT_S": 0.2
+  },
+  "sort": {
+    "EXIT_TRAVEL_MM": 144.0,
+    "EXIT_TIME_MARGIN": 1.25,
+    "EXIT_MIN_S": 0.6,
+    "EXIT_MAX_S": 3.0,
+    "EXIT_EXTRA_S": 0.4,
+    "SEAL_S": 0.3,
+    "DROP_SETTLE_S": 0.1,
+    "ARM_LIFT_DEG": 10.0,
+    "ARM_LIFT_S": 0.6,
+    "WEIGH_SETTLE_S": 0.2,
+    "TARE_SETTLE_S": 0.3,
+    "RESUME_DELAY_S": 2.0,
+    "CALIBRATION_MASS_G": 5.0,
+    "CUP_HOLD_MAX_S": 600.0
+  },
+  "elevator": {
+    "TOP_SWITCH_NC": true,
+    "BOTTOM_SWITCH_NC": true,
+    "RAISE_CAP_MM": 3.0,
+    "UP_DIRECTION": 1,
+    "TRIP_EXTRA_STEPS": 0,
+    "HOME_BACKOFF_MM": 0.5
+  },
+  "servos": {
+    "ARM_ACTUATION_RANGE": 180
+  }
+}

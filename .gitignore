@@ -57,3 +57,8 @@ ehthumbs.db
 # ── Misc ─────────────────────────────────────────────────────────────────────
 *.log
 /tmp/
+
+# ── Per-machine runtime config / secrets ─────────────────────────────────────
+config/web.json
+config/machine.json
+config/*.mock.json

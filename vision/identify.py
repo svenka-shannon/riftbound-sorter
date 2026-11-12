@@ -32,11 +32,48 @@ Recommended MIN_CONF settings:
   0.80  → normal  — good matches (distance ≤ 51); balanced precision/recall  ← recommended
   0.75  → loose   — includes borderline matches (distance ≤ 64); may produce false positives
 
-Fallback hash methods:
-  If phash confidence < MIN_CONF, ahash and dhash are tried automatically.
-  ahash (average hash) — fast, robust to brightness changes.
-  dhash (difference hash) — robust to contrast/gamma shifts.
-  The method with the highest confidence across all three is returned.
+Ambiguity margin:
+  A match is only accepted if the runner-up is clearly worse: its hamming
+  distance must exceed the best one by at least MIN_MARGIN_BITS. Two cards
+  with similar art (or a near-duplicate entry) otherwise get confused and the
+  card is sorted into the wrong bin; with this check it goes to the reject
+  bin instead ("when in doubt, reject"). Note that DB entries with IDENTICAL
+  art (same hash, different riftbound_id) can never pass the margin and are
+  always rejected.
+  0 disables the check. Tune together with MIN_CONF from the same labelled
+  sample (true-match margins vs. the margins of confusable pairs).
+
+Overrides: config/identify.json  {"min_conf": 0.80, "min_margin_bits": 10,
+                                  "fallback": true, "fallback_min_phash_conf": 0.70,
+                                  "max_missing_fraction": 0.01}
+  Every key is optional. The WHOLE file is validated before anything is
+  applied (load_config(), called by main.py at start-up, like machine.json):
+    min_conf                 JSON number in [0.5, 1.0]
+    min_margin_bits          whole JSON number in [0, 256] (0 = check off)
+    fallback                 JSON boolean (true / false, never "false")
+    fallback_min_phash_conf  JSON number in [0.5, 1.0], ≤ min_conf if both set
+    max_missing_fraction     JSON number in [0.0, 1.0]
+  Keys starting with "_" are comments. Unknown keys (typos), wrong types,
+  NaN / Infinity, out-of-range values and invalid JSON are errors: load_config()
+  raises IdentifyConfigError listing EVERY bad key, and main.py exits with
+  status 78 (EX_CONFIG), which systemd does not restart. Nothing ever falls
+  back to the defaults silently.
+
+Fallback hash methods (audit M10):
+  pHash decides. An AMBIGUOUS pHash result (confident, but the runner-up is
+  within MIN_MARGIN_BITS) is rejected — no weaker hash may override it.
+  Only when pHash is merely below MIN_CONF (and unambiguous, and at least
+  FALLBACK_MIN_PHASH_CONF) are ahash and dhash consulted, and the card is
+  accepted only if ALL THREE agree: pHash's best match, and ahash and dhash
+  each confident + unambiguous on that SAME card. Disagreement → reject.
+  "fallback": false in config/identify.json turns the fallback off.
+
+Database completeness (audit M10): build_hash_db() returns a report of the
+cards it could NOT hash (download failed, or no image URL). A card missing
+from the DB is matched against its nearest look-alike instead, so main.py
+refuses to sort when more than MAX_MISSING_FRACTION of the card list is
+missing ("hash DB incomplete — run main.py --build-db"), and warns loudly
+with the count for anything less.
 
 To retune, collect a labelled sample of matched/unmatched card images, record
 the hamming distances, and pick MIN_CONF so that recall on true matches is ≥95%
@@ -45,6 +82,8 @@ while false-positive rate stays below your target.
 
 import io
 import json
+import math
+import os
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -52,9 +91,110 @@ from PIL import Image
 import imagehash
 
 HASH_DB_FILE = Path(__file__).parent.parent / "data" / "hash_db.json"
+CONFIG_FILE  = Path(os.environ.get("RIFTBOUND_IDENTIFY_CONFIG",
+                                   Path(__file__).parent.parent / "config" / "identify.json"))
 HASH_SIZE    = 16      # pHash/ahash/dhash size (16×16 = 256-bit hash)
 MIN_CONF     = 0.80    # below this confidence → reject (unknown card)
                        # See tuning guide above; 0.80 ≈ distance ≤ 51
+MIN_MARGIN_BITS = 10   # runner-up must be ≥ this many bits further away, else reject
+FALLBACK = True        # ahash + dhash may confirm a sub-threshold pHash (all must agree)
+FALLBACK_MIN_PHASH_CONF = 0.70
+MAX_MISSING_FRACTION = 0.01   # > this share of the card list unhashed → refuse to sort
+DOWNLOAD_ATTEMPTS = 2
+
+
+EX_CONFIG = 78          # sysexits.h: configuration error (same as machine.json)
+
+
+class IdentifyConfigError(ValueError):
+    """config/identify.json is invalid; .problems lists every bad key."""
+
+    def __init__(self, path, problems):
+        self.path = Path(path)
+        self.problems = list(problems)
+        lines = "\n".join(f"  - {p}" for p in self.problems)
+        super().__init__(f"invalid identification config {self.path} — refusing to start:\n{lines}\n"
+                         "Fix these keys (see vision/identify.py and docs/ASSEMBLY.md §16.8), "
+                         "or delete the file to use the code defaults.")
+
+
+# key → (module global, kind, min, max); kind: "float", "int" or "bool"
+CONFIG_SCHEMA = {
+    "min_conf":                ("MIN_CONF", "float", 0.5, 1.0),
+    "min_margin_bits":         ("MIN_MARGIN_BITS", "int", 0, HASH_SIZE * HASH_SIZE),
+    "fallback":                ("FALLBACK", "bool", None, None),
+    "fallback_min_phash_conf": ("FALLBACK_MIN_PHASH_CONF", "float", 0.5, 1.0),
+    "max_missing_fraction":    ("MAX_MISSING_FRACTION", "float", 0.0, 1.0),
+}
+
+
+def validate_config(data) -> tuple[dict, list[str]]:
+    """(normalised {key: value}, problems). Pure: applies nothing."""
+    if not isinstance(data, dict):
+        return {}, [f"top level must be a JSON object, got {type(data).__name__}"]
+    clean, problems = {}, []
+    for key, v in data.items():
+        if str(key).startswith("_"):
+            continue
+        spec = CONFIG_SCHEMA.get(key)
+        if spec is None:
+            problems.append(f"{key}: unknown key (valid: {', '.join(CONFIG_SCHEMA)})")
+            continue
+        _, kind, lo, hi = spec
+        if kind == "bool":
+            if not isinstance(v, bool):
+                problems.append(f"{key}: must be true or false (a JSON boolean, not {json.dumps(v)})")
+            else:
+                clean[key] = v
+            continue
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            problems.append(f"{key}: must be a number, got {json.dumps(v)}")
+            continue
+        if not math.isfinite(v):
+            problems.append(f"{key}: must be a finite number, got {v}")
+            continue
+        if kind == "int":
+            if float(v) != int(v):
+                problems.append(f"{key}: must be a whole number, got {v}")
+                continue
+            v = int(v)
+        else:
+            v = float(v)
+        if not lo <= v <= hi:
+            problems.append(f"{key}: {v} is outside [{lo}, {hi}]")
+            continue
+        clean[key] = v
+    if ("fallback_min_phash_conf" in clean and "min_conf" in clean
+            and clean["fallback_min_phash_conf"] > clean["min_conf"]):
+        problems.append(f"fallback_min_phash_conf ({clean['fallback_min_phash_conf']}) must not exceed "
+                        f"min_conf ({clean['min_conf']}): the fallback could never run")
+    return clean, problems
+
+
+def _reject_constant(token):
+    raise ValueError(f"{token} is not a valid JSON number")
+
+
+def load_config() -> dict:
+    """Validate config/identify.json and apply its overrides (see the module
+    docstring). All or nothing: raises IdentifyConfigError listing every bad
+    key and applies NOTHING if any key is bad. Returns the applied overrides.
+    main.py calls this at start-up and exits with status 78 on the error."""
+    if not CONFIG_FILE.exists():
+        return {}
+    try:
+        # NaN / Infinity are not JSON; Python's parser accepts them unless told not to
+        data = json.loads(CONFIG_FILE.read_text(), parse_constant=_reject_constant)
+    except (OSError, ValueError) as exc:
+        raise IdentifyConfigError(CONFIG_FILE, [f"not valid JSON: {exc}"]) from exc
+    clean, problems = validate_config(data)
+    if problems:
+        raise IdentifyConfigError(CONFIG_FILE, problems)
+    for key, v in clean.items():
+        globals()[CONFIG_SCHEMA[key][0]] = v
+    if clean:
+        print(f"[identify] {CONFIG_FILE.name}: {clean}")
+    return clean
 
 _hash_db: dict[str, str] = {}          # riftbound_id → hex phash string
 _hash_db_ahash: dict[str, str] = {}    # riftbound_id → hex ahash string
@@ -62,10 +202,38 @@ _hash_db_dhash: dict[str, str] = {}    # riftbound_id → hex dhash string
 _card_names: dict[str, str] = {}       # riftbound_id → display name
 
 
-def build_hash_db(cards: dict[str, dict], force: bool = False):
+def _hashable(cards: dict[str, dict]) -> dict[str, tuple[str, str]]:
+    return {cid: (c["image_url"], c.get("name", "")) for cid, c in cards.items()
+            if c.get("image_url")}
+
+
+def _download_and_hash(card_id: str, img_url: str, name: str):
+    last = None
+    for _ in range(DOWNLOAD_ATTEMPTS):
+        try:
+            with urllib.request.urlopen(img_url, timeout=8) as resp:
+                img = Image.open(io.BytesIO(resp.read())).convert("RGB")
+            break
+        except Exception as exc:
+            last = exc
+    else:
+        raise last
+    ph = imagehash.phash(img, hash_size=HASH_SIZE)
+    ah = imagehash.average_hash(img, hash_size=HASH_SIZE)
+    dh = imagehash.dhash(img, hash_size=HASH_SIZE)
+    return card_id, str(ph), str(ah), str(dh), name
+
+
+def build_hash_db(cards: dict[str, dict], force: bool = False, progress=None) -> dict:
     """
     Download card images and compute perceptual hashes (phash, ahash, dhash).
     cards: dict from riftcodex.fetch_all_cards()
+    force=False: load data/hash_db.json and only hash the cards it lacks
+    (new set, or an earlier failed download). progress(): called after every
+    card (main.py feeds the systemd watchdog from it).
+
+    Returns the completeness report (see completeness()); every card that
+    could not be hashed is listed and counted, never silently dropped.
     """
     global _hash_db, _hash_db_ahash, _hash_db_dhash, _card_names
 
@@ -76,53 +244,78 @@ def build_hash_db(cards: dict[str, dict], force: bool = False):
         _hash_db_dhash = stored.get("dhash", {})
         _card_names    = stored.get("names", {})
         print(f"[identify] Loaded {len(_hash_db)} hashes from {HASH_DB_FILE}")
+    else:
+        _hash_db, _hash_db_ahash, _hash_db_dhash, _card_names = {}, {}, {}, {}
+
+    todo = {cid: v for cid, v in _hashable(cards).items()
+            if cid not in _hash_db or cid not in _hash_db_ahash or cid not in _hash_db_dhash}
+    if todo:
+        HASH_DB_FILE.parent.mkdir(parents=True, exist_ok=True)
+        print(f"[identify] Hashing {len(todo)} of {len(cards)} cards...")
+        failed = {}
+        completed = 0
+        with ThreadPoolExecutor(max_workers=20) as pool:
+            futures = {pool.submit(_download_and_hash, cid, url, nm): cid
+                       for cid, (url, nm) in todo.items()}
+            for future in as_completed(futures):
+                card_id = futures[future]
+                try:
+                    cid, ph, ah, dh, nm = future.result()
+                    _hash_db[cid] = ph
+                    _hash_db_ahash[cid] = ah
+                    _hash_db_dhash[cid] = dh
+                    if nm:
+                        _card_names[cid] = nm
+                except Exception as e:
+                    failed[card_id] = repr(e)
+                completed += 1
+                if progress:
+                    progress()
+                if completed % 50 == 0:
+                    print(f"[identify] Progress: {completed}/{len(todo)} cards hashed...")
+        for cid, err in sorted(failed.items()):
+            print(f"[identify] FAILED to hash {cid}: {err}")
+        tmp = HASH_DB_FILE.with_name(HASH_DB_FILE.name + ".tmp")
+        tmp.write_text(json.dumps({
+            "phash": _hash_db,
+            "ahash": _hash_db_ahash,
+            "dhash": _hash_db_dhash,
+            "names": _card_names,
+        }, indent=2))
+        tmp.replace(HASH_DB_FILE)
+
+    report = completeness(cards)
+    _print_report(report)
+    return report
+
+
+def completeness(cards: dict[str, dict]) -> dict:
+    """{"total", "hashed", "missing": [ids not in the DB], "no_image": [ids
+    without an image URL], "missing_fraction", "ok"} for the current card list."""
+    total = len(cards)
+    missing = sorted(cid for cid in cards
+                     if cid not in _hash_db or cid not in _hash_db_ahash or cid not in _hash_db_dhash)
+    no_image = sorted(cid for cid in missing if not cards[cid].get("image_url"))
+    frac = len(missing) / total if total else 1.0
+    return {"total": total, "hashed": total - len(missing), "missing": missing,
+            "no_image": no_image, "missing_fraction": frac,
+            "ok": total > 0 and frac <= MAX_MISSING_FRACTION}
+
+
+def _print_report(r: dict) -> None:
+    if not r["missing"]:
+        print(f"[identify] Hash DB complete: {r['hashed']}/{r['total']} cards")
         return
-
-    HASH_DB_FILE.parent.mkdir(parents=True, exist_ok=True)
-    print(f"[identify] Building hash DB for {len(cards)} cards...")
-
-    # Collect only cards that have an image URL
-    work_items = [(card_id, card["image_url"], card.get("name", ""))
-                  for card_id, card in cards.items()
-                  if card.get("image_url")]
-
-    def _download_and_hash(card_id: str, img_url: str, name: str):
-        with urllib.request.urlopen(img_url, timeout=8) as resp:
-            img = Image.open(io.BytesIO(resp.read())).convert("RGB")
-        ph = imagehash.phash(img, hash_size=HASH_SIZE)
-        ah = imagehash.average_hash(img, hash_size=HASH_SIZE)
-        dh = imagehash.dhash(img, hash_size=HASH_SIZE)
-        return card_id, str(ph), str(ah), str(dh), name
-
-    errors = 0
-    completed = 0
-    with ThreadPoolExecutor(max_workers=20) as pool:
-        futures = {pool.submit(_download_and_hash, cid, url, nm): cid
-                   for cid, url, nm in work_items}
-        for future in as_completed(futures):
-            card_id = futures[future]
-            try:
-                cid, ph, ah, dh, nm = future.result()
-                _hash_db[cid]       = ph
-                _hash_db_ahash[cid] = ah
-                _hash_db_dhash[cid] = dh
-                if nm:
-                    _card_names[cid] = nm
-            except Exception as e:
-                errors += 1
-                if errors <= 5:
-                    print(f"[identify] Warning: failed to hash {card_id}: {e}")
-            completed += 1
-            if completed % 50 == 0:
-                print(f"[identify] Progress: {completed}/{len(work_items)} cards hashed...")
-
-    HASH_DB_FILE.write_text(json.dumps({
-        "phash": _hash_db,
-        "ahash": _hash_db_ahash,
-        "dhash": _hash_db_dhash,
-        "names": _card_names,
-    }, indent=2))
-    print(f"[identify] Hash DB built: {len(_hash_db)} cards, {errors} errors")
+    bar = "!" * 72
+    print(f"[identify] {bar}\n"
+          f"[identify] HASH DB INCOMPLETE: {len(r['missing'])} of {r['total']} cards are NOT in the "
+          f"database ({r['missing_fraction']:.1%}; {len(r['no_image'])} have no image URL).\n"
+          "[identify] Those cards would be matched to a look-alike or rejected.\n"
+          f"[identify] Missing: {', '.join(r['missing'])}\n"
+          + ("" if r["ok"] else
+             f"[identify] More than {MAX_MISSING_FRACTION:.1%} missing — sorting is REFUSED until "
+             "`main.py --build-db` completes.\n")
+          + f"[identify] {bar}")
 
 
 def _best_matches(query_hash, db: dict[str, str], top_n: int = 3) -> list[dict]:
@@ -134,9 +327,9 @@ def _best_matches(query_hash, db: dict[str, str], top_n: int = 3) -> list[dict]:
     results = []
     for card_id, hash_str in db.items():
         stored = imagehash.hex_to_hash(hash_str)
-        dist = query_hash - stored
+        dist = int(query_hash - stored)
         results.append({"card_id": card_id, "distance": dist,
-                         "confidence": 1.0 - dist / max_dist})
+                         "confidence": float(1.0 - dist / max_dist)})
     results.sort(key=lambda x: x["distance"])
     return results[:top_n]
 
@@ -158,55 +351,60 @@ def identify_with_details(jpeg_bytes: bytes) -> dict:
         ]
       }
 
-    Identification strategy:
-      1. Try phash; if confidence ≥ MIN_CONF, return result.
-      2. If phash fails threshold, try ahash and dhash.
-      3. Return the method with the highest confidence across all three.
+    Identification strategy (audit M10):
+      1. pHash accepted (confidence ≥ MIN_CONF and runner-up ≥ MIN_MARGIN_BITS
+         further away) → that card.
+      2. pHash ambiguous (confident but margin too small) → REJECT; no other
+         hash is consulted.
+      3. pHash merely below MIN_CONF (≥ FALLBACK_MIN_PHASH_CONF, unambiguous):
+         accepted only if ahash AND dhash are each confident + unambiguous on
+         the SAME card as pHash's best match ("method": "phash+ahash+dhash").
+      4. Otherwise reject (card_id None).
     """
     if not _hash_db:
         raise RuntimeError("Hash DB not loaded. Call build_hash_db() first.")
 
     img = Image.open(io.BytesIO(jpeg_bytes)).convert("RGB")
+    max_dist = HASH_SIZE * HASH_SIZE
 
-    candidates: list[dict] = []  # each: {method, top_match, top3}
+    def _cand(method, top):
+        margin = int(top[1]["distance"] - top[0]["distance"]) if len(top) > 1 else max_dist
+        return {"method": method, "top_match": top[0], "top3": top, "margin": margin,
+                "confident": top[0]["confidence"] >= MIN_CONF,
+                "unambiguous": margin >= MIN_MARGIN_BITS}
 
-    # --- phash ---
-    ph = imagehash.phash(img, hash_size=HASH_SIZE)
-    ph_top = _best_matches(ph, _hash_db)
-    if ph_top:
-        candidates.append({"method": "phash", "top_match": ph_top[0], "top3": ph_top})
-
-    # --- fallback: ahash and dhash if phash confidence is below threshold ---
-    if not candidates or candidates[0]["top_match"]["confidence"] < MIN_CONF:
-        if _hash_db_ahash:
-            ah = imagehash.average_hash(img, hash_size=HASH_SIZE)
-            ah_top = _best_matches(ah, _hash_db_ahash)
-            if ah_top:
-                candidates.append({"method": "ahash", "top_match": ah_top[0], "top3": ah_top})
-
-        if _hash_db_dhash:
-            dh = imagehash.dhash(img, hash_size=HASH_SIZE)
-            dh_top = _best_matches(dh, _hash_db_dhash)
-            if dh_top:
-                candidates.append({"method": "dhash", "top_match": dh_top[0], "top3": dh_top})
-
-    if not candidates:
+    top = _best_matches(imagehash.phash(img, hash_size=HASH_SIZE), _hash_db)
+    if not top:
         return {"card_id": None, "card_name": None, "confidence": 0.0,
-                "hamming_distance": HASH_SIZE * HASH_SIZE, "method": "phash", "top3": []}
-
-    # Pick the candidate with the highest confidence
-    best = max(candidates, key=lambda c: c["top_match"]["confidence"])
-    top  = best["top_match"]
-    conf = top["confidence"]
-    cid  = top["card_id"] if conf >= MIN_CONF else None
-
+                "hamming_distance": max_dist, "method": "phash", "top3": [],
+                "margin": 0, "ambiguous": False}
+    ph = _cand("phash", top)
+    cid = None
+    method = "phash"
+    if ph["confident"] and ph["unambiguous"]:
+        cid = ph["top_match"]["card_id"]
+    elif (FALLBACK and not ph["confident"] and ph["unambiguous"]
+          and ph["top_match"]["confidence"] >= FALLBACK_MIN_PHASH_CONF
+          and _hash_db_ahash and _hash_db_dhash):
+        others = [_cand("ahash", _best_matches(imagehash.average_hash(img, hash_size=HASH_SIZE),
+                                               _hash_db_ahash)),
+                  _cand("dhash", _best_matches(imagehash.dhash(img, hash_size=HASH_SIZE),
+                                               _hash_db_dhash))]
+        want = ph["top_match"]["card_id"]
+        if all(o["confident"] and o["unambiguous"] and o["top_match"]["card_id"] == want
+               for o in others):
+            cid = want
+            method = "phash+ahash+dhash"
+    t = ph["top_match"]
     return {
         "card_id":          cid,
         "card_name":        _card_names.get(cid) if cid else None,
-        "confidence":       conf,
-        "hamming_distance": top["distance"],
-        "method":           best["method"],
-        "top3":             best["top3"],
+        "confidence":       t["confidence"],
+        "hamming_distance": t["distance"],
+        "method":           method,
+        "top3":             ph["top3"],
+        "margin":           ph["margin"],
+        "ambiguous":        bool(ph["confident"] and not ph["unambiguous"]),
     }
 
 
