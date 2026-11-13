@@ -10,3 +10,17 @@ Budget rebuild: $100 cap on new parts, built mostly from parts already owned.
 
 Card path: hopper (station 0, s=10) -> cup lifts top card -> scan/weigh bed (s=30, camera above, owned 5 kg bar cell under) -> released, photographed, weighed -> re-picked -> one of 6 bins or reject (s=50..170, 20 deg pitch, fan-shaped pockets).
 Touch-down sensing: the cup slider rests on the hand under gravity; an M3 screw pair is a contact that opens when the cup touches anything.
+
+## Round 2 changes (review fixes, 2026-11-13)
+
+- Turntable: horn screw holes actually cut at the plate (were at Z 0); lift servo flipped to lie outboard of P1, so the yaw horn screw and the 4 M2.5 horn screws are reachable from above at any time.
+- Tube + leads: zip-tied at the mast top, free loop back to a fixed `cable_post` behind the axis (no route through the yaw joint).
+- Pivots: printed sleeves on M3 x 16 into inserts (no M3 x 25/35, no nylocks); servo tabs through-bolted with nuts in hex pockets.
+- Accuracy: hopper 65 x 90 with a lead-in chamfer; bins 100 mm radially; bin dividers start at r 236 so nothing can catch the card's inner corners; b_check now has a yaw error stack-up.
+- Swing clearance: lift range -6..+10 deg (card 21 mm over the walls); roller axles in slots to set the sag-stop gap.
+- Arm stiffness: links 10 x 12 (was 5 x 12); full-height mast wall, rear gussets, gusset under the P2 boss.
+- Touch sensing: 608 bearing ring on the slider (12 g of weight) rests on two M3 head-up screws + a printed bump (3-point); no wire on the moving slider.
+- Slider Ø12 solid with an airline tee pocket at the bottom (stem into the cup neck, one leg to the tube, one to the pin-hole bleed).
+- Camera: +5 D close-up lens, lens 176 mm over the bed, boom clamps to the post at any height; WS2812 ring on its own clamp beside the post.
+- Bed boss 5 mm (4 mm under the M4 heads). Bin/hopper ears inboard only.
+- `export_b.py` exports all print STLs (print orientation) + PRINT_LIST.md + zip.
