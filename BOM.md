@@ -18,14 +18,14 @@ Recounted for 2.3.0 from the tables below (each table's subtotal is the sum of i
 |---|---|
 | Already have / ordered (confirmed) | $151 |
 | Probably on hand from the Nov 5 order (verify) | $36 |
-| **Still to buy** | **$645** (parts $533 + filament $112) |
-| Whole machine | ~$832 |
+| **Still to buy** | **$653** (parts $541 + filament $112) |
+| Whole machine | ~$840 |
 
-**Still-to-buy subtotal: ~$645** (was ~$638 in 2.2.0). What changed in 2.3.0: + M3 × 18 screws $7 (4 SHCS for the electronics tray, 12 countersunk for the sorting tray and reject bin: CAD round 4 shortened those from M3 × 20). The other 2.3.0 fastener changes (arm tabs M3 × 8, rod set screws M3 × 8, fewer M3 × 20) come out of packs already listed. goBILDA shipping is extra.
-- If the "verify" items turn out to be missing, it rises to ~$681.
+**Still-to-buy subtotal: ~$653** (was ~$645 before the dry PTFE lube ($8, §13.4) was added on 2026-11-12; ~$638 in 2.2.0). What changed in 2.3.0: + M3 × 18 screws $7 (4 SHCS for the electronics tray, 12 countersunk for the sorting tray and reject bin: CAD round 4 shortened those from M3 × 20). The other 2.3.0 fastener changes (arm tabs M3 × 8, rod set screws M3 × 8, fewer M3 × 20) come out of packs already listed. goBILDA shipping is extra.
+- If the "verify" items turn out to be missing, it rises to ~$689.
 - If the Arducam IMX708 from the earlier order fits the camera bracket, it drops by $25.
-- The **Optional cost-down** section below can take another ~$60 off without changing the design (~$585).
-- **Recommended upgrade, not in the totals:** 2 × DS3218MG-270 (270°) servos for the arm (ch0) and the carriage (ch2), **≈ $31**, which would take the still-to-buy total to ~$676. See Optional cost-down → Upgrade. The MG996R stays the baseline, and the bench travel test decides.
+- The **Optional cost-down** section below can take another ~$60 off without changing the design (~$593).
+- **Recommended upgrade, not in the totals:** 2 × DS3218MG-270 (270°) servos for the arm (ch0) and the carriage (ch2), **≈ $31**, which would take the still-to-buy total to ~$684. See Optional cost-down → Upgrade. The MG996R stays the baseline, and the bench travel test decides.
 - The owned 12 V 3 A adapter is counted under "have" but is **replaced** by a 12 V 5 A adapter (see Power budget). Keep the 3 A one for bench work.
 
 ### Still to buy (summary)
@@ -307,13 +307,14 @@ Subtotal: $104 (have $0, verify $16, buy $88)
 | 1 | Neoprene or EPDM strip, 1.5 mm thick, ≥ 40 mm wide (pump isolation sleeve + 30 × 40 head pad) | [amazon.com](https://www.amazon.com/s?k=1.5mm+neoprene+rubber+strip) | $7 | buy | skip it if you can print the TPU sleeve and pad |
 | 1 | Zip ties 100 mm, black | [amazon.com](https://www.amazon.com/s?k=zip+ties+100mm) | $4 | buy |  |
 | 1 | Heat-shrink tubing assortment | [amazon.com](https://www.amazon.com/s?k=heat+shrink+tubing+assortment) | $6 | buy |  |
+| 1 | Dry PTFE lubricant spray (REX shaft, ASSEMBLY.md §13.4; no oil or grease) | [amazon.com](https://www.amazon.com/s?k=dry+PTFE+lubricant+spray) | $8 | buy |  |
 | 1 | 600-grit sandpaper (lower ramp lanes, R-bar top) | [amazon.com](https://www.amazon.com/s?k=600+grit+sandpaper) | $5 | buy |  |
 | 1 | 60 W soldering iron kit (heat-set inserts; M3 insert tip recommended) | [amazon.com](https://www.amazon.com/dp/B087767KNW) | $14 | **have** |  |
 | 4 | PLA filament 1 kg | [amazon.com](https://www.amazon.com/s?k=PLA+filament+1kg) | $72 | buy | ≈ 3.4 kg, see printed parts |
 | 1 | PETG filament 1 kg | [amazon.com](https://www.amazon.com/s?k=PETG+filament+1kg) | $20 | buy | ≈ 0.5 kg |
 | 1 | Black PLA or PETG 1 kg (hood, card guides) | [amazon.com](https://www.amazon.com/s?k=black+PETG+filament+1kg) | $20 | buy | ≈ 0.2 kg |
 
-Subtotal: $193 (have $14, verify $0, buy $179)
+Subtotal: $201 (have $14, verify $0, buy $187)
 
 ### Optional / fallback (not in the totals)
 
@@ -322,9 +323,10 @@ Subtotal: $193 (have $14, verify $0, buy $179)
 | 1 | 8.0 mm drill bit (ream roller bores, sled D bushings to Ø8.3) | [amazon.com](https://www.amazon.com/s?k=8mm+drill+bit) | $4 | optional |  |
 | 1 | TPU 95A filament (pump sleeve + head pad, ~7 g) | [amazon.com](https://www.amazon.com/s?k=TPU+95A+filament) | $20 | optional | only if you have no neoprene strip |
 | 1 | Ø4.5 mm drill bit (tee-nut holes, ASSEMBLY.md §4) | [amazon.com](https://www.amazon.com/s?k=4.5mm+drill+bit) | $3 | optional | tool, if you don't have one |
+| 1 | Spring scale / luggage scale reading ≤ 5 N (tilt-crank drag test, §13.4 step 7) | [amazon.com](https://www.amazon.com/s?k=spring+scale+5N) | $8 | optional | tool, if you don't have one |
 | 1 | 2.5 mm ball-end hex key (end-post anchor under the rod) + 1.5 mm L-key | [amazon.com](https://www.amazon.com/s?k=ball+end+hex+key+set+metric) | $8 | optional | tools, if you don't have them (a metric ball-end set covers both) |
 
-Optional / fallback (not in the totals): $35. The DS3218MG-270 servos, listed here as a fallback until 2.3.2, are now a **recommended upgrade** for ch0 and ch2: see Optional cost-down → Upgrade.
+Optional / fallback (not in the totals): $43. The DS3218MG-270 servos, listed here as a fallback until 2.3.2, are now a **recommended upgrade** for ch0 and ch2: see Optional cost-down → Upgrade.
 
 ## Optional cost-down
 
@@ -339,11 +341,11 @@ These options cut the still-to-buy total **without changing the design**: the CA
 | 5. Budget PLA (≈ $13–15/kg) for the big, non-critical parts: tiles (if printed), riser, sorting tray, reject bin | **~$10–15** | Diameter and shrink vary between spools. Keep a good spool for the press fits: rails (608 pockets), hopper carriage and shuttle sled (LM8UU pockets), rollers |
 | 6. Plain 8 mm rods with a filed flat instead of the two 150 mm D-cut rods | **~$5** | You file a 4 mm wide, 0.5 mm deep flat full length by hand. Not for the shuttle tilt shaft: that is the goBILDA REX (hex) shaft, which the crank and coupler need |
 
-With options 1 and 2 the still-to-buy total is about **$585**. With 1–6 (and the Arducam fits), it is about **$531**.
+With options 1 and 2 the still-to-buy total is about **$593**. With 1–6 (and the Arducam fits), it is about **$539**.
 
 ### Upgrade (adds cost, recommended): DS3218MG-270 on the arm (ch0) and the carriage (ch2)
 
-Not in the totals: add **≈ $31** to whichever total you end up with (e.g. $645 → ~$676).
+Not in the totals: add **≈ $31** to whichever total you end up with (e.g. $653 → ~$684).
 
 | Qty | Part | Example link | ~Price | Status | Notes |
 |---|---|---|---|---|---|

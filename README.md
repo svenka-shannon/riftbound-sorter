@@ -57,7 +57,7 @@ Unidentified or ambiguous cards, double or unknown weights all go to the reject 
 | Hopper | 28BYJ-48 + ULN2003, T8×8 lead screw; feeler-flag switch + home switch, both **NC** (C → GND, NC → GPIO) | GPIO 16/19/20/21; switches GPIO 12 (top), 13 (home) |
 | Power | **12 V 5 A** adapter → three fixed 5 V Pololu bucks: D24V22F5 logic (Pi, LEDs, relay), D24V50F5 servos (PCA9685 V+), D36V28F5 motors (L9110S, ULN2003) | PCA9685 VCC = Pi 3.3 V |
 
-Total ≈ $832, of which ≈ $645 is still to buy (plus goBILDA shipping); the optional cost-downs in [`BOM.md`](BOM.md) bring that to ≈ $585 without changing the design (≈ $531 with all of them). About 4 kg of filament.
+Total ≈ $840, of which ≈ $653 is still to buy (plus goBILDA shipping); the optional cost-downs in [`BOM.md`](BOM.md) bring that to ≈ $593 without changing the design (≈ $539 with all of them). About 4 kg of filament.
 
 ---
 
