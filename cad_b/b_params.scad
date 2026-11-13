@@ -71,13 +71,13 @@ cup_h = 23; cup_d = 28;                  // owned PATIKIL 27 mm bellows cup (rub
 hand_drop   = 8 + slider_below + cup_h;  // H1 -> cup lip with the slider resting (53)
 slider_d = 12; slider_bore = 12.6;
 slider_travel = 10;
-contact_r = 9.6;                         // M3 head-up contact screws under the 608 ring (clear of the bore)
+contact_r = 11.5;                        // M3 button-head contacts under the 608 ring, 3 points at 120 deg (clear of the bore)
 
 // ---- camera tower ----
-cam_r_tower = 345;                       // tower post centre radius
-cam_dist    = 176;                       // lens -> bed: +5 D close-up lens on a 1.5 m-inf camera
-cam_lens_z  = bed_top + cam_dist;        // 205
-ring_side   = 22;                        // WS2812 ring beside the post (+Y), off-axis: no foil hot spot
+tower_xy    = [330, 60];                 // post centre, scan-station frame (off the ray: stays on a 2 ft board, clear of bin 1)
+cam_dist    = 188;                       // lens -> bed: middle of the +5 D range on a 1.5 m-inf camera (176..200)
+cam_lens_z  = bed_top + cam_dist;        // 217
+ring_side   = 22;                        // WS2812 ring beside the post toward the station ray, off-axis: no foil hot spot
 ring_z      = bed_top + 50;
 
 // ---- board ----

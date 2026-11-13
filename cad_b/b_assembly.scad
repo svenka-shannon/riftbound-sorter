@@ -17,8 +17,8 @@ color("Wheat") cable_post();
 
 color("LightSteelBlue") at_station_raw(st_hopper) hopper();
 at_station(st_hopper, floor_t) for (k = [0 : stack - 1]) translate([0, 0, k * card_t]) card();
-for (i = [2 : n_st - 1]) color(i == n_st - 1 ? "IndianRed" : "LightSteelBlue") at_station_raw(i) bin();
-at_station_raw(st_scan) { color("DarkSeaGreen") cell_block(); cell_ref(); color("DarkSeaGreen") bed(); color("Wheat") tower_post(); color("Tan") boom(); color("Tan") ring_holder(); }
+for (i = [2 : n_st - 1]) color("LightSteelBlue") at_station_raw(i) bin();   // one colour: touching bins merge in the render
+at_station_raw(st_scan) { color("DarkSeaGreen") cell_block(); cell_ref(); color("DarkSeaGreen") bed(); color("Wheat") tower_post(); color("Tan") boom(); color("Tan") lens_frame(); color("Tan") ring_holder(); }
 
 color("DarkSeaGreen") yaw_base();
 yaw_servo_ref();

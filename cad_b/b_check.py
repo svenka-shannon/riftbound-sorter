@@ -23,17 +23,20 @@ TH_MIN, TH_MAX = -6.0, 10.0
 SLIDER_BELOW, CUP_H = 22.0, 23.0
 HAND_DROP = 8 + SLIDER_BELOW + CUP_H
 SLIDER_TRAVEL = 10.0
-HAND_TOP_ABOVE_H2 = 10.0
-RING_STACK = 3 + 7 + 2.5 + 3          # screw heads + 608 + cap + M3 head
-CAM_DIST = 176.0
+HAND_TOP_ABOVE_H2 = 14.0
+RING_STACK = 1.65 + 7 + 2.5 + 3        # button heads + 608 + cap + M3 head
+CAM_DIST = 188.0
 CAM_LENS_Z = BED_TOP + CAM_DIST
 STEP_DEG = 180.0 / 410                 # PCA9685 12-bit, 500..2500 us at 50 Hz
 
 # error budget (yaw), degrees and mm
 YAW_REPEAT_DEG = 0.6                   # same-direction approach: deadband + residual backlash
 YAW_SETPOINT_DEG = STEP_DEG / 2
-CUP_ON_CARD_MM = 1.5                   # re-pick from the bed, aimed with the camera's measured card centre
-CARD_ROT_DEG = math.degrees(math.atan((HOP_IN_W - CARD_W) / CARD_L))   # rotation allowed by the hopper
+CUP_ON_CARD_MM = 1.0                   # tangential only: the camera measures the card on the bed and the re-pick yaw is
+                                       # corrected to +/- half a yaw step (radial offset can NOT be corrected: no radial axis)
+SLIDER_ROT_DEG = math.degrees(0.1 / math.sqrt(6.0**2 - 3.5**2))   # D-flat play: 0.1 mm clearance at the flat corners
+RADIAL_ON_BED_MM = 2.0                 # card position error on the bed (radial), carried into the bin
+CARD_ROT_DEG = math.degrees(math.atan((HOP_IN_W - CARD_W) / CARD_L)) + SLIDER_ROT_DEG   # hopper slop + slider swivel
 # vertical budget for the swing (mm)
 SAG_MM = 4.4 + 1.2                      # roller-gap tilt (reviewer: 3.1-4.4) + link A sag
 CARD_TILT_MM = 2.6                      # 3 deg bellows tilt at the card corner
@@ -65,10 +68,11 @@ r_c_in = R - CARD_L / 2
 need_div = yaw_err(DIVIDER_R0) + corner_rot
 check(wedge_room(DIVIDER_R0) >= need_div, f"bin divider (starts r {DIVIDER_R0:.0f}): room {wedge_room(DIVIDER_R0):.1f} mm vs error stack {need_div:.1f}")
 gap_cards = 2 * r_c_in * math.sin(math.radians(PITCH / 2)) - CARD_W     # neighbouring cards' inner corners, nominal
-need_gap = 2 * (yaw_err(r_c_in) + corner_rot)
-check(gap_cards >= need_gap * 0.5 + 0.5, f"inner zone (no divider): neighbours' corners {gap_cards:.1f} mm apart nominal; one card's error {need_gap/2:.1f}")
+per_card = yaw_err(r_c_in) + corner_rot
+rss_card = math.hypot(math.hypot(r_c_in * math.radians(YAW_REPEAT_DEG + YAW_SETPOINT_DEG), CUP_ON_CARD_MM), corner_rot)
+check(gap_cards >= 2 * per_card - 0.5, f"inner zone (no divider): corners {gap_cards:.1f} mm apart vs two worst-case cards {2*per_card:.1f} (RSS {2*rss_card:.1f}); margin {gap_cards-2*per_card:+.1f} -- REQUIRES same-direction station approach in firmware")
 rad_room = (BIN_R_OUT - BIN_R_IN - CARD_L) / 2
-check(rad_room >= 2 + 2, f"bin radial room {rad_room:.1f} mm each end vs hopper offset 1 + cup 1.5 + lift 1.5")
+check(rad_room >= RADIAL_ON_BED_MM + 3.34 / 2 + 1, f"bin radial room {rad_room:.1f} mm each end vs bed offset {RADIAL_ON_BED_MM} + lift arc 1.7 + 1")
 hop_room = (HOP_IN_W - CARD_W) / 2
 check(R * math.radians(YAW_REPEAT_DEG + 1.0) + 27 / 2 <= CARD_W / 2, "hopper pick: the 27 mm cup stays on the card even with a 1.6 deg error")
 print(f"  card rotation in the hopper <= {CARD_ROT_DEG:.2f} deg; 1 deg at the cup = {R*math.radians(1):.1f} mm")
@@ -92,7 +96,7 @@ check(fov_w >= CARD_L + 20 and fov_h >= CARD_W + 20, f"FOV at the bed {fov_w:.0f
 for D in (4.0, 5.0, 6.0):
     near, far = 1 / (D + 1 / 1.5), 1 / D
     print(f"  +{D:.0f} D close-up lens on a 1.5 m-inf camera focuses at {near*1000:.0f}..{far*1000:.0f} mm")
-check(1 / (5 + 1 / 1.5) * 1000 - 5 <= CAM_DIST <= 1 / 5 * 1000 + 5, f"lens at {CAM_DIST:.0f} mm is in focus with a +5 D lens (boom height adjustable +/-20)")
+check(1 / (5 + 1 / 1.5) * 1000 <= CAM_DIST <= 1 / 5 * 1000, f"lens at {CAM_DIST:.0f} mm sits inside the +5 D focus range (boom slides on the post to focus)")
 
 # load cell: owned 5 kg bar (not a 50 g TAL221)
 check(30 + 40 + 2 * 1.75 < 5000, "platform load (slider 30 g + bed 40 g + 2 cards) well inside the 5 kg cell")

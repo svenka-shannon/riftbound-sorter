@@ -24,3 +24,13 @@ Touch-down sensing: the cup slider rests on the hand under gravity; an M3 screw 
 - Camera: +5 D close-up lens, lens 176 mm over the bed, boom clamps to the post at any height; WS2812 ring on its own clamp beside the post.
 - Bed boss 5 mm (4 mm under the M4 heads). Bin/hopper ears inboard only.
 - `export_b.py` exports all print STLs (print orientation) + PRINT_LIST.md + zip.
+
+## Round 3 changes (second review, 2026-11-13)
+
+- Slider and bore are D-profiles (flat 3.5 mm off-axis, 0.1 clearance): the cup can no longer swivel the card.
+- Touch contact: three M3 button heads at 120 deg on r 11.5 (two wired, one plain) under the 608 ring; inserts 3 mm from the bore; hand flange kept out of the link plane.
+- Tee snaps into a slot 0.8 mm narrower than its seat.
+- Camera tower moved off the station ray to (330, 60): it stays on a 2 ft board and clear of bin 1. Boom and ring holder clamp with an M3 into a 10 mm boss; camera turned so the sensor's long axis is along the card; new `lens_frame` holds the popped-out +5 D glasses lens; lens 188 mm over the bed (middle of the +5 D range).
+- Hopper/bin ears overlap their walls; hand zip-tie slot moved between the pivots; mast zip-tie holes moved to x 50/60; mast wall widened to x 0..70 with the gussets outside the nut path (washer + nut on the flat back, no pockets); full-width gusset under the P2 boss; horn slots are +/-8 deg arcs; yaw-base tab holes and the slider stub use self-tap pilots (no heat-set in thin walls); cap screw M3 x 8.
+- Print orientations fixed in export_b.py (post upright, boom and lens frame upside down, hand flange-down, brims on the slider and sleeves).
+- b_check: slider swivel and radial bed offset in the error budget; the inner-zone check is now the honest two-card worst case (margin 0 mm, RSS 4.5 mm), which REQUIRES the firmware to approach every station from the same direction. Fallback if the bench repeatability test fails: 5 bins + reject at 22.9 deg pitch.

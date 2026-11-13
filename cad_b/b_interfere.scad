@@ -9,7 +9,7 @@ module fixed() {
     rotate([0, 0, st_angle(st_hopper)]) hopper();
     at_station(st_hopper, floor_t) translate([-card_l / 2, -card_w / 2, 0]) cube([card_l, card_w, 40 * card_t]);
     for (i = [2 : n_st - 1]) rotate([0, 0, st_angle(i)]) bin();
-    rotate([0, 0, st_angle(st_scan)]) { cell_block(); bed(); tower_post(); boom(); ring_holder(); }
+    rotate([0, 0, st_angle(st_scan)]) { cell_block(); bed(); tower_post(); boom(); lens_frame(); ring_holder(); }
     yaw_base(); cable_post();
 }
 module arm() rotate([0, 0, yaw]) {

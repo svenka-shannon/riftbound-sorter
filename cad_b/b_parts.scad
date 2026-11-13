@@ -32,7 +32,7 @@ module ear_hole(x, y) translate([x, y, -1]) m3_clear(10);
 // (card inner corners) nothing can catch a slightly mis-aimed card.
 // Two ears on the inner arc only (the outer edge may overhang a 2 x 2 ft board).
 // =========================================================================
-bin_ear_r = bin_r_in - wall - 6;
+bin_ear_r = bin_r_in - wall - 4.5;          // ears overlap the inner wall by 1.5
 module bin() {
     a = pitch / 2;
     difference() {
@@ -56,7 +56,7 @@ module bin() {
 // =========================================================================
 module hopper() {
     ow = hop_in_w + 2 * wall; ol = hop_in_l + 2 * wall;
-    ex = R - ol / 2 - 6;
+    ex = R - ol / 2 - 4;                        // ears overlap the wall by 2 (were only touching)
     difference() {
         union() {
             translate([R - ol / 2, -ow / 2, 0]) cube([ol, ow, pocket_h]);
@@ -134,7 +134,7 @@ module yaw_base() {
         translate([-sv_w / 2 - 0.4, sv_yc - sv_l / 2 - 0.4, yaw_sv_bot]) cube([sv_w + 0.8, sv_l + 0.8, 50]);
         translate([0, 0, -1]) cylinder(d = 14, h = 10);
         translate([-5, sv_yc - sv_l / 2 - 10, yaw_sv_bot]) cube([10, 12, 8]);       // lead exit
-        for (y = hy, x = [-sv_hole_dx / 2, sv_hole_dx / 2]) translate([x, y, yaw_tab_z - 6.5]) insert_hole();
+        for (y = hy, x = [-sv_hole_dx / 2, sv_hole_dx / 2]) translate([x, y, yaw_tab_z - 9]) cylinder(d = 2.5, h = 10);   // M3 self-tap pilots (no heat-set: thin walls)
         for (x = [-52, 52], y = [-52, 52]) translate([x, y, -1]) m3_clear(10);
     }
 }
@@ -146,7 +146,7 @@ module roller_sleeve() difference() { cylinder(d = 7.9, h = 7.0); translate([0, 
 // above: 4 x M2.5 x 6 (standoff kit) through counterbored slots, centre hole
 // for the horn screw (the area above it is clear). The lift MG996R lies along
 // +X with its spline at P1 = (25, Y, 70); its tabs bolt through the mast wall
-// (M3 x 12, nuts in hex pockets on the back). P2 boss carries link B.
+// (M3 x 12, washer + nut on the flat back face). P2 boss carries link B.
 // =========================================================================
 lsv_spline_y = link_y0 - horn_gap;
 lsv_bot_y = lsv_spline_y - sv_h;
@@ -154,7 +154,7 @@ lsv_tab_y = lsv_bot_y + sv_tab_z0;
 lsv_xc = r_p1 + (sv_l / 2 - sv_shaft_off);      // case centre X (35.15): case runs outboard of P1
 lsv_x0 = lsv_xc - sv_l / 2; lsv_x1 = lsv_xc + sv_l / 2;
 mast_y0 = lsv_tab_y - 7; mast_y1 = lsv_tab_y;
-mast_x0 = 4; mast_x1 = 66;
+mast_x0 = 0; mast_x1 = 70;
 z_p2 = z_p1 + d_link;
 mast_top = z_p2 + 7;
 module lift_servo_ref() color("RoyalBlue") {
@@ -165,9 +165,10 @@ module lift_servo_ref() color("RoyalBlue") {
 }
 module horn_screws(z_face, cb_from_top) {   // M2.5 into the horn's holes: slots PCD 11..17 + centre access
     translate([0, 0, z_face - 30]) cylinder(d = 7, h = 60);
-    for (a = [45, 135, 225, 315]) rotate([0, 0, a]) hull() for (r = [5.5, 8.5]) translate([r, 0, 0]) {
-        translate([0, 0, z_face - 30]) cylinder(d = 2.8, h = 60);
-        translate([0, 0, z_face + cb_from_top]) cylinder(d = 5.2, h = 30);
+    // arc slots (+/-8 deg absorbs the 14.4 deg spline steps); through-slot and counterbore hulled separately
+    for (a = [45, 135, 225, 315]) {
+        hull() for (da = [-8, 8], r = [5.5, 8.5]) rotate([0, 0, a + da]) translate([r, 0, z_face - 30]) cylinder(d = 2.8, h = 60);
+        hull() for (da = [-8, 8], r = [5.5, 8.5]) rotate([0, 0, a + da]) translate([r, 0, z_face + cb_from_top]) cylinder(d = 5.2, h = 30);
     }
 }
 module turntable() {
@@ -181,19 +182,18 @@ module turntable() {
                 translate([x, mast_y0 - 18, tt_top - eps]) cube([4, 18, 3]);
             }
             translate([r_p1, 0, z_p2]) ycyl(14, mast_y1 - eps, link_y0);   // P2 boss
-            hull() {                                                       // gusset under the boss
-                translate([r_p1 - 4, mast_y1 - eps, z_p2 - 1]) cube([8, link_y0 - 1.5 - mast_y1, 1]);
-                translate([r_p1 - 4, mast_y1 - eps, 84]) cube([8, 1, 1]);
+            hull() {                                                       // gusset under the boss (full boss width)
+                translate([r_p1 - 7, mast_y1 - eps, z_p2 - 1]) cube([14, link_y0 - 1.5 - mast_y1, 1]);
+                translate([r_p1 - 7, mast_y1 - eps, 84]) cube([14, 1, 1]);
             }
         }
         horn_screws(tt_z0, 2);
         translate([lsv_x0 - 0.4, mast_y0 - 1, tt_top - 1]) cube([sv_l + 0.8, 20, z_p1 + sv_w / 2 + 0.4 - tt_top + 1]);
         for (x = hx, dz = [-sv_hole_dx / 2, sv_hole_dx / 2]) translate([x, 0, z_p1 + dz]) {
             ycyl(3.4, mast_y0 - 1, mast_y1 + 1);
-            translate([0, mast_y0 - eps, 0]) rotate([-90, 0, 0]) hex_pocket(2.6);
         }
         translate([r_p1, link_y0 + eps, z_p2]) rotate([90, 0, 0]) insert_hole();   // P2 pivot insert
-        for (x = [10, 20]) translate([x, 0, mast_top - 5]) ycyl(4, mast_y0 - 1, mast_y1 + 1);   // zip-tie slots: tube + leads
+        for (x = [50, 60]) translate([x, 0, mast_top - 5]) ycyl(4, mast_y0 - 1, mast_y1 + 1);   // zip-tie slots: tube + leads
     }
 }
 
@@ -230,17 +230,25 @@ module sleeve() difference() { cylinder(d = 6.0, h = link_t + 0.3); translate([0
 hx_piv = r_p1 + L;
 hand_x0 = hx_piv - 8; hand_x1 = R + 14;
 hand_y0 = -10;
-hand_zb = z_p1 - 8; hand_zt = z_p2 + 10;
-contact_pts = [for (a = [150, 210]) [R + contact_r * cos(a), contact_r * sin(a)]];
+hand_zb = z_p1 - 8; hand_zt = z_p2 + 14;
+flange_t = 8;                                     // top flange carries the 3 rest points
+contact_pts = [for (a = [270, 150]) [R + contact_r * cos(a), contact_r * sin(a)]];
+bump_pt = [R + contact_r * cos(30), contact_r * sin(30)];
+// D-profile shared by the slider and its bore: anti-rotation flat on +X
+flat_x = 3.5;
+module d2d(d, fx) intersection() { circle(d = d); translate([-d, -d]) square([d + fx, 2 * d]); }
 module hand() difference() {
     union() {
         translate([hand_x0, hand_y0, hand_zb]) cube([hand_x1 - hand_x0, link_y0 - hand_y0, hand_zt - hand_zb]);
-        translate([R + contact_r, 0, hand_zt - eps]) cylinder(d = 4, h = 3);          // third rest point
+        translate([0, 0, hand_zt - flange_t]) linear_extrude(flange_t) intersection() {   // flange stays out of the link plane (Y < 9)
+            translate([R, 0]) circle(d = 2 * contact_r + 9);
+            translate([R - 50, -50]) square([100, 50 + link_y0]);
+        }
     }
-    translate([R, 0, hand_zb - 1]) cylinder(d = slider_bore, h = hand_zt - hand_zb + 2);
+    translate([R, 0, hand_zb - 1]) linear_extrude(hand_zt - hand_zb + 2) d2d(slider_bore, flat_x + 0.1);
     for (z = [z_p1, z_p2]) translate([hx_piv, link_y0 + eps, z]) rotate([90, 0, 0]) insert_hole();
-    for (p = contact_pts) translate([p[0], p[1], hand_zt - 6.5 + eps]) insert_hole();
-    translate([hand_x0 + 3, hand_y0 - 1, hand_zb + 6]) cube([4, 30, 3]);           // zip-tie slot: tube clamp
+    for (p = concat(contact_pts, [bump_pt])) translate([p[0], p[1], hand_zt - 6.5 + eps]) insert_hole();   // 2 wired contacts + 1 plain rest screw
+    translate([hand_x0 + 3, hand_y0 - 1, z_p1 + 18]) cube([4, 30, 3]);             // zip-tie slot: tube clamp, between the pivots
 }
 
 // =========================================================================
@@ -253,65 +261,88 @@ module hand() difference() {
 // =========================================================================
 tee_d = 6.2;                               // AQUANEAT 3/16" tee body: measure, adjust
 slider_z0 = hand_zb - slider_below;        // slider bottom when resting
-ring_z0   = hand_zt + 3;                   // 608 underside resting on the screw heads
+ring_z0   = hand_zt + 1.65;                // 608 underside resting on three M3 button heads (two wired)
 module slider() difference() {
     union() {
-        translate([R, 0, slider_z0]) cylinder(d = slider_d, h = ring_z0 - slider_z0);
+        translate([R, 0, slider_z0]) linear_extrude(ring_z0 - slider_z0) d2d(slider_d, flat_x);
         translate([R, 0, ring_z0 - eps]) cylinder(d = 7.95, h = 7);
     }
-    translate([R, 0, ring_z0 + 7 - 6.5 + eps]) insert_hole();
+    translate([R, 0, ring_z0 + 0.5]) cylinder(d = 2.5, h = 10);                    // M3 x 8 self-taps (no heat-set in the thin stub)
     translate([R, 0, slider_z0 + 5]) ycyl(tee_d, -10, 10);
-    translate([R - tee_d / 2, -10, slider_z0 - 1]) cube([tee_d, 20, 6]);
+    translate([R - (tee_d - 0.8) / 2, -10, slider_z0 - 1]) cube([tee_d - 0.8, 20, 6]);   // 0.8 narrower: the tee snaps in
 }
-module cap() translate([R, 0, ring_z0 + 7]) difference() { cylinder(d = 12, h = 2.5); translate([0, 0, -1]) m3_clear(5); }   // PRINT 1
+module cap() translate([R, 0, ring_z0 + 7]) difference() { cylinder(d = 12, h = 2.5); translate([0, 0, -1]) m3_clear(5); }   // PRINT 1, M3 x 8
 module ring608_ref() color("Silver") translate([R, 0, ring_z0]) difference() { cylinder(d = 22, h = 7); translate([0, 0, -1]) cylinder(d = 8, h = 9); }
 module cup_ref(lip_z) color("Orange") translate([R, 0, lip_z]) { cylinder(d1 = 27, d2 = cup_d, h = 15); translate([0, 0, 15]) cylinder(d = 10, h = cup_h - 15); }
 module tee_ref() color("White") translate([R, 0, slider_z0 + 5]) { ycyl(5, -14, 14); translate([0, 0, -12]) cylinder(d = 5, h = 12); }
 
 // =========================================================================
-// CAMERA TOWER: post (print 1, PLA, lying flat, 250 long) + boom (print 1)
-// that clamps on the post at any height (M3 x 10 into an insert presses a
-// printed pad on the post). Camera face-down under the boom end; Pi Zero on
-// top. Station-local frame.
+// CAMERA TOWER (station-local frame). Post at tower_xy (off the station ray,
+// so it stays on a 2 ft board and clear of bin 1): print 1, PLA, UPRIGHT on
+// its base. Boom (print 1, upside down) and ring holder (print 1) each clamp
+// on the post at any height: M3 x 10 into an insert in a 10 mm boss presses
+// on the post. Camera face-down under the boom end, sensor long axis radial
+// (along the card); lens_frame holds the +5 D close-up lens under it; the Pi
+// Zero sits on the boom top.
 // =========================================================================
 post_w = 24; post_h = 250; sleeve_t = 4; sleeve_h = 30;
 boom_t = 10; boom_w = 34;
-cam_board_t = 11.5;
+cam_board_t = 11.5;                       // board + lens, Arducam B0308
 boom_z0 = cam_lens_z + cam_board_t;
+tx = tower_xy[0]; ty = tower_xy[1];
+boom_ang = atan2(ty, tx - R);             // boom direction, camera -> post
 module tower_post() difference() {
     union() {
-        translate([cam_r_tower - post_w / 2, -post_w / 2, 0]) cube([post_w, post_w, post_h]);
-        translate([cam_r_tower - post_w / 2 - 14, -post_w / 2 - 14, 0]) cube([post_w + 28, post_w + 28, 5]);
+        translate([tx - post_w / 2, ty - post_w / 2, 0]) cube([post_w, post_w, post_h]);
+        translate([tx - 22, ty - 22, 0]) cube([44, 44, 5]);
     }
-    for (x = [cam_r_tower - post_w / 2 - 7, cam_r_tower + post_w / 2 + 7], y = [-post_w / 2 - 7, post_w / 2 + 7]) translate([x, y, -1]) m3_clear(10);
+    for (dx = [-16, 16], dy = [-16, 16]) translate([tx + dx, ty + dy, -1]) m3_clear(10);
 }
-module post_clamp(z0, h) difference() {          // sleeve round the post with a clamp screw on the outer face
-    translate([cam_r_tower - post_w / 2 - sleeve_t, -post_w / 2 - sleeve_t, z0]) cube([post_w + 2 * sleeve_t, post_w + 2 * sleeve_t, h]);
-    translate([cam_r_tower - post_w / 2 - 0.3, -post_w / 2 - 0.3, z0 - 1]) cube([post_w + 0.6, post_w + 0.6, h + 2]);
-    translate([cam_r_tower + post_w / 2 - eps, 0, z0 + h / 2]) rotate([0, 90, 0]) translate([0, 0, -2]) insert_hole(sleeve_t + 3);
+module post_clamp(z0, h) difference() {
+    union() {
+        translate([tx - post_w / 2 - sleeve_t, ty - post_w / 2 - sleeve_t, z0]) cube([post_w + 2 * sleeve_t, post_w + 2 * sleeve_t, h]);
+        translate([tx + post_w / 2 + sleeve_t - eps, ty - 6, z0 + h / 2 - 6]) cube([6, 12, 12]);   // clamp boss (+X face)
+    }
+    translate([tx - post_w / 2 - 0.3, ty - post_w / 2 - 0.3, z0 - 1]) cube([post_w + 0.6, post_w + 0.6, h + 2]);
+    translate([tx + post_w / 2 + sleeve_t + 6 + eps, ty, z0 + h / 2]) rotate([0, -90, 0]) { insert_hole(6.5); m3_clear(20); }
 }
 module boom() difference() {
     union() {
         post_clamp(boom_z0 + boom_t - sleeve_h, sleeve_h);
-        translate([R - 16, -boom_w / 2, boom_z0]) cube([cam_r_tower - post_w / 2 - R + 16 + eps, boom_w, boom_t]);
+        hull() {
+            translate([R - 17, -17, boom_z0]) cube([34, 34, boom_t]);
+            translate([tx, ty, boom_z0]) rotate([0, 0, boom_ang]) translate([-post_w / 2 - sleeve_t - 1, -boom_w / 2, 0]) cube([1, boom_w, boom_t]);
+        }
     }
-    for (dx = [-6.25, 6.25], dy = [-10.5, 10.5]) translate([R + dx, dy, boom_z0 - 1]) cylinder(d = 1.8, h = 8);   // camera M2 pilots (21 x 12.5)
+    translate([tx - post_w / 2 - 0.3, ty - post_w / 2 - 0.3, 0]) cube([post_w + 0.6, post_w + 0.6, 400]);   // keep the post bore clear
+    for (dx = [-10.5, 10.5], dy = [-6.25, 6.25]) translate([R + dx, dy, boom_z0 - 1]) cylinder(d = 1.8, h = 8);   // camera M2 pilots, 21 along X
     translate([R, 0, boom_z0 - 1]) cylinder(d = 10, h = 2);
-    translate([R + 13, -9, boom_z0 - 1]) cube([3, 18, boom_t + 2]);                                         // ribbon slot
-    for (dx = [0, 58], dy = [-11.5, 11.5]) translate([R + 22 + dx, dy, boom_z0 + 2]) cylinder(d = 2.2, h = 10);   // Pi Zero M2.5 pilots
+    translate([R - 9, 13, boom_z0 - 1]) cube([18, 3, boom_t + 2]);                                          // ribbon slot (+Y edge)
+    for (dx = [-29, 29], dy = [-11.5, 11.5]) translate([(R + tx) / 2, ty / 2, boom_z0 + 2]) rotate([0, 0, boom_ang]) translate([dx, dy, 0]) cylinder(d = 2.2, h = 10);   // Pi Zero 58 x 23
+    for (dx = [-14, 14]) translate([R + dx, -11, boom_z0 - 1]) insert_hole();                                // lens frame screws
 }
-// WS2812 ring: clamp sleeve + arm to the post's +Y side, cradle aimed at the bed centre
-ring_c = [cam_r_tower, post_w / 2 + sleeve_t + ring_side, ring_z];
+// close-up lens frame: box round the camera board, pocket for the popped-out glasses lens at the bottom
+gl_w = 52; gl_h = 32; gl_t = 3;           // MEASURE the lens, adjust
+module lens_frame() difference() {
+    translate([R - 30, -20, cam_lens_z - 4]) cube([60, 40, boom_z0 - cam_lens_z + 4]);
+    translate([R - 15, -15, cam_lens_z - 1]) cube([30, 31, 50]);                                           // camera board + ribbon
+    translate([R - gl_w / 2, -gl_h / 2, cam_lens_z - 4 + 1]) cube([gl_w, gl_h, gl_t]);                     // lens pocket (slides in from -X)
+    translate([R - 31, -gl_h / 2, cam_lens_z - 4 + 1]) cube([10, gl_h, gl_t]);
+    translate([R, 0, cam_lens_z - 10]) cylinder(d = 16, h = 10);                                          // window
+    for (dx = [-14, 14]) translate([R + dx, -11, boom_z0 - 10]) m3_clear(20);
+}
+// WS2812 ring: clamp sleeve + arm toward the station ray, cradle aimed at the bed centre
+ring_c = [tx, ty - post_w / 2 - sleeve_t - ring_side, ring_z];
 ring_aim = [R, 0, bed_top] - ring_c;
 module ring_holder() {
     post_clamp(ring_z - 15, 30);
     hull() {
-        translate([cam_r_tower - 6, post_w / 2 + sleeve_t - eps, ring_z - 15]) cube([12, 1, 30]);
+        translate([tx - 6, ty - post_w / 2 - sleeve_t - 1, ring_z - 15]) cube([12, 1, 30]);
         translate(ring_c) cylinder(d = 10, h = 2, center = true);
     }
     translate(ring_c) rotate([0, 0, atan2(ring_aim[1], ring_aim[0])]) rotate([0, 90 + atan2(-ring_aim[2], norm([ring_aim[0], ring_aim[1]])), 0]) difference() {
         cylinder(d = 44, h = 4);
-        translate([0, 0, 2]) cylinder(d = 38, h = 5);
+        translate([0, 0, 2]) cylinder(d = 38, h = 5);       // ring recess: glue the ring in
         translate([0, 0, -1]) cylinder(d = 22, h = 10);
     }
 }
@@ -348,6 +379,7 @@ if (part == "slider") slider();
 if (part == "cap") cap();
 if (part == "tower_post") tower_post();
 if (part == "boom") boom();
+if (part == "lens_frame") lens_frame();
 if (part == "ring_holder") ring_holder();
 if (part == "cable_post") cable_post();
 if (part == "foot") foot();
