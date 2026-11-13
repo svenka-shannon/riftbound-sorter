@@ -8,7 +8,7 @@
 //   Z = up; Z = 0 underside of the baseplate tiles, baseplate top Z = 4
 //
 // Each asm_* module below is one build step (cad/assembly-steps.yaml and
-// cad/render_v2/parts.scad use them; `use` is not transitive, so the part
+// cad/render_v2/w_*.scad use them; `use` is not transitive, so the part
 // files' own asm_* modules are wrapped here under distinct names).
 //
 // ── Machine layout ──────────────────────────────────────────────────────────

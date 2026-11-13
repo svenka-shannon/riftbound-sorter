@@ -15,6 +15,8 @@ Every dimension and screw below comes from the headers and BOM footers of `cad/*
 
 Parts and prices are in [`BOM.md`](../BOM.md). The wiring diagram is [`docs/wiring_diagram.svg`](wiring_diagram.svg).
 
+A narrated, part-by-part video of steps 1–11 (§4–§14) in this guide's install order is [`docs/assembly-video-v3.mp4`](assembly-video-v3.mp4) (≈ 8 min; source `cad/render_v2/video.yaml`). This guide is the reference: where the video simplifies (bench sub-assemblies float beside their final place, wiring is drawn as rough routes), follow the text.
+
 ## Contents
 
 1. [Before you start](#1-before-you-start)

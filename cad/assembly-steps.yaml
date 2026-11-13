@@ -1,7 +1,8 @@
 # Riftbound Card Sorter — assembly video steps (Nov 11 redesign build order)
-# Render:
+# Quick OpenSCAD preview of the build steps (not the published video: that is the narrated,
+# part-by-part docs/assembly-video-v3.mp4, built by cad/render_v2/make_video.py from video.yaml):
 #   ~/.claude/skills/cad/scripts/cad-assembly-video cad/assembly.scad \
-#       --steps cad/assembly-steps.yaml --out docs/assembly-video.mp4 --gif --keyframes /tmp/kf
+#       --steps cad/assembly-steps.yaml --out /tmp/assembly-preview.mp4 --keyframes /tmp/kf
 # Every part module lives in assembly.scad (asm_*), already at its assembled position.
 # Moving parts are shown at HOME: arm parked (servo 90), hopper plate at the bottom,
 # shuttle at home / level (the load-cell loop is drawn for the home carriage Y 0).

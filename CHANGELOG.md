@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [Unreleased] — 2026-11-12 — assembly video v3
+
+- **New `docs/assembly-video-v3.mp4`** (≈ 8 min, narrated): the v2 machine built part by part in the ASSEMBLY.md install order, steps 1–11 (§4–§14), one segment per part or fastener group with its size and count on screen. Every part, fastener and consumable named is a BOM.md line. Checked by an independent reviewer over three rounds (final verdict: clean with nitpicks). Source: `cad/render_v2/video.yaml` + `w_*.scad` (per-part exports in machine coordinates), built with `cad/render_v2/make_video.py` (export, narrate, keyframes, render, mux).
+- Removed the old-design videos `docs/assembly-video.mp4` and `docs/assembly-video-v2.mp4` (Nov 8, v1 machine; nothing linked them; they stay in git history) and the old render pipeline (`parts.scad`, `narration.yaml`, `blender-config.yaml`, `make_narration.py`, `build_video.py`, `export_stls.sh`).
+
 ## [2.3.2] — 2026-11-12 — code round 5: calibration windows vs servo gain (branch `audit-fixes`)
 
 Fixes from the fifth (confirmation) audit. The 2.3.1 windows were too tight for real MG996R gain variance, and the documented arm crank fit added a 3° bias.

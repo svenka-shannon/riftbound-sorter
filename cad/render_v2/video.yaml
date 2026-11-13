@@ -1,0 +1,1059 @@
+# Riftbound Card Sorter - part-by-part assembly video (v3), driven by make_video.py.
+# Order and fasteners follow docs/ASSEMBLY.md §4-§14 (steps 1-11); every part, fastener and
+# consumable named here must have a line in BOM.md.
+# parts: {wrapper file: {stl name: material}}; stl name = `part="v3_<name>"` in render_v2/<wrapper>.scad.
+# segments: one per installed part / fastener group. add: [{parts, from (fly-in offset mm, relative
+#   to `at`), at (rest offset from the assembled position, e.g. a bench spot), delay, dur, spin,
+#   spin_axis, split (each loose piece on its own), stagger, n (pieces, for timing)}];
+#   move: [{parts, to, delay, dur}] eases earlier parts to a new offset ([0,0,0] = assembled);
+#   hide / show: parts off / on from the segment start; no_bench: hide the bench (from-below shots).
+# cams: name: [target mm, distance mm, azimuth deg (0 = from the front, -Y; + toward +X), elevation, drift deg/s, f-stop]
+title: Riftbound Card Sorter
+voice: af_heart
+speed: 1.12
+floor_z: -16          # bench top = underside of the 10 mm rubber feet
+scene_radius: 650
+steps:
+  1: Baseplate, backing board and tee-nuts
+  2: Electronics tray
+  3: Conveyor riser
+  4: Rails and bearings
+  5: Slide bed, belts, rollers, rods, motor mounts
+  6: Scan station
+  7: Hopper elevator
+  8: Pick arm
+  9: Sorting tray
+  10: Cradle shuttle, load cell, lower ramp, reject bin
+  11: Wiring and vacuum
+
+parts:
+  w_base:
+    board: mdf
+    tile0: "petg:#A4A7A9"
+    tile1: "petg:#A4A7A9"
+    tile2: "petg:#A4A7A9"
+    tile3: "petg:#A4A7A9"
+    tile4: "petg:#A4A7A9"
+    tile5: "petg:#A4A7A9"
+    tile6: "petg:#A4A7A9"
+    tile7: "petg:#A4A7A9"
+    tile8: "petg:#A4A7A9"
+    keys: "petg:#E2742B"
+    holemarks: mark
+    teenuts: screw
+    feet: rubber
+    etray: "petg:#3B3E43"
+    etray_screws: screw
+    jack: chip
+    pi: pcb
+    pi_chips: chip
+    pi_scr: screw
+    pca: "pcb:#1E4C98"
+    pca_chips: chip
+    pca_scr: screw
+    rly: "pcb:#1E4C98"
+    rly_chips: "petg:#2E5FB8"
+    rly_scr: screw
+    uln: pcb
+    uln_chips: chip
+    uln_scr: screw
+    foam: "rubber:#3A3A3A"
+    hxl9: pcb
+    hxl9_chips: chip
+    pol: "pcb:#1F7A3F"
+    pol_chips: chip
+    pol_scr: screw
+    wago: "petg:#ECECEC"
+    wago_lev: "petg:#F08A24"
+    caps: "petg:#24324F"
+    riser_a: "petg:#5C6B7A"
+    riser_b: "petg:#6E7F90"
+    riser_joint: screw
+    riser_tie: screw
+    riser_anchors: screw
+    rail_back1: "petg:#E2742B"
+    rail_back2: "petg:#E2742B"
+    rail_front1: "petg:#E2742B"
+    rail_front2: "petg:#E2742B"
+    bearings_f: steel
+    bearings_b: steel
+    rail_through: screw
+    rail_inserts: screw
+    mm0: "petg:#7A5BA6"
+    mm1: "petg:#7A5BA6"
+    n20_0: alu
+    n20_1: alu
+    cpl0: steel
+    cpl1: steel
+    slidebed: "petg:#E9E7E2"
+    belts: rubber
+    rollers: "petg:#F4F3EE"
+    rods: steel
+    collars_f: alu
+    collars_b: alu
+    mm_screws: screw
+    tray_a: "petg:#3A9E95"
+    tray_b: "petg:#3A9E95"
+    tray_lscr: screw
+    shelf: "petg:#8FD0C6"
+    tray_c: "petg:#2F857D"
+    tray_d: "petg:#2F857D"
+    tray_sscr: screw
+  w_scan:
+    guide_back: petg_matte
+    guide_front: petg_matte
+    clips: "petg:#2E3036"
+    hood: petg_matte
+    leds: led
+    cam_bracket: "petg:#6E7F90"
+    camera: pcb
+    cam_screws: screw
+    bracket_screws: screw
+    foam_ring: "rubber:#202020"
+  w_hopper:
+    hop_body: "petg:#2E78C9"
+    hop_base_scr: screw
+    hop_bsw: chip
+    hop_bsw_scr: screw
+    hop_rods: steel
+    hop_lm8uu: steel
+    hop_carriage: "petg:#F0BE2A"
+    hop_t8nut: brass
+    hop_t8scr: screw
+    hop_lead: steel
+    hop_plate: "petg:#E9E7E2"
+    hop_plate_scr: screw
+    hop_coupler: alu
+    hop_cap: "petg:#2E78C9"
+    hop_cap_scr: screw
+    hop_motor: alu
+    hop_motor_scr: screw
+    hop_flag: "petg:#C73A3F"
+    hop_axle: screw
+    hop_tsw: chip
+    hop_tsw_scr: screw
+  w_arm:
+    arm_head: "petg:#3B3E43"
+    arm_dowels: steel
+    arm_servo: chip
+    arm_tabscr: screw
+    arm_horn: alu
+    arm_crank: "petg:#C73A3F"
+    arm_hornscr: screw
+    arm_gsleeves: "petg:#E9E7E2"
+    arm_linkc: "petg:#D9565B"
+    arm_linkb: "petg:#D9565B"
+    arm_hand: "petg:#C73A3F"
+    arm_handpins: steel
+    arm_washers: screw
+    arm_sled: "petg:#E2742B"
+    arm_pad: "petg:#F2F2F2"
+    arm_barb: brass
+    arm_springs: steel
+    arm_guidescr: screw
+    arm_tower: "petg:#3B3E43"
+    arm_headbolts: screw
+    arm_towerbolts: screw
+    arm_tube: "rubber:#7FB8E6"
+    arm_zipties: rubber
+  w_shuttle:
+    sh_tf: "petg:#4CAF7A"
+    sh_fpins: steel
+    sh_ptfe: "petg:#FAFAFA"
+    sh_cradle: "petg:#F0BE2A"
+    sh_cell: alu
+    sh_cellscr_tf: screw
+    sh_cellscr_cr: screw
+    sh_sled: "petg:#2E78C9"
+    sh_lm8uu: steel
+    sh_dowels: steel
+    sh_tdrive: "petg:#E2742B"
+    sh_pina: steel
+    sh_cheek_neg: "petg:#3F8AD8"
+    sh_cheek_pos: "petg:#3F8AD8"
+    sh_cheekscr: screw
+    sh_post_neg: "petg:#B07A45"
+    sh_post_pos: "petg:#B07A45"
+    sh_c1servo: chip
+    sh_c1cpl: alu
+    sh_c1scr: screw
+    sh_688: steel
+    sh_rod: steel
+    sh_rex: steel
+    sh_rodscr: screw
+    sh_rbar_neg: "petg:#8C5A2B"
+    sh_rbar_pos: "petg:#8C5A2B"
+    sh_rbarscr: screw
+    sh_c2servo: chip
+    sh_c2horn: "petg:#EEEEEE"
+    sh_c2crank: "petg:#D9A520"
+    sh_c2hornscr: screw
+    sh_c2crank_park: "petg:#D9A520"
+    sh_c2hornscr_park: screw
+    sh_c2ear_rear: screw
+    sh_c2ear_front: screw
+    sh_anchors: screw
+    sh_c2link: "petg:#D9A520"
+    sh_c2tip: screw
+    sh_c2drive: screw
+    sh_ramp_neg: "petg:#9B6FB0"
+    sh_ramp_pos: "petg:#9B6FB0"
+    sh_rampscr: screw
+    sh_reject: "petg:#C73A3F"
+    sh_rejectscr: screw
+    var_col3_carriage: "petg:#2E78C9"
+    var_col3_tf: "petg:#4CAF7A"
+    var_col3_cradle: "petg:#F0BE2A"
+    var_col3_steel: steel
+    var_col3_c2crank: "petg:#D9A520"
+    var_col3_c2link: "petg:#D9A520"
+    var_col3_c2pins: screw
+    var_col0_carriage: "petg:#2E78C9"
+    var_col0_tf: "petg:#4CAF7A"
+    var_col0_cradle: "petg:#F0BE2A"
+    var_col0_steel: steel
+    var_col0_c2crank: "petg:#D9A520"
+    var_col0_c2link: "petg:#D9A520"
+    var_col0_c2pins: screw
+  w_pump:
+    pb_base: "petg:#5C6B7A"
+    pb_basescr: screw
+    pb_pad: "rubber:#2A2A2A"
+    pb_sleeve: "rubber:#2A2A2A"
+    pb_pump: "alu:#B8BBC0"
+    pb_cap: "petg:#5C6B7A"
+    pb_capscr: screw
+    pb_diode: chip
+    pb_clip: "petg:#5C6B7A"
+    pb_clipscr: screw
+    pb_foam: "rubber:#3A3A3A"
+    pb_valve: "petg:#1E4C98"
+    pb_tee: "petg:#EEEEEE"
+  w_wire:
+    harness: rubber
+    leads12: "rubber:#B22222"
+    ribbon: "petg:#E8D9A0"
+    cell_lead: "rubber:#C0392B"
+    tube_pump: "rubber:#7FB8E6"
+    tube_branch: "rubber:#D8D8D8"
+
+cams:
+  intro:       [[0, 0, 70], 1180, -35, 32, 4.0, 11]
+  board:       [[0, 0, 0], 1250, -18, 50, 0.6, 11]
+  board_close: [[0, -40, 0], 950, -18, 55, 0.6, 11]
+  below:       [[0, 0, -10], 1150, -22, -34, 0.6, 11]
+  tray:        [[-58, 155, 20], 470, -10, 58, 0.6, 8]
+  tray_close:  [[-58, 155, 15], 380, -8, 62, 0.4, 7]
+  riser_bench: [[-40, -15, 185], 720, -30, 26, 0.8, 9]
+  riser:       [[-40, -20, 40], 720, -30, 34, 0.8, 9]
+  riser_top:   [[-60, -15, 40], 650, -20, 58, 0.6, 9]
+  rails_bench: [[-40, 0, 190], 700, -30, 28, 0.8, 9]
+  rails:       [[-40, 0, 85], 650, -30, 36, 0.8, 9]
+  mm_bench:    [[-40, -175, 80], 470, -22, 26, 0.6, 8]
+  conveyor:    [[-40, -10, 85], 540, -38, 34, 0.8, 8]
+  conv_front:  [[-40, -60, 80], 520, -15, 22, 0.6, 8]
+  scan:        [[5, -10, 135], 470, -28, 30, 0.6, 8]
+  hood_below:  [[5, 0, 300], 420, -22, -24, 0.4, 8]
+  cam_bench:   [[5, -25, 345], 340, 70, 2, 0.4, 7]
+  hopper:      [[-215, 0, 70], 540, -55, 30, 0.6, 8]
+  hopper_high: [[-215, 20, 60], 420, -60, 55, 0.5, 8]
+  hop_bench:   [[-215, 40, 215], 420, -55, 25, 0.5, 8]
+  hopper_front: [[-245, -45, 85], 340, -60, 25, 0.4, 7]
+  arm_bench:   [[-155, -230, 200], 420, -40, 15, 0.5, 8]
+  arm_bench_low: [[-158, -140, 235], 420, -70, 10, 0.4, 7]
+  arm:         [[-175, -110, 110], 650, -40, 25, 0.6, 9]
+  arm_back:    [[-155, -150, 70], 420, -35, 18, 0.4, 7]
+  sorttray:    [[227, 0, 60], 720, 60, 30, 0.6, 9]
+  sorttray_high: [[227, 0, 40], 650, 70, 58, 0.5, 9]
+  sh_tf:       [[135, -10, 345], 400, -35, 22, 0.5, 7]
+  sh_sled:     [[115, -10, 212], 360, -40, 25, 0.5, 6]
+  sh_mod:      [[110, 40, 225], 760, 75, 18, 0.5, 9]
+  sh_ch1:      [[105, -175, 225], 360, -60, 18, 0.5, 6]
+  sh_c2:       [[80, -140, 185], 360, -70, 2, 0.4, 7]
+  sh_place:    [[125, 0, 40], 820, -15, 40, 0.5, 9]
+  sh_under:    [[75, -125, 25], 330, -60, 8, 0.4, 6]
+  sh_ramp:     [[160, 0, 50], 600, -15, 50, 0.5, 9]
+  sh_reject:   [[215, 176, 40], 480, 140, 40, 0.5, 8]
+  wiring:      [[-60, 0, 60], 1150, -35, 45, 0.8, 11]
+  scan_back:   [[0, 40, 150], 520, 150, 32, 0.5, 8]
+  pump:        [[-215, -220, 30], 340, -30, 32, 0.5, 6]
+  shuttle:     [[80, 120, 20], 550, 120, 55, 0.5, 9]
+  scan_roof: [[5, 0, 196], 190, 95, 4, 0.2, 5]
+  hop_floor: [[-209, 60, 10], 380, 0, 89, 0.0, 8]
+  arm_front: [[-155, -200, 230], 450, 160, 15, 0.4, 8]
+  pump_side: [[-190, -215, 30], 360, -75, 35, 0.4, 7]
+  outro:       [[0, 0, 70], 1180, -30, 30, 6.0, 11]
+  hop_tall: [[-215, 30, 110], 600, -55, 42, 0.5, 9]
+  sh_link: [[70, -185, 20], 420, -30, 45, 0.4, 7]
+
+# offsets used below: riser bench [0,0,150]; rail bench [0,0,110]; motor-mount bench [0,-150,0];
+# hood bench [0,0,170]; camera-bracket bench [0,0,150]; hopper-carriage bench [0,0,190];
+# arm bench [0,-140,50]; shuttle module bench [0,-10,170]; tilt-frame bench [0,-10,250]
+segments:
+  - id: intro
+    title: Riftbound Card Sorter
+    subtitle: Step-by-step assembly, part by part
+    caption: "Before you start: read §19 Known risks, bench-test the MG996Rs (§19.1), print all parts, fit the 50 M3 inserts"
+    say: "The Riftbound card sorter, built part by part in build-guide order. Read the known risks, test the servos, then print the parts and fit the inserts."
+    cam: intro
+
+  # ── Step 1 ──
+  - id: s1_board
+    step: 1
+    caption: "Backing board: 6 mm plywood or MDF, at least 570 × 540 mm"
+    say: "Step one. The six millimetre backing board."
+    cam: board
+    add: [{parts: [board], from: [0, 0, 160], dur: 1.4}]
+  - id: s1_tiles
+    step: 1
+    caption: "9 baseplate tiles, 3 × 3, all the same way round; number them underneath"
+    say: "Nine baseplate tiles, three by three, all the same way round."
+    add:
+      - {parts: [tile0], from: [0, 0, 90], delay: 0.1, dur: 0.9}
+      - {parts: [tile1], from: [0, 0, 90], delay: 0.35, dur: 0.9}
+      - {parts: [tile2], from: [0, 0, 90], delay: 0.6, dur: 0.9}
+      - {parts: [tile3], from: [0, 0, 90], delay: 0.85, dur: 0.9}
+      - {parts: [tile4], from: [0, 0, 90], delay: 1.1, dur: 0.9}
+      - {parts: [tile5], from: [0, 0, 90], delay: 1.35, dur: 0.9}
+      - {parts: [tile6], from: [0, 0, 90], delay: 1.6, dur: 0.9}
+      - {parts: [tile7], from: [0, 0, 90], delay: 1.85, dur: 0.9}
+      - {parts: [tile8], from: [0, 0, 90], delay: 2.1, dur: 0.9}
+  - id: s1_keys
+    step: 1
+    caption: "24 bow-tie keys pressed into the seam pockets"
+    say: "Twenty-four bow-tie keys lock the seams."
+    cam: board_close
+    add: [{parts: [keys], split: true, n: 24, stagger: 0.06, from: [0, 0, 40], dur: 0.7}]
+  - id: s1_drill
+    step: 1
+    caption: "Tiles as template: drill Ø3.4 through tile + board at the 49 holes of §4 (red)"
+    say: "Drill the forty-nine listed holes, through tile and board."
+    add: [{parts: [holemarks], split: true, n: 49, stagger: 0.04, from: [0, 0, 25], dur: 0.5}]
+  - id: s1_teenuts
+    step: 1
+    caption: "Tiles off, board over: open the 49 holes to Ø4.5, tap in 49 M3 tee-nuts"
+    say: "From below, tap an M three tee-nut into every hole."
+    cam: below
+    no_bench: true
+    hide: [holemarks]
+    add: [{parts: [teenuts], split: true, n: 49, stagger: 0.04, from: [0, 0, -45], dur: 0.6}]
+  - id: s1_feet
+    step: 1
+    caption: "Tiles + keys back on; 8 rubber feet (≥ 10 mm tall) under the board"
+    say: "Tiles back on, then eight rubber feet underneath."
+    no_bench: true
+    add: [{parts: [feet], split: true, n: 8, stagger: 0.15, from: [0, 0, -70], dur: 0.9}]
+
+  # ── Step 2 ──
+  - id: s2_tray
+    step: 2
+    caption: "Electronics tray against the riser line (Y 80): 4 × M3 × 18 SHCS"
+    say: "Step two. The electronics tray, with four M three by eighteen screws."
+    cam: tray
+    add:
+      - {parts: [etray], from: [0, 80, 160], dur: 1.5}
+      - {parts: [etray_screws], split: true, n: 4, stagger: 0.15, from: [0, 0, 45], delay: 1.5, dur: 0.9, spin: 2}
+  - id: s2_jack
+    step: 2
+    caption: "Panel barrel jack (M8 thread) in the back wall"
+    say: "The barrel jack in the back wall."
+    add: [{parts: [jack], from: [0, 60, 0], dur: 1.0}]
+  - id: s2_pi
+    step: 2
+    caption: "Pi Zero 2 W, CSI connector toward +X: 4 × M2.5 self-tappers"
+    say: "The Pi Zero, camera connector toward the shuttle."
+    cam: tray_close
+    add:
+      - {parts: [pi, pi_chips], from: [0, 0, 70], dur: 1.1}
+      - {parts: [pi_scr], from: [0, 0, 25], delay: 1.2, dur: 0.8, split: true, n: 4, stagger: 0.12, spin: 2}
+  - id: s2_pca
+    step: 2
+    caption: "PCA9685 servo board: 4 × M2.5 self-tappers"
+    say: "The P C A ninety-six eighty-five servo board."
+    add:
+      - {parts: [pca, pca_chips], from: [0, 0, 70], dur: 1.1}
+      - {parts: [pca_scr], from: [0, 0, 25], delay: 1.2, dur: 0.8, split: true, n: 4, stagger: 0.12, spin: 2}
+  - id: s2_relay
+    step: 2
+    caption: "2-channel 5 V relay (pump, vent valve): 4 × M2.5 self-tappers"
+    say: "The two-channel relay."
+    add:
+      - {parts: [rly, rly_chips], from: [0, 0, 70], dur: 1.1}
+      - {parts: [rly_scr], from: [0, 0, 25], delay: 1.2, dur: 0.8, split: true, n: 4, stagger: 0.12, spin: 2}
+  - id: s2_uln
+    step: 2
+    caption: "ULN2003 stepper driver: 4 × M2.5 self-tappers"
+    say: "The stepper driver board."
+    add:
+      - {parts: [uln, uln_chips], from: [0, 0, 70], dur: 1.1}
+      - {parts: [uln_scr], from: [0, 0, 25], delay: 1.2, dur: 0.8, split: true, n: 4, stagger: 0.12, spin: 2}
+  - id: s2_hxl9
+    step: 2
+    caption: "HX711 + L9110S in their pockets on 1 mm foam tape"
+    say: "The load-cell amp and motor driver, on foam tape."
+    add:
+      - {parts: [foam], from: [0, 0, 30], dur: 0.8}
+      - {parts: [hxl9, hxl9_chips], from: [0, 0, 60], delay: 0.9, dur: 1.0}
+  - id: s2_pol
+    step: 2
+    caption: "3 fixed 5 V Pololu regulators (logic, servo, motor): 2 × M2 self-tappers each"
+    say: "Three fixed five volt regulators."
+    add:
+      - {parts: [pol, pol_chips], from: [0, 0, 60], dur: 1.1}
+      - {parts: [pol_scr], from: [0, 0, 20], delay: 1.2, dur: 0.8, spin: 2}
+  - id: s2_wago
+    step: 2
+    caption: "Wago lever connectors + 3 × 1000 µF capacitors on the free floor"
+    say: "Wago connectors and three capacitors."
+    cam: tray
+    add:
+      - {parts: [wago, wago_lev], from: [0, 0, 60], dur: 1.0}
+      - {parts: [caps], from: [0, 0, 60], delay: 0.8, dur: 1.0}
+
+  # ── Step 3 ──
+  - id: s3_riser_a
+    step: 3
+    caption: "Riser A (X −165..−40) with its front tie tab"
+    say: "Step three. Riser A."
+    cam: riser_bench
+    add: [{parts: [riser_a], at: [0, 0, 150], from: [-80, 0, 60], dur: 1.4}]
+  - id: s3_riser_b
+    step: 3
+    caption: "Riser B against it: 3 × M3 × 12 + nut through the joint walls"
+    say: "Riser B, bolted at the joint with three screws and nuts."
+    add:
+      - {parts: [riser_b], at: [0, 0, 150], from: [90, 0, 0], dur: 1.3}
+      - {parts: [riser_joint], at: [0, 0, 150], from: [-40, 0, -40], delay: 1.4, dur: 1.0, spin: 2, spin_axis: x}
+  - id: s3_tie
+    step: 3
+    caption: "Front tie: 2 × M3 × 10 countersunk into riser B's inserts"
+    say: "Two countersunk screws through the front tie."
+    add: [{parts: [riser_tie], at: [0, 0, 150], from: [0, -40, 0], dur: 1.0, spin: 2, spin_axis: y}]
+  - id: s3_place
+    step: 3
+    caption: "Riser on the baseplate, deck up; keep the tunnel under riser B empty"
+    say: "Set the riser on the baseplate. Keep the tunnel empty."
+    cam: riser
+    move: [{parts: [riser_a, riser_b, riser_joint, riser_tie], to: [0, 0, 0], dur: 1.8}]
+  - id: s3_anchor
+    step: 3
+    caption: "Before the conveyor: 5 × M3 × 20 anchors down the wells into the tee-nuts"
+    say: "Five anchor screws down the wells, before the conveyor."
+    cam: riser_top
+    add: [{parts: [riser_anchors], split: true, n: 5, stagger: 0.2, from: [0, 0, 90], dur: 1.2, spin: 3}]
+
+  # ── Step 4 ──
+  - id: s4_halves
+    step: 4
+    caption: "4 rail halves; the front pair (with insert pads) is the motor rail"
+    say: "Step four. Four rail halves. The front pair is the motor rail."
+    cam: rails_bench
+    add:
+      - {parts: [rail_back1], at: [0, 0, 110], from: [0, 90, 40], dur: 1.0}
+      - {parts: [rail_back2], at: [0, 0, 110], from: [0, 90, 40], delay: 0.4, dur: 1.0}
+      - {parts: [rail_front1], at: [0, 0, 110], from: [0, -90, 40], delay: 0.8, dur: 1.0}
+      - {parts: [rail_front2], at: [0, 0, 110], from: [0, -90, 40], delay: 1.2, dur: 1.0}
+  - id: s4_bearings
+    step: 4
+    caption: "A 608ZZ into each rail boss, pressed on the outer ring only"
+    say: "A six-oh-eight bearing in each boss."
+    add:
+      - {parts: [bearings_f], at: [0, 0, 110], from: [0, -60, 0], dur: 1.0, split: true, n: 2, stagger: 0.3}
+      - {parts: [bearings_b], at: [0, 0, 110], from: [0, 60, 0], delay: 0.6, dur: 1.0, split: true, n: 2, stagger: 0.3}
+  - id: s4_place
+    step: 4
+    caption: "Join the halves; rails on the deck at Y ±45, bosses out"
+    say: "Join the halves and stand the rails on the deck."
+    cam: rails
+    move: [{parts: [rail_back1, rail_back2, rail_front1, rail_front2, bearings_f, bearings_b], to: [0, 0, 0], dur: 1.6}]
+  - id: s4_through
+    step: 4
+    caption: "4 through-feet: M3 × 80 into the tee-nuts (or 85 mm threaded rod, washer + nut)"
+    say: "Four M three by eighty through-bolts."
+    add: [{parts: [rail_through], split: true, n: 4, stagger: 0.25, from: [0, 0, 110], dur: 1.2, spin: 3}]
+  - id: s4_inserts
+    step: 4
+    caption: "M3 × 10 at X −50 / +40; leave X −20 / +10 for the camera bracket"
+    say: "Two short screws into the deck inserts."
+    add: [{parts: [rail_inserts], split: true, n: 2, stagger: 0.3, from: [0, 0, 40], dur: 0.9, spin: 2}]
+  - id: s4_n20
+    step: 4
+    caption: "Bench: an N20 into each motor mount, 2 × M1.6 × 4 to the face plate"
+    say: "On the bench, an N twenty motor in each mount."
+    cam: mm_bench
+    add:
+      - {parts: [mm0], at: [0, -150, 0], from: [0, -40, 50], dur: 1.0}
+      - {parts: [mm1], at: [0, -150, 0], from: [0, -40, 50], delay: 0.3, dur: 1.0}
+      - {parts: [n20_0, n20_1], at: [0, -150, 0], from: [0, -60, 0], delay: 1.3, dur: 1.0}
+  - id: s4_cpl
+    step: 4
+    caption: "3-to-8 mm coupling on each N20 shaft, set screw on the flat, loose"
+    say: "A shaft coupling on each motor, left loose."
+    add: [{parts: [cpl0, cpl1], at: [0, -150, 0], from: [0, 0, 50], dur: 1.1}]
+
+  # ── Step 5 ──
+  - id: s5_bed
+    step: 5
+    caption: "Slide bed between the rails: captured, no screws"
+    say: "Step five. The slide bed, no screws."
+    cam: conveyor
+    add: [{parts: [slidebed], from: [0, 0, 120], dur: 1.3}]
+  - id: s5_belts
+    step: 5
+    caption: "4 O-ring belts 135 × 3, one in each slide-bed channel"
+    say: "Four O-ring belts around it."
+    add: [{parts: [belts], from: [0, 0, 60], dur: 1.1}]
+  - id: s5_rollers
+    step: 5
+    caption: "A roller inside each loop end"
+    say: "A roller in each end of the loops."
+    add: [{parts: [rollers], split: true, n: 2, stagger: 0.4, from: [0, 0, 70], dur: 1.0}]
+  - id: s5_rods
+    step: 5
+    caption: "8 mm D-cut rods from the front: bearing › roller › bearing, 20 mm out at the front"
+    say: "The D-shafts go in from the front."
+    add: [{parts: [rods], split: true, n: 2, stagger: 0.5, from: [0, -200, 0], dur: 1.6}]
+  - id: s5_collars
+    step: 5
+    caption: "Each side: race spacer + Ø16 collar against the bearing, M4 set screw"
+    say: "Race spacers and collars, both sides."
+    add:
+      - {parts: [collars_f], from: [0, -50, 0], dur: 1.0}
+      - {parts: [collars_b], from: [0, 50, 0], delay: 0.5, dur: 1.0}
+  - id: s5_grub
+    step: 5
+    caption: "Centre each roller (1 mm per side): M3 × 6 cup-point grub onto the rod flat"
+    say: "Centre each roller and lock its grub screw."
+  - id: s5_mounts
+    step: 5
+    caption: "Motor mounts on, coupling onto the rod: 2 × M3 × 10 BHCS each"
+    say: "The motor mounts go on, two button heads each."
+    cam: conv_front
+    move: [{parts: [mm0, mm1, n20_0, n20_1, cpl0, cpl1], to: [0, 0, 0], dur: 1.6}]
+    add: [{parts: [mm_screws], split: true, n: 4, stagger: 0.15, from: [0, -35, 0], delay: 1.7, dur: 0.9, spin: 2, spin_axis: y}]
+  - id: s5_tighten
+    step: 5
+    caption: "Tighten both coupling set screws; each roller turns freely"
+    say: "Tighten the couplings. The rollers should turn freely."
+
+  # ── Step 6 ──
+  - id: s6_guides
+    step: 6
+    caption: "Card guides back + front into the rail top grooves"
+    say: "Step six. The two card guides."
+    cam: scan
+    add:
+      - {parts: [guide_back], from: [0, 0, 60], dur: 1.0}
+      - {parts: [guide_front], from: [0, 0, 60], delay: 0.5, dur: 1.0}
+  - id: s6_leds
+    step: 6
+    caption: "Bench: 2 × 88 mm LED strips in the hood's side bands, leads out the Ø4 holes"
+    say: "On the bench, an LED strip inside each side of the hood."
+    cam: hood_below
+    add:
+      - {parts: [hood], at: [0, 0, 170], from: [0, 0, 80], dur: 1.0}
+      - {parts: [leds], at: [0, 0, 170], from: [0, 0, -45], delay: 1.1, dur: 1.0}
+  - id: s6_hood
+    step: 6
+    caption: "Hood straight down onto the rails' 1.2 mm top fins"
+    say: "Lower the hood onto the rail fins."
+    cam: scan
+    move: [{parts: [hood, leds], to: [0, 0, 0], dur: 1.6}]
+  - id: s6_clips
+    step: 6
+    caption: "4 clips over the rails at X −62 and X +72"
+    say: "Four clips hold the guides."
+    add: [{parts: [clips], split: true, n: 4, stagger: 0.2, from: [0, 0, 40], dur: 0.9}]
+  - id: s6_camera
+    step: 6
+    caption: "Bench: SC1130 ribbon onto the camera (routed in step 11); camera lens-down on the bracket, 4 × M2 × 10"
+    say: "On the bench, the camera goes lens-down on its bracket."
+    cam: cam_bench
+    add:
+      - {parts: [cam_bracket], at: [0, 0, 150], from: [0, -80, 40], dur: 1.1}
+      - {parts: [camera], at: [0, 0, 150], from: [0, 0, -50], delay: 1.1, dur: 1.0}
+      - {parts: [cam_screws], at: [0, 0, 150], from: [0, 0, -25], delay: 2.0, dur: 0.8, spin: 2}
+  - id: s6_bracket
+    step: 6
+    caption: "Bracket down, lens in the roof port: 2 × M3 × 16 through the rail feet"
+    say: "Lower the bracket, and fix it with two M three by sixteen screws."
+    cam: scan
+    move: [{parts: [cam_bracket, camera, cam_screws], to: [0, 0, 0], dur: 1.6}]
+    add: [{parts: [bracket_screws], split: true, n: 2, stagger: 0.3, from: [0, 0, 40], delay: 1.7, dur: 0.9, spin: 2}]
+  - id: s6_foam
+    step: 6
+    cam: scan_roof
+    caption: "Black foam ring round the lens on the hood roof"
+    say: "A foam ring around the lens."
+    add: [{parts: [foam_ring], from: [-70, 0, 0], dur: 1.0}]
+
+  # ── Step 7 ──
+  - id: s7_body
+    step: 7
+    caption: "Hopper body, tower to the back: 4 × M3 × 20 countersunk from inside"
+    say: "Step seven. The hopper body, four countersunk screws."
+    cam: hopper
+    add:
+      - {parts: [hop_body], from: [0, 0, 150], dur: 1.4}
+      - {parts: [hop_base_scr], split: true, n: 4, stagger: 0.15, from: [0, 0, 70], delay: 1.5, dur: 1.0, spin: 2}
+  - id: s7_bsw
+    step: 7
+    cam: hop_floor
+    caption: "Home switch on the tower floor, roller up: 2 × M2 × 12 + nut"
+    say: "The home switch."
+    add:
+      - {parts: [hop_bsw], from: [0, 0, 80], dur: 1.0}
+      - {parts: [hop_bsw_scr], from: [0, -30, 0], delay: 1.1, dur: 0.9}
+  - id: s7_rods
+    step: 7
+    cam: hopper
+    caption: "2 × 8 mm rods, 150 mm, into the floor sockets"
+    say: "Two guide rods."
+    add: [{parts: [hop_rods], from: [0, 0, 170], dur: 1.2}]
+  - id: s7_lm8uu
+    step: 7
+    caption: "Bench: 2 × LM8UU pressed into the carriage from the top"
+    say: "On the bench, two linear bearings in the carriage."
+    cam: hop_bench
+    add:
+      - {parts: [hop_carriage], at: [0, 0, 190], from: [0, 60, 0], dur: 1.0}
+      - {parts: [hop_lm8uu], at: [0, 0, 190], from: [0, 0, 50], delay: 1.0, dur: 0.9}
+  - id: s7_nut
+    step: 7
+    caption: "T8 brass nut flange-down in its pocket: 2 × M3 × 14 SHCS"
+    say: "The brass nut, flange down, with two screws."
+    add:
+      - {parts: [hop_t8nut], at: [0, 0, 190], from: [0, 0, 50], dur: 1.0}
+      - {parts: [hop_t8scr], at: [0, 0, 190], from: [0, 0, 30], delay: 1.1, dur: 0.9, spin: 2}
+  - id: s7_lead
+    step: 7
+    cam: hop_tall
+    caption: "T8 × 8 lead screw through the nut; carriage down the rods"
+    say: "The lead screw, then the carriage slides down the rods."
+    add: [{parts: [hop_lead], at: [0, 0, 190], from: [0, 0, 110], dur: 1.1, spin: 1}]
+    move: [{parts: [hop_carriage, hop_lm8uu, hop_t8nut, hop_t8scr, hop_lead], to: [0, 0, 0], delay: 1.4, dur: 1.6}]
+  - id: s7_plate
+    step: 7
+    caption: "Floor plate on the shelf: 2 × M3 × 10 countersunk"
+    say: "The floor plate, two countersunk screws."
+    cam: hopper_high
+    add:
+      - {parts: [hop_plate], from: [0, 0, 120], dur: 1.1}
+      - {parts: [hop_plate_scr], from: [0, 0, 40], delay: 1.2, dur: 0.9, spin: 2}
+  - id: s7_coupler
+    step: 7
+    caption: "5-to-8 mm coupler on top of the lead screw"
+    say: "The motor coupler."
+    cam: hopper
+    add: [{parts: [hop_coupler], from: [0, 0, 80], dur: 1.0}]
+  - id: s7_cap
+    step: 7
+    caption: "Cap over the rods: 4 × M3 × 10 into the tower inserts"
+    say: "The cap, four screws."
+    add:
+      - {parts: [hop_cap], from: [0, 0, 100], dur: 1.1}
+      - {parts: [hop_cap_scr], from: [0, 0, 40], delay: 1.2, dur: 0.9, spin: 2}
+  - id: s7_motor
+    step: 7
+    caption: "28BYJ-48 shaft-down on the cap: 2 × M3 × 8; tighten the coupler"
+    say: "The stepper motor, shaft down."
+    add:
+      - {parts: [hop_motor], from: [0, 0, 90], dur: 1.1}
+      - {parts: [hop_motor_scr], from: [0, 0, 30], delay: 1.2, dur: 0.9, spin: 2}
+  - id: s7_flag
+    step: 7
+    caption: "Feeler flag: M3 × 20 axle + nylock, snug; it must drop under its own weight"
+    say: "The feeler flag. It must drop freely."
+    cam: hopper_front
+    add:
+      - {parts: [hop_flag], from: [0, -50, 30], dur: 1.0}
+      - {parts: [hop_axle], from: [-40, 0, 0], delay: 1.1, dur: 0.9, spin: 2, spin_axis: x}
+  - id: s7_tsw
+    step: 7
+    caption: "Top switch: 2 × M2 × 12 + nut, roller under the flag cam, mid-slot for now"
+    say: "The top switch, mid-slot for now."
+    add:
+      - {parts: [hop_tsw], from: [0, -40, -20], dur: 1.0}
+      - {parts: [hop_tsw_scr], from: [-30, 0, 0], delay: 1.1, dur: 0.9}
+
+  # ── Step 8 ──
+  - id: s8_head
+    step: 8
+    caption: "Head: B and C ground pins (Ø4 silver steel, cut 38 / 29.5 mm) pressed in"
+    say: "Step eight, the pick arm. The head, with its two ground pins."
+    cam: arm_bench
+    add:
+      - {parts: [arm_head], at: [0, -140, 50], from: [0, -60, 40], dur: 1.1}
+      - {parts: [arm_dowels], at: [0, -140, 50], from: [0, 50, 0], delay: 1.2, dur: 0.9}
+  - id: s8_servo
+    step: 8
+    cam: arm_bench
+    caption: "MG996R into the head from behind: 4 × M3 × 8 into the tab inserts"
+    say: "The servo, four M three by eight screws."
+    add:
+      - {parts: [arm_servo], at: [0, -140, 50], from: [0, -60, 0], dur: 1.0}
+      - {parts: [arm_tabscr], at: [0, -140, 50], from: [0, -25, 0], delay: 1.1, dur: 0.9, spin: 2, spin_axis: y}
+  - id: s8_crank
+    step: 8
+    cam: arm_front
+    caption: "Servo at 90°: 25T disc horn + crank at 93° (3° toward the hopper), 4 × M3 × 6"
+    say: "At ninety degrees, the horn and crank, three degrees past vertical."
+    add:
+      - {parts: [arm_horn], at: [0, -140, 50], from: [0, 40, 0], dur: 0.9}
+      - {parts: [arm_crank], at: [0, -140, 50], from: [0, 50, 0], delay: 0.8, dur: 0.9}
+      - {parts: [arm_hornscr], at: [0, -140, 50], from: [0, 25, 0], delay: 1.7, dur: 0.8, spin: 2, spin_axis: y}
+  - id: s8_links
+    step: 8
+    caption: "Sleeves on the B and C pins, then link C and link B"
+    say: "Sleeves, then links C and B."
+    add:
+      - {parts: [arm_gsleeves], at: [0, -140, 50], from: [0, 40, 0], dur: 0.8}
+      - {parts: [arm_linkc], at: [0, -140, 50], from: [0, 40, 0], delay: 0.8, dur: 0.8}
+      - {parts: [arm_linkb], at: [0, -140, 50], from: [0, 40, 0], delay: 1.5, dur: 0.8}
+  - id: s8_hand
+    step: 8
+    caption: "Hand: A' tube (8 × 6, 30.5), B'/C' pins (13 / 21.5), A' and C' sleeves; on with the links parallel"
+    say: "The hand slides onto all three pins, links parallel."
+    add:
+      - {parts: [arm_hand, arm_handpins], at: [0, -140, 50], from: [0, 50, 0], dur: 1.1}
+  - id: s8_washers
+    step: 8
+    caption: "A push-on washer on every free pin end"
+    say: "A push-on washer on every pin end."
+    add: [{parts: [arm_washers], at: [0, -140, 50], from: [0, 20, 0], dur: 0.8}]
+  - id: s8_cup
+    step: 8
+    cam: arm_bench_low
+    caption: "SMC ZPT16 pad + M5 barb in the cup sled; 2 springs on 2 × M3 × 40 guide screws"
+    say: "The suction cup sled, springs and guide screws."
+    add:
+      - {parts: [arm_sled, arm_pad, arm_barb], at: [0, -140, 50], from: [0, 0, -60], dur: 1.1}
+      - {parts: [arm_springs, arm_guidescr], at: [0, -140, 50], from: [0, 0, -45], delay: 1.2, dur: 1.0}
+  - id: s8_tube
+    step: 8
+    cam: arm_bench
+    caption: "Tube: barb › A' tube › spoke › anchor bell › down the column"
+    say: "The vacuum tube to the anchor."
+    add: [{parts: [arm_tube], at: [0, -140, 50], from: [0, 0, 40], dur: 1.0}]
+  - id: s8_tower
+    step: 8
+    caption: "Head onto the tower: 4 × M3 × 12 into the column inserts"
+    say: "The head onto the tower."
+    add:
+      - {parts: [arm_tower], at: [0, -140, 50], from: [0, 0, -55], dur: 1.1}
+      - {parts: [arm_headbolts], at: [0, -140, 50], from: [0, 0, 35], delay: 1.2, dur: 0.9, spin: 2}
+  - id: s8_place
+    step: 8
+    caption: "Tower foot on the front edge: 4 × M3 × 20 into the tee-nuts"
+    say: "Bolt the tower down at the front edge."
+    cam: arm
+    move: [{parts: [arm_head, arm_dowels, arm_servo, arm_tabscr, arm_horn, arm_crank, arm_hornscr, arm_gsleeves, arm_linkc, arm_linkb, arm_hand, arm_washers, arm_sled, arm_springs, arm_tube, arm_tower, arm_headbolts], to: [0, 0, 0], dur: 1.8}]
+    add: [{parts: [arm_towerbolts], split: true, n: 4, stagger: 0.15, from: [0, 0, 40], delay: 1.9, dur: 0.9, spin: 2}]
+  - id: s8_ties
+    step: 8
+    caption: "2 zip ties through the column tunnels at Z 55 and Z 80"
+    say: "Two zip ties."
+    cam: arm_back
+    add: [{parts: [arm_zipties], from: [-45, 0, 0], dur: 1.0}]
+
+  # ── Step 9 ──
+  - id: s9_ab
+    step: 9
+    caption: "Lower floor: tray sections A + B, joined by the Ø3 pin"
+    say: "Step nine. Tray sections A and B."
+    cam: sorttray
+    add:
+      - {parts: [tray_a], from: [0, -80, 90], dur: 1.1}
+      - {parts: [tray_b], from: [0, 80, 90], delay: 0.6, dur: 1.1}
+  - id: s9_lscr
+    step: 9
+    caption: "8 × M3 × 18 countersunk into the tee-nuts, before the shelf"
+    say: "Eight screws, before the shelf."
+    cam: sorttray_high
+    add: [{parts: [tray_lscr], split: true, n: 8, stagger: 0.12, from: [0, 0, 60], dur: 0.9, spin: 2}]
+  - id: s9_shelf
+    step: 9
+    caption: "2 shelf halves on top, seam on the section seam"
+    say: "The shelf halves."
+    cam: sorttray
+    add: [{parts: [shelf], from: [0, 0, 100], dur: 1.1}]
+  - id: s9_cd
+    step: 9
+    caption: "Upper floor C + D: 8 × M3 × 12 countersunk into the shelf"
+    say: "The upper floor, eight more screws."
+    add:
+      - {parts: [tray_c], from: [0, -60, 100], dur: 1.0}
+      - {parts: [tray_d], from: [0, 60, 100], delay: 0.5, dur: 1.0}
+      - {parts: [tray_sscr], split: true, n: 8, stagger: 0.1, from: [0, 0, 40], delay: 1.6, dur: 0.8, spin: 2}
+
+  # ── Step 10 ──
+  - id: s10_fpins
+    step: 10
+    caption: "Bench: Ø4 × 8 F pins into the tilt frame, from inside, first"
+    say: "Step ten, the shuttle. On the bench, two F pins into the tilt frame."
+    cam: sh_tf
+    add:
+      - {parts: [sh_tf], at: [0, -10, 250], from: [0, 0, 70], dur: 1.0}
+      - {parts: [sh_fpins], at: [0, -10, 250], from: [0, 0, 35], delay: 1.1, dur: 0.8}
+  - id: s10_ptfe
+    step: 10
+    caption: "0.1 mm PTFE tape over the cradle bed and kick (required)"
+    say: "P T F E tape on the cradle. It's required."
+    add:
+      - {parts: [sh_cradle], at: [0, -10, 310], from: [0, 0, 50], dur: 0.9}
+      - {parts: [sh_ptfe], at: [0, -10, 310], from: [0, 0, 25], delay: 1.0, dur: 0.8}
+  - id: s10_cell
+    step: 10
+    caption: "TAL221 cable end to the tilt-frame crossbar: 2 × M3 × 12 from below"
+    say: "The load cell onto the tilt frame."
+    add:
+      - {parts: [sh_cell], at: [0, -10, 250], from: [0, -50, 20], dur: 1.0}
+      - {parts: [sh_cellscr_tf], at: [0, -10, 250], from: [0, 0, -30], delay: 1.1, dur: 0.8, spin: 2}
+  - id: s10_cradle
+    step: 10
+    caption: "Cradle on the cell's free end: 2 × M3 × 10 from below"
+    say: "The cradle onto the load cell."
+    move: [{parts: [sh_cradle, sh_ptfe], to: [0, -10, 250], dur: 1.2}]
+    add: [{parts: [sh_cellscr_cr], at: [0, -10, 250], from: [0, 0, -30], delay: 1.3, dur: 0.8, spin: 2}]
+  - id: s10_sled
+    step: 10
+    caption: "Sled: 2 × LM8UU in the ends, 4 × Ø3 × 8 dowels in the sides"
+    say: "The sled, with two bearings and four dowels."
+    cam: sh_sled
+    add:
+      - {parts: [sh_sled], at: [0, -10, 170], from: [0, 0, -60], dur: 1.0}
+      - {parts: [sh_lm8uu], at: [0, -10, 170], from: [0, 0, 40], delay: 0.9, dur: 0.8}
+      - {parts: [sh_dowels], at: [0, -10, 170], from: [0, 0, 30], delay: 1.5, dur: 0.8}
+  - id: s10_tdrive
+    step: 10
+    caption: "Tilt crank + link (M3 × 16 + nylock) slid into the sled's crank pocket"
+    say: "The tilt crank and link, into the sled."
+    add: [{parts: [sh_tdrive], at: [0, -10, 170], from: [70, 0, 0], dur: 1.2}]
+  - id: s10_pina
+    step: 10
+    caption: "Tilt frame level over the sled; pin A (Ø3 × 20) in from +Y"
+    say: "The tilt frame on top, held by pin A."
+    move: [{parts: [sh_tf, sh_fpins, sh_cradle, sh_ptfe, sh_cell, sh_cellscr_tf, sh_cellscr_cr], to: [0, -10, 170], dur: 1.3}]
+    add: [{parts: [sh_pina], at: [0, -10, 170], from: [0, 50, 0], delay: 1.5, dur: 0.8}]
+  - id: s10_cheeks
+    step: 10
+    caption: "Cheeks: 3 × M3 × 10 countersunk each; zip-tie the cell lead in the −Y cheek slot"
+    say: "A cheek on each side."
+    add:
+      - {parts: [sh_cheek_neg], at: [0, -10, 170], from: [0, -50, 0], dur: 0.9}
+      - {parts: [sh_cheek_pos], at: [0, -10, 170], from: [0, 50, 0], delay: 0.5, dur: 0.9}
+      - {parts: [sh_cheekscr], at: [0, -10, 170], from: [0, 0, 25], delay: 1.5, dur: 0.8}
+  - id: s10_ch1a
+    step: 10
+    caption: "ch1 servo, rubber grommets removed: direction check, goBILDA coupler at HOLD (M3 × 6)"
+    say: "The tilt servo, grommets off, with its coupler set at the hold angle."
+    cam: sh_ch1
+    add:
+      - {parts: [sh_post_neg], at: [0, -10, 170], from: [0, -60, 40], dur: 1.0}
+      - {parts: [sh_c1servo, sh_c1cpl], at: [0, -80, 170], from: [0, -40, 0], delay: 1.0, dur: 1.0}
+  - id: s10_ch1b
+    step: 10
+    caption: "Servo into the −Y end post's cage: 4 × M3 × 10 + washers from behind"
+    say: "Into the end post cage, with four screws and washers."
+    move: [{parts: [sh_c1servo], to: [0, -10, 170], dur: 1.2}]
+    add: [{parts: [sh_c1scr], at: [0, -10, 170], from: [0, -30, 0], delay: 1.3, dur: 0.8, spin: 2, spin_axis: y}]
+  - id: s10_688
+    step: 10
+    caption: "End post +Y; a 688ZZ in each end post"
+    say: "The back end post, and a bearing in each post."
+    cam: sh_mod
+    add:
+      - {parts: [sh_post_pos], at: [0, -10, 170], from: [0, 60, 40], dur: 1.0}
+      - {parts: [sh_688], at: [0, -10, 170], from: [0, 0, 40], delay: 1.0, dur: 0.8}
+  - id: s10_rod
+    step: 10
+    caption: "400 mm rod: post −Y › carriage LM8UUs › 8 mm into post +Y"
+    say: "The smooth rod, through the carriage."
+    add: [{parts: [sh_rod], at: [0, -10, 170], from: [0, -420, 0], dur: 1.8}]
+  - id: s10_rex
+    step: 10
+    caption: "REX shaft (cut to 417 mm) from +Y: bearings, crank hex, 8 mm into the coupler"
+    say: "The hex shaft, from the back end."
+    add: [{parts: [sh_rex], at: [0, -10, 170], from: [0, 440, 0], dur: 1.8}]
+  - id: s10_clamp
+    step: 10
+    caption: "ch1 at HOLD: M4 coupler clamp tight; 2 × M3 × 8 set screws onto the rod"
+    say: "Clamp the coupler, then the rod set screws."
+    add: [{parts: [sh_rodscr], at: [0, -10, 170], from: [40, 0, 0], dur: 0.9, spin: 2, spin_axis: x}]
+  - id: s10_rbar
+    step: 10
+    caption: "R-bar halves: lap splice, 2 × M3 × 10; ends in the end-post seats"
+    say: "The two R-bar halves."
+    add:
+      - {parts: [sh_rbar_neg], at: [0, -10, 170], from: [-50, 0, 30], dur: 0.9}
+      - {parts: [sh_rbar_pos], at: [0, -10, 170], from: [-50, 0, 30], delay: 0.5, dur: 0.9}
+      - {parts: [sh_rbarscr], at: [0, -10, 170], from: [0, 0, 30], delay: 1.5, dur: 0.8, spin: 2}
+  - id: s10_c2a
+    step: 10
+    caption: "ch2 (after its direction check): round 25T horn; crank on, M3 × 12 hub screw just seated"
+    say: "The shuttle servo and horn. The crank goes on with its hub screw just seated."
+    cam: sh_c2
+    add:
+      - {parts: [sh_c2servo], at: [0, -10, 170], from: [0, 0, -60], dur: 1.0}
+      - {parts: [sh_c2horn], at: [0, -10, 170], from: [0, 0, -40], delay: 0.8, dur: 0.8}
+      - {parts: [sh_c2crank_park], at: [0, -10, 170], from: [0, 0, -40], delay: 1.4, dur: 0.8}
+  - id: s10_c2b
+    step: 10
+    caption: "Crank at ψ 90: 4 × M2 × 6 countersunk, then the hub screw tight; park it at ψ ≈ 100°"
+    say: "Line the crank up at ninety degrees, drive the four small screws, tighten the hub screw, and park it."
+    add: [{parts: [sh_c2hornscr_park], at: [0, -10, 170], from: [0, 0, -25], dur: 0.8}]
+  - id: s10_c2hang
+    step: 10
+    caption: "Hung under the −Y post's shelf: 2 × M2.5 × 10 rear-ear screws, a turn loose"
+    say: "Hang it under the end post, screws a turn loose."
+    add: [{parts: [sh_c2ear_rear], at: [0, -10, 170], from: [0, 0, -30], dur: 0.9, spin: 2}]
+  - id: s10_place
+    step: 10
+    caption: "Carriage to column 3, frame level; module down 10 mm toward −Y"
+    say: "Carriage to column three, then set the module down."
+    cam: sh_place
+    hide: [sh_tf, sh_fpins, sh_ptfe, sh_cradle, sh_cell, sh_cellscr_tf, sh_cellscr_cr, sh_sled, sh_lm8uu, sh_dowels, sh_tdrive, sh_pina, sh_cheek_neg, sh_cheek_pos, sh_cheekscr]
+    add:
+      - {parts: [var_col3_carriage, var_col3_tf, var_col3_cradle, var_col3_steel], at: [0, -10, 170], from: [0, 0, 0], delay: 0.0, dur: 0.05}
+    move:
+      - {parts: [var_col3_carriage, var_col3_tf, var_col3_cradle, var_col3_steel, sh_post_neg, sh_post_pos, sh_c1servo, sh_c1scr, sh_688, sh_rod, sh_rex, sh_rodscr, sh_rbar_neg, sh_rbar_pos, sh_rbarscr, sh_c2servo, sh_c2horn, sh_c2crank_park, sh_c2hornscr_park, sh_c2ear_rear], to: [0, -10, 0], delay: 0.6, dur: 2.2}
+      - {parts: [sh_tf, sh_fpins, sh_ptfe, sh_cradle, sh_cell, sh_cellscr_tf, sh_cellscr_cr, sh_sled, sh_lm8uu, sh_dowels, sh_tdrive, sh_pina, sh_cheek_neg, sh_cheek_pos, sh_cheekscr], to: [0, 0, 0], delay: 0.0, dur: 0.05}
+  - id: s10_slide
+    step: 10
+    caption: "Slide +Y 10 mm: front ear under riser B's block; rear-ear screws tight"
+    say: "Slide it back, so the servo ear goes under the riser."
+    cam: sh_under
+    move:
+      - {parts: [var_col3_carriage, sh_post_neg, sh_c1servo, sh_c1scr, sh_688, sh_rod, sh_rex, sh_rodscr, sh_rbar_neg, sh_c2servo, sh_c2horn, sh_c2crank_park, sh_c2hornscr_park, sh_c2ear_rear, var_col3_tf, var_col3_cradle, var_col3_steel, sh_post_pos, sh_rbar_pos, sh_rbarscr], to: [0, 0, 0], delay: 0.3, dur: 1.4}
+  - id: s10_frontear
+    step: 10
+    caption: "Front ear: 2 × M2.5 × 10 up through the riser tunnel"
+    say: "Two front-ear screws, from below."
+    add: [{parts: [sh_c2ear_front], from: [0, 0, -30], dur: 0.9, spin: 2}]
+  - id: s10_anchors
+    step: 10
+    caption: "End posts: 6 × M3 × 20 into the tee-nuts"
+    say: "Six screws hold the end posts."
+    cam: sh_place
+    add: [{parts: [sh_anchors], split: true, n: 6, stagger: 0.15, from: [0, 0, 50], dur: 0.9, spin: 2}]
+  - id: s10_link
+    step: 10
+    caption: "ch2 link (2 short M3 × 4 inserts in its top): 5 mm shoulder screw at the crank tip, 6 mm at the drive pin (§13.7)"
+    say: "The shuttle link and its two shoulder screws."
+    cam: sh_link
+    hide: [var_col3_carriage, var_col3_tf, var_col3_cradle, var_col3_steel, sh_c2crank_park, sh_c2hornscr_park]
+    show: [var_col0_carriage, var_col0_tf, var_col0_cradle, var_col0_steel, var_col0_c2crank]
+    add:
+      - {parts: [var_col0_c2link], from: [-60, 0, 0], dur: 1.1}
+      - {parts: [var_col0_c2pins], from: [0, 0, 30], delay: 1.3, dur: 0.9}
+  - id: s10_ramp_neg
+    step: 10
+    caption: "Carriage at column 3: ramp_neg straight down behind the tray"
+    say: "Carriage at column three: the first ramp half."
+    cam: sh_ramp
+    hide: [var_col0_carriage, var_col0_tf, var_col0_cradle, var_col0_steel, var_col0_c2crank, var_col0_c2link, var_col0_c2pins]
+    show: [var_col3_carriage, var_col3_tf, var_col3_cradle, var_col3_steel, var_col3_c2crank, var_col3_c2link, var_col3_c2pins]
+    add: [{parts: [sh_ramp_neg], from: [0, 0, 120], dur: 1.3}]
+  - id: s10_ramp_pos
+    step: 10
+    caption: "Column 0: ramp_pos down; 4 × M3 × 20 through the rear tabs"
+    say: "At column zero, the second half and four screws."
+    hide: [var_col3_carriage, var_col3_tf, var_col3_cradle, var_col3_steel, var_col3_c2crank, var_col3_c2link, var_col3_c2pins]
+    show: [var_col0_carriage, var_col0_tf, var_col0_cradle, var_col0_steel, var_col0_c2crank, var_col0_c2link, var_col0_c2pins]
+    add:
+      - {parts: [sh_ramp_pos], from: [0, 0, 120], dur: 1.3}
+      - {parts: [sh_rampscr], split: true, n: 4, stagger: 0.15, from: [0, 0, 40], delay: 1.5, dur: 0.8, spin: 2}
+  - id: s10_reject
+    step: 10
+    caption: "Reject bin beside the tray: 4 × M3 × 18 countersunk"
+    say: "The reject bin."
+    cam: sh_reject
+    add:
+      - {parts: [sh_reject], from: [0, 0, 120], dur: 1.3}
+      - {parts: [sh_rejectscr], split: true, n: 4, stagger: 0.15, from: [0, 0, 40], delay: 1.5, dur: 0.8, spin: 2}
+
+  # ── Step 11 ──
+  - id: s11_power
+    step: 11
+    caption: "12 V unplugged: jack, 3 fixed 5 V rails, relay, PCA9685, 10 kΩ pull-ups/downs (§14.1)"
+    say: "Step eleven. With the power unplugged, wire the tray."
+    cam: tray
+    hide: [var_col0_carriage, var_col0_tf, var_col0_cradle, var_col0_steel, var_col0_c2crank, var_col0_c2link, var_col0_c2pins]
+    show: [sh_tf, sh_fpins, sh_ptfe, sh_cradle, sh_cell, sh_cellscr_tf, sh_cellscr_cr, sh_sled, sh_lm8uu, sh_dowels, sh_tdrive, sh_pina, sh_cheek_neg, sh_cheek_pos, sh_cheekscr, sh_c2crank, sh_c2hornscr, sh_c2link, sh_c2tip, sh_c2drive]
+  - id: s11_harness
+    step: 11
+    caption: "Harness round the hopper into the tray: servo extensions, N20s, hopper leads"
+    say: "The harness, round the hopper into the tray."
+    cam: wiring
+    add: [{parts: [harness], from: [0, 0, 50], dur: 1.2}]
+  - id: s11_ribbon
+    step: 11
+    caption: "Camera ribbon (SC1130) and LED leads over the hood and back rail into the tray"
+    say: "The camera ribbon, over the hood."
+    cam: scan_back
+    add: [{parts: [ribbon], from: [0, 0, 50], dur: 1.1}]
+  - id: s11_pbase
+    step: 11
+    caption: "Pump bracket base: 4 × M3 × 20, before the pump"
+    say: "The pump bracket base, before the pump."
+    cam: pump
+    add:
+      - {parts: [pb_base], from: [0, 0, 80], dur: 1.1}
+      - {parts: [pb_basescr], split: true, n: 4, stagger: 0.15, from: [0, 0, 40], delay: 1.2, dur: 0.8, spin: 2}
+  - id: s11_isolate
+    step: 11
+    caption: "TPU sleeve (or neoprene strip) on the pump can; head pad in the cradle"
+    say: "The isolation sleeve and head pad."
+    add:
+      - {parts: [pb_sleeve], from: [-60, 0, 30], dur: 1.0}
+      - {parts: [pb_pad], from: [0, 0, 40], delay: 0.7, dur: 0.9}
+  - id: s11_pump
+    step: 11
+    caption: "R385 pump in the saddle; cap 2 × M3 × 10; 1N5819 across its terminals"
+    say: "The pump and its cap."
+    add:
+      - {parts: [pb_pump], from: [0, 0, 70], dur: 1.0}
+      - {parts: [pb_cap], from: [0, 0, 40], delay: 1.0, dur: 0.8}
+      - {parts: [pb_capscr], from: [0, 0, 30], delay: 1.7, dur: 0.8, spin: 2}
+      - {parts: [pb_diode], from: [-30, 0, 0], delay: 2.3, dur: 0.7}
+  - id: s11_clip
+    step: 11
+    caption: "Valve clip: 2 × M3 × 20; 1 mm foam-tape strip on its floor"
+    say: "The valve clip and a foam strip."
+    add:
+      - {parts: [pb_clip], from: [0, 0, 60], dur: 1.0}
+      - {parts: [pb_clipscr], split: true, n: 2, stagger: 0.2, from: [0, 0, 40], delay: 1.0, dur: 0.8, spin: 2}
+      - {parts: [pb_foam], from: [0, 0, 30], delay: 1.9, dur: 0.7}
+  - id: s11_valve
+    step: 11
+    caption: "12 V NC vent valve: line barb +Y, vent barb up; 1N5819 across the coil"
+    say: "The vent valve, vent barb up."
+    add: [{parts: [pb_valve], from: [0, 0, 50], dur: 1.0}]
+  - id: s11_leads
+    step: 11
+    cam: pump
+    caption: "Pump + valve 12 V leads (relay NO1 / NO2) to the harness drop"
+    say: "The twelve volt leads."
+    add: [{parts: [leads12], from: [0, 0, 30], dur: 1.0}]
+  - id: s11_tube
+    step: 11
+    cam: pump_side
+    caption: "Pump inlet (sleeve + reducing barb) › barbed tee › arm; 20 mm silicone tee › valve"
+    say: "The vacuum line, through the tee to the arm and the valve."
+    add:
+      - {parts: [pb_tee], from: [0, 0, 30], dur: 0.8}
+      - {parts: [tube_pump], from: [0, 0, 30], delay: 0.7, dur: 0.9}
+      - {parts: [tube_branch], from: [0, 0, 20], delay: 1.4, dur: 0.8}
+  - id: s11_cell
+    step: 11
+    caption: "Load-cell lead: 4-core wire, rolling loop under the carriage, into the +X slot"
+    say: "And the load-cell lead."
+    cam: shuttle
+    add: [{parts: [cell_lead], from: [0, 0, 30], dur: 1.0}]
+
+  - id: outro
+    title: Mechanical build complete
+    subtitle: "Next: software setup and calibration (§15–16)"
+    caption: "First runs with bulk commons only (§17)"
+    say: "That's the mechanical build. Next, software and calibration, with bulk commons only."
+    cam: outro

@@ -9,6 +9,7 @@ The machine handles **raw, unsleeved, valuable cards**. Every card is lifted by 
 Machine footprint: 570 × 540 mm baseplate (3 × 3 printed tiles, keyed together, on a 6 mm backing board with M3 tee-nuts, so every part bolts down from above). Every printed part fits a 256 × 256 mm bed (Bambu P1S).
 
 - **Build guide:** [`docs/ASSEMBLY.md`](docs/ASSEMBLY.md)
+- **Assembly video (narrated, part by part, ≈ 8 min):** [`docs/assembly-video-v3.mp4`](docs/assembly-video-v3.mp4), steps 1–11 of the build guide in its install order (regenerate with `cad/render_v2/make_video.py`)
 - **Parts, costs, power budget and cost-down options:** [`BOM.md`](BOM.md)
 - **Wiring:** [`docs/wiring_diagram.svg`](docs/wiring_diagram.svg)
 - **History:** [`CHANGELOG.md`](CHANGELOG.md)
@@ -239,7 +240,7 @@ riftbound-sorter/
 ├── config/                 # rules.json, machine.example.json, calibration JSON files (machine.json, web.json are local)
 ├── requirements.lock       # exact, hash-pinned pip packages (setup.sh installs only these)
 ├── cad/                    # OpenSCAD parts, assembly.scad, assembly-steps.yaml, collision checks
-├── docs/                   # ASSEMBLY.md, wiring_diagram.svg, assembly videos
+├── docs/                   # ASSEMBLY.md, wiring_diagram.svg, assembly-video-v3.mp4
 └── riftbound_sorter.kicad_sch
 ```
 
