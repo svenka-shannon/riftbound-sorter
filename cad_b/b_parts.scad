@@ -22,6 +22,12 @@ module wedge2d(a, d, rmax = 400)       // between lines at +/-a through the orig
         rotate(a) translate([-rmax, -2 * rmax - d]) square([2 * rmax, 2 * rmax]);
         rotate(-a) translate([-rmax, d]) square([2 * rmax, 2 * rmax]);
     }
+module sector2d(r0, r1, a0, a1, n = 60) polygon(concat([for (i = [0 : n]) r1 * [cos(a0 + (a1 - a0) * i / n), sin(a0 + (a1 - a0) * i / n)]],
+                                                         [for (i = [n : -1 : 0]) r0 * [cos(a0 + (a1 - a0) * i / n), sin(a0 + (a1 - a0) * i / n)]]));
+function cam_r(a) = a < cam_a0 + cam_ramp ? cam_r0 + (cam_r1 - cam_r0) * (a - cam_a0) / cam_ramp
+                  : a > cam_a1 - cam_ramp ? cam_r0 + (cam_r1 - cam_r0) * (cam_a1 - a) / cam_ramp : cam_r1;
+module cam_rim2d(n = 120) polygon(concat([for (i = [0 : n]) let(a = cam_a0 + (cam_a1 - cam_a0) * i / n) max(cam_r(a), cam_r0 - 1 + 0.2) * [cos(a), sin(a)]],
+                                         [for (i = [n : -1 : 0]) let(a = cam_a0 + (cam_a1 - cam_a0) * i / n) (cam_r0 - 1) * [cos(a), sin(a)]]));
 module ear(x, y, t = 4) translate([x, y, 0]) cylinder(d = 12, h = t);
 module ear_hole(x, y) translate([x, y, -1]) m3_clear(10);
 
@@ -123,31 +129,34 @@ module lazy_susan_ref() color("Silver") translate([0, 0, ls_z0]) difference() {
 module sq_holes(pitch, z0, h, d = 2.5) for (x = [-1, 1], y = [-1, 1]) translate([x * pitch / 2, y * pitch / 2, z0]) cylinder(d = d, h = h);
 ms_xc = -(ms_r0 + ms_w / 2);             // switch body centre (radial), drawn along -X then rotated to sw_az
 module switch_ref() color("Black") rotate([0, 0, sw_az - 180]) translate([ms_xc - ms_w / 2, -ms_l / 2, ms_z0]) cube([ms_w, ms_l, ms_h]);
+// SWITCH CRADLE (print 1, PETG, base down): stands on the board at az 270, 2 x M3 x 12 + washers
+// into Ø2.5 pilots drilled in the board, through radial slots (inner face r 97.5 .. 103.5): slide it
+// in until the roller clicks on the cam rim with ~1 mm to spare. The KW12-3 press-fits between the
+// end walls (lever face toward the axis, solder tags out through the gap in the outer wall).
 module switch_cradle() rotate([0, 0, sw_az - 180]) difference() {
     union() {
-        translate([-ms_r0, -12, 0]) cube([ms_r0 - deck_r - 0.5, 24, tt_z0 - 2.4]); translate([-ped_r - 1, -12, 0]) cube([2, 24, deck_z0]);                      // under the tab path: top 44
-        translate([-(ms_r0 + ms_w + 3), -ms_l / 2 - 3, 0]) cube([ms_w + 3 + eps, ms_l + 6, ms_z0]);    // switch seat (r >= ms_r0 only)
-        translate([-(ms_r0 + ms_w + 3), -ms_l / 2 - 3, 0]) cube([3, ms_l + 6, ms_z0 + ms_h - 1]);      // outer wall
+        translate([-(ms_r0 + ms_w + 3), -ms_l / 2 - 3, 0]) cube([ms_w + 3, ms_l + 6, ms_z0]);              // seat column
+        translate([-(ms_r0 + ms_w + 3 + 14), -16, 0]) cube([ms_w + 3 + 14, 32, 4]);                       // base (outboard)
         for (s = [-1, 1]) translate([-(ms_r0 + ms_w + 3), s > 0 ? ms_l / 2 : -ms_l / 2 - 3, 0]) cube([ms_w + 3, 3, ms_z0 + ms_h - 1]);   // end walls
+        for (s = [-1, 1]) translate([-(ms_r0 + ms_w + 3), s > 0 ? ms_l / 2 - 3 : -ms_l / 2, 0]) cube([3, 3, ms_z0 + ms_h - 1]);           // outer corner posts (tags exit between)
     }
-    // press fit: walls 0.1 tight on the 20 mm length; a dab of hot glue if loose
-    translate([-(ms_r0 + ms_w), -ms_l / 2 + 0.1, ms_z0]) cube([ms_w + 1, ms_l - 0.2, 20]);
-    translate([-(ms_r0 + ms_w) + 2, -ms_l / 2 + 3, ms_z0 - 12]) cube([ms_w - 4, ms_l - 6, 13]);    // lead-tag clearance + glue well
+    translate([-(ms_r0 + ms_w), -ms_l / 2 + 0.1, ms_z0]) cube([ms_w + 1, ms_l - 0.2, 20]);                // press fit (0.1 tight on the length)
+    for (y = [-10, 10]) hull() for (dr = [-1.5, 4.5]) translate([-(ms_r0 + ms_w + 3 + 7) - dr, y, -1]) m3_clear(10);   // board slots
 }
 module pedestal() difference() {
     union() {
         for (a = [45, 135, 225, 315]) rotate([0, 0, a]) hull() { translate([ped_r - 10, -9, 0]) cube([1, 18, 4]); translate([106, 0, 0]) cylinder(d = 18, h = 4); }   // 4 board tabs
         difference() { cylinder(r = ped_r, h = deck_z0, $fn = 120); translate([0, 0, -1]) cylinder(r = ped_r - ped_wall, h = deck_z0 + 2, $fn = 120); }
         for (a = [0, 90, 180, 270]) rotate([0, 0, a + 22.5]) translate([deck_screw_r, 0, 0]) cylinder(d = 12, h = deck_z0);   // deck bosses
-        switch_cradle();
     }
     for (a = [0, 90, 180, 270]) rotate([0, 0, a + 22.5]) translate([deck_screw_r, 0, deck_z0 - 9]) cylinder(d = 2.5, h = 10);
     rotate([0, 0, 45]) translate([-10, -ped_r - 1, 4]) cube([20, 10, 14]);              // motor lead exit (az 315)
+    for (a = [0 : 45 : 315]) if (a != 270 && a != 225) rotate([0, 0, a + 22.5 + 11]) translate([ped_r - 5, -3, 8]) cube([10, 6, 20]);   // vents: motor heat
     for (a = [45, 135, 225, 315]) rotate([0, 0, a]) translate([106, 0, -1]) m3_clear(10);   // to the board
 }
 module deck() difference() {
     translate([0, 0, deck_z0]) cylinder(r = deck_r, h = deck_t, $fn = 120);
-    translate([-ls_sq / 2 - 0.3, -ls_sq / 2 - 0.3, deck_top - ls_pocket]) cube([ls_sq + 0.6, ls_sq + 0.6, 5]);
+    translate([-ls_sq / 2 - 1.3, -ls_sq / 2 - 1.3, deck_top - ls_pocket]) cube([ls_sq + 2.6, ls_sq + 2.6, 5]);   // 1.3 per side: the plate centres itself on the shaft
     translate([0, 0, deck_z0 - 1]) cylinder(d = nm_boss_d + 0.4, h = deck_t + 2);      // boss locates the motor; hub set-screw room above
     for (x = [-1, 1], y = [-1, 1]) translate([x * nm_hole / 2, y * nm_hole / 2, deck_z0 - 1]) m3_clear(10);   // M3 x 8 down into the motor (heads on the deck, inside the bearing's hole)
     sq_holes(ls_pitch_bot, deck_z0 - 1, 10);                                            // bottom plate pilots (through)
@@ -162,7 +171,7 @@ module deck() difference() {
 // the drive collar on top.
 // Ø8 access holes at local 90/180/270 deg, r = ls_pitch_bot / sqrt 2: park the
 // arm at +45 and then -45 deg off the deck's square to reach all 4 bottom-plate
-// screws. Tab at local 270 deg (sw_az) carries the adjustable trip block. The lift MG996R lies along
+// screws. A sector at local 262..350 deg carries the home cam rim. The lift MG996R lies along
 // +X with its spline at P1 = (25, Y, 70); its tabs bolt through the mast wall
 // (M3 x 12, washer + nut on the flat back face). P2 boss carries link B.
 // =========================================================================
@@ -195,7 +204,8 @@ module turntable() {
         union() {
             translate([0, 0, tt_z0]) hull() { cylinder(d = tt_d, h = tt_t, $fn = 120); translate([0, -42, 0]) cube([70, 62, tt_t]);
                                               translate([-54, -54, 0]) cube([108, 108, tt_t]); }
-            rotate([0, 0, sw_az - 180]) translate([-tab_r1, -tab_w / 2, tt_z0]) cube([tab_r1, tab_w, tt_t]);   // home tab (local sw_az)
+            translate([0, 0, tt_z0]) linear_extrude(tt_t) sector2d(cam_rp0, cam_r1, cam_a0, cam_a1);   // cam sector plate
+            translate([0, 0, tt_top - eps]) linear_extrude(6) cam_rim2d();                              // home cam rim
             translate([mast_x0, mast_y0, tt_top - eps]) cube([mast_x1 - mast_x0, mast_y1 - mast_y0, mast_top - tt_top]);
             for (x = [mast_x0, mast_x1 - 4]) hull() {                     // rear gussets
                 translate([x, mast_y0 - eps, tt_top - eps]) cube([4, eps, mast_top - tt_top - 10]);
@@ -209,10 +219,10 @@ module turntable() {
         }
         sq_holes(ls_pitch_top, tt_z0 - 1, tt_t + 2);                             // bearing top plate (through, M3 x 6)
         for (e = col_ears) translate([e[0], e[1], tt_z0 - 1]) cylinder(d = 2.5, h = tt_t + 2);   // collar pilots (through)
-        translate([0, 0, tt_z0 - 1]) cylinder(d = 7, h = tt_t + 2);              // shaft passes through (0.5 mm float each side)
+        translate([0, 0, tt_z0 - 1]) cylinder(d = 7, h = tt_t + 2);              // shaft passes through (1 mm clear each side)
         translate([0, 0, col_z0]) cylinder(d = col_d + 1.2, h = 10);             // collar recess (0.6 float)
         for (a = [90, 180, 270]) rotate([0, 0, a]) translate([ls_pitch_bot / sqrt(2), 0, tt_z0 - 1]) cylinder(d = 8, h = 20);   // bottom-plate screw access
-        rotate([0, 0, sw_az - 180]) hull() for (r = [trip_r_nom - 13, trip_r_nom - 5]) translate([-r, 0, tt_z0 - 1]) m3_clear(tt_t + 2);   // trip block slot
+        translate([8, -3.25, col_ss_z - 1.9]) cube([7, 6.5, 10]);                // set-screw key notch in the recess rim (+X)
         translate([lsv_x0 - 0.4, mast_y0 - 1, tt_top - 1]) cube([sv_l + 0.8, 20, z_p1 + sv_w / 2 + 0.4 - tt_top + 1]);
         for (x = hx, dz = [-sv_hole_dx / 2, sv_hole_dx / 2]) translate([x, 0, z_p1 + dz]) {
             ycyl(3.4, mast_y0 - 1, mast_y1 + 1);
@@ -222,29 +232,22 @@ module turntable() {
     }
 }
 
-// DRIVE COLLAR (print 1, PETG, 100 % infill, upright, supports under the ears):
-// sits 3 mm down in a recess in the turntable top, around the shaft. M3 x 6 set screw (+Y) through a captive nut onto
-// the shaft's flat; 2 x M3 x 10 down through Ø4 float holes into turntable
-// pilots: snug them, swing the arm by hand a full sweep, then tighten. All of
-// it stays reachable from above. Turntable frame.
+// DRIVE COLLAR (print 1, PETG, 100 % infill, upside down: top face on the bed,
+// no supports): sits 3 mm down in a recess in the turntable top, around the
+// shaft. M3 x 6 set screw (+X, a notch in the recess rim lets the key in)
+// through a captive nut onto the shaft's flat; 2 x M3 x 10 down into turntable
+// pilots, fully tight (the bearing's bottom plate does the centring, see deck).
+// Turntable frame.
 module collar() difference() {
     union() {
         translate([0, 0, col_z0]) cylinder(d = col_d, h = col_h);
-        for (e = col_ears) hull() { translate([0, 0, tt_top]) cylinder(d = 8, h = 4); translate([e[0], e[1], tt_top]) cylinder(d = 8, h = 4); }
+        for (e = col_ears) hull() { translate([0, 0, tt_top]) cylinder(d = 8, h = col_z0 + col_h - tt_top); translate([e[0], e[1], tt_top]) cylinder(d = 8, h = col_z0 + col_h - tt_top); }
     }
     translate([0, 0, col_z0 - 1]) cylinder(d = nm_shaft_d + 0.15, h = col_h + 2);
-    translate([0, 0, col_ss_z]) ycyl(3.4, 0, col_d);                                     // set screw
-    translate([0, 4.3, col_ss_z]) rotate([-90, 0, 0]) rotate([0, 0, 30]) hex_pocket(2.6);  // nut ...
-    translate([-5.7 / 2, 4.3, col_ss_z]) cube([5.7, 2.6, 10]);                           // ... dropped in from the top
-    for (e = col_ears) translate([e[0], e[1], tt_top - 1]) cylinder(d = 4, h = 10);
-}
-
-// TRIP BLOCK (print 1, PETG): bolts on top of the turntable tab with an M3 x 12
-// + nut through the radial slot; slide it until the switch clicks at az 0.
-// Chamfered nose so the roller rides up it from either side. Turntable frame.
-module trip() rotate([0, 0, sw_az - 180]) translate([-trip_r_nom, 0, tt_top]) difference() {
-    hull() { translate([0, -6, 0]) cube([10, 12, 6]); translate([-2, -2, 0]) cube([1, 4, 6]); }
-    translate([9, 0, -1]) m3_clear(10);
+    translate([0, 0, col_ss_z]) xcyl(3.4, 0, col_d);                                     // set screw
+    translate([4.3, 0, col_ss_z]) rotate([0, 90, 0]) rotate([0, 0, 30]) hex_pocket(2.6); // nut ...
+    translate([4.3, -5.7 / 2, col_ss_z]) cube([2.6, 5.7, 10]);                           // ... dropped in from the top
+    for (e = col_ears) translate([e[0], e[1], tt_top - 1]) m3_clear(10);
 }
 
 // =========================================================================
@@ -420,7 +423,7 @@ if (part == "bed") bed();
 if (part == "cell_block") cell_block();
 if (part == "pedestal") pedestal();
 if (part == "deck") deck();
-if (part == "trip") trip();
+if (part == "switch_cradle") switch_cradle();
 if (part == "turntable") turntable();
 if (part == "collar") collar();
 if (part == "link_a") link_a();

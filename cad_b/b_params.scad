@@ -74,20 +74,23 @@ deck_screw_r = 72;                       // 4 x M3 x 10 deck -> tube bosses, at 
 nm_sq = 42.3; nm_h = 23; nm_boss_d = 22; nm_boss_h = 2; nm_hole = 31;
 nm_shaft_d = 5; nm_shaft_l = 24; nm_flat_l = 15;   // listings say 20-24 mm; the collar works with either
 // drive collar on TOP of the turntable (always reachable): Ø16 x 8, M3 x 6 set screw onto the
-// shaft's flat (+Y side, clear of the mast wall), 2 x M3 x 10 down into the turntable through Ø4 float holes.
+// shaft's flat (+X side, toward the open space under the lift servo), 2 x M3 x 10 down into the turntable.
 col_d = 16; col_h = 8; col_sink = 3;                    // collar sits 3 mm down in a recess in the turntable top
 col_z0 = tt_top - col_sink;                              // 48.4
 col_ss_z = col_z0 + 3.5;                                 // set screw Z 51.9: works for a 20 or a 24 mm shaft
 col_ears = [[-11, 0], [0, 11]];
-// home switch: KW12-3 roller lever (20 x 10.5 x 6.5) lying flat in a press-fit cradle at az 270
-// (behind the axis: the arm works at 0..170 and its links would hit anything at 170..190);
-// an adjustable trip block on a turntable tab at local 270 deg presses its roller. HOME = arm at az 0.
+// home switch (round 5.1): KW12-3 roller lever (20 x 10.5 x 6.5) lying flat in a separate
+// cradle screwed to the board at az 270 (behind the axis; the links would hit anything at
+// 170..190), radial slots to set it. A cam rim on a sector of the turntable (local 262..350 deg,
+// outer r 96, Z 51.4..57.4) holds the roller pressed for every arm angle from 0 down to -80, with
+// 30-ish deg ramps at both ends. Switch pressed = arm at or below home; released = working range.
+// HOME = the press edge at az 0, approached from above. The cable post is hit at about -90.
 sw_az = 270;
-tab_w = 20; tab_r1 = 92;                 // turntable tab
-trip_r_nom = 96;                         // trip block nose radius (radial slot: 91..99)
+cam_a0 = sw_az - 8; cam_a1 = sw_az + 80; cam_ramp = 8;   // local deg
+cam_r0 = 90; cam_r1 = 96; cam_rp0 = 50;                  // rim inner/outer, sector plate inner radius
 ms_l = 20; ms_w = 10.5; ms_h = 6.5;      // body length (tangential), depth (radial), thickness (Z)
-ms_r0 = 99;                              // switch inner (lever) face radius
-ms_z0 = 51;                              // switch underside: roller ~Z 54, centred on the trip block (Z 51.4..57.4)
+ms_r0 = 99;                              // switch inner (lever) face radius, nominal; slots allow 97.5 .. 103.5
+ms_z0 = 51.2;                            // switch underside: roller ~Z 54.5, centred on the rim (Z 51.4..57.4)
 
 // ---- lift stage (parallelogram) ----
 L      = 220;                            // link pivot-to-pivot

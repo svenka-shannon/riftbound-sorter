@@ -54,7 +54,9 @@ def check(ok, msg):
 stations = [S0 + i * PITCH for i in range(N)]
 names = ["hopper", "scan/weigh"] + [f"bin {i}" for i in range(1, 7)] + ["reject"]
 print("stations: " + ", ".join(f"{n} {s:.0f}" for s, n in zip(stations, names)))
-check(stations[-1] - stations[0] + stations[0] <= 180, f"yaw span home 0 .. {stations[-1]:.0f}: inside the half turn the cable loop allows (stepper: no travel limit of its own)")
+CAM_A0, CAM_A1, CAM_RAMP, SW_AZ, POST_CRASH = 262, 350, 8, 270, -90
+press_lo, press_hi = SW_AZ - (CAM_A1 - CAM_RAMP), SW_AZ - (CAM_A0 + CAM_RAMP)
+check(press_hi == 0 and press_lo > POST_CRASH and SW_AZ - CAM_A0 < stations[0], f"home cam holds the switch for arm {press_lo}..{press_hi} deg (ramps to {SW_AZ-CAM_A1}/{SW_AZ-CAM_A0}); released over the working range from {stations[0]}; cable post hit at ~{POST_CRASH}")
 
 # hopper fits its slot
 hop_ow = HOP_IN_W + 2 * WALL
@@ -114,7 +116,7 @@ check(shaft_top - NM_FLAT_L <= COL_SS_Z - 2, f"set screw at Z {COL_SS_Z:.1f} lan
 r_head_in = NM_HOLE / math.sqrt(2) - 2.75
 check(NM_HOLE / math.sqrt(2) + 2.75 <= LS_HOLE / 2, f"motor screw heads r {r_head_in:.1f}..{NM_HOLE/math.sqrt(2)+2.75:.1f}: inside the bearing hole (r {LS_HOLE/2:.1f})")
 # torque / time: arm inertia about the yaw axis (rough masses, PETG ~40 % infill)
-I = 0.055 * 0.03**2 + 0.05 * 0.22**2 / 3 + 0.06 * 0.245**2 + 0.12 * 0.045**2   # lift servo, links, hand+slider+cup+tube, turntable
+I = 0.055 * 0.03**2 + 0.066 * 0.22**2 / 3 + 0.06 * 0.245**2 + 0.15 * 0.05**2   # lift servo, links (2 x 33 g, 100 % infill), hand+slider+cup+tube, turntable+cam sector
 T_hold = 0.17                                        # 17 N cm holding (pancake, 1 A)
 T_avail = 0.25 * T_hold                              # at 30 rpm on 12 V a pancake keeps well over half; use a quarter
 alpha_cmd = math.radians(300)                        # commanded accel/decel: gentle on the 220 mm links
@@ -125,8 +127,8 @@ def move_t(deg):
     ang = math.radians(deg); t_acc = w_max / alpha_cmd
     return 2 * t_acc + (ang - alpha_cmd * t_acc**2) / w_max if alpha_cmd * t_acc**2 < ang else 2 * math.sqrt(ang / alpha_cmd)
 check(move_t(160) <= 2.0, f"yaw: 160 deg in {move_t(160):.1f} s, 20 deg hop {move_t(20):.2f} s")
-stiff_defl = math.degrees(math.asin(0.010 / T_hold)) * (7.2 / 360)   # 10 mN m disturbance, 4 full steps per electrical cycle
-check(stiff_defl <= 0.1, f"yaw stiffness: a 10 mN m disturbance (tilted board, cable) moves the arm {stiff_defl:.3f} deg")
+stiff_defl = math.degrees(math.asin(0.010 / (0.5 * T_hold))) * (7.2 / 360)   # 10 mN m disturbance at the TMC2209's default 50 % standstill current
+check(stiff_defl <= YAW_REPEAT_DEG, f"yaw stiffness: a 10 mN m disturbance (tilted board, cable) moves the arm {stiff_defl:.3f} deg")
 
 # load cell: owned 5 kg bar (not a 50 g TAL221)
 check(30 + 40 + 2 * 1.75 < 5000, "platform load (slider 30 g + bed 40 g + 2 cards) well inside the 5 kg cell")

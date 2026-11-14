@@ -58,3 +58,27 @@ The reviewer found three blockers in round 4. Two were the 28BYJ-48's 1-3 deg ge
 - Bearing holes: `ls_pitch_bot` (deck, 80.8 assumed) and `ls_pitch_top` (turntable, 88.9 assumed) are separate. **Measure the real bearing before printing the deck and turntable.** Everything else can print now. To reach all 4 bottom-plate screws, park the arm at +45 deg and then at -45 deg.
 - Home switch moved to az 270, behind the axis. At az 180 the links hit it at the reject station (caught by the sweep). It's a KW12-3 press-fit in a walled cradle at Z 51. A separate chamfered `trip` block on a 20 mm tab (local 270) slides in a radial slot (M3 x 12 + nut) to set the click point. During homing the tab arrives from the +X side: fit the switch with its lever hinge on that side.
 - Firmware: approach every station from the same direction anyway (it costs nothing). Re-home at each hopper visit to catch any missed step.
+
+## Round 5.1 (second review fixes, 2026-11-14)
+
+- Home switch: the trip block and tab are gone. A **cam rim** on a sector of the turntable (local 262..350 deg, r 96, Z 51.4..57.4, 8 deg ramps at both ends) holds the switch pressed for every arm angle from 0 down to -72. So pressed means "at or below home", released means "in the working range", and homing is never ambiguous. The cable post is hit at about -90, below the cam.
+- `switch_cradle` is a separate part on the board at az 270 (2 x M3 x 12 into pilots drilled in the plywood). Its radial slots put the switch face anywhere from r 97.5 to 103.5: slide it in until the roller clicks on the rim with ~1 mm of overtravel. The KW12-3 press-fits between the end walls, and the solder tags exit through the open outer side.
+- Deck pocket is now 1.3 mm per side oversize. Bottom-plate screws are M3 x 6 with washers, so the bearing's bottom plate can centre itself on the motor shaft (see assembly). The collar is now rigid (Ø3.4 holes, fully tight).
+- Collar: set screw moved to +X, with a key notch in the recess rim. The ears are full height, so it prints top-face-down with no supports.
+- Pedestal: 6 vent slots for motor heat. b_check: link mass 2 x 33 g, stiffness at the TMC2209's default 50 % standstill current (0.135 deg), and the cam coverage check replaces a span check that could never fail.
+
+### Yaw stage assembly order
+1. Motor to deck on the bench: boss into the Ø22.4 hole, 4 x M3 x 8 from above. These screws can't be reached later.
+2. Deck onto the pedestal tube: 4 x M3 x 10. Pedestal to the board: 4 x M3. Run the motor leads out through the az 315 slot.
+3. Bearing's top plate to the turntable underside: M3 x 6 into pilots on `ls_pitch_top`, driven up from below with the plates turned 45 deg apart.
+4. Turntable + bearing onto the deck, with the bottom plate loose in its pocket. Shaft up through the Ø7 hole.
+5. Collar onto the shaft, set screw (+X) onto the flat, 2 x M3 x 10 into the turntable, all fully tight.
+6. Bottom-plate screws: M3 x 6 + washers through the Ø8 access holes. Park the arm at +45 deg for three of them and -45 deg for the fourth, and snug them. Swing the arm a full sweep by hand, then tighten.
+7. Switch cradle: drill 2 pilots in the board, slide it in until the switch clicks with the arm at 0 (on the rim, ~1 mm overtravel), then tighten.
+
+### Electronics notes (TMC2209 on the Pi Zero 2 W)
+- VM 12 V from the adapter, with a 1000 µF cap at VM/GND. VIO 3.3 V from the Pi. Common ground.
+- STEP/DIR on two GPIOs, step pulses timed with pigpio DMA waveforms. EN with a 10 k pull-up to 3.3 V, so the motor stays off during boot.
+- UART: Pi TX through 1 kΩ to PDN_UART, Pi RX straight to PDN_UART. Use `dtoverlay=disable-bt` and turn off the serial console. Set the run current to ~0.7 A. Set the hold current equal to the run current (IHOLD = IRUN) for full stiffness at the stations.
+- The 12 V 3 A adapter feeds the pump, the 5 V converter (servo) and the stepper: stagger the pump start and the yaw moves.
+- Firmware: approach every station from the same direction. Allow ~150 ms of settle after each move (the arm rings at ~5-7 Hz). Home onto the switch's press edge from above. At hopper visits only *check* the switch state, don't re-zero. Measure station angles once with the camera rather than trusting the computed ones.

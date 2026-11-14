@@ -21,12 +21,12 @@ for (i = [2 : n_st - 1]) color("LightSteelBlue") at_station_raw(i) bin();   // o
 at_station_raw(st_scan) { color("DarkSeaGreen") cell_block(); cell_ref(); color("DarkSeaGreen") bed(); color("Wheat") tower_post(); color("Tan") boom(); color("Tan") lens_frame(); color("Tan") ring_holder(); }
 
 color("DarkSeaGreen") pedestal(); color("MediumSeaGreen") deck();
-stepper_ref(); switch_ref();
+stepper_ref(); switch_ref(); color("Wheat") switch_cradle();
 rotate([0, 0, yaw]) lazy_susan_ref();
 
 rotate([0, 0, yaw]) {
     color("SteelBlue") turntable();
-    color("White") collar(); color("White") trip();
+    color("White") collar();
     lift_servo_ref();
     color("Coral") translate([r_p1, 0, z_p1]) rotate([0, -th, 0]) translate([-r_p1, 0, -z_p1]) link_a();
     color("Coral") translate([r_p1, 0, z_p1 + d_link]) rotate([0, -th, 0]) translate([-r_p1, 0, -(z_p1 + d_link)]) link_b();
