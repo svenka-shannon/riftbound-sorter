@@ -4,8 +4,8 @@
 # ///
 """Option B geometry check: station layout, pocket clearances against a real
 error stack-up, lift range, swing clearance with sag, camera clearance and
-focus, load cell, yaw stage. Numbers mirror cad_b/b_params.scad (round 4: the yaw axis
-is a 28BYJ-48 stepper on a 4" lazy-susan bearing).
+focus, load cell, yaw stage. Numbers mirror cad_b/b_params.scad (round 5: the yaw axis
+is a NEMA 17 pancake stepper, direct drive, on a 4" lazy-susan bearing).
 Exits non-zero if any check fails.
 """
 import math, sys
@@ -29,12 +29,12 @@ RING_STACK = 1.65 + 7 + 2.5 + 3        # button heads + 608 + cap + M3 head
 CAM_DIST = 188.0
 CAM_LENS_Z = BED_TOP + CAM_DIST
 STEP_DEG = 180.0 / 410                 # lift servo: PCA9685 12-bit, 500..2500 us at 50 Hz
-YAW_STEP_DEG = 360.0 / 4076            # 28BYJ-48 half-step through its 63.68:1 gearbox
+YAW_STEP_DEG = 1.8 / 16                # NEMA 17, TMC2209 at 1/16 microsteps, direct drive (no gearbox)
 
 # error budget (yaw), degrees and mm
-YAW_REPEAT_DEG = 0.25                  # stepper, same-direction approach (gearbox backlash taken up in one
-                                       # direction, held by the bearing's drag): coupling + gear compliance.
-                                       # Assumed, not measured; the servo version needed 0.6 and had 0 mm margin.
+YAW_REPEAT_DEG = 0.15                  # same target from the same direction: microstep repeatability + load
+                                       # deflection (10 mN m against ~170 mN m holding: ~0.03 deg) + hub set screw.
+                                       # No gearbox, so no backlash term. Assumed; bench-check with a 260 mm pointer.
 YAW_SETPOINT_DEG = YAW_STEP_DEG / 2
 CUP_ON_CARD_MM = 1.0                   # tangential only: the camera measures the card on the bed and the re-pick yaw is
                                        # corrected to +/- half a yaw step (radial offset can NOT be corrected: no radial axis)
@@ -102,24 +102,31 @@ for D in (4.0, 5.0, 6.0):
     print(f"  +{D:.0f} D close-up lens on a 1.5 m-inf camera focuses at {near*1000:.0f}..{far*1000:.0f} mm")
 check(1 / (5 + 1 / 1.5) * 1000 <= CAM_DIST <= 1 / 5 * 1000, f"lens at {CAM_DIST:.0f} mm sits inside the +5 D focus range (boom slides on the post to focus)")
 
-# yaw stage (round 4)
-DECK_Z0, DECK_TOP, TT_Z0, LS_HOLE = 34.5, 39.5, 46.4, 55.0
-ST_SHAFT_L, ST_FLAT_L, ST_BOSS_H = 10.0, 6.0, 1.5
-HUB_Z0, HUB_FL_D, HUB_FL_T = DECK_Z0 + ST_BOSS_H + 0.5, 32.0, 3.0
-EAR_R = math.hypot(35 / 2, 8)                       # ear screws from the axis
-d_engage = (DECK_Z0 + ST_SHAFT_L) - max(HUB_Z0, DECK_Z0 + ST_SHAFT_L - ST_FLAT_L)
-check(d_engage >= 5, f"hub: double-D engages {d_engage:.1f} mm of the shaft's flats")
-check(DECK_TOP + 3 + 0.5 <= TT_Z0 - HUB_FL_T, f"ear screw heads top {DECK_TOP+3:.1f} under the hub flange {TT_Z0-HUB_FL_T:.1f}")
-check(HUB_FL_D / 2 + 3 <= LS_HOLE / 2 and HUB_FL_D / 2 < EAR_R - 2.75, f"hub flange r {HUB_FL_D/2:.0f}: inside the bearing hole r {LS_HOLE/2:.1f}, clear of the ear heads r {EAR_R-2.75:.1f}")
+# yaw stage (round 5)
+DECK_Z0, DECK_TOP, TT_Z0, TT_T, LS_HOLE = 34.5, 39.5, 46.4, 5.0, 55.0
+NM_H, NM_SHAFT_L, NM_FLAT_L, NM_HOLE = 23.0, 24.0, 15.0, 31.0
+COL_SS_Z = TT_Z0 + TT_T - 3 + 3.5
+check(DECK_Z0 - NM_H >= 4, f"motor body bottom Z {DECK_Z0-NM_H:.1f}: inside the pedestal, above the board")
+shaft_top = DECK_Z0 + NM_SHAFT_L
+for sl in (20.0, NM_SHAFT_L):
+    check(DECK_Z0 + sl >= COL_SS_Z + 2.0, f"{sl:.0f} mm shaft (top Z {DECK_Z0+sl:.1f}) reaches past the collar's set screw (Z {COL_SS_Z:.1f})")
+check(shaft_top - NM_FLAT_L <= COL_SS_Z - 2, f"set screw at Z {COL_SS_Z:.1f} lands on the flat (flat from Z {shaft_top-NM_FLAT_L:.1f})")
+r_head_in = NM_HOLE / math.sqrt(2) - 2.75
+check(NM_HOLE / math.sqrt(2) + 2.75 <= LS_HOLE / 2, f"motor screw heads r {r_head_in:.1f}..{NM_HOLE/math.sqrt(2)+2.75:.1f}: inside the bearing hole (r {LS_HOLE/2:.1f})")
 # torque / time: arm inertia about the yaw axis (rough masses, PETG ~40 % infill)
-I = 0.055 * 0.03**2 + 0.05 * 0.22**2 / 3 + 0.06 * 0.245**2 + 0.08 * 0.04**2   # lift servo, links, hand+slider+cup+tube, turntable
-T_avail = 0.5 * 0.034                                # half the 28BYJ-48's ~34 mN m pull-in torque, rest for drag + cable loop
-w_max = 12 * 2 * math.pi / 60                        # 12 rpm: a safe 5 V half-step rate (~800 steps/s)
-alpha = T_avail / I
-t_acc = w_max / alpha
-ang = math.radians(160)
-t_move = 2 * t_acc + (ang - alpha * t_acc**2) / w_max if alpha * t_acc**2 < ang else 2 * math.sqrt(ang / alpha)
-check(t_move <= 3.0, f"yaw: I ~{I*1e4:.0f} kg cm2, accel {math.degrees(alpha):.0f} deg/s2, 160 deg in {t_move:.1f} s at 12 rpm (20 deg hop {2*math.sqrt(math.radians(20)/alpha) if math.radians(20) < alpha*t_acc**2 else 2*t_acc + (math.radians(20)-alpha*t_acc**2)/w_max:.1f} s)")
+I = 0.055 * 0.03**2 + 0.05 * 0.22**2 / 3 + 0.06 * 0.245**2 + 0.12 * 0.045**2   # lift servo, links, hand+slider+cup+tube, turntable
+T_hold = 0.17                                        # 17 N cm holding (pancake, 1 A)
+T_avail = 0.25 * T_hold                              # at 30 rpm on 12 V a pancake keeps well over half; use a quarter
+alpha_cmd = math.radians(300)                        # commanded accel/decel: gentle on the 220 mm links
+w_max = math.radians(120)                            # 120 deg/s (20 rpm)
+T_need = I * alpha_cmd + 0.003 + 0.004               # + bearing drag + cable loop
+check(T_need <= T_avail, f"yaw torque: need {T_need*1000:.0f} mN m (I ~{I*1e4:.0f} kg cm2 at {math.degrees(alpha_cmd):.0f} deg/s2 + drag + cable) vs ~{T_avail*1000:.0f} available")
+def move_t(deg):
+    ang = math.radians(deg); t_acc = w_max / alpha_cmd
+    return 2 * t_acc + (ang - alpha_cmd * t_acc**2) / w_max if alpha_cmd * t_acc**2 < ang else 2 * math.sqrt(ang / alpha_cmd)
+check(move_t(160) <= 2.0, f"yaw: 160 deg in {move_t(160):.1f} s, 20 deg hop {move_t(20):.2f} s")
+stiff_defl = math.degrees(math.asin(0.010 / T_hold)) * (7.2 / 360)   # 10 mN m disturbance, 4 full steps per electrical cycle
+check(stiff_defl <= 0.1, f"yaw stiffness: a 10 mN m disturbance (tilted board, cable) moves the arm {stiff_defl:.3f} deg")
 
 # load cell: owned 5 kg bar (not a 50 g TAL221)
 check(30 + 40 + 2 * 1.75 < 5000, "platform load (slider 30 g + bed 40 g + 2 cards) well inside the 5 kg cell")

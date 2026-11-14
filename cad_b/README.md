@@ -47,3 +47,14 @@ Why: the MG996R yaw servo needed ~0.6 deg repeatability and the inner bin zone h
 - Home: a KW12-3 roller-lever switch lies flat on a bracket at az 180 (Z 44), M2 x 12 in radial slots to set the lever against the end of a tab on the turntable (local 180 deg, r 92). HOME = arm at az 0. Wired NC to a GPIO with pull-up.
 - Speed estimate (b_check): ~2.6 s for the full 160 deg, ~0.6 s per 20 deg hop at 12 rpm, vs well under 1 s for the servo.
 - **Check on arrival:** the 28BYJ-48 dims (shaft offset 8, double-D 3.0, shaft 10 above the face) and the lazy susan's hole pattern (assumed 80.8 mm square on both plates). If the holes don't line up with the printed pilots, drill new Ø2.5 pilots through the plate's own holes.
+
+## Round 5 changes (review of round 4, 2026-11-14)
+
+The reviewer found three blockers in round 4. Two were the 28BYJ-48's 1-3 deg gearbox backlash, which bearing drag can't hold to one side, and a pedestal deck that couldn't print. The third was the bearing's two plates probably having different hole patterns. A bias weight or band to take up the backlash didn't hold up either: it needs ~0.1 N held constant, and pulley friction is about the same size.
+
+- Yaw motor is now a **NEMA 17 pancake** (42 x 42 x 23) on a **TMC2209**, direct drive. There's no gearbox and no backlash. 1/16 microsteps = 0.1125 deg. ~170 mN m holding torque, so a 10 mN m disturbance moves the arm 0.07 deg. 160 deg in ~1.7 s, 20 deg hop ~0.5 s. Inner-zone margin is +4.7 mm.
+- `pedestal` is now an open tube (prints with no supports). New flat `deck` part: the motor's Ø22 boss locates in it (centring the shaft on the bearing), the motor screws are 4 x M3 x 8 from above, and 4 x M3 x 10 hold the deck to bosses in the tube.
+- Drive: a `collar` on top of the turntable, sunk 3 mm, with an M3 x 6 set screw onto the shaft's flat through a captive nut. It works with a 20 or a 24 mm shaft. 2 x M3 x 10 go into the turntable through float holes. Everything stays reachable from above. The round-4 hub is gone.
+- Bearing holes: `ls_pitch_bot` (deck, 80.8 assumed) and `ls_pitch_top` (turntable, 88.9 assumed) are separate. **Measure the real bearing before printing the deck and turntable.** Everything else can print now. To reach all 4 bottom-plate screws, park the arm at +45 deg and then at -45 deg.
+- Home switch moved to az 270, behind the axis. At az 180 the links hit it at the reject station (caught by the sweep). It's a KW12-3 press-fit in a walled cradle at Z 51. A separate chamfered `trip` block on a 20 mm tab (local 270) slides in a radial slot (M3 x 12 + nut) to set the click point. During homing the tab arrives from the +X side: fit the switch with its lever hinge on that side.
+- Firmware: approach every station from the same direction anyway (it costs nothing). Re-home at each hopper visit to catch any missed step.

@@ -10,10 +10,10 @@ module fixed() {
     at_station(st_hopper, floor_t) translate([-card_l / 2, -card_w / 2, 0]) cube([card_l, card_w, 40 * card_t]);
     for (i = [2 : n_st - 1]) rotate([0, 0, st_angle(i)]) bin();
     rotate([0, 0, st_angle(st_scan)]) { cell_block(); bed(); tower_post(); boom(); lens_frame(); ring_holder(); }
-    pedestal(); switch_ref(); cable_post();
+    pedestal(); deck(); switch_ref(); cable_post();
 }
 module arm() rotate([0, 0, yaw]) {
-    turntable(); hub();
+    turntable(); collar(); trip();
     translate([r_p1, 0, z_p1]) rotate([0, -th, 0]) translate([-r_p1, 0, -z_p1]) link_a();
     translate([r_p1, 0, z_p1 + d_link]) rotate([0, -th, 0]) translate([-r_p1, 0, -(z_p1 + d_link)]) link_b();
     translate([L * cos(th) - L, 0, L * sin(th)]) {

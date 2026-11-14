@@ -102,59 +102,67 @@ module bed() {
 }
 
 // =========================================================================
-// PEDESTAL (print 1, PETG, flange down; round 4 replaces the servo yaw base +
-// rollers). Tube r 80 with a 5 mm deck at Z 34.5..39.5. The lazy susan's
-// bottom plate sits in a 1 mm square pocket on the deck (M3 x 8 self-tapped
-// into Ø2.5 pilots at its corner holes). The 28BYJ-48 hangs under the deck,
-// shaft up on the yaw axis, ears on M3 x 8 down through Ø5 float holes (washer
-// + nut under each ear): leave them loose, turn the arm by hand a full sweep so
-// the stepper centres itself on the bearing axis, then tighten. Lead exits
-// through a slot toward -Y. Home-switch bracket at az 180 (+home_az).
+// PEDESTAL (print 1, PETG, tabs down, no supports): open tube r 80, Z 0..34.5,
+// 4 board tabs, 4 internal bosses for the deck screws, motor-lead exit toward
+// -Y, and the home-switch cradle at az 180. World frame.
+// DECK (print 1, PETG, pocket up, flat): the bearing's bottom plate sits in a
+// 1 mm square pocket (M3 x 6 self-tapped into Ø2.5 pilots); the NEMA 17's boss
+// locates in a Ø22.4 hole (that centres the shaft on the bearing) and 4 x M3 x 8
+// go down through the deck into the motor. Mount the motor to the deck on the
+// bench, then screw the deck onto the tube (4 x M3 x 10 into the bosses).
 // =========================================================================
-ped_flange = 150;                        // board screws at (+/-75, +/-75), r 106
-ears = [for (s = [-1, 1]) [st_xy[0] + s * st_ear_span / 2, st_xy[1]]];
 module stepper_ref() color("RoyalBlue") {
-    translate([st_xy[0], st_xy[1], deck_z0 - st_h]) cylinder(d = st_d, h = st_h);
-    translate([st_xy[0] - 8.5, st_xy[1] - st_d / 2 - 3, deck_z0 - 16]) cube([17, 6, 16]);   // lead housing
-    hull() for (e = ears) translate([e[0], e[1], deck_z0 - st_ear_t]) cylinder(d = st_ear_w, h = st_ear_t);
-    translate([0, 0, deck_z0]) cylinder(d = st_boss_d, h = st_boss_h);
-    color("Silver") translate([0, 0, deck_z0]) cylinder(d = st_shaft_d, h = st_shaft_l);
+    translate([-nm_sq / 2, -nm_sq / 2, deck_z0 - nm_h]) cube([nm_sq, nm_sq, nm_h]);
+    translate([0, 0, deck_z0 - eps]) cylinder(d = nm_boss_d, h = nm_boss_h);
+    color("Silver") translate([0, 0, deck_z0]) cylinder(d = nm_shaft_d, h = nm_shaft_l);
 }
 module lazy_susan_ref() color("Silver") translate([0, 0, ls_z0]) difference() {
     translate([-ls_sq / 2, -ls_sq / 2, 0]) cube([ls_sq, ls_sq, ls_t]);
     translate([0, 0, -1]) cylinder(d = ls_hole, h = ls_t + 2);
 }
-module ls_pilots(z0, h) for (x = [-1, 1], y = [-1, 1]) translate([x * ls_pitch / 2, y * ls_pitch / 2, z0]) cylinder(d = 2.5, h = h);
-ms_xc = -(ms_r0 + 10.2 / 2);             // switch body centre (radial), world frame at home_az = 0
-module switch_ref() color("Black") rotate([0, 0, home_az]) translate([ms_xc - ms_h / 2, -ms_l / 2, ms_z0]) cube([ms_h, ms_l, ms_w]);
-module switch_bracket() rotate([0, 0, home_az]) difference() {
-    translate([-110, -12, 0]) cube([110 - ped_r + ped_wall, 24, ms_z0]);
-    translate([-107, -9, -1]) cube([107 - ped_r - 1, 18, ms_z0 - 5 + 1]);             // hollow: nut access from below
-    for (y = [-ms_hole_p / 2, ms_hole_p / 2]) hull() for (dx = [-3, 3]) translate([ms_xc + dx, y, ms_z0 - 10]) cylinder(d = 2.4, h = 20);   // M2 slots: set the lever to the tab
+module sq_holes(pitch, z0, h, d = 2.5) for (x = [-1, 1], y = [-1, 1]) translate([x * pitch / 2, y * pitch / 2, z0]) cylinder(d = d, h = h);
+ms_xc = -(ms_r0 + ms_w / 2);             // switch body centre (radial), drawn along -X then rotated to sw_az
+module switch_ref() color("Black") rotate([0, 0, sw_az - 180]) translate([ms_xc - ms_w / 2, -ms_l / 2, ms_z0]) cube([ms_w, ms_l, ms_h]);
+module switch_cradle() rotate([0, 0, sw_az - 180]) difference() {
+    union() {
+        translate([-ms_r0, -12, 0]) cube([ms_r0 - deck_r - 0.5, 24, tt_z0 - 2.4]); translate([-ped_r - 1, -12, 0]) cube([2, 24, deck_z0]);                      // under the tab path: top 44
+        translate([-(ms_r0 + ms_w + 3), -ms_l / 2 - 3, 0]) cube([ms_w + 3 + eps, ms_l + 6, ms_z0]);    // switch seat (r >= ms_r0 only)
+        translate([-(ms_r0 + ms_w + 3), -ms_l / 2 - 3, 0]) cube([3, ms_l + 6, ms_z0 + ms_h - 1]);      // outer wall
+        for (s = [-1, 1]) translate([-(ms_r0 + ms_w + 3), s > 0 ? ms_l / 2 : -ms_l / 2 - 3, 0]) cube([ms_w + 3, 3, ms_z0 + ms_h - 1]);   // end walls
+    }
+    // press fit: walls 0.1 tight on the 20 mm length; a dab of hot glue if loose
+    translate([-(ms_r0 + ms_w), -ms_l / 2 + 0.1, ms_z0]) cube([ms_w + 1, ms_l - 0.2, 20]);
+    translate([-(ms_r0 + ms_w) + 2, -ms_l / 2 + 3, ms_z0 - 12]) cube([ms_w - 4, ms_l - 6, 13]);    // lead-tag clearance + glue well
 }
 module pedestal() difference() {
     union() {
-        for (a = [45, 135, 225, 315]) rotate([0, 0, a]) hull() { translate([ped_r - 10, -9, 0]) cube([1, 18, 4]); translate([ped_flange / sqrt(2) - 0.1, 0, 0]) cylinder(d = 18, h = 4); }   // 4 board tabs
-        cylinder(r = ped_r, h = deck_top, $fn = 120);
-        switch_bracket();
+        for (a = [45, 135, 225, 315]) rotate([0, 0, a]) hull() { translate([ped_r - 10, -9, 0]) cube([1, 18, 4]); translate([106, 0, 0]) cylinder(d = 18, h = 4); }   // 4 board tabs
+        difference() { cylinder(r = ped_r, h = deck_z0, $fn = 120); translate([0, 0, -1]) cylinder(r = ped_r - ped_wall, h = deck_z0 + 2, $fn = 120); }
+        for (a = [0, 90, 180, 270]) rotate([0, 0, a + 22.5]) translate([deck_screw_r, 0, 0]) cylinder(d = 12, h = deck_z0);   // deck bosses
+        switch_cradle();
     }
-    translate([0, 0, -1]) cylinder(r = ped_r - ped_wall, h = deck_z0 + 1, $fn = 120);  // hollow tube
+    for (a = [0, 90, 180, 270]) rotate([0, 0, a + 22.5]) translate([deck_screw_r, 0, deck_z0 - 9]) cylinder(d = 2.5, h = 10);
+    rotate([0, 0, 45]) translate([-10, -ped_r - 1, 4]) cube([20, 10, 14]);              // motor lead exit (az 315)
+    for (a = [45, 135, 225, 315]) rotate([0, 0, a]) translate([106, 0, -1]) m3_clear(10);   // to the board
+}
+module deck() difference() {
+    translate([0, 0, deck_z0]) cylinder(r = deck_r, h = deck_t, $fn = 120);
     translate([-ls_sq / 2 - 0.3, -ls_sq / 2 - 0.3, deck_top - ls_pocket]) cube([ls_sq + 0.6, ls_sq + 0.6, 5]);
-    translate([0, 0, deck_z0 - 1]) cylinder(d = 16, h = 10);                          // boss + hub clearance
-    for (e = ears) translate([e[0], e[1], deck_z0 - 1]) cylinder(d = 5, h = 10);      // float holes
-    ls_pilots(deck_z0 - 1, 10);                                                       // through: M3 x 6 may poke out below
-    translate([-8, -ped_r - 1, 4]) cube([16, 10, 14]);                                // stepper lead exit (-Y)
-    for (a = [45, 135, 225, 315]) rotate([0, 0, a]) translate([ped_flange / sqrt(2) - 0.1, 0, -1]) m3_clear(10);   // to the board
+    translate([0, 0, deck_z0 - 1]) cylinder(d = nm_boss_d + 0.4, h = deck_t + 2);      // boss locates the motor; hub set-screw room above
+    for (x = [-1, 1], y = [-1, 1]) translate([x * nm_hole / 2, y * nm_hole / 2, deck_z0 - 1]) m3_clear(10);   // M3 x 8 down into the motor (heads on the deck, inside the bearing's hole)
+    sq_holes(ls_pitch_bot, deck_z0 - 1, 10);                                            // bottom plate pilots (through)
+    for (a = [0, 90, 180, 270]) rotate([0, 0, a + 22.5]) translate([deck_screw_r, 0, deck_z0 - 1]) { m3_clear(10); translate([0, 0, deck_t + 1 - 3]) cylinder(d = 6, h = 10); }
 }
 
 // =========================================================================
 // TURNTABLE + MAST (print 1, PETG, plate down; the P2 boss has a gusset under
-// it, no supports). Arm-local frame. Round 4: the lazy susan's top plate is
-// screwed to the plate's underside (M3 x 8 self-tapped up into Ø2.5 pilots);
-// the separate hub (below) screws into three more pilots. Ø8 access holes at
-// local 90/180/270 deg, r 57: rotate the arm 45 deg off the deck's square and
-// drive the bearing's bottom-plate screws through them. The tab at local 180
-// deg trips the home switch with its end. The lift MG996R lies along
+// it, no supports). Arm-local frame. Round 5: the lazy susan's top plate is
+// screwed to the plate's underside (M3 x 6 up into Ø2.5 pilots on ls_pitch_top:
+// MEASURE the bearing first). The motor shaft passes up through a Ø7 hole into
+// the drive collar on top.
+// Ø8 access holes at local 90/180/270 deg, r = ls_pitch_bot / sqrt 2: park the
+// arm at +45 and then -45 deg off the deck's square to reach all 4 bottom-plate
+// screws. Tab at local 270 deg (sw_az) carries the adjustable trip block. The lift MG996R lies along
 // +X with its spline at P1 = (25, Y, 70); its tabs bolt through the mast wall
 // (M3 x 12, washer + nut on the flat back face). P2 boss carries link B.
 // =========================================================================
@@ -187,7 +195,7 @@ module turntable() {
         union() {
             translate([0, 0, tt_z0]) hull() { cylinder(d = tt_d, h = tt_t, $fn = 120); translate([0, -42, 0]) cube([70, 62, tt_t]);
                                               translate([-54, -54, 0]) cube([108, 108, tt_t]); }
-            translate([-flag_r1, -flag_w / 2, tt_z0]) cube([flag_r1, flag_w, tt_t]);   // home tab
+            rotate([0, 0, sw_az - 180]) translate([-tab_r1, -tab_w / 2, tt_z0]) cube([tab_r1, tab_w, tt_t]);   // home tab (local sw_az)
             translate([mast_x0, mast_y0, tt_top - eps]) cube([mast_x1 - mast_x0, mast_y1 - mast_y0, mast_top - tt_top]);
             for (x = [mast_x0, mast_x1 - 4]) hull() {                     // rear gussets
                 translate([x, mast_y0 - eps, tt_top - eps]) cube([4, eps, mast_top - tt_top - 10]);
@@ -199,9 +207,12 @@ module turntable() {
                 translate([r_p1 - 7, mast_y1 - eps, 84]) cube([14, 1, 1]);
             }
         }
-        ls_pilots(tt_z0 - 1, tt_t + 2);                                          // bearing top plate (through, M3 x 6)
-        for (a = [0, 120, 240]) rotate([0, 0, a]) translate([12, 0, tt_z0 - 1]) cylinder(d = 2.5, h = tt_t + 2);   // hub flange (through, M3 x 8)
-        for (a = [90, 180, 270]) rotate([0, 0, a]) translate([ls_pitch / sqrt(2), 0, tt_z0 - 1]) cylinder(d = 8, h = 20);   // bottom-plate screw access
+        sq_holes(ls_pitch_top, tt_z0 - 1, tt_t + 2);                             // bearing top plate (through, M3 x 6)
+        for (e = col_ears) translate([e[0], e[1], tt_z0 - 1]) cylinder(d = 2.5, h = tt_t + 2);   // collar pilots (through)
+        translate([0, 0, tt_z0 - 1]) cylinder(d = 7, h = tt_t + 2);              // shaft passes through (0.5 mm float each side)
+        translate([0, 0, col_z0]) cylinder(d = col_d + 1.2, h = 10);             // collar recess (0.6 float)
+        for (a = [90, 180, 270]) rotate([0, 0, a]) translate([ls_pitch_bot / sqrt(2), 0, tt_z0 - 1]) cylinder(d = 8, h = 20);   // bottom-plate screw access
+        rotate([0, 0, sw_az - 180]) hull() for (r = [trip_r_nom - 13, trip_r_nom - 5]) translate([-r, 0, tt_z0 - 1]) m3_clear(tt_t + 2);   // trip block slot
         translate([lsv_x0 - 0.4, mast_y0 - 1, tt_top - 1]) cube([sv_l + 0.8, 20, z_p1 + sv_w / 2 + 0.4 - tt_top + 1]);
         for (x = hx, dz = [-sv_hole_dx / 2, sv_hole_dx / 2]) translate([x, 0, z_p1 + dz]) {
             ycyl(3.4, mast_y0 - 1, mast_y1 + 1);
@@ -211,21 +222,29 @@ module turntable() {
     }
 }
 
-// HUB (print 1, PETG, flange down, 100 % infill): presses onto the stepper's
-// double-D shaft and screws up into the turntable (3 x M3 x 8, heads under the
-// flange). Round Ø5.2 over the shaft's round root, then double-D 2.95 across
-// the flats (press fit; if it is loose, a drop of CA). Turntable frame.
-module hub() difference() {
+// DRIVE COLLAR (print 1, PETG, 100 % infill, upright, supports under the ears):
+// sits 3 mm down in a recess in the turntable top, around the shaft. M3 x 6 set screw (+Y) through a captive nut onto
+// the shaft's flat; 2 x M3 x 10 down through Ø4 float holes into turntable
+// pilots: snug them, swing the arm by hand a full sweep, then tighten. All of
+// it stays reachable from above. Turntable frame.
+module collar() difference() {
     union() {
-        translate([0, 0, hub_z0]) cylinder(d = hub_d, h = tt_z0 - hub_z0);
-        translate([0, 0, tt_z0 - hub_fl_t]) cylinder(d = hub_fl_d, h = hub_fl_t);
+        translate([0, 0, col_z0]) cylinder(d = col_d, h = col_h);
+        for (e = col_ears) hull() { translate([0, 0, tt_top]) cylinder(d = 8, h = 4); translate([e[0], e[1], tt_top]) cylinder(d = 8, h = 4); }
     }
-    translate([0, 0, hub_z0 - 1]) cylinder(d = st_shaft_d + 0.2, h = deck_z0 + st_shaft_l - st_flat_l - hub_z0 + 1);
-    intersection() {
-        translate([0, 0, deck_z0 + st_shaft_l - st_flat_l - eps]) cylinder(d = st_shaft_d + 0.05, h = st_flat_l + 1);
-        translate([-(st_flat - 0.05) / 2, -5, 0]) cube([st_flat - 0.05, 10, 100]);
-    }
-    for (a = [0, 120, 240]) rotate([0, 0, a]) translate([12, 0, tt_z0 - hub_fl_t - 1]) m3_clear(10);
+    translate([0, 0, col_z0 - 1]) cylinder(d = nm_shaft_d + 0.15, h = col_h + 2);
+    translate([0, 0, col_ss_z]) ycyl(3.4, 0, col_d);                                     // set screw
+    translate([0, 4.3, col_ss_z]) rotate([-90, 0, 0]) rotate([0, 0, 30]) hex_pocket(2.6);  // nut ...
+    translate([-5.7 / 2, 4.3, col_ss_z]) cube([5.7, 2.6, 10]);                           // ... dropped in from the top
+    for (e = col_ears) translate([e[0], e[1], tt_top - 1]) cylinder(d = 4, h = 10);
+}
+
+// TRIP BLOCK (print 1, PETG): bolts on top of the turntable tab with an M3 x 12
+// + nut through the radial slot; slide it until the switch clicks at az 0.
+// Chamfered nose so the roller rides up it from either side. Turntable frame.
+module trip() rotate([0, 0, sw_az - 180]) translate([-trip_r_nom, 0, tt_top]) difference() {
+    hull() { translate([0, -6, 0]) cube([10, 12, 6]); translate([-2, -2, 0]) cube([1, 4, 6]); }
+    translate([9, 0, -1]) m3_clear(10);
 }
 
 // =========================================================================
@@ -400,8 +419,10 @@ if (part == "hopper") hopper();
 if (part == "bed") bed();
 if (part == "cell_block") cell_block();
 if (part == "pedestal") pedestal();
+if (part == "deck") deck();
+if (part == "trip") trip();
 if (part == "turntable") turntable();
-if (part == "hub") hub();
+if (part == "collar") collar();
 if (part == "link_a") link_a();
 if (part == "link_b") link_b();
 if (part == "sleeve") sleeve();

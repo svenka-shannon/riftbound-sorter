@@ -10,7 +10,7 @@
 // tangential (counter-clockwise), Z up. The cup axis is the plane Y = 0; the
 // parallelogram links run in the plane Y = 9..19.
 // Round 2 (2026-11-13): review fixes, see CHANGES in cad_b/README.md.
-// Round 4 (2026-11-14): yaw axis is a 28BYJ-48 stepper on a lazy-susan bearing.
+// Round 5 (2026-11-14): yaw axis is a NEMA 17 pancake stepper on a lazy-susan bearing.
 // =========================================================================
 $fn = 48;
 eps = 0.01;
@@ -48,39 +48,46 @@ sv_hole_p = 49.5; sv_hole_dx = 10;
 sv_shaft_off = 10.2;                     // spline centre from the near case end
 horn_d = 21; horn_t = 3; horn_gap = 1.4; // owned round disc horn: 21 mm
 
-// ---- yaw stage (round 4, 2026-11-14): 28BYJ-48 stepper + 4" lazy-susan bearing ----
+// ---- yaw stage (round 5, 2026-11-14): NEMA 17 pancake stepper + 4" lazy-susan bearing ----
 // The turntable rides on a 4" square lazy-susan bearing (carries the arm's
-// weight and tipping moment); the stepper sits under it, shaft up on the yaw
-// axis, and only turns it through a press-fit double-D hub.
-tt_z0 = 46.4;                            // turntable underside (unchanged from round 3: arm geometry identical)
+// weight and tipping moment). A NEMA 17 pancake stepper (no gearbox, so no
+// backlash; TMC2209, 1/16 microsteps = 0.1125 deg) hangs under a separate
+// printed deck, shaft up on the yaw axis, and turns the turntable through a
+// set-screw hub. Round 4's 28BYJ-48 was dropped: 1-3 deg gearbox backlash.
+tt_z0 = 46.4;                            // turntable underside (unchanged: arm geometry identical)
 tt_t  = 5;  tt_d = 104;
 tt_top = tt_z0 + tt_t;                   // 51.4
 ls_sq = 102; ls_t = 7.9;                 // 4" square lazy susan, 5/16" thick
-ls_hole = 55;                            // centre hole (2.16"), clear for hub + nuts
-ls_pitch = 80.8;                         // mounting holes 3.18" on centre (CHECK on the bearing you get)
+ls_hole = 55;                            // centre hole (2.16")
+ls_pitch_bot = 80.8;                     // bottom plate holes, square pitch (3.18"): MEASURE before printing the deck
+ls_pitch_top = 88.9;                     // top plate holes (3.5" per one seller): MEASURE before printing the turntable
 ls_z0 = tt_z0 - ls_t;                    // 38.5: bottom plate underside = deck pocket floor
-ls_pocket = 1.0;                         // both plates sit 1 mm deep in square pockets (registers them)
-deck_t = 5;                              // pedestal deck, pocket floor at ls_z0
+ls_pocket = 1.0;                         // bottom plate sits 1 mm deep in a square pocket in the deck
+deck_t = 5;                              // deck (separate part), pocket floor at ls_z0
 deck_top = ls_z0 + ls_pocket;            // 39.5
-deck_z0 = deck_top - deck_t;             // 34.5 = stepper mounting face
-ped_r = 80;                              // pedestal tube outer radius
-ped_wall = 2.4;
-// 28BYJ-48 (generic): body 28 x 19, ears 35 apart (4.2 holes, 0.8 thick, 7 wide),
-// shaft 8 mm off the body centre, boss 9 x 1.5, shaft 5 dia double-D 3.0 across
-// flats, 10 mm above the mounting face (flats on the top 6). CHECK on arrival.
-st_d = 28; st_h = 19; st_ear_span = 35; st_ear_hole = 4.2; st_ear_w = 7; st_ear_t = 0.8;
-st_off = 8; st_boss_d = 9; st_boss_h = 1.5; st_shaft_d = 5; st_flat = 3.0; st_shaft_l = 10; st_flat_l = 6;
-st_xy = [0, -st_off];                    // body centre (shaft on the axis, body toward -Y, ears along X)
-hub_d = 14; hub_z0 = deck_z0 + st_boss_h + 0.5;   // separate printed hub, screwed under the turntable, to just over the boss
-hub_fl_d = 32; hub_fl_t = 3;             // hub flange (inside the bearing's centre hole, clear of the ear screw heads)
-// home switch: generic roller-lever microswitch (20 x 6.4 x 10.2, M2 holes 9.5 apart)
-// lying flat on a bracket at az 180, its lever tripped by the end of a tab on the
-// turntable at arm-local 180 deg. HOME = arm at az 0 (10 deg before the hopper).
-home_az = 0;
-flag_r1 = 92; flag_w = 12;               // tab end radius, tab width (turntable plate level, Z 46.4..51.4)
-ms_l = 20; ms_w = 6.4; ms_h = 10.2; ms_hole_p = 9.5;
-ms_r0 = 96;                              // switch body inner face radius (lever reaches in to the tab end)
-ms_z0 = 44;                              // switch underside = bracket top (2.4 under the tab)
+deck_z0 = deck_top - deck_t;             // 34.5 = motor mounting face = pedestal tube top
+deck_r = 80;
+ped_r = 80; ped_wall = 2.4;              // pedestal tube (separate part), Z 0 .. deck_z0
+deck_screw_r = 72;                       // 4 x M3 x 10 deck -> tube bosses, at 0/90/180/270 (outside the bearing's square)
+// NEMA 17 pancake (STEPPERONLINE 17HS08-1004S class): 42.3 square x 23, boss 22 x 2,
+// M3 holes on a 31 mm square, shaft 5 mm with a D flat, ~24 mm above the face. CHECK on arrival.
+nm_sq = 42.3; nm_h = 23; nm_boss_d = 22; nm_boss_h = 2; nm_hole = 31;
+nm_shaft_d = 5; nm_shaft_l = 24; nm_flat_l = 15;   // listings say 20-24 mm; the collar works with either
+// drive collar on TOP of the turntable (always reachable): Ø16 x 8, M3 x 6 set screw onto the
+// shaft's flat (+Y side, clear of the mast wall), 2 x M3 x 10 down into the turntable through Ø4 float holes.
+col_d = 16; col_h = 8; col_sink = 3;                    // collar sits 3 mm down in a recess in the turntable top
+col_z0 = tt_top - col_sink;                              // 48.4
+col_ss_z = col_z0 + 3.5;                                 // set screw Z 51.9: works for a 20 or a 24 mm shaft
+col_ears = [[-11, 0], [0, 11]];
+// home switch: KW12-3 roller lever (20 x 10.5 x 6.5) lying flat in a press-fit cradle at az 270
+// (behind the axis: the arm works at 0..170 and its links would hit anything at 170..190);
+// an adjustable trip block on a turntable tab at local 270 deg presses its roller. HOME = arm at az 0.
+sw_az = 270;
+tab_w = 20; tab_r1 = 92;                 // turntable tab
+trip_r_nom = 96;                         // trip block nose radius (radial slot: 91..99)
+ms_l = 20; ms_w = 10.5; ms_h = 6.5;      // body length (tangential), depth (radial), thickness (Z)
+ms_r0 = 99;                              // switch inner (lever) face radius
+ms_z0 = 51;                              // switch underside: roller ~Z 54, centred on the trip block (Z 51.4..57.4)
 
 // ---- lift stage (parallelogram) ----
 L      = 220;                            // link pivot-to-pivot
