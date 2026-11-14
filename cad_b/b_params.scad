@@ -2,7 +2,7 @@
 // Option B ("turntable picker"): shared geometry. Keep in sync with b_check.py.
 //
 // World frame: origin = yaw axis on the board top, Z up. The arm points at
-// azimuth = servo angle s (deg, from +X, counter-clockwise). Stations sit on
+// azimuth = yaw angle s (deg, from +X, counter-clockwise). Stations sit on
 // a circle of radius R at s = 10, 30, ..., 170: hopper, scan/weigh platform,
 // bins 1-6, reject. Electronics, pump and the cable post live behind (-Y).
 //
@@ -10,6 +10,7 @@
 // tangential (counter-clockwise), Z up. The cup axis is the plane Y = 0; the
 // parallelogram links run in the plane Y = 9..19.
 // Round 2 (2026-11-13): review fixes, see CHANGES in cad_b/README.md.
+// Round 4 (2026-11-14): yaw axis is a 28BYJ-48 stepper on a lazy-susan bearing.
 // =========================================================================
 $fn = 48;
 eps = 0.01;
@@ -40,21 +41,46 @@ bed_t    = 3.3;
 bed_top  = cell_z0 + cell_s + bed_boss + bed_t;   // 29.0
 bed_w = 70; bed_l = 96;
 
-// ---- MG996R (both servos) ----
+// ---- MG996R (lift servo) ----
 sv_l = 40.7; sv_w = 19.7; sv_case_h = 37.0; sv_h = 42.9;   // bottom -> spline top
 sv_tab_z0 = 26.8; sv_tab_t = 2.5; sv_tab_span = 54.0;
 sv_hole_p = 49.5; sv_hole_dx = 10;
 sv_shaft_off = 10.2;                     // spline centre from the near case end
 horn_d = 21; horn_t = 3; horn_gap = 1.4; // owned round disc horn: 21 mm
 
-// ---- yaw stage ----
-yaw_spline_z = 45;                       // spline top
-yaw_sv_bot   = yaw_spline_z - sv_h;      // 2.1
-tt_z0 = yaw_spline_z + horn_gap;         // turntable underside = horn front face (46.4)
+// ---- yaw stage (round 4, 2026-11-14): 28BYJ-48 stepper + 4" lazy-susan bearing ----
+// The turntable rides on a 4" square lazy-susan bearing (carries the arm's
+// weight and tipping moment); the stepper sits under it, shaft up on the yaw
+// axis, and only turns it through a press-fit double-D hub.
+tt_z0 = 46.4;                            // turntable underside (unchanged from round 3: arm geometry identical)
 tt_t  = 5;  tt_d = 104;
 tt_top = tt_z0 + tt_t;                   // 51.4
-roller_r = 42;                           // 608ZZ sag stop under the rim
-roller_gap = 0.5;                        // nominal; axle slots give +/-1.5 to set it with a paper shim
+ls_sq = 102; ls_t = 7.9;                 // 4" square lazy susan, 5/16" thick
+ls_hole = 55;                            // centre hole (2.16"), clear for hub + nuts
+ls_pitch = 80.8;                         // mounting holes 3.18" on centre (CHECK on the bearing you get)
+ls_z0 = tt_z0 - ls_t;                    // 38.5: bottom plate underside = deck pocket floor
+ls_pocket = 1.0;                         // both plates sit 1 mm deep in square pockets (registers them)
+deck_t = 5;                              // pedestal deck, pocket floor at ls_z0
+deck_top = ls_z0 + ls_pocket;            // 39.5
+deck_z0 = deck_top - deck_t;             // 34.5 = stepper mounting face
+ped_r = 80;                              // pedestal tube outer radius
+ped_wall = 2.4;
+// 28BYJ-48 (generic): body 28 x 19, ears 35 apart (4.2 holes, 0.8 thick, 7 wide),
+// shaft 8 mm off the body centre, boss 9 x 1.5, shaft 5 dia double-D 3.0 across
+// flats, 10 mm above the mounting face (flats on the top 6). CHECK on arrival.
+st_d = 28; st_h = 19; st_ear_span = 35; st_ear_hole = 4.2; st_ear_w = 7; st_ear_t = 0.8;
+st_off = 8; st_boss_d = 9; st_boss_h = 1.5; st_shaft_d = 5; st_flat = 3.0; st_shaft_l = 10; st_flat_l = 6;
+st_xy = [0, -st_off];                    // body centre (shaft on the axis, body toward -Y, ears along X)
+hub_d = 14; hub_z0 = deck_z0 + st_boss_h + 0.5;   // separate printed hub, screwed under the turntable, to just over the boss
+hub_fl_d = 32; hub_fl_t = 3;             // hub flange (inside the bearing's centre hole, clear of the ear screw heads)
+// home switch: generic roller-lever microswitch (20 x 6.4 x 10.2, M2 holes 9.5 apart)
+// lying flat on a bracket at az 180, its lever tripped by the end of a tab on the
+// turntable at arm-local 180 deg. HOME = arm at az 0 (10 deg before the hopper).
+home_az = 0;
+flag_r1 = 92; flag_w = 12;               // tab end radius, tab width (turntable plate level, Z 46.4..51.4)
+ms_l = 20; ms_w = 6.4; ms_h = 10.2; ms_hole_p = 9.5;
+ms_r0 = 96;                              // switch body inner face radius (lever reaches in to the tab end)
+ms_z0 = 44;                              // switch underside = bracket top (2.4 under the tab)
 
 // ---- lift stage (parallelogram) ----
 L      = 220;                            // link pivot-to-pivot

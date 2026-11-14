@@ -2,7 +2,7 @@
 
 Budget rebuild: $100 cap on new parts, built mostly from parts already owned.
 
-- `b_params.scad`: all shared geometry (stations, heights, servo, arm).
+- `b_params.scad`: all shared geometry (stations, heights, yaw stage, lift servo, arm).
 - `b_parts.scad`: printed parts (`-D 'part="bin"'` etc.) + reference solids.
 - `b_assembly.scad`: whole machine, `-D yaw=<servo deg> -D th=<link deg>`.
 - `b_check.py`: numeric checks (pocket spacing, yaw tolerance, lift range, FOV, camera clearance).
@@ -34,3 +34,16 @@ Touch-down sensing: the cup slider rests on the hand under gravity; an M3 screw 
 - Hopper/bin ears overlap their walls; hand zip-tie slot moved between the pivots; mast zip-tie holes moved to x 50/60; mast wall widened to x 0..70 with the gussets outside the nut path (washer + nut on the flat back, no pockets); full-width gusset under the P2 boss; horn slots are +/-8 deg arcs; yaw-base tab holes and the slider stub use self-tap pilots (no heat-set in thin walls); cap screw M3 x 8.
 - Print orientations fixed in export_b.py (post upright, boom and lens frame upside down, hand flange-down, brims on the slider and sleeves).
 - b_check: slider swivel and radial bed offset in the error budget; the inner-zone check is now the honest two-card worst case (margin 0 mm, RSS 4.5 mm), which REQUIRES the firmware to approach every station from the same direction. Fallback if the bench repeatability test fails: 5 bins + reject at 22.9 deg pitch.
+
+## Round 4 changes (yaw stepper, 2026-11-14)
+
+Why: the MG996R yaw servo needed ~0.6 deg repeatability and the inner bin zone had 0 mm worst-case margin.
+
+- Yaw axis is a 28BYJ-48 (5 V, ULN2003): 0.088 deg half-steps through its 64:1 gearbox, unlimited travel. Firmware approaches every station from the same direction, so the gearbox backlash is always taken up the same way. The error budget assumes 0.25 deg repeatability (not measured yet); the inner-zone margin goes from 0 to +4 mm.
+- The servo spline was also the turntable's bearing, and the stepper's shaft can't carry the arm (CoG ~90 mm out). A 4" square steel lazy-susan bearing now carries the turntable. The old 4 rollers and the yaw base are gone.
+- New `pedestal` (tube r 80, deck at Z 34.5..39.5, 4 board tabs): bearing bottom plate in a 1 mm pocket, M3 x 6 into Ø2.5 pilots. The stepper hangs under the deck, shaft up on the axis, M3 x 10 + washer + nut through Ø5 float holes. Assemble loose, sweep the arm by hand, then tighten so the shaft centres on the bearing.
+- New `hub` (Ø14, flange Ø32): double-D press fit on the shaft (2.95 across the flats), 3 x M3 x 8 up into the turntable.
+- Turntable: horn screws removed; square 108 footprint for the bearing's top plate (M3 x 6 into pilots); Ø8 access holes at local 90/180/270 deg r 57 for driving the bottom-plate screws (rotate the arm 45 deg off the deck square).
+- Home: a KW12-3 roller-lever switch lies flat on a bracket at az 180 (Z 44), M2 x 12 in radial slots to set the lever against the end of a tab on the turntable (local 180 deg, r 92). HOME = arm at az 0. Wired NC to a GPIO with pull-up.
+- Speed estimate (b_check): ~2.6 s for the full 160 deg, ~0.6 s per 20 deg hop at 12 rpm, vs well under 1 s for the servo.
+- **Check on arrival:** the 28BYJ-48 dims (shaft offset 8, double-D 3.0, shaft 10 above the face) and the lazy susan's hole pattern (assumed 80.8 mm square on both plates). If the holes don't line up with the printed pilots, drill new Ø2.5 pilots through the plate's own holes.

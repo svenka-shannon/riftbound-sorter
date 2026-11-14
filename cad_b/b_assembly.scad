@@ -1,9 +1,9 @@
-// Option B assembly. -D yaw=<servo deg> -D th=<link deg> -D show_board=true
+// Option B assembly. -D yaw=<arm deg> -D th=<link deg> -D show_board=true
 include <b_params.scad>
 use <b_parts.scad>
 part = "none";
 
-yaw = 30;        // arm azimuth (servo angle)
+yaw = 30;        // arm azimuth (deg)
 th  = -4;        // link angle (+ up)
 stack = 40;      // cards in the hopper
 show_board = true;
@@ -20,12 +20,13 @@ at_station(st_hopper, floor_t) for (k = [0 : stack - 1]) translate([0, 0, k * ca
 for (i = [2 : n_st - 1]) color("LightSteelBlue") at_station_raw(i) bin();   // one colour: touching bins merge in the render
 at_station_raw(st_scan) { color("DarkSeaGreen") cell_block(); cell_ref(); color("DarkSeaGreen") bed(); color("Wheat") tower_post(); color("Tan") boom(); color("Tan") lens_frame(); color("Tan") ring_holder(); }
 
-color("DarkSeaGreen") yaw_base();
-yaw_servo_ref();
-for (az = [45, 135, 225, 315]) roller_ref(az);
+color("DarkSeaGreen") pedestal();
+stepper_ref(); switch_ref();
+rotate([0, 0, yaw]) lazy_susan_ref();
 
 rotate([0, 0, yaw]) {
     color("SteelBlue") turntable();
+    color("White") hub();
     lift_servo_ref();
     color("Coral") translate([r_p1, 0, z_p1]) rotate([0, -th, 0]) translate([-r_p1, 0, -z_p1]) link_a();
     color("Coral") translate([r_p1, 0, z_p1 + d_link]) rotate([0, -th, 0]) translate([-r_p1, 0, -(z_p1 + d_link)]) link_b();

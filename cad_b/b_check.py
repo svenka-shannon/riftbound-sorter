@@ -4,7 +4,8 @@
 # ///
 """Option B geometry check: station layout, pocket clearances against a real
 error stack-up, lift range, swing clearance with sag, camera clearance and
-focus, load cell. Numbers mirror cad_b/b_params.scad (round 2).
+focus, load cell, yaw stage. Numbers mirror cad_b/b_params.scad (round 4: the yaw axis
+is a 28BYJ-48 stepper on a 4" lazy-susan bearing).
 Exits non-zero if any check fails.
 """
 import math, sys
@@ -27,11 +28,14 @@ HAND_TOP_ABOVE_H2 = 14.0
 RING_STACK = 1.65 + 7 + 2.5 + 3        # button heads + 608 + cap + M3 head
 CAM_DIST = 188.0
 CAM_LENS_Z = BED_TOP + CAM_DIST
-STEP_DEG = 180.0 / 410                 # PCA9685 12-bit, 500..2500 us at 50 Hz
+STEP_DEG = 180.0 / 410                 # lift servo: PCA9685 12-bit, 500..2500 us at 50 Hz
+YAW_STEP_DEG = 360.0 / 4076            # 28BYJ-48 half-step through its 63.68:1 gearbox
 
 # error budget (yaw), degrees and mm
-YAW_REPEAT_DEG = 0.6                   # same-direction approach: deadband + residual backlash
-YAW_SETPOINT_DEG = STEP_DEG / 2
+YAW_REPEAT_DEG = 0.25                  # stepper, same-direction approach (gearbox backlash taken up in one
+                                       # direction, held by the bearing's drag): coupling + gear compliance.
+                                       # Assumed, not measured; the servo version needed 0.6 and had 0 mm margin.
+YAW_SETPOINT_DEG = YAW_STEP_DEG / 2
 CUP_ON_CARD_MM = 1.0                   # tangential only: the camera measures the card on the bed and the re-pick yaw is
                                        # corrected to +/- half a yaw step (radial offset can NOT be corrected: no radial axis)
 SLIDER_ROT_DEG = math.degrees(0.1 / math.sqrt(6.0**2 - 3.5**2))   # D-flat play: 0.1 mm clearance at the flat corners
@@ -50,7 +54,7 @@ def check(ok, msg):
 stations = [S0 + i * PITCH for i in range(N)]
 names = ["hopper", "scan/weigh"] + [f"bin {i}" for i in range(1, 7)] + ["reject"]
 print("stations: " + ", ".join(f"{n} {s:.0f}" for s, n in zip(stations, names)))
-check(stations[-1] - stations[0] <= 160, f"yaw span {stations[0]:.0f}..{stations[-1]:.0f}: needs +/-80 deg (bench-test the servo first)")
+check(stations[-1] - stations[0] + stations[0] <= 180, f"yaw span home 0 .. {stations[-1]:.0f}: inside the half turn the cable loop allows (stepper: no travel limit of its own)")
 
 # hopper fits its slot
 hop_ow = HOP_IN_W + 2 * WALL
@@ -70,7 +74,7 @@ check(wedge_room(DIVIDER_R0) >= need_div, f"bin divider (starts r {DIVIDER_R0:.0
 gap_cards = 2 * r_c_in * math.sin(math.radians(PITCH / 2)) - CARD_W     # neighbouring cards' inner corners, nominal
 per_card = yaw_err(r_c_in) + corner_rot
 rss_card = math.hypot(math.hypot(r_c_in * math.radians(YAW_REPEAT_DEG + YAW_SETPOINT_DEG), CUP_ON_CARD_MM), corner_rot)
-check(gap_cards >= 2 * per_card - 0.5, f"inner zone (no divider): corners {gap_cards:.1f} mm apart vs two worst-case cards {2*per_card:.1f} (RSS {2*rss_card:.1f}); margin {gap_cards-2*per_card:+.1f} -- REQUIRES same-direction station approach in firmware")
+check(gap_cards >= 2 * per_card - 0.5, f"inner zone (no divider): corners {gap_cards:.1f} mm apart vs two worst-case cards {2*per_card:.1f} (RSS {2*rss_card:.1f}); margin {gap_cards-2*per_card:+.1f} -- firmware approaches every station from the same direction")
 rad_room = (BIN_R_OUT - BIN_R_IN - CARD_L) / 2
 check(rad_room >= RADIAL_ON_BED_MM + 3.34 / 2 + 1, f"bin radial room {rad_room:.1f} mm each end vs bed offset {RADIAL_ON_BED_MM} + lift arc 1.7 + 1")
 hop_room = (HOP_IN_W - CARD_W) / 2
@@ -97,6 +101,25 @@ for D in (4.0, 5.0, 6.0):
     near, far = 1 / (D + 1 / 1.5), 1 / D
     print(f"  +{D:.0f} D close-up lens on a 1.5 m-inf camera focuses at {near*1000:.0f}..{far*1000:.0f} mm")
 check(1 / (5 + 1 / 1.5) * 1000 <= CAM_DIST <= 1 / 5 * 1000, f"lens at {CAM_DIST:.0f} mm sits inside the +5 D focus range (boom slides on the post to focus)")
+
+# yaw stage (round 4)
+DECK_Z0, DECK_TOP, TT_Z0, LS_HOLE = 34.5, 39.5, 46.4, 55.0
+ST_SHAFT_L, ST_FLAT_L, ST_BOSS_H = 10.0, 6.0, 1.5
+HUB_Z0, HUB_FL_D, HUB_FL_T = DECK_Z0 + ST_BOSS_H + 0.5, 32.0, 3.0
+EAR_R = math.hypot(35 / 2, 8)                       # ear screws from the axis
+d_engage = (DECK_Z0 + ST_SHAFT_L) - max(HUB_Z0, DECK_Z0 + ST_SHAFT_L - ST_FLAT_L)
+check(d_engage >= 5, f"hub: double-D engages {d_engage:.1f} mm of the shaft's flats")
+check(DECK_TOP + 3 + 0.5 <= TT_Z0 - HUB_FL_T, f"ear screw heads top {DECK_TOP+3:.1f} under the hub flange {TT_Z0-HUB_FL_T:.1f}")
+check(HUB_FL_D / 2 + 3 <= LS_HOLE / 2 and HUB_FL_D / 2 < EAR_R - 2.75, f"hub flange r {HUB_FL_D/2:.0f}: inside the bearing hole r {LS_HOLE/2:.1f}, clear of the ear heads r {EAR_R-2.75:.1f}")
+# torque / time: arm inertia about the yaw axis (rough masses, PETG ~40 % infill)
+I = 0.055 * 0.03**2 + 0.05 * 0.22**2 / 3 + 0.06 * 0.245**2 + 0.08 * 0.04**2   # lift servo, links, hand+slider+cup+tube, turntable
+T_avail = 0.5 * 0.034                                # half the 28BYJ-48's ~34 mN m pull-in torque, rest for drag + cable loop
+w_max = 12 * 2 * math.pi / 60                        # 12 rpm: a safe 5 V half-step rate (~800 steps/s)
+alpha = T_avail / I
+t_acc = w_max / alpha
+ang = math.radians(160)
+t_move = 2 * t_acc + (ang - alpha * t_acc**2) / w_max if alpha * t_acc**2 < ang else 2 * math.sqrt(ang / alpha)
+check(t_move <= 3.0, f"yaw: I ~{I*1e4:.0f} kg cm2, accel {math.degrees(alpha):.0f} deg/s2, 160 deg in {t_move:.1f} s at 12 rpm (20 deg hop {2*math.sqrt(math.radians(20)/alpha) if math.radians(20) < alpha*t_acc**2 else 2*t_acc + (math.radians(20)-alpha*t_acc**2)/w_max:.1f} s)")
 
 # load cell: owned 5 kg bar (not a 50 g TAL221)
 check(30 + 40 + 2 * 1.75 < 5000, "platform load (slider 30 g + bed 40 g + 2 cards) well inside the 5 kg cell")
