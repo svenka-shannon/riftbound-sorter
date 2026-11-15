@@ -21,8 +21,8 @@ module elbox(n) for (e = el) if (e[0] == n) translate([e[1][0] - e[2][0] / 2, e[
 
 // ── base ──
 if (P == "v3_board") translate([-board_x / 2, board_y0, -board_t]) cube([board_x, board_y, board_t]);
-if (P == "v3_feet") for (f = feet_xy) translate([f[0], f[1], fb - 14]) foot();
-if (P == "v3_feet_scr") for (f = feet_xy) at_screw([f[0], f[1], fb - 12], [0, 0, 1]) shcs(16);
+if (P == "v3_feet") for (f = feet_xy) translate([f[0], f[1], fb]) mirror([0, 0, 1]) foot();     // floor against the board, open side down
+if (P == "v3_feet_scr") for (f = feet_xy) at_screw([f[0], f[1], fb - 2], [0, 0, 1]) shcs(12);
 // ── yaw base ──
 if (P == "v3_pedestal") pedestal();
 if (P == "v3_ped_scr") for (a = [45, 135, 225, 315]) rotate([0, 0, a]) at_screw([106, 0, 4]) shcs(12);
@@ -36,7 +36,7 @@ if (P == "v3_bear_top_scr") ARM() for (x = [-1, 1], y = [-1, 1]) at_screw([x * l
 if (P == "v3_bear_bot_scr") for (x = [-1, 1], y = [-1, 1]) translate([x * ls_pitch_bot / 2, y * ls_pitch_bot / 2, tt_z0 - 2]) { washer(); translate([0, 0, 0.5]) shcs(6); }   // drawn on the slab top: the bearing is one block here
 if (P == "v3_turntable") ARM() turntable();
 if (P == "v3_collar") ARM() collar();
-if (P == "v3_collar_ss") ARM() { at_screw([col_d / 2 + 0.5, 0, col_ss_z], [-1, 0, 0]) shcs(6); translate([4.3, 0, col_ss_z]) rotate([0, 90, 0]) rotate([0, 0, 30]) hexnut(); }
+if (P == "v3_collar_ss") ARM() { at_screw([col_d / 2, 0, col_ss_z], [-1, 0, 0]) shcs(8); translate([4.3, 0, col_ss_z]) rotate([0, 90, 0]) rotate([0, 0, 30]) hexnut(); }
 if (P == "v3_collar_scr") ARM() for (e = col_ears) at_screw([e[0], e[1], col_z0 + col_h]) shcs(10);
 if (P == "v3_cradle") switch_cradle();
 if (P == "v3_switch") switch_ref();
@@ -78,17 +78,16 @@ if (P == "v3_bed_scr") ST(st_scan) for (x = [cell_holes_x[2], cell_holes_x[3]]) 
 if (P == "v3_post") ST(st_scan) tower_post();
 if (P == "v3_post_scr") ST(st_scan) for (dx = [-16, 16], dy = [-16, 16]) at_screw([tx + dx, ty + dy, 5]) shcs(12);
 if (P == "v3_boom") ST(st_scan) boom();
-if (P == "v3_boom_scr") ST(st_scan) at_screw([tx + post_w / 2 + sleeve_t + 6, ty, boom_z0 + boom_t - sleeve_h / 2], [-1, 0, 0]) shcs(10);
-if (P == "v3_camera") ST(st_scan) { translate([R - 12.5, -12, boom_z0 - 1.6]) cube([25, 24, 1.6]); translate([R - 4, -4, cam_lens_z + 2]) cube([8, 8, boom_z0 - 1.6 - cam_lens_z - 2]); translate([R, 0, cam_lens_z]) cylinder(d = 6, h = 2); }
-if (P == "v3_cam_scr") ST(st_scan) for (dx = [-10.5, 10.5], dy = [-6.25, 6.25]) at_screw([R + dx, dy, boom_z0 - 2.6], [0, 0, 1]) shcs(5, d = 2, hd = 3.8, hh = 1.6);
+if (P == "v3_boom_scr") ST(st_scan) at_screw([tx + post_w / 2 + sleeve_t + 6, ty, boom_z0 + boom_t - sleeve_h / 2], [-1, 0, 0]) shcs(12);
+if (P == "v3_camera") ST(st_scan) { translate([R - 12.5, -12, boom_z0 - 1.6]) cube([25, 24, 1.6]); translate([R - 4.25, -4.25, cam_lens_z + 2]) cube([8.5, 8.5, boom_z0 - 1.6 - cam_lens_z - 2]); translate([R, 0, cam_lens_z]) cylinder(d = 6, h = 2); }
 if (P == "v3_lens_frame") ST(st_scan) lens_frame();
 if (P == "v3_lens") ST(st_scan) translate([R - gl_w / 2 + 1, -gl_h / 2 + 1, cam_lens_z - 4 + 1.2]) cube([gl_w - 2, gl_h - 2, 2.2]);
-if (P == "v3_lens_scr") ST(st_scan) for (dx = [-14, 14]) at_screw([R + dx, -11, cam_lens_z - 4], [0, 0, 1]) shcs(16);
+if (P == "v3_lens_scr") ST(st_scan) for (dx = [-19, 19], dy = [-8, 8]) at_screw([R + dx, dy, boom_z0 + boom_t]) shcs(16);
 if (P == "v3_pi") ST(st_scan) translate([(R + tx) / 2, ty / 2, boom_z0 + boom_t + 3]) rotate([0, 0, boom_ang]) translate([-32.5, -15, 0]) cube([65, 30, 1.6]);
 if (P == "v3_pi_scr") ST(st_scan) for (dx = [-29, 29], dy = [-11.5, 11.5]) translate([(R + tx) / 2, ty / 2, boom_z0 + boom_t + 4.6]) rotate([0, 0, boom_ang]) translate([dx, dy, 0]) shcs(8, d = 2.5, hd = 4.5, hh = 2);
 if (P == "v3_pi_standoffs") ST(st_scan) for (dx = [-29, 29], dy = [-11.5, 11.5]) translate([(R + tx) / 2, ty / 2, boom_z0 + boom_t]) rotate([0, 0, boom_ang]) translate([dx, dy, 0]) cylinder(d = 4.5, h = 3, $fn = 6);
 if (P == "v3_ring_holder") ST(st_scan) ring_holder();
-if (P == "v3_ring_scr") ST(st_scan) at_screw([tx + post_w / 2 + sleeve_t + 6, ty, ring_z], [-1, 0, 0]) shcs(10);
+if (P == "v3_ring_scr") ST(st_scan) at_screw([tx + post_w / 2 + sleeve_t + 6, ty, ring_z], [-1, 0, 0]) shcs(12);
 if (P == "v3_led_ring") ST(st_scan) translate(ring_c) rotate([0, 0, atan2(ring_aim[1], ring_aim[0])]) rotate([0, 90 + atan2(-ring_aim[2], norm([ring_aim[0], ring_aim[1]])), 0]) translate([0, 0, 2]) difference() { cylinder(d = 37.5, h = 1.6); translate([0, 0, -1]) cylinder(d = 23, h = 4); }
 // ── cable post, tube, electronics ──
 if (P == "v3_cable_post") cable_post();
@@ -97,7 +96,23 @@ mt = [for (x = [50, 60]) [x * cos(yaw_v), x * sin(yaw_v)]];                 // m
 hand_tee = [R * cos(yaw_v), R * sin(yaw_v)];
 if (P == "v3_tube") chain([[hand_tee[0] + 14 * cos(yaw_v + 90), hand_tee[1] + 14 * sin(yaw_v + 90), slider_z0 + 5], [hand_tee[0] * 0.92, hand_tee[1] * 0.92, 95],
                           [mt[1][0], mt[1][1], mast_top + 4], [mt[0][0] * 0.5, mt[0][1] * 0.5 - 40, mast_top + 30], [0, -150, 152], [6, -172, 140], [6, -172, 20], [-60, -210, 8], [-215, -240, 30]], 4);
+if (P == "v3_leads_hand") ARM() chain([[55, -12, mast_top + 2], [120, -14, 118], [190, -14, 122], [R - 6, -14, hand_zt + 3], [R, -11.5, hand_zt + 2]], 2.5);
 if (P == "v3_leads") chain([[mt[0][0], mt[0][1], mast_top + 2], [mt[0][0] * 0.4, mt[0][1] * 0.4 - 50, mast_top + 26], [-4, -152, 150], [-6, -172, 138], [-6, -172, 18], [-40, -200, 6], [-85, -235, 12]], 3);
 if (P == "v3_zipties") { for (m = mt) translate([m[0], m[1], mast_top - 4]) rotate([0, 0, yaw_v]) difference() { cube([4, 12, 10], center = true); cube([2, 8.5, 12], center = true); }
                         translate([0, -144, 144.5]) difference() { cube([26, 4, 6], center = true); cube([22, 6, 3], center = true); } }
 for (e = el) if (P == str("v3_el_", e[0])) elbox(e[0]);
+
+// ── board drilling template: echo every hole in the board (world XY) ──
+module holes_echo() {
+    for (f = feet_xy) echo(HOLE = ["foot (from below)", f[0], f[1]]);
+    for (a = [45, 135, 225, 315]) echo(HOLE = ["pedestal", 106 * cos(a), 106 * sin(a)]);
+    for (y = [-10, 10]) let(q = [-(ms_r0 + ms_w + 3 + 7) + 1.5, y], c = cos(sw_az - 180), sn = sin(sw_az - 180)) echo(HOLE = ["switch cradle", q[0] * c - q[1] * sn, q[0] * sn + q[1] * c]);
+    for (sg = [-1, 1]) let(q = [R - (hop_in_l + 2 * wall) / 2 - 4, sg * 20], a = st_angle(st_hopper)) echo(HOLE = ["hopper", q[0] * cos(a) - q[1] * sin(a), q[0] * sin(a) + q[1] * cos(a)]);
+    for (i = [2 : n_st - 1], sg = [-1, 1]) let(q = [bin_ear_r, sg * 22], a = st_angle(i)) echo(HOLE = [i == n_st - 1 ? "reject" : str("bin ", i - 1), q[0] * cos(a) - q[1] * sin(a), q[0] * sin(a) + q[1] * cos(a)]);
+    for (y = [-9, 9]) let(q = [cell_x0 - 14 + 6, y], a = st_angle(st_scan)) echo(HOLE = ["cell block", q[0] * cos(a) - q[1] * sin(a), q[0] * sin(a) + q[1] * cos(a)]);
+    for (dx = [-16, 16], dy = [-16, 16]) let(q = [tx + dx, ty + dy], a = st_angle(st_scan)) echo(HOLE = ["camera post", q[0] * cos(a) - q[1] * sin(a), q[0] * sin(a) + q[1] * cos(a)]);
+    for (x = [-18, 18], y = [-18, 18]) echo(HOLE = ["cable post", cable_post_xy[0] + x, cable_post_xy[1] + y]);
+    echo(BOARD = [-board_x / 2, board_y0, board_x, board_y]);
+    for (i = [0 : n_st - 1]) echo(STATION = [i == 0 ? "hopper" : i == 1 ? "scan" : i == n_st - 1 ? "reject" : str("bin ", i - 1), R * cos(st_angle(i)), R * sin(st_angle(i))]);
+}
+if (P == "v3_holes") holes_echo();

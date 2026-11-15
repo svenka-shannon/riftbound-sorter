@@ -38,4 +38,12 @@ Owned but unused by B: N20 motors, L9110S ×3, 2 × LM2596, 12 V 2 A adapter, 16
 
 ## Printed
 
-≈ 0.9 kg solid volume (≈ 0.6–0.7 kg printed): 7 bins, hopper, bed + cell block, pedestal, turntable/mast, hub, 2 links, hand, slider, camera tower, ring holder, 4 feet. Largest part: link A, 238 mm (fits the 256 bed). v2 needed ≈ 4 kg.
+≈ 1.05 kg solid volume (≈ 0.7–0.8 kg printed): 7 bins, hopper, bed + cell block, pedestal, deck, turntable/mast, collar, switch cradle, 2 links, 3 sleeves, hand, slider, cap, camera post, boom, lens frame, ring holder, cable post, 4 feet. Exact list: PRINT_LIST.md in the print zip. Largest part: link A, 238 mm (fits the 256 bed). v2 needed ≈ 4 kg.
+
+## Tools and consumables (not bought; check you have them)
+
+- Drill with a Ø2.5 mm bit (board pilots, from the 1:1 template: `cad_b/board_template.py`) and a soldering iron (heat-set inserts, switch leads: owned).
+- Hex keys for M3 / M2.5 socket screws (the M4 pack includes one).
+- From the M3 assortment: ~66 socket screws in total (36 × M3×12, 9 × M3×16, 8 × M3×10, 8 × M3×6, 5 × M3×8), ~5 nuts, ~6 washers. Check the kit has washers. The 3 hand-top contacts can be any M3 × 6 as long as all three match.
+- A dab of glue for the LED ring in its holder (hot glue or CA), and a 2 cm offcut of the 4 mm tube + a zip tie for the pin-hole bleed.
+- The camera needs no small screws: the lens frame clamps its board against the boom (round 5.2).

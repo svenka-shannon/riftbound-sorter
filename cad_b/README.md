@@ -82,3 +82,15 @@ The reviewer found three blockers in round 4. Two were the 28BYJ-48's 1-3 deg ge
 - UART, write-only: Pi TX wired straight to PDN_UART (no RX, so no 1 kΩ resistor is needed; the driver settings are written, never read back). Use `dtoverlay=disable-bt` and turn off the serial console. Set the run current to ~0.7 A. Set the hold current equal to the run current (IHOLD = IRUN) for full stiffness at the stations.
 - The 12 V 3 A adapter feeds the pump, the 5 V converter (servo) and the stepper: stagger the pump start and the yaw moves.
 - Firmware: approach every station from the same direction. Allow ~150 ms of settle after each move (the arm rings at ~5-7 Hz). Home onto the switch's press edge from above. At hopper visits only *check* the switch state, don't re-zero. Measure station angles once with the camera rather than trusting the computed ones.
+
+## Round 5.2 (assembly-video review, 2026-11-14)
+
+- Camera board is clamped face-down in a 1.5 mm pocket on top of the lens frame. 4 × M3 × 16 go down through the boom (which now has a 48 mm wide camera end) into Ø2.5 pilots in the frame's side walls, outside the lens pocket. The old lens-frame screws ran through the lens pocket and only reached 0.5 mm into the insert. No M2 screws are needed.
+- Collar: an M3 × 8 socket screw is the set screw (an M3 × 6 head would stop with its tip just touching the flat). The turntable notch is 1.4 mm deeper, so the head clears it.
+- Feet go open side down: an M3 × 12 goes up through each foot's 2 mm floor into the board.
+- Clamp screws for the boom and ring holder are M3 × 12 (an M3 × 10 only reaches the post face).
+- Order fixes:
+  - The ring holder goes on the post BEFORE the boom: both slide on from the top.
+  - The slider goes in bare from the top; the tee and cup go on from below afterwards.
+- `board_template.py`: 1:1 drilling template (12 US Letter pages, 36 holes plus the station centres), taken from the same numbers as the CAD.
+- To check once the bearing is measured: the top-plate screw heads (r ~63) and the bottom-plate heads (r ~57) leave only ~0.2 mm between them inside the bearing. If they rub, use button heads on the bottom plate.

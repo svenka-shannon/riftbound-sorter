@@ -222,7 +222,7 @@ module turntable() {
         translate([0, 0, tt_z0 - 1]) cylinder(d = 7, h = tt_t + 2);              // shaft passes through (1 mm clear each side)
         translate([0, 0, col_z0]) cylinder(d = col_d + 1.2, h = 10);             // collar recess (0.6 float)
         for (a = [90, 180, 270]) rotate([0, 0, a]) translate([ls_pitch_bot / sqrt(2), 0, tt_z0 - 1]) cylinder(d = 8, h = 20);   // bottom-plate screw access
-        translate([8, -3.25, col_ss_z - 1.9]) cube([7, 6.5, 10]);                // set-screw key notch in the recess rim (+X)
+        translate([8, -3.25, col_ss_z - 3.3]) cube([7, 6.5, 10]);                // set-screw head + key notch in the recess rim (+X)
         translate([lsv_x0 - 0.4, mast_y0 - 1, tt_top - 1]) cube([sv_l + 0.8, 20, z_p1 + sv_w / 2 + 0.4 - tt_top + 1]);
         for (x = hx, dz = [-sv_hole_dx / 2, sv_hole_dx / 2]) translate([x, 0, z_p1 + dz]) {
             ycyl(3.4, mast_y0 - 1, mast_y1 + 1);
@@ -234,7 +234,7 @@ module turntable() {
 
 // DRIVE COLLAR (print 1, PETG, 100 % infill, upside down: top face on the bed,
 // no supports): sits 3 mm down in a recess in the turntable top, around the
-// shaft. M3 x 6 set screw (+X, a notch in the recess rim lets the key in)
+// shaft. M3 x 8 socket screw as the set screw (+X, a notch in the recess rim lets the key in)
 // through a captive nut onto the shaft's flat; 2 x M3 x 10 down into turntable
 // pilots, fully tight (the bearing's bottom plate does the centring, see deck).
 // Turntable frame.
@@ -307,7 +307,7 @@ module hand() difference() {
 // =========================================================================
 // SLIDER (print 1, PETG, upright): solid Ø12 rod. Top: Ø7.95 stub for a 608ZZ
 // (12 g of weight + the conductive contact ring), clamped by cap() with an
-// M3 x 10 into an insert in the stub. Bottom: a pocket for an airline TEE:
+// M3 x 8 self-tapped into a Ø2.5 pilot in the stub. Bottom: a pocket for an airline TEE:
 // run along Y (one leg to the tube, the other to the pin-hole bleed), stem
 // down into the cup's rubber neck (clamped with the cup's own ring).
 // Modelled resting, at th = 0.
@@ -320,7 +320,7 @@ module slider() difference() {
         translate([R, 0, slider_z0]) linear_extrude(ring_z0 - slider_z0) d2d(slider_d, flat_x);
         translate([R, 0, ring_z0 - eps]) cylinder(d = 7.95, h = 7);
     }
-    translate([R, 0, ring_z0 + 0.5]) cylinder(d = 2.5, h = 10);                    // M3 x 8 self-taps (no heat-set in the thin stub)
+    translate([R, 0, ring_z0 + 0.5]) cylinder(d = 2.5, h = 10);                    // cap screw: M3 x 8 self-taps (no heat-set in the thin stub)
     translate([R, 0, slider_z0 + 5]) ycyl(tee_d, -10, 10);
     translate([R - (tee_d - 0.8) / 2, -10, slider_z0 - 1]) cube([tee_d - 0.8, 20, 6]);   // 0.8 narrower: the tee snaps in
 }
@@ -363,26 +363,29 @@ module boom() difference() {
     union() {
         post_clamp(boom_z0 + boom_t - sleeve_h, sleeve_h);
         hull() {
-            translate([R - 17, -17, boom_z0]) cube([34, 34, boom_t]);
+            translate([R - 24, -17, boom_z0]) cube([48, 34, boom_t]);          // camera end: wide enough for the 4 lens-frame screws
             translate([tx, ty, boom_z0]) rotate([0, 0, boom_ang]) translate([-post_w / 2 - sleeve_t - 1, -boom_w / 2, 0]) cube([1, boom_w, boom_t]);
         }
     }
     translate([tx - post_w / 2 - 0.3, ty - post_w / 2 - 0.3, 0]) cube([post_w + 0.6, post_w + 0.6, 400]);   // keep the post bore clear
-    for (dx = [-10.5, 10.5], dy = [-6.25, 6.25]) translate([R + dx, dy, boom_z0 - 1]) cylinder(d = 1.8, h = 8);   // camera M2 pilots, 21 along X
     translate([R, 0, boom_z0 - 1]) cylinder(d = 10, h = 2);
     translate([R - 9, 13, boom_z0 - 1]) cube([18, 3, boom_t + 2]);                                          // ribbon slot (+Y edge)
     for (dx = [-29, 29], dy = [-11.5, 11.5]) translate([(R + tx) / 2, ty / 2, boom_z0 + 2]) rotate([0, 0, boom_ang]) translate([dx, dy, 0]) cylinder(d = 2.2, h = 10);   // Pi Zero 58 x 23
-    for (dx = [-14, 14]) translate([R + dx, -11, boom_z0 - 1]) insert_hole();                                // lens frame screws
+    for (dx = [-19, 19], dy = [-8, 8]) translate([R + dx, dy, boom_z0 - 1]) m3_clear(boom_t + 2);          // 4 x M3 x 16 down into the lens frame
 }
-// close-up lens frame: box round the camera board, pocket for the popped-out glasses lens at the bottom
+// close-up lens frame: the camera board sits face-down in a 1.5 mm pocket on its top (the board is
+// 1.6 thick, so the boom clamps it: no M2 screws), the lens module hangs in the cavity below, and the
+// popped-out glasses lens slides into a pocket at the bottom. 4 x M3 x 16 come down through the boom
+// into Ø2.5 pilots in the frame's side walls (clear of the lens pocket).
 gl_w = 52; gl_h = 32; gl_t = 3;           // MEASURE the lens, adjust
 module lens_frame() difference() {
     translate([R - 30, -20, cam_lens_z - 4]) cube([60, 40, boom_z0 - cam_lens_z + 4]);
-    translate([R - 15, -15, cam_lens_z - 1]) cube([30, 31, 50]);                                           // camera board + ribbon
+    translate([R - 12.7, -12.2, boom_z0 - 1.5]) cube([25.4, 24.4, 2]);                                    // camera board pocket (25 x 24)
+    translate([R - 8, -8, cam_lens_z - 1]) cube([16, 16, 50]);                                             // lens module + parts
     translate([R - gl_w / 2, -gl_h / 2, cam_lens_z - 4 + 1]) cube([gl_w, gl_h, gl_t]);                     // lens pocket (slides in from -X)
     translate([R - 31, -gl_h / 2, cam_lens_z - 4 + 1]) cube([10, gl_h, gl_t]);
     translate([R, 0, cam_lens_z - 10]) cylinder(d = 16, h = 10);                                          // window
-    for (dx = [-14, 14]) translate([R + dx, -11, boom_z0 - 10]) m3_clear(20);
+    for (dx = [-19, 19], dy = [-8, 8]) translate([R + dx, dy, boom_z0 - 10]) cylinder(d = 2.5, h = 11);  // pilots for the boom screws
 }
 // WS2812 ring: clamp sleeve + arm toward the station ray, cradle aimed at the bed centre
 ring_c = [tx, ty - post_w / 2 - sleeve_t - ring_side, ring_z];

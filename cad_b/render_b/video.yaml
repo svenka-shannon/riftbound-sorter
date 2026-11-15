@@ -85,7 +85,6 @@ parts:
     boom: "petg:#B07A45"
     boom_scr: screw
     camera: pcb
-    cam_scr: screw
     lens_frame: petg_matte
     lens: "petg:#CFE8FF"
     lens_scr: screw
@@ -99,6 +98,7 @@ parts:
     cpost_scr: screw
     tube: "rubber:#7FB8E6"
     leads: "rubber:#B22222"
+    leads_hand: "rubber:#B22222"
     zipties: rubber
     el_pump: "alu:#B8BBC0"
     el_relay: "pcb:#1E4C98"
@@ -113,46 +113,50 @@ cams:
   below:     [[0, 15, -12], 1150, -20, -30, 0.6, 11]
   ped:       [[0, 0, 25], 430, -30, 38, 0.6, 8]
   bench:     [[0, 0, 160], 340, -30, -14, 0.5, 7]
+  bench_top: [[0, 0, 178], 300, -30, 58, 0.4, 7]
   tt_bench:  [[0, 0, 170], 480, -35, 20, 0.5, 8]
-  deck_xray: [[0, 0, 45], 330, -25, 50, 0.4, 7]
-  hand_low:  [[-89, 244, 30], 360, -70, 15, 0.4, 7]
   deck_top:  [[0, 0, 45], 330, -25, 62, 0.4, 7]
+  deck_xray: [[0, 0, 45], 330, -25, 50, 0.4, 7]
   turntable: [[0, 0, 55], 480, -35, 35, 0.6, 8]
   collar:    [[0, 0, 52], 190, 200, 35, 0.3, 6]
   switch:    [[0, -100, 48], 300, 15, 30, 0.4, 7]
   arm:       [[-44, 122, 90], 680, -70, 20, 0.6, 9]
   servo:     [[-10, 20, 80], 300, -70, 22, 0.4, 7]
   hand:      [[-89, 244, 85], 300, -70, 22, 0.4, 7]
+  hand_low:  [[-89, 244, 40], 340, -70, 12, 0.4, 7]
   hand_top:  [[-89, 244, 120], 240, -60, 58, 0.3, 6]
   stations:  [[0, 170, 15], 950, 180, 48, 0.6, 10]
-  hopper:    [[256, 45, 20], 400, 100, 40, 0.4, 8]
+  hopper:    [[256, 45, 20], 380, -80, 55, 0.4, 8]
   scan:      [[225, 130, 20], 360, 120, 32, 0.4, 7]
+  post_base: [[256, 217, 15], 330, 100, 42, 0.4, 7]
   tower:     [[240, 165, 140], 700, 120, 14, 0.5, 9]
-  cam_close: [[225, 130, 305], 300, 90, -8, 0.3, 6]
+  boom_bench: [[225, 130, 318], 260, 90, 40, 0.3, 6]
+  pi_cam:    [[240, 173, 245], 300, 100, 50, 0.3, 7]
+  boom_top:  [[240, 140, 335], 320, 100, 55, 0.3, 7]
   back:      [[0, -200, 40], 720, 0, 35, 0.5, 9]
   cable:     [[0, -100, 100], 620, -40, 22, 0.5, 9]
   outro:     [[0, 60, 60], 1350, -30, 32, 6.0, 11]
 
-# bench offsets: motor + deck [0, 0, 140]; turntable + bearing [0, 0, 120]
+# bench offsets: motor + deck [0, 0, 140]; turntable + bearing [0, 0, 120]; boom + camera + lens frame [0, 0, 90]
 segments:
   - id: intro
     title: Riftbound Card Sorter, option B
     subtitle: Turntable picker, assembled part by part
-    caption: "Before you start: print every part in PRINT_LIST.md and fit the M3 heat-set inserts (turntable boss, hand, boom, ring holder)"
-    say: "The option B card sorter, built part by part. Print the parts and fit the heat-set inserts first."
+    caption: "Before you start: measure the bearing's hole spacing and set it in the CAD, print every part, fit the M3 heat-set inserts, and drill the board from the 1:1 template"
+    say: "The option B card sorter, built part by part. Measure the bearing, print the parts, fit the inserts, and drill the board from the template."
     cam: intro
 
   # ── Step 1 ──
   - id: s1_board
     step: 1
-    caption: "Backing board: 12 mm plywood, 2 × 2 ft (610 × 610 mm)"
-    say: "Step one. The two foot plywood board."
+    caption: "Backing board: 1/2 in (12 mm) plywood, 2 × 2 ft. Tape the printed template on, flush with the edges, and drill every mark Ø2.5 mm, ~10 mm deep"
+    say: "Step one. The two foot plywood board. Tape on the template and drill every mark."
     cam: board
     add: [{parts: [board], from: [0, 0, 160], dur: 1.4}]
   - id: s1_feet
     step: 1
-    caption: "4 printed feet under the corners, M3 × 16 from inside each foot into a Ø2.5 pilot in the board"
-    say: "Four printed feet under the corners, one M three by sixteen each."
+    caption: "4 printed feet under the corners, open side down: M3 × 12 up through each foot's floor into the board"
+    say: "Four printed feet under the corners, one M three by twelve each."
     cam: below
     no_bench: true
     add:
@@ -162,8 +166,8 @@ segments:
   # ── Step 2 ──
   - id: s2_pedestal
     step: 2
-    caption: "Pedestal tube at the board centre, lead slot toward the back-right; 4 × M3 × 12 into board pilots"
-    say: "Step two. The pedestal tube goes in the centre, with four M three by twelve screws."
+    caption: "Pedestal on its 4 template holes (yaw axis 290 mm from the electronics edge, centred side to side), lead slot toward the electronics edge: 4 × M3 × 12"
+    say: "Step two. The pedestal tube sits on its four template holes, with four M three by twelve screws."
     cam: ped
     add:
       - {parts: [pedestal], from: [0, 0, 120], dur: 1.2}
@@ -180,7 +184,7 @@ segments:
     step: 2
     caption: "4 × M3 × 8 down through the deck into the motor. Not reachable later: tighten fully now"
     say: "Four M three by eight screws, down into the motor. Tighten them now, you can't reach them later."
-    cam: bench
+    cam: bench_top
     add: [{parts: [motor_scr], at: [0, 0, 140], split: true, n: 4, stagger: 0.12, from: [0, 0, 30], dur: 0.8, spin: 3}]
   - id: s2_deck
     step: 2
@@ -196,19 +200,15 @@ segments:
     add: [{parts: [deck_scr], split: true, n: 4, stagger: 0.12, from: [0, 0, 30], dur: 0.8, spin: 3}]
 
   # ── Step 3 ──
-  - id: s3_measure
-    step: 3
-    caption: "Measure the lazy-susan bearing's hole spacing (both plates) BEFORE printing the deck and turntable"
-    say: "Step three. Measure the bearing's hole spacing before you print the deck and turntable."
-    cam: tt_bench
-    add: [{parts: [bearing], at: [0, 0, 120], from: [0, 0, 60], dur: 1.0}]
   - id: s3_top_plate
     step: 3
-    caption: "Bench: turntable on the bearing's top plate, 4 × M3 × 6 driven up through the plate into the turntable"
-    say: "On the bench, screw the bearing's top plate to the turntable, four M three by six, from below."
+    caption: "Bench: lazy-susan bearing (drawn as a plain block) under the turntable. Turn the plates 45° apart, then 4 × M3 × 6 up through the top plate into the turntable"
+    say: "Step three. On the bench, turn the bearing's plates apart, and screw the top plate to the turntable from below."
+    cam: tt_bench
     add:
-      - {parts: [turntable], at: [0, 0, 120], from: [0, 0, 80], dur: 1.0}
-      - {parts: [bear_top_scr], at: [0, 0, 120], split: true, n: 4, stagger: 0.12, from: [0, 0, -30], delay: 1.1, dur: 0.8, spin: 3}
+      - {parts: [bearing], at: [0, 0, 120], from: [0, 0, 60], dur: 1.0}
+      - {parts: [turntable], at: [0, 0, 120], from: [0, 0, 80], delay: 0.9, dur: 1.0}
+      - {parts: [bear_top_scr], at: [0, 0, 120], split: true, n: 4, stagger: 0.12, from: [0, 0, -30], delay: 2.0, dur: 0.8, spin: 3}
   - id: s3_onto_deck
     step: 3
     caption: "Set it on the deck: bottom plate loose in its pocket, motor shaft up through the turntable's centre hole"
@@ -217,8 +217,8 @@ segments:
     move: [{parts: [bearing, turntable, bear_top_scr], to: [0, 0, 0], dur: 1.5}]
   - id: s3_collar
     step: 3
-    caption: "Collar over the shaft: M3 nut in its slot, M3 × 6 set screw onto the shaft's flat (key through the notch)"
-    say: "Drop the collar over the shaft, and tighten the set screw onto the flat."
+    caption: "Collar over the shaft: M3 nut in its slot, M3 × 8 socket screw through the notch onto the shaft's flat, tight"
+    say: "Drop the collar over the shaft, and tighten its screw onto the flat."
     cam: collar
     add:
       - {parts: [collar], from: [0, 0, 40], dur: 1.0}
@@ -230,7 +230,7 @@ segments:
     add: [{parts: [collar_scr], split: true, n: 2, stagger: 0.15, from: [0, 0, 30], dur: 0.8, spin: 3}]
   - id: s3_bot_scr
     step: 3
-    caption: "Bottom plate (turntable hidden here): 4 × M3 × 6 + washers, driven through the turntable's Ø8 access holes with the arm at +45°, then −45°. Snug, swing the arm a full sweep, then tighten"
+    caption: "Bottom plate (turntable hidden here): 4 × M3 × 6 + washers through the turntable's Ø8 access holes, arm at +45° then −45°. Snug, swing the arm a full turn, tighten"
     say: "Through the access holes, four M three by six screws with washers. Snug them, swing the arm once, then tighten."
     cam: deck_xray
     hide: [turntable, collar, collar_ss, collar_scr, bear_top_scr]
@@ -239,8 +239,8 @@ segments:
   # ── Step 4 ──
   - id: s4_cradle
     step: 4
-    caption: "Switch cradle behind the turntable: KW12-3 switch pressed in, lever toward the turntable, solder tags out the back"
-    say: "Step four. Press the home switch into its cradle, lever toward the turntable."
+    caption: "Solder 2 leads to the KW12-3's COM and NC tags, press it into the cradle: lever toward the turntable, tags out the back"
+    say: "Step four. Solder two leads to the home switch, and press it into its cradle, lever toward the turntable."
     cam: switch
     show: [turntable, collar, collar_ss, collar_scr, bear_top_scr]
     add:
@@ -248,8 +248,8 @@ segments:
       - {parts: [switch], from: [0, 0, 30], delay: 1.0, dur: 0.8}
   - id: s4_cradle_scr
     step: 4
-    caption: "2 × M3 × 12 + washers through the slots into board pilots. With the arm at home, slide it in until the roller clicks on the rim (~1 mm extra), then tighten"
-    say: "Two M three by twelve screws through the slots. Slide it in until the roller clicks on the rim, then tighten."
+    caption: "Turn the arm to home (0°, drawn here at 110°). 2 × M3 × 12 + washers through the slots; slide in until the roller clicks on the rim, ~1 mm more, tighten"
+    say: "Turn the arm to home. Two M three by twelve screws through the slots. Slide it in until the roller clicks on the rim, then tighten."
     add: [{parts: [cradle_scr], split: true, n: 2, stagger: 0.15, from: [0, 0, 30], dur: 0.8, spin: 3}]
 
   # ── Step 5 ──
@@ -261,13 +261,13 @@ segments:
     add: [{parts: [servo], from: [0, 0, 60], dur: 1.1}]
   - id: s5_servo_scr
     step: 5
-    caption: "4 × M3 × 12 through the servo tabs and the mast wall, nuts on the back"
+    caption: "4 × M3 × 12 through the servo tabs and the mast wall, nuts on the back (no washers)"
     say: "Four M three by twelve screws through the tabs, with nuts on the back."
     add: [{parts: [servo_scr], split: true, n: 8, stagger: 0.08, from: [0, 0, 25], dur: 0.8}]
   - id: s5_horn
     step: 5
-    caption: "Centre the servo first (90° from the Pi), then press the round horn on the spline"
-    say: "Centre the servo, then press the round horn onto the spline."
+    caption: "Centre the servo (90°, driven from the PCA9685 + Pi on the bench), press the round horn on the spline, fit the horn's centre screw (comes with the servo)"
+    say: "Centre the servo on the bench, then press the round horn onto the spline and fit its centre screw."
     add: [{parts: [horn], from: [0, 0, 30], dur: 0.9}]
   - id: s5_link_a
     step: 5
@@ -296,23 +296,16 @@ segments:
       - {parts: [hand_pins], split: true, n: 2, stagger: 0.2, from: [0, 0, 30], delay: 1.1, dur: 0.8}
   - id: s6_contacts
     step: 6
-    caption: "3 × M3 × 6 button heads into the top inserts, heads up: the slider's bearing rests on them (two are wired as the touch switch)"
-    say: "Three M three button heads go in the top, heads up. Two of them are the touch switch."
+    caption: "3 × M3 × 6 into the top inserts, heads up. Touch-switch leads: a bare loop under the 2 wired heads, a same-size loop under the 3rd so all 3 stay level"
+    say: "Three M three by six screws go in the top, heads up. Two of them carry the touch switch leads."
     cam: hand_top
     add: [{parts: [contacts], split: true, n: 3, stagger: 0.15, from: [0, 0, 25], dur: 0.8, spin: 2}]
-  - id: s6_tee
-    step: 6
-    caption: "Airline tee snapped into the slider's bottom pocket, cup's rubber neck pushed onto its stem"
-    say: "Snap the airline tee into the slider, and push the suction cup onto it."
-    cam: hand_low
-    add:
-      - {parts: [slider, tee], at: [-60, -40, 0], from: [0, 0, 50], dur: 1.0}
-      - {parts: [cup], at: [-60, -40, 0], from: [0, 0, -30], delay: 0.9, dur: 0.9}
   - id: s6_slider
     step: 6
-    caption: "Slide it up through the hand's D-shaped bore (flat to the outside)"
-    say: "Slide it up through the hand, flat side out."
-    move: [{parts: [slider, tee, cup], to: [0, 0, 0], dur: 1.3}]
+    caption: "Bare slider down through the hand's D-shaped bore from the top, flat facing out; hold it from below"
+    say: "Drop the bare slider down through the hand from the top, flat side out."
+    cam: hand
+    add: [{parts: [slider], from: [0, 0, 70], dur: 1.3}]
   - id: s6_ring
     step: 6
     caption: "608 bearing on the slider's top stub, printed cap + M3 × 8"
@@ -322,11 +315,19 @@ segments:
       - {parts: [ring608], from: [0, 0, 30], dur: 0.8}
       - {parts: [cap], from: [0, 0, 30], delay: 0.8, dur: 0.7}
       - {parts: [cap_scr], from: [0, 0, 25], delay: 1.4, dur: 0.7, spin: 3}
+  - id: s6_tee
+    step: 6
+    caption: "From below: airline tee snapped into the slider's bottom pocket, cup's neck pushed onto its stem. Spare leg: 2 cm tube stub, folded shut with a zip tie, one pin-hole (the bleed)"
+    say: "From below, snap the airline tee into the slider and push the cup onto it. Close the spare leg with a short folded tube, and prick one pin hole."
+    cam: hand_low
+    add:
+      - {parts: [tee], from: [0, 0, -12], dur: 0.9}
+      - {parts: [cup], from: [0, 0, -12], delay: 0.9, dur: 0.9}
 
   # ── Step 7 ──
   - id: s7_hopper
     step: 7
-    caption: "Hopper at the first station (10°): 2 × M3 × 12 through its ears into board pilots"
+    caption: "Hopper on its 2 template holes (10° station): 2 × M3 × 12 through the ears"
     say: "Step seven. The hopper, with two M three by twelve screws."
     cam: hopper
     add:
@@ -334,7 +335,7 @@ segments:
       - {parts: [hopper_scr], split: true, n: 2, stagger: 0.15, from: [0, 0, 30], delay: 1.0, dur: 0.8, spin: 3}
   - id: s7_bins
     step: 7
-    caption: "6 bins (50° to 150°), 2 × M3 × 12 each; nudge each so the walls touch"
+    caption: "6 bins on their template holes (50° to 150°): 2 × M3 × 12 each"
     say: "Six bins around the arc, two screws each."
     cam: stations
     add:
@@ -346,7 +347,7 @@ segments:
       - {parts: [bin6, bin6_scr], from: [0, 0, 80], delay: 1.6, dur: 0.8}
   - id: s7_reject
     step: 7
-    caption: "Reject bin last, at 170°"
+    caption: "Reject bin last, at 170°: 2 × M3 × 12"
     say: "The reject bin goes last."
     add: [{parts: [bin7, bin7_scr], from: [0, 0, 80], dur: 1.0}]
 
@@ -372,56 +373,57 @@ segments:
   # ── Step 9 ──
   - id: s9_post
     step: 9
-    caption: "Camera post beside the scan station: 4 × M3 × 12 into board pilots"
+    caption: "Camera post beside the scan station: 4 × M3 × 12 into its template holes"
     say: "Step nine. The camera post, with four M three by twelve screws."
-    cam: tower
+    cam: post_base
     add:
       - {parts: [post], from: [0, 0, 120], dur: 1.1}
       - {parts: [post_scr], split: true, n: 4, stagger: 0.1, from: [0, 0, 30], delay: 1.1, dur: 0.7, spin: 3}
+  - id: s9_ring
+    step: 9
+    caption: "Ring holder FIRST (the boom blocks it later): LED ring glued in its recess, slide it down the post, M3 × 12 into the clamp's insert"
+    say: "The LED ring holder goes on first. Glue the ring in, slide it down the post, and clamp it."
+    cam: tower
+    add:
+      - {parts: [ring_holder, led_ring], from: [0, 0, 180], dur: 1.3}
+      - {parts: [ring_scr], from: [30, 0, 0], delay: 1.3, dur: 0.7, spin: 3}
   - id: s9_camera
     step: 9
-    caption: "Arducam face-down under the boom end, 4 × M2 screws (ribbon out through the slot)"
-    say: "The camera goes face down under the boom end."
-    cam: cam_close
-    add:
-      - {parts: [boom], at: [0, 0, 90], from: [0, 0, 40], dur: 0.9}
-      - {parts: [camera], at: [0, 0, 90], from: [0, 0, -40], delay: 0.8, dur: 0.9}
-      - {parts: [cam_scr], at: [0, 0, 90], split: true, n: 4, stagger: 0.1, from: [0, 0, -20], delay: 1.6, dur: 0.6}
-  - id: s9_lens
-    step: 9
-    caption: "+5 reading-glasses lens slid into the lens frame, frame up round the camera: 2 × M3 × 16 into the boom's inserts"
-    say: "Pop a lens out of the plus five reading glasses, slide it into the frame, and screw the frame under the camera."
+    caption: "On the bench: camera board face-down in the lens frame's top pocket (ribbon up), popped-out +5 glasses lens slid into the bottom pocket"
+    say: "On the bench, the camera sits face down in the lens frame, and a lens from the plus five reading glasses slides in underneath."
+    cam: boom_bench
     add:
       - {parts: [lens_frame, lens], at: [0, 0, 90], from: [0, 0, -50], dur: 1.0}
-      - {parts: [lens_scr], at: [0, 0, 90], split: true, n: 2, stagger: 0.15, from: [0, 0, -25], delay: 1.0, dur: 0.7, spin: 3}
+      - {parts: [camera], at: [0, 0, 90], from: [0, 0, 40], delay: 0.9, dur: 0.9}
+  - id: s9_lens
+    step: 9
+    caption: "Boom on top (ribbon through its slot): 4 × M3 × 16 down through the boom into the frame. This clamps the camera board, no small screws needed"
+    say: "Put the boom on top and drive four M three by sixteen screws down into the frame. That clamps the camera."
+    cam: boom_top
+    add:
+      - {parts: [boom], at: [0, 0, 90], from: [0, 0, 40], dur: 0.9}
+      - {parts: [lens_scr], at: [0, 0, 90], split: true, n: 4, stagger: 0.1, from: [0, 0, 25], delay: 0.9, dur: 0.6, spin: 3}
   - id: s9_boom
     step: 9
-    caption: "Slide the boom down the post until the lens is 188 mm above the bed; M3 × 10 into the clamp's insert. Fine-focus later by sliding"
+    caption: "Slide the boom down the post until the lens is 188 mm above the bed: M3 × 12 into the clamp's insert. Fine-focus later by sliding"
     say: "Slide the boom down the post, about nineteen centimetres above the bed, and clamp it."
     cam: tower
-    move: [{parts: [boom, camera, cam_scr, lens_frame, lens, lens_scr], to: [0, 0, 0], dur: 1.6}]
+    move: [{parts: [boom, camera, lens_frame, lens, lens_scr], to: [0, 0, 0], dur: 1.6}]
     add: [{parts: [boom_scr], from: [30, 0, 0], delay: 1.7, dur: 0.7, spin: 3}]
   - id: s9_pi
     step: 9
     caption: "Pi Zero 2 W on the boom top: 4 M2.5 standoffs + 4 × M2.5 screws (standoff kit); camera ribbon to its port"
     say: "The Pi Zero sits on the boom on four standoffs."
-    cam: tower
+    cam: pi_cam
     add:
       - {parts: [pi_standoffs], split: true, n: 4, stagger: 0.08, from: [0, 0, 25], dur: 0.6}
       - {parts: [pi], from: [0, 0, 40], delay: 0.7, dur: 0.8}
       - {parts: [pi_scr], split: true, n: 4, stagger: 0.08, from: [0, 0, 20], delay: 1.4, dur: 0.6, spin: 2}
-  - id: s9_ring
-    step: 9
-    caption: "LED ring in the ring holder's recess, holder clamped on the post: M3 × 10 into its insert"
-    say: "The LED ring sits in its holder, clamped lower on the post."
-    add:
-      - {parts: [ring_holder, led_ring], from: [0, 0, 60], dur: 1.0}
-      - {parts: [ring_scr], from: [30, 0, 0], delay: 1.0, dur: 0.7, spin: 3}
 
   # ── Step 10 ──
   - id: s10_post
     step: 10
-    caption: "Cable post behind the turntable: 4 × M3 × 12 into board pilots"
+    caption: "Cable post behind the turntable: 4 × M3 × 12 into its template holes"
     say: "Step ten. The cable post, behind the turntable."
     cam: cable
     add:
@@ -441,8 +443,8 @@ segments:
       - {parts: [el_drok], from: [0, 0, 60], delay: 1.35, dur: 0.8}
   - id: s10_tube
     step: 10
-    caption: "4 mm tube from the cup's tee up the arm, zip-tied at the mast top, in a loose loop to the post's hook, down to the pump"
-    say: "Run the vacuum tube up the arm, zip tie it at the mast, then a loose loop to the post and down to the pump."
+    caption: "4 mm tube from the tee, zip-tied at the hand and the mast top, loose loop to the post's hook, down to the pump inlet (8-to-4 mm reducer + a short 8 mm silicone sleeve)"
+    say: "Run the vacuum tube from the cup up the arm, zip tie it at the hand and the mast, loop it to the post, and down to the pump through the reducer."
     cam: cable
     add:
       - {parts: [tube], from: [0, 0, 40], dur: 1.2}
@@ -451,11 +453,11 @@ segments:
     step: 10
     caption: "Servo and touch-switch leads follow the same loop. Swing the arm 0° to 170° by hand: nothing may pull tight"
     say: "The servo and touch switch leads follow the same loop. Swing the arm by hand and check nothing pulls tight."
-    add: [{parts: [leads], from: [0, 0, 40], dur: 1.2}]
+    add: [{parts: [leads, leads_hand], from: [0, 0, 40], dur: 1.2}]
   - id: s10_wiring
     step: 10
-    caption: "Wiring, power and first-run tests: cad_b/README.md (TMC2209 notes). Do the single-card cup test before trusting the hand"
-    say: "Wiring and first run tests are in the read me. Test the cup on a single card before trusting the hand."
+    caption: "Wiring: only the TMC2209 notes exist so far (cad_b/README.md). The pin map, software and first-run tests come next. Do the single-card cup test before trusting the hand"
+    say: "So far the read me only has the motor driver notes. The pin map and software come next. Test the cup on a single card first."
     cam: back
 
   - id: outro
