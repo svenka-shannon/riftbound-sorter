@@ -78,7 +78,7 @@ The reviewer found three blockers in round 4. Two were the 28BYJ-48's 1-3 deg ge
 
 ### Electronics notes (TMC2209 on the Pi Zero 2 W)
 - VM 12 V from the adapter, with a 1000 µF cap at VM/GND. VIO 3.3 V from the Pi. Common ground.
-- STEP/DIR on two GPIOs, step pulses timed with pigpio DMA waveforms. EN with a 10 k pull-up to 3.3 V, so the motor stays off during boot.
-- UART: Pi TX through 1 kΩ to PDN_UART, Pi RX straight to PDN_UART. Use `dtoverlay=disable-bt` and turn off the serial console. Set the run current to ~0.7 A. Set the hold current equal to the run current (IHOLD = IRUN) for full stiffness at the stations.
+- STEP/DIR on two GPIOs, step pulses timed with pigpio DMA waveforms. EN on a GPIO with its pull-up set in `config.txt` (`gpio=<EN>=ip,pu`, same trick as the relay pins), so the motor stays off during boot. No resistor to buy.
+- UART, write-only: Pi TX wired straight to PDN_UART (no RX, so no 1 kΩ resistor is needed; the driver settings are written, never read back). Use `dtoverlay=disable-bt` and turn off the serial console. Set the run current to ~0.7 A. Set the hold current equal to the run current (IHOLD = IRUN) for full stiffness at the stations.
 - The 12 V 3 A adapter feeds the pump, the 5 V converter (servo) and the stepper: stagger the pump start and the yaw moves.
 - Firmware: approach every station from the same direction. Allow ~150 ms of settle after each move (the arm rings at ~5-7 Hz). Home onto the switch's press edge from above. At hopper visits only *check* the switch state, don't re-zero. Measure station angles once with the camera rather than trusting the computed ones.
