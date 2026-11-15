@@ -143,3 +143,46 @@ Hardware points found while writing the software (not fixed in the CAD):
 3. **Homing with a misadjusted switch.** Now bounded by the position hint and run at the low homing current (see Software). Still adjust the switch cradle and check it on the bench first (`test_hardware.py` B → home switch watch, motor off, arm turned by hand).
 4. **The 5 kg cell vs a 1.75 g card.** The thresholds (empty ≤ 0.5 g, single 1.3-2.3 g, double ≥ 2.8 g) need the bed's noise well under 0.3 g. Check it with the B load-cell bench test.
 5. **The WS2812 ring has no driver in this pass.** GPIO 18 is reserved. `rpi_ws281x` on PWM needs root (or move the ring to SPI, GPIO 10).
+
+## Phone app
+
+The sorter's web server is also a phone app: a PWA served by the Pi itself, so there is no App Store and nothing is fetched from the internet. It runs on both machines; the Setup screen is option B only.
+
+### Open it and add it to the home screen
+1. Put the phone on the same Wi-Fi as the Pi. In Safari, open `http://riftbound-sorter.local:5000` (or `http://<pi-ip>:5000`).
+2. Tap Share → **Add to Home Screen** → Add. The "Sorter" icon opens full screen, without the Safari bars. On Android Chrome: menu → **Add to Home screen**.
+3. Open the app from the home screen and pair it there (next section). iOS gives the home-screen app its own storage, separate from Safari's, so a pairing done in Safari doesn't carry over.
+
+Browsers only run service workers on https or localhost. On `http://…local:5000` the offline shell cache stays off. The app works the same, but with the Pi off, the icon opens Safari's "can't connect" page instead of the app.
+
+### Pair the phone
+You can watch the status and the camera without pairing. Every control needs the web token. The token rules are unchanged: it lives in `config/web.json`, is never printed to the journal, and is never sent in answer to a GET.
+1. SSH to the Pi and, as the service user: `cd /opt/riftbound-sorter && sudo -u pi venv/bin/python main.py --pair`. It prints a 6-digit code, valid for 10 minutes and usable once. Five wrong tries cancel it. Only a salted hash of the code is stored (`config/web_pair.json`, mode 600).
+2. In the app: ☰ → **Pair this phone** → type the code → **Pair**. The app gets the token in the answer to that POST and keeps it in the phone's local storage. The desktop pages in the same browser use it too.
+
+Or type the token itself: run `main.py --web-token`, then in the app open "Or type the token". To unpair a phone: ☰ → **Paired · manage** → **Unpair**. To lock every phone out, delete `config/web.json` and restart the service. A new token is generated, and every phone has to pair again.
+
+### Screens
+- **Run**: shows the state and message (polled every 1.5 s) with red or amber banners for jam, error, "check the machine", hopper empty and bin full. Below that are cards per minute (last 60 s and session average), session counts, the last card, and each bin's fill bar with **Emptied** and **All emptied**. The buttons appear only when the server would accept them: Pause / Stop while running, Resume when paused or the hopper is empty, Start after a Stop, and **Machine clear** after a jam, an error or an unclean stop. Machine clear restarts sorting. Stop, Start, Resume, Machine clear and Emptied ask for confirmation first. There is no separate "start" command: the service starts sorting when it starts, and Start resumes after a Stop. `--web-only` runs no sorting loop at all.
+- **Camera**: a scan-bed frame about once a second while the machine is idle (`/api/camera.jpg`). While a run is in progress the app never touches the camera. It shows the sorter's own last capture (the card it just identified) instead. MOCK mode shows a drawn bed.
+- **Setup** (option B): the calibration API in `web/app.py` `/api/b/...`. The server refuses it while a run is in progress, paused included, and the app shows the reason; stop the machine first. The yaw buttons (jog, go to, Home) are disabled until the arm is homed, at full lift and the touch contact reads closed, the same interlock as `hardware/lift.yaw_permitted`. They are also disabled while the pump is on and while the sorter holds the hardware lock (busy). A lift **Down** stops on contact. **Off** for the pump only works with the cup resting on a station. Anywhere else the app asks you to take any card off the cup by hand, then sends `card_removed`. If homing fails, use the **Homing failed?** panel: **Motor off**, turn the arm by hand to the park pose (home switch pressed), **Arm is at park**, then **Home**. Every refusal (409) is shown with the server's reason. Any move marks the machine not clean. When you are done: Run → **Machine clear**.
+
+### Calibrate the stations, step by step
+Bins use the rules-engine numbers, **Bin 0 … Bin 5**, plus **Reject** (rules bin 9), the same as `config/rules.json` and the Run screen. Every save goes straight into `config/b_calibration.json`. It is validated first, and a value out of range is refused with the reason.
+1. Run → **Stop** and wait for "stopped" (or use `--web-only`). Open **Setup**.
+2. Servo map, once (and again after re-fitting the lift servo horn): **Advanced** → send a raw servo angle near the bottom of the lift, measure the link angle th with an angle gauge, then do the same near full lift. Enter both `[th, servo]` pairs → **Save servo map**. The "cup lip" millimetres in the readout are only right once this is done.
+3. **Home**. The readout shows Homed yes, Yaw ≈ 0°, Full lift yes, and "Yaw free".
+4. For each station (Hopper, Scan bed, Bin 0-5, Reject):
+   1. Clear the station: empty hopper, empty bed, empty bin.
+   2. **Go to** the station. This is its CAD angle.
+   3. Jog until the cup is centred over the pocket. Finish with a **+** jog: runs approach every station from below. If you overshoot, go −1° and come back up in +0.1° steps. For the scan bed, the Camera tab shows the cup over the bed.
+   4. **Save current position**: tap the station → **Yaw → station**.
+   5. Floor / touch height: **Probe** (the lift steps down until the touch contact opens and stays there). Hopper: **th → floor**. Scan bed: **th → touch**.
+   6. Limit: from the probe height, step **Down** about 1 mm for a bin or the hopper (0.1° × 3) and about 3 mm for the bed (0.1° × 8). Then **th → limit**. The slider has 10 mm of travel; never go further.
+   7. Approach: **Full lift**, then step **Down** until the cup lip is just above the highest surface it can meet there. Use the readout: about 35 mm over a bin or the hopper (walls at 34 mm), about 33 mm over the bed (bed top 29 mm). Then **th → approach**.
+   8. **Full lift** before moving on. Yaw stays locked until you do.
+5. Park pose (optional; the default is -10°): jog into the home cam, where the switch reads pressed, with nothing below the cup → **Yaw → park pose**.
+6. Camera-clear pose (optional; the default is the hopper's angle): a yaw at least 15° from the bed where the arm is out of the camera's view. Check it on the Camera tab → **Yaw → cam-clear pose**.
+7. Check the calibration table, then **Full lift**, then Run → **Machine clear**. The start-up self-test touches down on the empty bed and checks that the scale feels it.
+
+Files: `web/static/` (app, manifest, service worker, icons from `uv run tools/make_icons.py`), `web/pairing.py`, `web/snapshot.py`, `tests/test_phone_app.py`.

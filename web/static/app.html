@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f6f8fa" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sorter">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/static/icons/icon-192.png">
+  <link rel="stylesheet" href="/static/app.css">
+  <title>Riftbound Sorter</title>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <img src="/static/icons/icon-192.png" alt="" width="28" height="28">
+      <span class="title">Riftbound</span>
+      <span id="machine-badge" class="badge"></span>
+    </div>
+    <span id="conn" class="conn" role="status" aria-label="connection"></span>
+    <button id="menu-btn" class="icon-btn" aria-label="Menu">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+
+  <div id="global-banners" class="banners"></div>
+
+  <main>
+    <!-- ── Run ─────────────────────────────────────────────────────────── -->
+    <section id="screen-run" class="screen" aria-label="Run">
+      <div id="run-banners" class="banners"></div>
+
+      <div class="card status-card">
+        <div class="state-row">
+          <span id="state-pill" class="pill">…</span>
+          <span id="state-flags" class="flags"></span>
+        </div>
+        <p id="state-msg" class="msg"></p>
+        <div class="controls">
+          <button id="btn-start" class="btn primary big" hidden>Start</button>
+          <button id="btn-resume" class="btn primary big" hidden>Resume</button>
+          <button id="btn-pause" class="btn big" hidden>Pause</button>
+          <button id="btn-stop" class="btn danger big" hidden>Stop</button>
+          <button id="btn-clear" class="btn warn big wide" hidden>Machine clear</button>
+        </div>
+        <p id="controls-hint" class="hint"></p>
+      </div>
+
+      <div class="card">
+        <h2>Session</h2>
+        <div class="stats">
+          <div class="stat hero"><b id="st-now">–</b><span>cards / min (last 60 s)</span></div>
+          <div class="stat hero"><b id="st-avg">–</b><span>avg / min this session</span></div>
+          <div class="stat"><b id="st-total">–</b><span>cards</span></div>
+          <div class="stat"><b id="st-sorted">–</b><span>sorted</span></div>
+          <div class="stat"><b id="st-rejects">–</b><span>rejected</span></div>
+          <div class="stat"><b id="st-today">–</b><span>today</span></div>
+          <div class="stat"><b id="st-doubles">–</b><span>double picks</span></div>
+          <div class="stat"><b id="st-unknowns">–</b><span>unidentified</span></div>
+          <div class="stat"><b id="st-errors">–</b><span>errors · jams</span></div>
+          <div class="stat"><b id="st-elapsed">–</b><span>session time</span></div>
+        </div>
+        <div id="last-card" class="last"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Bins</h2>
+          <button id="btn-empty-all" class="btn small">All emptied</button>
+        </div>
+        <div id="bins" class="bins"></div>
+      </div>
+    </section>
+
+    <!-- ── Camera ──────────────────────────────────────────────────────── -->
+    <section id="screen-camera" class="screen" aria-label="Camera" hidden>
+      <div class="card cam-card">
+        <div class="cam-wrap"><img id="cam-img" alt="Scan bed camera"></div>
+        <div class="cam-meta"><span id="cam-src" class="pill small">…</span><span id="cam-age"></span></div>
+        <div class="row">
+          <button id="cam-live" class="btn primary">Live: on</button>
+          <button id="cam-refresh" class="btn">Refresh</button>
+        </div>
+        <p class="hint">Idle: a fresh frame about every second. While sorting the camera
+          belongs to the sort cycle, so this shows the sorter's own last capture instead.</p>
+      </div>
+    </section>
+
+    <!-- ── Setup / calibrate ───────────────────────────────────────────── -->
+    <section id="screen-setup" class="screen" aria-label="Setup" hidden>
+      <div id="setup-banners" class="banners"></div>
+      <div id="setup-body">
+        <div class="card readout">
+          <div class="read-grid">
+            <div><span>Yaw</span><b id="rd-yaw">–</b><i id="rd-station"></i></div>
+            <div><span>Lift th</span><b id="rd-th">–</b><i id="rd-lip"></i></div>
+            <div><span>Homed</span><b id="rd-homed">–</b></div>
+            <div><span>Full lift</span><b id="rd-full">–</b></div>
+            <div><span>Home switch</span><b id="rd-switch">–</b></div>
+            <div><span>Touch contact</span><b id="rd-touch">–</b></div>
+            <div><span>Pump</span><b id="rd-pump">–</b></div>
+            <div><span>Machine</span><b id="rd-state">–</b></div>
+          </div>
+          <p id="yaw-lock" class="lock"></p>
+        </div>
+
+        <div class="card">
+          <h2>Arm</h2>
+          <div class="row">
+            <button id="b-home" class="btn primary">Home</button>
+            <button id="b-full" class="btn">Full lift</button>
+          </div>
+          <p class="hint">Home lifts to full height first, then finds the yaw home edge.</p>
+        </div>
+
+        <div class="card">
+          <h2>Jog yaw</h2>
+          <div class="grid3">
+            <button class="btn yaw-btn" data-yaw="-5">−5°</button>
+            <button class="btn yaw-btn" data-yaw="-1">−1°</button>
+            <button class="btn yaw-btn" data-yaw="-0.1">−0.1°</button>
+            <button class="btn yaw-btn" data-yaw="0.1">+0.1°</button>
+            <button class="btn yaw-btn" data-yaw="1">+1°</button>
+            <button class="btn yaw-btn" data-yaw="5">+5°</button>
+          </div>
+          <p class="hint">+ is counter-clockwise, towards the reject bin.</p>
+        </div>
+
+        <div class="card">
+          <h2>Lift</h2>
+          <div class="seg" id="lift-step" role="radiogroup" aria-label="Lift step">
+            <button data-step="0.1" aria-checked="false">0.1°</button>
+            <button data-step="0.5" aria-checked="true">0.5°</button>
+            <button data-step="2" aria-checked="false">2°</button>
+          </div>
+          <div class="row">
+            <button class="btn lift-btn" data-dir="1">▲ Up</button>
+            <button class="btn lift-btn" data-dir="-1">▼ Down</button>
+          </div>
+          <div class="row">
+            <button id="b-probe" class="btn">Probe: step down to touch</button>
+          </div>
+          <p id="probe-result" class="hint">1° of lift ≈ 3.8 mm at the cup. Probe stops where the
+            touch contact opens and stays there, so the height can be saved.</p>
+        </div>
+
+        <div class="card">
+          <h2>Pump</h2>
+          <div class="row">
+            <button id="b-pump-on" class="btn">Pump on</button>
+            <button id="b-pump-off" class="btn">Off + bleed</button>
+          </div>
+          <p class="hint">After 60 s it switches itself off only if the cup rests on a station;
+            otherwise it keeps holding (it may hold a card). "Off" works only with the cup resting
+            at a station, or after you took the card off by hand.</p>
+        </div>
+
+        <div class="card" id="recovery">
+          <h2>Homing failed? Place the arm by hand</h2>
+          <ol class="steps">
+            <li><b>Motor off</b>: the yaw motor lets go and its saved position is no longer trusted.</li>
+            <li>Keep the lift up and turn the arm by hand to the park pose
+              (<b id="park-yaw">–</b>, inside the home cam: the home switch reads <i>pressed</i>).</li>
+            <li><b>Arm is at park</b>, then <b>Home</b>.</li>
+          </ol>
+          <div class="row">
+            <button id="b-motor-off" class="btn">Motor off</button>
+            <button id="b-declare" class="btn primary">Arm is at park</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Go to</h2>
+          <div id="goto-chips" class="chips"></div>
+          <p class="hint">Stations are approached from below, like a run.</p>
+        </div>
+
+        <div class="card">
+          <h2>Save current position</h2>
+          <div id="save-chips" class="chips"></div>
+          <div id="save-actions" class="save-actions"></div>
+          <div class="save-actions">
+            <button id="b-save-park" class="btn">Yaw → park pose</button>
+            <button id="b-save-clear" class="btn">Yaw → cam-clear pose</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Calibration</h2>
+          <div class="table-wrap"><table id="cal-table" class="cal"></table></div>
+          <div id="cal-extra" class="hint"></div>
+        </div>
+
+        <details class="card adv">
+          <summary>Advanced: lift servo map</summary>
+          <p class="hint">Command a raw servo angle, measure the link angle th with a gauge,
+            and save two [th, servo] points.</p>
+          <div class="row">
+            <input id="servo-raw" type="number" inputmode="decimal" step="0.5" placeholder="servo °">
+            <button id="b-servo-raw" class="btn small">Send</button>
+          </div>
+          <div class="row">
+            <input id="sm-th1" type="number" inputmode="decimal" step="0.1" placeholder="th 1">
+            <input id="sm-sv1" type="number" inputmode="decimal" step="0.1" placeholder="servo 1">
+          </div>
+          <div class="row">
+            <input id="sm-th2" type="number" inputmode="decimal" step="0.1" placeholder="th 2">
+            <input id="sm-sv2" type="number" inputmode="decimal" step="0.1" placeholder="servo 2">
+          </div>
+          <div class="row"><button id="b-save-map" class="btn small">Save servo map</button></div>
+        </details>
+
+        <p class="hint footnote">Any move here marks the machine NOT clean. When you are done:
+          Run → <b>Machine clear</b> (sorting starts again).</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs" aria-label="Screens">
+    <button data-tab="run" aria-label="Run">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>
+      <span>Run</span>
+    </button>
+    <button data-tab="camera" aria-label="Camera">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l2-2.5h6L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="13" r="3.6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <span>Camera</span>
+    </button>
+    <button data-tab="setup" aria-label="Setup">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <span>Setup</span>
+    </button>
+  </nav>
+
+  <!-- menu -->
+  <div id="sheet-menu" class="sheet" hidden>
+    <div class="sheet-panel">
+      <div class="sheet-head"><h2>Menu</h2><button class="icon-btn close" data-close aria-label="Close">✕</button></div>
+      <button id="menu-pair" class="menu-item">Pair this phone</button>
+      <a class="menu-item" href="/dashboard">Desktop dashboard</a>
+      <a class="menu-item" href="/inventory">Inventory</a>
+      <a class="menu-item" href="/rules">Rules editor</a>
+      <a class="menu-item" href="/export">Export inventory CSV</a>
+      <a class="menu-item" href="/export/tcgplayer">Export TCGPlayer CSV</a>
+      <p class="hint">Install: Safari → Share → <b>Add to Home Screen</b>. Pair again inside the
+        installed app (it keeps its own storage).</p>
+      <p id="menu-about" class="hint"></p>
+    </div>
+  </div>
+
+  <!-- pairing -->
+  <div id="sheet-pair" class="sheet" hidden>
+    <div class="sheet-panel">
+      <div class="sheet-head"><h2>Pair this phone</h2><button class="icon-btn close" data-close aria-label="Close">✕</button></div>
+      <div id="pair-state" class="hint"></div>
+      <p class="hint">On the Pi run <code>python main.py --pair</code> and type the 6-digit code
+        (valid 10 minutes, once).</p>
+      <div class="row">
+        <input id="pair-code" type="text" inputmode="numeric" autocomplete="one-time-code"
+               maxlength="7" placeholder="123 456" aria-label="Pairing code">
+        <button id="pair-go" class="btn primary">Pair</button>
+      </div>
+      <details>
+        <summary class="hint">Or type the token (<code>python main.py --web-token</code>)</summary>
+        <div class="row">
+          <input id="pair-token" type="password" autocomplete="off" autocapitalize="off"
+                 spellcheck="false" placeholder="token" aria-label="Token">
+          <button id="pair-token-go" class="btn">Use token</button>
+        </div>
+      </details>
+      <div class="row"><button id="pair-forget" class="btn danger small" hidden>Unpair this phone</button></div>
+    </div>
+  </div>
+
+  <!-- confirm dialog -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title"></h2>
+      <p id="modal-body"></p>
+      <div class="row">
+        <button id="modal-cancel" class="btn">Cancel</button>
+        <button id="modal-ok" class="btn primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="alert" hidden></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
