@@ -25,14 +25,19 @@ servos limp), then MODE1 = SLEEP (oscillator stopped), via the Linux i2c-dev
 ioctl interface.
 
 Machines (config/machine.json "machine", read with the standard library):
-  v2 (default, also when there is no config file): SAFE_LEVELS below.
-  b  (option B, cad_b/): pump relay GPIO 17 LOW (the KY-019 is active-HIGH),
-     TMC2209 EN GPIO 25 HIGH (motor off), STEP 23 / DIR 24 LOW. First
-     `pigs wvhlt`: pigpiod owns the STEP waveform and keeps sending it after
-     the sorter died, so it is halted before the pins are set.
-  unreadable config: the relay pin is only switched back to an INPUT, no level
-     driven — config.txt set its boot pull for this machine (v2 "pu", B "pd"),
-     which is OFF for both relays; driving a level could turn one pump ON.
+  v2: SAFE_LEVELS below, PCA9685 asleep.
+  b  (option B, cad_b/): first `pigs wvhlt` (pigpiod owns the STEP waveform
+     and keeps sending it after the sorter died), then TMC2209 EN GPIO 25 HIGH
+     (motor off), STEP 23 / DIR 24 LOW, and the pump relay GPIO 17 LOW (KY-019
+     is active-HIGH) — UNLESS data/machine_state.json says "pump_hold": a card
+     is held on the cup away from the bed / a bin and B never drops it there,
+     so the relay is left ON. The PCA9685 is put to sleep (lift limp) only
+     after a clean stop with the arm parked ("rest_pose": "parked"); otherwise
+     it keeps sending its last pulse, so the lift HOLDS instead of sagging onto
+     a stack, the bed or a wall.
+  no / unknown machine selection (no file, no key, unreadable): NOTHING is
+     touched. The sorter refuses to start without a selection, so nothing was
+     driven, and the wrong machine's levels could switch a pump or motor ON.
 Pin numbers / levels must match config/machine.json if it moves pins (the
 tests check the defaults against hardware/*.py).
 
@@ -63,24 +68,37 @@ SAFE_LEVELS_B = {
     24: 0,   # DIR
 }
 ORDER_B = (17, 25, 23, 24)
-UNKNOWN_INPUTS = (17,)       # unreadable config: relay pin back to an input only
 
 CONFIG_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            "config", "machine.json")
 
 
+STATE_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                          "data", "machine_state.json")
+
+
 def detect_machine(path=CONFIG_FILE) -> str:
-    """"v2" / "b" from config/machine.json; "v2" without a file; "unknown" if unreadable."""
+    """"v2" / "b" from config/machine.json; "unknown" without a file, without
+    the "machine" key, or if it cannot be read."""
     import json
     try:
         with open(path) as fh:
             data = json.load(fh)
-    except FileNotFoundError:
-        return "v2"
     except Exception:
         return "unknown"
-    m = data.get("machine", "v2") if isinstance(data, dict) else None
+    m = data.get("machine") if isinstance(data, dict) else None
     return m if m in ("v2", "b") else "unknown"
+
+
+def read_state(path=STATE_FILE) -> dict:
+    """The sorter's machine record (data/machine_state.json); {} if unreadable."""
+    import json
+    try:
+        with open(path) as fh:
+            data = json.load(fh)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
 
 
 def levels_for(machine: str):
@@ -108,11 +126,20 @@ def gpio_tool():
     return None
 
 
-def gpio_commands(tool: str = "pinctrl", machine: str = "v2") -> list[list[str]]:
-    if machine == "unknown":
-        return [[tool, "set", str(pin), "ip"] for pin in UNKNOWN_INPUTS]
+def gpio_commands(tool: str = "pinctrl", machine: str = "v2", state: dict | None = None) -> list[list[str]]:
     levels, order = levels_for(machine)
+    if machine == "b" and (state or {}).get("pump_hold"):
+        order = tuple(p for p in order if p != 17)        # card held: keep the pump ON
     return [[tool, "set", str(pin), "op", "dh" if levels[pin] else "dl"] for pin in order]
+
+
+def pca_may_sleep(machine: str, state: dict | None = None) -> bool:
+    if machine == "v2":
+        return True
+    if machine == "b":
+        st = state or {}
+        return bool(st.get("clean")) and st.get("rest_pose") == "parked" and not st.get("pump_hold")
+    return False
 
 
 def halt_pigpio_waves(dry_run: bool = False) -> list[str]:
@@ -130,15 +157,17 @@ def halt_pigpio_waves(dry_run: bool = False) -> list[str]:
     return []
 
 
-def set_pins(dry_run: bool = False, machine: str = "v2") -> list[str]:
+def set_pins(dry_run: bool = False, machine: str = "v2", state: dict | None = None) -> list[str]:
     errors = []
+    if machine == "unknown":
+        return []
     tool = gpio_tool() or ("pinctrl" if dry_run else None)
     if tool is None:
         return ["neither pinctrl nor raspi-gpio found (apt install raspi-utils)"]
-    if machine == "unknown":
-        errors.append("config/machine.json unreadable: machine unknown — relay pin only set to "
-                      "input (boot pull keeps it off); no other pin touched")
-    for cmd in gpio_commands(tool, machine):
+    if machine == "b" and (state or {}).get("pump_hold"):
+        print("[safe_outputs] card held on the cup (machine record pump_hold): pump relay left ON",
+              file=sys.stderr)
+    for cmd in gpio_commands(tool, machine, state):
         if dry_run:
             print(" ".join(cmd))
             continue
@@ -184,10 +213,20 @@ def main(argv=None) -> int:
     ap.add_argument("--machine", choices=("v2", "b"), help="default: config/machine.json")
     args = ap.parse_args(argv)
     machine = args.machine or detect_machine()
+    if machine == "unknown":
+        print("[safe_outputs] no machine selected in config/machine.json — touching nothing",
+              file=sys.stderr)
+        return 0
+    state = read_state() if machine == "b" else {}
     errors = []
-    if machine != "v2":
+    if machine == "b":
         errors += halt_pigpio_waves(args.dry_run)
-    errors += set_pins(args.dry_run, machine) + pca_sleep(args.dry_run)
+    errors += set_pins(args.dry_run, machine, state)
+    if pca_may_sleep(machine, state):
+        errors += pca_sleep(args.dry_run)
+    elif not args.dry_run:
+        print("[safe_outputs] PCA9685 left running (B, not parked clean): the lift holds its height",
+              file=sys.stderr)
     for e in errors:
         print(f"[safe_outputs] {e}", file=sys.stderr)
     if not args.dry_run:

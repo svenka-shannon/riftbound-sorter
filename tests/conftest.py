@@ -73,7 +73,13 @@ def _isolated_files(monkeypatch, tmp_path):
     monkeypatch.setattr(yaw, "_interlock", None)
     monkeypatch.setattr(lift, "_th", None)
     monkeypatch.setattr(lift, "_settled", False)
-    for name in ("_cards_since_edge", "_fault", "_manual_used"):
+    monkeypatch.setattr(yaw, "HINT_FILE", tmp_path / "yaw_hint.json")
+    monkeypatch.setattr(yaw, "_current_a", yaw.RUN_CURRENT_A)
+    monkeypatch.setattr(lift, "_released", False)
+    for name in ("_cards_since_edge", "_fault", "_manual_used", "_last_hopper_closed"):
         monkeypatch.setattr(sorter_b, name, {"_cards_since_edge": 0}.get(name))
+    if sorter_b._pump_timer is not None:
+        sorter_b._pump_timer.cancel()
+    monkeypatch.setattr(sorter_b, "_pump_timer", None)
     b_mock.reset()
     yield

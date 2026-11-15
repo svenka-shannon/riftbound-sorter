@@ -5,8 +5,10 @@ One World holds the physical truth: the arm's REAL yaw (which may differ from
 the commanded one after injected lost steps), the lift's link angle, the pump,
 what the cup holds, and the cards in the hopper, on the bed and in each bin.
 The B drivers read their sensors from it in MOCK mode:
-  yaw.py    home switch (cam: pressed for -72 <= yaw <= 0, small hysteresis),
-            moves (plus any injected slip), the cable post at -90
+  yaw.py    home switch (cam: pressed for -72 <= yaw <= 0; once pressed it releases
+            only HOME_HYST_DEG higher — differential travel on the cam ramp),
+            moves (plus any injected slip), the cable post at -90 (at the homing
+            current a stall there is harmless and logged as "stall", else "crash")
   lift.py   link angle on every servo write
   touch.py  contact OPEN while the cup (or the card under it) rests on a surface
   loadcell  the bed load (cards on the bed + the slider resting on it)
@@ -17,6 +19,8 @@ must prove never happens is logged in World.events:
   ("drop", station, height_mm)   card released with the cup more than DROP_OK_MM above the surface
   ("crash", what)                slider over-travel, cable post, lowering onto a wall
   ("yaw_low", th)                yaw moved with the lift below full height
+The hopper floor has the Ø32 hole under the cup (cad 029e479): with no card
+left the cup drops through and never touches.
 """
 
 from hardware import b_geometry as geo
@@ -25,19 +29,18 @@ SINGLE_G = 1.75
 DOUBLE_G = 3.5
 SLIDER_G = 30.0          # slider + cup + tee resting on the bed when the cup touches it
 DROP_OK_MM = 1.0
-HOME_HYST_DEG = 0.3
+HOME_HYST_DEG = 1.5
 
 
 class World:
-    def __init__(self, hopper_cards: int = 20, floor_hole: bool = True):
-        self.yaw = 37.0               # real arm angle (deg); unknown to the software at start
+    def __init__(self, hopper_cards: int = 20, yaw: float = -10.0):
+        self.yaw = yaw                # real arm angle (deg); unknown to the software at start
         self.th = geo.TH_FULL         # real link angle
         self.pump = False
         self.cup = []                 # weights held on the cup (0 or 1 item)
         self.hopper = [SINGLE_G] * hopper_cards     # bottom → top
         self.bed = []
         self.bins = {n: [] for n in geo.STATIONS[2:]}
-        self.floor_hole = floor_hole  # hole in the hopper floor under the cup (see cad_b/README.md)
         self.seal_fail = 0            # next N pump-ons pick nothing
         self.release_fail = 0         # next N pump-offs keep the card on the cup
         self.slip_next_deg = 0.0      # added to the next yaw move (lost steps)
@@ -73,8 +76,8 @@ class World:
             return 0.0 if self.yaw <= geo.ST0_DEG - geo.STATION_HALF_WIDTH_DEG else geo.WALL_TOP_Z_MM
         pile = self._pile(name)
         base = geo.BED_TOP_Z_MM if name == "scan" else geo.FLOOR_Z_MM
-        if name == "hopper" and not pile and self.floor_hole:
-            return None
+        if name == "hopper" and not pile:
+            return None                # Ø32 hole under the cup: nothing to touch
         return base + geo.CARD_T_MM * self._cards(pile)
 
     def cup_bottom_z(self):
@@ -98,6 +101,18 @@ class World:
         self._home_state = pressed
         return pressed
 
+    def _track_switch(self, delta_deg):
+        """The switch follows the cam as the arm moves (each move is one direction)."""
+        if self.home_wire_broken:
+            return
+        if self.yaw < geo.HOME_CAM_LOW_DEG:
+            self._home_state = False
+        elif delta_deg < 0:
+            self._home_state = self.yaw <= 0.0 or bool(self._home_state and self.yaw <= HOME_HYST_DEG)
+        else:
+            self._home_state = bool(self._home_state) and self.yaw <= HOME_HYST_DEG or (
+                not self._home_state and self.yaw <= 0.0)
+
     def bed_grams(self):
         g = sum(self.bed)
         if self.station() == "scan" and self.touching():
@@ -113,15 +128,17 @@ class World:
                                          f"({s - self.cup_bottom_z():.1f} mm)"))
             self.th = geo.th_for_lip(s - geo.SLIDER_TRAVEL_MM + geo.CARD_T_MM * self._cards(self.cup))
 
-    def move_yaw(self, delta_deg):
+    def move_yaw(self, delta_deg, low_current=False):
         if self.th < geo.TH_FULL - 1e-6:
             self.events.append(("yaw_low", self.th))
         if not self.yaw_enabled:
             self.events.append(("crash", "yaw stepped while the driver was disabled"))
         self.yaw += delta_deg + self.slip_next_deg
         self.slip_next_deg = 0.0
+        self._track_switch(delta_deg)
         if self.yaw < geo.CABLE_POST_DEG:
-            self.events.append(("crash", "cable post"))
+            self.events.append(("stall", "cable post at the homing current") if low_current
+                               else ("crash", "cable post"))
             self.yaw = geo.CABLE_POST_DEG
 
     def on_pump(self, on: bool):

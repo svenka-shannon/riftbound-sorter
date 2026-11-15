@@ -1,7 +1,8 @@
 #!/bin/bash
 # Riftbound Card Sorter — Raspberry Pi setup script
 # Run once after flashing Raspberry Pi OS Lite (64-bit, Bookworm or trixie),
-# from anywhere:  bash scripts/setup.sh
+# from anywhere:  bash scripts/setup.sh --machine v2   (or --machine b for option B;
+# afterwards plain `bash scripts/setup.sh` re-reads it from config/machine.json)
 #
 # Camera / GPIO Python libraries come from apt (python3-picamera2,
 # python3-libcamera, python3-rpi-lgpio, numpy, Pillow, scipy, PyWavelets) and
@@ -21,17 +22,37 @@ RUN_USER="${SUDO_USER:-$(id -un)}"
 
 echo "=== Riftbound Card Sorter Setup ($PROJECT_DIR, user $RUN_USER) ==="
 
-# Which machine: config/machine.json "machine" ("v2" default, or "b" = option B
-# turntable picker, cad_b/). Read with the system python3's standard library.
-MACHINE="$(python3 - "$PROJECT_DIR/config/machine.json" <<'PY'
-import json, sys
+# Which machine: config/machine.json "machine" — "v2" (belt + shuttle) or "b"
+# (option B turntable picker, cad_b/). `setup.sh --machine v2|b` writes it;
+# without the option the file must already say. Never guessed: the wrong
+# machine's code drives the other machine's pins (pump ON, stepper enabled).
+WANT_MACHINE=""
+if [ "${1:-}" = "--machine" ]; then WANT_MACHINE="${2:-}"; fi
+MACHINE="$(python3 - "$PROJECT_DIR/config/machine.json" "$WANT_MACHINE" <<'PY'
+import json, os, sys, tempfile
+path, want = sys.argv[1], sys.argv[2]
 try:
-    m = json.load(open(sys.argv[1])).get("machine", "v2")
+    data = json.load(open(path))
 except FileNotFoundError:
-    m = "v2"
+    data = {}
 except Exception as exc:
     sys.exit(f"config/machine.json unreadable: {exc}")
-print(m if m in ("v2", "b") else sys.exit(f"unknown machine {m!r}"))
+if want:
+    if want not in ("v2", "b"):
+        sys.exit(f"--machine must be v2 or b, got {want!r}")
+    if data.get("machine") != want:
+        data["machine"] = want
+        fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path))
+        with os.fdopen(fd, "w") as fh:
+            json.dump(data, fh, indent=2)
+            fh.write("\n")
+        os.chmod(tmp, 0o644)
+        os.replace(tmp, path)
+m = data.get("machine")
+if m not in ("v2", "b"):
+    sys.exit('no machine selected: run `bash scripts/setup.sh --machine v2` (belt + shuttle) or '
+             '`--machine b` (option B turntable picker)')
+print(m)
 PY
 )"
 echo "Machine: $MACHINE"

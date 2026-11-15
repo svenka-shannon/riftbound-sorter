@@ -6,7 +6,7 @@ Measured per machine, written by the calibration API (sorter_b.py manual
 functions / web/app.py /api/b/... endpoints), read at start-up:
 
   {"stations": {
-      "hopper": {"yaw": 10.0, "approach_th": 4.43, "limit_th": -4.30, "floor_th": -3.91},
+      "hopper": {"yaw": 10.0, "approach_th": 4.69, "limit_th": -5.48, "floor_th": -3.91},
       "scan":   {"yaw": 30.0, "approach_th": 4.17, "limit_th": 2.34, "touch_th": 3.13},
       "bin0":   {"yaw": 50.0, "approach_th": 4.43, "limit_th": -4.17},
       ... bin1 .. bin5 (70 .. 150), "reject": {"yaw": 170.0, ...}},
@@ -18,11 +18,14 @@ functions / web/app.py /api/b/... endpoints), read at start-up:
   approach_th  fast descent ends here (above any surface the cup can meet there);
                the slow, touch-watching descent starts from it
   limit_th     lowest th the descent may reach: no touch by then means
-                 hopper → empty;  scan → contact fault;  bin → released at the floor
-  floor_th     hopper only: th at which the cup meets the BARE hopper floor (= the
-               last card, 0.33 mm higher; one lift step is ~1.7 mm, so a touch at
-               or below this is "last card or empty"). null if the hopper floor
-               has a hole under the cup (then no touch by limit_th = empty)
+                 hopper → empty (the floor has a Ø32 hole under the cup, cad
+                          029e479: with no card the cup drops through it; the
+                          default is the lip 6 mm under the floor top, in the hole);
+                 scan → contact fault;  bin → released at the floor
+  floor_th     hopper only: th at which the cup lip is level with the hopper floor
+               top (the last card is 0.33 mm higher). A touch at or below it = the
+               last card; no touch with the lip FLOOR_PASS_MM below it = the cup is
+               in the hole = empty. null: any no-touch counts as empty
   touch_th     scan only: th at which the empty cup meets the empty bed (start-up
                touch self-test window)
   park_yaw     rest pose: inside the home cam (switch pressed), nothing below the
@@ -55,7 +58,7 @@ CAL_FILE = Path(__file__).resolve().parent.parent / "config" / (
 
 STATION_WINDOW_DEG = 8.0          # calibrated yaw within this of the design angle
 HOPPER_MIN_YAW = 5.0              # the home switch must read released at the hopper
-PARK_RANGE = (-70.0, -2.0)        # park inside the home cam (switch pressed)
+PARK_RANGE = (-55.0, -2.0)        # park inside the home cam (switch pressed), above LIMIT_MIN + undershoot
 CLEAR_MIN_FROM_SCAN_DEG = 15.0    # the clear pose must be out of the camera's view
 SERVO_GAIN_RANGE = (0.7, 1.4)     # |Δservo / Δth|: direct drive, MG996R gain spread
 STATION_KEYS = {"hopper": ("yaw", "approach_th", "limit_th", "floor_th"),
@@ -83,7 +86,7 @@ def defaults() -> dict:
     th = geo.th_for_lip
     wall_th = round(th(geo.WALL_TOP_Z_MM + 1.0), 2)
     st = {"hopper": {"yaw": geo.NOMINAL_YAW["hopper"], "approach_th": wall_th,
-                     "limit_th": round(th(geo.FLOOR_Z_MM - 1.5), 2),
+                     "limit_th": round(th(geo.FLOOR_Z_MM - 6.0), 2),       # in the floor hole
                      "floor_th": round(th(geo.FLOOR_Z_MM), 2)},
           "scan": {"yaw": geo.NOMINAL_YAW["scan"],
                    "approach_th": round(th(geo.BED_TOP_Z_MM + 4.0), 2),

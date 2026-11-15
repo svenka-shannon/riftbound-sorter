@@ -6,6 +6,7 @@ the v2 tests in the same session are unaffected).
 """
 
 import json
+import math
 import os
 import sys
 import time
@@ -134,14 +135,38 @@ def test_hopper_empty_run_sorter_state(ready):
     assert main._assess_clean()[0]
 
 
-def test_hopper_empty_without_floor_hole_needs_confirm(rig):
-    rig.floor_hole = False
-    main.prepare_machine(confirmed=True)
-    rig.hopper.clear()
-    with pytest.raises(sorter_b.HopperProbablyEmpty):
+def test_hopper_empty_is_a_clean_stop_needing_no_confirm(ready, monkeypatch):
+    """Floor hole (cad 029e479): after the last card the cup drops through and never touches."""
+    ready.hopper[:] = [b_mock.SINGLE_G]
+    main.sort_one_card(FakeEngine())
+    with pytest.raises(main.HopperEmpty) as ei:
         main.sort_one_card(FakeEngine())
-    assert main._card_at == "unknown"
-    assert main._assess_clean()[0] is False
+    assert not isinstance(ei.value, sorter_b.PickFailed)
+    assert main._card_at is None and ready.cup == [] and not vacuum.pump_is_on()
+    assert geo.lip_z(lift.th()) == pytest.approx(geo.lip_z(geo.TH_FULL))      # lifted again
+    main._set_state("hopper_empty")
+    assert main._assess_clean()[0] is True
+    _no_hazards(ready)
+
+
+def test_touch_at_floor_height_delivering_nothing_is_a_fault(ready):
+    """The last card is touched (at floor height) but not picked: a fault, not 'empty'."""
+    ready.hopper[:] = [b_mock.SINGLE_G]
+    ready.seal_fail = 1
+    with pytest.raises(sorter_b.LastCardNotPicked):
+        main.sort_one_card(FakeEngine())
+    assert main._card_at == "unknown" and main._assess_clean()[0] is False
+    assert ready.hopper == [b_mock.SINGLE_G]
+
+
+def test_hopper_descent_bounded_by_previous_touch(ready):
+    """A contact stuck CLOSED never drives the cup through the stack to the floor."""
+    main.sort_one_card(FakeEngine())                       # sets the bound (9 cards left)
+    ready.touch_stuck_closed = True
+    with pytest.raises(sorter_b.LiftFault, match="previous stack top"):
+        main.sort_one_card(FakeEngine())
+    assert [e for e in ready.events if e[0] == "crash"] == []
+    assert len(ready.hopper) == 9 and main._card_at is None
 
 
 def test_pick_failure_stops(ready):
@@ -239,23 +264,75 @@ def test_edge_check_catches_upward_slip(ready):
         yaw.verify_edge()
 
 
-@pytest.mark.parametrize("start", [100.0, 40.0, -5.0, -40.0, -70.0])
-def test_homing_from_both_sides(rig, start):
+@pytest.mark.parametrize("start", [170.0, 100.0, 40.0, 5.0, -5.0, -40.0, -64.0, -70.0, -72.0, -76.0, -80.0])
+def test_homing_from_both_sides_with_hint(rig, start):
     lift.to_full()
     rig.yaw = start
+    yaw.save_hint(start, start)              # where the last move left it
     yaw.home()
     assert yaw.homed() and yaw.position_deg() == 0.0
     assert -yaw.deg_per_step() - 1e-9 <= rig.yaw <= 1e-9       # the real press edge
     assert rig.home_pressed()
+    assert yaw.load_hint() == (0.0, 0.0)
+    assert yaw._current_a == yaw.RUN_CURRENT_A               # homing current restored
     _no_hazards(rig)
+
+
+def test_homing_without_hint_only_searches_near_park(rig):
+    lift.to_full()
+    yaw.home()                               # world starts parked at -10: found within 20 deg
+    assert yaw.homed()
+    rig.yaw = 100.0                          # unknown position, no hint
+    yaw.distrust_hint()
+    with pytest.raises(yaw.HomingError, match="declare it"):
+        yaw.home()
+    assert 79.0 <= rig.yaw <= 100.0          # searched at most NOHINT_SEARCH_DEG
+    _no_hazards(rig)
+
+
+def test_homing_with_bad_hint_stalls_harmlessly_at_the_post(rig):
+    """Arm below the cam but the hint says +100: the search runs at the homing
+    current, so the post is a harmless stall, then homing fails."""
+    lift.to_full()
+    rig.yaw = -76.0
+    yaw.save_hint(100.0, 100.0)
+    with pytest.raises(yaw.HomingError):
+        yaw.home()
+    assert ("stall", "cable post at the homing current") in rig.events
+    assert [e for e in rig.events if e[0] == "crash"] == []
+
+
+def test_homing_contradiction_refused_without_moving(rig):
+    lift.to_full()
+    rig.yaw = 120.0                          # switch released, hint says parked in the cam
+    yaw.save_hint(-10.0, -10.0)
+    with pytest.raises(yaw.HomingError, match="must be pressed"):
+        yaw.home()
+    assert rig.yaw == 120.0
 
 
 def test_homing_broken_wire_refused(rig):
     lift.to_full()
-    rig.home_wire_broken = True
-    with pytest.raises(yaw.HomingError):
+    rig.yaw = 170.0
+    yaw.save_hint(170.0, 170.0)
+    rig.home_wire_broken = True              # NC broken: reads pressed
+    with pytest.raises(yaw.HomingError, match="broken switch wire"):
         yaw.home()
-    assert not yaw.homed()
+    assert rig.yaw == 170.0 and not yaw.homed()           # never moved past 175
+
+
+def test_hint_persisted_around_every_move(ready, monkeypatch):
+    seen = []
+    real = yaw.backend().run
+
+    def run(direction, intervals, tick=None):
+        seen.append(yaw.load_hint())
+        return real(direction, intervals, tick)
+    monkeypatch.setattr(yaw.backend(), "run", run)
+    yaw.move_to(90.0)
+    lo, hi = seen[0]
+    assert lo <= 10.1 and hi >= 89.9                       # the whole swing, written before it
+    assert yaw.load_hint() == pytest.approx((90.0, 90.0), abs=0.06)
 
 
 def test_homing_needs_full_lift(rig):
@@ -290,7 +367,7 @@ def test_yaw_refused_without_interlock(ready):
         yaw.move_to(50.0)
 
 
-@pytest.mark.parametrize("target", [175.5, 180.0, -80.5, -95.0])
+@pytest.mark.parametrize("target", [175.5, 180.0, -64.5, -80.0, -95.0])
 def test_yaw_limits(ready, target):
     before, runs = ready.yaw, len(yaw.backend().runs)
     with pytest.raises(yaw.YawLimitError):
@@ -300,7 +377,7 @@ def test_yaw_limits(ready, target):
 
 def test_approach_detour_must_respect_limits(ready):
     with pytest.raises(yaw.YawLimitError):
-        yaw.move_to(-79.0, approach=True)
+        yaw.move_to(-63.0, approach=True)
 
 
 def test_same_direction_approach(ready):
@@ -524,14 +601,36 @@ def test_safe_outputs_b_levels(tmp_path):
     f = tmp_path / "machine.json"
     f.write_text(json.dumps({"machine": "b"}))
     assert so.detect_machine(f) == "b"
-    assert so.detect_machine(tmp_path / "missing.json") == "v2"
+    assert so.detect_machine(tmp_path / "missing.json") == "unknown"     # never guessed
+    f2 = tmp_path / "nokey.json"
+    f2.write_text("{}")
+    assert so.detect_machine(f2) == "unknown"
     levels, order = so.levels_for("b")
     assert levels[17] == 0 and levels[yaw.EN_PIN] == 1 and order[0] == 17
     assert levels[yaw.STEP_PIN] == 0 and levels[yaw.DIR_PIN] == 0
-    f.write_text("{broken")
-    assert so.detect_machine(f) == "unknown"
-    levels, _ = so.levels_for("unknown")
-    assert levels == {}
+    assert so.levels_for("unknown") == ({}, ())
+    assert so.set_pins(True, "unknown") == []                         # touches nothing
+    held = so.gpio_commands("pinctrl", "b", {"pump_hold": True})
+    assert all(c[2] != "17" for c in held)                            # card held: pump left ON
+    assert ["pinctrl", "set", "17", "op", "dl"] in so.gpio_commands("pinctrl", "b", {})
+    assert so.pca_may_sleep("b", {"clean": True, "rest_pose": "parked"})
+    assert not so.pca_may_sleep("b", {"clean": False})                # lift keeps holding
+    assert not so.pca_may_sleep("unknown", {}) and so.pca_may_sleep("v2", {})
+
+
+def test_missing_machine_selection_is_fatal_on_hardware(monkeypatch, tmp_path):
+    monkeypatch.delenv("RIFTBOUND_MACHINE", raising=False)
+    monkeypatch.setattr(machine_config, "CONFIG_FILE", tmp_path / "machine.json")
+    monkeypatch.setattr(machine_config, "_cache", None)
+    monkeypatch.setenv("MOCK_HARDWARE", "0")
+    with pytest.raises(machine_config.MachineConfigError, match="no machine selected"):
+        machine_config.machine()
+    (tmp_path / "machine.json").write_text(json.dumps({"camera": {}}))
+    monkeypatch.setattr(machine_config, "_cache", None)
+    with pytest.raises(machine_config.MachineConfigError, match="no machine selected"):
+        machine_config.machine()
+    monkeypatch.setenv("MOCK_HARDWARE", "1")
+    assert machine_config.machine() == "v2"
 
 
 # ── manual / calibration API + web endpoints ─────────────────────────────────
@@ -559,10 +658,13 @@ def test_web_b_endpoints(client, rig):
     r = client.post("/api/b/lift", json={"th": 3.0}, headers=AUTH)
     assert r.get_json()["lift_th"] == 3.0
     r = client.post("/api/b/goto", json={"station": "bin2"}, headers=AUTH)
-    assert r.status_code == 500 and "lift not at full height" in r.get_json()["error"]
+    assert r.status_code == 409 and "lift not at full height" in r.get_json()["error"]
+    client.post("/api/b/lift/full", headers=AUTH)
     r = client.post("/api/b/pump", json={"on": True}, headers=AUTH)
     assert r.get_json()["pump"] is True
-    client.post("/api/b/pump", json={"on": False}, headers=AUTH)
+    assert client.post("/api/b/jog", json={"deg": 1}, headers=AUTH).status_code == 409   # pump on
+    assert client.post("/api/b/pump", json={"on": False}, headers=AUTH).status_code == 409
+    sorter_b.pump(False, card_removed=True)
     st = main.read_machine_state()
     assert st["clean"] is False and "manual control" in st["reason"]
     _no_hazards(rig)
@@ -595,3 +697,246 @@ def test_rules_validation_uses_b_bins(rig):
 def test_status_api_reports_machine_b(client):
     r = client.get("/api/status")
     assert r.status_code == 200 and r.get_json()["machine"] == "b"
+
+
+# ── review round 1 (hardware lock, servo map, overshoot, pump rules, held card) ──
+def test_idle_park_racing_a_web_call_is_refused_busy(ready, monkeypatch):
+    """_operate's idle park runs in the main thread outside run_in_progress():
+    a manual command arriving meanwhile must be refused, never interleaved."""
+    import threading
+    be = yaw.backend()
+    real = be.run
+    inside, go = threading.Event(), threading.Event()
+
+    def slow_run(direction, intervals, tick=None):
+        inside.set()
+        go.wait(5)
+        return real(direction, intervals, tick)
+    monkeypatch.setattr(be, "run", slow_run)
+    main._set_state("stopped")
+    t = threading.Thread(target=main._release_idle)
+    t.start()
+    assert inside.wait(5)
+    assert not main.run_in_progress()
+    with pytest.raises(sorter_b.ManualBusy):
+        sorter_b.jog_yaw(5.0)
+    with pytest.raises(sorter_b.ManualBusy):
+        sorter_b.pump(True)
+    assert sorter_b.status()["busy"] is True
+    go.set()
+    t.join(5)
+    assert ready.yaw == pytest.approx(cal.park_yaw(), abs=0.2) and not vacuum.pump_is_on()
+    sorter_b.jog_yaw(2.0)                    # free again once the park finished
+    _no_hazards(ready)
+
+
+def test_web_call_during_idle_park_gets_409(ready, monkeypatch):
+    import threading
+    from web.app import create_app
+    c = create_app(token="t").test_client()
+    be = yaw.backend()
+    real = be.run
+    inside, go = threading.Event(), threading.Event()
+
+    def slow_run(direction, intervals, tick=None):
+        inside.set()
+        go.wait(5)
+        return real(direction, intervals, tick)
+    monkeypatch.setattr(be, "run", slow_run)
+    main._set_state("stopped")
+    t = threading.Thread(target=main._release_idle)
+    t.start()
+    assert inside.wait(5)
+    r = c.post("/api/b/goto", json={"station": "bin0"}, headers=AUTH)
+    go.set()
+    t.join(5)
+    assert r.status_code == 409 and "busy" in r.get_json()["error"]
+
+
+def test_servo_map_save_at_full_lift_recommands_the_servo(ready, monkeypatch):
+    main._set_state("stopped")
+    writes = []
+    real = lift._write
+    monkeypatch.setattr(lift, "_write", lambda t: (writes.append(t), real(t))[1])
+    sorter_b.save_servo_map([[-6.0, 80.0], [10.0, 97.0]])
+    assert lift.th() is None and not lift.at_full_lift()
+    with pytest.raises(sorter_b.ManualRefused, match="lift"):
+        sorter_b.goto_station("bin0")         # yaw refused: the height is unknown now
+    sorter_b.lift_full()
+    assert writes and writes[-1] == geo.TH_FULL and lift.at_full_lift()
+    assert lift.servo_angle_for(geo.TH_FULL) == pytest.approx(97.0)
+    writes.clear()
+    lift.to_full()                            # already there: still written
+    assert writes == [geo.TH_FULL]
+
+
+def test_fast_ramp_overshoot_onto_an_overfull_pile(ready):
+    """A pile far above the expected height is met during the watched approach:
+    stopped within one small frame, compression never more than the overtravel."""
+    yaw.move_to(cal.station_yaw("bin3"), approach=True)
+    ready.bins["bin3"] = [b_mock.SINGLE_G] * 100            # top at 35 mm: above approach_th's lip
+    st = cal.station("bin3")
+    res = lift.lower_until_touch(st["approach_th"], st["limit_th"], 2.0)
+    assert res.touched
+    assert geo.lip_z(res.th_closed) - geo.lip_z(res.th_touch) <= geo.LINK_MM * 0.0078 + 1e-6  # ≤ 1 frame
+    compression = ready.surface_z() - ready.cup_bottom_z()
+    assert 0.0 <= compression <= 2.0 + 1e-6
+    lift.to_full()
+    _no_hazards(ready)
+
+
+def test_bin_descent_bounded_by_its_count(ready):
+    """Bin 2 counted 30 cards but was emptied without a reset: no touch where the
+    pile should be → released over its bin, counted, then a stop — never a
+    descent through where the pile should be down to the floor."""
+    for _ in range(30):
+        main._bins.increment(2)
+    with pytest.raises(sorter_b.LiftFault, match="pile of 30"):
+        main.sort_one_card(FakeEngine())
+    assert ready.bins["bin2"] == [b_mock.SINGLE_G] and main._bins.count(2) == 31
+    assert ready.cup == [] and main._card_at is None
+    assert [e for e in ready.events if e[0] == "drop"]       # it fell a few mm into its bin
+    assert all(e[1] == "bin2" and e[2] < 12 for e in ready.events if e[0] == "drop")
+
+
+def test_manual_pump_rules(ready):
+    main._set_state("stopped")
+    sorter_b.pump(True)
+    for fn, arg in ((sorter_b.jog_yaw, 3.0), (sorter_b.goto_station, "bin0"), (sorter_b.motor_off, None)):
+        with pytest.raises(sorter_b.ManualRefused, match="pump is on"):
+            fn() if arg is None else fn(arg)
+    with pytest.raises(sorter_b.ManualRefused, match="not resting at a station"):
+        sorter_b.pump(False)                      # at full lift over the hopper: refused
+    assert vacuum.pump_is_on()
+    sorter_b._pump_auto_off()                     # time-out: not resting → keeps holding
+    assert vacuum.pump_is_on()
+    out = sorter_b.set_lift(-5.0)                 # watched descent: stops on the stack
+    assert out["touched"] and lift.th() > -5.0
+    sorter_b.pump(False)                          # resting at the hopper: allowed
+    assert not vacuum.pump_is_on()
+    _no_hazards(ready)
+
+
+def test_manual_set_lift_needs_known_pose_and_stops_on_contact(ready):
+    main._set_state("stopped")
+    yaw.move_to(cal.station_yaw("scan"), approach=True)
+    out = sorter_b.set_lift(geo.TH_MIN)           # would be ~25 mm into the bed
+    one_step_mm = geo.LINK_MM * math.radians(lift.DESCENT_STEP_DEG)
+    assert out["touched"] and 0 <= ready.surface_z() - ready.cup_bottom_z() <= one_step_mm + 0.05
+    sorter_b.lift_full()
+    lift.invalidate()
+    with pytest.raises(sorter_b.ManualRefused, match="unknown"):
+        sorter_b.set_lift(0.0)
+    _no_hazards(ready)
+
+
+def test_card_held_between_stations_survives_exit_and_restart(ready, monkeypatch):
+    """Yaw fails mid-carry: the card is held; teardown keeps the pump ON (not
+    released, lift not limp), the record says pump_hold, the next start keeps
+    the pump on until Machine clear, which then stops it."""
+    be = yaw.backend()
+    real = be.run
+    calls = {"n": 0}
+
+    def run(direction, intervals, tick=None):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            real(direction, intervals[: len(intervals) // 3], tick)   # stops part-way
+            raise RuntimeError("pigpio connection lost")
+        return real(direction, intervals, tick)
+    monkeypatch.setattr(be, "run", run)
+    monkeypatch.setattr(main, "_marker_armed", True)
+    with pytest.raises(sorter_b.YawFault):
+        main.sort_one_card(FakeEngine())
+    assert main._card_at == "cup" and vacuum.pump_is_on()
+    assert main.read_machine_state()["pump_hold"] is True
+    deinit_args = {}
+    real_lift_deinit, real_vac_deinit = lift.deinit, vacuum.deinit
+    lift.deinit = lambda release_servo=False: deinit_args.update(lift=release_servo)
+    vacuum.deinit = lambda keep_on=False: deinit_args.update(vac=keep_on)
+    try:
+        main.teardown()
+    finally:
+        lift.deinit, vacuum.deinit = real_lift_deinit, real_vac_deinit
+    st = main.read_machine_state()
+    assert st["pump_hold"] is True and st["clean"] is False
+    assert deinit_args == {"lift": False, "vac": True}
+    assert ready.cup == [b_mock.SINGLE_G]                 # never dropped
+    # restart: the pump is kept on, the card is known to be on the cup
+    monkeypatch.setattr(be, "run", real)
+    monkeypatch.setattr(main, "_tearing_down", False)
+    main._set_card_at(None)
+    vacuum.init()                                          # "power cycle" of the relay state
+    assert not vacuum.pump_is_on()
+    main.init_hardware(assume_rest=False)
+    assert vacuum.pump_is_on() and main._card_at == "cup"
+    main._cup_hold_watch()
+    assert main._status["state"] == "needs_confirm" and "no time limit" in main._status["message"]
+    ready.cup.clear()                                       # operator takes the card off
+    main._on_confirmed_start()
+    assert not vacuum.pump_is_on() and main._card_at is None
+
+
+def test_teardown_releases_a_held_card_only_over_bed_or_bin(ready, monkeypatch):
+    yaw.move_to(cal.station_yaw("bin4"), approach=True)
+    vacuum.pump_on()
+    ready.cup.append(b_mock.SINGLE_G)
+    main._set_card_at("cup")
+    monkeypatch.setattr(lift, "lower_until_touch", lambda *a, **k: (_ for _ in ()).throw(lift.LiftError("x")))
+    main.teardown()
+    assert ready.cup == [] and ready.bins["bin4"] == [b_mock.SINGLE_G]
+    assert not main.read_machine_state().get("pump_hold")
+
+
+def test_no_auto_release_timer_on_b(ready, monkeypatch):
+    vacuum.pump_on()
+    main._set_card_at("cup")
+    monkeypatch.setattr(main, "_cup_hold_since", time.monotonic() - 1e6)   # "forever"
+    main._cup_hold_watch()
+    assert vacuum.pump_is_on()
+
+
+def test_edge_check_from_park_with_switch_hysteresis(ready):
+    main._release_idle()                      # parks (edge check on the way down)
+    assert ready.yaw == pytest.approx(cal.park_yaw(), abs=0.2)
+    assert b_mock.HOME_HYST_DEG >= 1.5
+    main.prepare_machine(confirmed=True)      # homed in this process: edge check FROM park
+    assert yaw.homed()
+    _no_hazards(ready)
+
+
+def test_prepare_writes_the_driver_config(rig):
+    main.prepare_machine(confirmed=True)
+    n = len(yaw.backend().uart)
+    main._set_state("stopped")
+    main.prepare_machine(confirmed=True)
+    assert len(yaw.backend().uart) >= n + len(yaw.driver_datagrams())
+
+
+def test_tmc_crc_known_vector():
+    # GCONF read request to slave 0: 05 00 00 48 (confirmed on the ST community
+    # TMC2209 thread; CRC8 0x07 as in the datasheet)
+    assert yaw.tmc_crc8(bytes([0x05, 0x00, 0x00])) == 0x48
+
+
+def test_long_pulse_train_refused(ready, monkeypatch):
+    monkeypatch.setattr(yaw, "MAX_PULSES_PER_WAVE", 100)
+    before = ready.yaw
+    with pytest.raises(yaw.YawError, match="exceeds one pigpio wave"):
+        yaw.move_to(90.0)
+    assert ready.yaw == before
+
+
+def test_low_current_during_homing(rig):
+    lift.to_full()
+    currents = []
+    be = yaw.MockBackend if hasattr(yaw, "MockBackend") else None
+    real = yaw.backend().run
+
+    def run(direction, intervals, tick=None):
+        currents.append(yaw._current_a)
+        return real(direction, intervals, tick)
+    yaw.backend().run = run
+    yaw.home()
+    assert currents and all(c == yaw.HOME_CURRENT_A for c in currents)
+    assert yaw._current_a == yaw.RUN_CURRENT_A

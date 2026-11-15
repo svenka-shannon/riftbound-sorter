@@ -54,7 +54,8 @@ TH_MIN = -6.0
 TH_FULL = 10.0
 
 # ── yaw stage / home cam ─────────────────────────────────────────────────────
-LIMIT_MIN_DEG = -80.0                # software limits (the cable post is hit at about -90)
+LIMIT_MIN_DEG = -64.0                # software limit: inside the home cam (pressed to -72) with
+                                     # margin, so the switch never reads released below home
 LIMIT_MAX_DEG = 175.0
 HOME_CAM_LOW_DEG = -72.0             # switch held pressed for arm angles HOME..-72
 CABLE_POST_DEG = -90.0

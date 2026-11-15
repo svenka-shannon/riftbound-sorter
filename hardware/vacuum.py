@@ -54,6 +54,14 @@ relay reads as OFF, so B needs no external resistor; scripts/setup.sh adds
 "gpio=17=ip,pd" to config.txt to make that explicit (cad_b/README.md,
 "Pin map (option B)"). Every value can be overridden in the "vacuum" section
 of config/machine.json on either machine.
+
+Option B drives the relay through pigpiod (USE_PIGPIO), not RPi.GPIO: a pin
+pigpiod drives KEEPS its level after the sorter process exits (the daemon owns
+it; persist_gpio_outputs does not apply). B never lets go of a card except over
+the bed or a bin (sorter_b.py), so a card held on the cup elsewhere must stay
+held across a crash or a service stop: teardown calls deinit(keep_on=True),
+scripts/safe_outputs.py leaves the relay alone while the machine record says
+"pump_hold", and the next start's init(hold=True) keeps it on.
 """
 
 import os
@@ -86,6 +94,8 @@ _machine_config.apply(_sys.modules[__name__], "vacuum", (
 # a simulated machine (hardware/b_mock.py) can attach / drop the card.
 _mock_listener = None
 
+USE_PIGPIO = _machine_config.machine() == "b"
+_pi = None              # pigpio connection (option B)
 _pump = False           # last commanded state (also tracked in MOCK)
 _vent = False
 _initialized = False
@@ -97,12 +107,35 @@ def _level(on: bool, active_low: bool) -> int:
     return GPIO.HIGH if on else GPIO.LOW
 
 
-def init():
-    global _initialized, _pump, _vent
-    _pump = _vent = False
+def _relay_write(on: bool) -> None:
+    if _pi is not None:
+        high = on != RELAY_ACTIVE_LOW
+        _pi.write(RELAY_PIN, 1 if high else 0)
+    else:
+        GPIO.output(RELAY_PIN, _level(on, RELAY_ACTIVE_LOW))
+
+
+def init(hold: bool = False):
+    """Pump OFF — or, hold=True (option B: the machine record says a card is
+    held on the cup), pump kept ON so the card is not dropped."""
+    global _initialized, _pump, _vent, _pi
+    _pump, _vent = bool(hold), False
     if _MOCK:
         _initialized = True
-        print("[vacuum] MOCK mode — no hardware")
+        print("[vacuum] MOCK mode — no hardware" + (" (pump kept ON: card held)" if hold else ""))
+        if hold and _mock_listener is not None:
+            _mock_listener(True)
+        return
+    if USE_PIGPIO:
+        import pigpio
+        _pi = pigpio.pi()
+        if not _pi.connected:
+            _pi = None
+            raise RuntimeError("cannot reach pigpiod for the pump relay — sudo systemctl enable --now pigpiod")
+        _relay_write(bool(hold))
+        _initialized = True
+        print(f"[vacuum] pump relay on GPIO {RELAY_PIN} via pigpiod"
+              + (" — kept ON (card held on the cup)" if hold else ""))
         return
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(RELAY_PIN, GPIO.OUT, initial=_level(False, RELAY_ACTIVE_LOW))   # pump OFF
@@ -122,7 +155,7 @@ def pump_on():
         if _mock_listener is not None:
             _mock_listener(True)
         return
-    GPIO.output(RELAY_PIN, _level(True, RELAY_ACTIVE_LOW))
+    _relay_write(True)
 
 
 def pump_off():
@@ -133,7 +166,7 @@ def pump_off():
         if _mock_listener is not None:
             _mock_listener(False)
         return
-    GPIO.output(RELAY_PIN, _level(False, RELAY_ACTIVE_LOW))
+    _relay_write(False)
 
 
 def vent_open():
@@ -192,13 +225,23 @@ def pulse(duration_s=0.3):
     pump_off()
 
 
-def deinit():
-    """Pump off, vent closed, pins freed. Idempotent."""
-    global _initialized
+def deinit(keep_on: bool = False):
+    """Pump off, vent closed, pins freed. Idempotent. keep_on (option B, card
+    held): leave the pump running — pigpiod keeps the relay pin driven."""
+    global _initialized, _pi
     if _MOCK:
         _initialized = False
         return
     if not _initialized:
+        return
+    if _pi is not None:
+        try:
+            if not keep_on:
+                _relay_write(False)
+        finally:
+            _initialized = False
+            pi, _pi = _pi, None
+            pi.stop()
         return
     try:
         pump_off()

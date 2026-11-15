@@ -19,9 +19,11 @@ Safety rules enforced HERE (sorter_b.py relies on them):
   * Interlock: every move (and homing) calls the registered interlock first
     (sorter_b registers lift.yaw_permitted: full lift + cup hanging free).
     No interlock registered → refused.
-  * Hard limits: targets outside [LIMIT_MIN_DEG, LIMIT_MAX_DEG] = [-80, 175]
-    are refused (the cable post is hit at about -90; the tube / lead loop must
-    not over-twist). The approach detour is checked too.
+  * Hard limits: targets outside [LIMIT_MIN_DEG, LIMIT_MAX_DEG] = [-64, 175]
+    are refused. -64 keeps the arm INSIDE the home cam (switch pressed from 0
+    down to -72) with margin, so the switch can never read "released" below
+    home and send a homing search down into the cable post (~ -90); 175 keeps
+    the tube / lead loop from over-twisting. The approach detour is checked too.
   * Same-direction approach: move_to(..., approach=True) always ends moving UP
     (increasing yaw): a target below the current yaw is reached via
     target - APPROACH_UNDERSHOOT_DEG (3 deg).
@@ -32,13 +34,28 @@ Safety rules enforced HERE (sorter_b.py relies on them):
   * A move interrupted by an exception (Shutdown, pigpio error) stops the wave
     at once and marks the position untrusted (homed() False).
 
-Homing (home()):
-  pressed  → move UP (fast) until released (at most HOME_RELEASE_MAX_DEG), then
-             HOME_BACKOFF_DEG more;
-  released → move DOWN (fast) until pressed (at most HOME_SEARCH_MAX_DEG), back up
-             slowly until released, then HOME_BACKOFF_DEG more;
-  then approach the press edge from above one microstep at a time at
-  HOME_SLOW_DEG_S: the first pressed step is yaw 0.
+Position hint (HINT_FILE, data/yaw_hint.json): before every move the interval
+the arm will pass through is written, after it the end position — atomically
+and fsynced, like hardware/instance.py — with "trusted". A kill or power cut
+mid-move therefore still leaves a bound on where the arm is. Lost steps and
+motor_off (arm may be pushed by hand) make it untrusted; the operator can
+re-declare it (sorter_b.declare_position after positioning the arm by hand).
+
+Homing (home()) at HOME_CURRENT_A (a stall against the cable post at that
+current hurts nothing), every search bounded by the hint:
+  pressed  → up until released, at most from the hint's low end (never below
+             -72) to RELEASED_FROM + margin. A hint far ABOVE the cam with the
+             switch pressed = broken NC wire → refused without moving.
+  released → down until pressed, at most from the hint's high end to 0 +
+             margin, back up slowly until released. A hint INSIDE the cam with
+             the switch released = stuck switch / moved arm → refused. A hint
+             BELOW the cam (< -72): up until pressed first.
+  no trusted hint → only NOHINT_SEARCH_DEG (20 deg: from park to past the
+             edge) in either direction, else refused: position the arm by hand
+             at park and declare it in the UI.
+then HOME_BACKOFF_DEG up and the press edge approached from above one microstep
+at a time at HOME_SLOW_DEG_S: the first pressed step is yaw 0. The run current
+is restored afterwards.
 
 Motion profile: trapezoid (ACCEL_DEG_S2 300, MAX_SPEED_DEG_S 120), then SETTLE_S
 (150 ms: the arm rings at ~5-7 Hz). The whole move is ONE pigpio waveform (a
@@ -84,9 +101,13 @@ LIMIT_MAX_DEG = geo.LIMIT_MAX_DEG
 HOME_FAST_DEG_S = 20.0
 HOME_SLOW_DEG_S = 2.0
 HOME_BACKOFF_DEG = 5.0
-HOME_RELEASE_MAX_DEG = 95.0      # pressed zone is 0..-72 (+ ramp): release within ~88 deg
-HOME_SEARCH_MAX_DEG = 190.0      # released: anywhere from +8 to +175
+HOME_RELEASE_MAX_DEG = 95.0      # hard cap on any upward homing search
+HOME_SEARCH_MAX_DEG = 190.0      # hard cap on any downward homing search
+NOHINT_SEARCH_DEG = 20.0         # no trusted position hint: search only this far
+HINT_MARGIN_DEG = 5.0            # coast / rounding margin around the hint
+HOME_CURRENT_A = 0.3             # run current while homing (stall at the post is harmless)
 EDGE_CHECK_DEG = 1.0
+EDGE_APPROACH_DEG = 3.0          # the +EDGE check point is approached from this far above
 UART_DEVICE = "/dev/serial0"
 UART_BAUD = 115200
 UART_ADDRESS = -1                # -1 = write to all four slave addresses
@@ -99,10 +120,15 @@ machine_config.apply(sys.modules[__name__], "yaw", (
     "FULL_STEPS_PER_REV", "MICROSTEPS", "MAX_SPEED_DEG_S", "ACCEL_DEG_S2", "SETTLE_S",
     "STEP_PULSE_US", "APPROACH_UNDERSHOOT_DEG", "LIMIT_MIN_DEG", "LIMIT_MAX_DEG",
     "HOME_FAST_DEG_S", "HOME_SLOW_DEG_S", "HOME_BACKOFF_DEG", "HOME_RELEASE_MAX_DEG",
-    "HOME_SEARCH_MAX_DEG", "EDGE_CHECK_DEG", "UART_DEVICE", "UART_BAUD", "UART_ADDRESS",
+    "HOME_SEARCH_MAX_DEG", "NOHINT_SEARCH_DEG", "HINT_MARGIN_DEG", "EDGE_CHECK_DEG",
+    "EDGE_APPROACH_DEG", "HOME_CURRENT_A", "UART_DEVICE", "UART_BAUD", "UART_ADDRESS",
     "RSENSE_OHM", "RUN_CURRENT_A", "HOLD_CURRENT_A"))
 
-MAX_PULSES_PER_WAVE = 5000
+MAX_PULSES_PER_WAVE = 5000       # one pigpio wave; longer pulse trains are refused
+
+from pathlib import Path as _Path
+HINT_FILE = _Path(__file__).resolve().parent.parent / "data" / (
+    "yaw_hint.mock.json" if _MOCK else "yaw_hint.json")
 
 
 class YawError(RuntimeError):
@@ -201,10 +227,11 @@ def current_setting(i_rms: float, rsense: float = None) -> tuple[int, bool]:
     return (31, False) if i_rms > 0 else (0, True)
 
 
-def driver_registers() -> dict:
-    """Register values configure_driver() writes."""
-    cs_run, vsense = current_setting(RUN_CURRENT_A)
-    hold_a = RUN_CURRENT_A if HOLD_CURRENT_A is None else HOLD_CURRENT_A
+def driver_registers(run_a: float | None = None) -> dict:
+    """Register values configure_driver() writes (run_a: override, e.g. homing)."""
+    run_a = RUN_CURRENT_A if run_a is None else run_a
+    cs_run, vsense = current_setting(run_a)
+    hold_a = run_a if (HOLD_CURRENT_A is None or run_a != RUN_CURRENT_A) else HOLD_CURRENT_A
     r = RSENSE_OHM + 0.02
     vfs = 0.180 if vsense else 0.325
     cs_hold = max(0, min(31, round(hold_a * 32 * math.sqrt(2) * r / vfs) - 1))
@@ -215,9 +242,9 @@ def driver_registers() -> dict:
     return {REG_GCONF: gconf, REG_CHOPCONF: chop, REG_IHOLD_IRUN: ihold_irun}
 
 
-def driver_datagrams() -> list[bytes]:
+def driver_datagrams(run_a: float | None = None) -> list[bytes]:
     addrs = range(4) if UART_ADDRESS < 0 else (UART_ADDRESS,)
-    regs = driver_registers()
+    regs = driver_registers(run_a)
     return [tmc_write_datagram(a, reg, regs[reg]) for a in addrs
             for reg in (REG_GCONF, REG_CHOPCONF, REG_IHOLD_IRUN)]
 
@@ -253,9 +280,8 @@ class _PigpioBackend:
         for dt in intervals:
             low = max(int(round(dt * 1e6)) - STEP_PULSE_US, STEP_PULSE_US)
             pulses += [pg.pulse(mask, 0, STEP_PULSE_US), pg.pulse(0, mask, low)]
-        chunks = [pulses[i:i + MAX_PULSES_PER_WAVE] for i in range(0, len(pulses), MAX_PULSES_PER_WAVE)]
         try:
-            for chunk in chunks:
+            for chunk in (pulses,):
                 pi.wave_add_new()
                 pi.wave_add_generic(chunk)
                 wid = pi.wave_create()
@@ -293,6 +319,8 @@ class _PigpioBackend:
 
 
 class _MockBackend:
+    """Simulated driver; the world knows whether the run current is the homing one."""
+
     def __init__(self):
         self.uart = []
         self.runs = []                           # (direction, n, intervals) — tests inspect profiles
@@ -312,7 +340,8 @@ class _MockBackend:
         self.runs.append((direction, len(intervals), intervals))
         if tick:
             tick()
-        self.world.move_yaw(direction * len(intervals) * deg_per_step())
+        self.world.move_yaw(direction * len(intervals) * deg_per_step(),
+                            low_current=_current_a <= HOME_CURRENT_A + 1e-9)
 
     def uart_write(self, data: bytes):
         self.uart.append(bytes(data))
@@ -328,6 +357,61 @@ _homed = False
 _last_dir = 0            # +1: the last motion ended moving up; -1: down
 _enabled = False
 _interlock = None
+_current_a = RUN_CURRENT_A
+
+
+# ── position hint (data/yaw_hint.json) ──────────────────────────────────────
+def save_hint(lo: float, hi: float, trusted: bool = True) -> None:
+    """Atomically + durably record that the arm is within [lo, hi] deg."""
+    import json
+    import tempfile
+    from hardware import instance
+    path = HINT_FILE
+    data = {"lo": round(min(lo, hi), 4), "hi": round(max(lo, hi), 4), "trusted": bool(trusted),
+            "ts": time.time()}
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+        try:
+            with os.fdopen(fd, "w") as fh:
+                fh.write(json.dumps(data))
+                fh.flush()
+                os.fsync(fh.fileno())
+            instance._match_parent_owner(tmp)
+            os.replace(tmp, path)
+        except BaseException:
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
+            raise
+        instance.fsync_dir(path.parent)
+    except OSError as exc:
+        print(f"[yaw] WARNING: could not save the position hint {path}: {exc}")
+
+
+def load_hint():
+    """(lo, hi) deg if a TRUSTED hint is on file, else None."""
+    import json
+    try:
+        d = json.loads(HINT_FILE.read_text())
+        lo, hi = float(d["lo"]), float(d["hi"])
+        if d.get("trusted") is True and math.isfinite(lo) and math.isfinite(hi):
+            return min(lo, hi), max(lo, hi)
+    except Exception:
+        pass
+    return None
+
+
+def distrust_hint() -> None:
+    h = None
+    try:
+        import json
+        d = json.loads(HINT_FILE.read_text())
+        h = (float(d["lo"]), float(d["hi"]))
+    except Exception:
+        pass
+    save_hint(*(h or (0.0, 0.0)), trusted=False)
 
 
 def set_interlock(fn) -> None:
@@ -352,10 +436,13 @@ def backend():
     return _backend
 
 
-def configure_driver():
-    """Write microsteps + currents over the write-only UART (cannot be verified)."""
-    for dg in driver_datagrams():
+def configure_driver(run_a: float | None = None):
+    """Write microsteps + currents over the write-only UART (cannot be verified).
+    run_a: run (and hold) current override, e.g. HOME_CURRENT_A while homing."""
+    global _current_a
+    for dg in driver_datagrams(run_a):
         _backend.uart_write(dg)
+    _current_a = RUN_CURRENT_A if run_a is None else run_a
 
 
 def enable():
@@ -365,13 +452,17 @@ def enable():
     time.sleep(0.02)
 
 
-def disable():
-    """Motor off: the arm can be pushed by hand, so the position is no longer trusted."""
+def disable(distrust: bool = False):
+    """Motor off: the position is no longer trusted for moves (home again).
+    distrust=True also marks the saved hint untrusted (the operator is about
+    to turn the arm by hand)."""
     global _enabled, _homed
     if _backend is not None:
         _backend.set_enable(False)
     _enabled = False
     _homed = False
+    if distrust:
+        distrust_hint()
 
 
 def homed() -> bool:
@@ -383,7 +474,8 @@ def position_deg() -> float | None:
 
 
 def home_pressed() -> bool:
-    """Switch pressed (arm at or below home), debounced: 3 equal reads."""
+    """Switch pressed (arm at or below home), debounced: two consecutive equal
+    reads 1 ms apart (up to 5 tries; still flickering → "pressed")."""
     for _ in range(5):
         a = _backend.home_raw()
         if not _MOCK:
@@ -424,10 +516,16 @@ def _move_steps(target: int, tick=None):
     delta = target - _pos
     if delta == 0:
         return
+    if 2 * abs(delta) > MAX_PULSES_PER_WAVE:
+        raise YawError(f"move of {abs(delta)} steps exceeds one pigpio wave "
+                       f"({MAX_PULSES_PER_WAVE // 2} steps) — refused")
     direction = 1 if delta > 0 else -1
+    a, b = _pos * deg_per_step(), target * deg_per_step()
+    save_hint(a, b, True)                 # the arm is somewhere in here until it arrives
     _run(direction, trapezoid_intervals(abs(delta)), tick)
     _pos = target
     _last_dir = direction
+    save_hint(b, b, True)
 
 
 def move_to(target_deg: float, approach: bool = False, tick=None, settle: bool = True) -> float:
@@ -463,7 +561,7 @@ def _seek(direction: int, want_pressed: bool, max_deg: float, speed: float,
     """Constant-speed chunks until the switch reads want_pressed; steps moved, or None."""
     global _pos
     moved = 0
-    limit = deg_to_steps(max_deg)
+    limit = deg_to_steps(max(0.0, max_deg))
     while moved < limit:
         if home_pressed() == want_pressed:
             return moved
@@ -474,34 +572,86 @@ def _seek(direction: int, want_pressed: bool, max_deg: float, speed: float,
     return moved if home_pressed() == want_pressed else None
 
 
-def home(tick=None, release_max_deg: float | None = None, search_max_deg: float | None = None) -> None:
+def _plan_home(pressed: bool, hint) -> dict:
+    """Which way and how far the homing searches may go (pure; see the docstring).
+    Returns {"first": ("up_until_pressed", deg) | None, "up_release": deg | None,
+    "down_press": deg | None} or raises HomingError (refused, nothing moves)."""
+    m = HINT_MARGIN_DEG
+    low, rel = geo.HOME_CAM_LOW_DEG, geo.RELEASED_FROM_DEG
+    if hint is None:
+        if pressed:
+            return {"first": None, "up_release": NOHINT_SEARCH_DEG, "down_press": None}
+        return {"first": None, "up_release": None, "down_press": NOHINT_SEARCH_DEG}
+    lo, hi = hint[0] - m, hint[1] + m
+    if pressed:
+        if lo > rel:
+            raise HomingError(f"home switch reads PRESSED but the arm was last at {hint[0]:.1f}.."
+                              f"{hint[1]:.1f} deg, above the cam — broken switch wire (NC reads a "
+                              "broken wire as pressed)? Nothing moved")
+        up = min(rel + m - max(lo, low), HOME_RELEASE_MAX_DEG)
+        return {"first": None, "up_release": up, "down_press": None}
+    if hi < low + m:                      # arm below the cam: released there too
+        up_press = min(low - lo + m, HOME_RELEASE_MAX_DEG)
+        return {"first": ("up_until_pressed", up_press),
+                "up_release": min(rel + m - low, HOME_RELEASE_MAX_DEG), "down_press": None}
+    if hint[1] < -m and hint[0] > low + m:
+        raise HomingError(f"home switch reads RELEASED but the arm was last at {hint[0]:.1f}.."
+                          f"{hint[1]:.1f} deg, inside the cam where it must be pressed — switch "
+                          "stuck / cradle misadjusted, or the arm was moved by hand. Nothing moved")
+    down = min(max(hi, 0.0) + m, HOME_SEARCH_MAX_DEG)
+    return {"first": None, "up_release": None, "down_press": down}
+
+
+def home(tick=None) -> None:
     """Find yaw 0 (see the module docstring). Raises HomingError / YawInterlockError."""
     global _pos, _homed, _last_dir
     _check_interlock()
     _homed = False
-    configure_driver()
-    enable()
+    hint = load_hint()
+    pressed = home_pressed()
+    plan = _plan_home(pressed, hint)             # may refuse before anything moves
     fast_chunk = max(1, deg_to_steps(0.5))
     slow_chunk = 1
-    rmax = HOME_RELEASE_MAX_DEG if release_max_deg is None else release_max_deg
-    smax = HOME_SEARCH_MAX_DEG if search_max_deg is None else search_max_deg
-    if home_pressed():
-        if _seek(+1, False, rmax, HOME_FAST_DEG_S, fast_chunk, tick) is None:
-            raise HomingError(f"home switch still PRESSED after {rmax:g} deg of travel up — broken "
-                              "wire (NC wiring reads a broken wire as pressed) or a stuck switch")
-    else:
-        if _seek(-1, True, smax, HOME_FAST_DEG_S, fast_chunk, tick) is None:
-            raise HomingError(f"home switch never pressed in {smax:g} deg of travel down — switch "
-                              "cradle not adjusted to the cam, or the switch is dead. CHECK the arm "
-                              "is clear of the cable post before anything else")
-        if _seek(+1, False, 3 * HOME_BACKOFF_DEG, HOME_SLOW_DEG_S * 4, fast_chunk, tick) is None:
-            raise HomingError("home switch did not release when backing up off the edge")
-    _run(+1, constant_intervals(deg_to_steps(HOME_BACKOFF_DEG), HOME_FAST_DEG_S), tick)
-    if home_pressed():
-        raise HomingError(f"home switch pressed {HOME_BACKOFF_DEG:g} deg above its release point")
-    if _seek(-1, True, 2 * HOME_BACKOFF_DEG + 5.0, HOME_SLOW_DEG_S, slow_chunk, tick) is None:
-        raise HomingError("home switch not found on the slow approach from above")
+    base_lo, base_hi = hint if hint else (geo.HOME_CAM_LOW_DEG, geo.LIMIT_MAX_DEG)
+    configure_driver(HOME_CURRENT_A)
+    enable()
+    try:
+        if plan["first"]:
+            _, d = plan["first"]
+            save_hint(base_lo - HINT_MARGIN_DEG, base_hi + d, hint is not None)
+            if _seek(+1, True, d, HOME_FAST_DEG_S, fast_chunk, tick) is None:
+                raise HomingError(f"home switch not pressed within {d:.0f} deg up from below the cam")
+        if plan["up_release"] is not None:
+            d = plan["up_release"]
+            save_hint(base_lo - HINT_MARGIN_DEG, base_hi + d + HINT_MARGIN_DEG, hint is not None)
+            if _seek(+1, False, d, HOME_FAST_DEG_S, fast_chunk, tick) is None:
+                distrust_hint()
+                raise HomingError(
+                    f"home switch still PRESSED after {d:.0f} deg up — broken wire, stuck switch, "
+                    + ("or no trusted position hint: turn the motor off, put the arm at the park "
+                       "pose by hand and declare it in the UI" if hint is None else
+                       "or the arm is not where it was last recorded"))
+        else:
+            d = plan["down_press"]
+            save_hint(base_lo - d - HINT_MARGIN_DEG, base_hi + HINT_MARGIN_DEG, hint is not None)
+            if _seek(-1, True, d, HOME_FAST_DEG_S, fast_chunk, tick) is None:
+                distrust_hint()
+                raise HomingError(
+                    f"home switch never pressed in {d:.0f} deg of travel down — "
+                    + ("no trusted position hint: turn the motor off, put the arm at the park pose "
+                       "by hand and declare it in the UI" if hint is None else
+                       "switch cradle not adjusted to the cam, a dead switch, or the arm was moved"))
+            if _seek(+1, False, 3 * HOME_BACKOFF_DEG, HOME_SLOW_DEG_S * 4, fast_chunk, tick) is None:
+                raise HomingError("home switch did not release when backing up off the edge")
+        _run(+1, constant_intervals(deg_to_steps(HOME_BACKOFF_DEG), HOME_FAST_DEG_S), tick)
+        if home_pressed():
+            raise HomingError(f"home switch pressed {HOME_BACKOFF_DEG:g} deg above its release point")
+        if _seek(-1, True, 2 * HOME_BACKOFF_DEG + 5.0, HOME_SLOW_DEG_S, slow_chunk, tick) is None:
+            raise HomingError("home switch not found on the slow approach from above")
+    finally:
+        configure_driver()                       # back to the run current
     _pos, _homed, _last_dir = 0, True, -1
+    save_hint(0.0, 0.0, True)
     time.sleep(SETTLE_S)
     print("[yaw] homed: press edge = yaw 0")
 
@@ -511,21 +661,28 @@ def check_released(where: str = "the hopper") -> None:
     global _homed
     if home_pressed():
         _homed = False
+        distrust_hint()
         raise LostSteps(f"home switch reads PRESSED at {where} (tracked yaw "
                         f"{_pos * deg_per_step():.2f} deg): steps were lost")
 
 
 def verify_edge(tick=None) -> None:
-    """Check the press edge without re-zeroing: released at +EDGE_CHECK_DEG,
-    pressed at -EDGE_CHECK_DEG (approached from above)."""
+    """Check the press edge without re-zeroing: released at +EDGE_CHECK_DEG
+    approached from ABOVE (from +EDGE + EDGE_APPROACH_DEG, so the switch's
+    differential travel on the cam ramp never matters), then pressed at
+    -EDGE_CHECK_DEG."""
     global _homed
+    if position_deg() is not None and position_deg() < EDGE_CHECK_DEG + EDGE_APPROACH_DEG:
+        move_to(EDGE_CHECK_DEG + EDGE_APPROACH_DEG, tick=tick)
     move_to(EDGE_CHECK_DEG, tick=tick)
     if home_pressed():
         _homed = False
+        distrust_hint()
         raise LostSteps(f"home switch pressed at +{EDGE_CHECK_DEG:g} deg: the arm is lower than tracked")
     move_to(-EDGE_CHECK_DEG, tick=tick)
     if not home_pressed():
         _homed = False
+        distrust_hint()
         raise LostSteps(f"home switch released at -{EDGE_CHECK_DEG:g} deg: the arm is higher than tracked")
 
 

@@ -17,12 +17,20 @@ servos have no feedback: "at full lift" means "commanded and settled".
 
 Touch-down (lower_until_touch):
   1. the contact must read CLOSED first (else TouchFault: wire, stuck slider);
-  2. a fast cosine ramp to approach_th, watching the contact every frame —
-     an unexpected surface (overfull bin) stops it right there;
-  3. single DESCENT_STEP_DEG steps (~one PCA9685 count, ~1.7 mm) with the
-     contact read after each, until it OPENS or limit_th is reached;
-  4. after a touch, at most `overtravel_mm` more (<= MAX_OVERTRAVEL_MM, the
-     slider has 10 mm) to seal / seat the card, and NEVER any further.
+  2. down to approach_th in frames of at most DESCENT_STEP_DEG (any move that
+     watches the contact uses these small frames, never the 1.5 deg fast
+     ones), the contact read after every frame — an unexpected surface
+     (overfull bin) stops it within one frame (~1.7 mm);
+  3. single DESCENT_STEP_DEG steps (~one PCA9685 count) with the contact read
+     after each, until it OPENS or limit_th is reached;
+  4. on contact: back UP to the last th at which the contact still read
+     closed (the surface is between it and the step that opened), then at
+     most `overtravel_mm` (<= MAX_OVERTRAVEL_MM, slider travel 10 mm) below
+     THAT, and never any further. So the slider compression is at most
+     overtravel_mm, whatever the step size.
+  The caller bounds limit_th by where the surface can be (sorter_b: the last
+  hopper touch, a bin's card count), so a contact stuck CLOSED cannot drive
+  the cup through a full stack to the floor.
 """
 
 from __future__ import annotations
@@ -69,8 +77,9 @@ class TouchFault(LiftError):
 @dataclass
 class TouchResult:
     touched: bool
-    th_touch: float | None      # th at which the contact opened
+    th_touch: float | None      # th at which the contact first read open
     th_end: float               # th after the overtravel (or the limit if no touch)
+    th_closed: float | None = None   # last th with the contact closed (surface is below it)
 
 
 _pca = None
@@ -135,39 +144,60 @@ def write_raw_servo(angle: float) -> None:
     _th, _settled, _released = None, False, False
 
 
+_last_closed = None         # last th at which a watched move read the contact closed
+
+
 def move_to(target: float, duration_s: float | None = None, watch_touch: bool = False) -> bool:
-    """Cosine ramp to target (refused outside the range). watch_touch: stop
-    at the first frame the contact reads open and return True."""
+    """Cosine ramp to target (refused outside the range); the target is
+    always written, also for a zero-length move. watch_touch (pose must be
+    known): frames of at most DESCENT_STEP_DEG, contact read after each;
+    stop at the first open reading and return True."""
+    global _last_closed
     if not geo.TH_MIN - 1e-9 <= target <= geo.TH_FULL + 1e-9:
         raise LiftLimitError(f"lift th {target:.2f} is outside [{geo.TH_MIN:g}, {geo.TH_FULL:g}]")
     start = _th
     if start is None:
+        if watch_touch:
+            raise LiftError("lift pose unknown — a watched move needs a known start (lift to full first)")
         _write(target)
         time.sleep(0.3)
-        return watch_touch and touch.is_open()
+        return False
     delta = target - start
     if abs(delta) < 1e-9:
+        _write(target)
         return watch_touch and touch.is_open()
     if duration_s is None:
         duration_s = max(0.1, FULL_MOVE_S * abs(delta) / (geo.TH_FULL - geo.TH_MIN))
-    n = max(1, round(duration_s / UPDATE_S), math.ceil(math.pi * abs(delta) / (2 * MAX_STEP_DEG)))
+    frame = DESCENT_STEP_DEG if watch_touch else MAX_STEP_DEG
+    n = max(1, round(duration_s / UPDATE_S), math.ceil(math.pi * abs(delta) / (2 * frame)))
+    if watch_touch:
+        _last_closed = start
     for i in range(1, n + 1):
         _write(start + delta * (1 - math.cos(math.pi * i / n)) / 2)
         time.sleep(UPDATE_S)
-        if watch_touch and touch.is_open():
-            return True
+        if watch_touch:
+            if touch.is_open():
+                return True
+            _last_closed = _th
     _write(target)
     return False
 
 
+def invalidate() -> None:
+    """The servo map changed: the commanded th no longer says where the arm is."""
+    global _th, _settled
+    _th, _settled = None, False
+
+
 def to_full() -> None:
-    """Up to TH_FULL (direct if the pose is unknown), then settle."""
+    """Up to TH_FULL (direct if the pose is unknown), ALWAYS ending with a write
+    of TH_FULL (so a changed servo map is applied), then settle."""
     global _settled
     if _th is None or _released:
         _write(geo.TH_FULL)
         time.sleep(0.3)
     else:
-        move_to(geo.TH_FULL)
+        move_to(geo.TH_FULL)              # always ends with a write of TH_FULL
     time.sleep(SETTLE_S)
     _settled = True
 
@@ -205,10 +235,12 @@ def lower_until_touch(approach_th: float, limit_th: float, overtravel_mm: float 
     if not touch.is_closed():
         raise TouchFault("touch contact open BEFORE lowering (cup not hanging free): wire broken, "
                          "slider stuck, or the cup already rests on something")
-    touched, th_touch = False, None
+    touched, th_touch, closed = False, None, _th
     if _th > approach_th:
         if move_to(approach_th, watch_touch=True):
-            touched, th_touch = True, _th
+            touched, th_touch, closed = True, _th, _last_closed
+        else:
+            closed = _th
     while not touched:
         if tick:
             tick()
@@ -222,13 +254,38 @@ def lower_until_touch(approach_th: float, limit_th: float, overtravel_mm: float 
         time.sleep(DESCENT_STEP_S)
         if touch.is_open():
             touched, th_touch = True, _th
-    if touched and overtravel_mm > 0:
-        mm = min(float(overtravel_mm), MAX_OVERTRAVEL_MM)
-        target = max(geo.TH_MIN, geo.th_below(th_touch, mm))
-        while _th - target > 1e-9:          # no contact checks: it is open; bounded, never further
+        else:
+            closed = _th
+    if touched:
+        mm = min(max(float(overtravel_mm), 0.0), MAX_OVERTRAVEL_MM)
+        target = max(geo.TH_MIN, geo.th_below(closed, mm))
+        if target > _th:                    # the opening step already went deeper: back up
+            _write(target)
+            time.sleep(DESCENT_STEP_S)
+        while _th - target > 1e-9:          # bounded; no contact checks: it is open
             _write(max(target, _th - DESCENT_STEP_DEG))
             time.sleep(DESCENT_STEP_S)
-    return TouchResult(touched, th_touch, _th)
+    return TouchResult(touched, th_touch, _th, closed)
+
+
+def lower_watching(target: float) -> TouchResult:
+    """Manual: step down to target in DESCENT_STEP_DEG steps with the contact
+    read after every step; stop AT the first open reading (the cup then rests
+    there, at most one step of slider compression). Pose must be known."""
+    if _th is None:
+        raise LiftError("lift pose unknown — lift to full first")
+    if not geo.TH_MIN - 1e-9 <= target < _th:
+        raise LiftLimitError("lower_watching only goes down, within the lift range")
+    if not touch.is_closed():
+        raise TouchFault("touch contact open before lowering — the cup already rests on something")
+    closed = _th
+    while _th - target > 1e-9:
+        _write(max(target, _th - DESCENT_STEP_DEG))
+        time.sleep(DESCENT_STEP_S)
+        if touch.is_open():
+            return TouchResult(True, _th, _th, closed)
+        closed = _th
+    return TouchResult(False, None, _th, closed)
 
 
 def release() -> None:
@@ -239,10 +296,16 @@ def release() -> None:
     _released, _settled = True, False
 
 
-def deinit() -> None:
+def deinit(release_servo: bool = False) -> None:
+    """Forget the PCA9685. release_servo=True (only when parked, nothing under
+    the cup): all channels off + sleep — the arm goes limp. Otherwise the chip
+    is left running: it keeps sending the last pulse without the host, so the
+    lift HOLDS its height instead of sagging onto a stack, the bed or a wall."""
     global _pca, _servo
     if _MOCK or _pca is None:
+        _pca = _servo = None
         return
-    from hardware.servos import release_pca
     pca, _pca, _servo = _pca, None, None
-    release_pca(pca)
+    if release_servo:
+        from hardware.servos import release_pca
+        release_pca(pca)

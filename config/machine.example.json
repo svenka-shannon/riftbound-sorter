@@ -81,14 +81,18 @@
     "SETTLE_S": 0.15,
     "STEP_PULSE_US": 5,
     "APPROACH_UNDERSHOOT_DEG": 3.0,
-    "LIMIT_MIN_DEG": -80.0,
+    "LIMIT_MIN_DEG": -64.0,
     "LIMIT_MAX_DEG": 175.0,
     "HOME_FAST_DEG_S": 20.0,
     "HOME_SLOW_DEG_S": 2.0,
     "HOME_BACKOFF_DEG": 5.0,
     "HOME_RELEASE_MAX_DEG": 95.0,
     "HOME_SEARCH_MAX_DEG": 190.0,
+    "NOHINT_SEARCH_DEG": 20.0,
+    "HINT_MARGIN_DEG": 5.0,
+    "HOME_CURRENT_A": 0.3,
     "EDGE_CHECK_DEG": 1.0,
+    "EDGE_APPROACH_DEG": 3.0,
     "UART_DEVICE": "/dev/serial0",
     "UART_BAUD": 115200,
     "UART_ADDRESS": -1,
@@ -119,7 +123,7 @@
   "b_sort": {
     "SEAL_S": 0.3,
     "SEAL_OVERTRAVEL_MM": 3.0,
-    "PLACE_OVERTRAVEL_MM": 1.5,
+    "PLACE_OVERTRAVEL_MM": 2.0,
     "BLEED_S": 0.8,
     "PEEL_MM": 6.0,
     "PEEL_S": 0.5,
@@ -127,10 +131,12 @@
     "TARE_SETTLE_S": 0.3,
     "RESUME_DELAY_S": 2.0,
     "CALIBRATION_MASS_G": 5.0,
-    "CUP_HOLD_MAX_S": 600.0,
     "TOUCH_SELFTEST": true,
     "SELFTEST_MIN_G": 5.0,
     "EDGE_CHECK_EVERY": 20,
-    "MANUAL_PUMP_MAX_S": 60.0
+    "MANUAL_PUMP_MAX_S": 60.0,
+    "HOPPER_BOUND_MM": 5.0,
+    "BIN_BOUND_MM": 3.0,
+    "BIN_BOUND_FRAC": 0.1
   }
 }

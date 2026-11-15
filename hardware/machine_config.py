@@ -11,9 +11,12 @@ defaults. See config/machine.example.json for the full list.
    "servos":      {"ARM_ACTUATION_RANGE": 180}}
 
 Machine selection (option B, 2026-11-15): the top-level key "machine" picks
-the machine this checkout drives — "v2" (belt + shuttle, the default when the
-key is absent) or "b" (the turntable picker, cad_b/). The environment variable
-RIFTBOUND_MACHINE overrides it (dev / tests). The B sections ("yaw", "lift",
+the machine this checkout drives — "v2" (belt + shuttle) or "b" (the
+turntable picker, cad_b/). The environment variable RIFTBOUND_MACHINE
+overrides it. On real hardware a MISSING selection (no file, or no key) is a
+config error (exit 78): v2 code on B wiring would drive GPIO 17 HIGH (B's
+pump ON), GPIO 25 LOW (B's stepper enabled) and GPIO 16 as an output into the
+grounded touch contact. MOCK runs (MOCK_HARDWARE=1) default to "v2". The B sections ("yaw", "lift",
 "touch", "b_sort") are only read on a B machine, the v2 sections only on v2;
 "vacuum" and "camera" are read by both (their DEFAULTS differ per machine, see
 hardware/vacuum.py and hardware/camera.py). Every section is validated on both.
@@ -171,14 +174,18 @@ SCHEMA = {
         "SETTLE_S": _f(0.0, 2.0),
         "STEP_PULSE_US": _i(2, 50),
         "APPROACH_UNDERSHOOT_DEG": _f(0.5, 10.0),
-        "LIMIT_MIN_DEG": _f(-85.0, -5.0),
+        "LIMIT_MIN_DEG": _f(-66.0, -5.0),   # must stay inside the home cam (pressed to -72)
         "LIMIT_MAX_DEG": _f(150.0, 178.0),
         "HOME_FAST_DEG_S": _f(1.0, 60.0),
         "HOME_SLOW_DEG_S": _f(0.2, 10.0),
         "HOME_BACKOFF_DEG": _f(2.0, 20.0),
         "HOME_RELEASE_MAX_DEG": _f(10.0, 100.0),
         "HOME_SEARCH_MAX_DEG": _f(30.0, 260.0),
+        "NOHINT_SEARCH_DEG": _f(5.0, 40.0),
+        "HINT_MARGIN_DEG": _f(1.0, 15.0),
+        "HOME_CURRENT_A": _f(0.1, 0.6),
         "EDGE_CHECK_DEG": _f(0.3, 5.0),
+        "EDGE_APPROACH_DEG": _f(1.0, 10.0),
         "UART_DEVICE": _e("/dev/serial0", "/dev/ttyAMA0", "/dev/ttyS0"),
         "UART_BAUD": _e(9600, 19200, 57600, 115200),
         "UART_ADDRESS": _i(-1, 3),
@@ -217,11 +224,13 @@ SCHEMA = {
         "TARE_SETTLE_S": _f(0.0, 5.0),
         "RESUME_DELAY_S": _f(0.0, 30.0),
         "CALIBRATION_MASS_G": _f(0.5, 500.0),
-        "CUP_HOLD_MAX_S": _f(10.0, 3600.0),
         "TOUCH_SELFTEST": _B,
         "SELFTEST_MIN_G": _f(0.5, 200.0),
         "EDGE_CHECK_EVERY": _i(0, 1000),
         "MANUAL_PUMP_MAX_S": _f(1.0, 600.0),
+        "HOPPER_BOUND_MM": _f(2.0, 20.0),
+        "BIN_BOUND_MM": _f(1.0, 10.0),
+        "BIN_BOUND_FRAC": _f(0.0, 0.3),
     },
 }
 
@@ -340,7 +349,7 @@ def load() -> dict:
     if _cache is None:
         if not CONFIG_FILE.exists():
             _cache = {}
-            _machine = "v2"
+            _machine = None
             return _cache
         try:
             # NaN / Infinity are not JSON; Python's parser accepts them unless told not to
@@ -351,14 +360,15 @@ def load() -> dict:
         if problems:
             raise MachineConfigError(CONFIG_FILE, problems)
         _cache = cfg
-        _machine = data.get("machine", "v2")
-        print(f"[config] Loaded {CONFIG_FILE} (machine {_machine})")
+        _machine = data.get("machine")
+        print(f"[config] Loaded {CONFIG_FILE} (machine {_machine or 'NOT SELECTED'})")
     return _cache
 
 
 def machine() -> str:
-    """"v2" or "b": $RIFTBOUND_MACHINE if set (validated), else the
-    top-level "machine" key of config/machine.json, else "v2"."""
+    """"v2" or "b": $RIFTBOUND_MACHINE if set (validated), else the top-level
+    "machine" key of config/machine.json. Neither: "v2" in MOCK mode, else
+    MachineConfigError (never guessed on real hardware)."""
     env = os.environ.get("RIFTBOUND_MACHINE")
     if env:
         if env not in MACHINES:
@@ -366,7 +376,14 @@ def machine() -> str:
                 f"RIFTBOUND_MACHINE must be one of {list(MACHINES)}, got {env!r}"])
         return env
     load()
-    return _machine or "v2"
+    if _machine:
+        return _machine
+    if os.environ.get("MOCK_HARDWARE", "0") == "1":
+        return "v2"
+    raise MachineConfigError(CONFIG_FILE, [
+        'no machine selected: add "machine": "v2" (belt + shuttle) or "machine": "b" (option B '
+        'turntable picker) to config/machine.json (`scripts/setup.sh --machine v2|b` does it). '
+        "Guessing could drive the wrong pins on the other machine's wiring"])
 
 
 def section(name: str) -> dict:

@@ -479,7 +479,7 @@ def b_test_home_switch() -> None:
     wait_for_enter()
 
     def body():
-        B["yaw"].disable()
+        B["yaw"].disable(distrust=True)           # arm turned by hand: saved position no longer valid
         end, last = time.monotonic() + B_WATCH_S, None
         while time.monotonic() < end:
             st = B["yaw"].home_pressed()
@@ -543,6 +543,18 @@ def b_test_home_tour() -> None:
     yaw, cal = B["yaw"], B["cal"]
     section("B5 — Home the yaw, then visit every station at full lift, then park")
     print("  Run B1 first. The arm moves; nothing in the bins / on the bed matters (full lift).")
+    hint = yaw.load_hint()
+    print(f"  saved position hint: {hint if hint else 'none / untrusted'}")
+    if hint is None:
+        print(f"  Homing only searches {yaw.NOHINT_SEARCH_DEG:g} deg without a trusted position. Turn the")
+        print(f"  arm by hand (motor off) to the park pose, ~{cal.park_yaw():g} deg: just past home, switch")
+        print("  PRESSED (check with B1).")
+        try:
+            ok = input("  Arm at the park pose now? [y/N]: ").strip().lower() in ("y", "yes")
+        except (EOFError, KeyboardInterrupt):
+            ok = False
+        if ok:
+            yaw.save_hint(cal.park_yaw() - yaw.HINT_MARGIN_DEG, cal.park_yaw() + yaw.HINT_MARGIN_DEG)
     _b_lift_full()
 
     def body():
