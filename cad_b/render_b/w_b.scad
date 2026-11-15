@@ -108,6 +108,7 @@ module holes_echo() {
     for (a = [45, 135, 225, 315]) echo(HOLE = ["pedestal", 106 * cos(a), 106 * sin(a)]);
     for (y = [-10, 10]) let(q = [-(ms_r0 + ms_w + 3 + 7) + 1.5, y], c = cos(sw_az - 180), sn = sin(sw_az - 180)) echo(HOLE = ["switch cradle", q[0] * c - q[1] * sn, q[0] * sn + q[1] * c]);
     for (sg = [-1, 1]) let(q = [R - (hop_in_l + 2 * wall) / 2 - 4, sg * 20], a = st_angle(st_hopper)) echo(HOLE = ["hopper", q[0] * cos(a) - q[1] * sin(a), q[0] * sin(a) + q[1] * cos(a)]);
+    echo(HOLE = ["hopper cup hole: drill Ø35 THROUGH", R * cos(st_angle(st_hopper)), R * sin(st_angle(st_hopper))]);
     for (i = [2 : n_st - 1], sg = [-1, 1]) let(q = [bin_ear_r, sg * 22], a = st_angle(i)) echo(HOLE = [i == n_st - 1 ? "reject" : str("bin ", i - 1), q[0] * cos(a) - q[1] * sin(a), q[0] * sin(a) + q[1] * cos(a)]);
     for (y = [-9, 9]) let(q = [cell_x0 - 14 + 6, y], a = st_angle(st_scan)) echo(HOLE = ["cell block", q[0] * cos(a) - q[1] * sin(a), q[0] * sin(a) + q[1] * cos(a)]);
     for (dx = [-16, 16], dy = [-16, 16]) let(q = [tx + dx, ty + dy], a = st_angle(st_scan)) echo(HOLE = ["camera post", q[0] * cos(a) - q[1] * sin(a), q[0] * sin(a) + q[1] * cos(a)]);

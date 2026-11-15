@@ -72,6 +72,7 @@ module hopper() {
         translate([R, 0, pocket_h - hop_chamfer]) linear_extrude(hop_chamfer + eps, scale = [(hop_in_l + 2 * hop_chamfer) / hop_in_l, (hop_in_w + 2 * hop_chamfer) / hop_in_w]) square([hop_in_l, hop_in_w], center = true);
         for (s = [-1, 1]) translate([R + s * (hop_in_l / 2 + wall / 2) - wall, -15, 10]) cube([2 * wall, 30, pocket_h]);
         for (s = [-1, 1]) ear_hole(ex, s * 20);
+        translate([R, 0, -1]) cylinder(d = 32, h = floor_t + 2);   // empty-hopper hole: with no card, the cup drops through (board hole Ø35 under it) and never touches
     }
 }
 

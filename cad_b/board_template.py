@@ -11,7 +11,7 @@ Hole positions come from render_b/w_b.scad (part="v3_holes"), i.e. the same
 numbers the CAD and the assembly video use. Print at 100 % ("actual size"),
 check the 100 mm scale bar on every page, tape the pages edge to edge using
 the overlap crosses, lay the sheet on the board with its edges flush, and
-centre-punch every hole. Drill Ø2.5 mm pilots, about 10 mm deep.
+centre-punch every hole. Drill Ø2.5 mm pilots, about 10 mm deep, and the one Ø35 hopper hole all the way through.
 """
 import re, subprocess, sys, math
 from pathlib import Path
@@ -57,7 +57,8 @@ def page(ci, ri):
     for n, x, y in holes:
         hx, hy = P(x, y)
         c.setLineWidth(0.3); c.line(hx - 5 * mm, hy, hx + 5 * mm, hy); c.line(hx, hy - 5 * mm, hx, hy + 5 * mm)
-        c.setLineWidth(0.5); c.circle(hx, hy, 1.25 * mm); c.setFont("Helvetica", 5.5); c.drawString(hx + 1.8 * mm, hy + 1.5 * mm, n)
+        big = "Ø35" in n
+        c.setLineWidth(0.5); c.circle(hx, hy, (17.5 if big else 1.25) * mm); c.setFont("Helvetica", 5.5); c.drawString(hx + (19 if big else 1.8) * mm, hy + 1.5 * mm, n)
     c.restoreState()
     c.setFont("Helvetica-Bold", 9); c.drawString(margin, PH - margin + 3 * mm, f"Option B board template  page {ri * cols + ci + 1}/{cols * rows}  (column {ci + 1} of {cols} from the left, row {ri + 1} of {rows} from the bottom)")
     c.setFont("Helvetica", 7); c.drawString(margin, margin - 8 * mm, "Print at 100 % / actual size. Overlap the pages on the grid lines and hole crosses. Holes: Ø2.5 mm pilots. Bins side = top.")
