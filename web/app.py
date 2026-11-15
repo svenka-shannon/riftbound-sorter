@@ -650,6 +650,8 @@ def create_app(token: str | None = None) -> Flask:
     import main as sorter_main
     app = Flask(__name__)
     app.config["AUTH_TOKEN"] = token or sorter_main.load_or_create_web_token()
+    from api import inventory as _inv
+    _inv.init()                 # idempotent: a fresh install / test DB has no tables yet
 
     def require_token(fn):
         @wraps(fn)

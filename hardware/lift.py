@@ -217,7 +217,7 @@ def at_full_lift() -> bool:
 def yaw_permitted() -> tuple[bool, str]:
     """The yaw interlock (hardware/yaw.set_interlock)."""
     if not at_full_lift():
-        return False, (f"lift not at full height (th {_th!r}, settled {_settled}) — yaw only moves "
+        return False, (f"lift not at full height (th {'unknown' if _th is None else format(_th, '.2f')}{'' if _settled else ', still moving'}) — yaw only moves "
                        "with the card 21 mm over every wall")
     if not touch.is_closed():
         return False, ("touch contact OPEN at full lift: the cup rests on something (overfull pile?), "

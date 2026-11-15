@@ -47,7 +47,8 @@
     if (s < 3600) return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
     return Math.floor(s / 3600) + 'h ' + Math.floor((s % 3600) / 60) + 'm';
   }
-  function binLabel(b) { return String(b) === '9' ? 'Reject' : 'Bin ' + b; }
+  // physical bins are numbered 1-6 (template, video, labels); the software's bin ids are 0-5
+  function binLabel(b) { return String(b) === '9' ? 'Reject' : 'Bin ' + (Number(b) + 1); }
   function stationLabel(n) {
     if (n === 'hopper') return 'Hopper';
     if (n === 'scan') return 'Scan bed';
@@ -55,7 +56,7 @@
     if (n === 'park') return 'Park';
     if (n === 'clear') return 'Cam clear';
     const m = /^bin(\d)$/.exec(n);
-    return m ? 'Bin ' + m[1] : n;
+    return m ? 'Bin ' + (Number(m[1]) + 1) : n;
   }
   const token = () => localStorage.getItem(TOKEN_KEY) || '';
 
@@ -607,7 +608,7 @@
       : 'No touch down to the lower limit (th ' + fmt(d.lift_th, 2) + '°).';
     toast(d.touched ? 'Touch at th ' + fmt(d.th_touch, 2) + '°' : 'No touch', d.touched ? 'ok' : 'warn');
   };
-  $('b-pump-on').onclick = (ev) => bcmd(ev.currentTarget, '/api/b/pump', { on: true }, 'Pump on (auto-off in 60 s)');
+  $('b-pump-on').onclick = (ev) => bcmd(ev.currentTarget, '/api/b/pump', { on: true }, 'Pump on');
   $('b-pump-off').onclick = async (ev) => {
     const d = ui.bstatus || {};
     const resting = !!d.station && !d.at_full_lift && !!d.touch_open;   // sorter_b._resting_at_station

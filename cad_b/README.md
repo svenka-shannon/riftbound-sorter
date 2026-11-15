@@ -186,3 +186,5 @@ Bins use the rules-engine numbers, **Bin 0 … Bin 5**, plus **Reject** (rules b
 7. Check the calibration table, then **Full lift**, then Run → **Machine clear**. The start-up self-test touches down on the empty bed and checks that the scale feels it.
 
 Files: `web/static/` (app, manifest, service worker, icons from `uv run tools/make_icons.py`), `web/pairing.py`, `web/snapshot.py`, `tests/test_phone_app.py`.
+
+Bin numbering: the phone app, video and template call the six bins 1-6; in rules.json and the API they are bin ids 0-5 (bin 1 = id 0), reject = 9.

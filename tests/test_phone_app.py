@@ -29,8 +29,10 @@ STATIC = ROOT / "web" / "static"
 
 
 @pytest.fixture
-def client():
+def client(monkeypatch, tmp_path):
     from web.app import create_app
+    from api import inventory
+    monkeypatch.setattr(inventory, "DB_PATH", tmp_path / "inventory.db")   # never the real data/ DB
     snapshot.reset()
     app = create_app(token=TOKEN)
     app.testing = True

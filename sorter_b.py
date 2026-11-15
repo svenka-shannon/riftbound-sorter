@@ -683,7 +683,7 @@ def _assess_clean() -> tuple[bool, str]:
     if vacuum.pump_is_on():
         return False, "vacuum pump still on"
     if not lift.at_full_lift():
-        return False, f"lift not at full height (th {lift.th()!r})"
+        return False, f"lift not at full height (th {'unknown' if lift.th() is None else format(lift.th(), '.2f')})"
     try:
         w = loadcell.read_grams()
     except Exception as exc:
