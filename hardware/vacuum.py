@@ -42,6 +42,18 @@ scripts/safe_outputs.py, which drives the pump / vent / belt / stepper pins
 to their safe levels and puts the PCA9685 to sleep after ANY exit (clean,
 crash, SIGKILL, watchdog). Power loss is safe by itself (relay NO contacts
 open: pump off, valve closed).
+
+Option B (cad_b/, machine "b" in config/machine.json): ONE relay, a KY-019
+module, which is ACTIVE-HIGH (transistor driver: IN high = relay on), and NO
+vent valve — a pin-hole bleed in the airline tee releases the card ~0.5-1 s
+after the pump stops. So on B the defaults are RELAY_ACTIVE_LOW = False,
+VENT_PIN = None and release() waits RELEASE_FALLBACK_S (the bleed time,
+default 0.8 s; config "vacuum.RELEASE_FALLBACK_S" or sorter_b's BLEED_S).
+GPIO 17 resets to an input with the SoC's pull-DOWN, which an active-high
+relay reads as OFF, so B needs no external resistor; scripts/setup.sh adds
+"gpio=17=ip,pd" to config.txt to make that explicit (cad_b/README.md,
+"Pin map (option B)"). Every value can be overridden in the "vacuum" section
+of config/machine.json on either machine.
 """
 
 import os
@@ -58,6 +70,21 @@ RELAY_ACTIVE_LOW = True
 VENT_ACTIVE_LOW = True
 VENT_S = 0.4            # vent open time during release()
 RELEASE_FALLBACK_S = 0.3  # no vent valve: wait for the cup to leak down
+
+import sys as _sys
+from hardware import machine_config as _machine_config
+
+if _machine_config.machine() == "b":
+    # option B: KY-019 active-HIGH relay, pin-hole bleed instead of a vent valve
+    RELAY_ACTIVE_LOW = False
+    VENT_PIN = None
+    RELEASE_FALLBACK_S = 0.8
+_machine_config.apply(_sys.modules[__name__], "vacuum", (
+    "RELAY_PIN", "RELAY_ACTIVE_LOW", "VENT_PIN", "VENT_ACTIVE_LOW", "VENT_S", "RELEASE_FALLBACK_S"))
+
+# MOCK only: called with the new pump state on every pump_on()/pump_off(), so
+# a simulated machine (hardware/b_mock.py) can attach / drop the card.
+_mock_listener = None
 
 _pump = False           # last commanded state (also tracked in MOCK)
 _vent = False
@@ -92,6 +119,8 @@ def pump_on():
     vent_close()
     _pump = True
     if _MOCK:
+        if _mock_listener is not None:
+            _mock_listener(True)
         return
     GPIO.output(RELAY_PIN, _level(True, RELAY_ACTIVE_LOW))
 
@@ -101,6 +130,8 @@ def pump_off():
     global _pump
     _pump = False
     if _MOCK:
+        if _mock_listener is not None:
+            _mock_listener(False)
         return
     GPIO.output(RELAY_PIN, _level(False, RELAY_ACTIVE_LOW))
 
@@ -123,14 +154,17 @@ def vent_close():
         GPIO.output(VENT_PIN, _level(False, VENT_ACTIVE_LOW))
 
 
-def release(vent_s: float = VENT_S):
+def release(vent_s: float | None = None, bleed_s: float | None = None):
     """Drop the card: pump off, vent the line to atmosphere for vent_s, close
-    the vent. Without a vent valve, just wait RELEASE_FALLBACK_S. The vent is
-    closed again even if the wait is interrupted."""
+    the vent. Without a vent valve (option B: pin-hole bleed), just wait
+    bleed_s (default RELEASE_FALLBACK_S). The vent is closed again even if the
+    wait is interrupted."""
     pump_off()
     if VENT_PIN is None:
-        time.sleep(RELEASE_FALLBACK_S)
+        time.sleep(RELEASE_FALLBACK_S if bleed_s is None else bleed_s)
         return
+    if vent_s is None:
+        vent_s = VENT_S
     try:
         vent_open()
         time.sleep(vent_s)

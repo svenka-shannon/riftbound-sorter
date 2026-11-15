@@ -194,6 +194,25 @@ DEFAULT_BIN_LIMITS = {0: 40, 1: 40, 2: 40, 3: 40, 4: 12, 5: 12, 6: 12, 7: 12, RE
 #   reject 9 : 17.4 mm of pile under the lane lip (cad/reject_bin.scad)  → 52
 BIN_LIMIT_MAX = {0: 54, 1: 54, 2: 54, 3: 54, 4: 15, 5: 15, 6: 15, 7: 15, REJECT_BIN: 52}
 
+# ── Machine selection (config/machine.json "machine": "v2" | "b") ────────────
+# Option B (cad_b/, the turntable picker) reuses this whole file — state
+# machine, operator controls, bin counts, clean / unclean record, confirm-clear,
+# signals, web API — and replaces only the machine-specific functions with
+# sorter_b.py's (sorter_b.install(), at the end of this file; list in
+# sorter_b.HOOKS). B has 6 sort bins (rules bins 0-5 → yaw 50..150) and the
+# reject bin 9 (yaw 170). Its pockets are 32 mm deep (floor Z 2, walls Z 34):
+# 75 cards = 24.8 mm by default, at most 90 (29.7 mm, still under the wall top,
+# so a pile never reaches the swing height).
+MACHINE = machine_config.machine()
+B_SORT_BINS = tuple(range(6))
+B_DEFAULT_BIN_LIMITS = {**{b: 75 for b in B_SORT_BINS}, REJECT_BIN: 75}
+B_BIN_LIMIT_MAX = {**{b: 90 for b in B_SORT_BINS}, REJECT_BIN: 90}
+if MACHINE == "b":
+    SORT_BINS, DEFAULT_BIN_LIMITS, BIN_LIMIT_MAX = B_SORT_BINS, B_DEFAULT_BIN_LIMITS, B_BIN_LIMIT_MAX
+REST_POSE = "home_level"            # rest_pose in a clean record (B: "parked")
+HOLD_PLACE = "cradle"               # where a card waits for a full bin (B: "bed")
+HW_CONFIG_ERRORS = (shuttle.ShuttleConfigError, servos.ServoConfigError)   # init → exit 78
+
 CARD_WEIGHT_G      = 1.75   # one raw Riftbound card (nominal; NOT used for calibration)
 CALIBRATION_MASS_G = 5.000  # load-cell calibration reference: a US nickel (5.000 g)
 CALIBRATE_TOOL_NAME = "main.py --calibrate"   # its "tool ran" marker (calibrate_loadcell)
@@ -254,7 +273,7 @@ _status         = {"state": "starting", "message": "", "hopper_empty": False, "j
                    "cards_per_minute": 0.0, "total_today": 0,
                    "last_card": None, "last_weight_g": None, "last_offset_mm": None,
                    "bin_counts": {}, "bin_limits": {}, "pause_requested": False,
-                   "stop_requested": False, "card_at": None}
+                   "stop_requested": False, "card_at": None, "machine": MACHINE}
 _session_start  = time.time()
 _recent_scans   = deque(maxlen=60)   # timestamps of the last 60 cards routed
 _today_midnight = 0.0                # Unix timestamp of today's midnight; set in main()
@@ -388,6 +407,8 @@ class BinLimitsError(ValueError):
 
 
 def _fmt_limits(d: dict) -> str:
+    if MACHINE == "b":
+        return ", ".join(f"bin {b}: {n}" for b, n in sorted(d.items()))
     return f"lower 0-3: {d[0]}, upper 4-7: {d[4]}, reject 9: {d[REJECT_BIN]}"
 
 
@@ -1108,6 +1129,12 @@ def _route_and_record(p: PendingCard):
         raise LoadCellFault(f"load cell failed checking the cradle emptied at bin {p.bin_num}: "
                             f"{exc} — carriage locked; check the cradle") from exc
     _set_card_at(None)
+    _count_and_record(p)
+    _prepare_cradle()
+
+
+def _count_and_record(p: PendingCard):
+    """The card is in bin p.bin_num: count it, log it, update the throughput."""
     _bins.increment(p.bin_num)
     _publish_bins()
 
@@ -1132,8 +1159,6 @@ def _route_and_record(p: PendingCard):
     _stats["total_today"] += 1
     _status["cards_per_minute"] = _get_cards_per_minute()
     _status["total_today"] = _stats["total_today"]
-
-    _prepare_cradle()
 
 
 def _lift_from_drop():
@@ -1321,7 +1346,7 @@ def _wait_for_bin_space(p: PendingCard) -> bool:
             _set_state("running")
             return True
         if paused:
-            msg = (f"paused by operator — card held on the cradle for bin {p.bin_num} "
+            msg = (f"paused by operator — card held on the {HOLD_PLACE} for bin {p.bin_num} "
                    + ("(bin still full — empty it, then press Resume)" if full
                       else "(bin emptied) — press Resume to route it"))
         else:
@@ -1331,7 +1356,7 @@ def _wait_for_bin_space(p: PendingCard) -> bool:
             _status["paused_bin"] = p.bin_num
             if not paused:
                 print(f"[main] reset bin {p.bin_num} in the web UI or with `main.py --empty-bin "
-                      f"{p.bin_num}` once it is empty. Card held on the cradle.")
+                      f"{p.bin_num}` once it is empty. Card held on the {HOLD_PLACE}.")
             shown = msg
         time.sleep(BIN_POLL_S)
 
@@ -1461,7 +1486,7 @@ def _run_sorter(dry_run, engine, max_cycles) -> str:
         # Stopped while paused on a full bin: the card is still held on the cradle.
         # That is not a "stopped — resume" state (audit 3 minor 3): a restart's
         # cradle check would refuse anyway. Resume is refused (409) in this state.
-        _set_state("needs_confirm", f"stopped with a card held on the cradle (for bin "
+        _set_state("needs_confirm", f"stopped with a card held on the {HOLD_PLACE} (for bin "
                                     f"{pending.bin_num}) — remove it by hand, then press "
                                     "'Machine clear'")
         return "needs_confirm"
@@ -1593,7 +1618,7 @@ def teardown():
         try:
             clean, reason = _assess_clean()
             _write_machine_state(clean=clean, confirmed=False, reason=reason,
-                                 rest_pose="home_level" if clean else None)
+                                 rest_pose=REST_POSE if clean else None)
             print(f"[main] {'clean' if clean else 'UNCLEAN'} stop: {reason}")
         except Exception as exc:
             print(f"[main] could not record the machine state: {exc!r}")
@@ -1759,6 +1784,13 @@ def _cup_hold_watch():
                       "hopper and belt, remove the card, then confirm")
 
 
+def _on_confirmed_start():
+    """The operator confirmed the machine clear: forget any card position and
+    carriage jam before the next start (machine-specific: sorter_b replaces it)."""
+    shuttle.clear_jam()
+    _set_card_at(None)
+
+
 def _operate(dry_run: bool):
     """Start → sort → (pause / stop / halt → operator) → start again, until shutdown."""
     while _running:
@@ -1777,8 +1809,7 @@ def _operate(dry_run: bool):
         _set_state("starting", "checking the machine")   # before anything moves (audit M2)
         try:
             if confirmed:
-                shuttle.clear_jam()
-                _set_card_at(None)
+                _on_confirmed_start()
             state = start_and_run(confirmed, dry_run)
         except NeedsConfirm as exc:
             _make_safe()
@@ -1797,7 +1828,7 @@ def _operate(dry_run: bool):
         clean, reason = _assess_clean()
         _write_machine_state(clean=clean, confirmed=False, reason=reason if not clean else
                              f"{state}: {_status.get('message', '')}".strip(": "),
-                             rest_pose="home_level" if clean else None)
+                             rest_pose=REST_POSE if clean else None)
         if not clean and _status.get("state") not in ("jam", "error", "needs_confirm"):
             # Unclean stop (e.g. stopped / hopper empty with something out of place):
             # only "Machine clear" continues, so the UI must not offer Resume (minor 3).
@@ -2048,10 +2079,10 @@ def _main(args):
 
     # Hardware first: the pump relay and belt get driven to OFF immediately.
     ms = read_machine_state()
-    assume_rest = bool(ms.get("clean")) and ms.get("rest_pose") == "home_level"
+    assume_rest = bool(ms.get("clean")) and ms.get("rest_pose") == REST_POSE
     try:
         init_hardware(assume_rest=assume_rest)
-    except (shuttle.ShuttleConfigError, servos.ServoConfigError) as exc:
+    except HW_CONFIG_ERRORS as exc:
         # A bad shuttle_calibration.json / servo_calibration.json (a mistyped "invert",
         # a typo'd angle, a string, NaN) must never fall back to defaults or reach
         # the servos: a dropped invert drives a crank into its end post, ARM_DROP 400
@@ -2107,6 +2138,12 @@ def _main(args):
         return
 
     _operate(args.dry_run)
+
+
+# Option B: swap in sorter_b's machine-specific functions (see MACHINE above).
+if MACHINE == "b":
+    import sorter_b
+    sorter_b.install(sys.modules[__name__])
 
 
 if __name__ == "__main__":

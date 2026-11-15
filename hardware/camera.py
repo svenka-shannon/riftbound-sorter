@@ -36,7 +36,15 @@ keys optional, see hardware/machine_config.py):
    "EXPOSURE_TIME_US": null,   # optional fixed values instead of the AE result
    "ANALOGUE_GAIN": null,
    "COLOUR_GAINS": null,       # [red, blue]
-   "CARD_ROTATE": 90}          # 270 if cards are loaded the other way round
+   "CARD_ROTATE": 90,          # 270 if cards are loaded the other way round
+   "ROTATE_180": true,         # camera mounted turned 180° (v2 bracket)
+   "FULL_FOV_X_MM": 129.9,     # full sensor field at the card face (long axis)
+   "FULL_FOV_Y_MM": 74.8}
+Option B (cad_b/): an Arducam IMX708 with a FIXED-focus lens and a +5 D
+close-up lens, 188 mm over the scan bed: AF_MODE "none" (no AfMode /
+LensPosition controls are sent — a fixed-focus module has no lens driver)
+and a 244 × 141 mm field (2 × 188 × tan 33° / tan 20.5°). On a B machine
+these are the defaults; config/machine.json "camera" overrides them.
 The lens is set to Manual at LensPosition (libcamera controls AfMode /
 LensPosition). After a warm-up with AE/AWB running on the EMPTY station, the
 converged ExposureTime / AnalogueGain / ColourGains are read from the frame
@@ -134,10 +142,23 @@ def _load_settings() -> None:
     machine_config.apply(sys.modules[__name__], "camera", (
         "LENS_POSITION", "AF_MODE", "LOCK_AE_AWB", "EXPOSURE_TIME_US", "ANALOGUE_GAIN",
         "COLOUR_GAINS", "CARD_ROTATE", "STABILIZE_DELAY_S", "WARMUP_S", "SWAP_RB",
-        "LORES_TIMEOUT_S"))
+        "LORES_TIMEOUT_S", "ROTATE_180", "FULL_FOV_X_MM", "FULL_FOV_Y_MM"))
 
 
+def _machine_defaults() -> None:
+    """Option B: fixed-focus Arducam 188 mm over the bed (see the docstring)."""
+    global AF_MODE, FULL_FOV_X_MM, FULL_FOV_Y_MM, ROTATE_180
+    from hardware import machine_config
+    if machine_config.machine() == "b":
+        AF_MODE = "none"
+        FULL_FOV_X_MM, FULL_FOV_Y_MM = 244.2, 140.6
+        ROTATE_180 = False
+
+
+_machine_defaults()
 _load_settings()
+FOV_X_MM, FOV_Y_MM = FULL_FOV_X_MM, FULL_FOV_Y_MM
+CARD_CROP = _default_crop()
 
 
 def apply_field_of_view(crop, pixel_array=None) -> float:
@@ -160,6 +181,8 @@ def _focus_controls() -> dict:
         from libcamera import controls as lc
     except ImportError:
         return {}
+    if AF_MODE == "none":
+        return {}                  # fixed-focus module (option B): no lens controls
     if AF_MODE == "continuous":
         return {"AfMode": lc.AfModeEnum.Continuous}
     return {"AfMode": lc.AfModeEnum.Manual, "LensPosition": float(LENS_POSITION)}
@@ -244,7 +267,8 @@ def init():
     if LOCK_AE_AWB:
         _lock_exposure()
     flip = "ISP" if _hw_flip else ("software" if ROTATE_180 else "off")
-    focus = f"manual {LENS_POSITION:g} dpt" if AF_MODE != "continuous" else "continuous AF"
+    focus = {"continuous": "continuous AF", "none": "fixed focus"}.get(
+        AF_MODE, f"manual {LENS_POSITION:g} dpt")
     print(f"[camera] Pi Camera initialized (main {CAPTURE_RESOLUTION}, lores {LORES_RESOLUTION}, "
           f"{DETECT_FPS} fps, focus {focus}, 180° flip: {flip})")
 

@@ -33,6 +33,25 @@ it in an `X-Auth-Token` header or a `token` form field:
                                paused or starting)
   POST /rules                → validate, save and hot-reload the rules (applied
                                between cards, so any state)
+Option B only (machine "b": the calibration / jog API, sorter_b.py; JSON body
+or form fields; refused with 409 while a run is in progress — including
+paused — and the first one marks the machine NOT clean, so sorting needs
+'Machine clear' afterwards):
+  GET  /api/b/status                     → yaw, lift th, switch / contact, pump, calibration
+  POST /api/b/home                       → lift to full, home the yaw
+  POST /api/b/jog          {deg}         → jog yaw by ±deg (≤ 30, limits + interlock apply)
+  POST /api/b/goto         {station}     → hopper, scan, bin0..bin5, reject, park, clear
+  POST /api/b/lift         {th}          → set the lift link angle
+  POST /api/b/lift/full                  → full lift
+  POST /api/b/probe        {limit_th}    → step down until the touch contact opens
+  POST /api/b/pump         {on}          → pump on (auto-off) / off + bleed
+  POST /api/b/save/station-yaw {station} → current yaw as that station's yaw
+  POST /api/b/save/station-th  {station, key} → current th as approach_th / limit_th /
+                                           floor_th / touch_th
+  POST /api/b/save/pose    {key}         → current yaw as park_yaw / clear_yaw
+  POST /api/b/servo-raw    {angle}       → raw lift servo angle (servo-map calibration)
+  POST /api/b/save/servo-map {points}    → [[th, servo], [th, servo]]
+On a v2 machine these answer 404.
 A request refused by the state gate gets 409 with {"error": why}. The gates
 are main.can_* — the CLI (--empty-bin, --confirm-clear) goes through these
 same endpoints whenever a sorter process is running.
@@ -162,9 +181,12 @@ def get_session_history(n: int = 5) -> list[dict]:
 # Rules validation
 # ---------------------------------------------------------------------------
 
-def validate_rules(cfg) -> list[str]:
+def validate_rules(cfg, valid_bins=None) -> list[str]:
     """Problems with a rules config (empty list = valid). Checked before saving,
-    so the running engine never loads something it would misread."""
+    so the running engine never loads something it would misread. valid_bins:
+    the machine's bins (default v2: 0-7 + 9; option B: 0-5 + 9)."""
+    valid_bins = VALID_BINS if valid_bins is None else set(valid_bins)
+    n_sort = len(valid_bins - {9})
     errors = []
     if not isinstance(cfg, dict):
         return ["top level must be a JSON object"]
@@ -172,8 +194,8 @@ def validate_rules(cfg) -> list[str]:
     if not isinstance(reject, int) or isinstance(reject, bool) or reject != 9:
         errors.append("_reject_bin must be 9 (the physical reject bin)")
     bc = cfg.get("_bin_count", 8)
-    if not isinstance(bc, int) or isinstance(bc, bool) or not 1 <= bc <= 8:
-        errors.append("_bin_count must be an integer 1..8")
+    if not isinstance(bc, int) or isinstance(bc, bool) or not 1 <= bc <= max(n_sort, 1):
+        errors.append(f"_bin_count must be an integer 1..{n_sort}")
     rules = cfg.get("rules")
     if not isinstance(rules, list):
         return errors + ['"rules" must be a list']
@@ -185,8 +207,8 @@ def validate_rules(cfg) -> list[str]:
         if "name" in rule and not isinstance(rule["name"], str):
             errors.append(f"{where}: name must be a string")
         b = rule.get("bin")
-        if not isinstance(b, int) or isinstance(b, bool) or b not in VALID_BINS:
-            errors.append(f"{where}: bin must be 0-7 or 9 (got {b!r})")
+        if not isinstance(b, int) or isinstance(b, bool) or b not in valid_bins:
+            errors.append(f"{where}: bin must be 0-{n_sort - 1} or 9 (got {b!r})")
         match = rule.get("match", {})
         if not isinstance(match, dict):
             errors.append(f"{where}: match must be an object")
@@ -692,6 +714,56 @@ def create_app(token: str | None = None) -> Flask:
     def api_confirm_clear():
         return _gated(sorter_main.can_confirm_clear, lambda: sorter_main.confirm_clear("web"))
 
+    # ── option B calibration / jog API (sorter_b.py) ──────────────────────────
+    def _b_call(fn, *args):
+        if getattr(sorter_main, "MACHINE", "v2") != "b":
+            return jsonify({"error": "not an option B machine (config/machine.json \"machine\")"}), 404
+        import sorter_b
+        try:
+            return jsonify(fn(sorter_b, *args))
+        except sorter_b.ManualRefused as exc:
+            return jsonify({"error": str(exc), "state": sorter_main._status.get("state")}), 409
+        except (ValueError, KeyError, TypeError) as exc:
+            return jsonify({"error": str(exc)}), 400
+        except Exception as exc:
+            return jsonify({"error": f"{type(exc).__name__}: {exc}"}), 500
+
+    def _arg(name, default=None, required=True):
+        body = request.get_json(silent=True) or {}
+        v = body.get(name, request.form.get(name, default))
+        if v is None and required:
+            raise ValueError(f"missing {name!r}")
+        return v
+
+    def _b_endpoint(rule, getter):
+        def view():
+            try:
+                return _b_call(getter())      # getter() parses the request's arguments
+            except ValueError as exc:
+                return jsonify({"error": str(exc)}), 400
+        view.__name__ = "b_" + rule.strip("/").replace("/", "_").replace("-", "_")
+        app.add_url_rule(f"/api/b/{rule}", view.__name__, require_token(view), methods=["POST"])
+
+    @app.route("/api/b/status")
+    def api_b_status():
+        return _b_call(lambda b: b.status())
+
+    _b_endpoint("home", lambda: (lambda b: b.home()))
+    _b_endpoint("jog", lambda: (lambda b, d=float(_arg("deg")): b.jog_yaw(d)))
+    _b_endpoint("goto", lambda: (lambda b, n=str(_arg("station")): b.goto_station(n)))
+    _b_endpoint("lift", lambda: (lambda b, t=float(_arg("th")): b.set_lift(t)))
+    _b_endpoint("lift/full", lambda: (lambda b: b.lift_full()))
+    _b_endpoint("probe", lambda: (lambda b, t=_arg("limit_th", required=False):
+                                  b.probe_touch(None if t is None else float(t))))
+    _b_endpoint("pump", lambda: (lambda b, on=_arg("on"): b.pump(
+        on if isinstance(on, bool) else str(on).lower() in ("1", "true", "on", "yes"))))
+    _b_endpoint("save/station-yaw", lambda: (lambda b, n=str(_arg("station")): b.save_station_yaw(n)))
+    _b_endpoint("save/station-th", lambda: (lambda b, n=str(_arg("station")), k=str(_arg("key")):
+                                            b.save_station_th(n, k)))
+    _b_endpoint("save/pose", lambda: (lambda b, k=str(_arg("key")): b.save_pose(k)))
+    _b_endpoint("servo-raw", lambda: (lambda b, a=float(_arg("angle")): b.set_servo_raw(a)))
+    _b_endpoint("save/servo-map", lambda: (lambda b, p=_arg("points"): b.save_servo_map(p)))
+
     @app.route("/api/sessions")
     def api_sessions():
         return jsonify(get_session_history(n=5))
@@ -734,7 +806,7 @@ def create_app(token: str | None = None) -> Flask:
         text = request.form.get("rules_json", "")
         try:
             new_rules = json.loads(text)
-            errors = validate_rules(new_rules)
+            errors = validate_rules(new_rules, set(sorter_main.SORT_BINS) | {sorter_main.REJECT_BIN})
         except ValueError as e:
             errors = [f"invalid JSON: {e}"]
         if errors:

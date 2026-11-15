@@ -70,6 +70,14 @@ MAX_READ_FAILURES failures in one measurement (main.py then stops the machine).
 
 Calibrate with `python main.py --calibrate`; the scale factor and the empty
 offset are saved to config/loadcell_calibration.json and loaded by init().
+
+Option B (cad_b/): the same module weighs the SCAN BED instead of the cradle
+(a 5 kg bar cell under the bed, same HX711 pins). "Cradle" in this file then
+means "bed": the empty-bed reference, the persistence rule and the thresholds
+are used unchanged by sorter_b.py. A 5 kg cell is ~100× less sensitive per
+count than the TAL221 the thresholds were set for: check the empty-bed noise
+(scripts/test_hardware.py, B menu) is well under WEIGHT_EMPTY_MAX before
+trusting the single / double split.
 """
 
 import json
@@ -135,6 +143,15 @@ class LoadCellError(RuntimeError):
 # (shuttle.route() only reads after a tip).
 _mock_load_g = 0.0
 _mock_fail_reads = 0        # MOCK: the next N raw reads fail (tests)
+_mock_load_fn = None        # MOCK: callable() -> grams; replaces the cradle model
+                            # (option B: hardware/b_mock.py's scan bed)
+
+
+def mock_set_load_source(fn) -> None:
+    """MOCK only: read the simulated load from fn() (grams) instead of the
+    v2 cradle model; None restores the cradle model."""
+    global _mock_load_fn
+    _mock_load_fn = fn
 
 
 def mock_set_load(grams: float) -> None:
@@ -154,6 +171,8 @@ def _mock_raw():
     if _mock_fail_reads > 0:
         _mock_fail_reads -= 1
         return None
+    if _mock_load_fn is not None:
+        return float(_mock_load_fn()) * SCALE_FACTOR
     try:
         from hardware import shuttle
         target, _tilt, _ = shuttle.state()

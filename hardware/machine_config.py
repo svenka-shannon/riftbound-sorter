@@ -10,6 +10,14 @@ defaults. See config/machine.example.json for the full list.
                   (TOP_SWITCH_NC must be true: NO wiring of the top switch is refused)
    "servos":      {"ARM_ACTUATION_RANGE": 180}}
 
+Machine selection (option B, 2026-11-15): the top-level key "machine" picks
+the machine this checkout drives — "v2" (belt + shuttle, the default when the
+key is absent) or "b" (the turntable picker, cad_b/). The environment variable
+RIFTBOUND_MACHINE overrides it (dev / tests). The B sections ("yaw", "lift",
+"touch", "b_sort") are only read on a B machine, the v2 sections only on v2;
+"vacuum" and "camera" are read by both (their DEFAULTS differ per machine, see
+hardware/vacuum.py and hardware/camera.py). Every section is validated on both.
+
 Validation (audit M6): the WHOLE file is checked against SCHEMA the first
 time any module reads it. Every value must have the right JSON type (a bool
 is true/false, never the string "false"; a number is a JSON number, never a
@@ -65,6 +73,9 @@ def _e(*values, why=None):
 
 _B = {"kind": "bool", "nullable": False}
 
+MACHINES = ("v2", "b")
+_GPIO = _i(0, 27)            # BCM GPIO number on the 40-pin header
+
 SCHEMA = {
     "card_detect": {
         "TRAVEL_SIGN": _e(1, -1),
@@ -83,12 +94,15 @@ SCHEMA = {
     },
     "camera": {
         "LENS_POSITION": _f(0.0, 32.0),
-        "AF_MODE": _e("manual", "continuous"),
+        "AF_MODE": _e("manual", "continuous", "none"),
         "LOCK_AE_AWB": _B,
         "EXPOSURE_TIME_US": _i(10, 100_000, nullable=True),
         "ANALOGUE_GAIN": _f(1.0, 16.0, nullable=True),
         "COLOUR_GAINS": {"kind": "gains", "min": 0.1, "max": 8.0, "nullable": True},
         "CARD_ROTATE": _e(0, 90, 180, 270),
+        "ROTATE_180": _B,
+        "FULL_FOV_X_MM": _f(20.0, 600.0),
+        "FULL_FOV_Y_MM": _f(10.0, 400.0),
         "STABILIZE_DELAY_S": _f(0.0, 2.0),
         "WARMUP_S": _f(0.0, 10.0),
         "SWAP_RB": _B,
@@ -128,12 +142,96 @@ SCHEMA = {
     "servos": {
         "ARM_ACTUATION_RANGE": _e(180, 270),
     },
+    # ── both machines (defaults differ per machine: hardware/vacuum.py) ──────
+    "vacuum": {
+        "RELAY_PIN": _GPIO,
+        "RELAY_ACTIVE_LOW": _B,
+        "VENT_PIN": _i(0, 27, nullable=True),
+        "VENT_ACTIVE_LOW": _B,
+        "VENT_S": _f(0.05, 3.0),
+        "RELEASE_FALLBACK_S": _f(0.05, 5.0),
+    },
+    # ── option B only (hardware/yaw.py, lift.py, touch.py; sorter_b.py) ───────
+    "yaw": {
+        "STEP_PIN": _GPIO,
+        "DIR_PIN": _GPIO,
+        "EN_PIN": _GPIO,
+        "HOME_PIN": _GPIO,
+        # NC only: a broken NO wire reads "never pressed", and the homing search
+        # (down until pressed) would drive the arm past the cam into the cable post
+        "HOME_SWITCH_NC": _e(True, why="normally-open wiring of the yaw home switch is not "
+                                       "supported — a broken NO wire reads 'never pressed' and "
+                                       "homing would drive the arm into the cable post. Wire it "
+                                       "normally-closed (COM → GND, NC → the HOME_PIN GPIO)"),
+        "DIR_INVERT": _B,
+        "FULL_STEPS_PER_REV": _e(200, 400),
+        "MICROSTEPS": _e(8, 16, 32),
+        "MAX_SPEED_DEG_S": _f(5.0, 200.0),
+        "ACCEL_DEG_S2": _f(20.0, 1000.0),
+        "SETTLE_S": _f(0.0, 2.0),
+        "STEP_PULSE_US": _i(2, 50),
+        "APPROACH_UNDERSHOOT_DEG": _f(0.5, 10.0),
+        "LIMIT_MIN_DEG": _f(-85.0, -5.0),
+        "LIMIT_MAX_DEG": _f(150.0, 178.0),
+        "HOME_FAST_DEG_S": _f(1.0, 60.0),
+        "HOME_SLOW_DEG_S": _f(0.2, 10.0),
+        "HOME_BACKOFF_DEG": _f(2.0, 20.0),
+        "HOME_RELEASE_MAX_DEG": _f(10.0, 100.0),
+        "HOME_SEARCH_MAX_DEG": _f(30.0, 260.0),
+        "EDGE_CHECK_DEG": _f(0.3, 5.0),
+        "UART_DEVICE": _e("/dev/serial0", "/dev/ttyAMA0", "/dev/ttyS0"),
+        "UART_BAUD": _e(9600, 19200, 57600, 115200),
+        "UART_ADDRESS": _i(-1, 3),
+        "RSENSE_OHM": _f(0.05, 0.5),
+        "RUN_CURRENT_A": _f(0.1, 1.2),
+        "HOLD_CURRENT_A": _f(0.0, 1.2, nullable=True),
+    },
+    "lift": {
+        "CHANNEL": _i(0, 15),
+        "ACTUATION_RANGE": _e(180, 270),
+        "TH_MIN": _f(-10.0, 0.0),
+        "TH_FULL": _f(5.0, 15.0),
+        "LINK_MM": _f(100.0, 400.0),
+        "PIVOT_Z_MM": _f(0.0, 200.0),
+        "HAND_DROP_MM": _f(0.0, 200.0),
+        "MAX_STEP_DEG": _f(0.2, 10.0),
+        "FULL_MOVE_S": _f(0.1, 5.0),
+        "DESCENT_STEP_DEG": _f(0.1, 2.0),
+        "DESCENT_STEP_S": _f(0.01, 0.5),
+        "SETTLE_S": _f(0.0, 2.0),
+        "MAX_OVERTRAVEL_MM": _f(0.0, 8.0),
+    },
+    "touch": {
+        "PIN": _GPIO,
+        "DEBOUNCE_READS": _i(1, 20),
+        "DEBOUNCE_S": _f(0.0, 0.05),
+    },
+    "b_sort": {
+        "SEAL_S": _f(0.0, 3.0),
+        "SEAL_OVERTRAVEL_MM": _f(0.0, 5.0),
+        "PLACE_OVERTRAVEL_MM": _f(0.0, 5.0),
+        "BLEED_S": _f(0.1, 5.0),
+        "PEEL_MM": _f(0.0, 20.0),
+        "PEEL_S": _f(0.05, 5.0),
+        "WEIGH_SETTLE_S": _f(0.0, 5.0),
+        "TARE_SETTLE_S": _f(0.0, 5.0),
+        "RESUME_DELAY_S": _f(0.0, 30.0),
+        "CALIBRATION_MASS_G": _f(0.5, 500.0),
+        "CUP_HOLD_MAX_S": _f(10.0, 3600.0),
+        "TOUCH_SELFTEST": _B,
+        "SELFTEST_MIN_G": _f(0.5, 200.0),
+        "EDGE_CHECK_EVERY": _i(0, 1000),
+        "MANUAL_PUMP_MAX_S": _f(1.0, 600.0),
+    },
 }
 
 # Cross-key rules: (section, low key, high key) → low ≤ high when both are set
-_ORDERED = (("sort", "EXIT_MIN_S", "EXIT_MAX_S"),)
+_ORDERED = (("sort", "EXIT_MIN_S", "EXIT_MAX_S"),
+            ("lift", "TH_MIN", "TH_FULL"),
+            ("yaw", "HOME_SLOW_DEG_S", "HOME_FAST_DEG_S"))
 
 _cache = None
+_machine = None
 
 
 def _is_number(v) -> bool:
@@ -191,6 +289,11 @@ def validate(data) -> tuple[dict, list[str]]:
     for sec, body in data.items():
         if str(sec).startswith("_"):
             continue
+        if sec == "machine":
+            if not (isinstance(body, str) and body in MACHINES):
+                problems.append(f"machine: must be one of {list(MACHINES)} (the top-level machine "
+                                f"switch), got {json.dumps(body)}")
+            continue
         if sec not in SCHEMA:
             problems.append(f"{sec}: unknown section (valid: {', '.join(SCHEMA)})")
             continue
@@ -216,6 +319,14 @@ def validate(data) -> tuple[dict, list[str]]:
         s = out.get(sec, {})
         if s.get(lo) is not None and s.get(hi) is not None and s[lo] > s[hi]:
             problems.append(f"{sec}.{lo} ({s[lo]}) must not exceed {sec}.{hi} ({s[hi]})")
+    y = out.get("yaw", {})
+    pins = [(k, y[k]) for k in ("STEP_PIN", "DIR_PIN", "EN_PIN", "HOME_PIN") if k in y]
+    pins += [(f"touch.PIN", out.get("touch", {})["PIN"])] if "PIN" in out.get("touch", {}) else []
+    seen = {}
+    for k, v in pins:
+        if v in seen:
+            problems.append(f"yaw/touch pins: {k} and {seen[v]} are both GPIO {v}")
+        seen[v] = k
     return out, problems
 
 
@@ -225,10 +336,11 @@ def _reject_constant(token):
 
 def load() -> dict:
     """Validated config (cached). Raises MachineConfigError on ANY problem."""
-    global _cache
+    global _cache, _machine
     if _cache is None:
         if not CONFIG_FILE.exists():
             _cache = {}
+            _machine = "v2"
             return _cache
         try:
             # NaN / Infinity are not JSON; Python's parser accepts them unless told not to
@@ -239,8 +351,22 @@ def load() -> dict:
         if problems:
             raise MachineConfigError(CONFIG_FILE, problems)
         _cache = cfg
-        print(f"[config] Loaded {CONFIG_FILE}")
+        _machine = data.get("machine", "v2")
+        print(f"[config] Loaded {CONFIG_FILE} (machine {_machine})")
     return _cache
+
+
+def machine() -> str:
+    """"v2" or "b": $RIFTBOUND_MACHINE if set (validated), else the
+    top-level "machine" key of config/machine.json, else "v2"."""
+    env = os.environ.get("RIFTBOUND_MACHINE")
+    if env:
+        if env not in MACHINES:
+            raise MachineConfigError("$RIFTBOUND_MACHINE", [
+                f"RIFTBOUND_MACHINE must be one of {list(MACHINES)}, got {env!r}"])
+        return env
+    load()
+    return _machine or "v2"
 
 
 def section(name: str) -> dict:

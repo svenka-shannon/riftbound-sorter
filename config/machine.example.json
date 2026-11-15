@@ -1,11 +1,12 @@
 {
-  "_comment": "Per-machine calibration. Copy to config/machine.json and edit; every key is optional (code defaults shown). Validated at start-up (hardware/machine_config.py SCHEMA): wrong types, out-of-range or non-finite values, string booleans, unknown sections and unknown keys (typos) all REFUSE to start with a list of the bad keys. elevator.TOP_SWITCH_NC must be true (normally-open top-switch wiring is refused). Keys starting with '_' are comments.",
+  "_comment": "Per-machine calibration. Copy to config/machine.json and edit; every key is optional (code defaults shown). Validated at start-up (hardware/machine_config.py SCHEMA): wrong types, out-of-range or non-finite values, string booleans, unknown sections and unknown keys (typos) all REFUSE to start with a list of the bad keys. elevator.TOP_SWITCH_NC must be true (normally-open top-switch wiring is refused). Keys starting with '_' are comments. Top-level \"machine\": \"v2\" (this file: belt + shuttle) or \"b\" (option B turntable picker: see config/machine.b.example.json); the yaw / lift / touch / b_sort sections are only read on B, vacuum and camera on both (their defaults differ per machine).",
+  "machine": "v2",
   "card_detect": {
     "TRAVEL_SIGN": 1,
     "CENTRE_OFFSET_MM": 0.0,
     "BELT_SPEED_MM_S": 150.0,
     "BRAKE_COAST_MM": 1.5,
-    "STOP_LATENCY_S": 0.040,
+    "STOP_LATENCY_S": 0.04,
     "CENTER_TOL_MM": 2.5,
     "MAX_CAPTURE_OFFSET_MM": 6.0,
     "PIXEL_DIFF": 30,
@@ -26,7 +27,10 @@
     "STABILIZE_DELAY_S": 0.15,
     "WARMUP_S": 1.0,
     "SWAP_RB": true,
-    "LORES_TIMEOUT_S": 0.2
+    "LORES_TIMEOUT_S": 0.2,
+    "ROTATE_180": true,
+    "FULL_FOV_X_MM": 129.9,
+    "FULL_FOV_Y_MM": 74.8
   },
   "sort": {
     "EXIT_TRAVEL_MM": 144.0,
@@ -54,5 +58,79 @@
   },
   "servos": {
     "ARM_ACTUATION_RANGE": 180
+  },
+  "vacuum": {
+    "RELAY_PIN": 17,
+    "RELAY_ACTIVE_LOW": true,
+    "VENT_PIN": 27,
+    "VENT_ACTIVE_LOW": true,
+    "VENT_S": 0.4,
+    "RELEASE_FALLBACK_S": 0.3
+  },
+  "yaw": {
+    "STEP_PIN": 23,
+    "DIR_PIN": 24,
+    "EN_PIN": 25,
+    "HOME_PIN": 22,
+    "HOME_SWITCH_NC": true,
+    "DIR_INVERT": false,
+    "FULL_STEPS_PER_REV": 200,
+    "MICROSTEPS": 16,
+    "MAX_SPEED_DEG_S": 120.0,
+    "ACCEL_DEG_S2": 300.0,
+    "SETTLE_S": 0.15,
+    "STEP_PULSE_US": 5,
+    "APPROACH_UNDERSHOOT_DEG": 3.0,
+    "LIMIT_MIN_DEG": -80.0,
+    "LIMIT_MAX_DEG": 175.0,
+    "HOME_FAST_DEG_S": 20.0,
+    "HOME_SLOW_DEG_S": 2.0,
+    "HOME_BACKOFF_DEG": 5.0,
+    "HOME_RELEASE_MAX_DEG": 95.0,
+    "HOME_SEARCH_MAX_DEG": 190.0,
+    "EDGE_CHECK_DEG": 1.0,
+    "UART_DEVICE": "/dev/serial0",
+    "UART_BAUD": 115200,
+    "UART_ADDRESS": -1,
+    "RSENSE_OHM": 0.11,
+    "RUN_CURRENT_A": 0.7,
+    "HOLD_CURRENT_A": null
+  },
+  "lift": {
+    "CHANNEL": 0,
+    "ACTUATION_RANGE": 180,
+    "TH_MIN": -6.0,
+    "TH_FULL": 10.0,
+    "LINK_MM": 220.0,
+    "PIVOT_Z_MM": 70.0,
+    "HAND_DROP_MM": 53.0,
+    "MAX_STEP_DEG": 1.5,
+    "FULL_MOVE_S": 0.5,
+    "DESCENT_STEP_DEG": 0.44,
+    "DESCENT_STEP_S": 0.04,
+    "SETTLE_S": 0.25,
+    "MAX_OVERTRAVEL_MM": 5.0
+  },
+  "touch": {
+    "PIN": 16,
+    "DEBOUNCE_READS": 3,
+    "DEBOUNCE_S": 0.002
+  },
+  "b_sort": {
+    "SEAL_S": 0.3,
+    "SEAL_OVERTRAVEL_MM": 3.0,
+    "PLACE_OVERTRAVEL_MM": 1.5,
+    "BLEED_S": 0.8,
+    "PEEL_MM": 6.0,
+    "PEEL_S": 0.5,
+    "WEIGH_SETTLE_S": 0.3,
+    "TARE_SETTLE_S": 0.3,
+    "RESUME_DELAY_S": 2.0,
+    "CALIBRATION_MASS_G": 5.0,
+    "CUP_HOLD_MAX_S": 600.0,
+    "TOUCH_SELFTEST": true,
+    "SELFTEST_MIN_G": 5.0,
+    "EDGE_CHECK_EVERY": 20,
+    "MANUAL_PUMP_MAX_S": 60.0
   }
 }

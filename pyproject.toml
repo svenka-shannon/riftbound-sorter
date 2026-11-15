@@ -1,0 +1,16 @@
+# Dev / test environment only (`uv run pytest`). The Raspberry Pi installs from
+# requirements.lock into venv/ (scripts/setup.sh); nothing here is used there.
+[project]
+name = "riftbound-sorter"
+version = "0.0.0"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest", "pillow", "numpy", "requests", "flask", "imagehash"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

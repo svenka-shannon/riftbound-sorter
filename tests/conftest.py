@@ -61,4 +61,19 @@ def _isolated_files(monkeypatch, tmp_path):
     monkeypatch.setattr(riftcodex, "CACHE_FILE", tmp_path / "cards.json")
     monkeypatch.setattr(riftcodex, "_card_cache", {})
     monkeypatch.setattr(riftcodex, "_last_fetch", 0)
+    # option B modules: calibration file → tmp, fresh mock world, no hooks left over
+    import sorter_b
+    from hardware import b_calibration, b_mock, lift, vacuum, yaw
+    monkeypatch.setattr(b_calibration, "CAL_FILE", tmp_path / "b_calibration.json")
+    monkeypatch.setattr(b_calibration, "_cal", None)
+    monkeypatch.setattr(vacuum, "_mock_listener", None)
+    monkeypatch.setattr(loadcell, "_mock_load_fn", None)
+    monkeypatch.setattr(yaw, "_backend", None)
+    monkeypatch.setattr(yaw, "_homed", False)
+    monkeypatch.setattr(yaw, "_interlock", None)
+    monkeypatch.setattr(lift, "_th", None)
+    monkeypatch.setattr(lift, "_settled", False)
+    for name in ("_cards_since_edge", "_fault", "_manual_used"):
+        monkeypatch.setattr(sorter_b, name, {"_cards_since_edge": 0}.get(name))
+    b_mock.reset()
     yield

@@ -24,7 +24,19 @@ PCA9685 (I2C bus 1, 0x40): ALL_LED_OFF_H full-off bit (every channel off,
 servos limp), then MODE1 = SLEEP (oscillator stopped), via the Linux i2c-dev
 ioctl interface.
 
-Usage: safe_outputs.py [--dry-run]
+Machines (config/machine.json "machine", read with the standard library):
+  v2 (default, also when there is no config file): SAFE_LEVELS below.
+  b  (option B, cad_b/): pump relay GPIO 17 LOW (the KY-019 is active-HIGH),
+     TMC2209 EN GPIO 25 HIGH (motor off), STEP 23 / DIR 24 LOW. First
+     `pigs wvhlt`: pigpiod owns the STEP waveform and keeps sending it after
+     the sorter died, so it is halted before the pins are set.
+  unreadable config: the relay pin is only switched back to an INPUT, no level
+     driven — config.txt set its boot pull for this machine (v2 "pu", B "pd"),
+     which is OFF for both relays; driving a level could turn one pump ON.
+Pin numbers / levels must match config/machine.json if it moves pins (the
+tests check the defaults against hardware/*.py).
+
+Usage: safe_outputs.py [--dry-run] [--machine v2|b]
 """
 
 import argparse
@@ -43,6 +55,42 @@ SAFE_LEVELS = {
 # Order matters: the pump first (a held card / running pump), then the belt, then the rest.
 ORDER = (17, 27, 23, 24, 25, 26, 16, 19, 20, 21)
 
+# Option B (hardware/vacuum.py B defaults, hardware/yaw.py)
+SAFE_LEVELS_B = {
+    17: 0,   # pump relay, KY-019 active HIGH → LOW = pump OFF
+    25: 1,   # TMC2209 EN (ENN), active LOW → HIGH = motor off
+    23: 0,   # STEP
+    24: 0,   # DIR
+}
+ORDER_B = (17, 25, 23, 24)
+UNKNOWN_INPUTS = (17,)       # unreadable config: relay pin back to an input only
+
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                           "config", "machine.json")
+
+
+def detect_machine(path=CONFIG_FILE) -> str:
+    """"v2" / "b" from config/machine.json; "v2" without a file; "unknown" if unreadable."""
+    import json
+    try:
+        with open(path) as fh:
+            data = json.load(fh)
+    except FileNotFoundError:
+        return "v2"
+    except Exception:
+        return "unknown"
+    m = data.get("machine", "v2") if isinstance(data, dict) else None
+    return m if m in ("v2", "b") else "unknown"
+
+
+def levels_for(machine: str):
+    """(pin → level, order) for a machine; ({}, ()) when unknown."""
+    if machine == "b":
+        return SAFE_LEVELS_B, ORDER_B
+    if machine == "v2":
+        return SAFE_LEVELS, ORDER
+    return {}, ()
+
 I2C_BUS = 1
 PCA9685_ADDR = 0x40
 I2C_SLAVE = 0x0703          # linux/i2c-dev.h
@@ -60,16 +108,37 @@ def gpio_tool():
     return None
 
 
-def gpio_commands(tool: str = "pinctrl") -> list[list[str]]:
-    return [[tool, "set", str(pin), "op", "dh" if SAFE_LEVELS[pin] else "dl"] for pin in ORDER]
+def gpio_commands(tool: str = "pinctrl", machine: str = "v2") -> list[list[str]]:
+    if machine == "unknown":
+        return [[tool, "set", str(pin), "ip"] for pin in UNKNOWN_INPUTS]
+    levels, order = levels_for(machine)
+    return [[tool, "set", str(pin), "op", "dh" if levels[pin] else "dl"] for pin in order]
 
 
-def set_pins(dry_run: bool = False) -> list[str]:
+def halt_pigpio_waves(dry_run: bool = False) -> list[str]:
+    """Option B: stop any STEP waveform pigpiod is still sending (best effort)."""
+    pigs = shutil.which("pigs")
+    if dry_run:
+        print("pigs wvhlt")
+        return []
+    if pigs is None:
+        return []
+    try:
+        subprocess.run([pigs, "wvhlt"], check=False, capture_output=True, timeout=5)
+    except Exception as exc:
+        return [f"pigs wvhlt: {exc}"]
+    return []
+
+
+def set_pins(dry_run: bool = False, machine: str = "v2") -> list[str]:
     errors = []
     tool = gpio_tool() or ("pinctrl" if dry_run else None)
     if tool is None:
         return ["neither pinctrl nor raspi-gpio found (apt install raspi-utils)"]
-    for cmd in gpio_commands(tool):
+    if machine == "unknown":
+        errors.append("config/machine.json unreadable: machine unknown — relay pin only set to "
+                      "input (boot pull keeps it off); no other pin touched")
+    for cmd in gpio_commands(tool, machine):
         if dry_run:
             print(" ".join(cmd))
             continue
@@ -112,8 +181,13 @@ def pca_sleep(dry_run: bool = False, bus: int = I2C_BUS, addr: int = PCA9685_ADD
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--dry-run", action="store_true", help="print what would be done")
+    ap.add_argument("--machine", choices=("v2", "b"), help="default: config/machine.json")
     args = ap.parse_args(argv)
-    errors = set_pins(args.dry_run) + pca_sleep(args.dry_run)
+    machine = args.machine or detect_machine()
+    errors = []
+    if machine != "v2":
+        errors += halt_pigpio_waves(args.dry_run)
+    errors += set_pins(args.dry_run, machine) + pca_sleep(args.dry_run)
     for e in errors:
         print(f"[safe_outputs] {e}", file=sys.stderr)
     if not args.dry_run:

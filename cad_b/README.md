@@ -94,3 +94,48 @@ The reviewer found three blockers in round 4. Two were the 28BYJ-48's 1-3 deg ge
   - The slider goes in bare from the top; the tee and cup go on from below afterwards.
 - `board_template.py`: 1:1 drilling template (12 US Letter pages, 36 holes plus the station centres), taken from the same numbers as the CAD.
 - To check once the bearing is measured: the top-plate screw heads (r ~63) and the bottom-plate heads (r ~57) leave only ~0.2 mm between them inside the bearing. If they rub, use button heads on the bottom plate.
+
+## Pin map (option B)
+
+Pi Zero 2 W, BCM numbering. The same numbers are the code defaults (`hardware/yaw.py`, `touch.py`, `vacuum.py`, `loadcell.py`, `lift.py`) and the `config/machine.b.example.json` values; `tests/test_b_machine.py` checks they don't clash.
+
+| Function | GPIO | Header pin | Direction / pull | Notes |
+|---|---|---|---|---|
+| I2C SDA (PCA9685, 0x40) | GPIO 2 | 3 | I2C | lift servo on PCA9685 ch 0; PCA9685 VCC from the Pi's 3.3 V |
+| I2C SCL | GPIO 3 | 5 | I2C | |
+| TMC2209 PDN_UART (write-only) | GPIO 14 | 8 | UART0 TX | straight wire, no resistor; `enable_uart=1`, `dtoverlay=disable-bt`, serial console off |
+| (reserved) UART RX | GPIO 15 | 10 | — | keep free: a 1 kΩ from TX + this pin would let the driver settings be read back |
+| WS2812 ring data | GPIO 18 | 12 | PWM0 | pigpiod runs with `-t 1` (PCM clock) so it never touches PWM; audio off |
+| HX711 DOUT | GPIO 5 | 29 | in | same as v2 |
+| HX711 SCK | GPIO 6 | 31 | out | same as v2 |
+| Pump relay IN (KY-019, active HIGH) | GPIO 17 | 11 | out, boot pull-down | `gpio=17=ip,pd`: relay OFF at boot; no resistor |
+| Yaw home switch (KW12-3, NC) | GPIO 22 | 15 | in, pull-up | COM → GND, NC → GPIO. Released = LOW; pressed / broken wire = HIGH |
+| Yaw STEP | GPIO 23 | 16 | out (pigpio waves) | |
+| Yaw DIR | GPIO 24 | 18 | out | |
+| Yaw EN (TMC2209 ENN, active LOW) | GPIO 25 | 22 | out, boot pull-up | `gpio=25=ip,pu`: motor OFF at boot |
+| Cup touch contact | GPIO 16 | 36 | in, pull-up | one screw head → GND, the other → GPIO. Resting = closed = LOW; touching / broken wire = HIGH |
+| Camera | CSI | — | — | Arducam IMX708, Zero ribbon |
+
+Free: GPIO 4, 7-13, 19-21, 26, 27. GPIO 19-21 are PCM pins: leave them alone while pigpiod uses the PCM clock.
+
+Wiring notes the software relies on:
+- **TMC2209 MS1 = MS2 = VIO.** The UART config is write-only and can't be checked. The code writes it to all four slave addresses, so the MS pins don't matter while the UART works. If the UART line is dead, the pins set the step size: MS1 = MS2 high gives 1/16, the same as the code. The module default (both low) gives 1/8, and every move would then go twice as far.
+- **EN pull-up vs the module.** Some TMC2209 boards pull ENN to GND with a resistor (always enabled). The Pi's ~50 kΩ boot pull-up can't beat a 10 kΩ pull-down. Measure EN with the Pi booted and the sorter stopped: it must read > 2.5 V.
+- **pigpiod keeps driving its pins after the sorter dies** (it owns them, not the kernel). `scripts/safe_outputs.py` (ExecStopPost) runs `pigs wvhlt` first, then drives EN high, STEP/DIR low and the relay low.
+
+## Software (option B)
+
+`config/machine.json` `"machine": "b"` makes `main.py` drive this machine (`sorter_b.py`). Everything else is the v2 program: same service, web UI, `/api/status`, Pause / Stop at card boundaries, clean / unclean record, "Machine clear", bin counts. Rules bins 0-5 are the bins at yaw 50..150 and 9 is reject at 170. Rules with bin 6/7 go to reject.
+
+- Drivers: `hardware/yaw.py` (TMC2209 + pigpio, trapezoid moves, homing, hard limits [-80, 175], same-direction approach, lift interlock), `hardware/lift.py` (th ↔ servo map, touch-down, full-lift interlock), `hardware/touch.py`, `hardware/b_calibration.py` (`config/b_calibration.json`: station yaws, lift th per station, park / clear pose, servo map), `hardware/b_mock.py` (simulated machine for `MOCK_HARDWARE=1`).
+- Cycle, safety rules and make-safe behaviour: the `sorter_b.py` docstring.
+- Calibration / jog API (token-protected, refused while running): `/api/b/...` in `web/app.py`.
+- Bench tests: `scripts/test_hardware.py` shows a B menu on a B machine.
+- Setup: `scripts/setup.sh` (reads the machine from `config/machine.json`) installs pigpiod (`-l -t 1`), turns on the UART (`enable_uart=1`, `dtoverlay=disable-bt`, console off) and adds `gpio=17=ip,pd`, `gpio=25=ip,pu`, `gpio=16,22=ip,pu` to config.txt.
+
+Hardware points found while writing the software (not fixed in the CAD):
+1. **Empty hopper vs the last card.** The hopper floor is solid. The cup touches the bare floor (Z 2.0) only 0.33 mm lower than it touches the last card, but one lift step is ~1.7 mm. So "no touch before the floor" can't be told from a real touch. Fix: a Ø32 hole through the hopper floor and the board under the cup centre (cup Ø28). With the hole, "no touch down to `limit_th`" means empty. Until then, set `stations.hopper.floor_th`. A touch at the floor that delivers nothing to the bed then stops as "hopper probably empty" and needs "Machine clear", because the software can't rule out a card on the cup.
+2. **The lost-step check at the hopper is weak.** The hopper (10°) is only ~2° above where the switch is guaranteed released (~8°). The check only catches the arm sitting ≥ 2-10° *lower* than tracked, never higher. The software adds an edge check: released at +1°, pressed at -1°, run at every park and every `EDGE_CHECK_EVERY` (20) cards.
+3. **Homing with a misadjusted switch** searches down up to 190°. From the low end of the working range that reaches the cable post. Adjust the switch cradle, then check it on the bench (`test_hardware.py` B → home switch watch, motor off, arm turned by hand) before the first homing.
+4. **The 5 kg cell vs a 1.75 g card.** The thresholds (empty ≤ 0.5 g, single 1.3-2.3 g, double ≥ 2.8 g) need the bed's noise well under 0.3 g. Check it with the B load-cell bench test.
+5. **The WS2812 ring has no driver in this pass.** GPIO 18 is reserved. `rpi_ws281x` on PWM needs root (or move the ring to SPI, GPIO 10).
