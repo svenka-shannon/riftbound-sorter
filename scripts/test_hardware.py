@@ -29,6 +29,12 @@ cradle tipped or a card in the machine — so the next sorter start always
 asks for "Machine clear" (web UI or `main.py --confirm-clear`). MOCK runs use
 the mock files (machine_state.mock.json, sorter.mock.lock).
 
+Option B (config/machine.json "machine": "b"): a separate menu tests each B
+part on its own — home switch and touch contact live (motor OFF, turn / lift
+by hand: do these FIRST, before any homing), lift sweep, TMC2209 UART config +
+holding torque, homing + station tour, yaw jog, touch-down probe, pump + bleed,
+bed load cell noise, camera. Same instance lock and "not clean" marker.
+
 Config errors: an invalid config/machine.json, config/servo_calibration.json
 or config/shuttle_calibration.json stops the tool (exit 78, EX_CONFIG — the
 same status for every config error, in every tool and main.py) with the list
@@ -192,9 +198,11 @@ def _run(test_name: str, body) -> None:
         print(f"  ERROR: {exc!r}")
         passed = False
     finally:
-        for fn in (vacuum.pump_off, vacuum.vent_close, conveyor.stop):
+        for mod, name in ((vacuum, "pump_off"), (vacuum, "vent_close"), (conveyor, "stop")):
+            if mod is None:                   # option B has no conveyor
+                continue
             try:
-                fn()
+                getattr(mod, name)()
             except Exception:
                 pass
     log_result(test_name, passed)
@@ -422,12 +430,282 @@ def run_all() -> None:
     print("\nAll tests complete.")
 
 
+# ---------------------------------------------------------------------------
+# Option B (turntable picker)
+# ---------------------------------------------------------------------------
+
+B = {}                       # hardware modules for B, set by init_b()
+B_WATCH_S = 15.0
+
+
+def init_b(mock: bool) -> None:
+    global vacuum, loadcell, camera
+    from hardware import (b_calibration, b_geometry, camera as _c, lift, loadcell as _l, touch,
+                          vacuum as _v, yaw)
+    vacuum, loadcell, camera = _v, _l, _c
+    B.update(cal=b_calibration, geo=b_geometry, lift=lift, touch=touch, yaw=yaw)
+    print(f"[test] option B — {'MOCK mode' if mock else 'REAL hardware'}")
+    claim_machine(mock)
+    try:
+        b_calibration.load(lift.ACTUATION_RANGE)
+    except b_calibration.BCalibrationError as exc:
+        print(f"[test] ERROR: {exc}", file=sys.stderr)
+        sys.exit(EX_CONFIG)
+    errors = []
+    for name, fn in (("vacuum", vacuum.init), ("touch", touch.init), ("lift", lift.init),
+                     ("yaw", yaw.init), ("loadcell", loadcell.init), ("camera", camera.init)):
+        try:
+            fn()
+        except Exception as exc:
+            errors.append(f"{name}: {exc!r}")
+    yaw.set_interlock(lift.yaw_permitted)
+    if mock:
+        from hardware import b_mock
+        b_mock.attach()
+    for e in errors:
+        print(f"  • {e}")
+    print("[test] the yaw motor is OFF (EN high) until a test enables it; the lift is not commanded yet")
+
+
+def _b_lift_full() -> None:
+    wait_for_enter("  The lift goes STRAIGHT to full height (fast). Arm clear above? Enter...")
+    B["lift"].to_full()
+
+
+def b_test_home_switch() -> None:
+    section(f"B1 — Home switch live for {B_WATCH_S:.0f} s (motor OFF: turn the arm by hand)")
+    print("  Pressed for arm angles 0 .. -72 (cam rim), released from ~+8 up. Turn the arm slowly")
+    print("  through home in both directions: the edge must be crisp and in the same place.")
+    wait_for_enter()
+
+    def body():
+        B["yaw"].disable()
+        end, last = time.monotonic() + B_WATCH_S, None
+        while time.monotonic() < end:
+            st = B["yaw"].home_pressed()
+            if st != last:
+                print(f"    {'PRESSED' if st else 'released'}")
+                last = st
+            time.sleep(0.02)
+    _run("B home switch", body)
+
+
+def b_test_touch() -> None:
+    section(f"B2 — Touch contact live for {B_WATCH_S:.0f} s (lift the cup by hand)")
+    print("  Resting = CLOSED; push the cup up a few mm = OPEN. It must re-close every time.")
+    wait_for_enter()
+
+    def body():
+        end, last = time.monotonic() + B_WATCH_S, None
+        while time.monotonic() < end:
+            st = B["touch"].raw_open()
+            if st != last:
+                print(f"    {'OPEN (touching)' if st else 'closed (resting)'}")
+                last = st
+            time.sleep(0.01)
+    _run("B touch contact", body)
+
+
+def b_test_lift() -> None:
+    geo = B["geo"]
+    section("B3 — Lift sweep: full → th 0 → full (over an EMPTY spot: park the arm by hand at ~-10)")
+    print(f"  servo map {B['cal'].servo_map()}; full lift th {geo.TH_FULL:g} = lip {geo.lip_z(geo.TH_FULL):.0f} mm, "
+          f"th 0 = lip {geo.lip_z(0):.0f} mm")
+    _b_lift_full()
+
+    def body():
+        for th in (0.0, geo.TH_FULL):
+            print(f"  → th {th:g}")
+            B["lift"].move_to(th)
+            time.sleep(0.8)
+        B["lift"].to_full()
+    _run("B lift sweep", body)
+
+
+def b_test_uart_hold() -> None:
+    yaw = B["yaw"]
+    section("B4 — TMC2209: write the UART config, then hold for 5 s")
+    regs = yaw.driver_registers()
+    print(f"  {len(yaw.driver_datagrams())} datagrams (all addresses), IHOLD_IRUN 0x{regs[yaw.REG_IHOLD_IRUN]:08x}, "
+          f"CHOPCONF 0x{regs[yaw.REG_CHOPCONF]:08x}; RUN {yaw.RUN_CURRENT_A} A")
+    print("  With the motor enabled, the arm must be stiff (hard to turn by hand); off again after.")
+    wait_for_enter()
+
+    def body():
+        yaw.configure_driver()
+        yaw.enable()
+        time.sleep(5.0)
+        yaw.disable()
+    _run("B TMC2209 config + hold", body)
+
+
+def b_test_home_tour() -> None:
+    yaw, cal = B["yaw"], B["cal"]
+    section("B5 — Home the yaw, then visit every station at full lift, then park")
+    print("  Run B1 first. The arm moves; nothing in the bins / on the bed matters (full lift).")
+    _b_lift_full()
+
+    def body():
+        yaw.home()
+        print("  homed")
+        for name in B["geo"].STATIONS:
+            yaw.move_to(cal.station_yaw(name), approach=True)
+            print(f"  {name:7s} yaw {yaw.position_deg():7.2f}  switch "
+                  f"{'PRESSED' if yaw.home_pressed() else 'released'}")
+            time.sleep(0.4)
+        yaw.verify_edge()
+        yaw.move_to(cal.park_yaw())
+        print(f"  parked at {yaw.position_deg():.2f} (switch {'PRESSED' if yaw.home_pressed() else 'released'})")
+    _run("B homing + station tour", body)
+
+
+def b_test_jog() -> None:
+    yaw = B["yaw"]
+    section("B6 — Yaw jog (needs B5 first): type +/-degrees, empty line to stop")
+
+    def body():
+        if not yaw.homed():
+            raise RuntimeError("not homed — run B5 first")
+        while True:
+            try:
+                txt = input(f"  yaw {yaw.position_deg():.3f} deg — jog by: ").strip()
+            except (EOFError, KeyboardInterrupt):
+                break
+            if not txt:
+                break
+            yaw.move_by(max(-30.0, min(30.0, float(txt))))
+    _run("B yaw jog", body)
+
+
+def b_test_probe() -> None:
+    yaw, cal, lift = B["yaw"], B["cal"], B["lift"]
+    section("B7 — Touch-down probe on the EMPTY scan bed (needs B5)")
+
+    def body():
+        if not yaw.homed():
+            raise RuntimeError("not homed — run B5 first")
+        yaw.move_to(cal.station_yaw("scan"), approach=True)
+        st = cal.station("scan")
+        res = lift.lower_until_touch(st["approach_th"], st["limit_th"], 0.0)
+        print(f"  touched {res.touched} at th {res.th_touch} (calibrated touch_th {st['touch_th']}); "
+              f"bed reads {loadcell.read_grams_unchecked():.2f} g with the cup resting")
+        lift.to_full()
+    _run("B touch-down probe", body)
+
+
+def b_test_pump() -> None:
+    section(f"B8 — Pump on 2 s, then off: the bleed must let go within {vacuum.RELEASE_FALLBACK_S:.1f} s")
+    print("  Hold a card against the cup; after 'pump OFF' it must drop within the bleed time.")
+    wait_for_enter()
+
+    def body():
+        vacuum.pump_on()
+        print("  pump ON")
+        time.sleep(VACUUM_ON_DURATION)
+        t = time.monotonic()
+        vacuum.pump_off()
+        print("  pump OFF — press Enter the moment the card drops")
+        wait_for_enter("")
+        print(f"  released after {time.monotonic() - t:.2f} s")
+    _run("B pump + bleed", body)
+
+
+def b_test_loadcell() -> None:
+    section("B9 — Bed load cell: tare empty, noise, then one card")
+    print("  Arm OFF the bed. The empty-bed noise must stay well under 0.3 g for the single /")
+    print("  double split (5 kg cell). Not stored as the empty reference (main.py --calibrate does).")
+    wait_for_enter("  Bed EMPTY? Enter to tare...")
+
+    def body():
+        import statistics
+        loadcell.tare()
+        vals = [loadcell.read_grams_unchecked() for _ in range(WEIGHT_READINGS)]
+        print(f"    empty: mean {statistics.mean(vals):+.3f} g, stdev {statistics.pstdev(vals):.3f} g, "
+              f"span {max(vals) - min(vals):.3f} g")
+        wait_for_enter("  Put ONE card on the bed, then Enter...")
+        vals = [loadcell.read_grams_unchecked() for _ in range(WEIGHT_READINGS)]
+        print(f"    card: mean {statistics.mean(vals):.3f} g ({loadcell.classify(statistics.mean(vals))}), "
+              f"stdev {statistics.pstdev(vals):.3f} g")
+    _run("B bed load cell", body)
+
+
+def b_test_camera() -> None:
+    section("B10 — Camera over the bed (arm out of view): full frame + card crop")
+    wait_for_enter("  Card on the bed, arm away from it? Enter...")
+
+    def body():
+        TEST_FULL.write_bytes(camera.capture_full_jpeg())
+        TEST_CARD.write_bytes(camera.capture_card_jpeg())
+        print(f"  saved {TEST_FULL}, {TEST_CARD}; FOV {camera.FOV_X_MM:.0f} × {camera.FOV_Y_MM:.0f} mm, "
+              f"crop {camera.CARD_CROP}")
+    _run("B camera", body)
+
+
+B_TESTS = [
+    ("Home switch live (motor off, turn by hand) — FIRST", b_test_home_switch),
+    ("Touch contact live (lift the cup by hand)", b_test_touch),
+    ("Lift sweep full → 0 → full", b_test_lift),
+    ("TMC2209 UART config + holding torque", b_test_uart_hold),
+    ("Yaw homing + station tour + park", b_test_home_tour),
+    ("Yaw jog", b_test_jog),
+    ("Touch-down probe on the empty bed", b_test_probe),
+    ("Pump + bleed release time", b_test_pump),
+    ("Bed load cell noise + one card", b_test_loadcell),
+    ("Camera over the bed", b_test_camera),
+]
+
+
+def run_b_menu() -> None:
+    menu = "\n".join(f"[{i}] {label}" for i, (label, _) in enumerate(B_TESTS, 1))
+    menu = f"Option B Hardware Tests\n=======================\n{menu}\n[Q] Quit\n"
+    try:
+        while True:
+            print(f"\n{menu}")
+            try:
+                choice = input("Select test: ").strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                break
+            if choice == "q":
+                break
+            if choice.isdigit() and 1 <= int(choice) <= len(B_TESTS):
+                B_TESTS[int(choice) - 1][1]()
+            else:
+                print(f"  Unknown option: {choice!r}")
+    finally:
+        flush_results()
+        for fn in (vacuum.pump_off, B["yaw"].deinit, B["lift"].deinit, vacuum.deinit,
+                   B["touch"].deinit, loadcell.deinit, camera.deinit):
+            try:
+                fn()
+            except Exception:
+                pass
+
+
+def _machine(mock: bool) -> str:
+    os.environ["MOCK_HARDWARE"] = "1" if mock else "0"
+    sys.path.insert(0, str(ROOT))
+    try:
+        from hardware import machine_config
+        return machine_config.machine()
+    except Exception as exc:
+        if type(exc).__name__ == "MachineConfigError":
+            print(f"[test] ERROR: {exc}", file=sys.stderr)
+            sys.exit(EX_CONFIG)
+        raise
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Hardware test suite for Riftbound card sorter")
     parser.add_argument("--no-mock", dest="mock", action="store_false", default=True,
                         help="Use real hardware instead of mock mode")
     args = parser.parse_args()
 
+    if _machine(args.mock) == "b":
+        global _MOCK
+        _MOCK = args.mock
+        init_b(args.mock)
+        run_b_menu()
+        return
     init_hardware(mock=args.mock)
     menu = "\n".join(f"[{i}] {label}" for i, (label, _) in enumerate(TESTS, 1))
     menu = f"Hardware Test Suite\n===================\n{menu}\n[A] Run all\n[Q] Quit\n"

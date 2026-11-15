@@ -92,7 +92,12 @@ Operator controls / web state machine (audit M2): can_pause() / can_resume() /
 can_stop() / can_confirm_clear() / can_empty_bin() below gate every mutating web
 endpoint and CLI command; prepare_machine() sets "starting" before anything moves.
 
-Hardware:
+Option B (cad_b/, the turntable picker): with "machine": "b" in
+config/machine.json this same program drives it — sorter_b.py replaces only
+the machine-specific functions (sorter_b.HOOKS); the cycle, its safety rules
+and the calibration API are described in sorter_b.py.
+
+Hardware (v2):
   - Pi Zero 2W + Pi Camera Module 3 (mounted rotated 180°)
   - PCA9685 (I2C 0x40): ch0 pick arm (servos.py), ch1 tilt + ch2 shuttle (shuttle.py)
   - HX711 load cell under the cradle (GPIO 5/6)

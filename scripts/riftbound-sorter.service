@@ -1,7 +1,9 @@
 [Unit]
 Description=Riftbound Card Sorter
-After=network.target
+After=network.target pigpiod.service
 Wants=network.target
+# option B: the yaw stepper needs pigpiod (harmless on v2, where it is not installed)
+Wants=pigpiod.service
 
 [Service]
 Type=simple
