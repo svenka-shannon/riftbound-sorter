@@ -15,6 +15,7 @@ Usage:
   python main.py --empty-all     # reset every bin count
   python main.py --confirm-clear # operator: machine checked and clear after an unclean stop
   python main.py --web-token     # print the web UI token (created on first use)
+  python main.py --pair          # one-time 6-digit code to pair a phone (web/pairing.py)
 
 One card (cards are raw and valuable: when in doubt, do the thing that can't
 damage a card — reject it, or stop):
@@ -281,6 +282,7 @@ _status         = {"state": "starting", "message": "", "hopper_empty": False, "j
                    "stop_requested": False, "card_at": None, "machine": MACHINE}
 _session_start  = time.time()
 _recent_scans   = deque(maxlen=60)   # timestamps of the last 60 cards routed
+_last_capture   = None               # {"jpeg", "ts"}: the sorter's last card image (web camera view)
 _today_midnight = 0.0                # Unix timestamp of today's midnight; set in main()
 
 # States in which nothing moves and an operator may reach into the bins.
@@ -862,6 +864,25 @@ def check_web_token(given: str | None, expected: str) -> bool:
     return bool(given) and hmac.compare_digest(str(given), str(expected))
 
 
+def cli_pair() -> int:
+    """`main.py --pair`: a one-time pairing code for the phone app. Only the
+    code is printed (on this terminal, not the service journal), never the
+    token; the code is stored hashed next to config/web.json."""
+    from web import pairing
+    load_or_create_web_token()                 # the token the code will hand out exists
+    path = pairing.pair_file(WEB_CONFIG_FILE)
+    try:
+        code = pairing.create_code(path)
+    except OSError as exc:
+        print(f"[web] ERROR: cannot write {path}: {exc}", file=sys.stderr)
+        return 1
+    print(f"Pairing code: {code[:3]} {code[3:]}")
+    print(f"Valid for {pairing.PAIR_TTL_S / 60:.0f} minutes, once. In the phone app: menu > "
+          "Pair this phone > enter the code.")
+    print("(Run this as the user the sorter service runs as, so the service can use the code.)")
+    return 0
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def _midnight_today() -> float:
     """Return Unix timestamp of today's midnight (local time)."""
@@ -1078,6 +1099,8 @@ def _ensure_cradle_ready():
 def _identify(jpeg: bytes):
     """(card_id | None, confidence, card dict | None). Never raises: an identify
     or lookup failure just means the card goes to the reject bin."""
+    global _last_capture
+    _last_capture = {"jpeg": jpeg, "ts": time.time()}   # the web camera view shows it mid-run
     try:
         card_id, confidence = identify(jpeg)
     except Exception as exc:
@@ -1989,6 +2012,8 @@ def main():
     parser.add_argument("--confirm-clear", action="store_true",
                         help="Operator: arm, belt and cradle checked and clear (after an unclean stop / jam)")
     parser.add_argument("--web-token", action="store_true", help="Print the web UI token")
+    parser.add_argument("--pair", action="store_true",
+                        help="Print a one-time 6-digit code to pair a phone with the web app")
     args = parser.parse_args()
 
     try:
@@ -2010,6 +2035,8 @@ def main():
     if args.web_token:
         print(load_or_create_web_token())
         sys.exit(0)
+    if args.pair:
+        sys.exit(cli_pair())
 
     if not args.build_db:
         _claim_instance_or_exit()

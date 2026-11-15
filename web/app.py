@@ -3,7 +3,9 @@ Flask web UI for Riftbound Card Sorter.
 Runs on port 5000 — access at http://riftbound-sorter.local:5000
 
 Routes:
-  /                  → Dashboard (live stats, sort speed calc, session history)
+  /                  → Phone app (PWA, web/static/: Run / Camera / Setup screens;
+                       "Add to Home Screen" on the phone — cad_b/README.md "Phone app")
+  /dashboard         → Desktop dashboard (live stats, sort speed calc, session history)
   /inventory         → Full card inventory table (search + bin filter)
   /rules             → Rules editor (view + edit rules.json)
   /export            → Download inventory CSV
@@ -12,11 +14,22 @@ Routes:
   /api/status        → JSON sorter status (state, message, cpm, hopper, bin counts)
   /api/bins          → JSON bin counts + capacity limits
   /api/sessions      → JSON last 5 sort sessions
+  /api/camera.jpg    → latest camera frame (web/snapshot.py: never grabs while a run
+                       is in progress — then the sorter's own last capture; MOCK:
+                       a drawn placeholder). X-Camera-Source: live|cached|sorter|mock|none
+  /manifest.webmanifest, /sw.js, /static/...   → PWA shell (the service worker caches
+                       only the shell, never /api/)
 
 Mutating endpoints (POST) need the shared-secret token (config/web.json,
 mode 600, generated on first use). It is never printed to the log / journal:
 first run only prints a hint, and `python main.py --web-token` shows it. Send
-it in an `X-Auth-Token` header or a `token` form field:
+it in an `X-Auth-Token` header or a `token` form field. A phone gets it once
+with a pairing code (web/pairing.py; never over a GET):
+  POST /api/pair  {code}     → {"token"} for the one-time code from
+                               `python main.py --pair` (10 min, single use,
+                               5 wrong tries invalidate it); no token needed
+  POST /api/auth/check       → {"ok": true} if the token is right (the app
+                               checks a typed-in token with it)
   POST /api/bins/<n>/empty   → reset bin n's count after emptying it
                                (the bin the machine is paused on, or any bin
                                in an idle state — never starting / running)
@@ -44,7 +57,13 @@ paused — and the first one marks the machine NOT clean, so sorting needs
   POST /api/b/lift         {th}          → set the lift link angle
   POST /api/b/lift/full                  → full lift
   POST /api/b/probe        {limit_th}    → step down until the touch contact opens
-  POST /api/b/pump         {on}          → pump on (auto-off) / off + bleed
+  POST /api/b/pump         {on, card_removed?} → pump on / off + bleed (off only with the
+                                           cup resting at a station, or card_removed true:
+                                           the operator took the card off by hand)
+  POST /api/b/motor-off                  → yaw motor off (turn the arm by hand; position
+                                           no longer trusted)
+  POST /api/b/declare-position {yaw?}    → "the arm is at yaw" (default the park pose),
+                                           placed by hand: bounds the next homing
   POST /api/b/save/station-yaw {station} → current yaw as that station's yaw
   POST /api/b/save/station-th  {station, key} → current th as approach_th / limit_th /
                                            floor_th / touch_th
@@ -57,7 +76,8 @@ are main.can_* — the CLI (--empty-bin, --confirm-clear) goes through these
 same endpoints whenever a sorter process is running.
 """
 
-from flask import Flask, render_template_string, jsonify, request, send_file, Response
+from flask import (Flask, render_template_string, jsonify, request, send_file, Response,
+                   send_from_directory)
 from functools import wraps
 from pathlib import Path
 import csv
@@ -72,6 +92,7 @@ from api import inventory
 from sorter.rules_engine import RulesEngine
 
 RULES_FILE = Path(__file__).resolve().parent.parent / "config" / "rules.json"
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 VALID_BINS = set(range(8)) | {9}
 MATCH_VALUE_TYPES = (str, int, float, bool)
 DB_PATH = Path(__file__).parent.parent / "data/inventory.db"
@@ -298,7 +319,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 <body>
   <h1>&#x1f0cf; Riftbound Card Sorter</h1>
   <nav>
-    <a href="/">Dashboard</a>
+    <a href="/">Phone app</a>
+    <a href="/dashboard">Dashboard</a>
     <a href="/inventory">Inventory</a>
     <a href="/rules">Rules</a>
     <a href="/export">Export CSV</a>
@@ -526,7 +548,8 @@ INVENTORY_HTML = """<!DOCTYPE html>
 <body>
   <h1>&#x1f0cf; Inventory</h1>
   <nav>
-    <a href="/">Dashboard</a>
+    <a href="/">Phone app</a>
+    <a href="/dashboard">Dashboard</a>
     <a href="/inventory">Inventory</a>
     <a href="/rules">Rules</a>
     <a href="/export">Export CSV</a>
@@ -593,7 +616,8 @@ RULES_HTML = """<!DOCTYPE html>
 <body>
   <h1>&#x1f0cf; Rules Editor</h1>
   <nav>
-    <a href="/">Dashboard</a>
+    <a href="/">Phone app</a>
+    <a href="/dashboard">Dashboard</a>
     <a href="/inventory">Inventory</a>
     <a href="/rules">Rules</a>
     <a href="/export">Export CSV</a>
@@ -636,9 +660,70 @@ def create_app(token: str | None = None) -> Flask:
             return fn(*a, **k)
         return wrapper
 
+    # ── phone app (PWA shell, web/static/) ───────────────────────────────────
+    def _shell(name, mimetype=None):
+        resp = send_from_directory(STATIC_DIR, name, mimetype=mimetype, max_age=0)
+        resp.headers["Cache-Control"] = "no-cache"          # revalidate: updates arrive
+        return resp
+
     @app.route("/")
+    def phone_app():
+        return _shell("app.html", "text/html")
+
+    @app.route("/manifest.webmanifest")
+    def manifest():
+        return _shell("manifest.webmanifest", "application/manifest+json")
+
+    @app.route("/sw.js")
+    def service_worker():
+        resp = _shell("sw.js", "text/javascript")
+        resp.headers["Service-Worker-Allowed"] = "/"
+        return resp
+
+    @app.route("/apple-touch-icon.png")
+    @app.route("/apple-touch-icon-precomposed.png")
+    def apple_touch_icon():
+        return _shell("icons/apple-touch-icon.png", "image/png")
+
+    @app.route("/favicon.ico")
+    def favicon():
+        return _shell("icons/icon-192.png", "image/png")
+
+    @app.route("/dashboard")
     def dashboard():
         return render_template_string(DASHBOARD_HTML, common_js=NAV_AND_TOKEN_JS)
+
+    # ── pairing (web/pairing.py) ─────────────────────────────────────────────
+    @app.route("/api/pair", methods=["POST"])
+    def api_pair():
+        from web import pairing
+        body = request.get_json(silent=True) or {}
+        code = body.get("code", request.form.get("code"))
+        try:
+            pairing.redeem(pairing.pair_file(sorter_main.WEB_CONFIG_FILE), code)
+        except pairing.PairingError as exc:
+            return jsonify({"error": str(exc)}), exc.status
+        print("[web] a phone was paired (one-time code)")
+        resp = jsonify({"token": app.config["AUTH_TOKEN"]})
+        resp.headers["Cache-Control"] = "no-store"
+        return resp
+
+    @app.route("/api/auth/check", methods=["POST"])
+    @require_token
+    def api_auth_check():
+        return jsonify({"ok": True})
+
+    # ── camera view (web/snapshot.py) ────────────────────────────────────────
+    @app.route("/api/camera.jpg")
+    def api_camera():
+        from web import snapshot
+        from hardware import camera
+        jpeg, source, age = snapshot.frame(sorter_main, camera)
+        resp = Response(jpeg, mimetype="image/jpeg")
+        resp.headers["Cache-Control"] = "no-store"
+        resp.headers["X-Camera-Source"] = source
+        resp.headers["X-Camera-Age-S"] = f"{age:.1f}"
+        return resp
 
     @app.route("/api/stats")
     def api_stats():
@@ -661,6 +746,8 @@ def create_app(token: str | None = None) -> Flask:
             "bin_counts": bins["counts"],
             "bin_limits": bins["limits"],
             "machine_state": sorter_main.read_machine_state(),
+            "run_in_progress": sorter_main.run_in_progress(),
+            "mock": bool(sorter_main.MOCK_HARDWARE),
         })
 
     @app.route("/api/bins")
@@ -715,12 +802,28 @@ def create_app(token: str | None = None) -> Flask:
         return _gated(sorter_main.can_confirm_clear, lambda: sorter_main.confirm_clear("web"))
 
     # ── option B calibration / jog API (sorter_b.py) ──────────────────────────
+    def _b_extra(out):
+        """Two fields the phone app's Setup screen mirrors: the cup lip height
+        and the yaw interlock (hardware/lift.yaw_permitted), so it can disable
+        the yaw buttons exactly when the backend would refuse them."""
+        if not isinstance(out, dict) or "lift_th" not in out:
+            return out
+        from hardware import b_geometry, lift
+        th = out.get("lift_th")
+        out.setdefault("lip_z_mm", None if th is None else round(b_geometry.lip_z(th), 1))
+        if "yaw_ok" not in out:
+            try:
+                out["yaw_ok"], out["yaw_block"] = lift.yaw_permitted()
+            except Exception as exc:
+                out["yaw_ok"], out["yaw_block"] = False, f"interlock not readable: {exc!r}"
+        return out
+
     def _b_call(fn, *args):
         if getattr(sorter_main, "MACHINE", "v2") != "b":
             return jsonify({"error": "not an option B machine (config/machine.json \"machine\")"}), 404
         import sorter_b
         try:
-            return jsonify(fn(sorter_b, *args))
+            return jsonify(_b_extra(fn(sorter_b, *args)))
         except sorter_b.ManualRefused as exc:
             return jsonify({"error": str(exc), "state": sorter_main._status.get("state")}), 409
         except (ValueError, KeyError, TypeError) as exc:
@@ -755,8 +858,15 @@ def create_app(token: str | None = None) -> Flask:
     _b_endpoint("lift/full", lambda: (lambda b: b.lift_full()))
     _b_endpoint("probe", lambda: (lambda b, t=_arg("limit_th", required=False):
                                   b.probe_touch(None if t is None else float(t))))
-    _b_endpoint("pump", lambda: (lambda b, on=_arg("on"): b.pump(
-        on if isinstance(on, bool) else str(on).lower() in ("1", "true", "on", "yes"))))
+    def _flag(v):
+        return v if isinstance(v, bool) else str(v).lower() in ("1", "true", "on", "yes")
+
+    _b_endpoint("pump", lambda: (lambda b, on=_arg("on"),
+                                 rm=_arg("card_removed", False, required=False):
+                                 b.pump(_flag(on), card_removed=_flag(rm))))
+    _b_endpoint("motor-off", lambda: (lambda b: b.motor_off()))
+    _b_endpoint("declare-position", lambda: (lambda b, y=_arg("yaw", required=False):
+                                             b.declare_position(None if y is None else float(y))))
     _b_endpoint("save/station-yaw", lambda: (lambda b, n=str(_arg("station")): b.save_station_yaw(n)))
     _b_endpoint("save/station-th", lambda: (lambda b, n=str(_arg("station")), k=str(_arg("key")):
                                             b.save_station_th(n, k)))

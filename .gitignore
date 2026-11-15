@@ -26,6 +26,7 @@ cache/
 !docs/**/*.jpg
 !docs/**/*.jpeg
 !docs/**/*.png
+!web/static/icons/*.png
 
 # ── Machine-specific config ───────────────────────────────────────────────────
 # Camera crop is tuned per physical setup — each Pi gets its own
@@ -60,5 +61,6 @@ ehthumbs.db
 
 # ── Per-machine runtime config / secrets ─────────────────────────────────────
 config/web.json
+config/web_pair.json
 config/machine.json
 config/*.mock.json
